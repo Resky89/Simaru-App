@@ -443,11 +443,15 @@
 
             <!-- Navigation -->
             <div class="flex gap-2">
-                <button onclick="changeMonth(-1)" class="w-6 h-6 flex items-center justify-center bg-white">
-                    <i class="fas fa-chevron-left text-sm text-[#252525]"></i>
+                <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
                 </button>
-                <button onclick="changeMonth(1)" class="w-6 h-6 flex items-center justify-center bg-white">
-                    <i class="fas fa-chevron-right text-sm text-[#252525]"></i>
+                <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -591,14 +595,20 @@ const months = [
     "July", "August", "September", "October", "November", "December"
 ];
 
-// Sample events data - replace with your actual events
+// Sample events data with different types
 const events = {
-    "2024-03-19": [
-        { title: "Meeting with Team", type: "personal" },
-        { title: "Project Review", type: "fun" }
+    "2025-03-13": [
+        { title: "Is this when the Superbowl is?", type: "info" },
+        { title: "Run to the store to get some nachos", type: "info" },
+        { title: "Deadline: Submit application!", type: "urgent" }
     ],
-    "2024-03-22": [
-        { title: "Deadline", type: "important" }
+    "2025-03-15": [
+        { title: "Team Meeting", type: "info" },
+        { title: "Project Review", type: "urgent" }
+    ],
+    "2025-03-20": [
+        { title: "Monthly Report Due", type: "urgent" },
+        { title: "Lunch with Team", type: "info" }
     ]
 };
 
@@ -620,7 +630,7 @@ function generateCalendar(month, year) {
     for (let i = startingDay - 1; i >= 0; i--) {
         const day = prevMonthLastDay - i;
         calendarDays.innerHTML += `
-            <div class="p-0.5 min-h-[104px]">
+            <div class="p-2 min-h-[104px] bg-white border border-gray-100">
                 <div class="text-xs font-[Lato] text-center text-[#252525] opacity-50">${day}</div>
             </div>
         `;
@@ -636,17 +646,26 @@ function generateCalendar(month, year) {
         let dayEvents = '';
         if (events[dateStr]) {
             dayEvents = events[dateStr].map(event => {
-                const bgColor = event.type === 'personal' ? 'bg-[#FEE6C9]' :
-                               event.type === 'important' ? 'bg-[#FFD9D9]' :
-                               'bg-[#D2F0FF]';
-                return `<div class="px-1 py-0.5 ${bgColor} rounded text-[8px] font-[Lato]">${event.title}</div>`;
+                const bgColor = event.type === 'info' ? 'bg-[#E5F6FF]' :
+                              event.type === 'urgent' ? 'bg-[#FFE5E5]' :
+                              'bg-[#D2F0FF]';
+                return `<div class="px-2 py-1 ${bgColor} text-xs font-[Lato] mb-1 rounded">${event.title}</div>`;
             }).join('');
+
+            // Add "view more" link if there are more than 3 events
+            if (events[dateStr].length > 3) {
+                dayEvents += `
+                    <div class="text-right">
+                        <a href="#" class="text-[#015DE7] text-xs">view more</a>
+                    </div>
+                `;
+            }
         }
 
         calendarDays.innerHTML += `
-            <div class="p-0.5 min-h-[104px] ${isToday ? 'bg-gray-100' : ''}">
-                <div class="text-xs font-[Lato] text-center text-[#252525] ${isToday ? 'font-bold' : ''}">${day}</div>
-                <div class="mt-1 space-y-0.5">
+            <div class="p-2 min-h-[104px] ${isToday ? 'bg-gray-100' : 'bg-white'} border border-gray-100">
+                <div class="text-sm font-[Lato] ${isToday ? 'font-bold' : ''} mb-2">${day}</div>
+                <div class="flex flex-col gap-1">
                     ${dayEvents}
                 </div>
             </div>
@@ -654,10 +673,10 @@ function generateCalendar(month, year) {
     }
 
     // Next month's days
-    const remainingDays = 42 - (startingDay + totalDays); // 42 is 6 rows * 7 days
+    const remainingDays = 42 - (startingDay + totalDays);
     for (let day = 1; day <= remainingDays; day++) {
         calendarDays.innerHTML += `
-            <div class="p-0.5 min-h-[104px]">
+            <div class="p-2 min-h-[104px] bg-white border border-gray-100">
                 <div class="text-xs font-[Lato] text-center text-[#252525] opacity-50">${day}</div>
             </div>
         `;
