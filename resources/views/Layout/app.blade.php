@@ -34,26 +34,28 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 <body class="bg-[#ECECEC]">
-    <div class="flex min-h-screen relative">
-        <!-- Mobile Menu Button - Add this -->
+    <div class="flex min-h-screen">
+        <!-- Mobile Menu Button -->
         <button id="mobile-menu-button" class="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-[#213268] text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
         </button>
 
-        <!-- Sidebar - Update this -->
-        <div id="sidebar" class="transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:relative fixed inset-y-0 left-0 z-40">
+        <!-- Sidebar -->
+        <div id="sidebar" class="transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out fixed top-0 left-0 h-full w-64 z-40">
             @include('Layout.sidebar')
         </div>
 
-        <!-- Main Content -->
-        <div class="flex-1 w-full flex flex-col">
+        <!-- Main Content Wrapper -->
+        <div class="flex-1 flex flex-col lg:ml-64">
             <!-- Navbar -->
-            @include('Layout.navbar')
+            <div class="fixed top-0 right-0 left-0 lg:left-64 h-16 z-30">
+                @include('Layout.navbar')
+            </div>
 
-            <!-- Content -->
-            <main class="flex-1 p-6 overflow-y-auto">
+            <!-- Content Area -->
+            <main class="flex-1 p-6 mt-16 overflow-y-auto">
                 @yield('content')
             </main>
         </div>
