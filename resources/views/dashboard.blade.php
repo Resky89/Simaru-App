@@ -208,66 +208,321 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
         <!-- Upcoming Assets Calibration -->
         <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-                <h2 class="card-title text-2xl text-[#232D42]">Upcoming Assets Calibration</h2>
-                <div class="divider"></div>
+            <div class="card-body p-4">
+                <!-- Title -->
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Inter'] mb-3">Upcoming Assets Calibration</h2>
+
+                <!-- Divider -->
+                <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
+
+                <!-- Calibration Items Container -->
                 <div class="space-y-4">
-                    <!-- Calibration items -->
+                    <!-- Item 1 -->
                     <div class="flex justify-between items-center">
-                        <div>
-                            <h3 class="font-medium text-lg">Infusion Pump XYZ</h3>
-                            <p class="text-gray-500">ICU Room 1</p>
+                        <div class="flex gap-4">
+                            <div class="flex flex-col w-[173px]">
+                                <h3 class="text-lg font-['Inter'] font-medium text-[#232D42]">Infusion Pump XYZ</h3>
+                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">ICU Room 1</p>
+                            </div>
+                            <div class="flex flex-col w-[70px]">
+                                <p class="text-[14px] font-['Inter'] text-[#213268]">19 March</p>
+                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Wed</p>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-[#213268]">19 March</p>
-                            <p class="text-gray-500">Wed</p>
-                        </div>
-                        <button class="btn btn-outline btn-sm">View</button>
+                        <button class="flex items-center px-3 py-1.5 border border-[#213268] rounded">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#213268" stroke-width="1.5">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
                     </div>
-                    <!-- Add more items as needed -->
+
+                    <!-- Item 2 -->
+                    <div class="flex justify-between items-center">
+                        <div class="flex gap-4">
+                            <div class="flex flex-col w-[173px]">
+                                <h3 class="text-lg font-['Inter'] font-medium text-[#232D42]">Ventilator ABC</h3>
+                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">NICU Room 1</p>
+                            </div>
+                            <div class="flex flex-col w-[70px]">
+                                <p class="text-[14px] font-['Inter'] text-[#213268]">19 March</p>
+                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Wed</p>
+                            </div>
+                        </div>
+                        <button class="flex items-center px-3 py-1.5 border border-[#213268] rounded">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#213268" stroke-width="1.5">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="flex justify-between items-center">
+                        <div class="flex gap-4">
+                            <div class="flex flex-col w-[173px]">
+                                <h3 class="text-lg font-['Inter'] font-medium text-[#232D42]">MRI Scanner</h3>
+                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Radiology</p>
+                            </div>
+                            <div class="flex flex-col w-[82px]">
+                                <p class="text-[14px] font-['Inter'] text-[#213268]">23 March</p>
+                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Next Week</p>
+                            </div>
+                        </div>
+                        <button class="flex items-center px-3 py-1.5 bg-[#213268] rounded">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Item 4 -->
+                    <div class="flex justify-between items-center">
+                        <div class="flex gap-4">
+                            <div class="flex flex-col w-[173px]">
+                                <h3 class="text-lg font-['Inter'] font-medium text-[#232D42]">Anesthesia Machine</h3>
+                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Operating Room</p>
+                            </div>
+                            <div class="flex flex-col w-[82px]">
+                                <p class="text-[14px] font-['Inter'] text-[#213268]">22 March</p>
+                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Next Week</p>
+                            </div>
+                        </div>
+                        <button class="flex items-center px-3 py-1.5 border border-[#213268] rounded">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#213268" stroke-width="1.5">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Asset By Location -->
         <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-                <h2 class="card-title text-2xl text-[#232D42]">Asset By Location</h2>
-                <div class="divider"></div>
-                <div class="space-y-4">
-                    <!-- Location progress bars -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between">
-                            <span>ER Room</span>
-                            <span>85%</span>
+            <div class="card-body p-4">
+                <!-- Title -->
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Inter'] mb-3">Asset By Location</h2>
+
+                <!-- Divider -->
+                <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
+
+                <!-- Location List -->
+                <div class="space-y-[18px]">
+                    <!-- ER Room -->
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">ER Room</div>
+                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">100%</div>
                         </div>
-                        <progress class="progress progress-primary w-full" value="85" max="100"></progress>
+                        <div class="relative" x-data="{ showTooltip: false }">
+                            <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
+                                 @click="showTooltip = !showTooltip"
+                                 @mouseenter="showTooltip = true"
+                                 @mouseleave="showTooltip = false">
+                                <div class="absolute h-2 left-0 w-[45%] bg-[#213268] rounded-[4px]"></div>
+                            </div>
+                            <!-- Tooltip -->
+                            <div x-show="showTooltip"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                                 x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                 class="absolute -top-8 left-[calc(45%-20px)]">
+                                <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
+                                    <span class="text-[14px] font-['Inter'] font-medium text-[#344054]">45</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <!-- Add more locations as needed -->
+
+                    <!-- ICU Room -->
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">ICU Room</div>
+                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">100%</div>
+                        </div>
+                        <div class="relative" x-data="{ showTooltip: false }">
+                            <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
+                                 @click="showTooltip = !showTooltip"
+                                 @mouseenter="showTooltip = true"
+                                 @mouseleave="showTooltip = false">
+                                <div class="absolute h-2 left-0 w-[45%] bg-[#213268] rounded-[4px]"></div>
+                            </div>
+                            <!-- Tooltip -->
+                            <div x-show="showTooltip"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                                 x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                 class="absolute -top-8 left-[calc(45%-20px)]">
+                                <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
+                                    <span class="text-[14px] font-['Inter'] font-medium text-[#344054]">45</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Laboratory -->
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">Laboratory</div>
+                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">100%</div>
+                        </div>
+                        <div class="relative" x-data="{ showTooltip: false }">
+                            <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
+                                 @click="showTooltip = !showTooltip"
+                                 @mouseenter="showTooltip = true"
+                                 @mouseleave="showTooltip = false">
+                                <div class="absolute h-2 left-0 w-[45%] bg-[#213268] rounded-[4px]"></div>
+                            </div>
+                            <!-- Tooltip -->
+                            <div x-show="showTooltip"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                                 x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                 class="absolute -top-8 left-[calc(45%-20px)]">
+                                <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
+                                    <span class="text-[14px] font-['Inter'] font-medium text-[#344054]">45</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Radiology -->
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">Radiology</div>
+                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">100%</div>
+                        </div>
+                        <div class="relative" x-data="{ showTooltip: false }">
+                            <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
+                                 @click="showTooltip = !showTooltip"
+                                 @mouseenter="showTooltip = true"
+                                 @mouseleave="showTooltip = false">
+                                <div class="absolute h-2 left-0 w-[45%] bg-[#213268] rounded-[4px]"></div>
+                            </div>
+                            <!-- Tooltip -->
+                            <div x-show="showTooltip"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                                 x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                 class="absolute -top-8 left-[calc(45%-20px)]">
+                                <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
+                                    <span class="text-[14px] font-['Inter'] font-medium text-[#344054]">45</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Calendar -->
+    <div class="flex flex-col items-start p-6 gap-8 w-full bg-white rounded-lg shadow-lg mb-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center w-full">
+            <!-- Month and Year -->
+            <div class="flex items-center p-3 gap-3 bg-white">
+                <h2 id="currentMonth" class="text-2xl font-[Lato] font-black text-[#252525]"></h2>
+                <span id="currentYear" class="text-2xl font-[Lato] font-light text-[#252525]"></span>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex gap-2">
+                <button onclick="changeMonth(-1)" class="w-6 h-6 flex items-center justify-center bg-white">
+                    <i class="fas fa-chevron-left text-sm text-[#252525]"></i>
+                </button>
+                <button onclick="changeMonth(1)" class="w-6 h-6 flex items-center justify-center bg-white">
+                    <i class="fas fa-chevron-right text-sm text-[#252525]"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="flex flex-col gap-2 w-full">
+            <!-- Days Header -->
+            <div class="flex justify-between items-center pb-1 bg-white">
+                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Sun</div>
+                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Mon</div>
+                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Tue</div>
+                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Wed</div>
+                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Thu</div>
+                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Fri</div>
+                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Sat</div>
+            </div>
+
+            <!-- Calendar Days -->
+            <div id="calendarDays" class="grid grid-cols-7 gap-0.5">
+                <!-- Days will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <!-- Recent Activity -->
-    <div class="card bg-base-100 shadow-xl mt-4 md:mt-6">
-        <div class="card-body">
-            <h2 class="card-title text-2xl text-[#213268]">Recent Activity</h2>
-            <div class="divider"></div>
-            <!-- Activity items -->
-            <div class="space-y-4">
-                <div class="flex flex-col md:flex-row gap-2 md:gap-4 items-start border-l-4 border-[#25B1FF] pl-4">
-                    <div class="min-w-[120px]">
-                        <p class="font-medium text-lg">04 Mar 25</p>
-                        <p class="text-gray-500">16:00</p>
-                    </div>
-                    <div class="hidden md:block divider divider-horizontal"></div>
-                    <div>
-                        <p class="text-gray-500">Asset ID: 123456</p>
-                        <p>You change status from Checked Out to Available</p>
-                    </div>
+    <div class="card bg-white shadow-xl p-7 md:p-14 space-y-6">
+        <!-- Title -->
+        <h2 class="text-[32px] font-medium font-['Inter'] text-[#213268]">Recent Activity</h2>
+
+        <!-- Activity List -->
+        <div class="space-y-3.5">
+            <!-- Activity Item 1 -->
+            <div class="relative w-full h-[115px] bg-white shadow-md">
+                <!-- Blue Line -->
+                <div class="absolute left-0 top-0 w-2 h-full bg-[#25B1FF] rounded-r-[10px]"></div>
+
+                <!-- Date & Time -->
+                <div class="absolute left-[22px] top-[27px] space-y-3">
+                    <p class="text-2xl font-medium font-['Inter'] text-black">04 Mar 25</p>
+                    <p class="text-xl font-medium font-['Inter'] text-[#757575]">16:00</p>
                 </div>
-                <!-- Add more activity items as needed -->
+
+                <!-- Vertical Divider -->
+                <div class="absolute left-[166px] top-0 h-full flex items-center">
+                    <div class="w-px h-[83px] bg-[#CAC4D0]"></div>
+                </div>
+
+                <!-- Content -->
+                <div class="absolute left-[197px] top-1/2 -translate-y-1/2 space-y-4">
+                    <p class="text-lg font-normal font-['Inter'] text-[#757575]">Asset ID: 123456</p>
+                    <p class="text-2xl font-normal font-['Inter'] text-black">You change status from <span class="text-[#DAAE0F]">Checked Out</span> to <span class="text-[#7CB60C]">Available</span></p>
+                </div>
+            </div>
+
+            <!-- Activity Item 2 -->
+            <div class="relative w-full h-[115px] bg-white shadow-md">
+                <!-- Blue Line -->
+                <div class="absolute left-0 top-0 w-2 h-full bg-[#25B1FF] rounded-r-[10px]"></div>
+
+                <!-- Date & Time -->
+                <div class="absolute left-[22px] top-[27px] space-y-3">
+                    <p class="text-2xl font-medium font-['Inter'] text-black">03 Mar 25</p>
+                    <p class="text-xl font-medium font-['Inter'] text-[#757575]">15:00</p>
+                </div>
+
+                <!-- Vertical Divider -->
+                <div class="absolute left-[166px] top-0 h-full flex items-center">
+                    <div class="w-px h-[83px] bg-[#CAC4D0]"></div>
+                </div>
+
+                <!-- Content -->
+                <div class="absolute left-[197px] top-1/2 -translate-y-1/2 space-y-4">
+                    <p class="text-lg font-normal font-['Inter'] text-[#757575]">Asset ID: 125384</p>
+                    <p class="text-2xl font-normal font-['Inter'] text-black">Jhon Doe change status from <span class="text-[#DAAE0F]">Checked Out</span> to <span class="text-[#7CB60C]">Available</span></p>
+                </div>
             </div>
         </div>
     </div>
@@ -326,5 +581,102 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+let currentDate = new Date();
+let currentMonth = currentDate.getMonth();
+let currentYear = currentDate.getFullYear();
+
+const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+];
+
+// Sample events data - replace with your actual events
+const events = {
+    "2024-03-19": [
+        { title: "Meeting with Team", type: "personal" },
+        { title: "Project Review", type: "fun" }
+    ],
+    "2024-03-22": [
+        { title: "Deadline", type: "important" }
+    ]
+};
+
+function generateCalendar(month, year) {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startingDay = firstDay.getDay();
+    const totalDays = lastDay.getDate();
+
+    // Update header
+    document.getElementById('currentMonth').textContent = months[month];
+    document.getElementById('currentYear').textContent = year;
+
+    const calendarDays = document.getElementById('calendarDays');
+    calendarDays.innerHTML = '';
+
+    // Previous month's days
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startingDay - 1; i >= 0; i--) {
+        const day = prevMonthLastDay - i;
+        calendarDays.innerHTML += `
+            <div class="p-0.5 min-h-[104px]">
+                <div class="text-xs font-[Lato] text-center text-[#252525] opacity-50">${day}</div>
+            </div>
+        `;
+    }
+
+    // Current month's days
+    for (let day = 1; day <= totalDays; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = day === currentDate.getDate() &&
+                       month === currentDate.getMonth() &&
+                       year === currentDate.getFullYear();
+
+        let dayEvents = '';
+        if (events[dateStr]) {
+            dayEvents = events[dateStr].map(event => {
+                const bgColor = event.type === 'personal' ? 'bg-[#FEE6C9]' :
+                               event.type === 'important' ? 'bg-[#FFD9D9]' :
+                               'bg-[#D2F0FF]';
+                return `<div class="px-1 py-0.5 ${bgColor} rounded text-[8px] font-[Lato]">${event.title}</div>`;
+            }).join('');
+        }
+
+        calendarDays.innerHTML += `
+            <div class="p-0.5 min-h-[104px] ${isToday ? 'bg-gray-100' : ''}">
+                <div class="text-xs font-[Lato] text-center text-[#252525] ${isToday ? 'font-bold' : ''}">${day}</div>
+                <div class="mt-1 space-y-0.5">
+                    ${dayEvents}
+                </div>
+            </div>
+        `;
+    }
+
+    // Next month's days
+    const remainingDays = 42 - (startingDay + totalDays); // 42 is 6 rows * 7 days
+    for (let day = 1; day <= remainingDays; day++) {
+        calendarDays.innerHTML += `
+            <div class="p-0.5 min-h-[104px]">
+                <div class="text-xs font-[Lato] text-center text-[#252525] opacity-50">${day}</div>
+            </div>
+        `;
+    }
+}
+
+function changeMonth(delta) {
+    currentMonth += delta;
+    if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    } else if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    }
+    generateCalendar(currentMonth, currentYear);
+}
+
+// Initialize calendar
+generateCalendar(currentMonth, currentYear);
 </script>
 @endsection
