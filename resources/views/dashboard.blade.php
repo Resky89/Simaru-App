@@ -77,24 +77,128 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
         <!-- Asset By Status -->
         <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-                <h2 class="card-title text-2xl text-[#232D42]">Asset By Status</h2>
-                <div class="divider"></div>
-                <!-- Add your pie chart here -->
-                <div class="h-64">
-                    <!-- Chart placeholder -->
+            <div class="card-body p-4">
+                <!-- Title -->
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Inter'] mb-3">Asset By Status</h2>
+
+                <!-- Divider -->
+                <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
+
+                <!-- Chart Container -->
+                <div class="flex flex-col md:flex-row">
+                    <!-- Pie Chart -->
+                    <div class="w-full md:w-2/3">
+                        <canvas id="assetStatusChart" class="max-h-[250px]"></canvas>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="w-full md:w-1/3 pt-2 md:pt-6 space-y-2">
+                        <!-- Available -->
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-[#7CB60C]"></div>
+                            <span class="text-sm text-[#4F4F4F]">Available</span>
+                        </div>
+
+                        <!-- Maintenance -->
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-[#ACC3EF]"></div>
+                            <span class="text-sm text-[#4F4F4F]">Maintenance</span>
+                        </div>
+
+                        <!-- Check Out -->
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-[#FFD016]"></div>
+                            <span class="text-sm text-[#4F4F4F]">Check Out</span>
+                        </div>
+
+                        <!-- Dispose -->
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-[#25B1FF]"></div>
+                            <span class="text-sm text-[#4F4F4F]">Dispose</span>
+                        </div>
+
+                        <!-- Lost -->
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-[#FF4A2B]"></div>
+                            <span class="text-sm text-[#4F4F4F]">Lost</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Asset By Categories -->
         <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-                <h2 class="card-title text-2xl text-[#232D42]">Asset By Categories</h2>
-                <div class="divider"></div>
-                <!-- Add your category charts here -->
-                <div class="grid grid-cols-2 gap-4">
-                    <!-- Category items -->
+            <div class="card-body p-4">
+                <!-- Title and Toggle -->
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-2xl font-medium text-[#232D42] font-['Inter']">Asset By Categories</h2>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="displayToggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#213268]"></div>
+                    </label>
+                </div>
+
+                <!-- Divider -->
+                <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
+
+                <!-- Categories Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Category Item 1 -->
+                    <div class="flex items-center gap-4">
+                        <div class="relative w-16 h-16">
+                            <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
+                                <div class="absolute inset-0 rounded-full border-[6px] border-[#213268] border-l-transparent border-t-transparent"></div>
+                            </div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="number-value font-['Inter'] font-medium text-xl text-[#232D42]">400</span>
+                                <span class="percent-value hidden font-['Inter'] font-medium text-xl text-[#232D42]">78%</span>
+                            </div>
+                        </div>
+                        <div class="font-['Inter'] font-medium text-lg text-[#232D42]">Diagnostic Equipment</div>
+                    </div>
+
+                    <!-- Category Item 2 -->
+                    <div class="flex items-center gap-4">
+                        <div class="relative w-16 h-16">
+                            <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
+                                <div class="absolute inset-0 rounded-full border-[6px] border-[#213268] border-l-transparent border-t-transparent"></div>
+                            </div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="number-value font-['Inter'] font-medium text-xl text-[#232D42]">50</span>
+                                <span class="percent-value hidden font-['Inter'] font-medium text-xl text-[#232D42]">10%</span>
+                            </div>
+                        </div>
+                        <div class="font-['Inter'] font-medium text-lg text-[#232D42]">Diagnostic Equipment</div>
+                    </div>
+
+                    <!-- Category Item 3 -->
+                    <div class="flex items-center gap-4">
+                        <div class="relative w-16 h-16">
+                            <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
+                                <div class="absolute inset-0 rounded-full border-[6px] border-[#213268] border-l-transparent border-t-transparent"></div>
+                            </div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="number-value font-['Inter'] font-medium text-xl text-[#232D42]">50</span>
+                                <span class="percent-value hidden font-['Inter'] font-medium text-xl text-[#232D42]">10%</span>
+                            </div>
+                        </div>
+                        <div class="font-['Inter'] font-medium text-lg text-[#232D42]">Diagnostic Equipment</div>
+                    </div>
+
+                    <!-- Category Item 4 -->
+                    <div class="flex items-center gap-4">
+                        <div class="relative w-16 h-16">
+                            <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
+                                <div class="absolute inset-0 rounded-full border-[6px] border-[#213268] border-l-transparent border-t-transparent"></div>
+                            </div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="number-value font-['Inter'] font-medium text-xl text-[#232D42]">10</span>
+                                <span class="percent-value hidden font-['Inter'] font-medium text-xl text-[#232D42]">2%</span>
+                            </div>
+                        </div>
+                        <div class="font-['Inter'] font-medium text-lg text-[#232D42]">Diagnostic Equipment</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -168,4 +272,59 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('assetStatusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Available', 'Maintenance', 'Check Out', 'Dispose', 'Lost'],
+            datasets: [{
+                data: [45, 20, 15, 12, 8], // Sesuaikan dengan data Anda
+                backgroundColor: [
+                    '#7CB60C',  // Available - Green
+                    '#ACC3EF',  // Maintenance - Grey
+                    '#DAAE0F',  // Check Out - yellow
+                    '#25B1FF',  // Dispose - Blue
+                    '#FF4A2B'   // Lost - Red
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 20
+                }
+            }
+        }
+    });
+
+    const displayToggle = document.getElementById('displayToggle');
+    const numberValues = document.querySelectorAll('.number-value');
+    const percentValues = document.querySelectorAll('.percent-value');
+
+    displayToggle.addEventListener('change', function() {
+        if (this.checked) {
+            // Show percentage values
+            numberValues.forEach(el => el.classList.add('hidden'));
+            percentValues.forEach(el => el.classList.remove('hidden'));
+        } else {
+            // Show number values
+            numberValues.forEach(el => el.classList.remove('hidden'));
+            percentValues.forEach(el => el.classList.add('hidden'));
+        }
+    });
+});
+</script>
 @endsection
