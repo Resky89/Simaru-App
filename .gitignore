@@ -21,13 +21,3 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-
-
-/app/Http/Controllers/AuthController.php
-/app/Http/Controllers/DashboardController.php
-/app/Http/Middleware
-/app/Http/kernel.php
-/public/images
-/resources/views/Auth
-/resources/views/Layout
-/resources/views/dashboard.blade.php
