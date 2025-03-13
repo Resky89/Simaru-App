@@ -24,30 +24,30 @@
     <div class="absolute blur-background w-[350px] h-[350px] rounded-full right-[-100px] bottom-[-100px] bg-[#213268]"></div>
 
     <!-- Logo -->
-    <div class="absolute top-8 left-8">
+    <div class="absolute left-1/2 transform -translate-x-1/2 md:left-8 md:transform-none top-8">
         <img src="images/Logo_RS_UMMI.png" alt="Logo RS UMMI" class="w-48">
     </div>
 
     <!-- Main Content -->
-    <div class="flex h-screen">
+    <div class="flex flex-col md:flex-row h-screen">
         <!-- Left Section -->
-        <div class="flex-1 flex flex-col items-center justify-center px-20">
+        <div class="hidden md:flex flex-1 flex-col items-center justify-center px-4 md:px-20">
             <div class="text-center mb-8">
-                <h1 class="text-4xl font-['Public_Sans'] font-semibold text-[#213268] mb-2">
+                <h1 class="text-3xl md:text-4xl font-['Public_Sans'] font-semibold text-[#213268] mb-2">
                     ASSETS MONITORING
                 </h1>
-                <p class="text-xl font-['Public_Sans'] text-[#1B8ADB]"></p>
+                <p class="text-lg md:text-xl font-['Public_Sans'] text-[#1B8ADB]">
                     Track Every Asset, Anytime, Anywhere
                 </p>
             </div>
-            <div class="w-[500px]">
+            <div class="w-full max-w-[500px]">
                 <img src="images/pie_graph.svg" alt="Asset Monitoring Illustration" class="w-full">
             </div>
         </div>
 
         <!-- Right Section -->
-        <div class="flex-1 flex items-center justify-center">
-            <div class="bg-white p-10 rounded-[30px] shadow-2xl w-[450px]">
+        <div class="flex-1 flex items-center justify-center p-4">
+            <div class="bg-white p-6 md:p-10 rounded-[30px] shadow-2xl w-full max-w-[450px]">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-['Public_Sans'] font-semibold text-[#213268]">
                         Welcome Admin,
@@ -98,7 +98,7 @@
                     </button>
 
                     <div class="text-center">
-                        <a href="#" class="text-[#213268] hover:text-[#1B8ADB] font-['Inter'] text-sm">
+                        <a href="{{ route('password.request') }}" class="text-[#213268] hover:text-[#1B8ADB] font-['Inter'] text-sm">
                             Forgot password?
                         </a>
                     </div>
