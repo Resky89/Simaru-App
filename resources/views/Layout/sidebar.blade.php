@@ -124,8 +124,8 @@
                      class="ml-[41px] mt-1 overflow-hidden"
                      style="display: none;">
                     <!-- Asset Categories -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
+                    <a href="{{ route('asset-categories') }}" class="block">
+                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4 {{ Request::routeIs('asset-categories') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Asset Categories</span>
                         </div>
                     </a>
