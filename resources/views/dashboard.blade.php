@@ -477,55 +477,55 @@
     </div>
 
     <!-- Recent Activity -->
-    <div class="card bg-white shadow-xl p-7 md:p-14 space-y-6">
+    <div class="card bg-white shadow-xl p-4 md:p-7 lg:p-14 space-y-6">
         <!-- Title -->
-        <h2 class="text-[32px] font-medium font-['Inter'] text-[#213268]">Recent Activity</h2>
+        <h2 class="text-2xl md:text-[32px] font-medium font-['Inter'] text-[#213268]">Recent Activity</h2>
 
         <!-- Activity List -->
         <div class="space-y-3.5">
             <!-- Activity Item 1 -->
-            <div class="relative w-full h-[115px] bg-white shadow-md">
+            <div class="relative w-full min-h-[115px] bg-white shadow-md p-4">
                 <!-- Blue Line -->
                 <div class="absolute left-0 top-0 w-2 h-full bg-[#25B1FF] rounded-r-[10px]"></div>
 
-                <!-- Date & Time -->
-                <div class="absolute left-[22px] top-[27px] space-y-3">
-                    <p class="text-2xl font-medium font-['Inter'] text-black">04 Mar 25</p>
-                    <p class="text-xl font-medium font-['Inter'] text-[#757575]">16:00</p>
-                </div>
+                <div class="flex flex-col md:flex-row gap-4 pl-4">
+                    <!-- Date & Time -->
+                    <div class="flex md:flex-col gap-3 md:gap-3 min-w-[120px]">
+                        <p class="text-xl md:text-2xl font-medium font-['Inter'] text-black">04 Mar 25</p>
+                        <p class="text-lg md:text-xl font-medium font-['Inter'] text-[#757575]">16:00</p>
+                    </div>
 
-                <!-- Vertical Divider -->
-                <div class="absolute left-[166px] top-0 h-full flex items-center">
-                    <div class="w-px h-[83px] bg-[#CAC4D0]"></div>
-                </div>
+                    <!-- Vertical Divider (hidden on mobile) -->
+                    <div class="hidden md:block w-px self-stretch bg-[#CAC4D0]"></div>
 
-                <!-- Content -->
-                <div class="absolute left-[197px] top-1/2 -translate-y-1/2 space-y-4">
-                    <p class="text-lg font-normal font-['Inter'] text-[#757575]">Asset ID: 123456</p>
-                    <p class="text-2xl font-normal font-['Inter'] text-black">You change status from <span class="text-[#DAAE0F]">Checked Out</span> to <span class="text-[#7CB60C]">Available</span></p>
+                    <!-- Content -->
+                    <div class="space-y-2 md:space-y-4">
+                        <p class="text-base md:text-lg font-normal font-['Inter'] text-[#757575]">Asset ID: 123456</p>
+                        <p class="text-lg md:text-2xl font-normal font-['Inter'] text-black">You change status from <span class="text-[#DAAE0F]">Checked Out</span> to <span class="text-[#7CB60C]">Available</span></p>
+                    </div>
                 </div>
             </div>
 
             <!-- Activity Item 2 -->
-            <div class="relative w-full h-[115px] bg-white shadow-md">
+            <div class="relative w-full min-h-[115px] bg-white shadow-md p-4">
                 <!-- Blue Line -->
                 <div class="absolute left-0 top-0 w-2 h-full bg-[#25B1FF] rounded-r-[10px]"></div>
 
-                <!-- Date & Time -->
-                <div class="absolute left-[22px] top-[27px] space-y-3">
-                    <p class="text-2xl font-medium font-['Inter'] text-black">03 Mar 25</p>
-                    <p class="text-xl font-medium font-['Inter'] text-[#757575]">15:00</p>
-                </div>
+                <div class="flex flex-col md:flex-row gap-4 pl-4">
+                    <!-- Date & Time -->
+                    <div class="flex md:flex-col gap-3 md:gap-3 min-w-[120px]">
+                        <p class="text-xl md:text-2xl font-medium font-['Inter'] text-black">03 Mar 25</p>
+                        <p class="text-lg md:text-xl font-medium font-['Inter'] text-[#757575]">15:00</p>
+                    </div>
 
-                <!-- Vertical Divider -->
-                <div class="absolute left-[166px] top-0 h-full flex items-center">
-                    <div class="w-px h-[83px] bg-[#CAC4D0]"></div>
-                </div>
+                    <!-- Vertical Divider (hidden on mobile) -->
+                    <div class="hidden md:block w-px self-stretch bg-[#CAC4D0]"></div>
 
-                <!-- Content -->
-                <div class="absolute left-[197px] top-1/2 -translate-y-1/2 space-y-4">
-                    <p class="text-lg font-normal font-['Inter'] text-[#757575]">Asset ID: 125384</p>
-                    <p class="text-2xl font-normal font-['Inter'] text-black">Jhon Doe change status from <span class="text-[#DAAE0F]">Checked Out</span> to <span class="text-[#7CB60C]">Available</span></p>
+                    <!-- Content -->
+                    <div class="space-y-2 md:space-y-4">
+                        <p class="text-base md:text-lg font-normal font-['Inter'] text-[#757575]">Asset ID: 125384</p>
+                        <p class="text-lg md:text-2xl font-normal font-['Inter'] text-black">Jhon Doe change status from <span class="text-[#DAAE0F]">Checked Out</span> to <span class="text-[#7CB60C]">Available</span></p>
+                    </div>
                 </div>
             </div>
         </div>
