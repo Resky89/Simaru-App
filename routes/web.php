@@ -53,3 +53,7 @@ Route::get('/create-password', function () {
 Route::post('/create-password', function (Request $request) {
     // Logic untuk memproses pembuatan password baru
 })->name('password.store');
+
+Route::get('/asset-categories', function () {
+    return view('Asset.AssetCategories');
+})->name('asset-categories');
