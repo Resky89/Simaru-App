@@ -70,7 +70,7 @@
                                     type="email"
                                     name="email"
                                     placeholder="Insert Your Email"
-                                    class="w-full p-[12px_16px] border border-[#D9D9D9] rounded-lg font-['Inter'] text-sm text-[#B3B3B3] focus:outline-none"
+                                    class="w-full p-[12px_16px] border border-[#D9D9D9] rounded-lg font-['Inter'] text-sm text-[#303030] focus:outline-none placeholder:text-[#B3B3B3]"
                                     required
                                 >
                             </div>
