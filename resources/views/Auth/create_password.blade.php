@@ -58,7 +58,7 @@
                                     type="password"
                                     name="password"
                                     placeholder="Insert Your New Password"
-                                    class="w-full p-[12px_16px] border border-[#D9D9D9] rounded-lg font-['Inter'] text-sm text-[#B3B3B3] focus:outline-none"
+                                    class="w-full p-[12px_16px] border border-[#D9D9D9] rounded-lg font-['Inter'] text-sm text-[#303030] focus:outline-none placeholder:text-[#B3B3B3]"
                                     required
                                 >
                             </div>
@@ -69,7 +69,7 @@
                                     type="password"
                                     name="password_confirmation"
                                     placeholder="Confirm Your Password"
-                                    class="w-full p-[12px_16px] border border-[#D9D9D9] rounded-lg font-['Inter'] text-sm text-[#B3B3B3] focus:outline-none"
+                                    class="w-full p-[12px_16px] border border-[#D9D9D9] rounded-lg font-['Inter'] text-sm text-[#303030] focus:outline-none placeholder:text-[#B3B3B3]"
                                     required
                                 >
                             </div>
