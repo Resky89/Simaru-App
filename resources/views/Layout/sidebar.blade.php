@@ -1,6 +1,6 @@
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-<div x-data="{ activeMenu: null }" class="w-[250px] h-screen bg-white rounded-r-[20px] flex flex-col relative overflow-hidden">
+<div x-data="{ activeMenu: localStorage.getItem('activeMenu') || null }" class="w-[250px] h-screen bg-white rounded-r-[20px] flex flex-col relative overflow-hidden">
     <!-- Header with Logo -->
     <div class="h-[72px] relative">
         <div class="w-full h-[72px] bg-white shadow-[0_4px_8.1px_2px_#56C5F1] rounded-tr-[20px]">
@@ -141,10 +141,10 @@
             <!-- Location -->
             <div class="w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2"
                  :class="{'opacity-75 scale-[0.98]': activeMenu !== null}">
-                <a href="#"
+                <a href="{{ route('location') }}"
                    @click="activeMenu = null"
                    class="block">
-                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20">
+                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20 {{ Request::routeIs('location') ? 'bg-[#56C5F1]/20' : '' }}">
                         <div class="w-6 h-6 ml-5">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -176,10 +176,10 @@
             <!-- Department -->
             <div class="w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2"
                  :class="{'opacity-75 scale-[0.98]': activeMenu !== null}">
-                <a href="#"
+                <a href="{{ route('departement') }}"
                    @click="activeMenu = null"
                    class="block">
-                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20">
+                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20 {{ Request::routeIs('departement') ? 'bg-[#56C5F1]/20' : '' }}">
                         <div class="w-6 h-6 ml-5">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -292,8 +292,8 @@
                      class="ml-[41px] mt-1 overflow-hidden"
                      style="display: none;">
                     <!-- Employee -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
+                    <a href="{{ route('employee') }}" class="block">
+                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4 {{ Request::routeIs('employee') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Employee</span>
                         </div>
                     </a>
@@ -324,4 +324,20 @@
             </a>
         </div>
     </div>
+
+    <!-- Add initialization for active menu from localStorage -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // This will ensure Alpine.js initializes with the stored active menu
+            const storedActiveMenu = localStorage.getItem('activeMenu');
+            if (storedActiveMenu) {
+                // Wait for Alpine to initialize
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('set-active-menu', {
+                        detail: { menu: storedActiveMenu }
+                    }));
+                }, 100);
+            }
+        });
+    </script>
 </div>
