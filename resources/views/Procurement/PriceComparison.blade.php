@@ -23,7 +23,7 @@
                 </div>
 
                 <!-- Price Comparison Table -->
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto"></div>
                     <table class="w-full">
                         <thead>
                             <tr>
@@ -50,21 +50,22 @@
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
                                 <td class="p-3 border-t border-[#EEF1F4] text-center">
                                     <div class="flex justify-center items-center space-x-2">
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
+                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-comparison-btn">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                             </svg>
                                         </button>
-                                        <button class="text-[#3D3D3D] hover:text-red-500">
+                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-comparison-btn">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </button>
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
+                                        <a href="{{ route('procurement.detail-comparison', ['id' => 1]) }}" class="text-[#3D3D3D] hover:text-[#213268]">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12s3-6 10-6 10 6 10 6-3 6-10 6-10-6-10-6z" />
                                             </svg>
-                                        </button>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -79,21 +80,22 @@
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
                                 <td class="p-3 border-t border-[#EEF1F4] text-center">
                                     <div class="flex justify-center items-center space-x-2">
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
+                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-comparison-btn">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                             </svg>
                                         </button>
-                                        <button class="text-[#3D3D3D] hover:text-red-500">
+                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-comparison-btn">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </button>
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
+                                        <a href="{{ route('procurement.detail-comparison', ['id' => 1]) }}" class="text-[#3D3D3D] hover:text-[#213268]">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12s3-6 10-6 10 6 10 6-3 6-10 6-10-6-10-6z" />
                                             </svg>
-                                        </button>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
