@@ -17,9 +17,9 @@
                 <div class="space-y-4">
                     <label class="block text-base font-semibold text-[#666666]">Quotation Number</label>
                     <div class="flex">
-                        <input type="text" value="PH2406001"
+                        <input type="text" id="quotationNumber" placeholder="Enter quotation number"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-l-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                        <button class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451]">
+                        <button id="searchBtn" type="button" class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451]">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
@@ -27,8 +27,8 @@
                     </div>
                 </div>
 
-                <!-- Order Details -->
-                <div class="grid grid-cols-1 gap-4">
+                <!-- Order Details - Hidden by default -->
+                <div id="orderDetails" class="grid grid-cols-1 gap-4 hidden">
                     <!-- Nomor -->
                     <div class="flex items-start gap-2">
                         <p class="w-32 text-[#666666] font-medium">Quotation Number</p>
@@ -54,7 +54,8 @@
                     </div>
                 </div>
 
-                <form id="purchaseOrderForm" class="w-full space-y-6">
+                <!-- Form - Hidden by default -->
+                <form id="purchaseOrderForm" class="w-full space-y-6 hidden">
                     <!-- Item List -->
                     <div class="space-y-4">
                         <label class="block text-base font-semibold text-[#666666]">ASSET LIST</label>
@@ -203,7 +204,33 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('purchaseOrderForm');
+        const orderDetails = document.getElementById('orderDetails');
+        const searchBtn = document.getElementById('searchBtn');
+        const quotationNumber = document.getElementById('quotationNumber');
 
+        // Add search button click event
+        if (searchBtn) {
+            searchBtn.addEventListener('click', function() {
+                // Validate quotation number
+                if (!quotationNumber.value.trim()) {
+                    alert('Please enter a quotation number');
+                    return;
+                }
+
+                // In a real application, you would fetch data from the server
+                // For now, just display the hardcoded details
+                orderDetails.classList.remove('hidden');
+                form.classList.remove('hidden');
+
+                // Update the displayed quotation number
+                const displayedQuotationNumber = document.querySelector('#orderDetails span');
+                if (displayedQuotationNumber) {
+                    displayedQuotationNumber.textContent = quotationNumber.value;
+                }
+            });
+        }
+
+        // Existing form submission code
         if (form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
