@@ -18,7 +18,7 @@
                     <a href="{{ route('procurement.price-comparison') }}" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451] transition-all duration-200 uppercase text-sm font-medium">
                         Cancel
                     </a>
-                    <a href="{{ route('procurement.form-comparison', ['id' => $id ?? 1]) }}" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451] transition-all duration-200 uppercase text-sm font-medium">
+                    <a href="{{ route('procurement.form-vendor-comparison', ['id' => $id ?? 1]) }}" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451] transition-all duration-200 uppercase text-sm font-medium">
                         Add vendor
                     </a>
                 </div>
