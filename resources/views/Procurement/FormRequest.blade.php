@@ -23,20 +23,24 @@
                             placeholder="Request Title">
                     </div>
 
-                    <!-- Payment Terms -->
+                    <!-- Priority  -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Payment Terms</label>
-                        <textarea
-                            class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Payment Terms" rows="3"></textarea>
+                        <label class="block text-base font-semibold text-[#666666]">Priority</label>
+                        <select
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="" disabled selected>Select priority</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
                     </div>
 
-                     <!-- Delivery Terms -->
+                     <!-- Justification -->
                      <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Delivery Terms</label>
+                        <label class="block text-base font-semibold text-[#666666]">Justification</label>
                         <textarea
                             class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Delivery Terms" rows="3"></textarea>
+                            placeholder="Justification" rows="3"></textarea>
                     </div>
 
                     <!-- Item List -->

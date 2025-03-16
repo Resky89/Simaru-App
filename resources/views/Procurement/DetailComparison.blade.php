@@ -18,9 +18,9 @@
                     <a href="{{ route('procurement.price-comparison') }}" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451] transition-all duration-200 uppercase text-sm font-medium">
                         Cancel
                     </a>
-                    <button class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451] transition-all duration-200 uppercase text-sm font-medium">
+                    <a href="{{ route('procurement.form-comparison', ['id' => $id ?? 1]) }}" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451] transition-all duration-200 uppercase text-sm font-medium">
                         Add vendor
-                    </button>
+                    </a>
                 </div>
 
                 <!-- Success Message (hidden by default) -->
@@ -107,27 +107,54 @@
                                 <tr class="border-t border-[#EEF1F4]">
                                     <td class="p-3 text-xs text-[#666666]">Motherboard</td>
                                     <td class="p-3 text-xs text-center text-[#666666]">1</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">2,500,000</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">2,450,000</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">2,475,000</td>
+                                    <td class="p-3 text-xs text-[#666666]">
+                                        <div class="text-sm font-medium">2,500,000</div>
+                                        <span class="text-xs text-gray-500">@2,500,000</span>
+                                    </td>
+                                    <td class="p-3 text-xs text-[#666666]">
+                                        <div class="text-sm font-medium">2,450,000</div>
+                                        <span class="text-xs text-gray-500">@2,450,000</span>
+                                    </td>
+                                    <td class="p-3 text-xs text-[#666666]">
+                                        <div class="text-sm font-medium">2,475,000</div>
+                                        <span class="text-xs text-gray-500">@2,475,000</span>
+                                    </td>
                                 </tr>
 
                                 <!-- Item 2 -->
                                 <tr class="border-t border-[#EEF1F4]">
                                     <td class="p-3 text-xs text-[#666666]">CPU core i5</td>
                                     <td class="p-3 text-xs text-center text-[#666666]">1</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">3,500,000</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">3,400,000</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">3,450,000</td>
+                                    <td class="p-3 text-xs text-[#666666]">
+                                        <div class="text-sm font-medium">3,500,000</div>
+                                        <span class="text-xs text-gray-500">@3,500,000</span>
+                                    </td>
+                                    <td class="p-3 text-xs text-[#666666]">
+                                        <div class="text-sm font-medium">3,400,000</div>
+                                        <span class="text-xs text-gray-500">@3,400,000</span>
+                                    </td>
+                                    <td class="p-3 text-xs text-[#666666]">
+                                        <div class="text-sm font-medium">3,450,000</div>
+                                        <span class="text-xs text-gray-500">@3,450,000</span>
+                                    </td>
                                 </tr>
 
                                 <!-- Item 3 -->
                                 <tr class="border-t border-[#EEF1F4]">
                                     <td class="p-3 text-xs text-[#666666]">RAM DDR4 8gb</td>
                                     <td class="p-3 text-xs text-center text-[#666666]">3</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">750,000</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">720,000</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">735,000</td>
+                                    <td class="p-3 text-xs text-[#666666]">
+                                        <div class="text-sm font-medium">750,000</div>
+                                        <span class="text-xs text-gray-500">@250,000</span>
+                                    </td>
+                                    <td class="p-3 text-xs text-[#666666]">
+                                        <div class="text-sm font-medium">720,000</div>
+                                        <span class="text-xs text-gray-500">@240,000</span>
+                                    </td>
+                                    <td class="p-3 text-xs text-[#666666]">
+                                        <div class="text-sm font-medium">735,000</div>
+                                        <span class="text-xs text-gray-500">@245,000</span>
+                                    </td>
                                 </tr>
 
                                 <!-- Payment Terms Row -->
