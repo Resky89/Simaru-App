@@ -530,6 +530,38 @@
                     formDataObj[key] = value;
                 });
                 console.log('Form data:', formDataObj);
+
+                // Continue with form submission
+                // If you want to manually handle the form submission with fetch API:
+                /*
+                e.preventDefault();
+
+                fetch(this.action, {
+                    method: this.method,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        window.location.href = "{{ route('vendor') }}";
+                    } else {
+                        alert(data.message || 'Failed to create vendor');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('An error occurred while creating the vendor');
+                });
+                */
             });
         }
 
