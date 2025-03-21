@@ -190,55 +190,93 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                                <td class="p-3 border-t border-[#EEF1F4] text-center">
-                                    <div class="flex justify-center items-center space-x-2">
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                            </svg>
-                                        </button>
-                                        <button class="text-[#3D3D3D] hover:text-red-500">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                                <td class="p-3 border-t border-[#EEF1F4] text-center">
-                                    <div class="flex justify-center items-center space-x-2">
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                            </svg>
-                                        </button>
-                                        <button class="text-[#3D3D3D] hover:text-red-500">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                            @if(isset($brands) && count($brands) > 0)
+                                @foreach($brands as $brand)
+                                <tr>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $brand['brand_id'] }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $brand['brand_name'] }}</td>
+                                    <td class="p-3 border-t border-[#EEF1F4] text-center">
+                                        <div class="flex justify-center items-center space-x-2">
+                                            <button class="text-[#3D3D3D] hover:text-[#213268] edit-brand-btn" data-id="{{ $brand['brand_id'] }}" data-name="{{ $brand['brand_name'] }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <button class="text-[#3D3D3D] hover:text-red-500 delete-brand-btn" data-id="{{ $brand['brand_id'] }}" data-name="{{ $brand['brand_name'] }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="3" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No brands found</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination for Brands -->
+                @if(isset($pagination) && $pagination)
+                <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+                    <div class="flex items-center space-x-2">
+                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($pagination['current_page'] ?? 1) - 1 }})"
+                               {{ ($pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Prev
+                        </button>
+
+                        <div class="flex gap-2">
+                            @php
+                                $currentPage = $pagination['current_page'] ?? 1;
+                                $lastPage = $pagination['total_pages'] ?? $currentPage;
+                            @endphp
+
+                            @for($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
+                                <button onclick="changePage({{ $i }})"
+                                        class="w-8 h-8 flex items-center justify-center {{ $i == $currentPage ? 'bg-[#213268] text-white' : 'border border-[#D8DAE5] text-[#213268] hover:bg-gray-50' }} rounded text-sm">
+                                    {{ $i }}
+                                </button>
+                            @endfor
+                        </div>
+
+                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($pagination['current_page'] ?? 1) + 1 }})"
+                               {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
+                            Next
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-600">
+                            @php
+                                $currentPage = $pagination['current_page'] ?? 1;
+                                $perPage = $pagination['per_page'] ?? 10;
+                                $total = $pagination['total'] ?? count($brands ?? []);
+                                $from = ($currentPage - 1) * $perPage + 1;
+                                $to = min($currentPage * $perPage, $total);
+                            @endphp
+                            Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                        </span>
+                        <select class="border border-[#D8DAE5] rounded-md py-1 px-3 pr-8 appearance-none text-[#213268] text-sm" onchange="changePerPage(this.value)">
+                            <option value="10" {{ request()->input('limit', 10) == 10 ? 'selected' : '' }}>10 per page</option>
+                            <option value="25" {{ request()->input('limit') == 25 ? 'selected' : '' }}>25 per page</option>
+                            <option value="50" {{ request()->input('limit') == 50 ? 'selected' : '' }}>50 per page</option>
+                            <option value="100" {{ request()->input('limit') == 100 ? 'selected' : '' }}>100 per page</option>
+                        </select>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -262,22 +300,25 @@
                 </div>
 
                 <!-- Form -->
-                <div class="p-6">
-                    <div class="space-y-4 max-w-[400px] mx-auto">
-                        <!-- Brand Input -->
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Brand Name</label>
-                            <input type="text"
-                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                placeholder="Type here">
-                        </div>
+                <form action="{{ route('brands.store') }}" method="POST">
+                    @csrf
+                    <div class="p-6">
+                        <div class="space-y-4 max-w-[400px] mx-auto">
+                            <!-- Brand Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Brand Name</label>
+                                <input type="text" name="brand_name" required
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here">
+                            </div>
 
-                        <!-- Submit Button -->
-                        <button class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                            Save
-                        </button>
+                            <!-- Submit Button -->
+                            <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                Save
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -301,19 +342,23 @@
                 </div>
 
                 <!-- Form -->
-                <div class="p-6">
-                    <div class="space-y-4 max-w-[400px] mx-auto">
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Brand Name</label>
-                            <input type="text" id="editBrandInput"
-                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                placeholder="Type here">
+                <form id="editBrandForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="p-6">
+                        <div class="space-y-4 max-w-[400px] mx-auto">
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Brand Name</label>
+                                <input type="text" id="editBrandInput" name="brand_name" required
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here">
+                            </div>
+                            <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                Update
+                            </button>
                         </div>
-                        <button class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                            Update
-                        </button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -337,28 +382,67 @@
                 </div>
 
                 <!-- Form -->
-                <div class="p-6">
-                    <div class="space-y-6 max-w-[400px] mx-auto">
-                        <div class="flex flex-col items-center">
-                            <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p class="text-base text-gray-600 text-center">Are you sure you want to delete this brand? This action cannot be undone.</p>
-                        </div>
-                        <div class="flex gap-3">
-                            <button class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                Cancel
-                            </button>
-                            <button class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                Delete
-                            </button>
+                <form id="deleteBrandForm" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <div class="p-6">
+                        <div class="space-y-6 max-w-[400px] mx-auto">
+                            <div class="flex flex-col items-center">
+                                <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this brand? This action cannot be undone.</p>
+                                <p id="deleteBrandName" class="text-base font-semibold text-center mt-2"></p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+@if(session('success'))
+<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Success!</p>
+            <p>{{ session('success') }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+@endif
+
+@if(session('error'))
+<div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Error!</p>
+            <p>{{ session('error') }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+@endif
 
 @push('scripts')
 <script>
@@ -398,33 +482,52 @@
 
             // Pasang event listener menggunakan event delegation
             attachEventHandlers: function() {
+                // Add brand button handler
+                document.getElementById('addBrandBtn')?.addEventListener('click', function() {
+                    const addModal = document.getElementById('addBrandModal');
+                    const addContent = document.getElementById('brandModalContent');
+                    if (addModal && addContent) {
+                        openModal(addModal, addContent);
+                    }
+                });
+
                 // Event delegation untuk edit dan delete buttons
                 document.addEventListener('click', function(event) {
                     // Edit button handler
-                    if (event.target.closest('.edit-brand-btn') ||
-                        event.target.closest('.hover\\:text-\\[\\#213268\\]')) {
+                    if (event.target.closest('.edit-brand-btn')) {
                         event.preventDefault();
-                        console.log('Edit brand button clicked');
+                        const btn = event.target.closest('.edit-brand-btn');
+                        const brandId = btn.dataset.id;
+                        const brandName = btn.dataset.name;
+
                         const editModal = document.getElementById('editBrandModal');
                         const editContent = document.getElementById('editBrandModalContent');
-                        if (editModal && editContent) {
+                        const editForm = document.getElementById('editBrandForm');
+                        const editInput = document.getElementById('editBrandInput');
+
+                        if (editModal && editContent && editForm && editInput) {
+                            editForm.action = "{{ url('brands/update') }}/" + brandId;
+                            editInput.value = brandName;
                             openModal(editModal, editContent);
-                        } else {
-                            console.error('Edit modal elements not found', {editModal, editContent});
                         }
                     }
 
                     // Delete button handler
-                    if (event.target.closest('.delete-brand-btn') ||
-                        event.target.closest('.hover\\:text-red-500')) {
+                    if (event.target.closest('.delete-brand-btn')) {
                         event.preventDefault();
-                        console.log('Delete brand button clicked');
+                        const btn = event.target.closest('.delete-brand-btn');
+                        const brandId = btn.dataset.id;
+                        const brandName = btn.dataset.name;
+
                         const deleteModal = document.getElementById('deleteBrandModal');
                         const deleteContent = document.getElementById('deleteBrandModalContent');
-                        if (deleteModal && deleteContent) {
+                        const deleteForm = document.getElementById('deleteBrandForm');
+                        const deleteBrandNameEl = document.getElementById('deleteBrandName');
+
+                        if (deleteModal && deleteContent && deleteForm && deleteBrandNameEl) {
+                            deleteForm.action = "{{ url('brands/delete') }}/" + brandId;
+                            deleteBrandNameEl.textContent = brandName;
                             openModal(deleteModal, deleteContent);
-                        } else {
-                            console.error('Delete modal elements not found', {deleteModal, deleteContent});
                         }
                     }
 
@@ -453,6 +556,17 @@
             }
         };
 
+        // Auto-hide notifications after 5 seconds
+        setTimeout(function() {
+            const notifications = document.querySelectorAll('#successNotification, #errorNotification');
+            notifications.forEach(notification => {
+                if (notification) {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => notification.remove(), 500);
+                }
+            });
+        }, 5000);
+
         // Definisikan fungsi global untuk inisialisasi
         window.initBrandModals = function() {
             if (!window.BrandModalSystem.initialized) {
@@ -474,21 +588,20 @@
         }, 100);
     });
 
-    // Reinisialisasi setelah ajaxComplete
-    document.addEventListener('ajaxComplete', function() {
-        console.log('ajaxComplete: Reinitializing brand modals');
-        if (typeof window.initBrandModals === 'function') {
-            window.initBrandModals();
-        }
-    });
+    // Function to change page
+    window.changePage = function(page) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', page);
+        window.location.href = url.toString();
+    }
 
-    // Custom event untuk reinisialisasi
-    document.addEventListener('reinitializeModals', function() {
-        console.log('reinitializeModals event: Reinitializing brand modals');
-        if (typeof window.initBrandModals === 'function') {
-            window.initBrandModals();
-        }
-    });
+    // Function to change items per page
+    window.changePerPage = function(limit) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('limit', limit);
+        url.searchParams.set('page', 1); // Reset to first page when changing limit
+        window.location.href = url.toString();
+    }
 </script>
 @endpush
 @endsection
