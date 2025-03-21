@@ -78,33 +78,80 @@
                 </div>
 
                 <!-- Pagination -->
-                @if(isset($pagination) && $pagination)
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div class="flex gap-2">
-                        <a href="{{ $pagination['prev_page_url'] ?? '#' }}" class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ !isset($pagination['prev_page_url']) || !$pagination['prev_page_url'] ? 'opacity-50 cursor-not-allowed' : '' }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                            Prev
-                        </a>
-                        <div class="flex gap-2">
-                            @for($i = 1; $i <= $pagination['last_page']; $i++)
-                                <a href="{{ url()->current() }}?page={{ $i }}" class="w-8 h-8 flex items-center justify-center {{ $pagination['current_page'] == $i ? 'bg-[#213268] text-white' : 'border border-[#D8DAE5] text-[#213268]' }} rounded text-sm hover:bg-gray-50">{{ $i }}</a>
-                            @endfor
-                        </div>
-                        <a href="{{ $pagination['next_page_url'] ?? '#' }}" class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ !$pagination['next_page_url'] ? 'opacity-50 cursor-not-allowed' : '' }}">
-                            Next
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </a>
+                        @if(isset($pagination) && is_array($pagination))
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                   onclick="changePage({{ ($pagination['current_page'] ?? 1) - 1 }})"
+                                   {{ ($pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
+                            </button>
+                            <div class="flex gap-2">
+                                @php
+                                    $currentPage = $pagination['current_page'] ?? 1;
+                                    $lastPage = $pagination['last_page'] ?? $currentPage;
+                                @endphp
+
+                                @for($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
+                                    <button onclick="changePage({{ $i }})"
+                                            class="w-8 h-8 flex items-center justify-center {{ $i == $currentPage ? 'bg-[#213268] text-white' : 'border border-[#D8DAE5] text-[#213268] hover:bg-gray-50' }} rounded text-sm">
+                                        {{ $i }}
+                                    </button>
+                                @endfor
+                            </div>
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) >= ($pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                   onclick="changePage({{ ($pagination['current_page'] ?? 1) + 1 }})"
+                                   {{ ($pagination['current_page'] ?? 1) >= ($pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        @else
+                            <!-- Default static pagination if pagination data is not available -->
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
+                            </button>
+                            <div class="flex gap-2">
+                                <button class="w-8 h-8 flex items-center justify-center bg-[#213268] rounded text-white text-sm">1</button>
+                            </div>
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        @endif
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-600">Showing {{ $pagination['from'] ?? 0 }} to {{ $pagination['to'] ?? 0 }} of {{ $pagination['total'] ?? 0 }} entries</span>
+                        <span class="text-sm text-gray-600">
+                            @if(isset($pagination) && is_array($pagination))
+                                @php
+                                    $currentPage = $pagination['current_page'] ?? 1;
+                                    $perPage = $pagination['per_page'] ?? 10;
+                                    $total = $pagination['total'] ?? count($departments);
+                                    $from = ($currentPage - 1) * $perPage + 1;
+                                    $to = min($currentPage * $perPage, $total);
+                                @endphp
+                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                            @else
+                                Showing 1 to {{ count($departments) }} of {{ count($departments) }} entries
+                            @endif
+                        </span>
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
+                            <option value="10" {{ isset($pagination['per_page']) && $pagination['per_page'] == 10 ? 'selected' : '' }}>10 per page</option>
+                            <option value="25" {{ isset($pagination['per_page']) && $pagination['per_page'] == 25 ? 'selected' : '' }}>25 per page</option>
+                            <option value="50" {{ isset($pagination['per_page']) && $pagination['per_page'] == 50 ? 'selected' : '' }}>50 per page</option>
+                        </select>
                     </div>
                 </div>
-                @endif
             </div>
         </div>
     </div>
@@ -129,7 +176,7 @@
                 </div>
 
                 <!-- Form -->
-                <form action="{{ url('/department/store') }}" method="POST">
+                <form action="{{ route('departments.store') }}" method="POST">
                     @csrf
                     <div class="p-6">
                         <div class="space-y-4 max-w-[400px] mx-auto">
@@ -253,9 +300,32 @@
         const editDepartmentModal = document.getElementById('editDepartmentModal');
         const deleteDepartmentModal = document.getElementById('deleteDepartmentModal');
         const closeButtons = document.querySelectorAll('.close-modal');
-
         const editDepartmentForm = document.getElementById('editDepartmentForm');
         const deleteDepartmentForm = document.getElementById('deleteDepartmentForm');
+
+        // Show toast notifications for flash messages
+        @if(session('success'))
+            showToast("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showToast("{{ session('error') }}", 'error');
+        @endif
+
+        // Function to change page
+        window.changePage = function(page) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.location.href = url.toString();
+        }
+
+        // Function to change items per page
+        window.changePerPage = function(limit) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', limit);
+            url.searchParams.set('page', 1); // Reset to first page when changing limit
+            window.location.href = url.toString();
+        }
 
         function openModal(modal, content) {
             modal.classList.remove('hidden');
@@ -288,7 +358,7 @@
                 document.getElementById('edit_department_name').value = departmentName;
 
                 // Set the form action URL
-                editDepartmentForm.action = `{{ url('/department/update') }}/${departmentId}`;
+                editDepartmentForm.action = `{{ route('departments.update', '') }}/${departmentId}`;
 
                 openModal(editDepartmentModal, editDepartmentModal.querySelector('[id$="ModalContent"]'));
             });
@@ -302,7 +372,7 @@
                 document.getElementById('delete_department_id').value = departmentId;
 
                 // Set the form action URL
-                deleteDepartmentForm.action = `{{ url('/department/delete') }}/${departmentId}`;
+                deleteDepartmentForm.action = `{{ route('departments.destroy', '') }}/${departmentId}`;
 
                 openModal(deleteDepartmentModal, deleteDepartmentModal.querySelector('[id$="ModalContent"]'));
             });
@@ -338,6 +408,62 @@
                 });
             }
         });
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            // Create toast container if it doesn't exist
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'fixed top-20 right-5 z-50 flex flex-col gap-2';
+                document.body.appendChild(toastContainer);
+            }
+
+            // Create toast
+            const toast = document.createElement('div');
+            toast.className = `p-3 rounded shadow-lg flex items-center gap-2 transform translate-x-full transition-transform duration-300 ${
+                type === 'success' ? 'bg-green-500 text-white' :
+                type === 'error' ? 'bg-red-500 text-white' :
+                'bg-blue-500 text-white'
+            }`;
+
+            // Add icon based on type
+            let icon = '';
+            if (type === 'success') {
+                icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>`;
+            } else if (type === 'error') {
+                icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>`;
+            } else {
+                icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>`;
+            }
+
+            // Set toast content
+            toast.innerHTML = icon + message;
+
+            // Add to container
+            toastContainer.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+                toast.classList.add('translate-x-0');
+            }, 10);
+
+            // Remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    toastContainer.removeChild(toast);
+                }, 300);
+            }, 5000);
+        }
     });
 </script>
 @endpush

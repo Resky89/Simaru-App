@@ -28,7 +28,9 @@ class DepartmentController extends Controller
             $result = $this->apiService->request('GET', '/departments', [
                 'query' => [
                     'page' => $page,
-                    'limit' => $limit
+                    'limit' => $limit,
+                    'sort_by' => 'department_id',
+                    'sort_order' => 'asc'
                 ]
             ]);
 
@@ -41,24 +43,9 @@ class DepartmentController extends Controller
                 throw new \Exception($result['error']);
             }
 
-            $departments = $result['data'] ?? [];
-            $pagination = isset($result['pagination']) ? $result['pagination'] : null;
-
-            if ($pagination) {
-                $pagination = array_merge([
-                    'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => $pagination['last_page'] ?? 1,
-                    'from' => $pagination['from'] ?? 0,
-                    'to' => $pagination['to'] ?? 0,
-                    'total' => $pagination['total'] ?? 0,
-                    'prev_page_url' => $pagination['prev_page_url'] ?? null,
-                    'next_page_url' => $pagination['next_page_url'] ?? null
-                ], $pagination);
-            }
-
             return view('Department', [
-                'departments' => $departments,
-                'pagination' => $pagination
+                'departments' => $result['data'] ?? [],
+                'pagination' => $result['pagination'] ?? null
             ]);
         } catch (\Exception $e) {
             \Log::error('Failed to fetch departments', [
@@ -97,7 +84,7 @@ class DepartmentController extends Controller
                     ->with('error', $result['message'] ?? 'Failed to create department');
             }
 
-            return redirect()->route('departments.index')
+            return redirect()->route('departments')
                 ->with('success', 'Department created successfully');
         } catch (\Exception $e) {
             \Log::error('Failed to create department', [
@@ -136,7 +123,7 @@ class DepartmentController extends Controller
                     ->with('error', $result['message'] ?? 'Failed to update department');
             }
 
-            return redirect()->route('departments.index')
+            return redirect()->route('departments')
                 ->with('success', 'Department updated successfully');
         } catch (\Exception $e) {
             \Log::error('Failed to update department', [
@@ -170,7 +157,7 @@ class DepartmentController extends Controller
                     ->with('error', $result['message'] ?? 'Failed to delete department');
             }
 
-            return redirect()->route('departments.index')
+            return redirect()->route('departments')
                 ->with('success', 'Department deleted successfully');
         } catch (\Exception $e) {
             \Log::error('Failed to delete department', [
