@@ -30,7 +30,7 @@
                                 <th class="p-3 text-xs font-bold text-left">ID</th>
                                 <th class="p-3 text-xs font-bold text-left">First Name</th>
                                 <th class="p-3 text-xs font-bold text-left">Last Name</th>
-                                <th class="p-3 text-xs font-bold text-left">Departement</th>
+                                <th class="p-3 text-xs font-bold text-left">Department</th>
                                 <th class="p-3 text-xs font-bold text-left">Position</th>
                                 <th class="p-3 text-xs font-bold text-left">Birth Date</th>
                                 <th class="p-3 text-xs font-bold text-left">Phone Number</th>
@@ -39,36 +39,47 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">001</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">John</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">Doe</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">IT</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">Developer</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">1990-01-01</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">123-456-7890</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">123 Main St</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                    <div class="flex justify-center gap-2">
-                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-employee-btn">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                            </svg>
-                                        </button>
-                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-employee-btn">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Add more rows as needed -->
+                            @if(isset($employees) && count($employees) > 0)
+                                @foreach($employees as $employee)
+                                <tr>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $employee['employee_id'] }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $employee['first_name'] }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $employee['last_name'] }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $employee['department_name'] }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $employee['position'] }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $employee['date_of_birth'] }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $employee['phone_number'] }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $employee['address'] }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                        <div class="flex justify-center gap-2">
+                                            <button class="text-[#3D3D3D] hover:text-[#213268] edit-employee-btn"
+                                                    data-id="{{ $employee['employee_id'] }}"
+                                                    data-first-name="{{ $employee['first_name'] }}"
+                                                    data-last-name="{{ $employee['last_name'] }}"
+                                                    data-department-id="{{ $employee['department_id'] }}"
+                                                    data-position="{{ $employee['position'] }}"
+                                                    data-birth-date="{{ $employee['date_of_birth'] }}"
+                                                    data-phone-number="{{ $employee['phone_number'] }}"
+                                                    data-address="{{ $employee['address'] }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <button class="text-[#3D3D3D] hover:text-red-500 delete-employee-btn"
+                                                    data-id="{{ $employee['employee_id'] }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="9" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No employees found</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
@@ -109,256 +120,489 @@
     </div>
 </div>
 
-<!-- Add Employee Modal -->
-<div id="addEmployeeModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div id="addEmployeeModalContent" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full opacity-0 translate-y-4 sm:translate-y-0 scale-95">
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center px-6 py-4 border-b">
-                <h3 class="text-lg font-semibold text-[#203268]">ADD EMPLOYEE</h3>
-                <button id="closeAddEmployeeModal" class="text-gray-400 hover:text-gray-500">
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="px-6 py-4">
-                <form>
-                    <!-- First Name -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                        <input type="text" placeholder="Type here" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <!-- Last Name -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                        <input type="text" placeholder="Type here" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <!-- Department -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Departement</label>
-                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option selected disabled>Select Departement</option>
-                            <option>IT</option>
-                            <option>HR</option>
-                            <option>Finance</option>
-                        </select>
-                    </div>
-
-                    <!-- Position -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                        <input type="text" placeholder="Type here" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <!-- Birth Date -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
-                        <div class="relative">
-                            <input type="text" placeholder="Choose Date" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Phone Number -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                        <input type="text" placeholder="Type here" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <!-- Address -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                        <textarea rows="3" placeholder="Type here" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
-                    </div>
-
-                    <!-- Save Button -->
-                    <button type="submit" class="w-full bg-[#213268] text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Save
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Employee Modal -->
-<div id="editEmployeeModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div id="editEmployeeModalContent" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full scale-95 opacity-0 translate-y-4 sm:translate-y-0">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg leading-6 font-medium text-[#213268]" id="modal-title">EDIT EMPLOYEE</h3>
-                    <button id="closeEditEmployeeModal" class="text-gray-400 hover:text-gray-500">
-                        <span class="sr-only">Close</span>
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+<!-- Modal Add Employee -->
+<div id="addEmployeeModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                 id="addEmployeeModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">ADD EMPLOYEE</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" id="closeAddEmployeeModal">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
-                <form class="space-y-4">
-                    <div>
-                        <label for="editFirstName" class="block text-sm font-medium text-gray-700">First Name</label>
-                        <input type="text" name="editFirstName" id="editFirstName" placeholder="Type here" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                    </div>
 
-                    <div>
-                        <label for="editLastName" class="block text-sm font-medium text-gray-700">Last Name</label>
-                        <input type="text" name="editLastName" id="editLastName" placeholder="Type here" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                    </div>
+                <!-- Form -->
+                <div class="p-6">
+                    <form id="createEmployeeForm" action="{{ route('employees.store') }}" method="POST">
+                        @csrf
+                        <div class="space-y-4 max-w-[400px] mx-auto">
+                            <!-- First Name Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">First Name</label>
+                                <input type="text" name="first_name"
+                                       class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                       placeholder="Type here" required>
+                            </div>
 
-                    <div>
-                        <label for="editDepartement" class="block text-sm font-medium text-gray-700">Departement</label>
-                        <select name="editDepartement" id="editDepartement" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                            <option value="" disabled>Select Departement</option>
-                            <option value="it">IT</option>
-                            <option value="hr">HR</option>
-                            <option value="finance">Finance</option>
-                            <option value="marketing">Marketing</option>
-                        </select>
-                    </div>
+                            <!-- Last Name Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Last Name</label>
+                                <input type="text" name="last_name"
+                                       class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                       placeholder="Type here" required>
+                            </div>
 
-                    <div>
-                        <label for="editPosition" class="block text-sm font-medium text-gray-700">Position</label>
-                        <input type="text" name="editPosition" id="editPosition" placeholder="Type here" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                    </div>
+                            <!-- Department Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Department</label>
+                                <select name="department_id"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                        required>
+                                    <option value="">Select Department</option>
+                                    @if(isset($departments) && count($departments) > 0)
+                                        @foreach($departments as $department)
+                                            <option value="{{ $department['department_id'] }}">{{ $department['department_name'] }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
 
-                    <div>
-                        <label for="editBirthDate" class="block text-sm font-medium text-gray-700">Birth Date</label>
-                        <div class="relative">
-                            <input type="text" name="editBirthDate" id="editBirthDate" placeholder="Choose Date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#213268] focus:border-[#213268]" onfocus="(this.type='date')">
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                                </svg>
+                            <!-- Position Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Position</label>
+                                <input type="text" name="position"
+                                       class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                       placeholder="Type here" required>
+                            </div>
+
+                            <!-- Birth Date Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Birth Date</label>
+                                <input type="date" name="date_of_birth"
+                                       class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                       required>
+                            </div>
+
+                            <!-- Phone Number Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Phone Number</label>
+                                <input type="tel" name="phone_number"
+                                       class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                       placeholder="Type here" required>
+                            </div>
+
+                            <!-- Address Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Address</label>
+                                <textarea name="address" rows="3"
+                                          class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                          placeholder="Type here" required></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="pt-4">
+                                <button type="submit"
+                                        class="w-full bg-[#213268] text-white py-3 rounded-lg hover:bg-[#162348] transition-colors duration-200">
+                                    SAVE
+                                </button>
                             </div>
                         </div>
-                    </div>
-
-                    <div>
-                        <label for="editPhoneNumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
-                        <input type="text" name="editPhoneNumber" id="editPhoneNumber" placeholder="Type here" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                    </div>
-
-                    <div>
-                        <label for="editAddress" class="block text-sm font-medium text-gray-700">Address</label>
-                        <textarea name="editAddress" id="editAddress" rows="4" placeholder="Type here" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#213268] focus:border-[#213268]"></textarea>
-                    </div>
-
-                    <div class="mt-5 sm:mt-6">
-                        <button type="button" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#213268] hover:bg-[#192652] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#213268]">
-                            Save
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Employee Modal -->
-<div id="deleteEmployeeModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div id="deleteEmployeeModalContent" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full scale-95 opacity-0 translate-y-4 sm:translate-y-0">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                        <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+<!-- Modal Edit Employee -->
+<div id="editEmployeeModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                 id="editEmployeeModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">EDIT EMPLOYEE</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" id="closeEditEmployeeModal">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </div>
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Delete Employee</h3>
-                        <div class="mt-2">
-                            <p class="text-sm text-gray-500">Are you sure you want to delete this employee? This action cannot be undone.</p>
-                        </div>
-                    </div>
+                    </button>
                 </div>
-                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">Delete</button>
-                    <button type="button" id="closeDeleteEmployeeModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#213268] sm:mt-0 sm:w-auto sm:text-sm">Cancel</button>
+
+                <!-- Form -->
+                <div class="p-6">
+                    <form id="editEmployeeForm" action="" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="editEmployeeId" name="employee_id">
+
+                        <div class="space-y-4 max-w-[400px] mx-auto">
+                            <!-- First Name Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">First Name</label>
+                                <input type="text" id="editFirstName" name="first_name"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here" required>
+                            </div>
+
+                            <!-- Last Name Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Last Name</label>
+                                <input type="text" id="editLastName" name="last_name"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here" required>
+                            </div>
+
+                            <!-- Department Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Department</label>
+                                <select id="editDepartmentId" name="department_id"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    required>
+                                    <option value="">Select Department</option>
+                                    @foreach($departments as $department)
+                                    <option value="{{ $department['department_id'] }}">{{ $department['department_name'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Position Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Position</label>
+                                <input type="text" id="editPosition" name="position"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here" required>
+                            </div>
+
+                            <!-- Birth Date Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Birth Date</label>
+                                <input type="date" id="editBirthDate" name="date_of_birth"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    required>
+                            </div>
+
+                            <!-- Phone Number Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Phone Number</label>
+                                <input type="text" id="editPhoneNumber" name="phone_number"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here" required>
+                            </div>
+
+                            <!-- Address Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Address</label>
+                                <textarea id="editAddress" name="address"
+                                    class="w-full p-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 min-h-[100px]"
+                                    placeholder="Type here"></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                Update
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Delete Employee -->
+<div id="deleteEmployeeModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                 id="deleteEmployeeModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">DELETE EMPLOYEE</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" id="closeDeleteEmployeeModal">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <div class="p-6">
+                    <div class="text-center mb-6">
+                        <p class="text-gray-700">Are you sure you want to delete this employee? This action cannot be undone.</p>
+                    </div>
+                    <form id="deleteEmployeeForm" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="employee_id" id="delete_employee_id">
+
+                        <div class="flex gap-4">
+                            <button type="button" id="cancelDeleteEmployeeBtn" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                                CANCEL
+                            </button>
+                            <button type="submit" class="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors duration-200">
+                                DELETE
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if(session('success'))
+<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Success!</p>
+            <p>{{ session('success') }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+@endif
+
+@if(session('error'))
+<div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Error!</p>
+            <p>{{ session('error') }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+@endif
 
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Modal elements
-        const addEmployeeModal = document.getElementById('addEmployeeModal');
-        const addEmployeeModalContent = document.getElementById('addEmployeeModalContent');
         const addEmployeeBtn = document.getElementById('addEmployeeBtn');
-        const closeAddEmployeeModal = document.getElementById('closeAddEmployeeModal');
-
+        const addEmployeeModal = document.getElementById('addEmployeeModal');
         const editEmployeeModal = document.getElementById('editEmployeeModal');
-        const editEmployeeModalContent = document.getElementById('editEmployeeModalContent');
-        const editEmployeeButtons = document.querySelectorAll('.edit-employee-btn');
-        const closeEditEmployeeModal = document.getElementById('closeEditEmployeeModal');
-
         const deleteEmployeeModal = document.getElementById('deleteEmployeeModal');
-        const deleteEmployeeModalContent = document.getElementById('deleteEmployeeModalContent');
-        const deleteEmployeeButtons = document.querySelectorAll('.delete-employee-btn');
-        const closeDeleteEmployeeModal = document.getElementById('closeDeleteEmployeeModal');
+        const closeButtons = document.querySelectorAll('.close-modal');
 
-        // Function to open modal
-        function openModal(modal, modalContent) {
+        // Show toast notifications for session messages on page load
+        @if(session('success'))
+            showToast("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showToast("{{ session('error') }}", 'error');
+        @endif
+
+        function openModal(modal, content) {
             modal.classList.remove('hidden');
             setTimeout(() => {
-                modalContent.classList.remove('scale-95', 'opacity-0', 'translate-y-4', 'sm:translate-y-0');
-                modalContent.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
             }, 10);
         }
 
-        // Function to close modal
-        function closeModal(modal, modalContent) {
-            modalContent.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-            modalContent.classList.add('scale-95', 'opacity-0', 'translate-y-4', 'sm:translate-y-0');
+        function closeModal(modal, content) {
+            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 300);
         }
 
-        // Event listeners for Add Employee modal
-        addEmployeeBtn.addEventListener('click', () => openModal(addEmployeeModal, addEmployeeModalContent));
-        closeAddEmployeeModal.addEventListener('click', () => closeModal(addEmployeeModal, addEmployeeModalContent));
-
-        // Event listener for Edit Employee modal
-        closeEditEmployeeModal.addEventListener('click', () => closeModal(editEmployeeModal, editEmployeeModalContent));
-
-        // Add click event listeners for edit buttons
-        editEmployeeButtons.forEach(button => {
-            button.addEventListener('click', () => openModal(editEmployeeModal, editEmployeeModalContent));
+        // Add Employee Modal
+        addEmployeeBtn.addEventListener('click', () => {
+            openModal(addEmployeeModal, addEmployeeModal.querySelector('[id$="ModalContent"]'));
         });
 
-        // Add click event listeners for delete buttons
-        deleteEmployeeButtons.forEach(button => {
-            button.addEventListener('click', () => openModal(deleteEmployeeModal, deleteEmployeeModalContent));
+        // Edit Employee Modal
+        document.querySelectorAll('.edit-employee-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const employeeId = button.getAttribute('data-id');
+
+                // Gunakan URL yang benar untuk aksi form
+                document.getElementById('editEmployeeForm').action = `{{ url('employees') }}/${employeeId}`;
+                console.log('Edit form action set to:', document.getElementById('editEmployeeForm').action);
+
+                // Set form values
+                document.getElementById('editFirstName').value = button.getAttribute('data-first-name');
+                document.getElementById('editLastName').value = button.getAttribute('data-last-name');
+                document.getElementById('editDepartmentId').value = button.getAttribute('data-department-id');
+                document.getElementById('editPosition').value = button.getAttribute('data-position');
+                document.getElementById('editBirthDate').value = button.getAttribute('data-birth-date');
+                document.getElementById('editPhoneNumber').value = button.getAttribute('data-phone-number');
+                document.getElementById('editAddress').value = button.getAttribute('data-address') || '';
+
+                openModal(editEmployeeModal, editEmployeeModal.querySelector('[id$="ModalContent"]'));
+            });
         });
 
-        // Close modals when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === addEmployeeModal) closeModal(addEmployeeModal, addEmployeeModalContent);
-            if (e.target === editEmployeeModal) closeModal(editEmployeeModal, editEmployeeModalContent);
-            if (e.target === deleteEmployeeModal) closeModal(deleteEmployeeModal, deleteEmployeeModalContent);
+        // Delete Employee Modal
+        document.querySelectorAll('.delete-employee-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const employeeId = button.getAttribute('data-id');
+
+                // Set the correct URL for delete action
+                document.getElementById('deleteEmployeeForm').action = `{{ url('employees') }}/${employeeId}`;
+                document.getElementById('delete_employee_id').value = employeeId;
+                console.log('Delete form action set to:', document.getElementById('deleteEmployeeForm').action);
+
+                openModal(deleteEmployeeModal, deleteEmployeeModal.querySelector('[id$="ModalContent"]'));
+            });
         });
+
+        // Close Modal Handlers - Fix for all close buttons
+        document.getElementById('closeAddEmployeeModal').addEventListener('click', () => {
+            closeModal(addEmployeeModal, addEmployeeModal.querySelector('[id$="ModalContent"]'));
+        });
+
+        document.getElementById('closeEditEmployeeModal').addEventListener('click', () => {
+            closeModal(editEmployeeModal, editEmployeeModal.querySelector('[id$="ModalContent"]'));
+        });
+
+        document.getElementById('closeDeleteEmployeeModal').addEventListener('click', () => {
+            closeModal(deleteEmployeeModal, deleteEmployeeModal.querySelector('[id$="ModalContent"]'));
+        });
+
+        // Cancel button for delete modal
+        document.getElementById('cancelDeleteEmployeeBtn').addEventListener('click', () => {
+            closeModal(deleteEmployeeModal, deleteEmployeeModal.querySelector('[id$="ModalContent"]'));
+        });
+
+        // Close on outside click - improved implementation
+        [addEmployeeModal, editEmployeeModal, deleteEmployeeModal].forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
+                    const content = modal.querySelector('[id$="ModalContent"]');
+                    closeModal(modal, content);
+                }
+            });
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                [addEmployeeModal, editEmployeeModal, deleteEmployeeModal].forEach(modal => {
+                    if (!modal.classList.contains('hidden')) {
+                        const content = modal.querySelector('[id$="ModalContent"]');
+                        closeModal(modal, content);
+                    }
+                });
+            }
+        });
+
+        // Add form submit event listeners with debugging
+        document.getElementById('createEmployeeForm').addEventListener('submit', function(e) {
+            console.log('Create form submitted', this.action);
+            // Let the form submit normally
+        });
+
+        document.getElementById('editEmployeeForm').addEventListener('submit', function(e) {
+            console.log('Edit form submitted', this.action);
+            // Let the form submit normally
+        });
+
+        document.getElementById('deleteEmployeeForm').addEventListener('submit', function(e) {
+            console.log('Delete form submitted', this.action);
+            // Let the form submit normally
+        });
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            // Create toast container if it doesn't exist
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+                document.body.appendChild(toastContainer);
+            }
+
+            // Create notification element
+            const toast = document.createElement('div');
+
+            // Set classes based on type
+            let bgColor, borderColor, textColor, icon;
+            if (type === 'success') {
+                bgColor = 'bg-green-100';
+                borderColor = 'border-green-500';
+                textColor = 'text-green-700';
+                icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>`;
+            } else if (type === 'error') {
+                bgColor = 'bg-red-100';
+                borderColor = 'border-red-500';
+                textColor = 'text-red-700';
+                icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>`;
+            } else {
+                bgColor = 'bg-blue-100';
+                borderColor = 'border-blue-500';
+                textColor = 'text-blue-700';
+                icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>`;
+            }
+
+            toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
+            toast.setAttribute('role', 'alert');
+
+            // Create toast content
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <div class="py-1">
+                        ${icon}
+                    </div>
+                    <div>
+                        <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}!</p>
+                        <p>${message}</p>
+                    </div>
+                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                </div>
+            `;
+
+            // Add to container
+            toastContainer.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('opacity-0');
+                toast.classList.add('opacity-100');
+            }, 10);
+
+            // Remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+                setTimeout(() => {
+                    if (toast.parentNode === toastContainer) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 300);
+            }, 5000);
+        }
     });
 </script>
 @endpush

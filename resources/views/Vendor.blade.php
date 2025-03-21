@@ -165,6 +165,40 @@
         </div>
     </div>
 </div>
+
+@if(session('success'))
+<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Success!</p>
+            <p>{{ session('success') }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+@endif
+
+@if(session('error'))
+<div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Error!</p>
+            <p>{{ session('error') }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+@endif
 @endsection
 
 <!-- Modal Add Vendor -->
@@ -572,49 +606,74 @@
             if (!toastContainer) {
                 toastContainer = document.createElement('div');
                 toastContainer.id = 'toast-container';
-                toastContainer.className = 'fixed top-20 right-5 z-50 flex flex-col gap-2';
+                toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
                 document.body.appendChild(toastContainer);
             }
 
-            // Create toast
+            // Create notification element
             const toast = document.createElement('div');
-            toast.className = `p-3 rounded shadow-lg flex items-center gap-2 transform translate-x-full transition-transform duration-300 ${
-                type === 'success' ? 'bg-green-500 text-white' :
-                type === 'error' ? 'bg-red-500 text-white' :
-                'bg-blue-500 text-white'
-            }`;
 
-            // Add icon based on type
-            let icon = '';
+            // Set classes based on type
+            let bgColor, borderColor, textColor, icon;
             if (type === 'success') {
-                icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                bgColor = 'bg-green-100';
+                borderColor = 'border-green-500';
+                textColor = 'text-green-700';
+                icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>`;
             } else if (type === 'error') {
-                icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                bgColor = 'bg-red-100';
+                borderColor = 'border-red-500';
+                textColor = 'text-red-700';
+                icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>`;
             } else {
-                icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                bgColor = 'bg-blue-100';
+                borderColor = 'border-blue-500';
+                textColor = 'text-blue-700';
+                icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>`;
             }
 
-            toast.innerHTML = `${icon}<span>${message}</span>`;
+            toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
+            toast.setAttribute('role', 'alert');
+
+            // Create toast content
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <div class="py-1">
+                        ${icon}
+                    </div>
+                    <div>
+                        <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}!</p>
+                        <p>${message}</p>
+                    </div>
+                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                </div>
+            `;
+
+            // Add to container
             toastContainer.appendChild(toast);
 
             // Animate in
             setTimeout(() => {
-                toast.classList.replace('translate-x-full', 'translate-x-0');
+                toast.classList.remove('opacity-0');
+                toast.classList.add('opacity-100');
             }, 10);
 
-            // Animate out after delay and remove
+            // Remove after 5 seconds
             setTimeout(() => {
-                toast.classList.replace('translate-x-0', 'translate-x-full');
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
                 setTimeout(() => {
-                    toast.remove();
+                    if (toast.parentNode === toastContainer) {
+                        toastContainer.removeChild(toast);
+                    }
                 }, 300);
-            }, 3000);
+            }, 5000);
         }
     });
 </script>
