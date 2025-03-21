@@ -87,33 +87,77 @@
                 <!-- Pagination -->
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div class="flex gap-2">
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                            Prev
-                        </button>
-                        <div class="flex gap-2">
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">1</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">2</button>
-                            <button class="w-8 h-8 flex items-center justify-center bg-[#213268] rounded text-white text-sm">3</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">4</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">5</button>
-                        </div>
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
-                            Next
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
+                        @if(isset($pagination) && is_array($pagination))
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                   onclick="changePage({{ ($pagination['current_page'] ?? 1) - 1 }})"
+                                   {{ ($pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
+                            </button>
+                            <div class="flex gap-2">
+                                @php
+                                    $currentPage = $pagination['current_page'] ?? 1;
+                                    $lastPage = $pagination['last_page'] ?? $currentPage;
+                                @endphp
+
+                                @for($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
+                                    <button onclick="changePage({{ $i }})"
+                                            class="w-8 h-8 flex items-center justify-center {{ $i == $currentPage ? 'bg-[#213268] text-white' : 'border border-[#D8DAE5] text-[#213268] hover:bg-gray-50' }} rounded text-sm">
+                                        {{ $i }}
+                                    </button>
+                                @endfor
+                            </div>
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) >= ($pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                   onclick="changePage({{ ($pagination['current_page'] ?? 1) + 1 }})"
+                                   {{ ($pagination['current_page'] ?? 1) >= ($pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        @else
+                            <!-- Default static pagination if pagination data is not available -->
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
+                            </button>
+                            <div class="flex gap-2">
+                                <button class="w-8 h-8 flex items-center justify-center bg-[#213268] rounded text-white text-sm">1</button>
+                            </div>
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        @endif
                     </div>
 
-                    <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
-                        10 per page
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-600">
+                            @if(isset($pagination) && is_array($pagination))
+                                @php
+                                    $currentPage = $pagination['current_page'] ?? 1;
+                                    $perPage = $pagination['per_page'] ?? 10;
+                                    $total = $pagination['total'] ?? count($employees);
+                                    $from = ($currentPage - 1) * $perPage + 1;
+                                    $to = min($currentPage * $perPage, $total);
+                                @endphp
+                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                            @else
+                                Showing 1 to {{ count($employees) }} of {{ count($employees) }} entries
+                            @endif
+                        </span>
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
+                            <option value="10" {{ isset($pagination['per_page']) && $pagination['per_page'] == 10 ? 'selected' : '' }}>10 per page</option>
+                            <option value="25" {{ isset($pagination['per_page']) && $pagination['per_page'] == 25 ? 'selected' : '' }}>25 per page</option>
+                            <option value="50" {{ isset($pagination['per_page']) && $pagination['per_page'] == 50 ? 'selected' : '' }}>50 per page</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -201,7 +245,7 @@
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">Address</label>
                                 <textarea name="address" rows="3"
-                                          class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                          class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 h-[100px]"
                                           placeholder="Type here" required></textarea>
                             </div>
 
@@ -243,7 +287,6 @@
                         @csrf
                         @method('PUT')
                         <input type="hidden" id="editEmployeeId" name="employee_id">
-
                         <div class="space-y-4 max-w-[400px] mx-auto">
                             <!-- First Name Input -->
                             <div class="space-y-2">
@@ -301,9 +344,9 @@
                             <!-- Address Input -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">Address</label>
-                                <textarea id="editAddress" name="address"
-                                    class="w-full p-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 min-h-[100px]"
-                                    placeholder="Type here"></textarea>
+                                <textarea id="editEmployeeAddress" name="address" rows="3"
+                                    class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 h-[100px]"
+                                    placeholder="Type here" required></textarea>
                             </div>
 
                             <!-- Submit Button -->
@@ -318,42 +361,46 @@
     </div>
 </div>
 
-<!-- Modal Delete Employee -->
+<!-- Delete Employee Confirmation Modal -->
 <div id="deleteEmployeeModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                 id="deleteEmployeeModalContent">
+                id="deleteEmployeeModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
                     <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">DELETE EMPLOYEE</h2>
-                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" id="closeDeleteEmployeeModal">
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <!-- Form -->
+                <!-- Content -->
                 <div class="p-6">
-                    <div class="text-center mb-6">
-                        <p class="text-gray-700">Are you sure you want to delete this employee? This action cannot be undone.</p>
-                    </div>
-                    <form id="deleteEmployeeForm" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <input type="hidden" name="employee_id" id="delete_employee_id">
-
-                        <div class="flex gap-4">
-                            <button type="button" id="cancelDeleteEmployeeBtn" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                CANCEL
-                            </button>
-                            <button type="submit" class="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors duration-200">
-                                DELETE
-                            </button>
+                    <div class="space-y-6 max-w-[400px] mx-auto">
+                        <div class="flex flex-col items-center">
+                            <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-base text-gray-600 text-center">Are you sure you want to delete this employee? This action cannot be undone.</p>
                         </div>
-                    </form>
+                        <div class="flex gap-3">
+                            <button class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                Cancel
+                            </button>
+                            <form id="deleteEmployeeForm" action="" method="POST" class="w-1/2">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" id="deleteEmployeeId" name="employee_id">
+                                <button type="submit" class="w-full h-[45px] bg-red-600 text-white rounded-lg text-base hover:bg-red-700 transform active:scale-[0.98] transition-all duration-200">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -388,36 +435,6 @@
     }, 5000); // Hide after 5 seconds
 </script>
 @endif
-
-@if(session('error'))
-<div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Error!</p>
-            <p>{{ session('error') }}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-
-<script>
-    setTimeout(function() {
-        const notification = document.getElementById('errorNotification');
-        if (notification) {
-            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-            setTimeout(function() {
-                notification.remove();
-            }, 500);
-        }
-    }, 5000); // Hide after 5 seconds
-</script>
-@endif
-
 @endsection
 
 @push('scripts')
@@ -463,19 +480,37 @@
         document.querySelectorAll('.edit-employee-btn').forEach(button => {
             button.addEventListener('click', () => {
                 const employeeId = button.getAttribute('data-id');
+                const firstName = button.getAttribute('data-first-name');
+                const lastName = button.getAttribute('data-last-name');
+                const departmentId = button.getAttribute('data-department-id');
+                const position = button.getAttribute('data-position');
+                const birthDate = button.getAttribute('data-birth-date');
+                const phoneNumber = button.getAttribute('data-phone-number');
+                const address = button.getAttribute('data-address');
 
-                // Gunakan URL yang benar untuk aksi form
+                // Set the form action
                 document.getElementById('editEmployeeForm').action = `{{ route('employees.update', '') }}/${employeeId}`;
-                console.log('Edit form action set to:', document.getElementById('editEmployeeForm').action);
 
-                // Set form values
-                document.getElementById('editFirstName').value = button.getAttribute('data-first-name');
-                document.getElementById('editLastName').value = button.getAttribute('data-last-name');
-                document.getElementById('editDepartmentId').value = button.getAttribute('data-department-id');
-                document.getElementById('editPosition').value = button.getAttribute('data-position');
-                document.getElementById('editBirthDate').value = button.getAttribute('data-birth-date');
-                document.getElementById('editPhoneNumber').value = button.getAttribute('data-phone-number');
-                document.getElementById('editAddress').value = button.getAttribute('data-address') || '';
+                // Set input values
+                document.getElementById('editEmployeeId').value = employeeId;
+                document.querySelector('#editEmployeeForm [name="first_name"]').value = firstName;
+                document.querySelector('#editEmployeeForm [name="last_name"]').value = lastName;
+
+                // Set select value for department
+                const departmentSelect = document.querySelector('#editEmployeeForm [name="department_id"]');
+                for (let i = 0; i < departmentSelect.options.length; i++) {
+                    if (departmentSelect.options[i].value == departmentId) {
+                        departmentSelect.options[i].selected = true;
+                        break;
+                    }
+                }
+
+                document.querySelector('#editEmployeeForm [name="position"]').value = position;
+                document.querySelector('#editEmployeeForm [name="date_of_birth"]').value = birthDate;
+                document.querySelector('#editEmployeeForm [name="phone_number"]').value = phoneNumber;
+                document.querySelector('#editEmployeeForm [name="address"]').value = address || '';
+
+                console.log('Edit form populated for employee:', employeeId);
 
                 openModal(editEmployeeModal, editEmployeeModal.querySelector('[id$="ModalContent"]'));
             });
@@ -485,12 +520,8 @@
         document.querySelectorAll('.delete-employee-btn').forEach(button => {
             button.addEventListener('click', () => {
                 const employeeId = button.getAttribute('data-id');
-
-                // Set the correct URL for delete action
                 document.getElementById('deleteEmployeeForm').action = `{{ route('employees.destroy', '') }}/${employeeId}`;
-                document.getElementById('delete_employee_id').value = employeeId;
-                console.log('Delete form action set to:', document.getElementById('deleteEmployeeForm').action);
-
+                document.getElementById('deleteEmployeeId').value = employeeId;
                 openModal(deleteEmployeeModal, deleteEmployeeModal.querySelector('[id$="ModalContent"]'));
             });
         });
@@ -505,11 +536,6 @@
         });
 
         document.getElementById('closeDeleteEmployeeModal').addEventListener('click', () => {
-            closeModal(deleteEmployeeModal, deleteEmployeeModal.querySelector('[id$="ModalContent"]'));
-        });
-
-        // Cancel button for delete modal
-        document.getElementById('cancelDeleteEmployeeBtn').addEventListener('click', () => {
             closeModal(deleteEmployeeModal, deleteEmployeeModal.querySelector('[id$="ModalContent"]'));
         });
 
@@ -626,6 +652,22 @@
                     }
                 }, 300);
             }, 5000);
+        }
+
+        // Add these pagination functions to your existing JavaScript
+        // Function to change page
+        window.changePage = function(page) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.location.href = url.toString();
+        }
+
+        // Function to change items per page
+        window.changePerPage = function(limit) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', limit);
+            url.searchParams.set('page', 1); // Reset to first page when changing limit
+            window.location.href = url.toString();
         }
     });
 </script>
