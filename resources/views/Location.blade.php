@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
-    <!-- Location Section -->
+    <!-- Building Section -->
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body p-4 md:p-7">
             <div class="flex flex-col gap-6">
@@ -30,36 +30,39 @@
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">Building_Id</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Building Name</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Address</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">City</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[88px]">Action</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse($buildings as $building)
                             <tr>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">001</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">Building A</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">Jl. Example No. 123</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">Jakarta</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $building['building_id'] }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $building['building_name'] }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $building['address'] }}</td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center gap-2">
-                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-building-btn">
+                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-building-btn"
+                                               data-id="{{ $building['building_id'] }}"
+                                               data-name="{{ $building['building_name'] }}"
+                                               data-address="{{ $building['address'] }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                             </svg>
                                         </button>
-                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-building-btn">
+                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-building-btn"
+                                               data-id="{{ $building['building_id'] }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
                                             </svg>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="p-3 text-center text-gray-500">No buildings found</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -67,40 +70,85 @@
                 <!-- Pagination -->
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div class="flex gap-2">
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                            Prev
-                        </button>
-                        <div class="flex gap-2">
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">1</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">2</button>
-                            <button class="w-8 h-8 flex items-center justify-center bg-[#213268] rounded text-white text-sm">3</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">4</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">5</button>
-                        </div>
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
-                            Next
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
+                        @if(isset($buildingPagination) && is_array($buildingPagination))
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($buildingPagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                   onclick="changeBuildingPage({{ ($buildingPagination['current_page'] ?? 1) - 1 }})"
+                                   {{ ($buildingPagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
+                            </button>
+
+                            <div class="flex gap-1">
+                                @php
+                                    $currentPage = $buildingPagination['current_page'] ?? 1;
+                                    $totalPages = $buildingPagination['total_pages'] ?? 1;
+                                    $startPage = max(1, min($currentPage - 2, $totalPages - 4));
+                                    $endPage = min($totalPages, max(5, $currentPage + 2));
+                                @endphp
+
+                                @for ($i = $startPage; $i <= $endPage; $i++)
+                                <button class="w-8 h-8 {{ $i == $currentPage ? 'bg-[#213268] text-white' : 'border border-[#D8DAE5] text-[#213268]' }} rounded text-sm hover:bg-gray-50 {{ $i == $currentPage ? '' : 'hover:bg-gray-100' }}"
+                                       onclick="changeBuildingPage({{ $i }})">
+                                    {{ $i }}
+                                </button>
+                                @endfor
+                            </div>
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($buildingPagination['current_page'] ?? 1) >= ($buildingPagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                   onclick="changeBuildingPage({{ ($buildingPagination['current_page'] ?? 1) + 1 }})"
+                                   {{ ($buildingPagination['current_page'] ?? 1) >= ($buildingPagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        @else
+                            <!-- Default pagination when no data -->
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
+                            </button>
+                            <button class="w-8 h-8 bg-[#213268] text-white rounded text-sm">1</button>
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        @endif
                     </div>
 
-                    <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
-                        10 per page
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-600">
+                            @if(isset($buildingPagination) && is_array($buildingPagination))
+                                @php
+                                    $currentPage = $buildingPagination['current_page'] ?? 1;
+                                    $perPage = $buildingPagination['limit'] ?? 10;
+                                    $total = $buildingPagination['total_items'] ?? count($buildings);
+                                    $from = ($currentPage - 1) * $perPage + 1;
+                                    $to = min($currentPage * $perPage, $total);
+                                @endphp
+                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                            @else
+                                Showing 1 to {{ count($buildings) }} of {{ count($buildings) }} entries
+                            @endif
+                        </span>
+                        <select id="buildingPerPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeBuildingPerPage(this.value)">
+                            <option value="10" {{ isset($buildingPagination['limit']) && $buildingPagination['limit'] == 10 ? 'selected' : '' }}>10 per page</option>
+                            <option value="25" {{ isset($buildingPagination['limit']) && $buildingPagination['limit'] == 25 ? 'selected' : '' }}>25 per page</option>
+                            <option value="50" {{ isset($buildingPagination['limit']) && $buildingPagination['limit'] == 50 ? 'selected' : '' }}>50 per page</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Room Section -->
-    <div class="card bg-base-100 shadow-xl mt-6">
+    <div class="card bg-base-100 shadow-xl">
         <div class="card-body p-4 md:p-7">
             <div class="flex flex-col gap-6">
                 <!-- Header -->
@@ -124,83 +172,138 @@
                             <tr>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">Room_Id</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Room Name</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Building Name</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Building</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Floor</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[88px]">Action</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse($rooms as $room)
                             <tr>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">R001</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">NICU Room</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">Building A</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">1st Floor</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['room_id'] }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['room_name'] }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['building_name'] }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['floor_number'] }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['description'] ?? '-' }}</td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
-                                    <div class="flex justify-center gap-2"></div>
-                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-room-btn">
+                                    <div class="flex justify-center gap-2">
+                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-room-btn"
+                                               data-id="{{ $room['room_id'] }}"
+                                               data-name="{{ $room['room_name'] }}"
+                                               data-building-id="{{ $room['building_id'] }}"
+                                               data-floor-number="{{ $room['floor_number'] }}"
+                                               data-description="{{ $room['description'] ?? '' }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                             </svg>
                                         </button>
-                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-room-btn">
+                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-room-btn"
+                                               data-id="{{ $room['room_id'] }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                        <button class="text-[#3D3D3D] hover:text-[#213268]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
                                             </svg>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="p-3 text-center text-gray-500">No rooms found</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Pagination -->
+                <!-- Pagination for Rooms -->
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div class="flex gap-2">
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                            Prev
-                        </button>
-                        <div class="flex gap-2">
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">1</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">2</button>
-                            <button class="w-8 h-8 flex items-center justify-center bg-[#213268] rounded text-white text-sm">3</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">4</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">5</button>
-                        </div>
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
-                            Next
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
+                        @if(isset($roomPagination) && is_array($roomPagination))
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($roomPagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                   onclick="changeRoomPage({{ ($roomPagination['current_page'] ?? 1) - 1 }})"
+                                   {{ ($roomPagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
+                            </button>
+                            <div class="flex gap-2">
+                                @php
+                                    $currentPage = $roomPagination['current_page'] ?? 1;
+                                    $totalPages = $roomPagination['total_pages'] ?? 1;
+                                    $startPage = max(1, min($currentPage - 2, $totalPages - 4));
+                                    $endPage = min($totalPages, max(5, $currentPage + 2));
+                                @endphp
+
+                                @for ($i = $startPage; $i <= $endPage; $i++)
+                                <button class="w-8 h-8 {{ $i == $currentPage ? 'bg-[#213268] text-white' : 'border border-[#D8DAE5] text-[#213268]' }} rounded text-sm hover:bg-gray-50 {{ $i == $currentPage ? '' : 'hover:bg-gray-100' }}"
+                                       onclick="changeRoomPage({{ $i }})">
+                                    {{ $i }}
+                                </button>
+                                @endfor
+                            </div>
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($roomPagination['current_page'] ?? 1) >= ($roomPagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                   onclick="changeRoomPage({{ ($roomPagination['current_page'] ?? 1) + 1 }})"
+                                   {{ ($roomPagination['current_page'] ?? 1) >= ($roomPagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        @else
+                            <!-- Default pagination when no data -->
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
+                            </button>
+                            <button class="w-8 h-8 bg-[#213268] text-white rounded text-sm">1</button>
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        @endif
                     </div>
 
-                    <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
-                        10 per page
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-600">
+                            @if(isset($roomPagination) && is_array($roomPagination))
+                                @php
+                                    $currentPage = $roomPagination['current_page'] ?? 1;
+                                    $perPage = $roomPagination['limit'] ?? 10;
+                                    $total = $roomPagination['total_items'] ?? count($rooms);
+                                    $from = ($currentPage - 1) * $perPage + 1;
+                                    $to = min($currentPage * $perPage, $total);
+                                @endphp
+                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                            @else
+                                Showing 1 to {{ count($rooms) }} of {{ count($rooms) }} entries
+                            @endif
+                        </span>
+                        <select id="roomPerPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeRoomPerPage(this.value)">
+                            <option value="10" {{ isset($roomPagination['limit']) && $roomPagination['limit'] == 10 ? 'selected' : '' }}>10 per page</option>
+                            <option value="25" {{ isset($roomPagination['limit']) && $roomPagination['limit'] == 25 ? 'selected' : '' }}>25 per page</option>
+                            <option value="50" {{ isset($roomPagination['limit']) && $roomPagination['limit'] == 50 ? 'selected' : '' }}>50 per page</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- All modals should be outside the main content section -->
 <!-- Add Building Modal -->
 <div id="addBuildingModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300" id="buildingModalContent">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="buildingModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
                     <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">ADD BUILDING</h2>
@@ -213,21 +316,33 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <div class="space-y-4 max-w-[400px] mx-auto">
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Building Name</label>
-                            <input type="text" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200" placeholder="Type here">
+                    <form id="addBuildingForm" action="{{ route('buildings.store') }}" method="POST">
+                        @csrf
+                        <div class="space-y-4 max-w-[400px] mx-auto">
+                            <!-- Building Name Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Building Name</label>
+                                <input type="text" name="building_name"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here" required>
+                            </div>
+
+                            <!-- Address Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Address</label>
+                                <input type="text" name="address"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here">
+                            </div>
+
+                            <!-- Button Group -->
+                            <div class="pt-4">
+                                <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                    Save
+                                </button>
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Address</label>
-                            <input type="text" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200" placeholder="Type here">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">City</label>
-                            <input type="text" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200" placeholder="Type here">
-                        </div>
-                        <button class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">Save</button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -239,7 +354,8 @@
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300" id="editBuildingModalContent">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="editBuildingModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
                     <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">EDIT BUILDING</h2>
@@ -252,35 +368,48 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <div class="space-y-4 max-w-[400px] mx-auto">
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Building Name</label>
-                            <input type="text" id="editBuildingName" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200" placeholder="Type here">
+                    <form id="editBuildingForm" action="" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="editBuildingId" name="building_id">
+                        <div class="space-y-4 max-w-[400px] mx-auto">
+                            <!-- Building Name Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Building Name</label>
+                                <input type="text" id="editBuildingName" name="building_name"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here" required>
+                            </div>
+
+                            <!-- Address Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Address</label>
+                                <input type="text" id="editAddress" name="address"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here">
+                            </div>
+
+                            <!-- Button Group -->
+                            <div class="pt-4">
+                                <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                    Save
+                                </button>
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Address</label>
-                            <input type="text" id="editBuildingAddress" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200" placeholder="Type here">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">City</label>
-                            <input type="text" id="editBuildingCity" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200" placeholder="Type here">
-                        </div>
-                        <button class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                            Update
-                        </button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Building Modal -->
+<!-- Delete Building Confirmation Modal -->
 <div id="deleteBuildingModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300" id="deleteBuildingModalContent">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="deleteBuildingModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
                     <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">DELETE BUILDING</h2>
@@ -293,22 +422,17 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <div class="space-y-6 max-w-[400px] mx-auto">
-                        <div class="flex flex-col items-center">
-                            <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p class="text-base text-gray-600 text-center">Are you sure you want to delete this building? This action cannot be undone.</p>
-                        </div>
-                        <div class="flex gap-3">
-                            <button class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                Cancel
-                            </button>
-                            <button class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                    <p class="text-center text-gray-600 mb-6">Are you sure you want to delete this building? This action cannot be undone.</p>
+                    <form id="deleteBuildingForm" action="" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" id="deleteBuildingId" name="building_id">
+                        <div>
+                            <button type="submit" class="w-full h-[45px] bg-red-600 text-white rounded-lg text-base hover:bg-red-700 transform active:scale-[0.98] transition-all duration-200">
                                 Delete
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -320,7 +444,8 @@
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300" id="roomModalContent">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="roomModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
                     <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">ADD ROOM</h2>
@@ -333,32 +458,54 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <div class="space-y-4 max-w-[400px] mx-auto">
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Room Name</label>
-                            <input type="text" id="addRoomName" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200" placeholder="Type here">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Building Name</label>
-                            <div class="relative">
-                                <select id="addRoomBuilding" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] appearance-none focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 bg-white cursor-pointer">
-                                    <option value="">Select Building</option>
-                                    <option value="building-a">Building A</option>
-                                    <option value="building-b">Building B</option>
+                    <form id="addRoomForm" action="{{ route('rooms.store') }}" method="POST">
+                        @csrf
+                        <div class="space-y-4 max-w-[400px] mx-auto">
+                            <!-- Room Name Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Room Name</label>
+                                <input type="text" name="room_name"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here" required>
+                            </div>
+
+                            <!-- Building Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Building</label>
+                                <select name="building_id"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    required>
+                                    <option value="" disabled selected>Select a building</option>
+                                    @foreach($buildings as $building)
+                                    <option value="{{ $building['building_id'] }}">{{ $building['building_name'] }}</option>
+                                    @endforeach
                                 </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-                                    <svg class="w-4 h-4 text-[#203268]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
+                            </div>
+
+                            <!-- Floor Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Floor</label>
+                                <input type="text" name="floor_number"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here" required>
+                            </div>
+
+                            <!-- Description Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Description</label>
+                                <textarea name="description"
+                                    class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 resize-none"
+                                    placeholder="Type here"></textarea>
+                            </div>
+
+                            <!-- Button Group -->
+                            <div class="pt-4">
+                                <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                    Save
+                                </button>
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Floor</label>
-                            <input type="text" id="addRoomFloor" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200" placeholder="Type here">
-                        </div>
-                        <button class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">Save</button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -370,7 +517,8 @@
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300" id="editRoomModalContent">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="editRoomModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
                     <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">EDIT ROOM</h2>
@@ -383,46 +531,69 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <div class="space-y-4 max-w-[400px] mx-auto">
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Room Name</label>
-                            <input type="text" id="editRoomName" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200" placeholder="Type here">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Building Name</label>
-                            <div class="relative">
-                                <select id="editRoomBuilding" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] appearance-none focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 bg-white cursor-pointer">
-                                    <option value="">Select Building</option>
-                                    <option value="building-a">Building A</option>
-                                    <option value="building-b">Building B</option>
+                    <form id="editRoomForm" action="" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="editRoomId" name="room_id">
+                        <div class="space-y-4 max-w-[400px] mx-auto">
+                            <!-- Room Name Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Room Name</label>
+                                <input type="text" id="editRoomName" name="room_name"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here" required>
+                            </div>
+
+                            <!-- Building Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Building</label>
+                                <select id="editRoomBuilding" name="building_id"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    required>
+                                    <option value="" disabled>Select a building</option>
+                                    @foreach($buildings as $building)
+                                    <option value="{{ $building['building_id'] }}">{{ $building['building_name'] }}</option>
+                                    @endforeach
                                 </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-                                    <svg class="w-4 h-4 text-[#203268]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
+                            </div>
+
+                            <!-- Floor Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Floor</label>
+                                <input type="text" id="editRoomFloor" name="floor_number"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Type here" required>
+                            </div>
+
+                            <!-- Description Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Description</label>
+                                <textarea id="editRoomDescription" name="description"
+                                    class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 resize-none"
+                                    placeholder="Type here"></textarea>
+                            </div>
+
+                            <!-- Button Group -->
+                            <div class="pt-4">
+                                <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                    Save
+                                </button>
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Floor</label>
-                            <input type="text" id="editRoomFloor" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200" placeholder="Type here">
-                        </div>
-                        <button class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                            Update
-                        </button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Room Modal -->
+<!-- Delete Room Confirmation Modal -->
 <div id="deleteRoomModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300" id="deleteRoomModalContent">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="deleteRoomModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
                     <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">DELETE ROOM</h2>
@@ -435,56 +606,100 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <div class="space-y-6 max-w-[400px] mx-auto">
-                        <div class="flex flex-col items-center">
-                            <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p class="text-base text-gray-600 text-center">Are you sure you want to delete this room? This action cannot be undone.</p>
-                        </div>
-                        <div class="flex gap-3">
-                            <button class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                Cancel
-                            </button>
-                            <button class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                    <p class="text-center text-gray-600 mb-6">Are you sure you want to delete this room? This action cannot be undone.</p>
+                    <form id="deleteRoomForm" action="" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" id="deleteRoomId" name="room_id">
+                        <div>
+                            <button type="submit" class="w-full h-[45px] bg-red-600 text-white rounded-lg text-base hover:bg-red-700 transform active:scale-[0.98] transition-all duration-200">
                                 Delete
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Success and Error Notifications -->
+@if(session('success'))
+<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Success!</p>
+            <p>{{ session('success') }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+
+<script>
+    setTimeout(function() {
+        const notification = document.getElementById('successNotification');
+        if (notification) {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(function() {
+                notification.remove();
+            }, 500);
+        }
+    }, 5000); // Hide after 5 seconds
+</script>
+@endif
+
+@if(session('error'))
+<div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Error!</p>
+            <p>{{ session('error') }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+
+<script>
+    setTimeout(function() {
+        const notification = document.getElementById('errorNotification');
+        if (notification) {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(function() {
+                notification.remove();
+            }, 500);
+        }
+    }, 5000); // Hide after 5 seconds
+</script>
+@endif
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Modal elements
-        const addBuildingBtn = document.getElementById('addBuildingBtn');
-        const addRoomBtn = document.getElementById('addRoomBtn');
+        // Toast container
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-4';
+        document.body.appendChild(toastContainer);
+
+        // Get all modal elements
         const addBuildingModal = document.getElementById('addBuildingModal');
+        const editBuildingModal = document.getElementById('editBuildingModal');
+        const deleteBuildingModal = document.getElementById('deleteBuildingModal');
         const addRoomModal = document.getElementById('addRoomModal');
-        const buildingModalContent = document.getElementById('buildingModalContent');
-        const roomModalContent = document.getElementById('roomModalContent');
+        const editRoomModal = document.getElementById('editRoomModal');
+        const deleteRoomModal = document.getElementById('deleteRoomModal');
         const closeButtons = document.querySelectorAll('.close-modal');
 
-        // Edit modals
-        const editBuildingButtons = document.querySelectorAll('.edit-building-btn');
-        const editRoomButtons = document.querySelectorAll('.edit-room-btn');
-        const editBuildingModal = document.getElementById('editBuildingModal');
-        const editRoomModal = document.getElementById('editRoomModal');
-        const editBuildingModalContent = document.getElementById('editBuildingModalContent');
-        const editRoomModalContent = document.getElementById('editRoomModalContent');
-
-        // Delete modals
-        const deleteBuildingButtons = document.querySelectorAll('.delete-building-btn');
-        const deleteRoomButtons = document.querySelectorAll('.delete-room-btn');
-        const deleteBuildingModal = document.getElementById('deleteBuildingModal');
-        const deleteRoomModal = document.getElementById('deleteRoomModal');
-        const deleteBuildingModalContent = document.getElementById('deleteBuildingModalContent');
-        const deleteRoomModalContent = document.getElementById('deleteRoomModalContent');
-
+        // Function to open modal - updated to match Vendor.blade.php
         function openModal(modal, content) {
             modal.classList.remove('hidden');
             setTimeout(() => {
@@ -493,6 +708,7 @@
             }, 10);
         }
 
+        // Function to close modal - updated to match Vendor.blade.php
         function closeModal(modal, content) {
             content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
             content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
@@ -501,46 +717,88 @@
             }, 300);
         }
 
-        // Add event listeners
-        addBuildingBtn.addEventListener('click', () => openModal(addBuildingModal, buildingModalContent));
-        addRoomBtn.addEventListener('click', () => openModal(addRoomModal, roomModalContent));
-
-        editBuildingButtons.forEach(button => {
-            button.addEventListener('click', () => openModal(editBuildingModal, editBuildingModalContent));
+        // Add Building Modal
+        document.getElementById('addBuildingBtn').addEventListener('click', () => {
+            openModal(addBuildingModal, addBuildingModal.querySelector('[id$="ModalContent"]'));
         });
 
-        editRoomButtons.forEach(button => {
-            button.addEventListener('click', () => openModal(editRoomModal, editRoomModalContent));
+        // Add Room Modal
+        document.getElementById('addRoomBtn').addEventListener('click', () => {
+            openModal(addRoomModal, addRoomModal.querySelector('[id$="ModalContent"]'));
         });
 
-        deleteBuildingButtons.forEach(button => {
-            button.addEventListener('click', () => openModal(deleteBuildingModal, deleteBuildingModalContent));
+        // Edit Building Modal
+        document.querySelectorAll('.edit-building-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const buildingId = button.getAttribute('data-id');
+                document.getElementById('editBuildingForm').action = `{{ url('location/buildings/update') }}/${buildingId}`;
+                document.getElementById('editBuildingId').value = buildingId;
+                document.getElementById('editBuildingName').value = button.getAttribute('data-name');
+                document.getElementById('editAddress').value = button.getAttribute('data-address');
+
+                openModal(editBuildingModal, editBuildingModal.querySelector('[id$="ModalContent"]'));
+            });
         });
 
-        deleteRoomButtons.forEach(button => {
-            button.addEventListener('click', () => openModal(deleteRoomModal, deleteRoomModalContent));
+        // Edit Room Modal
+        document.querySelectorAll('.edit-room-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const roomId = button.getAttribute('data-id');
+                document.getElementById('editRoomForm').action = `{{ url('location/rooms/update') }}/${roomId}`;
+                document.getElementById('editRoomId').value = roomId;
+                document.getElementById('editRoomName').value = button.getAttribute('data-name');
+                document.getElementById('editRoomBuilding').value = button.getAttribute('data-building-id');
+                document.getElementById('editRoomFloor').value = button.getAttribute('data-floor-number');
+                document.getElementById('editRoomDescription').value = button.getAttribute('data-description') || '';
+
+                openModal(editRoomModal, editRoomModal.querySelector('[id$="ModalContent"]'));
+            });
         });
 
-        // Close modal handlers
+        // Delete Building Modal
+        document.querySelectorAll('.delete-building-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const buildingId = button.getAttribute('data-id');
+                document.getElementById('deleteBuildingForm').action = `{{ url('location/buildings/delete') }}/${buildingId}`;
+                document.getElementById('deleteBuildingId').value = buildingId;
+
+                openModal(deleteBuildingModal, deleteBuildingModal.querySelector('[id$="ModalContent"]'));
+            });
+        });
+
+        // Delete Room Modal
+        document.querySelectorAll('.delete-room-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const roomId = button.getAttribute('data-id');
+                document.getElementById('deleteRoomForm').action = `{{ url('location/rooms/delete') }}/${roomId}`;
+                document.getElementById('deleteRoomId').value = roomId;
+
+                openModal(deleteRoomModal, deleteRoomModal.querySelector('[id$="ModalContent"]'));
+            });
+        });
+
+        // Close Modal Handlers - updated to match Vendor.blade.php
         closeButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
+            button.addEventListener('click', () => {
                 const modal = button.closest('[id$="Modal"]');
                 const content = modal.querySelector('[id$="ModalContent"]');
                 closeModal(modal, content);
             });
         });
 
-        // Close on outside click
+        // Close on outside click - updated to match Vendor.blade.php
         [addBuildingModal, editBuildingModal, deleteBuildingModal, addRoomModal, editRoomModal, deleteRoomModal].forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    const content = modal.querySelector('[id$="ModalContent"]');
-                    closeModal(modal, content);
+            modal.addEventListener('click', function(e) {
+                // Check if the click is directly on the modal's overlay area
+                if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
+                    e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
+                    const content = this.querySelector('[id$="ModalContent"]');
+                    closeModal(this, content);
                 }
             });
         });
 
-        // Close on Escape key
+        // Close on Escape key - added to match Vendor.blade.php
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 [addBuildingModal, editBuildingModal, deleteBuildingModal, addRoomModal, editRoomModal, deleteRoomModal].forEach(modal => {
@@ -551,6 +809,73 @@
                 });
             }
         });
+
+        // Show toast notification
+        window.showToast = function(message, type = 'info') {
+            // Create toast element
+            const toast = document.createElement('div');
+            let bgColor, borderColor, textColor, icon;
+
+            if (type === 'success') {
+                bgColor = 'bg-green-100';
+                borderColor = 'border-green-500';
+                textColor = 'text-green-700';
+                icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>`;
+            } else if (type === 'error') {
+                bgColor = 'bg-red-100';
+                borderColor = 'border-red-500';
+                textColor = 'text-red-700';
+                icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>`;
+            } else {
+                bgColor = 'bg-blue-100';
+                borderColor = 'border-blue-500';
+                textColor = 'text-blue-700';
+                icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>`;
+            }
+
+            toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
+            toast.setAttribute('role', 'alert');
+
+            // Create toast content
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <div class="py-1">
+                        ${icon}
+                    </div>
+                    <div>
+                        <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}!</p>
+                        <p>${message}</p>
+                    </div>
+                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                </div>
+            `;
+
+            // Add to container
+            toastContainer.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('opacity-0');
+                toast.classList.add('opacity-100');
+            }, 10);
+
+            // Remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+                setTimeout(() => {
+                    if (toast.parentNode === toastContainer) {
+                        toastContainer.removeChild(toast);
+                    }
+                }, 300);
+            }, 5000);
+        }
     });
 </script>
 @endpush
