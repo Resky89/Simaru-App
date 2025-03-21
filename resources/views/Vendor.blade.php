@@ -239,7 +239,7 @@
 
                             <!-- Submit Button -->
                             <button type="submit" id="submitVendorBtn"
-                                class="w-full h-[45px] bg-[#203268] text-white rounded-lg hover:bg-opacity-90 transition duration-200">
+                                class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200"></button>
                                 Save
                             </button>
                         </div>
