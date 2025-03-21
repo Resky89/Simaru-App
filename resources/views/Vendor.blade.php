@@ -181,6 +181,18 @@
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
     </div>
 </div>
+
+<script>
+    setTimeout(function() {
+        const notification = document.getElementById('successNotification');
+        if (notification) {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(function() {
+                notification.remove();
+            }, 500);
+        }
+    }, 5000); // Hide after 5 seconds
+</script>
 @endif
 
 @if(session('error'))
@@ -198,6 +210,18 @@
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
     </div>
 </div>
+
+<script>
+    setTimeout(function() {
+        const notification = document.getElementById('errorNotification');
+        if (notification) {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(function() {
+                notification.remove();
+            }, 500);
+        }
+    }, 5000); // Hide after 5 seconds
+</script>
 @endif
 @endsection
 

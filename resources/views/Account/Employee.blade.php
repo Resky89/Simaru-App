@@ -375,6 +375,18 @@
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
     </div>
 </div>
+
+<script>
+    setTimeout(function() {
+        const notification = document.getElementById('successNotification');
+        if (notification) {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(function() {
+                notification.remove();
+            }, 500);
+        }
+    }, 5000); // Hide after 5 seconds
+</script>
 @endif
 
 @if(session('error'))
@@ -392,6 +404,18 @@
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
     </div>
 </div>
+
+<script>
+    setTimeout(function() {
+        const notification = document.getElementById('errorNotification');
+        if (notification) {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(function() {
+                notification.remove();
+            }, 500);
+        }
+    }, 5000); // Hide after 5 seconds
+</script>
 @endif
 
 @endsection
@@ -441,7 +465,7 @@
                 const employeeId = button.getAttribute('data-id');
 
                 // Gunakan URL yang benar untuk aksi form
-                document.getElementById('editEmployeeForm').action = `{{ url('employees') }}/${employeeId}`;
+                document.getElementById('editEmployeeForm').action = `{{ route('employees.update', '') }}/${employeeId}`;
                 console.log('Edit form action set to:', document.getElementById('editEmployeeForm').action);
 
                 // Set form values
@@ -463,7 +487,7 @@
                 const employeeId = button.getAttribute('data-id');
 
                 // Set the correct URL for delete action
-                document.getElementById('deleteEmployeeForm').action = `{{ url('employees') }}/${employeeId}`;
+                document.getElementById('deleteEmployeeForm').action = `{{ route('employees.destroy', '') }}/${employeeId}`;
                 document.getElementById('delete_employee_id').value = employeeId;
                 console.log('Delete form action set to:', document.getElementById('deleteEmployeeForm').action);
 
