@@ -166,63 +166,6 @@
     </div>
 </div>
 
-@if(session('success'))
-<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Success!</p>
-            <p>{{ session('success') }}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-
-<script>
-    setTimeout(function() {
-        const notification = document.getElementById('successNotification');
-        if (notification) {
-            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-            setTimeout(function() {
-                notification.remove();
-            }, 500);
-        }
-    }, 5000); // Hide after 5 seconds
-</script>
-@endif
-
-@if(session('error'))
-<div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Error!</p>
-            <p>{{ session('error') }}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-
-<script>
-    setTimeout(function() {
-        const notification = document.getElementById('errorNotification');
-        if (notification) {
-            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-            setTimeout(function() {
-                notification.remove();
-            }, 500);
-        }
-    }, 5000); // Hide after 5 seconds
-</script>
-@endif
 @endsection
 
 <!-- Modal Add Vendor -->
@@ -297,7 +240,7 @@
 
                             <!-- Submit Button -->
                             <button type="submit" id="submitVendorBtn"
-                                class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200"></button>
+                                class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
                                 Save
                             </button>
                         </div>
