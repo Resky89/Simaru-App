@@ -59,10 +59,21 @@ class LocationController extends Controller
                 throw new \Exception($error);
             }
 
+            $rooms = $roomResult['data'] ?? [];
+            $buildings = $buildingResult['data'] ?? [];
+
+            foreach ($rooms as &$room) {
+                $buildingId = $room['building_id'];
+                $building = collect($buildings)->first(function($building) use ($buildingId) {
+                    return $building['building_id'] == $buildingId;
+                });
+                $room['building_name'] = $building ? $building['building_name'] : 'Unknown';
+            }
+
             return view('Location', [
                 'buildings' => $buildingResult['data'] ?? [],
                 'buildingPagination' => $buildingResult['pagination'] ?? null,
-                'rooms' => $roomResult['data'] ?? [],
+                'rooms' => $rooms,
                 'roomPagination' => $roomResult['pagination'] ?? null
             ]);
         } catch (\Exception $e) {
