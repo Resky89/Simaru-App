@@ -112,4 +112,11 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    'access_token_cookie_lifetime' => env('ACCESS_TOKEN_LIFETIME', 60), // 1 jam default
+    'refresh_token_cookie_lifetime' => env('REFRESH_TOKEN_LIFETIME', 43200), // 30 hari default
+
+    // Lifetime yang lebih panjang untuk pengguna yang memilih "remember me"
+    'remembered_access_token_cookie_lifetime' => env('REMEMBERED_ACCESS_TOKEN_LIFETIME', 1440), // 1 hari
+    'remembered_refresh_token_cookie_lifetime' => env('REMEMBERED_REFRESH_TOKEN_LIFETIME', 303800), // ~7 bulan
+
 ];
