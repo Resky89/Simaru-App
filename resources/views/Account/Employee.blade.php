@@ -407,34 +407,6 @@
     </div>
 </div>
 
-@if(session('success'))
-<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Success!</p>
-            <p>{{ session('success') }}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-
-<script>
-    setTimeout(function() {
-        const notification = document.getElementById('successNotification');
-        if (notification) {
-            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-            setTimeout(function() {
-                notification.remove();
-            }, 500);
-        }
-    }, 5000); // Hide after 5 seconds
-</script>
-@endif
 @endsection
 
 @push('scripts')
