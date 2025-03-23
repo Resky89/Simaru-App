@@ -412,7 +412,7 @@
                 id="deleteBuildingModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">DELETE BUILDING</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE BUILDING</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -420,20 +420,30 @@
                     </button>
                 </div>
 
-                <!-- Form -->
-                <div class="p-6">
-                    <p class="text-center text-gray-600 mb-6">Are you sure you want to delete this building? This action cannot be undone.</p>
-                    <form id="deleteBuildingForm" action="" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <input type="hidden" id="deleteBuildingId" name="building_id">
-                        <div>
-                            <button type="submit" class="w-full h-[45px] bg-red-600 text-white rounded-lg text-base hover:bg-red-700 transform active:scale-[0.98] transition-all duration-200">
-                                Delete
-                            </button>
+                <!-- Content -->
+                <form id="deleteBuildingForm" action="" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" id="deleteBuildingId" name="building_id">
+                    <div class="p-6">
+                        <div class="space-y-6 max-w-[400px] mx-auto">
+                            <div class="flex flex-col items-center">
+                                <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this building? This action cannot be undone.</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                    Delete
+                                </button>
+                            </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -596,7 +606,7 @@
                 id="deleteRoomModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">DELETE ROOM</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE ROOM</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -604,20 +614,30 @@
                     </button>
                 </div>
 
-                <!-- Form -->
-                <div class="p-6">
-                    <p class="text-center text-gray-600 mb-6">Are you sure you want to delete this room? This action cannot be undone.</p>
-                    <form id="deleteRoomForm" action="" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <input type="hidden" id="deleteRoomId" name="room_id">
-                        <div>
-                            <button type="submit" class="w-full h-[45px] bg-red-600 text-white rounded-lg text-base hover:bg-red-700 transform active:scale-[0.98] transition-all duration-200">
-                                Delete
-                            </button>
+                <!-- Content -->
+                <form id="deleteRoomForm" action="" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" id="deleteRoomId" name="room_id">
+                    <div class="p-6">
+                        <div class="space-y-6 max-w-[400px] mx-auto">
+                            <div class="flex flex-col items-center">
+                                <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this room? This action cannot be undone.</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                    Delete
+                                </button>
+                            </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
