@@ -148,30 +148,55 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle logout request
+     * Logout the user
      */
     public function logout(Request $request)
     {
         try {
-            // Get user ID from session
-            $userId = $request->session()->get('user_id');
+            $accessToken = $request->session()->get('access_token');
 
-            if ($userId) {
-                \Log::info('Logging out user', ['user_id' => $userId]);
-
+            if ($accessToken) {
                 $client = new Client();
-                $response = $client->post(config('services.api.base_url') . '/auth/logout/' . $userId, [
+                $apiBaseUrl = config('services.api.base_url');
+
+                // Make the logout request with bearer token authentication
+                $response = $client->post("{$apiBaseUrl}/auth/logout", [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $accessToken
+                    ],
                     'http_errors' => false // Prevent exceptions on error responses
                 ]);
 
                 $statusCode = $response->getStatusCode();
                 \Log::info('Logout API response status: ' . $statusCode);
 
-                if ($statusCode !== 200) {
+                // If token expired, try refreshing it and retry logout
+                if ($statusCode === 401 || $statusCode === 403) {
+                    \Log::info('Access token expired during logout, attempting to refresh');
+
+                    // Try to refresh the token
+                    $apiService = app(ApiService::class);
+                    if ($apiService->refreshToken()) {
+                        // Get the new access token
+                        $newAccessToken = $request->session()->get('access_token');
+
+                        // Retry logout with new token
+                        $retryResponse = $client->post("{$apiBaseUrl}/auth/logout", [
+                            'headers' => [
+                                'Authorization' => 'Bearer ' . $newAccessToken
+                            ],
+                            'http_errors' => false
+                        ]);
+
+                        \Log::info('Logout retry API response status: ' . $retryResponse->getStatusCode());
+                    } else {
+                        \Log::warning('Token refresh failed during logout');
+                    }
+                } else if ($statusCode !== 200) {
                     \Log::warning('Logout API returned non-200 status code: ' . $statusCode);
                 }
             } else {
-                \Log::warning('Logout attempted without user_id in session');
+                \Log::warning('Logout attempted without access token in session');
             }
 
             // Clear session data regardless of API response
