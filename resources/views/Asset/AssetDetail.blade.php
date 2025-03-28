@@ -32,7 +32,7 @@
                             </svg>
                             <span class="text-sm">Lost</span>
                         </a>
-                        <a href="#" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
+                        <a href="" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
@@ -45,17 +45,49 @@
                 <div class="flex flex-col lg:flex-row gap-4 md:gap-8">
                     <!-- Asset Image and Status -->
                     <div class="w-full lg:w-[350px] xl:w-[400px]">
-                        <div class="bg-[#D9D9D9] rounded-[20px] shadow-md h-[180px] md:h-[268px] w-full flex items-center justify-center">
-                            <!-- Asset image would go here -->
-                            <img src="/path/to/asset-image.jpg" alt="Asset Image" class="hidden">
+                        <div class="bg-[#D9D9D9] rounded-[20px] shadow-md h-[180px] md:h-[268px] w-full flex items-center justify-center overflow-hidden relative">
+                            @if(isset($asset['picture_path']) && $asset['picture_path'])
+                                <img src="http://localhost:5000/public{{ $asset['picture_path'] }}"
+                                     alt="Asset Image"
+                                     class="absolute inset-0 w-full h-full object-cover p-0"
+                                     style="object-position: center;"
+                                     onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4'); this.style.position='relative';">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 rounded-[20px]"></div>
+                            @else
+                                <div class="flex flex-col items-center justify-center text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span class="text-sm">No image available</span>
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Asset identification - mobile layout with smaller text -->
                         <div class="flex flex-col items-center mt-4">
-                            <p class="text-sm font-medium text-center mt-1">PM-4380</p>
-                            <p class="text-sm font-medium text-center mt-2">Asset Name</p>
-                            <div class="bg-[#659B09] py-0.5 px-3 rounded-md w-full max-w-[120px] text-center mt-2">
-                                <p class="text-xs text-white">AVAILABLE</p>
+                            <p class="text-sm font-medium text-center mt-1">{{ $asset['asset_code'] ?? '-' }}</p>
+                            <p class="text-sm font-medium text-center mt-2">{{ $asset['asset_name'] ?? '-' }}</p>
+                            @php
+                                $statusColor = 'bg-gray-500';
+                                if(isset($asset['current_status'])) {
+                                    switch(strtolower($asset['current_status'])) {
+                                        case 'available':
+                                            $statusColor = 'bg-[#659B09]';
+                                            break;
+                                        case 'in_use':
+                                            $statusColor = 'bg-[#F59E0B]';
+                                            break;
+                                        case 'lost':
+                                            $statusColor = 'bg-[#EF4444]';
+                                            break;
+                                        case 'disposed':
+                                            $statusColor = 'bg-[#6B7280]';
+                                            break;
+                                    }
+                                }
+                            @endphp
+                            <div class="{{ $statusColor }} py-0.5 px-3 rounded-md w-full max-w-[120px] text-center mt-2">
+                                <p class="text-xs text-white">{{ strtoupper($asset['current_status'] ?? 'UNKNOWN') }}</p>
                             </div>
                         </div>
                     </div>
@@ -67,53 +99,67 @@
                             <div class="space-y-4">
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Categories</span>
-                                    <span>-</span>
+                                    <span>{{ $asset['subcategory']['asset_type'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Sub Categories</span>
-                                    <span>-</span>
+                                    <span>{{ $asset['subcategory']['subcategory_name'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Location</span>
-                                    <span>-</span>
+                                    <span class="w-[140px] font-semibold">Room</span>
+                                    <span>{{ $asset['room']['room_name'] ?? '-' }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-[140px] font-semibold">Building</span>
+                                    <span>{{ $asset['room']['building']['building_name'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Brand</span>
-                                    <span>-</span>
+                                    <span>{{ $asset['brand']['brand_name'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Warranty Date</span>
-                                    <span>-</span>
+                                    <span>{{ $asset['warranty_end_date'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Lost Date</span>
-                                    <span>-</span>
+                                    <span>
+                                        @if($asset['current_status'] === 'lost' && isset($asset['updated_at']))
+                                            @php
+                                                // Convert the timestamp to a more readable format
+                                                $lostDate = \Carbon\Carbon::parse($asset['updated_at'])->format('Y-m-d');
+                                            @endphp
+                                            {{ $lostDate }}
+                                        @else
+                                            -
+                                        @endif
+                                    </span>
                                 </div>
                             </div>
                             <div class="space-y-4">
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Model Number</span>
-                                    <span>-</span>
+                                    <span>{{ $asset['model_number'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Serial Number</span>
-                                    <span>-</span>
+                                    <span>{{ $asset['serial_number'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Purchase Cost</span>
-                                    <span>-</span>
+                                    <span>{{ number_format((float)($asset['purchase_cost'] ?? 0), 2) }}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Purchase Date</span>
-                                    <span>-</span>
+                                    <span>{{ $asset['purchase_date'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Disposal Date</span>
-                                    <span>-</span>
+                                    <span>{{ $asset['current_status'] === 'disposed' ? ($asset['updated_at'] ?? '-') : '-' }}</span>
                                 </div>
                                 <div class="flex">
                                     <span class="w-[140px] font-semibold">Condition</span>
-                                    <span>-</span>
+                                    <span>{{ ucfirst($asset['condition'] ?? '-') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -123,7 +169,7 @@
                 <!-- Description Section -->
                 <div class="mt-4">
                     <h2 class="text-xl font-semibold text-black mb-4">Description</h2>
-                    <p class="text-[#000000]">-</p>
+                    <p class="text-[#000000]">{{ $asset['description'] ?? '-' }}</p>
                 </div>
 
                 <!-- Tabs Section -->
@@ -195,48 +241,14 @@
             </div>
         </div>
     </div>
-
-    <!-- Add Document Modal -->
-    <div id="addDocumentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
-        <div id="documentModalContent" class="bg-white rounded-lg shadow-xl w-full max-w-md transform scale-95 opacity-0 translate-y-4 transition-all duration-300">
-            <div class="p-5">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-[#213268]">Add Document</h3>
-                    <button class="close-modal text-gray-500 hover:text-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <form>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Document Name</label>
-                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#213268] focus:border-[#213268]" rows="4"></textarea>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">File</label>
-                        <input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                    </div>
-                    <div class="flex justify-end gap-3 mt-6">
-                        <button type="button" class="close-modal px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#1a2855]">Upload</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Tab functionality
-        const tabButtons = document.querySelectorAll('.tab-btn');
+       // Tab functionality
+       const tabButtons = document.querySelectorAll('.tab-btn');
         const tabPanes = document.querySelectorAll('.tab-pane');
 
         // Show the first tab by default
@@ -268,48 +280,6 @@
                 const selectedTab = document.getElementById(tabName);
                 if(selectedTab) selectedTab.classList.remove('hidden');
             });
-        });
-
-        const addDocumentBtn = document.getElementById('addDocumentBtn');
-        const addDocumentModal = document.getElementById('addDocumentModal');
-        const documentModalContent = document.getElementById('documentModalContent');
-        const closeModalBtns = document.querySelectorAll('.close-modal');
-
-        function openModal(modal, content) {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-            }, 10);
-        }
-
-        function closeModal(modal, content) {
-            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
-
-        if (addDocumentBtn) {
-            addDocumentBtn.addEventListener('click', function() {
-                openModal(addDocumentModal, documentModalContent);
-            });
-        }
-
-        closeModalBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const modal = this.closest('.fixed.inset-0');
-                const content = modal.querySelector('[id$="ModalContent"]');
-                closeModal(modal, content);
-            });
-        });
-
-        // Handle click outside modal
-        addDocumentModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal(this, documentModalContent);
-            }
         });
     });
 </script>
