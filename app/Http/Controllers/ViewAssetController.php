@@ -251,7 +251,7 @@ class ViewAssetController extends Controller
 
             // Successfully created
             \Log::info('Brand created successfully');
-            return redirect()->route('brands')
+            return redirect()->route('assets')
                 ->with('success', 'Brand created successfully');
         } catch (\Exception $e) {
             \Log::error('Exception during brand creation:', [
@@ -292,7 +292,7 @@ class ViewAssetController extends Controller
             }
 
             // Successfully updated
-            return redirect()->route('brands')
+            return redirect()->route('assets')
                 ->with('success', 'Brand updated successfully');
         } catch (\Exception $e) {
             \Log::error('Failed to update brand', [
@@ -327,7 +327,7 @@ class ViewAssetController extends Controller
             }
 
             // Successfully deleted
-            return redirect()->route('brands')
+            return redirect()->route('assets')
                 ->with('success', 'Brand deleted successfully');
         } catch (\Exception $e) {
             \Log::error('Failed to delete brand', [

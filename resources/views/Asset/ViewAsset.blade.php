@@ -62,11 +62,17 @@
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_name'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['description'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        @if(isset($asset['subcategory']) && isset($asset['subcategory']['asset_type']))
-                                            {{ $asset['subcategory']['asset_type'] }}
+                                    @if(isset($asset['subcategory']) && isset($asset['subcategory']['asset_type']))
+                                        @if($asset['subcategory']['asset_type'] == 'medical')
+                                            Medical
+                                        @elseif($asset['subcategory']['asset_type'] == 'non_medical')
+                                            Non Medical
                                         @else
-                                            -
+                                            {{ $asset['subcategory']['asset_type'] }}
                                         @endif
+                                    @else
+                                        -
+                                    @endif
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                         @if(isset($asset['subcategory']) && isset($asset['subcategory']['subcategory_name']))
@@ -77,7 +83,9 @@
                                     </td>
                                     <td class="p-3 border-t border-[#EEF1F4] text-center">
                                         <div class="flex justify-center items-center space-x-2">
-                                            <button class="text-[#3D3D3D] hover:text-[#213268] view-asset-btn" data-id="{{ $asset['asset_id'] ?? '' }}">
+                                            <button class="text-[#3D3D3D] hover:text-[#213268] view-asset-btn"
+                                                data-id="{{ $asset['asset_id'] ?? '' }}"
+                                                onclick="window.location.href='{{ route('asset-details', ['id' => $asset['asset_id'] ?? '']) }}'">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -1016,7 +1024,7 @@
                         const editInput = document.getElementById('editBrandInput');
 
                         if (editModal && editContent && editForm && editInput) {
-                            editForm.action = "{{ url('brands/update') }}/" + brandId;
+                            editForm.action = "{{ route('brands.update','') }}/" + brandId;
                             editInput.value = brandName;
                             openModal(editModal, editContent);
                         }
@@ -1035,7 +1043,7 @@
                         const deleteBrandNameEl = document.getElementById('deleteBrandName');
 
                         if (deleteModal && deleteContent && deleteForm && deleteBrandNameEl) {
-                            deleteForm.action = "{{ url('brands/delete') }}/" + brandId;
+                            deleteForm.action = "{{ route('brands.destroy', '') }}/" + brandId;
                             deleteBrandNameEl.textContent = brandName;
                             openModal(deleteModal, deleteContent);
                         }
@@ -1479,9 +1487,9 @@
 
         // Properly select values in dropdowns - after they've been populated with options
         setTimeout(() => {
-            setSelectValue('edit_subcategory_id', asset.subcategory_id);
-            setSelectValue('edit_room_id', asset.room_id);
-            setSelectValue('edit_brand_id', asset.brand_id);
+            setSelectValue('edit_subcategory_id', asset.subcategory?.subcategory_id);
+            setSelectValue('edit_room_id', asset.room?.room_id);
+            setSelectValue('edit_brand_id', asset.brand?.brand_id);
             setSelectValue('edit_condition', asset.condition);
         }, 100);
 
@@ -1944,9 +1952,9 @@
 
         // Properly select values in dropdowns - after they've been populated with options
         setTimeout(() => {
-            setSelectValue('edit_subcategory_id', asset.subcategory_id);
-            setSelectValue('edit_room_id', asset.room_id);
-            setSelectValue('edit_brand_id', asset.brand_id);
+            setSelectValue('edit_subcategory_id', asset.subcategory?.subcategory_id);
+            setSelectValue('edit_room_id', asset.room?.room_id);
+            setSelectValue('edit_brand_id', asset.brand?.brand_id);
             setSelectValue('edit_condition', asset.condition);
         }, 100);
 
