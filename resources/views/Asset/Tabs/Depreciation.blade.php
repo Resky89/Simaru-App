@@ -24,60 +24,60 @@
 
     <!-- Content sections -->
     <div id="contentSections" class="hidden">
-        <!-- Top Asset Depreciation Table -->
-        <div class="overflow-x-auto mb-8">
-            <table class="w-full">
-                <thead>
-                    <tr>
-                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Date Acquired</th>
-                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Total Cost</th>
-                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Salvage Value</th>
-                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Life (Months)</th>
-                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Depreciation Method</th>
-                    </tr>
-                </thead>
+    <!-- Top Asset Depreciation Table -->
+    <div class="overflow-x-auto mb-8">
+        <table class="w-full">
+            <thead>
+                <tr>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Date Acquired</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Total Cost</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Salvage Value</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Life (Months)</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Depreciation Method</th>
+                </tr>
+            </thead>
                 <tbody id="depreciationSummary">
-                    <tr>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                <tr>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-        <!-- Depreciation Chart -->
-        <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
-            <h3 class="text-center text-lg font-semibold text-[#213268] mb-6">Depreciation Monthly Status</h3>
-            <div class="h-64 w-full">
-                <canvas id="depreciationChart"></canvas>
-            </div>
+    <!-- Depreciation Chart -->
+    <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
+        <h3 class="text-center text-lg font-semibold text-[#213268] mb-6">Depreciation Monthly Status</h3>
+        <div class="h-64 w-full">
+            <canvas id="depreciationChart"></canvas>
         </div>
+    </div>
 
-        <!-- Bottom Depreciation Details Table -->
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr>
-                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">#</th>
-                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Month</th>
-                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Depreciation Expense</th>
-                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Accumulated Depreciation at Month-end</th>
-                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Book Value at Month-end</th>
-                    </tr>
-                </thead>
+    <!-- Bottom Depreciation Details Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">#</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Month</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Depreciation Expense</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Accumulated Depreciation at Month-end</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Book Value at Month-end</th>
+                </tr>
+            </thead>
                 <tbody id="monthlyDepreciationData">
-                    <tr>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                    </tr>
-                </tbody>
-            </table>
+                <tr>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
+                </tr>
+            </tbody>
+        </table>
         </div>
     </div>
 </div>
@@ -85,7 +85,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
     const DepreciationSystem = {
         initialized: false,
         assetId: {{ $asset['asset_id'] ?? 'null' }},
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         updateChart(chartData) {
-            const ctx = document.getElementById('depreciationChart').getContext('2d');
+        const ctx = document.getElementById('depreciationChart').getContext('2d');
 
             // Destroy existing chart if it exists
             if (this.chart) {
@@ -220,61 +220,61 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             this.chart = new Chart(ctx, {
-                type: 'line',
-                data: {
+            type: 'line',
+            data: {
                     labels: chartData.years,
-                    datasets: [{
+                datasets: [{
                         data: chartData.values,
-                        borderColor: '#36A2EB',
-                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                        pointBackgroundColor: '#36A2EB',
-                        pointRadius: 4,
-                        borderWidth: 2,
-                        tension: 0.1,
+                    borderColor: '#36A2EB',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    pointBackgroundColor: '#36A2EB',
+                    pointRadius: 4,
+                    borderWidth: 2,
+                    tension: 0.1,
                         fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
                                 label: (context) => {
                                     return this.formatCurrency(context.parsed.y);
                                 }
-                            }
                         }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    if (value === 0) return '0';
-                                    return (value / 1000000).toFixed(1) + 'M';
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                if (value === 0) return '0';
+                                return (value / 1000000).toFixed(1) + 'M';
                             }
                         },
-                        x: {
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
                         }
                     }
                 }
-            });
+            }
+        });
         }
     };
 
     // Initialize the Depreciation System
     DepreciationSystem.init();
-});
+    });
 </script>
 @endpush
