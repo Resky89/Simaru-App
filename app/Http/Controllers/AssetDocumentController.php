@@ -85,92 +85,81 @@ class AssetDocumentController extends Controller
     }
 
     /**
-     * Create a new asset document
+     * Store a newly created document in storage.
      *
-     * @param Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
         try {
             // Log request info
-            \Log::info('Creating new asset document:', [
-                'request_url' => request()->fullUrl(),
+            \Log::info('Document upload request:', [
+                'has_file' => $request->hasFile('document'),
                 'asset_id' => $request->asset_id,
-                'has_file' => $request->hasFile('document')
+                'title' => $request->document_title
             ]);
 
             // Validate request
-            $request->validate([
+            $validated = $request->validate([
                 'asset_id' => 'required',
                 'document_title' => 'required|string|max:255',
                 'notes' => 'nullable|string',
                 'document' => 'required|file|max:10240' // 10MB max
             ]);
 
-            if (!$request->hasFile('document')) {
+            if (!$request->hasFile('document') || !$request->file('document')->isValid()) {
+                \Log::error('Invalid document file');
                 return response()->json([
                     'status' => false,
-                    'message' => 'No document file uploaded'
+                    'message' => 'Invalid document file'
                 ], 400);
             }
 
-            // Handle file upload with multipart data
-            $multipartData = [];
+            // Get the file
+            $file = $request->file('document');
 
-            // Add form fields to multipart
-            foreach ($request->except('document') as $key => $value) {
-                $multipartData[] = [
-                    'name' => $key,
-                    'contents' => $value
-                ];
-            }
-
-            // Add the file
-            $multipartData[] = [
-                'name' => 'document',
-                'contents' => fopen($request->file('document')->getPathname(), 'r'),
-                'filename' => $request->file('document')->getClientOriginalName()
-            ];
-
-            // Send the request to the API
-            $result = $this->apiService->request('POST', "/asset-documents", ['multipart' => $multipartData]);
-
-            // Log API response for debugging
-            \Log::info('API response for asset document creation:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null
+            // Log file info
+            \Log::info('File details:', [
+                'original_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'size' => $file->getSize()
             ]);
 
-            // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during asset document creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ]);
+            // Prepare multipart data
+            $multipartData = [
+                [
+                    'name' => 'asset_id',
+                    'contents' => $request->asset_id
+                ],
+                [
+                    'name' => 'document_title',
+                    'contents' => $request->document_title
+                ],
+                [
+                    'name' => 'notes',
+                    'contents' => $request->notes ?? ''
+                ],
+                [
+                    'name' => 'document',
+                    'contents' => fopen($file->getRealPath(), 'r'),
+                    'filename' => $file->getClientOriginalName(),
+                    'headers' => [
+                        'Content-Type' => $file->getMimeType()
+                    ]
+                ]
+            ];
 
-                return response()->json([
-                    'status' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
-            }
+            // Send to API
+            $result = $this->apiService->request('POST', '/asset-documents', ['multipart' => $multipartData]);
 
-            // Check for API errors
+            // Log API response
+            \Log::info('API response:', $result);
+
             if (!isset($result['status']) || $result['status'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to create asset document';
-
-                \Log::warning('Error during asset document creation:', [
-                    'status' => $result['status'] ?? false,
-                    'message' => $errorMessage
-                ]);
-
-                return response()->json([
-                    'status' => false,
-                    'message' => $errorMessage
-                ], 400);
+                throw new \Exception($result['message'] ?? 'Failed to upload document');
             }
 
-            // Return success response
             return response()->json([
                 'status' => true,
                 'message' => 'Document uploaded successfully',
@@ -178,7 +167,7 @@ class AssetDocumentController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during asset document creation:', [
+            \Log::error('Document upload error:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

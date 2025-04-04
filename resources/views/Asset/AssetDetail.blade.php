@@ -81,7 +81,7 @@
                                             $statusColor = 'bg-[#EF4444]';
                                             break;
                                         case 'disposed':
-                                            $statusColor = 'bg-[#6B7280]';
+                                            $statusColor = 'bg-[#ACC3EF]';
                                             break;
                                     }
                                 }
