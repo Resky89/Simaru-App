@@ -5,7 +5,7 @@
 @section('content')
 <div class="h-full">
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
         <!-- Total Asset Card -->
         <div class="stats bg-gradient-to-r from-[rgba(80,130,7,0.1)] to-[rgba(80,130,7,0.2)] rounded-lg border-none">
             <div class="stat flex flex-row items-center gap-3 p-4">
@@ -16,7 +16,7 @@
                     </svg>
                 </div>
                 <div class="flex flex-col">
-                    <div class="stat-value text-[28px] font-medium text-[#232D42]">134.4k</div>
+                    <div class="stat-value text-[28px] font-medium text-[#232D42]">{{ formatCompactNumber($dashboardData['total_assets'] ?? 0) }}</div>
                     <div class="stat-title text-[14px] text-[#659B09] m-0 opacity-80">Asset</div>
                 </div>
             </div>
@@ -31,7 +31,7 @@
                     </svg>
                 </div>
                 <div class="flex flex-col">
-                    <div class="stat-value text-[28px] font-medium text-[#232D42]">50</div>
+                    <div class="stat-value text-[28px] font-medium text-[#232D42]">{{ formatCompactNumber($dashboardData['assets_by_status']['under repair'] ?? 0) }}</div>
                     <div class="stat-title text-[14px] text-[#DAAE0F] m-0 opacity-80">Under Repair</div>
                 </div>
             </div>
@@ -48,8 +48,24 @@
                     </svg>
                 </div>
                 <div class="flex flex-col">
-                    <div class="stat-value text-[28px] font-medium text-[#232D42]">500</div>
+                    <div class="stat-value text-[28px] font-medium text-[#232D42]">{{ formatCompactCurrency($dashboardData['total_book_value'] ?? 0) }}</div>
                     <div class="stat-title text-[14px] text-[#F16A1B] m-0 opacity-80">Net Asset Value</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acquisition Cost Card -->
+        <div class="stats bg-gradient-to-r from-[rgba(111,67,205,0.1)] to-[rgba(111,67,205,0.2)] rounded-lg border-none">
+            <div class="stat flex flex-row items-center gap-3 p-4">
+                <div class="stat-figure text-[#6F43CD] opacity-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <div class="stat-value text-[28px] font-medium text-[#232D42]">{{ formatCompactCurrency($dashboardData['total_acquisition_cost'] ?? 0) }}</div>
+                    <div class="stat-title text-[14px] text-[#6F43CD] m-0 opacity-80">Acquisition Cost</div>
                 </div>
             </div>
         </div>
@@ -66,7 +82,7 @@
                     </svg>
                 </div>
                 <div class="flex flex-col">
-                    <div class="stat-value text-[28px] font-medium text-[#232D42]">500</div>
+                    <div class="stat-value text-[28px] font-medium text-[#232D42]">{{ formatCompactNumber($dashboardData['total_users'] ?? 0) }}</div>
                     <div class="stat-title text-[14px] text-[#1B8ADB] m-0 opacity-80">Users</div>
                 </div>
             </div>
@@ -144,61 +160,45 @@
 
                 <!-- Categories Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Category Item 1 -->
-                    <div class="flex items-center gap-4">
-                        <div class="relative w-16 h-16">
-                            <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
-                                <div class="absolute inset-0 rounded-full border-[6px] border-[#213268] border-l-transparent border-t-transparent"></div>
-                            </div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="number-value font-['Inter'] font-medium text-xl text-[#232D42]">400</span>
-                                <span class="percent-value hidden font-['Inter'] font-medium text-xl text-[#232D42]">78%</span>
-                            </div>
-                        </div>
-                        <div class="font-['Inter'] font-medium text-lg text-[#232D42]">Diagnostic Equipment</div>
-                    </div>
+                    @forelse($dashboardData['assets_by_subcategory'] as $category)
+                        @php
+                            $totalBySubcategory = array_sum(array_column($dashboardData['assets_by_subcategory'], 'count'));
+                            $percentage = $totalBySubcategory ? round(($category['count'] / $totalBySubcategory) * 100) : 0;
+                            $rotationDegrees = round(($percentage / 100) * 360);
 
-                    <!-- Category Item 2 -->
-                    <div class="flex items-center gap-4">
-                        <div class="relative w-16 h-16">
-                            <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
-                                <div class="absolute inset-0 rounded-full border-[6px] border-[#213268] border-l-transparent border-t-transparent"></div>
+                            // Fix for 100% display
+                            if ($percentage == 100) {
+                                // For 100%, show complete circle
+                                $borderStyle = 'border-[#213268]';
+                            } elseif ($rotationDegrees <= 180) {
+                                // For 0-50%, adjust visibility of parts of the circle
+                                $borderStyle = 'border-[#213268] border-l-transparent border-t-transparent';
+                            } else {
+                                // For 51-99%, adjust different parts of the circle
+                                $borderStyle = 'border-[#213268] border-r-transparent border-b-transparent';
+                            }
+                        @endphp
+                        <div class="flex items-center gap-4 animate-fade-in">
+                            <div class="relative w-16 h-16">
+                                <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
+                                    <div class="absolute inset-0 rounded-full border-[6px] {{ $borderStyle }} animate-loading-circle"
+                                         style="transform: rotate({{ 45 }}deg);"
+                                         data-rotation="{{ 45 + $rotationDegrees }}"></div>
+                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="number-value font-['Inter'] font-medium text-xl text-[#232D42] animate-count-up"
+                                          data-target="{{ $category['count'] }}">0</span>
+                                    <span class="percent-value hidden font-['Inter'] font-medium text-xl text-[#232D42] animate-count-up"
+                                          data-target="{{ $percentage }}">0%</span>
+                                </div>
                             </div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="number-value font-['Inter'] font-medium text-xl text-[#232D42]">50</span>
-                                <span class="percent-value hidden font-['Inter'] font-medium text-xl text-[#232D42]">10%</span>
-                            </div>
+                            <div class="font-['Inter'] font-medium text-lg text-[#232D42]">{{ $category['subcategory_name'] }}</div>
                         </div>
-                        <div class="font-['Inter'] font-medium text-lg text-[#232D42]">Diagnostic Equipment</div>
-                    </div>
-
-                    <!-- Category Item 3 -->
-                    <div class="flex items-center gap-4">
-                        <div class="relative w-16 h-16">
-                            <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
-                                <div class="absolute inset-0 rounded-full border-[6px] border-[#213268] border-l-transparent border-t-transparent"></div>
-                            </div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="number-value font-['Inter'] font-medium text-xl text-[#232D42]">50</span>
-                                <span class="percent-value hidden font-['Inter'] font-medium text-xl text-[#232D42]">10%</span>
-                            </div>
+                    @empty
+                        <div class="col-span-2 text-center py-4 text-gray-500">
+                            No category data available
                         </div>
-                        <div class="font-['Inter'] font-medium text-lg text-[#232D42]">Diagnostic Equipment</div>
-                    </div>
-
-                    <!-- Category Item 4 -->
-                    <div class="flex items-center gap-4">
-                        <div class="relative w-16 h-16">
-                            <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
-                                <div class="absolute inset-0 rounded-full border-[6px] border-[#213268] border-l-transparent border-t-transparent"></div>
-                            </div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="number-value font-['Inter'] font-medium text-xl text-[#232D42]">10</span>
-                                <span class="percent-value hidden font-['Inter'] font-medium text-xl text-[#232D42]">2%</span>
-                            </div>
-                        </div>
-                        <div class="font-['Inter'] font-medium text-lg text-[#232D42]">Diagnostic Equipment</div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -310,122 +310,50 @@
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
 
                 <!-- Location List -->
-                <div class="space-y-[18px]">
-                    <!-- ER Room -->
-                    <div class="w-full">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">ER Room</div>
-                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">100%</div>
-                        </div>
-                        <div class="relative" x-data="{ showTooltip: false }">
-                            <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
-                                 @click="showTooltip = !showTooltip"
-                                 @mouseenter="showTooltip = true"
-                                 @mouseleave="showTooltip = false">
-                                <div class="absolute h-2 left-0 w-[45%] bg-[#213268] rounded-[4px]"></div>
-                            </div>
-                            <!-- Tooltip -->
-                            <div x-show="showTooltip"
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                 x-transition:enter-end="opacity-100 transform translate-y-0"
-                                 x-transition:leave="transition ease-in duration-150"
-                                 x-transition:leave-start="opacity-100 transform translate-y-0"
-                                 x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                 class="absolute -top-8 left-[calc(45%-20px)]">
-                                <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
-                                    <span class="text-[14px] font-['Inter'] font-medium text-[#344054]">45</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="space-y-[18px]" id="location-container">
+                    @forelse($dashboardData['assets_by_location'] as $location)
+                        @php
+                            $totalByLocation = array_sum(array_column($dashboardData['assets_by_location'], 'count'));
+                            $percentage = $totalByLocation ? round(($location['count'] / $totalByLocation) * 100) : 0;
 
-                    <!-- ICU Room -->
-                    <div class="w-full">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">ICU Room</div>
-                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">100%</div>
-                        </div>
-                        <div class="relative" x-data="{ showTooltip: false }">
-                            <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
-                                 @click="showTooltip = !showTooltip"
-                                 @mouseenter="showTooltip = true"
-                                 @mouseleave="showTooltip = false">
-                                <div class="absolute h-2 left-0 w-[45%] bg-[#213268] rounded-[4px]"></div>
+                            // Handle 100% case correctly
+                            $barWidth = $percentage;
+                            // Ensure the tooltip appears at the right edge when percentage is 100
+                            $tooltipPosition = $percentage == 100 ? "right-0" : "left-[calc({$percentage}%-20px)]";
+                        @endphp
+                        <div class="w-full animate-fade-in" style="animation-delay: {{ $loop->index * 150 }}ms">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="text-lg font-['Inter'] font-medium text-[#232D42]">{{ $location['room_name'] }}</div>
+                                <div class="text-lg font-['Inter'] font-medium text-[#232D42] animate-count-up" data-target="{{ $percentage }}">0%</div>
                             </div>
-                            <!-- Tooltip -->
-                            <div x-show="showTooltip"
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                 x-transition:enter-end="opacity-100 transform translate-y-0"
-                                 x-transition:leave="transition ease-in duration-150"
-                                 x-transition:leave-start="opacity-100 transform translate-y-0"
-                                 x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                 class="absolute -top-8 left-[calc(45%-20px)]">
-                                <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
-                                    <span class="text-[14px] font-['Inter'] font-medium text-[#344054]">45</span>
+                            <div class="relative" x-data="{ showTooltip: false }">
+                                <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
+                                     @click="showTooltip = !showTooltip"
+                                     @mouseenter="showTooltip = true"
+                                     @mouseleave="showTooltip = false">
+                                    <div class="absolute h-2 left-0 w-0 bg-[#213268] rounded-[4px] animate-loading-bar"
+                                         data-width="{{ $barWidth }}"></div>
+                                </div>
+                                <!-- Tooltip -->
+                                <div x-show="showTooltip"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                     x-transition:enter-end="opacity-100 transform translate-y-0"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-100 transform translate-y-0"
+                                     x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                     class="absolute -top-8 {{ $tooltipPosition }}">
+                                    <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
+                                        <span class="text-[14px] font-['Inter'] font-medium text-[#344054]">{{ $location['count'] }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Laboratory -->
-                    <div class="w-full">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">Laboratory</div>
-                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">100%</div>
+                    @empty
+                        <div class="text-center py-4 text-gray-500">
+                            No location data available
                         </div>
-                        <div class="relative" x-data="{ showTooltip: false }">
-                            <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
-                                 @click="showTooltip = !showTooltip"
-                                 @mouseenter="showTooltip = true"
-                                 @mouseleave="showTooltip = false">
-                                <div class="absolute h-2 left-0 w-[45%] bg-[#213268] rounded-[4px]"></div>
-                            </div>
-                            <!-- Tooltip -->
-                            <div x-show="showTooltip"
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                 x-transition:enter-end="opacity-100 transform translate-y-0"
-                                 x-transition:leave="transition ease-in duration-150"
-                                 x-transition:leave-start="opacity-100 transform translate-y-0"
-                                 x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                 class="absolute -top-8 left-[calc(45%-20px)]">
-                                <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
-                                    <span class="text-[14px] font-['Inter'] font-medium text-[#344054]">45</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Radiology -->
-                    <div class="w-full">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">Radiology</div>
-                            <div class="text-lg font-['Inter'] font-medium text-[#232D42]">100%</div>
-                        </div>
-                        <div class="relative" x-data="{ showTooltip: false }">
-                            <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
-                                 @click="showTooltip = !showTooltip"
-                                 @mouseenter="showTooltip = true"
-                                 @mouseleave="showTooltip = false">
-                                <div class="absolute h-2 left-0 w-[45%] bg-[#213268] rounded-[4px]"></div>
-                            </div>
-                            <!-- Tooltip -->
-                            <div x-show="showTooltip"
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                 x-transition:enter-end="opacity-100 transform translate-y-0"
-                                 x-transition:leave="transition ease-in duration-150"
-                                 x-transition:leave-start="opacity-100 transform translate-y-0"
-                                 x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                 class="absolute -top-8 left-[calc(45%-20px)]">
-                                <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
-                                    <span class="text-[14px] font-['Inter'] font-medium text-[#344054]">45</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -532,16 +460,80 @@
     </div>
 </div>
 
+<!-- Add helper functions for the view -->
+@php
+function formatCompactNumber($number) {
+    if ($number >= 1000000000) {
+        return number_format($number / 1000000000, 1) . 'B';
+    }
+    if ($number >= 1000000) {
+        return number_format($number / 1000000, 1) . 'M';
+    }
+    if ($number >= 1000) {
+        return number_format($number / 1000, 1) . 'k';
+    }
+    return $number;
+}
+
+function formatCompactCurrency($number) {
+    if ($number >= 1000000000) {
+        return 'Rp ' . number_format($number / 1000000000, 1) . 'B';
+    }
+    if ($number >= 1000000) {
+        return 'Rp ' . number_format($number / 1000000, 1) . 'M';
+    }
+    if ($number >= 1000) {
+        return 'Rp ' . number_format($number / 1000, 1) . 'k';
+    }
+    return 'Rp ' . $number;
+}
+@endphp
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rotateCircle {
+    0% { transform: rotate(45deg); }
+}
+
+@keyframes growWidth {
+    0% { width: 0; }
+}
+
+.animate-fade-in {
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-loading-circle {
+    animation: rotateCircle 1s ease-out forwards;
+}
+
+.animate-loading-bar {
+    animation: growWidth 1s ease-out forwards;
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize chart with data from PHP
     const ctx = document.getElementById('assetStatusChart').getContext('2d');
     new Chart(ctx, {
         type: 'pie',
         data: {
             labels: ['Available', 'Maintenance', 'Check Out', 'Dispose', 'Lost'],
             datasets: [{
-                data: [45, 20, 15, 12, 8], // Sesuaikan dengan data Anda
+                data: [
+                    {{ $dashboardData['assets_by_status']['available'] ?? 0 }},
+                    {{ $dashboardData['assets_by_status']['under repair'] ?? 0 }},
+                    {{ $dashboardData['assets_by_status']['check out'] ?? 0 }},
+                    {{ $dashboardData['assets_by_status']['dispose'] ?? 0 }},
+                    {{ $dashboardData['assets_by_status']['lost'] ?? 0 }}
+                ],
                 backgroundColor: [
                     '#7CB60C',  // Available - Green
                     '#ACC3EF',  // Maintenance - Grey
@@ -569,6 +561,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Toggle display between number and percentage
     const displayToggle = document.getElementById('displayToggle');
     const numberValues = document.querySelectorAll('.number-value');
     const percentValues = document.querySelectorAll('.percent-value');
@@ -584,7 +577,6 @@ document.addEventListener('DOMContentLoaded', function() {
             percentValues.forEach(el => el.classList.add('hidden'));
         }
     });
-});
 
 let currentDate = new Date();
 let currentMonth = currentDate.getMonth();
@@ -697,5 +689,63 @@ function changeMonth(delta) {
 
 // Initialize calendar
 generateCalendar(currentMonth, currentYear);
+
+// Animations for asset category circles
+const animateCircles = () => {
+    document.querySelectorAll('.animate-loading-circle').forEach(circle => {
+        const targetRotation = circle.getAttribute('data-rotation');
+        circle.style.transform = `rotate(${targetRotation}deg)`;
+    });
+};
+
+// Animations for asset location bars
+const animateBars = () => {
+    document.querySelectorAll('.animate-loading-bar').forEach(bar => {
+        const targetWidth = bar.getAttribute('data-width');
+        bar.style.width = `${targetWidth}%`;
+    });
+};
+
+// Count-up animation for numbers
+const animateCounters = () => {
+    document.querySelectorAll('.animate-count-up').forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'), 10);
+        const isPercentage = counter.textContent.includes('%');
+        const duration = 1000; // 1 second
+        let startTime = null;
+
+        function updateCounter(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const value = Math.floor(progress * target);
+            counter.textContent = isPercentage ? `${value}%` : value;
+
+            if (progress < 1) {
+                window.requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = isPercentage ? `${target}%` : target;
+            }
+        }
+
+        window.requestAnimationFrame(updateCounter);
+    });
+};
+
+// Apply staggered fade-in animations
+const applyFadeInStagger = () => {
+    document.querySelectorAll('.animate-fade-in').forEach((element, index) => {
+        element.style.animationDelay = `${index * 100}ms`;
+        element.style.opacity = 1;
+    });
+};
+
+// Initialize all animations
+setTimeout(() => {
+    applyFadeInStagger();
+    animateCircles();
+    animateBars();
+    animateCounters();
+}, 300);
+});
 </script>
 @endsection
