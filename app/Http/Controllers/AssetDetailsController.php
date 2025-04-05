@@ -69,8 +69,25 @@ class AssetDetailsController extends Controller
                 return redirect()->back()->with('error', $errorMessage);
             }
 
+            // Fetch subcategories for the dropdown
+            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
+            $subcategories = $subcategoriesResult['data'] ?? [];
+
+            // Fetch rooms for the room dropdown
+            $roomsResult = $this->apiService->request('GET', '/rooms');
+            $rooms = $roomsResult['data'] ?? [];
+
+            // Fetch brands for brand dropdown
+            $brandsResult = $this->apiService->request('GET', '/brands');
+            $brands = $brandsResult['data'] ?? [];
+
             // Return the view with asset details
-            return view('Asset.AssetDetail', ['asset' => $asset]);
+            return view('Asset.AssetDetail', [
+                'asset' => $asset,
+                'subcategories' => $subcategories,
+                'rooms' => $rooms,
+                'brands' => $brands,
+            ]);
 
         } catch (\Exception $e) {
             \Log::error('Exception during asset details retrieval:', [

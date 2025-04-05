@@ -32,7 +32,7 @@
                             </svg>
                             <span class="text-sm">Lost</span>
                         </a>
-                        <a href="" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
+                        <a href="javascript:void(0)" id="editAssetBtn" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
@@ -242,6 +242,228 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Asset Modal -->
+<div id="editAssetModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="editAssetModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT ASSET</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <form id="editAssetForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <!-- Asset Information Section -->
+                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Asset Information</h3>
+
+                            <!-- Image upload -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Asset Image</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-blue-600">browse</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
+                                    </div>
+                                    <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                </div>
+                                <div id="edit_preview-container" class="mt-2">
+                                    <img id="edit_image_preview" class="max-h-40 rounded-lg hidden" alt="Asset Image">
+                                </div>
+                            </div>
+
+                            <!-- Basic Asset Details -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Asset Name</label>
+                                    <input type="text" name="asset_name" id="edit_asset_name" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                        placeholder="Asset name">
+                                </div>
+
+                                <!-- Subcategory Dropdown -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Subcategory</label>
+                                    <select name="subcategory_id" id="edit_subcategory_id" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <option value="" disabled selected>Select subcategory</option>
+                                        @if(isset($subcategories))
+                                            @foreach($subcategories as $subcategory)
+                                                <option value="{{ $subcategory['subcategory_id'] }}">{{ $subcategory['subcategory_name'] }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Condition</label>
+                                    <select name="condition" id="edit_condition" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <option value="good">Good</option>
+                                        <option value="slighly damage">Slightly Damage</option>
+                                        <option value="high damage">Highly Damage</option>
+                                    </select>
+                                </div>
+
+                                <!-- Room Dropdown -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Room</label>
+                                    <select name="room_id" id="edit_room_id" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <option value="" disabled selected>Select room</option>
+                                        @foreach($rooms as $room)
+                                            <option value="{{ $room['room_id'] }}">
+                                                {{ $room['room_name'] }} ({{ $room['building']['building_name'] ?? '-' }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Description</label>
+                                <textarea name="description" id="edit_description"
+                                    class="w-full h-[100px] px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] resize-none"
+                                    placeholder="Asset description"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Model Number</label>
+                                    <input type="text" name="model_number" id="edit_model_number"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                        placeholder="Model number">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Serial Number</label>
+                                    <input type="text" name="serial_number" id="edit_serial_number"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                        placeholder="Serial number">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Purchase Date</label>
+                                    <input type="date" name="purchase_date" id="edit_purchase_date"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Purchase Cost</label>
+                                    <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                        placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Warranty End Date</label>
+                                    <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                </div>
+                                <!-- Brand Dropdown -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Brand</label>
+                                    <select name="brand_id" id="edit_brand_id" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <option value="" disabled selected>Select brand</option>
+                                        @foreach($brands as $brand)
+                                            <option value="{{ $brand['brand_id'] }}">{{ $brand['brand_name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Depreciation Toggle Switch -->
+                            <div class="flex items-center justify-between border-t pt-4">
+                                <label for="edit_is_depreciable" class="text-base font-semibold text-[#666666]">Enable Asset Depreciation</label>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="is_depreciable" id="edit_is_depreciable" class="sr-only peer depreciation-toggle" value="1">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
+                                        peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
+                                        peer-checked:after:border-white after:content-[''] after:absolute
+                                        after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
+                                        after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                                        peer-checked:bg-[#213268]"></div>
+                                    <span class="ml-2 text-sm font-medium text-gray-900 depreciation-status">No</span>
+                                </label>
+                            </div>
+
+                            <!-- Depreciation Fields (Hidden by default) -->
+                            <div id="edit_depreciation_fields" class="space-y-4 hidden border rounded-lg p-4 border-dashed border-gray-300">
+                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Depreciation Information</h3>
+
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Depreciation Method</label>
+                                    <select name="depreciation_method" id="edit_depreciation_method"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <option value="Straight Line">Straight Line</option>
+                                        <option value="Double Declining Balance">Double Declining Balance</option>
+                                        <option value="150% Declining Balance">150% Declining Balance</option>
+                                        <option value="Sum of the Year's Digits">Sum of the Year's Digits</option>
+                                    </select>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Acquisition Cost</label>
+                                        <input type="number" step="0.01" name="acquisition_cost" id="edit_acquisition_cost"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="0.00">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Salvage Value</label>
+                                        <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="0.00">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Asset Life (Months)</label>
+                                        <input type="number" name="asset_life_months" id="edit_asset_life_months"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="0">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Date Acquired</label>
+                                        <input type="date" name="date_acquired" id="edit_date_acquired"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                Update
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -281,6 +503,380 @@
                 if(selectedTab) selectedTab.classList.remove('hidden');
             });
         });
+
+        // Asset Edit Modal Functionality
+        function openModal(modal, content) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+            }, 10);
+        }
+
+        function closeModal(modal, content) {
+            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Setup Edit button
+        const editBtn = document.getElementById('editAssetBtn');
+        const editModal = document.getElementById('editAssetModal');
+        const editModalContent = document.getElementById('editAssetModalContent');
+
+        if (editBtn && editModal && editModalContent) {
+            editBtn.addEventListener('click', function() {
+                // Get asset ID from current page
+                const assetId = '{{ $asset["asset_id"] ?? "" }}';
+
+                if (!assetId) {
+                    console.error('Asset ID not found');
+                    return;
+                }
+
+                // Show loading state
+                editBtn.classList.add('opacity-50', 'pointer-events-none');
+
+                // Fetch asset data including subcategories, rooms, and brands from server
+                fetch(`{{ route('assets.get', '') }}/${assetId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Reset loading state
+                    editBtn.classList.remove('opacity-50', 'pointer-events-none');
+
+                    if (data.error) {
+                        console.error('Error fetching asset:', data.error);
+                        alert('Failed to load asset data: ' + data.error);
+                        return;
+                    }
+
+                    // Populate dropdowns with the fetched data
+                    populateSubcategories(data.subcategories);
+                    populateRooms(data.rooms);
+                    populateBrands(data.brands);
+
+                    // Set up the edit form with the data
+                    setupEditAssetForm(data.asset);
+
+                    // Open the modal
+                    openModal(editModal, editModalContent);
+                })
+                .catch(error => {
+                    // Reset loading state
+                    editBtn.classList.remove('opacity-50', 'pointer-events-none');
+                    console.error('Error fetching asset:', error);
+                    alert('Failed to load asset data. Please try again.');
+                });
+            });
+        }
+
+        // Setup close buttons
+        const closeButtons = document.querySelectorAll('.close-modal');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const modal = this.closest('[id$="Modal"]');
+                const content = modal.querySelector('[id$="ModalContent"]');
+                if (modal && content) {
+                    closeModal(modal, content);
+                }
+            });
+        });
+
+        // Close on outside click
+        if (editModal) {
+            editModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal(editModal, editModalContent);
+                }
+            });
+        }
+
+        // Handle depreciation toggle
+        const depreciableToggle = document.getElementById('edit_is_depreciable');
+        const depreciationFields = document.getElementById('edit_depreciation_fields');
+
+        if (depreciableToggle && depreciationFields) {
+            depreciableToggle.addEventListener('change', function() {
+                const isChecked = this.checked;
+                const statusText = document.querySelector('.depreciation-status');
+
+                if (statusText) {
+                    statusText.textContent = isChecked ? 'Yes' : 'No';
+                }
+
+                if (isChecked) {
+                    depreciationFields.classList.remove('hidden');
+
+                    // Enable input fields
+                    const inputs = depreciationFields.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        input.disabled = false;
+                        input.classList.remove('bg-gray-100');
+                    });
+                } else {
+                    depreciationFields.classList.add('hidden');
+
+                    // Disable input fields
+                    const inputs = depreciationFields.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        input.disabled = true;
+                        input.classList.add('bg-gray-100');
+                    });
+                }
+            });
+        }
+
+        // Add this event listener to handle automatic acquisition cost update when enabling depreciation
+        if (depreciableToggle) {
+            depreciableToggle.addEventListener('change', function() {
+                // If depreciation is being enabled, set acquisition cost to match purchase cost
+                if (this.checked) {
+                    const purchaseCost = document.getElementById('edit_purchase_cost').value || '0';
+                    document.getElementById('edit_acquisition_cost').value = purchaseCost;
+
+                    // Also set date acquired to match purchase date if available
+                    const purchaseDate = document.getElementById('edit_purchase_date').value;
+                    if (purchaseDate) {
+                        document.getElementById('edit_date_acquired').value = purchaseDate;
+                    }
+                }
+            });
+        }
+
+        // Also update acquisition cost whenever purchase cost changes
+        document.getElementById('edit_purchase_cost').addEventListener('input', function() {
+            // Only update if depreciation is enabled
+            if (document.getElementById('edit_is_depreciable').checked) {
+                document.getElementById('edit_acquisition_cost').value = this.value;
+            }
+        });
+
+        // Handle image preview
+        const fileInput = document.getElementById('edit_image_file');
+        const imagePreview = document.getElementById('edit_image_preview');
+
+        if (fileInput && imagePreview) {
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.classList.remove('hidden');
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        // Function to set up the edit form with data
+        window.setupEditAssetForm = function(asset) {
+            console.log('Setting up edit asset form with data:', asset);
+
+            // Get form element
+            const form = document.getElementById('editAssetForm');
+            if (!form) {
+                console.error('Edit asset form not found');
+                return;
+            }
+
+            // Set form action
+            form.action = `{{ route('assets.update', '') }}/${asset.asset_id}`;
+
+            // Reset form first to clear any previous data
+            form.reset();
+
+            // Fill basic text inputs
+            document.getElementById('edit_asset_name').value = asset.asset_name || '';
+            document.getElementById('edit_description').value = asset.description || '';
+            document.getElementById('edit_model_number').value = asset.model_number || '';
+            document.getElementById('edit_serial_number').value = asset.serial_number || '';
+            document.getElementById('edit_purchase_cost').value = asset.purchase_cost || '';
+
+            // Handle dates (ensure formatting is correct)
+            if (asset.purchase_date) {
+                const purchaseDate = asset.purchase_date.split(' ')[0]; // Get just the date part
+                document.getElementById('edit_purchase_date').value = purchaseDate;
+            }
+
+            if (asset.warranty_end_date) {
+                const warrantyDate = asset.warranty_end_date.split(' ')[0]; // Get just the date part
+                document.getElementById('edit_warranty_end_date').value = warrantyDate;
+            }
+
+            // Set dropdown values
+            setSelectValue('edit_subcategory_id', asset.subcategory?.subcategory_id);
+            setSelectValue('edit_room_id', asset.room?.room_id);
+            setSelectValue('edit_brand_id', asset.brand?.brand_id);
+            setSelectValue('edit_condition', asset.condition);
+
+            // Set depreciation toggle
+            const depreciableToggle = document.getElementById('edit_is_depreciable');
+            const depreciationStatus = document.querySelector('.depreciation-status');
+            const depreciationFields = document.getElementById('edit_depreciation_fields');
+
+            if (depreciableToggle && depreciationFields) {
+                // Set the toggle state based on asset data
+                depreciableToggle.checked = asset.is_depreciable == 1;
+
+                // Update the status text
+                if (depreciationStatus) {
+                    depreciationStatus.textContent = asset.is_depreciable == 1 ? 'Yes' : 'No';
+                }
+
+                // Show/hide depreciation fields based on toggle state
+                if (asset.is_depreciable == 1) {
+                    depreciationFields.classList.remove('hidden');
+
+                    // Enable fields
+                    const inputs = depreciationFields.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        input.disabled = false;
+                        input.classList.remove('bg-gray-100');
+                    });
+
+                    // Fill depreciation data if available
+                    if (asset.depreciation) {
+                        // Set depreciation method
+                        setSelectValue('edit_depreciation_method', asset.depreciation.depreciation_method);
+
+                        // Fill other depreciation fields
+                        document.getElementById('edit_acquisition_cost').value = asset.depreciation.acquisition_cost || '';
+                        document.getElementById('edit_salvage_value').value = asset.depreciation.salvage_value || '';
+                        document.getElementById('edit_asset_life_months').value = asset.depreciation.asset_life_months || '';
+
+                        // Handle date acquired
+                        if (asset.depreciation.date_acquired) {
+                            const dateAcquired = asset.depreciation.date_acquired.split(' ')[0];
+                            document.getElementById('edit_date_acquired').value = dateAcquired;
+                        }
+                    }
+                } else {
+                    depreciationFields.classList.add('hidden');
+
+                    // Disable fields
+                    const inputs = depreciationFields.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        input.disabled = true;
+                        input.classList.add('bg-gray-100');
+                    });
+                }
+            }
+
+            // Handle image preview if available
+            if (asset.picture_path) {
+                const imagePreview = document.getElementById('edit_image_preview');
+
+                if (imagePreview) {
+                    // Define the base URL - using the confirmed server location
+                    const baseUrl = "http://localhost:5000/public";
+
+                    // Process the image URL
+                    let imageUrl = asset.picture_path;
+
+                    // If URL is not absolute, prepend the base URL
+                    if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('//')) {
+                        // Remove leading slash if present to avoid double slashes
+                        if (imageUrl.startsWith('/')) {
+                            imageUrl = imageUrl.substring(1);
+                        }
+                        imageUrl = `${baseUrl}/${imageUrl}`;
+                    }
+
+                    // Set the image source and display it
+                    imagePreview.src = imageUrl;
+                    imagePreview.classList.remove('hidden');
+                }
+            } else {
+                // Hide the preview if no image
+                const imagePreview = document.getElementById('edit_image_preview');
+                if (imagePreview) {
+                    imagePreview.classList.add('hidden');
+                }
+            }
+        }
+
+        // Helper function to set dropdown values
+        function setSelectValue(selectId, value) {
+            const select = document.getElementById(selectId);
+            if (!select || value === undefined || value === null) {
+                return;
+            }
+
+            // Convert to string for comparison
+            const valueStr = String(value);
+
+            // Find the matching option
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === valueStr) {
+                    select.selectedIndex = i;
+                    return;
+                }
+            }
+        }
+
+        // Helper functions to populate dropdowns
+        function populateSubcategories(subcategories) {
+            const select = document.getElementById('edit_subcategory_id');
+            if (!select || !subcategories) return;
+
+            // Clear existing options except the first one
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            // Add new options
+            subcategories.forEach(subcategory => {
+                const option = document.createElement('option');
+                option.value = subcategory.subcategory_id;
+                option.textContent = subcategory.subcategory_name;
+                select.appendChild(option);
+            });
+        }
+
+        // Add these helper functions for populating dropdown menus
+        function populateRooms(rooms) {
+            const select = document.getElementById('edit_room_id');
+            if (!select || !rooms) return;
+
+            // Clear existing options except the first one
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            // Add new options
+            rooms.forEach(room => {
+                const option = document.createElement('option');
+                option.value = room.room_id;
+                option.textContent = `${room.room_name} (${room.building?.building_name || '-'})`;
+                select.appendChild(option);
+            });
+        }
+
+        function populateBrands(brands) {
+            const select = document.getElementById('edit_brand_id');
+            if (!select || !brands) return;
+
+            // Clear existing options except the first one
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            // Add new options
+            brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand.brand_id;
+                option.textContent = brand.brand_name;
+                select.appendChild(option);
+            });
+        }
     });
 </script>
 @endpush
