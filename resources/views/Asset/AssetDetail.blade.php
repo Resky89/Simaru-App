@@ -261,7 +261,7 @@
                 </div>
 
                 <!-- Form -->
-                <form id="editAssetForm" method="POST" enctype="multipart/form-data">
+                <form id="editAssetForm" method="POST" action="{{ route('asset.update', ['id' => $asset['asset_id'] ?? '']) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="p-6">
@@ -688,7 +688,7 @@
             }
 
             // Set form action
-            form.action = `{{ route('assets.update', '') }}/${asset.asset_id}`;
+            form.action = `{{ route('asset.update', '') }}/${asset.asset_id}`;
 
             // Reset form first to clear any previous data
             form.reset();
