@@ -483,9 +483,10 @@
                                         <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
                                     </div>
                                     <input type="file" id="image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                </div>
-                                <div id="preview-container" class="mt-2 hidden">
-                                    <img id="preview-image" class="max-h-40 rounded-lg" alt="Asset Image">
+                                    <!-- Preview image di dalam container -->
+                                    <div id="preview-container" class="mt-4 w-full hidden">
+                                        <img id="preview-image" class="max-h-40 mx-auto rounded-lg" alt="Asset Image">
+                                    </div>
                                 </div>
                             </div>
 
@@ -530,7 +531,7 @@
                                         <option value="" disabled selected>Select room</option>
                                         @foreach($rooms as $room)
                                             <option value="{{ $room['room_id'] }}">
-                                                {{ $room['room_name'] }} ({{ $room['building']['building_name'] ?? '-' }})
+                                                {{ $room['room_name'] }} ({{ $room['building_name'] }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -701,9 +702,10 @@
                                         <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
                                     </div>
                                     <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                </div>
-                                <div id="edit_preview-container" class="mt-2">
-                                    <img id="edit_image_preview" class="max-h-40 rounded-lg hidden" alt="Asset Image">
+                                    <!-- Preview image di dalam container -->
+                                    <div id="edit_preview-container" class="mt-4 w-full hidden">
+                                        <img id="edit_image_preview" class="max-h-40 mx-auto rounded-lg hidden" alt="Asset Image">
+                                    </div>
                                 </div>
                             </div>
 
@@ -748,7 +750,7 @@
                                         <option value="" disabled selected>Select room</option>
                                         @foreach($rooms as $room)
                                             <option value="{{ $room['room_id'] }}">
-                                                {{ $room['room_name'] }} ({{ $room['building']['building_name'] ?? '-' }})
+                                                {{ $room['room_name'] }} ({{ $room['building_name'] }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -1179,10 +1181,10 @@
                     } else {
                         depreciationFields.classList.add('hidden');
 
-                        // Disable input fields
+                        // Don't disable fields to ensure they're submitted with the form
                         const inputs = depreciationFields.querySelectorAll('input, select');
                         inputs.forEach(input => {
-                            input.disabled = true;
+                            // input.disabled = true; // Don't disable as disabled fields aren't submitted
                             input.classList.add('bg-gray-100');
                         });
                     }
@@ -1428,8 +1430,7 @@
                 const inputFields = fields.querySelectorAll('input, select, textarea');
                 inputFields.forEach(input => {
                     input.required = false;
-
-                    // We don't disable the fields permanently to avoid losing their values on submission
+                    // Don't disable the fields as disabled fields aren't submitted
                     // input.disabled = true;
                     input.classList.add('bg-gray-100');
                 });
@@ -1444,6 +1445,34 @@
         // Setup depreciation toggles after DOM is loaded
         setupDepreciationToggle(''); // For add modal
         setupDepreciationToggle('edit_'); // For edit modal
+
+        // Add form submission handlers to ensure depreciation fields are enabled
+        document.querySelector('form[action*="assets.store"]')?.addEventListener('submit', function(e) {
+            if (document.getElementById('is_depreciable').checked) {
+                // Re-enable all depreciation fields right before submission
+                const depreciationFields = document.getElementById('depreciation_fields');
+                if (depreciationFields) {
+                    const inputFields = depreciationFields.querySelectorAll('input, select');
+                    inputFields.forEach(input => {
+                        input.disabled = false;
+                    });
+                }
+            }
+        });
+
+        // Also add for edit form
+        document.getElementById('editAssetForm')?.addEventListener('submit', function(e) {
+            if (document.getElementById('edit_is_depreciable').checked) {
+                // Re-enable all depreciation fields right before submission
+                const depreciationFields = document.getElementById('edit_depreciation_fields');
+                if (depreciationFields) {
+                    const inputFields = depreciationFields.querySelectorAll('input, select');
+                    inputFields.forEach(input => {
+                        input.disabled = false;
+                    });
+                }
+            }
+        });
 
         if (typeof window.initAssetModals === 'function') {
             window.initAssetModals();
@@ -1677,10 +1706,10 @@
         } else {
             depreciationFields.classList.add('hidden');
 
-            // Disable fields dan remove required attribute
+            // Don't disable fields to ensure values are submitted, just make them not required
             const inputs = depreciationFields.querySelectorAll('input, select');
             inputs.forEach(input => {
-                input.disabled = true;
+                // input.disabled = true; // Don't disable as disabled fields aren't submitted
                 input.required = false;
                 input.classList.add('bg-gray-100');
             });
@@ -2407,6 +2436,36 @@
             });
         });
     }
+
+    // Debug code to check room data structure
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Debugging room data structure in ViewAsset.blade.php');
+
+        // Check room data structure in add modal
+        const roomSelect = document.querySelector('select[name="room_id"]');
+        if (roomSelect) {
+            console.log('Add Modal Room Select Options:', Array.from(roomSelect.options).map(opt => ({
+                value: opt.value,
+                text: opt.textContent
+            })));
+        }
+
+        // Inspect all room data passed to the view
+        const roomData = @json($rooms);
+        console.log('Room Data Passed to View:', roomData);
+
+        // Check if building_name exists at root level
+        if (roomData && roomData.length > 0) {
+            const firstRoom = roomData[0];
+            console.log('First Room Object Structure:', firstRoom);
+            console.log('Has building_name at root?', 'building_name' in firstRoom);
+            console.log('Has building object?', 'building' in firstRoom);
+
+            if ('building' in firstRoom) {
+                console.log('Building object structure:', firstRoom.building);
+            }
+        }
+    });
 </script>
 @endpush
 @endsection

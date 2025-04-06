@@ -142,8 +142,35 @@ class ViewAssetController extends Controller
             // Transform the rooms data to include building_name at root level for compatibility
             $transformedRooms = [];
             foreach ($rooms as $room) {
-                $room['building_name'] = $room['building']['building_name'] ?? '-';
-                $transformedRooms[] = $room;
+                // Buat salinan room data untuk menghindari referensi
+                $transformedRoom = $room;
+
+                // Cek struktur data building dengan lebih detil
+                if (isset($room['building']) && is_array($room['building'])) {
+                    $buildingName = $room['building']['building_name'] ?? 'Unknown Building';
+                } elseif (isset($room['building_id'])) {
+                    // Jika building_id ada tapi tidak ada nested building object,
+                    // coba cari building dari daftar buildings
+                    $buildingId = $room['building_id'];
+                    $buildingName = 'Building ID: ' . $buildingId;
+
+                    // Ambil data building dari API jika perlu
+                    try {
+                        $buildingResult = $this->apiService->request('GET', "/buildings/{$buildingId}");
+                        if (isset($buildingResult['status']) && $buildingResult['status'] === true && isset($buildingResult['data']['building_name'])) {
+                            $buildingName = $buildingResult['data']['building_name'];
+                        }
+                    } catch (\Exception $e) {
+                        // Abaikan error saat fetch building
+                    }
+                } else {
+                    $buildingName = 'No Building';
+                }
+
+                // Tambahkan building_name langsung ke level root
+                $transformedRoom['building_name'] = $buildingName;
+
+                $transformedRooms[] = $transformedRoom;
             }
 
             // Format pagination for assets
@@ -365,36 +392,37 @@ class ViewAssetController extends Controller
                 'condition' => $request->input('condition', 'good'),
                 'room_id' => (int)$request->input('room_id'),
                 'brand_id' => (int)$request->input('brand_id'),
-                'is_depreciable' => (bool) $request->input('is_depreciable')
+                'is_depreciable' => $request->input('is_depreciable') === '1' // Simpan sebagai true/false, bukan boolean string
             ];
 
-            // Add depreciation data if asset is depreciable
-            if ($request->has('is_depreciable')) {
-                $assetData['depreciation'] = [
-                    'depreciation_method' => $request->input('depreciation_method'),
-                    'acquisition_cost' => (float)$request->input('acquisition_cost'),
-                    'salvage_value' => (float)$request->input('salvage_value'),
-                    'asset_life_months' => (int)$request->input('asset_life_months'),
-                    'date_acquired' => $request->input('date_acquired')
-                ];
+            // Add depreciation data if asset is depreciable - use flat structure like updateAsset
+            if ($request->input('is_depreciable') === '1') {
+                $assetData['depreciation_method'] = $request->input('depreciation_method');
+                $assetData['acquisition_cost'] = (float)$request->input('acquisition_cost');
+                $assetData['salvage_value'] = (float)$request->input('salvage_value');
+                $assetData['asset_life_months'] = (int)$request->input('asset_life_months');
+                $assetData['date_acquired'] = $request->input('date_acquired');
             }
+
+            // Log structured data yang akan dikirim ke API
+            \Log::info('Sending to API:', [
+                'asset_data' => $assetData
+            ]);
 
             // Handle image upload if present
             if ($request->hasFile('image_file')) {
                 $multipartData = [];
 
-                // Add asset data as form fields
+                // Add asset data as form fields - perbaiki konversi tipe data
                 foreach ($assetData as $key => $value) {
-                    if ($key === 'depreciation' && is_array($value)) {
-                        foreach ($value as $depKey => $depValue) {
-                            $multipartData[] = [
-                                'name' => "depreciation[{$depKey}]",
-                                'contents' => $depValue
-                            ];
-                        }
-                    } else {
-                        $multipartData[] = ['name' => $key, 'contents' => $value];
+                    // Perbaiki konversi boolean and other types
+                    if (is_bool($value)) {
+                        $value = $value ? 'true' : 'false'; // Konversi boolean ke string 'true'/'false'
+                    } elseif (is_array($value)) {
+                        $value = json_encode($value); // Konversi array ke JSON string
                     }
+
+                    $multipartData[] = ['name' => $key, 'contents' => $value];
                 }
 
                 // Add the image file
