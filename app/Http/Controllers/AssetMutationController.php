@@ -18,7 +18,7 @@ class AssetMutationController extends Controller
      * Get mutation history for a specific asset
      *
      * @param int $id The asset ID
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\View\View
      */
     public function getAssetMutationHistory($id)
     {
