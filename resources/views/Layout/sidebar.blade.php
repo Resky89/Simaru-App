@@ -1,6 +1,4 @@
-<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-<div x-data="{ activeMenu: localStorage.getItem('activeMenu') || null }" class="w-[250px] h-screen bg-white rounded-r-[20px] flex flex-col relative overflow-hidden">
+<div id="sidebar-container" class="w-[250px] h-screen bg-white rounded-r-[20px] flex flex-col relative overflow-hidden">
     <!-- Header with Logo -->
     <div class="h-[72px] relative">
         <div class="w-full h-[72px] bg-white shadow-[0_4px_8.1px_2px_#56C5F1] rounded-tr-[20px]">
@@ -11,296 +9,201 @@
     <!-- Menu Items Container with Scroll -->
     <div class="flex-1 overflow-y-auto overflow-x-hidden">
         <!-- Menu Items -->
-        <div class="flex flex-col gap-[5px] mt-5 transition-all duration-500 ease-in-out px-[13px]"
-             :class="{'gap-[2px]': activeMenu !== null, 'gap-[5px]': activeMenu === null}">
+        <div id="menu-container" class="flex flex-col gap-[5px] mt-5 transition-all duration-500 ease-in-out px-[13px]">
+            @php
+                // Define consistent classes
+                $menuItemClass = "w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2 menu-item";
+                $menuLinkClass = "h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20";
+                $iconWrapperClass = "w-6 h-6 ml-5";
+                $menuTextClass = "ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium";
+                $submenuTextClass = "font-['Public_Sans'] text-[14px] text-[#757575] font-medium";
+                $submenuLinkClass = "h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4";
+            @endphp
+
             <!-- Dashboard -->
-            <div class="w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2"
-                 :class="{'opacity-75 scale-[0.98]': activeMenu !== null}">
-                <a href="{{ route('dashboard') }}" @click="activeMenu = null" class="block">
-                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20 {{ Request::routeIs('dashboard') ? 'bg-[#56C5F1]/20' : '' }}">
-                        <div class="w-6 h-6 ml-5">
+            <div class="{{ $menuItemClass }}">
+                <a href="{{ route('dashboard') }}" class="block dashboard-link" data-menu="dashboard">
+                    <div class="{{ $menuLinkClass }} {{ Request::routeIs('dashboard') ? 'bg-[#56C5F1]/20' : '' }}">
+                        <div class="{{ $iconWrapperClass }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                             </svg>
                         </div>
-                        <span class="ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium">Dashboard</span>
+                        <span class="{{ $menuTextClass }}">Dashboard</span>
                     </div>
                 </a>
             </div>
 
             <!-- Procurement -->
-            <div class="w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2"
-                 :class="{
-                     'scale-100': activeMenu === 'procurement',
-                     'opacity-75 scale-[0.98]': activeMenu !== null && activeMenu !== 'procurement'
-                 }">
-                <button @click.prevent="activeMenu = activeMenu === 'procurement' ? null : 'procurement'"
-                        class="w-full focus:outline-none">
-                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20"
-                         :class="{ 'bg-[#56C5F1]/20': activeMenu === 'procurement' }">
-                        <div class="w-6 h-6 ml-5">
+            <div class="{{ $menuItemClass }}">
+                <button class="w-full focus:outline-none toggle-menu" data-menu="procurement">
+                    <div class="{{ $menuLinkClass }} menu-header">
+                        <div class="{{ $iconWrapperClass }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 16l-4-4m0 0l4-4m-4 4h10M7 16v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                         </div>
-                        <span class="ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium">Procurement</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200"
-                             :class="{ 'rotate-90': activeMenu === 'procurement' }"
-                             fill="none" viewBox="0 0 24 24" stroke="#757575">
+                        <span class="{{ $menuTextClass }}">Procurement</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow" fill="none" viewBox="0 0 24 24" stroke="#757575">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
                 </button>
                 <!-- Sub Menu -->
-                <div x-show="activeMenu === 'procurement'"
-                     x-transition:enter="transition-all ease-out duration-300"
-                     x-transition:enter-start="opacity-0 max-h-0"
-                     x-transition:enter-end="opacity-100 max-h-[500px]"
-                     x-transition:leave="transition-all ease-in duration-200"
-                     x-transition:leave-start="opacity-100 max-h-[500px]"
-                     x-transition:leave-end="opacity-0 max-h-0"
-                     class="ml-[41px] mt-1 overflow-hidden"
-                     style="display: none;">
-                    <!-- Request -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Request</span>
+                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="procurement" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                    @php
+                        $procurementSubmenuItems = [
+                            ['route' => 'procurement.request', 'name' => 'Request'],
+                            ['route' => 'procurement.price-comparison', 'name' => 'Price Comparison'],
+                            ['route' => 'procurement.purchase-order', 'name' => 'Purchase Order'],
+                            ['route' => 'procurement.receipt', 'name' => 'Receipt'],
+                        ];
+                    @endphp
+
+                    @foreach($procurementSubmenuItems as $item)
+                    <a href="{{ route($item['route']) }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
                         </div>
                     </a>
-                    <!-- Price Comparison -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Price Comparison</span>
-                        </div>
-                    </a>
-                    <!-- Purchase Order -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Purchase Order</span>
-                        </div>
-                    </a>
-                    <!-- Receipt -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Receipt</span>
-                        </div>
-                    </a>
+                    @endforeach
                 </div>
             </div>
 
-            <!-- Management Asset -->
-            <div class="w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2"
-                 :class="{
-                     'scale-100': activeMenu === 'asset',
-                     'opacity-75 scale-[0.98]': activeMenu !== null && activeMenu !== 'asset'
-                 }">
-                <button @click.prevent="activeMenu = activeMenu === 'asset' ? null : 'asset'"
-                        class="w-full focus:outline-none">
-                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20"
-                         :class="{ 'bg-[#56C5F1]/20': activeMenu === 'asset' }">
-                        <div class="w-6 h-6 ml-5">
+            <!-- Asset -->
+            <div class="{{ $menuItemClass }}">
+                <button class="w-full focus:outline-none toggle-menu" data-menu="asset">
+                    <div class="{{ $menuLinkClass }} menu-header">
+                        <div class="{{ $iconWrapperClass }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                         </div>
-                        <span class="ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium">Asset</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200"
-                             :class="{ 'rotate-90': activeMenu === 'asset' }"
-                             fill="none" viewBox="0 0 24 24" stroke="#757575">
+                        <span class="{{ $menuTextClass }}">Asset</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow" fill="none" viewBox="0 0 24 24" stroke="#757575">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
                 </button>
                 <!-- Sub Menu -->
-                <div x-show="activeMenu === 'asset'"
-                     x-transition:enter="transition-all ease-out duration-300"
-                     x-transition:enter-start="opacity-0 max-h-0"
-                     x-transition:enter-end="opacity-100 max-h-[500px]"
-                     x-transition:leave="transition-all ease-in duration-200"
-                     x-transition:leave-start="opacity-100 max-h-[500px]"
-                     x-transition:leave-end="opacity-0 max-h-0"
-                     class="ml-[41px] mt-1 overflow-hidden"
-                     style="display: none;">
-                    <!-- Asset Categories -->
+                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="asset" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     <a href="{{ route('asset-categories') }}" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4 {{ Request::routeIs('asset-categories') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Asset Categories</span>
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-categories') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Asset Categories</span>
                         </div>
                     </a>
-                    <!-- View Asset -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">View Asset</span>
+                    <a href="{{ route('asset-view') }}" class="block">
+                        <div class="{{ $submenuLinkClass }}">
+                            <span class="{{ $submenuTextClass }}">View Asset</span>
                         </div>
                     </a>
                 </div>
             </div>
 
-            <!-- Location -->
-            <div class="w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2"
-                 :class="{'opacity-75 scale-[0.98]': activeMenu !== null}">
-                <a href="{{ route('location') }}"
-                   @click="activeMenu = null"
-                   class="block">
-                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20 {{ Request::routeIs('location') ? 'bg-[#56C5F1]/20' : '' }}">
-                        <div class="w-6 h-6 ml-5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </div>
-                        <span class="ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium">Location</span>
-                    </div>
-                </a>
-            </div>
+            <!-- Simple menu items with consistent structure -->
+            @php
+                $singleMenuItems = [
+                    [
+                        'route' => 'opname',
+                        'name' => 'Opname',
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />'
+                    ],
+                    [
+                        'route' => 'location',
+                        'name' => 'Location',
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />'
+                    ],
+                    [
+                        'route' => 'vendor',
+                        'name' => 'Vendor',
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />'
+                    ], [
+                        'route' => 'departments',
+                        'name' => 'Department',
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />'
+                    ]
 
-            <!-- Vendor -->
-            <div class="w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2"
-                 :class="{'opacity-75 scale-[0.98]': activeMenu !== null}">
-                <a href="#"
-                   @click="activeMenu = null"
-                   class="block">
-                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20">
-                        <div class="w-6 h-6 ml-5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                        </div>
-                        <span class="ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium">Vendor</span>
-                    </div>
-                </a>
-            </div>
+                ];
+            @endphp
 
-            <!-- Department -->
-            <div class="w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2"
-                 :class="{'opacity-75 scale-[0.98]': activeMenu !== null}">
-                <a href="{{ route('departement') }}"
-                   @click="activeMenu = null"
-                   class="block">
-                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20 {{ Request::routeIs('departement') ? 'bg-[#56C5F1]/20' : '' }}">
-                        <div class="w-6 h-6 ml-5">
+            @foreach($singleMenuItems as $item)
+            <div class="{{ $menuItemClass }}">
+                <a href="{{ route($item['route']) }}" class="block">
+                    <div class="{{ $menuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
+                        <div class="{{ $iconWrapperClass }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                {!! $item['icon'] !!}
                             </svg>
                         </div>
-                        <span class="ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium">Department</span>
+                        <span class="{{ $menuTextClass }}">{{ $item['name'] }}</span>
                     </div>
                 </a>
             </div>
+            @endforeach
 
             <!-- Report -->
-            <div class="w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2"
-                 :class="{
-                     'scale-100': activeMenu === 'report',
-                     'opacity-75 scale-[0.98]': activeMenu !== null && activeMenu !== 'report'
-                 }">
-                <button @click.prevent="activeMenu = activeMenu === 'report' ? null : 'report'"
-                        class="w-full focus:outline-none">
-                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20"
-                         :class="{ 'bg-[#56C5F1]/20': activeMenu === 'report' }">
-                        <div class="w-6 h-6 ml-5">
+            <div class="{{ $menuItemClass }}">
+                <button class="w-full focus:outline-none toggle-menu" data-menu="report">
+                    <div class="{{ $menuLinkClass }} menu-header">
+                        <div class="{{ $iconWrapperClass }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
-                        <span class="ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium">Report</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200"
-                             :class="{ 'rotate-90': activeMenu === 'report' }"
-                             fill="none" viewBox="0 0 24 24" stroke="#757575">
+                        <span class="{{ $menuTextClass }}">Report</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow" fill="none" viewBox="0 0 24 24" stroke="#757575">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
                 </button>
                 <!-- Sub Menu -->
-                <div x-show="activeMenu === 'report'"
-                     x-transition:enter="transition-all ease-out duration-300"
-                     x-transition:enter-start="opacity-0 max-h-0"
-                     x-transition:enter-end="opacity-100 max-h-[500px]"
-                     x-transition:leave="transition-all ease-in duration-200"
-                     x-transition:leave-start="opacity-100 max-h-[500px]"
-                     x-transition:leave-end="opacity-0 max-h-0"
-                     class="ml-[41px] mt-1 overflow-hidden"
-                     style="display: none;">
-                    <!-- Maintenance Report -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Maintenance Report</span>
+                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="report" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                    @php
+                        $reportSubmenuItems = [
+                            ['route' => 'report.maintenance', 'name' => 'Maintenance Report'],
+                            ['route' => 'report.inspection', 'name' => 'Inspection Report'],
+                            ['route' => 'report.calibration', 'name' => 'Calibration Report'],
+                            ['route' => 'report.finance', 'name' => 'Finance Report'],
+                            ['route' => 'report.complain', 'name' => 'Complain Report'],
+                            ['route' => 'report.depreciation', 'name' => 'Depreciation Report'],
+                        ];
+                    @endphp
+
+                    @foreach($reportSubmenuItems as $item)
+                    <a href="{{ route($item['route']) }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
                         </div>
                     </a>
-                    <!-- Inspection Report -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Inspection Report</span>
-                        </div>
-                    </a>
-                    <!-- Calibration Report -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Calibration Report</span>
-                        </div>
-                    </a>
-                    <!-- Finance Report -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Finance Report</span>
-                        </div>
-                    </a>
-                    <!-- Depreciation Report -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Depreciation Report</span>
-                        </div>
-                    </a>
+                    @endforeach
                 </div>
             </div>
 
             <!-- Account -->
-            <div class="w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2"
-                 :class="{
-                     'scale-100': activeMenu === 'account',
-                     'opacity-75 scale-[0.98]': activeMenu !== null && activeMenu !== 'account'
-                 }">
-                <button @click.prevent="activeMenu = activeMenu === 'account' ? null : 'account'"
-                        class="w-full focus:outline-none">
-                    <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20"
-                         :class="{ 'bg-[#56C5F1]/20': activeMenu === 'account' }">
-                        <div class="w-6 h-6 ml-5">
+            <div class="{{ $menuItemClass }}">
+                <button class="w-full focus:outline-none toggle-menu" data-menu="account">
+                    <div class="{{ $menuLinkClass }} menu-header">
+                        <div class="{{ $iconWrapperClass }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                         </div>
-                        <span class="ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium">Account</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200"
-                             :class="{ 'rotate-90': activeMenu === 'account' }"
-                             fill="none" viewBox="0 0 24 24" stroke="#757575">
+                        <span class="{{ $menuTextClass }}">Account</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow" fill="none" viewBox="0 0 24 24" stroke="#757575">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
                 </button>
                 <!-- Sub Menu -->
-                <div x-show="activeMenu === 'account'"
-                     x-transition:enter="transition-all ease-out duration-300"
-                     x-transition:enter-start="opacity-0 max-h-0"
-                     x-transition:enter-end="opacity-100 max-h-[500px]"
-                     x-transition:leave="transition-all ease-in duration-200"
-                     x-transition:leave-start="opacity-100 max-h-[500px]"
-                     x-transition:leave-end="opacity-0 max-h-0"
-                     class="ml-[41px] mt-1 overflow-hidden"
-                     style="display: none;">
-                    <!-- Employee -->
-                    <a href="{{ route('employee') }}" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4 {{ Request::routeIs('employee') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">Employee</span>
+                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="account" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                    <a href="{{ route('employees') }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('employee') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Employee</span>
                         </div>
                     </a>
-                    <!-- User -->
-                    <a href="#" class="block">
-                        <div class="h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4">
-                            <span class="font-['Public_Sans'] text-[14px] text-[#757575] font-medium">User</span>
+                    <a href="{{ route('user') }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('user') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">User</span>
                         </div>
                     </a>
                 </div>
@@ -310,34 +213,345 @@
 
     <!-- Logout at bottom -->
     <div class="w-full px-[13px] py-5 bg-white">
-        <div class="w-full transform transition-all duration-300 ease-in-out group hover:translate-x-2"
-             :class="{'opacity-75': activeMenu !== null}">
-            <a href="{{ route('login') }}" @click="activeMenu = null" class="block">
-                <div class="h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20">
-                    <div class="w-6 h-6 ml-5">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
+        <div class="{{ $menuItemClass }}">
+            <form action="{{ route('logout') }}" method="POST" class="block">
+                @csrf
+                <button type="submit" class="w-full text-left">
+                    <div class="{{ $menuLinkClass }}">
+                        <div class="{{ $iconWrapperClass }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </div>
+                        <span class="{{ $menuTextClass }}">Log Out</span>
                     </div>
-                    <span class="ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium">Log Out</span>
-                </div>
-            </a>
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- Add initialization for active menu from localStorage -->
+    <!-- JavaScript for sidebar functionality -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // This will ensure Alpine.js initializes with the stored active menu
-            const storedActiveMenu = localStorage.getItem('activeMenu');
-            if (storedActiveMenu) {
-                // Wait for Alpine to initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = {
+            // Store DOM references
+            elements: {
+                toggleButtons: document.querySelectorAll('.toggle-menu'),
+                menuItems: document.querySelectorAll('.menu-item'),
+                submenus: document.querySelectorAll('.submenu'),
+                arrows: document.querySelectorAll('.menu-arrow'),
+                menuHeaders: document.querySelectorAll('.menu-header'),
+                directLinks: document.querySelectorAll('#menu-container > .menu-item > a:not(.toggle-menu)'),
+                allLinks: document.querySelectorAll('#sidebar-container a')
+            },
+
+            // Helper methods
+            updateElementStyle: function(element, isActive, selector, activeClass, inactiveClass) {
+                if (!element) return;
+                const target = selector ? element.querySelector(selector) : element;
+                if (!target) return;
+
+                if (isActive) {
+                    inactiveClass && target.classList.remove(inactiveClass);
+                    activeClass && target.classList.add(activeClass);
+                } else {
+                    activeClass && target.classList.remove(activeClass);
+                    inactiveClass && target.classList.add(inactiveClass);
+                }
+            },
+
+            // Central method to close all submenus
+            closeAllSubmenus: function() {
+                this.elements.submenus.forEach(submenu => {
+                    submenu.style.maxHeight = '0';
+                    submenu.style.opacity = '0';
+                });
+
+                this.elements.arrows.forEach(arrow => {
+                    arrow.classList.remove('rotate-90');
+                    if (arrow.querySelector('path')) {
+                        arrow.querySelector('path').setAttribute('stroke', '#757575');
+                    }
+                });
+
+                this.elements.menuHeaders.forEach(header => {
+                    header.classList.remove('bg-[#56C5F1]/20');
+                    this.updateElementStyle(header, false, 'span', 'text-[#213268]', 'text-[#757575]');
+
+                    const svg = header.querySelector('.w-6.h-6:not(.menu-arrow)');
+                    if (svg && svg.querySelector('path')) {
+                        svg.querySelector('path').setAttribute('stroke', '#757575');
+                    }
+                });
+
+                this.elements.menuItems.forEach(item => {
+                    item.classList.remove('opacity-75', 'scale-[0.98]');
+                });
+
+                localStorage.removeItem('activeMenu');
+            },
+
+            // Method to open a specific submenu
+            openSubmenu: function(menuName) {
+                const targetSubmenu = document.querySelector(`.submenu[data-parent="${menuName}"]`);
+                const targetArrow = document.querySelector(`.toggle-menu[data-menu="${menuName}"] .menu-arrow`);
+                const targetHeader = document.querySelector(`.toggle-menu[data-menu="${menuName}"] .menu-header`);
+
+                this.closeAllSubmenus();
+
+                this.elements.menuItems.forEach(item => {
+                    item.classList.add('opacity-75', 'scale-[0.98]');
+                });
+
                 setTimeout(() => {
-                    window.dispatchEvent(new CustomEvent('set-active-menu', {
-                        detail: { menu: storedActiveMenu }
-                    }));
-                }, 100);
+                    if (targetSubmenu) {
+                        targetSubmenu.style.maxHeight = targetSubmenu.scrollHeight + 'px';
+                        targetSubmenu.style.opacity = '1';
+                    }
+
+                    if (targetArrow) {
+                        targetArrow.classList.add('rotate-90');
+                        if (targetArrow.querySelector('path')) {
+                            targetArrow.querySelector('path').setAttribute('stroke', '#213268');
+                        }
+                    }
+
+                    if (targetHeader) {
+                        targetHeader.classList.add('bg-[#56C5F1]/20');
+                        this.updateElementStyle(targetHeader, true, 'span', 'text-[#213268]', 'text-[#757575]');
+
+                        const svg = targetHeader.querySelector('.w-6.h-6:not(.menu-arrow)');
+                        if (svg && svg.querySelector('path')) {
+                            svg.querySelector('path').setAttribute('stroke', '#213268');
+                        }
+                    }
+                }, 10);
+
+                if (targetSubmenu) {
+                    const menuItem = targetSubmenu.closest('.menu-item');
+                    if (menuItem) {
+                        menuItem.classList.remove('opacity-75', 'scale-[0.98]');
+                    }
+                }
+
+                localStorage.setItem('activeMenu', menuName);
+            },
+
+            // Toggle a menu (open if closed, close if open)
+            toggleMenu: function(menuName) {
+                const targetSubmenu = document.querySelector(`.submenu[data-parent="${menuName}"]`);
+                const isOpen = (targetSubmenu && targetSubmenu.style.maxHeight !== '0px' && targetSubmenu.style.maxHeight !== '');
+                isOpen ? this.closeAllSubmenus() : this.openSubmenu(menuName);
+            },
+
+            // Initialize sidebar functionality
+            init: function() {
+                const self = this;
+
+                // Toggle button click events
+                this.elements.toggleButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        self.toggleMenu(this.getAttribute('data-menu'));
+                    });
+                });
+
+                // Direct links click handling
+                this.elements.directLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        self.closeAllSubmenus();
+                        const linkDiv = this.querySelector('div');
+                        if (linkDiv) {
+                            linkDiv.classList.add('bg-[#56C5F1]/20');
+                            self.updateElementStyle(linkDiv, true, 'span', 'text-[#213268]', 'text-[#757575]');
+
+                            const svg = linkDiv.querySelector('.w-6.h-6');
+                            if (svg && svg.querySelector('path')) {
+                                svg.querySelector('path').setAttribute('stroke', '#213268');
+                            }
+                        }
+                    });
+                });
+
+                // Update active direct links from routing
+                this.elements.directLinks.forEach(link => {
+                    const linkDiv = link.querySelector('div');
+                    if (linkDiv && linkDiv.classList.contains('bg-[#56C5F1]/20')) {
+                        self.updateElementStyle(linkDiv, true, 'span', 'text-[#213268]', 'text-[#757575]');
+
+                        const svg = linkDiv.querySelector('.w-6.h-6');
+                        if (svg && svg.querySelector('path')) {
+                            svg.querySelector('path').setAttribute('stroke', '#213268');
+                        }
+                    }
+                });
+
+                // Submenu links click handling
+                document.querySelectorAll('.submenu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        self.closeAllSubmenus();
+
+                        // Highlight parent menu
+                        const submenu = this.closest('.submenu');
+                        if (submenu) {
+                            const menuName = submenu.getAttribute('data-parent');
+                            const menuHeader = document.querySelector(`.toggle-menu[data-menu="${menuName}"] .menu-header`);
+
+                            if (menuHeader) {
+                                menuHeader.classList.add('bg-[#56C5F1]/20');
+                                self.updateElementStyle(menuHeader, true, 'span', 'text-[#213268]', 'text-[#757575]');
+
+                                const svg = menuHeader.querySelector('.w-6.h-6:not(.menu-arrow)');
+                                if (svg && svg.querySelector('path')) {
+                                    svg.querySelector('path').setAttribute('stroke', '#213268');
+                                }
+                            }
+                        }
+
+                        // Highlight clicked submenu link
+                        const linkDiv = this.querySelector('div');
+                        if (linkDiv) {
+                            linkDiv.classList.add('bg-[#56C5F1]/20');
+                            self.updateElementStyle(linkDiv, true, 'span', 'text-[#213268]', 'text-[#757575]');
+                        }
+                    });
+                });
+
+                // Update active submenu links from routing
+                document.querySelectorAll('.submenu a div').forEach(div => {
+                    if (div.classList.contains('bg-[#56C5F1]/20')) {
+                        self.updateElementStyle(div, true, 'span', 'text-[#213268]', 'text-[#757575]');
+
+                        const submenu = div.closest('.submenu');
+                        if (submenu) {
+                            const menuName = submenu.getAttribute('data-parent');
+                            localStorage.setItem('activeMenu', menuName);
+                        }
+                    }
+                });
+
+                // Navigation tracking
+                this.elements.allLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        const href = this.getAttribute('href');
+                        if (!href || href.startsWith('#') || href.includes('login')) return;
+                        sessionStorage.setItem('sidebarNavigation', 'true');
+                    });
+                });
+
+                // Restore active menu from localStorage
+                const storedActiveMenu = localStorage.getItem('activeMenu');
+                if (storedActiveMenu) {
+                    this.openSubmenu(storedActiveMenu);
+                }
+
+                // Make methods available globally
+                window.toggleSidebarMenu = (menuName) => self.toggleMenu(menuName);
+                window.closeAllSidebarMenus = () => self.closeAllSubmenus();
+            }
+        };
+
+        // Initialize the sidebar
+        sidebar.init();
+
+        // === MODAL INITIALIZATION ===
+        function reinitializeModals() {
+            console.log('Reinitializing modals after sidebar navigation');
+
+            // DOM elements
+            const modals = document.querySelectorAll('[id$="Modal"]');
+            const closeButtons = document.querySelectorAll('.close-modal');
+
+            // Helper functions for modal operations
+            if (typeof window.openModal !== 'function') {
+                window.openModal = function(modal, content) {
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                        content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                    }, 10);
+                };
+            }
+
+            if (typeof window.closeModal !== 'function') {
+                window.closeModal = function(modal, content) {
+                    content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                    content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                    }, 300);
+                };
+            }
+
+            // Initialize modal triggers
+            function initModalTrigger(selector, modalIdFunc) {
+                document.querySelectorAll(selector).forEach(button => {
+                    if (!button.hasAttribute('data-modal-initialized')) {
+                        button.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const modalId = modalIdFunc(this);
+                            const modal = document.getElementById(modalId);
+                            const content = modal?.querySelector(`#${modalId}Content`);
+                            if (modal && content) openModal(modal, content);
+                        });
+                        button.setAttribute('data-modal-initialized', 'true');
+                    }
+                });
+            }
+
+            // Initialize standard modal buttons
+            initModalTrigger('[id$="Btn"]', btn => btn.id.replace('Btn', 'Modal'));
+
+            // Initialize specialized buttons
+            initModalTrigger('.edit-brand-btn', () => 'editBrandModal');
+            initModalTrigger('.delete-brand-btn', () => 'deleteBrandModal');
+
+            // Initialize close buttons
+            closeButtons.forEach(button => {
+                if (!button.hasAttribute('data-modal-initialized')) {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const modal = button.closest('[id$="Modal"]');
+                        const content = modal.querySelector('[id$="ModalContent"]');
+                        closeModal(modal, content);
+                    });
+                    button.setAttribute('data-modal-initialized', 'true');
+                }
+            });
+
+            // Initialize background click to close
+            modals.forEach(modal => {
+                if (!modal.hasAttribute('data-modal-initialized')) {
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === modal) {
+                            const content = modal.querySelector('[id$="ModalContent"]');
+                            closeModal(modal, content);
+                        }
+                    });
+                    modal.setAttribute('data-modal-initialized', 'true');
+                }
+            });
+        }
+
+        // Check if page loaded after sidebar navigation
+        window.addEventListener('DOMContentLoaded', function() {
+            if (sessionStorage.getItem('sidebarNavigation') === 'true') {
+                sessionStorage.removeItem('sidebarNavigation');
+                reinitializeModals();
             }
         });
+
+        // Watch for content changes
+        const contentArea = document.querySelector('main');
+        if (contentArea) {
+            const observer = new MutationObserver(reinitializeModals);
+            observer.observe(contentArea, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        // Make function available globally
+        window.reinitializeModalsAfterNavigation = reinitializeModals;
+    });
     </script>
 </div>
