@@ -56,7 +56,7 @@
                                 @foreach($assets as $asset)
                                 <tr data-asset-id="{{ $asset['asset_id'] ?? '' }}">
                                     <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                        <input type="checkbox" class="asset-checkbox checkbox checkbox-sm" />
+                                        <input type="checkbox" class="asset-checkbox checkbox checkbox-sm" data-asset-id="{{ $asset['asset_id'] ?? '' }}" />
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_code'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_name'] ?? '-' }}</td>
@@ -963,6 +963,84 @@
     </div>
 </div>
 @endif
+
+<!-- Modified Print QR Modal -->
+<div id="printQRModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="printQRModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">PRINT QR CODE</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <form id="printQRForm" method="POST" action="{{ url('/assets/qr/print-pdf') }}">
+                    @csrf
+                    <div class="p-6">
+                        <div class="space-y-4 max-w-[400px] mx-auto">
+                            <div class="space-y-2">
+                                <p class="text-base text-gray-600">Select the size of QR codes to print.</p>
+                                <p id="selectedAssetsCount" class="font-semibold text-center"></p>
+                            </div>
+
+                            <!-- QR Size Input -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">QR Size (mm)</label>
+                                <select name="qr_size" required class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                    <option value="40">40mm x 40mm</option>
+                                    <option value="50" selected>50mm x 50mm</option>
+                                    <option value="60">60mm x 60mm</option>
+                                    <option value="80">80mm x 80mm</option>
+                                </select>
+                            </div>
+
+                            <!-- Hidden field to store selected asset IDs -->
+                            <input type="hidden" id="selectedAssetIds" name="asset_ids" value="">
+
+                            <!-- Hidden field for quantity dengan nilai default 1 -->
+                            <input type="hidden" name="quantity" value="1">
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                Generate PDF
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add a Print QR PDF button to show after generation -->
+<div id="printQRPDFNotification" class="hidden fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <div class="py-1">
+                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold">QR Codes Generated!</p>
+                <p>Your QR codes are ready to print.</p>
+            </div>
+        </div>
+        <div class="ml-4">
+            <a id="printPdfLink" href="{{ url('/assets/qr/print-pdf') }}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                Print PDF
+            </a>
+        </div>
+    </div>
+</div>
 
 @push('scripts')
 <script>
@@ -2115,8 +2193,6 @@
         console.warn(`No matching option found for ${selectId} with value "${valueStr}"`);
     }
 
-    // ... existing code ...
-
     // Add the image preview functionality for both add and edit modals
     document.addEventListener('DOMContentLoaded', function() {
         // Image preview for Add Asset modal
@@ -2258,173 +2334,6 @@
         window.location.href = url.toString();
     }
 
-    // Add this to your JavaScript section
-    document.addEventListener('DOMContentLoaded', function() {
-        // QR code generation for selected assets
-        const printQRBtn = document.getElementById('printQRBtn');
-        if (printQRBtn) {
-            printQRBtn.addEventListener('click', function() {
-                // Get selected assets
-                const selectedAssets = getSelectedAssets();
-
-                if (selectedAssets.length === 0) {
-                    alert('Please select at least one asset');
-                    return;
-                }
-
-                generateQRCodes(selectedAssets);
-            });
-        }
-
-        // Function to get selected assets
-        function getSelectedAssets() {
-            const checkboxes = document.querySelectorAll('table tbody input.asset-checkbox:checked');
-            const assets = [];
-
-            checkboxes.forEach(checkbox => {
-                const row = checkbox.closest('tr');
-                const assetId = row.getAttribute('data-asset-id');
-                // Get the asset name from the third column (index 2)
-                const assetName = row.cells[2].textContent.trim();
-                const assetCode = row.cells[1].textContent.trim();
-
-                if (assetId) {
-                    assets.push({
-                        id: assetId,
-                        name: assetName,
-                        code: assetCode
-                    });
-                }
-            });
-
-            return assets;
-        }
-
-        // Function to generate QR codes
-        function generateQRCodes(assets) {
-            // Create a new window for printing
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Asset QR Codes</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-                        .qr-container { display: flex; flex-wrap: wrap; justify-content: center; }
-                        .qr-item {
-                            margin: 10px;
-                            padding: 15px;
-                            border: 1px solid #ccc;
-                            text-align: center;
-                            width: 200px;
-                        }
-                        .asset-name { font-weight: bold; margin-top: 10px; margin-bottom: 5px; }
-                        .asset-code { color: #666; font-size: 0.9em; }
-                        @media print {
-                            .no-print { display: none; }
-                            @page { margin: 0.5cm; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="no-print" style="text-align: center; margin: 20px 0;">
-                        <h1>Asset QR Codes</h1>
-                        <button onclick="window.print();" style="padding: 10px 20px; background: #213268; color: white; border: none; border-radius: 5px; cursor: pointer;">Print QR Codes</button>
-                    </div>
-                    <div class="qr-container" id="qrContainer">
-                        <p>Loading QR Codes...</p>
-                    </div>
-                </body>
-                </html>
-            `);
-
-            // Define the base URL - using the confirmed server location
-            const baseUrl = "http://localhost:5000/public";
-
-            // Load QR codes after the window is opened
-            printWindow.onload = function() {
-                const container = printWindow.document.getElementById('qrContainer');
-                container.innerHTML = ''; // Clear loading message
-
-                // Process each asset
-                const fetchPromises = assets.map(asset => {
-                    return fetch(`{{ route('assets.barcode.generate', '') }}/${asset.id}`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok: ' + response.status);
-                            }
-                            return response.json();
-                        })
-                        .then(result => {
-                            if (result.status === true && result.data && result.data.barcode_url) {
-                                // Create QR code element
-                                const qrItem = printWindow.document.createElement('div');
-                                qrItem.className = 'qr-item';
-
-                                // Properly handle the barcode URL
-                                let barcodeUrl = result.data.barcode_url;
-
-                                // If it's not an absolute URL, combine with the base URL
-                                if (!barcodeUrl.startsWith('http://') && !barcodeUrl.startsWith('https://')) {
-                                    // Remove leading slash if present to avoid double slashes
-                                    if (barcodeUrl.startsWith('/')) {
-                                        barcodeUrl = barcodeUrl.substring(1);
-                                    }
-                                    barcodeUrl = `${baseUrl}/${barcodeUrl}`;
-                                }
-
-                                // Log for debugging
-                                console.log('Barcode URL:', barcodeUrl);
-
-                                // Add content to the QR item with asset name
-                                qrItem.innerHTML = `
-                                    <img src="${barcodeUrl}" alt="QR Code" style="width: 150px; height: 150px;">
-                                    <div class="asset-name">${asset.name || ''}</div>
-                                    <div class="asset-code">${asset.code || ''}</div>
-                                `;
-
-                                // Add to container
-                                container.appendChild(qrItem);
-                            } else {
-                                console.error('Invalid result data:', result);
-                                const errorItem = printWindow.document.createElement('div');
-                                errorItem.className = 'qr-item';
-                                errorItem.innerHTML = `
-                                    <div style="color: red; padding: 20px;">
-                                        Error generating QR code for asset: ${asset.name || asset.code || asset.id}<br>
-                                        Invalid response data
-                                    </div>
-                                `;
-                                container.appendChild(errorItem);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching QR code:', error);
-
-                            // Add error message to the container
-                            const errorItem = printWindow.document.createElement('div');
-                            errorItem.className = 'qr-item';
-                            errorItem.innerHTML = `
-                                <div style="color: red; padding: 20px;">
-                                    Failed to load QR code for asset: ${asset.name || asset.code || asset.id}<br>
-                                    Error: ${error.message}
-                                </div>
-                            `;
-                            container.appendChild(errorItem);
-                        });
-                });
-
-                // After all promises complete, check if we have any QR codes
-                Promise.all(fetchPromises)
-                    .then(() => {
-                        if (container.children.length === 0) {
-                            container.innerHTML = '<p>No QR codes were generated. Please try again.</p>';
-                        }
-                    });
-            };
-        }
-    });
-
     // Select All functionality
     const selectAllCheckbox = document.getElementById('select-all-assets');
     if (selectAllCheckbox) {
@@ -2466,6 +2375,181 @@
             }
         }
     });
+
+    // Removed duplicate event handlers for printQRBtn and printQRForm
+
+    // Select all assets checkbox
+    document.getElementById('select-all-assets')?.addEventListener('change', function() {
+        document.querySelectorAll('.asset-checkbox').forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+
+    // QR Code and Modal functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if we have a success message about QR generation
+        @if(session('success') && str_contains(session('success'), 'QR codes generated'))
+            document.getElementById('printQRPDFNotification').classList.remove('hidden');
+
+            // Get the stored asset_ids from localStorage
+            const storedAssetIds = localStorage.getItem('selectedAssetIds');
+            if (storedAssetIds) {
+                // Update the Print PDF link to include the selected asset IDs
+                const printPdfLink = document.getElementById('printPdfLink');
+                if (printPdfLink) {
+                    printPdfLink.href = "{{ url('/assets/qr/print-pdf') }}?asset_ids=" + storedAssetIds;
+                    console.log('Updated print PDF link with asset IDs:', storedAssetIds);
+                }
+            }
+
+            // Hide after 10 seconds
+            setTimeout(function() {
+                document.getElementById('printQRPDFNotification').classList.add('hidden');
+            }, 10000);
+        @endif
+
+        // SINGLE Print QR button event handler - make sure no other event handlers exist for this button!
+        const printQRBtn = document.getElementById('printQRBtn');
+        if (printQRBtn) {
+            // Remove any existing event listeners (just to be sure)
+            const newPrintQRBtn = printQRBtn.cloneNode(true);
+            printQRBtn.parentNode.replaceChild(newPrintQRBtn, printQRBtn);
+
+            // Add the only event listener we want
+            newPrintQRBtn.addEventListener('click', function(e) {
+                if (e) e.preventDefault(); // Prevent default action
+                if (e) e.stopPropagation(); // Stop event propagation
+
+                // Get selected assets
+                const selectedCheckboxes = document.querySelectorAll('.asset-checkbox:checked');
+                console.log('Selected checkboxes:', selectedCheckboxes.length);
+
+                const selectedIds = Array.from(selectedCheckboxes).map(checkbox => {
+                    console.log('Checkbox dataset:', checkbox.dataset);
+                    return checkbox.dataset.assetId;
+                });
+
+                console.log('Selected asset IDs:', selectedIds);
+
+                if (selectedIds.length === 0) {
+                    alert('Please select at least one asset to print QR code.');
+                    return;
+                }
+
+                // Store the selected IDs in localStorage for later use
+                localStorage.setItem('selectedAssetIds', selectedIds.join(','));
+
+                // Set the selected IDs to the hidden input
+                document.getElementById('selectedAssetIds').value = selectedIds.join(',');
+                console.log('Hidden input value set to:', document.getElementById('selectedAssetIds').value);
+
+                // Update the count text
+                document.getElementById('selectedAssetsCount').textContent =
+                    `Selected Assets: ${selectedIds.length}`;
+
+                // Show the modal
+                const printQRModal = document.getElementById('printQRModal');
+                const printQRModalContent = document.getElementById('printQRModalContent');
+                if (printQRModal && printQRModalContent) {
+                    openModal(printQRModal, printQRModalContent);
+                }
+
+                return false; // Prevent default action
+            });
+        }
+
+        // SINGLE Form submission handler
+        const printQRForm = document.getElementById('printQRForm');
+        if (printQRForm) {
+            // Remove any existing event listeners (just to be sure)
+            const newPrintQRForm = printQRForm.cloneNode(true);
+            printQRForm.parentNode.replaceChild(newPrintQRForm, printQRForm);
+
+            // Add the only event listener we want
+            newPrintQRForm.addEventListener('submit', function(e) {
+                // Prevent default to handle form submission manually
+                e.preventDefault();
+
+                // Get the selected asset IDs
+                const selectedIds = document.getElementById('selectedAssetIds').value;
+                console.log('Form submission - selected IDs value:', selectedIds);
+
+                if (!selectedIds) {
+                    alert('No assets selected.');
+                    return false;
+                }
+
+                console.log('Submitting form with asset IDs:', selectedIds);
+
+                // Get the form data
+                const qrSize = document.querySelector('select[name="qr_size"]').value;
+                const quantity = document.querySelector('input[name="quantity"]').value || 1;
+
+                // Close the modal
+                const printQRModal = document.getElementById('printQRModal');
+                const printQRModalContent = document.getElementById('printQRModalContent');
+                if (printQRModal && printQRModalContent) {
+                    closeModal(printQRModal, printQRModalContent);
+                }
+
+                // Open PDF directly in a new tab instead of showing notification
+                window.open("{{ url('/assets/qr/print-pdf') }}?asset_ids=" + selectedIds + "&qr_size=" + qrSize + "&quantity=" + quantity, '_blank');
+
+                // Still submit the form to generate the PDF
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = "{{ url('/assets/qr/generate-bulk') }}";
+                form.style.display = 'none';
+
+                // Add CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = "{{ csrf_token() }}";
+                form.appendChild(csrfToken);
+
+                // Add asset IDs
+                const assetIdsInput = document.createElement('input');
+                assetIdsInput.type = 'hidden';
+                assetIdsInput.name = 'asset_ids';
+                assetIdsInput.value = selectedIds;
+                form.appendChild(assetIdsInput);
+
+                // Add QR size
+                const qrSizeInput = document.createElement('input');
+                qrSizeInput.type = 'hidden';
+                qrSizeInput.name = 'qr_size';
+                qrSizeInput.value = qrSize;
+                form.appendChild(qrSizeInput);
+
+                // Add quantity
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'hidden';
+                quantityInput.name = 'quantity';
+                quantityInput.value = quantity;
+                form.appendChild(quantityInput);
+
+                // Add form to the document and submit it
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
+
+        // Make sure close buttons work
+        document.querySelectorAll('.close-modal').forEach(button => {
+            button.addEventListener('click', function() {
+                const modal = this.closest('[id$="Modal"]');
+                const content = modal.querySelector('[id$="ModalContent"]');
+                if (modal && content) {
+                    closeModal(modal, content);
+                }
+            });
+        });
+    });
+
+    // REMOVE ALL OTHER EVENT LISTENERS FOR printQRBtn
+    // ...
+
 </script>
 @endpush
 @endsection

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
+use PDF; // Make sure you've included the dompdf package
+use Illuminate\Support\Facades\Http;
 
 class ViewAssetController extends Controller
 {
@@ -836,41 +838,18 @@ class ViewAssetController extends Controller
     }
 
     /**
-     * Generate barcode for the specified asset(s).
+     * Generate barcode for a single asset
      *
-     * @param int|string $id The asset ID or 'batch' for multiple assets
+     * @param int $id The asset ID
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function generateBarcode($id)
     {
         try {
-            \Log::info('Attempting to generate barcode for asset:', [
+            \Log::info('Attempting to generate barcode for single asset:', [
                 'asset_id' => $id,
                 'url' => request()->url()
             ]);
-
-            // Handle batch request
-            if ($id === 'batch' && request()->has('ids')) {
-                $assetIds = request('ids');
-                $batchResults = [];
-
-                foreach ($assetIds as $assetId) {
-                    $result = $this->apiService->request('GET', "/assets/barcode/generate/{$assetId}");
-                    if (isset($result['status']) && $result['status'] === true) {
-                        $batchResults[] = $result['data'] ?? [];
-                    }
-                }
-
-                if (request()->ajax()) {
-                    return response()->json([
-                        'status' => true,
-                        'message' => count($batchResults) . ' barcodes generated successfully',
-                        'data' => $batchResults
-                    ]);
-                }
-
-                return redirect()->back()->with('success', count($batchResults) . ' barcodes generated successfully');
-            }
 
             // Single asset request
             $result = $this->apiService->request('GET', "/assets/barcode/generate/{$id}");
@@ -945,4 +924,232 @@ class ViewAssetController extends Controller
             return redirect()->back()->with('error', $errorMessage);
         }
     }
-}
+
+    /**
+     * Generate QR codes for multiple assets in bulk
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function generateBulkQR(Request $request)
+    {
+        try {
+            \Log::info('Attempting to generate bulk QR codes:', [
+                'request_data' => $request->all()
+            ]);
+
+            // Get asset IDs from request
+            $assetIds = $request->input('asset_ids', []);
+
+            // Ensure asset_ids is an array
+            if (!is_array($assetIds)) {
+                if (is_string($assetIds) && !empty($assetIds)) {
+                    $assetIds = explode(',', $assetIds);
+                    $assetIds = array_map('intval', array_filter($assetIds));
+                } else {
+                    $assetIds = [];
+                }
+            }
+
+            if (empty($assetIds)) {
+                \Log::warning('No assets selected for QR code generation');
+                return redirect()->back()->with('error', 'No assets selected for QR code generation');
+            }
+
+            \Log::info('Calling API to generate QR codes', [
+                'asset_ids' => $assetIds
+            ]);
+
+            // Call API to generate QR codes with simplified request format
+            $result = $this->apiService->request('POST', "/assets/qr/generate-bulk", [
+                'json' => [
+                    'asset_ids' => $assetIds
+                ]
+            ]);
+
+            \Log::info('API response for bulk QR generation:', [
+                'status' => isset($result['status']) ? $result['status'] : 'not set',
+                'message' => isset($result['message']) ? $result['message'] : 'no message',
+                'data_count' => isset($result['data']) ? count($result['data']) : 0
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during QR generation:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check for other API errors
+            if (!isset($result['status']) || $result['status'] !== true) {
+                \Log::error('API error in bulk QR generation:', [
+                    'result' => $result
+                ]);
+                return redirect()->back()->with('error', $result['message'] ?? 'Failed to generate QR codes');
+            }
+
+            // Store QR data in session for PDF generation
+            session(['qr_data' => $result['data'] ?? []]);
+
+            \Log::info('QR codes generated successfully, redirecting to assets page');
+
+            // Redirect back with success message
+            return redirect()->route('assets')->with('success', 'QR codes generated successfully. Ready for printing.');
+        } catch (\Exception $e) {
+            $errorMessage = 'Failed to generate QR codes: ' . $e->getMessage();
+
+            \Log::error('Exception during bulk QR generation:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+
+            return redirect()->back()->with('error', $errorMessage);
+        }
+    }
+
+    /**
+     * Print QR codes as PDF
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printQRCodesPDF(Request $request)
+    {
+        try {
+            \Log::info('Attempting to print QR codes as PDF');
+
+            // Get QR data from session or generate new data if asset_ids are provided
+            $qrData = session('qr_data', []);
+
+            // If QR data is not in session, check if we have asset_ids in the request
+            if (empty($qrData) && $request->has('asset_ids')) {
+                \Log::info('No QR data in session, generating from asset_ids');
+
+                // Parse asset IDs
+                $assetIds = $request->input('asset_ids');
+                if (is_string($assetIds)) {
+                    // Make sure we're properly parsing the comma-separated list
+                    $assetIds = array_map('trim', explode(',', $assetIds));
+                    $assetIds = array_filter($assetIds); // Remove any empty items
+                }
+
+                // Ensure we've got an array of IDs (log this for debugging)
+                \Log::info('Asset IDs for QR generation:', ['asset_ids' => $assetIds]);
+
+                $qrSize = $request->input('qr_size', 50);
+                $quantity = $request->input('quantity', 1);
+
+                // Use apiService instead of direct Http facade to properly handle authentication
+                $result = $this->apiService->request('POST', "/assets/qr/generate-bulk", [
+                    'json' => [
+                        'asset_ids' => $assetIds,
+                        'qr_size' => $qrSize,
+                        'quantity' => $quantity,
+                    ]
+                ]);
+
+                // Log the complete API request and response for debugging
+                \Log::info('QR generation API request/response:', [
+                    'request' => [
+                        'asset_ids' => $assetIds,
+                        'qr_size' => $qrSize,
+                        'quantity' => $quantity
+                    ],
+                    'response' => $result
+                ]);
+
+                // Check for auth errors
+                if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                    \Log::warning('Authentication error during QR generation:', [
+                        'error' => $result['error'],
+                        'message' => $result['message'] ?? 'Authentication failed'
+                    ]);
+                    return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                }
+
+                if (isset($result['status']) && $result['status'] === true && isset($result['data'])) {
+                    \Log::info('Successfully generated QR codes from API', [
+                        'count' => count($result['data']),
+                        'asset_ids_in_response' => array_column($result['data'], 'asset_id')
+                    ]);
+
+                    $qrData = $result['data'];
+                    session(['qr_data' => $qrData]);
+
+                    \Log::info('QR data being stored in session:', [
+                        'qr_data_count' => count($result['data']),
+                        'qr_data_sample' => array_slice($result['data'], 0, min(5, count($result['data'])))
+                    ]);
+                } else {
+                    \Log::error('Failed to generate QR codes from API', [
+                        'result' => $result
+                    ]);
+                    return redirect()->back()->with('error', $result['message'] ?? 'Failed to generate QR codes');
+                }
+            }
+
+            if (empty($qrData)) {
+                return redirect()->back()->with('error', 'No QR code data found for printing');
+            }
+
+            // Log what we have before processing
+            \Log::info('Processing QR data for PDF:', [
+                'qr_count' => count($qrData),
+                'first_few_ids' => array_slice(array_column($qrData, 'asset_id'), 0, 5)
+            ]);
+
+            // Fetch and embed QR images as base64
+            foreach ($qrData as $key => $asset) {
+                if (isset($asset['qr_url'])) {
+                    try {
+                        // Get proper API URL from backend configuration
+                        $backendUrl = rtrim(config('app.backend_url'), '/');
+                        $imageUrl = $backendUrl . "/public" . $asset['qr_url'];
+
+                        \Log::info("Fetching QR image for asset ID: {$asset['asset_id']}", [
+                            'url' => $imageUrl
+                        ]);
+
+                        // Try to get the image content through file_get_contents first
+                        $imageData = @file_get_contents($imageUrl);
+                        if ($imageData !== false) {
+                            $base64Image = base64_encode($imageData);
+                            $qrData[$key]['qr_base64'] = 'data:image/png;base64,' . $base64Image;
+                            \Log::info("Successfully fetched QR image for asset ID: {$asset['asset_id']}");
+                        } else {
+                            \Log::warning("Failed to download QR image: {$imageUrl}");
+                            $qrData[$key]['qr_base64'] = null;
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error("Error fetching QR image: {$e->getMessage()}");
+                        $qrData[$key]['qr_base64'] = null;
+                    }
+                }
+            }
+
+            // Generate PDF
+            $pdf = \PDF::loadView('Asset.qrcode_pdf', [
+                'qrData' => $qrData
+            ]);
+
+            // Set paper size and orientation
+            $pdf->setPaper('a4', 'portrait');
+
+            // Stream the PDF directly to the browser
+            return $pdf->stream('asset_qrcodes.pdf');
+        } catch (\Exception $e) {
+            $errorMessage = 'Failed to print QR codes: ' . $e->getMessage();
+
+            \Log::error('Exception during QR PDF printing:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', $errorMessage);
+        }
+    }
+  }
