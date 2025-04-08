@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
-use PDF; // Make sure you've included the dompdf package
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Http;
 
 class ViewAssetController extends Controller
@@ -1015,7 +1015,7 @@ class ViewAssetController extends Controller
      * Print QR codes as PDF
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function printQRCodesPDF(Request $request)
     {
@@ -1132,7 +1132,7 @@ class ViewAssetController extends Controller
             }
 
             // Generate PDF
-            $pdf = \PDF::loadView('Asset.qrcode_pdf', [
+            $pdf = Pdf::loadView('Asset.qrcode_pdf', [
                 'qrData' => $qrData
             ]);
 
