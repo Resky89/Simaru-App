@@ -146,13 +146,13 @@
                                 </svg>
                             </span>`;
                     case 'found':
-                        return `<span class="text-[#56C5F1]">
+                        return `<span class="text-black">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </span>`;
                     case 'dispose':
-                        return `<span class="text-[#ACC3EF]">
+                        return `<span class="text-[#5D76B5]">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
@@ -169,9 +169,9 @@
             getStatusColor(status) {
                 switch(status) {
                     case 'checked out': return 'text-[#DAAE0F]';
-                    case 'return': return 'text-[ #7CB60C]';
+                    case 'return': return 'text-[#7CB60C]';
                     case 'loss': return 'text-[#FF4A2B]';
-                    case 'found': return 'text-[#56C5F1]';
+                    case 'found': return 'text-[#7CB60C]';
                     case 'dispose': return 'text-[#ACC3EF]';
                     default: return 'text-[#7CB60C]';
                 }
@@ -183,72 +183,182 @@
 
                 mutations.forEach(mutation => {
                     const status = mutation.status || '';
-                    const statusTitle = status.charAt(0).toUpperCase() + status.slice(1);
                     const icon = this.getStatusIcon(status);
                     const textColor = this.getStatusColor(status);
 
+                    // Define different background colors based on status
+                    let bgColor, bgColorLight, borderColor, titleColor;
+
+                    switch(status) {
+                        case 'checked out':
+                            bgColor = 'bg-amber-100';
+                            bgColorLight = 'bg-amber-50';
+                            borderColor = 'border-amber-200';
+                            titleColor = 'text-amber-700';
+                            break;
+                        case 'return':
+                            bgColor = 'bg-green-100';
+                            bgColorLight = 'bg-green-50';
+                            borderColor = 'border-green-200';
+                            titleColor = 'text-green-700';
+                            break;
+                        case 'loss':
+                            bgColor = 'bg-red-100';
+                            bgColorLight = 'bg-red-50';
+                            borderColor = 'border-red-200';
+                            titleColor = 'text-red-700';
+                            break;
+                        case 'found':
+                            bgColor = 'bg-green-100';
+                            bgColorLight = 'bg-green-50';
+                            borderColor = 'border-green-200';
+                            titleColor = 'text-black';
+                            break;
+                        case 'dispose':
+                            bgColor = 'bg-[#ACC3EF]';
+                            bgColorLight = 'bg-[#E1E8F7]';
+                            borderColor = 'border-[#ACC3EF]';
+                            titleColor = 'text-[#5D76B5]';
+                            break;
+                        default:
+                            bgColor = 'bg-gray-100';
+                            bgColorLight = 'bg-gray-50';
+                            borderColor = 'border-gray-200';
+                            titleColor = 'text-gray-700';
+                    }
+
                     if (status === 'checked out') {
                         const checkoutDate = mutation.detail_info?.checkout_date ? this.formatDate(mutation.detail_info.checkout_date) : '';
-                        const assignedTo = mutation.detail_info?.employee?.name || '';
-                        const department = mutation.detail_info?.employee?.department_name || '';
-                        const notes = mutation.detail_info?.checkout_notes || '';
+                        const checkoutNotes = mutation.detail_info?.checkout_notes || '';
 
-                        html += `
-                        <div class="mb-8 bg-gray-50 rounded-md p-4">
-                            <div class="flex items-center gap-2 mb-4">
-                                ${icon} <span class="text-lg font-bold ${textColor}">CHECKED OUT</span>
-                            </div>
-                            <div class="grid grid-cols-3 gap-6">
-                                <div class="col-span-3 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Checked Out Date:</span>
-                                        <span class="font-medium">${checkoutDate}</span>
+                        // Check if checkout was to employee or location
+                        if (mutation.detail_info?.employee) {
+                            const employeeName = mutation.detail_info.employee.name || '';
+                            const department = mutation.detail_info.employee.department_name || '';
+                            const position = mutation.detail_info.employee.position || '';
+
+                            html += `
+                            <div class="mb-8 ${bgColorLight} border ${borderColor} border-l-4 rounded-md shadow-md overflow-hidden">
+                                <div class="px-4 py-3 ${bgColor} border-b ${borderColor}">
+                                    <div class="flex items-center gap-2">
+                                        ${icon} <span class="text-lg font-bold ${titleColor}">CHECKED OUT TO EMPLOYEE</span>
                                     </div>
                                 </div>
-                                <div class="col-span-3 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Assigned to:</span>
-                                        <span class="font-medium">${assignedTo}</span>
+
+                                <div class="p-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="${bgColorLight} rounded">
+                                            <div class="px-4 py-2">
+                                                <div class="text-gray-500 text-sm">Date</div>
+                                                <div class="font-medium text-black">${checkoutDate}</div>
+                                            </div>
+                                        </div>
+                                        <div class="${bgColorLight} rounded">
+                                            <div class="px-4 py-2">
+                                                <div class="text-gray-500 text-sm">Assigned to</div>
+                                                <div class="font-medium text-black">${employeeName}</div>
+                                            </div>
+                                        </div>
+                                        <div class="${bgColorLight} rounded">
+                                            <div class="px-4 py-2">
+                                                <div class="text-gray-500 text-sm">Department</div>
+                                                <div class="font-medium text-black">${department}</div>
+                                            </div>
+                                        </div>
+                                        <div class="${bgColorLight} rounded">
+                                            <div class="px-4 py-2">
+                                                <div class="text-gray-500 text-sm">Position</div>
+                                                <div class="font-medium text-black">${position}</div>
+                                            </div>
+                                        </div>
+                                        ${checkoutNotes ? `
+                                        <div class="col-span-1 md:col-span-2 ${bgColorLight} rounded">
+                                            <div class="px-4 py-2">
+                                                <div class="text-gray-500 text-sm">Notes</div>
+                                                <div class="text-black">${checkoutNotes}</div>
+                                            </div>
+                                        </div>` : ''}
                                     </div>
                                 </div>
-                                <div class="col-span-3 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Department:</span>
-                                        <span class="font-medium">${department}</span>
+                            </div>`;
+                        } else if (mutation.detail_info?.location) {
+                            const roomName = mutation.detail_info.location.room_name || '';
+                            const buildingName = mutation.detail_info.location.building_name || '';
+                            const floorNumber = mutation.detail_info.location.floor_number || '';
+
+                            html += `
+                            <div class="mb-8 ${bgColorLight} border ${borderColor} border-l-4 rounded-md shadow-md overflow-hidden">
+                                <div class="px-4 py-3 ${bgColor} border-b ${borderColor}">
+                                    <div class="flex items-center gap-2">
+                                        ${icon} <span class="text-lg font-bold ${titleColor}">CHECKED OUT TO LOCATION</span>
                                     </div>
                                 </div>
-                                ${notes ? `
-                                <div class="col-span-3">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Notes:</span>
-                                        <span>${notes}</span>
+
+                                <div class="p-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="${bgColorLight} rounded">
+                                            <div class="px-4 py-2">
+                                                <div class="text-gray-500 text-sm">Date</div>
+                                                <div class="font-medium text-black">${checkoutDate}</div>
+                                            </div>
+                                        </div>
+                                        <div class="${bgColorLight} rounded">
+                                            <div class="px-4 py-2">
+                                                <div class="text-gray-500 text-sm">Room</div>
+                                                <div class="font-medium text-black">${roomName}</div>
+                                            </div>
+                                        </div>
+                                        <div class="${bgColorLight} rounded">
+                                            <div class="px-4 py-2">
+                                                <div class="text-gray-500 text-sm">Building</div>
+                                                <div class="font-medium text-black">${buildingName}</div>
+                                            </div>
+                                        </div>
+                                        <div class="${bgColorLight} rounded">
+                                            <div class="px-4 py-2">
+                                                <div class="text-gray-500 text-sm">Floor</div>
+                                                <div class="font-medium text-black">${floorNumber}</div>
+                                            </div>
+                                        </div>
+                                        ${checkoutNotes ? `
+                                        <div class="col-span-1 md:col-span-2 ${bgColorLight} rounded">
+                                            <div class="px-4 py-2">
+                                                <div class="text-gray-500 text-sm">Notes</div>
+                                                <div class="text-black">${checkoutNotes}</div>
+                                            </div>
+                                        </div>` : ''}
                                     </div>
-                                </div>` : ''}
-                            </div>
-                        </div>`;
+                                </div>
+                            </div>`;
+                        }
                     } else if (status === 'return') {
                         const returnDate = mutation.return_date ? this.formatDate(mutation.return_date) : '';
                         const returnNotes = mutation.return_notes || '';
 
                         html += `
-                        <div class="mb-8 bg-gray-50 rounded-md p-4">
-                            <div class="flex items-center gap-2 mb-4">
-                                ${icon} <span class="text-lg font-bold ${textColor}">RETURN</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-6">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Return Date:</span>
-                                        <span class="font-medium">${returnDate}</span>
-                                    </div>
+                        <div class="mb-8 ${bgColorLight} border ${borderColor} border-l-4 rounded-md shadow-md overflow-hidden">
+                            <div class="px-4 py-3 ${bgColor} border-b ${borderColor}">
+                                <div class="flex items-center gap-2">
+                                    ${icon} <span class="text-lg font-bold ${titleColor}">RETURN</span>
                                 </div>
-                                ${returnNotes ? `
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Notes:</span>
-                                        <span>${returnNotes}</span>
+                            </div>
+
+                            <div class="p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="${bgColorLight} rounded">
+                                        <div class="px-4 py-2">
+                                            <div class="text-gray-500 text-sm">Return Date</div>
+                                            <div class="font-medium text-black">${returnDate}</div>
+                                        </div>
                                     </div>
-                                </div>` : ''}
+                                    ${returnNotes ? `
+                                    <div class="col-span-1 md:col-span-${returnNotes.length > 100 ? '2' : '1'} ${bgColorLight} rounded">
+                                        <div class="px-4 py-2">
+                                            <div class="text-gray-500 text-sm">Notes</div>
+                                            <div class="text-black">${returnNotes}</div>
+                                        </div>
+                                    </div>` : ''}
+                                </div>
                             </div>
                         </div>`;
                     } else if (status === 'loss') {
@@ -256,24 +366,29 @@
                         const lossNotes = mutation.loss_notes || '';
 
                         html += `
-                        <div class="mb-8 bg-gray-50 rounded-md p-4">
-                            <div class="flex items-center gap-2 mb-4">
-                                ${icon} <span class="text-lg font-bold ${textColor}">LOSS</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-6">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Loss Date:</span>
-                                        <span class="font-medium">${lossDate}</span>
-                                    </div>
+                        <div class="mb-8 ${bgColorLight} border ${borderColor} border-l-4 rounded-md shadow-md overflow-hidden">
+                            <div class="px-4 py-3 ${bgColor} border-b ${borderColor}">
+                                <div class="flex items-center gap-2">
+                                    ${icon} <span class="text-lg font-bold ${titleColor}">LOSS</span>
                                 </div>
-                                ${lossNotes ? `
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Notes:</span>
-                                        <span>${lossNotes}</span>
+                            </div>
+
+                            <div class="p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="${bgColorLight} rounded">
+                                        <div class="px-4 py-2">
+                                            <div class="text-gray-500 text-sm">Loss Date</div>
+                                            <div class="font-medium text-black">${lossDate}</div>
+                                        </div>
                                     </div>
-                                </div>` : ''}
+                                    ${lossNotes ? `
+                                    <div class="col-span-1 md:col-span-${lossNotes.length > 100 ? '2' : '1'} ${bgColorLight} rounded">
+                                        <div class="px-4 py-2">
+                                            <div class="text-gray-500 text-sm">Notes</div>
+                                            <div class="text-black">${lossNotes}</div>
+                                        </div>
+                                    </div>` : ''}
+                                </div>
                             </div>
                         </div>`;
                     } else if (status === 'found') {
@@ -281,24 +396,29 @@
                         const foundNotes = mutation.found_notes || '';
 
                         html += `
-                        <div class="mb-8 bg-gray-50 rounded-md p-4">
-                            <div class="flex items-center gap-2 mb-4">
-                                ${icon} <span class="text-lg font-bold ${textColor}">FOUND</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-6">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Found Date:</span>
-                                        <span class="font-medium">${foundDate}</span>
-                                    </div>
+                        <div class="mb-8 ${bgColorLight} border ${borderColor} border-l-4 rounded-md shadow-md overflow-hidden">
+                            <div class="px-4 py-3 ${bgColor} border-b ${borderColor}">
+                                <div class="flex items-center gap-2">
+                                    ${icon} <span class="text-lg font-bold ${titleColor}">FOUND</span>
                                 </div>
-                                ${foundNotes ? `
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Notes:</span>
-                                        <span>${foundNotes}</span>
+                            </div>
+
+                            <div class="p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="${bgColorLight} rounded">
+                                        <div class="px-4 py-2">
+                                            <div class="text-gray-500 text-sm">Found Date</div>
+                                            <div class="font-medium text-black">${foundDate}</div>
+                                        </div>
                                     </div>
-                                </div>` : ''}
+                                    ${foundNotes ? `
+                                    <div class="col-span-1 md:col-span-${foundNotes.length > 100 ? '2' : '1'} ${bgColorLight} rounded">
+                                        <div class="px-4 py-2">
+                                            <div class="text-gray-500 text-sm">Notes</div>
+                                            <div class="text-black">${foundNotes}</div>
+                                        </div>
+                                    </div>` : ''}
+                                </div>
                             </div>
                         </div>`;
                     } else if (status === 'dispose') {
@@ -306,24 +426,29 @@
                         const disposeNotes = mutation.dispose_notes || '';
 
                         html += `
-                        <div class="mb-8 bg-gray-50 rounded-md p-4">
-                            <div class="flex items-center gap-2 mb-4">
-                                ${icon} <span class="text-lg font-bold ${textColor}">DISPOSE</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-6">
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Dispose Date:</span>
-                                        <span class="font-medium">${disposeDate}</span>
-                                    </div>
+                        <div class="mb-8 ${bgColorLight} border ${borderColor} border-l-4 rounded-md shadow-md overflow-hidden">
+                            <div class="px-4 py-3 ${bgColor} border-b ${borderColor}">
+                                <div class="flex items-center gap-2">
+                                    ${icon} <span class="text-lg font-bold ${titleColor}">DISPOSE</span>
                                 </div>
-                                ${disposeNotes ? `
-                                <div class="col-span-2 sm:col-span-1">
-                                    <div class="flex items-baseline">
-                                        <span class="text-gray-500 w-36">Notes:</span>
-                                        <span>${disposeNotes}</span>
+                            </div>
+
+                            <div class="p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="${bgColorLight} rounded">
+                                        <div class="px-4 py-2">
+                                            <div class="text-gray-500 text-sm">Dispose Date</div>
+                                            <div class="font-medium text-black">${disposeDate}</div>
+                                        </div>
                                     </div>
-                                </div>` : ''}
+                                    ${disposeNotes ? `
+                                    <div class="col-span-1 md:col-span-${disposeNotes.length > 100 ? '2' : '1'} ${bgColorLight} rounded">
+                                        <div class="px-4 py-2">
+                                            <div class="text-gray-500 text-sm">Notes</div>
+                                            <div class="text-black">${disposeNotes}</div>
+                                        </div>
+                                    </div>` : ''}
+                                </div>
                             </div>
                         </div>`;
                     }
