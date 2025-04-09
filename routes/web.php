@@ -3,57 +3,288 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\VendorController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ViewAssetController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AssetDetailsController;
+use App\Http\Controllers\AssetDocumentController;
+use App\Http\Controllers\AssetDepreciationController;
+use App\Http\Controllers\AssetMutationController;
 use App\Http\Middleware\AuthMiddleware;
 use Illuminate\Http\Request;
 
-// Authentication Routes
+//=============================================================================
+// PUBLIC ROUTES
+//=============================================================================
+
+// Redirect root to login
 Route::get('/', function () {
-    return view('Auth.login');
+    return redirect()->route('login');
 });
 
+// Authentication Routes (Guest only)
 Route::group(['middleware' => 'guest'], function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
+    Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+
+    // Password Reset Routes
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
+    Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 });
 
+// Logout Route (accessible to authenticated users)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Dashboard Routes (Protected Routes)
-Route::middleware([AuthMiddleware::class])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-});
+//=============================================================================
+// AUTHENTICATION ROUTES
+//=============================================================================
 
-// Jika menggunakan AuthController
-/*
+// Auth routes
 Route::prefix('auth')->group(function () {
-    Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
-    Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
-    Route::post('/forget-password', [AuthController::class, 'forgetPassword'])->name('auth.forget');
-    Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+    Route::post('/verify-token', [AuthController::class, 'verifyToken'])->name('auth.verify-token');
+    Route::post('/refresh-token', [AuthController::class, 'refreshToken'])->name('auth.refresh-token');
+    // ...other auth routes
 });
-*/
 
-// Route untuk menampilkan form lupa password
-Route::get('/forgot-password', function () {
-    return view('Auth.forget_password');
-})->name('password.request');
+// Session check route
+Route::post('/auth/check-session', [AuthController::class, 'checkSession'])->name('auth.check-session');
 
-// Route untuk memproses form lupa password dan redirect ke create password
-Route::post('/forgot-password', function (Request $request) {
-    // Di sini bisa ditambahkan validasi email jika diperlukan
-    return redirect()->route('password.create');
-})->name('password.email');
+//=============================================================================
+// PROTECTED ROUTES
+//=============================================================================
 
-// Route untuk menampilkan form create password
-Route::get('/create-password', function () {
-    return view('Auth.create_password');
-})->name('password.create');
+// Protected Routes (require authentication)
+Route::middleware([AuthMiddleware::class])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/summary', [DashboardController::class, 'getSummary'])->name('dashboard.summary');
+    Route::get('/dashboard/depreciation', [DashboardController::class, 'getDepreciation'])->name('dashboard.depreciation');
 
-// Route untuk memproses form create password
-Route::post('/create-password', function (Request $request) {
-    // Logic untuk memproses pembuatan password baru
-})->name('password.store');
+    // Token Refresh Route (for AJAX requests)
+    Route::post('/auth/refresh-token', [AuthController::class, 'refreshToken'])->name('auth.refresh-token');
 
-Route::get('/asset-categories', function () {
-    return view('Asset.AssetCategories');
-})->name('asset-categories');
+    // User Profile
+    Route::get('/profile', function () {
+        return view('Profile');
+    })->name('profile');
+
+    //-------------------------------------------------------------------------
+    // ORGANIZATION MANAGEMENT
+    //-------------------------------------------------------------------------
+
+    // Department Routes
+    Route::prefix('departments')->group(function () {
+        Route::get('/', [DepartmentController::class, 'index'])->name('departments');
+        Route::post('/store', [DepartmentController::class, 'store'])->name('departments.store');
+        Route::put('/update/{id}', [DepartmentController::class, 'update'])->name('departments.update');
+        Route::delete('/delete/{id}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
+    });
+
+    // Location Management
+    Route::prefix('location')->group(function () {
+        Route::get('/', [LocationController::class, 'index'])->name('location');
+
+        // Building API Routes
+        Route::post('/buildings/store', [LocationController::class, 'storeBuilding'])->name('buildings.store');
+        Route::put('/buildings/update/{id}', [LocationController::class, 'updateBuilding'])->name('buildings.update');
+        Route::delete('/buildings/delete/{id}', [LocationController::class, 'destroyBuilding'])->name('buildings.destroy');
+
+        // Room API Routes
+        Route::post('/rooms/store', [LocationController::class, 'storeRoom'])->name('rooms.store');
+        Route::put('/rooms/update/{id}', [LocationController::class, 'updateRoom'])->name('rooms.update');
+        Route::delete('/rooms/delete/{id}', [LocationController::class, 'destroyRoom'])->name('rooms.destroy');
+    });
+
+    // Employee Management
+    Route::prefix('employees')->group(function () {
+        Route::get('/', [EmployeeController::class, 'index'])->name('employees');
+        Route::post('/store', [EmployeeController::class, 'store'])->name('employees.store');
+        Route::put('/update/{id}', [EmployeeController::class, 'update'])->name('employees.update');
+        Route::delete('/delete/{id}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+    });
+
+    // Vendor Management
+    Route::prefix('vendor')->group(function () {
+        Route::get('/', [VendorController::class, 'index'])->name('vendor');
+        Route::post('/store', [VendorController::class, 'store'])->name('vendor.store');
+        Route::put('/update/{id}', [VendorController::class, 'update'])->name('vendor.update');
+        Route::delete('/delete/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
+    });
+
+    // User Management
+    Route::prefix('user')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('user');
+
+        // Role API Routes
+        Route::post('/roles/store', [UserController::class, 'storeRole'])->name('roles.store');
+        Route::put('/roles/update/{id}', [UserController::class, 'updateRole'])->name('roles.update');
+        Route::delete('/roles/delete/{id}', [UserController::class, 'destroyRole'])->name('roles.destroy');
+
+        // User API Routes
+        Route::post('/users/store', [UserController::class, 'storeUser'])->name('users.store');
+        Route::put('/users/update/{id}', [UserController::class, 'updateUser'])->name('users.update');
+        Route::delete('/users/delete/{id}', [UserController::class, 'destroyUser'])->name('users.destroy');
+    });
+
+    //-------------------------------------------------------------------------
+    // ASSET MANAGEMENT
+    //-------------------------------------------------------------------------
+
+    // Asset Management Routes
+    Route::prefix('asset')->name('asset-')->group(function () {
+        Route::get('/categories', function () {
+            return redirect()->route('categories');
+        })->name('categories');
+        Route::get('/view', [ViewAssetController::class, 'index'])->name('view');
+        Route::get('/detail/{id?}', [AssetDetailsController::class, 'show'])->name('details');
+    });
+
+    // Asset direct routes
+    Route::get('/asset/{id}', [AssetDetailsController::class, 'show'])->name('asset.details');
+    Route::put('/asset/update/{id}', [AssetDetailsController::class, 'updateAsset'])->name('asset.update');
+
+    // Categories Management
+    Route::prefix('categories')->group(function () {
+        Route::get('/', [CategoriesController::class, 'index'])->name('categories');
+        Route::post('/store', [CategoriesController::class, 'store'])->name('categories.store');
+        Route::put('/update/{id}', [CategoriesController::class, 'update'])->name('categories.update');
+        Route::delete('/delete/{id}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
+        Route::get('/by-asset-type', [CategoriesController::class, 'getByAssetType'])->name('categories.by-asset-type');
+    });
+
+    // Brand routes
+    Route::post('/brands', [ViewAssetController::class, 'store'])->name('brands.store');
+    Route::put('/brands/{id}', [ViewAssetController::class, 'update'])->name('brands.update');
+    Route::delete('/brands/{id}', [ViewAssetController::class, 'destroy'])->name('brands.destroy');
+
+    // Asset routes
+    Route::get('/assets', [ViewAssetController::class, 'index'])->name('assets');
+    Route::get('/assets/{id}', [ViewAssetController::class, 'getAsset'])->name('assets.get');
+    Route::post('/assets', [ViewAssetController::class, 'storeAsset'])->name('assets.store');
+    Route::put('/assets/{id}', [ViewAssetController::class, 'updateAsset'])->name('assets.update');
+    Route::delete('/assets/{id}', [ViewAssetController::class, 'destroyAsset'])->name('assets.destroy');
+    Route::get('assets/barcode/generate/{id}', [ViewAssetController::class, 'generateBarcode'])->name('assets.barcode.generate');
+
+    // Asset Documents routes
+    Route::get('/asset-documents/asset/{id}', [AssetDocumentController::class, 'getAssetDocuments'])->name('asset-documents.get');
+    Route::post('/asset-documents', [AssetDocumentController::class, 'store'])->name('asset-documents.store');
+    Route::delete('/asset-documents/{id}', [AssetDocumentController::class, 'destroy'])->name('asset-documents.destroy');
+
+    // Asset Depreciation route
+    Route::get('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'getAssetDepreciation'])
+        ->name('asset.depreciation.get');
+
+    // Asset Mutation routes
+    Route::get('/asset-mutations/asset/{id}', [AssetMutationController::class, 'getAssetMutationHistory'])->name('asset-mutations.get');
+
+    //-------------------------------------------------------------------------
+    // PROCUREMENT MANAGEMENT
+    //-------------------------------------------------------------------------
+
+    // Procurement Routes
+    Route::prefix('procurement')->name('procurement.')->group(function () {
+        // Request Management
+        Route::get('/request', function () {
+            return view('Procurement.Request');
+        })->name('request');
+        Route::get('/form-request', function () {
+            return view('Procurement.FormRequest');
+        })->name('form-request');
+        Route::get('/detail-request/{id?}', function ($id = null) {
+            return view('Procurement.DetailRequest', ['id' => $id]);
+        })->name('detail-request');
+
+        // Price Comparison
+        Route::get('/price-comparison', function () {
+            return view('Procurement.PriceComparison');
+        })->name('price-comparison');
+        Route::get('/form-comparison/{id?}', function ($id = null) {
+            return view('Procurement.FormComparison', ['id' => $id]);
+        })->name('form-comparison');
+        Route::get('/form-vendor-comparison/{id?}', function ($id = null) {
+            return view('Procurement.FormComparisonVendor', ['id' => $id]);
+        })->name('form-vendor-comparison');
+        Route::get('/detail-comparison/{id?}', function ($id = null) {
+            return view('Procurement.DetailComparison', ['id' => $id]);
+        })->name('detail-comparison');
+
+        // Purchase Order
+        Route::get('/purchase-order', function () {
+            return view('Procurement.PurchaseOrder');
+        })->name('purchase-order');
+        Route::get('/form-purchase-order/{id?}', function ($id = null) {
+            return view('Procurement.FormPurchaseOrder', ['id' => $id]);
+        })->name('form-purchase-order');
+        Route::get('/detail-purchase-order/{id?}', function ($id = null) {
+            return view('Procurement.DetailPurchaseOrder', ['id' => $id]);
+        })->name('detail-purchase-order');
+
+        // Receipt
+        Route::get('/receipt', function () {
+            return view('Procurement.Receipt');
+        })->name('receipt');
+        Route::get('/form-receipt/{id?}', function ($id = null) {
+            return view('Procurement.FormReceipt', ['id' => $id]);
+        })->name('form-receipt');
+        Route::get('/detail-receipt/{id?}', function ($id = null) {
+            return view('Procurement.DetailReceipt', ['id' => $id]);
+        })->name('detail-receipt');
+    });
+
+    //-------------------------------------------------------------------------
+    // REPORTING
+    //-------------------------------------------------------------------------
+
+    // Report Routes
+    Route::prefix('report')->name('report.')->group(function () {
+        Route::get('/complain', function () {
+            return view('Report.ComplainReport');
+        })->name('complain');
+        Route::get('/depreciation', function () {
+            return view('Report.DepreciationReport');
+        })->name('depreciation');
+        Route::get('/calibration', function () {
+            return view('Report.CalibrationReport');
+        })->name('calibration');
+        Route::get('/maintenance', function () {
+            return view('Report.MaintenanceReport');
+        })->name('maintenance');
+        Route::get('/finance', function () {
+            return view('Report.FinanceReport');
+        })->name('finance');
+        Route::get('/inspection', function () {
+            return view('Report.InspectionReport');
+        })->name('inspection');
+    });
+
+    // Opname
+    Route::get('/opname', function () {
+        return view('Opname');
+    })->name('opname');
+
+    // Asset QR routes
+    Route::post('/assets/qr/generate-bulk', [ViewAssetController::class, 'generateBulkQR'])->name('assets.qr.generate-bulk');
+    Route::get('/assets/qr/preview', [ViewAssetController::class, 'previewQRCodes'])->name('assets.qr.preview');
+    Route::match(['get', 'post'], '/assets/qr/print-pdf', [ViewAssetController::class, 'printQRCodesPDF'])->name('assets.qr.print-pdf');
+
+    // Checkout routes
+    Route::post('/assets/checkout', [AssetDetailsController::class, 'checkoutAsset'])->name('asset.checkout');
+
+    // Checkin route
+    Route::post('/asset/checkin', [AssetDetailsController::class, 'checkinAsset'])->name('asset.checkin');
+
+    // Report Lost route
+    Route::post('/asset/lost', [AssetDetailsController::class, 'reportAssetLost'])->name('asset.lost');
+
+    // Report Found route
+    Route::post('/assets/found', [AssetDetailsController::class, 'reportAssetFound'])->name('asset.found');
+
+    // Dispose route
+    Route::post('/asset/dispose', [AssetDetailsController::class, 'disposeAsset'])->name('asset.dispose');
+});
