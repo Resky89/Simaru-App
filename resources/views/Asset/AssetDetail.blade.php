@@ -578,15 +578,25 @@
                             </div>
 
                             <!-- Location Dropdown (hidden by default) -->
-                            <div id="locationDropdown" class="space-y-2 hidden">
-                                <label class="block text-base font-medium text-[#666666]">Select Location</label>
-                                <select name="location_id" id="location_id"
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                    <option value="" disabled selected>Select a location</option>
-                                    @foreach($rooms as $room)
-                                        <option value="{{ $room['room_id'] }}">{{ $room['room_name'] }} ({{ $room['building']['building_name'] ?? '-' }})</option>
-                                    @endforeach
-                                </select>
+                            <div id="locationDropdown" class="space-y-4 hidden">
+                                <!-- Building Dropdown -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-medium text-[#666666]">Select Building</label>
+                                    <select id="building_selector" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
+                                        <option value="" disabled selected>Select a building</option>
+                                        @foreach($buildings as $building)
+                                            <option value="{{ $building['building_id'] }}">{{ $building['building_name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <!-- Room Dropdown -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-medium text-[#666666]">Select Room</label>
+                                    <select name="location_id" id="location_id" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
+                                        <option value="" disabled selected>Select a building first</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <!-- Notes -->
@@ -1633,6 +1643,43 @@
                 disposeModal: !!disposeModal,
                 disposeModalContent: !!disposeModalContent,
                 disposeForm: !!disposeForm
+            });
+        }
+
+        // Handle building selection and filter rooms
+        const buildingSelector = document.getElementById('building_selector');
+        if (buildingSelector) {
+            // Store all rooms from the controller
+            const allRooms = @json($rooms);
+
+            buildingSelector.addEventListener('change', function() {
+                const selectedBuildingId = parseInt(this.value);
+                const roomDropdown = document.getElementById('location_id');
+
+                // Clear existing options
+                roomDropdown.innerHTML = '';
+
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.text = 'Select a room';
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                roomDropdown.appendChild(defaultOption);
+
+                // Filter rooms by selected building
+                const filteredRooms = allRooms.filter(room =>
+                    room.building_id === selectedBuildingId ||
+                    (room.building && parseInt(room.building.building_id) === selectedBuildingId)
+                );
+
+                // Add filtered room options
+                filteredRooms.forEach(room => {
+                    const option = document.createElement('option');
+                    option.value = room.room_id;
+                    option.text = room.room_name;
+                    roomDropdown.appendChild(option);
+                });
             });
         }
     });

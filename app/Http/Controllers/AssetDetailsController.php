@@ -73,7 +73,11 @@ class AssetDetailsController extends Controller
             $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
             $subcategories = $subcategoriesResult['data'] ?? [];
 
-            // Fetch rooms for the room dropdown
+            // Fetch buildings directly from buildings endpoint
+            $buildingsResult = $this->apiService->request('GET', '/buildings');
+            $buildings = $buildingsResult['data'] ?? [];
+
+            // Fetch rooms from rooms endpoint
             $roomsResult = $this->apiService->request('GET', '/rooms');
             $rooms = $roomsResult['data'] ?? [];
 
@@ -90,6 +94,7 @@ class AssetDetailsController extends Controller
                 'asset' => $asset,
                 'subcategories' => $subcategories,
                 'rooms' => $rooms,
+                'buildings' => $buildings,
                 'brands' => $brands,
                 'employees' => $employees,
             ]);
