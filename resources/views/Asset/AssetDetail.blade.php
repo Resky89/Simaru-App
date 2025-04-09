@@ -131,7 +131,7 @@
                                         case 'lost':
                                             $statusColor = 'bg-[#EF4444]';
                                             break;
-                                        case 'disposed':
+                                        case 'dispose':
                                             $statusColor = 'bg-[#ACC3EF]';
                                             break;
                                     }
