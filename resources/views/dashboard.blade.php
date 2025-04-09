@@ -117,7 +117,7 @@
 
                         <!-- Maintenance -->
                         <div class="flex items-center gap-2">
-                            <div class="w-2.5 h-2.5 bg-[#ACC3EF]"></div>
+                            <div class="w-2.5 h-2.5 bg-[#25B1FF]"></div>
                             <span class="text-sm text-[#4F4F4F]">Maintenance</span>
                         </div>
 
@@ -129,7 +129,7 @@
 
                         <!-- Dispose -->
                         <div class="flex items-center gap-2">
-                            <div class="w-2.5 h-2.5 bg-[#25B1FF]"></div>
+                            <div class="w-2.5 h-2.5 bg-[#ACC3EF]"></div>
                             <span class="text-sm text-[#4F4F4F]">Dispose</span>
                         </div>
 
@@ -536,9 +536,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 ],
                 backgroundColor: [
                     '#7CB60C',  // Available - Green
-                    '#ACC3EF',  // Maintenance - Grey
+                    ' #25B1FF',  // Maintenance - Grey
                     '#DAAE0F',  // Check Out - yellow
-                    '#25B1FF',  // Dispose - Blue
+                    '#ACC3EF',  // Dispose - Blue
                     '#FF4A2B'   // Lost - Red
                 ],
                 borderWidth: 0
