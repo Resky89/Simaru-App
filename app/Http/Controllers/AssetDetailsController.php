@@ -81,12 +81,17 @@ class AssetDetailsController extends Controller
             $brandsResult = $this->apiService->request('GET', '/brands');
             $brands = $brandsResult['data'] ?? [];
 
+            // Fetch employees for employee dropdown
+            $employeesResult = $this->apiService->request('GET', '/employees');
+            $employees = $employeesResult['data'] ?? [];
+
             // Return the view with asset details
             return view('Asset.AssetDetail', [
                 'asset' => $asset,
                 'subcategories' => $subcategories,
                 'rooms' => $rooms,
                 'brands' => $brands,
+                'employees' => $employees,
             ]);
 
         } catch (\Exception $e) {
@@ -297,6 +302,342 @@ class AssetDetailsController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Failed to update asset: ' . $e->getMessage());
+        }
+    }
+
+    public function checkoutAsset(Request $request)
+    {
+        try {
+            // Log request data for debugging
+            \Log::info('Attempting to checkout asset with data:', [
+                'request_data' => $request->all()
+            ]);
+
+            // Base checkout data that's always required
+            $checkoutData = [
+                'asset_id' => (int)$request->input('asset_id'),
+                'checkout_notes' => $request->input('checkout_notes')
+            ];
+
+            // Check if it's a location checkout or employee checkout
+            if ($request->has('room_id') || ($request->has('location_id') && $request->input('checkout_to_type') === 'location')) {
+                // Location checkout - use room_id and do NOT include assigned_to
+                $checkoutData['room_id'] = (int)($request->input('room_id') ?? $request->input('location_id'));
+            } else {
+                // Employee checkout - use assigned_to
+                $checkoutData['assigned_to'] = (int)$request->input('assigned_to');
+            }
+
+            // Send request to API
+            $options = ['json' => $checkoutData];
+            $result = $this->apiService->request('POST', '/asset-transfers/checkout', $options);
+
+            // Log the API response
+            \Log::info('API response for asset checkout:', [
+                'asset_id' => $request->input('asset_id'),
+                'api_response' => $result
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ], 401);
+            }
+
+            // Check for other API errors
+            if (isset($result['error']) ||
+                (isset($result['status']) && $result['status'] === false)) {
+
+                $errorMessage = $result['message'] ?? 'Failed to checkout asset';
+
+                return response()->json([
+                    'status' => false,
+                    'message' => $errorMessage
+                ], 400);
+            }
+
+            // Return successful response
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during asset checkout:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to checkout asset: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check in (return) an asset.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkinAsset(Request $request)
+    {
+        try {
+            // Log request data for debugging
+            \Log::info('Attempting to check in asset with data:', [
+                'request_data' => $request->all()
+            ]);
+
+            // Prepare check-in data
+            $checkinData = [
+                'asset_id' => (int)$request->input('asset_id'),
+                'return_notes' => $request->input('return_notes'),
+                'condition' => $request->input('condition')
+            ];
+
+            // Send request to API
+            $options = ['json' => $checkinData];
+            $result = $this->apiService->request('POST', '/asset-transfers/return', $options);
+
+            // Log the API response
+            \Log::info('API response for asset check-in:', [
+                'asset_id' => $request->input('asset_id'),
+                'api_response' => $result
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ], 401);
+            }
+
+            // Check for other API errors
+            if (isset($result['error']) ||
+                (isset($result['status']) && $result['status'] === false)) {
+
+                $errorMessage = $result['message'] ?? 'Failed to check in asset';
+
+                return response()->json([
+                    'status' => false,
+                    'message' => $errorMessage
+                ], 400);
+            }
+
+            // Return successful response
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during asset check-in:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to check in asset: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Report an asset as lost.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function reportAssetLost(Request $request)
+    {
+        try {
+            // Log request data for debugging
+            \Log::info('Attempting to report asset as lost with data:', [
+                'request_data' => $request->all()
+            ]);
+
+            // Prepare lost report data
+            $lostData = [
+                'asset_id' => (int)$request->input('asset_id'),
+                'loss_reason' => $request->input('loss_reason')
+            ];
+
+            // Send request to API
+            $options = ['json' => $lostData];
+            $result = $this->apiService->request('POST', '/asset-transfers/loss', $options);
+
+            // Log the API response
+            \Log::info('API response for reporting asset as lost:', [
+                'asset_id' => $request->input('asset_id'),
+                'api_response' => $result
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ], 401);
+            }
+
+            // Check for other API errors
+            if (isset($result['error']) ||
+                (isset($result['status']) && $result['status'] === false)) {
+
+                $errorMessage = $result['message'] ?? 'Failed to report asset as lost';
+
+                return response()->json([
+                    'status' => false,
+                    'message' => $errorMessage
+                ], 400);
+            }
+
+            // Return successful response
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during reporting asset as lost:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to report asset as lost: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Report an asset as found.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function reportAssetFound(Request $request)
+    {
+        try {
+            // Log request data for debugging
+            \Log::info('Attempting to report asset as found with data:', [
+                'request_data' => $request->all()
+            ]);
+
+            // Prepare found data
+            $foundData = [
+                'asset_id' => (int)$request->input('asset_id'),
+                'found_notes' => $request->input('found_notes')
+            ];
+
+            // Send request to API
+            $options = ['json' => $foundData];
+            $result = $this->apiService->request('POST', '/asset-transfers/found', $options);
+
+            // Log the API response
+            \Log::info('API response for reporting asset as found:', [
+                'asset_id' => $request->input('asset_id'),
+                'api_response' => $result
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ], 401);
+            }
+
+            // Check for other API errors
+            if (isset($result['error']) ||
+                (isset($result['status']) && $result['status'] === false)) {
+
+                $errorMessage = $result['message'] ?? 'Failed to report asset as found';
+
+                return response()->json([
+                    'status' => false,
+                    'message' => $errorMessage
+                ], 400);
+            }
+
+            // Return successful response
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during reporting asset as found:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to report asset as found: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Dispose an asset.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function disposeAsset(Request $request)
+    {
+        try {
+            // Log request data for debugging
+            \Log::info('Attempting to dispose asset with data:', [
+                'request_data' => $request->all()
+            ]);
+
+            // Prepare disposal data
+            $disposeData = [
+                'asset_id' => (int)$request->input('asset_id'),
+                'disposal_reason' => $request->input('disposal_reason'),
+                'disposal_method' => $request->input('disposal_method'),
+                'disposal_notes' => $request->input('disposal_notes')
+            ];
+
+            // Send request to API
+            $options = ['json' => $disposeData];
+            $result = $this->apiService->request('POST', '/asset-transfers/dispose', $options);
+
+            // Log the API response
+            \Log::info('API response for asset disposal:', [
+                'asset_id' => $request->input('asset_id'),
+                'api_response' => $result
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ], 401);
+            }
+
+            // Check for other API errors
+            if (isset($result['error']) ||
+                (isset($result['status']) && $result['status'] === false)) {
+
+                $errorMessage = $result['message'] ?? 'Failed to dispose asset';
+
+                return response()->json([
+                    'status' => false,
+                    'message' => $errorMessage
+                ], 400);
+            }
+
+            // Return successful response
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during asset disposal:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to dispose asset: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
