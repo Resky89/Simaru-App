@@ -14,6 +14,7 @@ use App\Http\Controllers\AssetDetailsController;
 use App\Http\Controllers\AssetDocumentController;
 use App\Http\Controllers\AssetDepreciationController;
 use App\Http\Controllers\AssetMutationController;
+use App\Http\Controllers\AssetHistoryController;
 use App\Http\Middleware\AuthMiddleware;
 use Illuminate\Http\Request;
 
@@ -287,4 +288,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Dispose route
     Route::post('/asset/dispose', [AssetDetailsController::class, 'disposeAsset'])->name('asset.dispose');
+
+    // Asset History routes
+    Route::get('/asset-histories/{id}', [AssetHistoryController::class, 'getAssetHistory'])->name('asset-histories.get');
 });
