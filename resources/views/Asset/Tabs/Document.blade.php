@@ -1,11 +1,11 @@
-<div class="p-3">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
-        <h2 class="text-base font-bold text-[#213268]">DOCUMENT</h2>
-        <button id="addDocumentBtn" class="flex items-center justify-center gap-1 px-3 py-1.5 bg-[#213268] rounded-lg text-white text-xs" onclick="openDocumentModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-[#213268]">DOCUMENT</h2>
+        <button id="addDocumentBtn" class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center" onclick="openDocumentModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            <span>Add Document</span>
+            DOCUMENT
         </button>
     </div>
 
