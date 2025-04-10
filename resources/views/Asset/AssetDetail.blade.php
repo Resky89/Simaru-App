@@ -332,9 +332,10 @@
                                         <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
                                     </div>
                                     <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                </div>
-                                <div id="edit_preview-container" class="mt-2">
-                                    <img id="edit_image_preview" class="max-h-40 rounded-lg hidden" alt="Asset Image">
+                                    <!-- Preview image in container -->
+                                    <div id="edit_preview-container" class="mt-4 w-full hidden">
+                                        <img id="edit_image_preview" class="max-h-40 mx-auto rounded-lg object-contain" alt="Asset Image">
+                                    </div>
                                 </div>
                             </div>
 
@@ -1030,6 +1031,7 @@
         // Handle image preview
         const fileInput = document.getElementById('edit_image_file');
         const imagePreview = document.getElementById('edit_image_preview');
+        const previewContainer = document.getElementById('edit_preview-container');
 
         if (fileInput && imagePreview) {
             fileInput.addEventListener('change', function() {
@@ -1037,7 +1039,7 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         imagePreview.src = e.target.result;
-                        imagePreview.classList.remove('hidden');
+                        previewContainer.classList.remove('hidden');
                     }
                     reader.readAsDataURL(this.files[0]);
                 }
@@ -1141,8 +1143,9 @@
             // Handle image preview if available
             if (asset.picture_path) {
                 const imagePreview = document.getElementById('edit_image_preview');
+                const previewContainer = document.getElementById('edit_preview-container');
 
-                if (imagePreview) {
+                if (imagePreview && previewContainer) {
                     // Define the base URL - using the confirmed server location
                     const baseUrl = "http://localhost:5000/public";
 
@@ -1160,13 +1163,18 @@
 
                     // Set the image source and display it
                     imagePreview.src = imageUrl;
-                    imagePreview.classList.remove('hidden');
+                    imagePreview.onerror = function() {
+                        this.onerror = null;
+                        this.src = '{{ asset('images/no-image.png') }}';
+                        this.classList.add('object-contain', 'p-4');
+                    };
+                    previewContainer.classList.remove('hidden');
                 }
             } else {
                 // Hide the preview if no image
-                const imagePreview = document.getElementById('edit_image_preview');
-                if (imagePreview) {
-                    imagePreview.classList.add('hidden');
+                const previewContainer = document.getElementById('edit_preview-container');
+                if (previewContainer) {
+                    previewContainer.classList.add('hidden');
                 }
             }
         }
