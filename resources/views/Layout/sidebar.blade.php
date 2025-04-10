@@ -61,6 +61,11 @@
                             <span class="{{ $submenuTextClass }}">View Asset</span>
                         </div>
                     </a>
+                    <a href="{{ route('brands') }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('brands') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Brands</span>
+                        </div>
+                    </a>
                     <a href="{{ route('location') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('location') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Location</span>

@@ -17,7 +17,7 @@ class ViewAssetController extends Controller
     }
 
     /**
-     * Display a listing of both assets and brands.
+     * Display a listing of assets.
      */
     public function index(Request $request)
     {
@@ -27,7 +27,7 @@ class ViewAssetController extends Controller
             $search = $request->input('search', '');
 
             // Log request info
-            \Log::info('Fetching assets and brands with parameters:', [
+            \Log::info('Fetching assets with parameters:', [
                 'page' => $page,
                 'limit' => $limit,
                 'search' => $search,
@@ -68,11 +68,11 @@ class ViewAssetController extends Controller
             ]);
 
             // Log API responses for debugging
-            \Log::info('API response for assets and brands list:', [
-                'brands_status' => $brandsResult['status'] ?? null,
-                'brands_count' => isset($brandsResult['data']) ? count($brandsResult['data']) : 0,
+            \Log::info('API response for assets list:', [
                 'assets_status' => $assetsResult['status'] ?? null,
-                'assets_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0
+                'assets_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0,
+                'brands_status' => $brandsResult['status'] ?? null,
+                'brands_count' => isset($brandsResult['data']) ? count($brandsResult['data']) : 0
             ]);
 
             // Check for auth errors
@@ -232,140 +232,6 @@ class ViewAssetController extends Controller
                 'rooms' => [],
                 'error' => 'Failed to fetch data: ' . $e->getMessage()
             ]);
-        }
-    }
-
-    /**
-     * Store a newly created brand.
-     */
-    public function store(Request $request)
-    {
-        try {
-            // Log the request data
-            \Log::info('Attempting to create brand with data:', [
-                'request_data' => $request->all()
-            ]);
-
-            $result = $this->apiService->request('POST', '/brands', [
-                'json' => [
-                    'brand_name' => $request->input('brand_name')
-                ]
-            ]);
-
-            // Log the API response
-            \Log::info('API response for brand creation:', [
-                'api_response' => $result
-            ]);
-
-            // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during brand creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
-            }
-
-            // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
-                \Log::warning('Error during brand creation:', [
-                    'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to create brand'
-                ]);
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to create brand');
-            }
-
-            // Successfully created
-            \Log::info('Brand created successfully');
-            return redirect()->route('assets')
-                ->with('success', 'Brand created successfully');
-        } catch (\Exception $e) {
-            \Log::error('Exception during brand creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'brand_data' => $request->except('_token')
-            ]);
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Failed to create brand: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Update the specified brand.
-     */
-    public function update(Request $request, $id)
-    {
-        try {
-            $result = $this->apiService->request('PUT', "/brands/{$id}", [
-                'json' => [
-                    'brand_id' => $id,
-                    'brand_name' => $request->input('brand_name')
-                ]
-            ]);
-
-            // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
-            }
-
-            // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to update brand');
-            }
-
-            // Successfully updated
-            return redirect()->route('assets')
-                ->with('success', 'Brand updated successfully');
-        } catch (\Exception $e) {
-            \Log::error('Failed to update brand', [
-                'error' => $e->getMessage(),
-                'brand_id' => $id,
-                'brand_data' => $request->except(['_token', '_method'])
-            ]);
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Failed to update brand: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Remove the specified brand.
-     */
-    public function destroy($id)
-    {
-        try {
-            $result = $this->apiService->request('DELETE', "/brands/{$id}");
-
-            // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
-            }
-
-            // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
-                return redirect()->back()
-                    ->with('error', $result['message'] ?? 'Failed to delete brand');
-            }
-
-            // Successfully deleted
-            return redirect()->route('assets')
-                ->with('success', 'Brand deleted successfully');
-        } catch (\Exception $e) {
-            \Log::error('Failed to delete brand', [
-                'error' => $e->getMessage(),
-                'brand_id' => $id
-            ]);
-
-            return redirect()->back()
-                ->with('error', 'Failed to delete brand: ' . $e->getMessage());
         }
     }
 
@@ -839,9 +705,6 @@ class ViewAssetController extends Controller
 
     /**
      * Generate barcode for a single asset
-     *
-     * @param int $id The asset ID
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function generateBarcode($id)
     {
@@ -927,9 +790,6 @@ class ViewAssetController extends Controller
 
     /**
      * Generate QR codes for multiple assets in bulk
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function generateBulkQR(Request $request)
     {
@@ -1013,9 +873,6 @@ class ViewAssetController extends Controller
 
     /**
      * Print QR codes as PDF
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function printQRCodesPDF(Request $request)
     {
@@ -1152,4 +1009,4 @@ class ViewAssetController extends Controller
             return redirect()->back()->with('error', $errorMessage);
         }
     }
-  }
+}

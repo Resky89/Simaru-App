@@ -16,6 +16,7 @@ use App\Http\Controllers\AssetDepreciationController;
 use App\Http\Controllers\AssetMutationController;
 use App\Http\Controllers\AssetHistoryController;
 use App\Http\Middleware\AuthMiddleware;
+use App\Http\Controllers\BrandController;
 use Illuminate\Http\Request;
 
 //=============================================================================
@@ -159,10 +160,14 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/by-asset-type', [CategoriesController::class, 'getByAssetType'])->name('categories.by-asset-type');
     });
 
-    // Brand routes
-    Route::post('/brands', [ViewAssetController::class, 'store'])->name('brands.store');
-    Route::put('/brands/{id}', [ViewAssetController::class, 'update'])->name('brands.update');
-    Route::delete('/brands/{id}', [ViewAssetController::class, 'destroy'])->name('brands.destroy');
+    // Brand routes - REPLACING OLD BRAND ROUTES
+    Route::prefix('brands')->group(function () {
+        Route::get('/', [BrandController::class, 'index'])->name('brands');
+        Route::get('/{id}', [BrandController::class, 'getBrand'])->name('brands.get');
+        Route::post('/', [BrandController::class, 'store'])->name('brands.store');
+        Route::put('/{id}', [BrandController::class, 'update'])->name('brands.update');
+        Route::delete('/{id}', [BrandController::class, 'destroy'])->name('brands.destroy');
+    });
 
     // Asset routes
     Route::get('/assets', [ViewAssetController::class, 'index'])->name('assets');
