@@ -34,6 +34,46 @@
                 </a>
             </div>
 
+            <!-- Master Data -->
+            <div class="{{ $menuItemClass }}">
+                <button class="w-full focus:outline-none toggle-menu" data-menu="masterdata">
+                    <div class="{{ $menuLinkClass }} menu-header">
+                        <div class="{{ $iconWrapperClass }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </div>
+                        <span class="{{ $menuTextClass }}">Master Data</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow" fill="none" viewBox="0 0 24 24" stroke="#757575">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                </button>
+                <!-- Sub Menu -->
+                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="masterdata" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                    <a href="{{ route('asset-categories') }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-categories') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Sub Categories</span>
+                        </div>
+                    </a>
+                    <a href="{{ route('asset-view') }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-view') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">View Asset</span>
+                        </div>
+                    </a>
+                    <a href="{{ route('location') }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('location') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Location</span>
+                        </div>
+                    </a>
+                    <a href="{{ route('vendor') }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('vendor') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Vendor</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
             <!-- Procurement -->
             <div class="{{ $menuItemClass }}">
                 <button class="w-full focus:outline-none toggle-menu" data-menu="procurement">
@@ -70,59 +110,14 @@
                 </div>
             </div>
 
-            <!-- Asset -->
-            <div class="{{ $menuItemClass }}">
-                <button class="w-full focus:outline-none toggle-menu" data-menu="asset">
-                    <div class="{{ $menuLinkClass }} menu-header">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
-                        </div>
-                        <span class="{{ $menuTextClass }}">Asset</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
-                </button>
-                <!-- Sub Menu -->
-                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="asset" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
-                    <a href="{{ route('asset-categories') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-categories') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Asset Categories</span>
-                        </div>
-                    </a>
-                    <a href="{{ route('asset-view') }}" class="block">
-                        <div class="{{ $submenuLinkClass }}">
-                            <span class="{{ $submenuTextClass }}">View Asset</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
             <!-- Simple menu items with consistent structure -->
             @php
                 $singleMenuItems = [
                     [
-                        'route' => 'opname',
-                        'name' => 'Opname',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />'
-                    ],
-                    [
-                        'route' => 'location',
-                        'name' => 'Location',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />'
-                    ],
-                    [
-                        'route' => 'vendor',
-                        'name' => 'Vendor',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />'
-                    ], [
                         'route' => 'departments',
                         'name' => 'Department',
                         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />'
                     ]
-
                 ];
             @endphp
 
@@ -160,6 +155,7 @@
                 <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="report" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     @php
                         $reportSubmenuItems = [
+                            ['route' => 'opname', 'name' => 'Report Opname'],
                             ['route' => 'report.maintenance', 'name' => 'Maintenance Report'],
                             ['route' => 'report.inspection', 'name' => 'Inspection Report'],
                             ['route' => 'report.calibration', 'name' => 'Calibration Report'],
