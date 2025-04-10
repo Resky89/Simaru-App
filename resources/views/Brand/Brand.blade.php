@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('Layout.app')
 
 @section('title', 'Brands Management')
 
