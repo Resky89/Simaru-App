@@ -69,6 +69,66 @@ class AssetDetailsController extends Controller
                 return redirect()->back()->with('error', $errorMessage);
             }
 
+            // Generate QR code for the asset using the bulk API endpoint
+            if (isset($asset['asset_id'])) {
+                try {
+                    // Create an array with the single asset ID
+                    $assetIds = [$asset['asset_id']];
+
+                    // Call the bulk QR code generation API
+                    $qrResult = $this->apiService->request('POST', "/assets/qr/generate-bulk", [
+                        'json' => [
+                            'asset_ids' => $assetIds
+                        ]
+                    ]);
+
+                    \Log::info('QR code generation API response:', [
+                        'status' => $qrResult['status'] ?? null,
+                        'message' => $qrResult['message'] ?? null,
+                        'data_count' => isset($qrResult['data']) ? count($qrResult['data']) : 0
+                    ]);
+
+                    // If successful response with data, get the QR code for the asset
+                    if (isset($qrResult['status']) && $qrResult['status'] === true &&
+                        isset($qrResult['data']) && is_array($qrResult['data']) && count($qrResult['data']) > 0) {
+
+                        // Find the QR data for this asset
+                        foreach ($qrResult['data'] as $qrData) {
+                            if (isset($qrData['asset_id']) && $qrData['asset_id'] == $asset['asset_id']) {
+                                // If there's a base64 QR code in the response
+                                if (isset($qrData['qr_base64'])) {
+                                    $asset['qr_base64'] = $qrData['qr_base64'];
+                                    break;
+                                }
+                                // Or if there's a QR URL that needs to be converted to base64
+                                else if (isset($qrData['qr_url'])) {
+                                    try {
+                                        // Get proper API URL from backend configuration
+                                        $backendUrl = rtrim(config('app.backend_url'), '/');
+                                        $imageUrl = $backendUrl . "/public" . $qrData['qr_url'];
+
+                                        // Try to get the image content
+                                        $imageData = @file_get_contents($imageUrl);
+                                        if ($imageData !== false) {
+                                            $asset['qr_base64'] = 'data:image/png;base64,' . base64_encode($imageData);
+                                        }
+                                    } catch (\Exception $qrImageEx) {
+                                        \Log::error('Failed to load QR image: ' . $qrImageEx->getMessage());
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } catch (\Exception $qrEx) {
+                    \Log::error('Exception during QR code generation:', [
+                        'error' => $qrEx->getMessage(),
+                        'trace' => $qrEx->getTraceAsString()
+                    ]);
+                    // Continue without QR code if failed
+                }
+            }
+
             // Fetch subcategories for the dropdown
             $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
             $subcategories = $subcategoriesResult['data'] ?? [];

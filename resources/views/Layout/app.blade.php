@@ -7,6 +7,10 @@
     <link rel="icon" href="images/logo.png" type="image/png">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js - Only load it ONCE here, with defer -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <!-- Font (Optional - Gunakan font yang modern) -->
@@ -36,9 +40,12 @@
 <body class="bg-[#ECECEC]">
     <div class="flex min-h-screen">
         <!-- Mobile Menu Button -->
-        <button id="mobile-menu-button" class="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-[#213268] text-white transition-opacity duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button id="mobile-menu-button" class="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-[#213268] text-white transition-all duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 close-icon hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
 
@@ -65,203 +72,239 @@
     </div>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebar-overlay');
-            const contentArea = document.querySelector('main');
-            let isSidebarOpen = false;
+        // GLOBAL APP MANAGER - Handles sidebar, navigation, modals and auth
+        window.AppManager = {
+            // State variables
+            state: {
+                initialized: false,
+                sidebarOpen: false,
+                authChecked: false
+            },
 
-            // Store active menu state
-            let activeMenu = localStorage.getItem('activeMenu') || null;
-            let activeSubMenu = localStorage.getItem('activeSubMenu') || null;
+            // DOM elements (will be populated on init)
+            elements: {},
 
-            function toggleSidebar() {
-                isSidebarOpen = !isSidebarOpen;
+            // Initialize the app
+            init: function() {
+                if (this.state.initialized) return;
 
-                if (isSidebarOpen) {
-                    sidebar.classList.remove('-translate-x-full');
-                    sidebarOverlay.classList.remove('hidden');
-                    document.body.style.overflow = 'hidden';
-                    mobileMenuButton.classList.add('opacity-0'); // Sembunyikan tombol
-                    mobileMenuButton.style.pointerEvents = 'none'; // Nonaktifkan interaksi
-                } else {
-                    sidebar.classList.add('-translate-x-full');
-                    sidebarOverlay.classList.add('hidden');
-                    document.body.style.overflow = '';
-                    mobileMenuButton.classList.remove('opacity-0'); // Tampilkan tombol
-                    mobileMenuButton.style.pointerEvents = 'auto'; // Aktifkan interaksi
+                // Cache DOM elements
+                this.elements = {
+                    mobileMenuButton: document.getElementById('mobile-menu-button'),
+                    sidebar: document.getElementById('sidebar'),
+                    sidebarOverlay: document.getElementById('sidebar-overlay'),
+                    contentArea: document.querySelector('main')
+                };
+
+                // Make toggleSidebar available globally in the AppManager
+                this.toggleSidebar = this.createToggleSidebar();
+
+                // Initialize components
+                this.initSidebar();
+                this.initNavigation();
+
+                // Initialize auth if method exists
+                if (typeof this.initAuth === 'function') {
+                    this.initAuth();
                 }
-            }
 
-            // Toggle sidebar when menu button is clicked
-            mobileMenuButton.addEventListener('click', toggleSidebar);
-
-            // Close sidebar when overlay is clicked
-            sidebarOverlay.addEventListener('click', toggleSidebar);
-
-            // Close sidebar when window is resized to desktop view
-            window.addEventListener('resize', function() {
-                if (window.innerWidth >= 1024 && isSidebarOpen) {
-                    toggleSidebar();
+                // Set up token refresh if method exists
+                if (typeof this.setupTokenRefresh === 'function') {
+                    this.setupTokenRefresh();
                 }
-            });
 
-            // Set initial active states based on current URL
-            function initializeActiveMenus() {
-                const currentPath = window.location.pathname;
+                this.state.initialized = true;
+            },
 
-                // Check all links and mark the matching one as active
+            // Create the toggleSidebar function with proper binding
+            createToggleSidebar: function() {
+                return function() {
+                    console.log('Toggle sidebar called, current state:', this.state.sidebarOpen);
+
+                    this.state.sidebarOpen = !this.state.sidebarOpen;
+
+                    if (this.state.sidebarOpen) {
+                        console.log('Opening sidebar');
+                        this.elements.sidebar.classList.remove('-translate-x-full');
+                        this.elements.sidebarOverlay.classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+
+                        // Hide button completely
+                        this.elements.mobileMenuButton.classList.add('hidden');
+                    } else {
+                        console.log('Closing sidebar');
+                        this.elements.sidebar.classList.add('-translate-x-full');
+                        this.elements.sidebarOverlay.classList.add('hidden');
+                        document.body.style.overflow = '';
+
+                        // Show button
+                        this.elements.mobileMenuButton.classList.remove('hidden');
+                    }
+                }.bind(this);
+            },
+
+            // Initialize sidebar functionality
+            initSidebar: function() {
+                // Handle active menu state
+                this.initActiveMenu();
+
+                // Store active menu state
+                let activeMenu = localStorage.getItem('activeMenu') || null;
+                let activeSubMenu = localStorage.getItem('activeSubMenu') || null;
+
+                console.log('Initializing sidebar, adding event listeners');
+
+                // Toggle sidebar when menu button is clicked
+                this.elements.mobileMenuButton.addEventListener('click', this.toggleSidebar);
+
+                // Close sidebar when overlay is clicked
+                this.elements.sidebarOverlay.addEventListener('click', this.toggleSidebar);
+
+                // Close sidebar when window is resized to desktop view
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 1024 && this.state.sidebarOpen) {
+                        this.toggleSidebar();
+                    }
+                }.bind(this));
+            },
+
+            // Initialize navigation functionality
+            initNavigation: function() {
+                // Create a custom event for Alpine.js to set the activeMenu
+                window.addEventListener('set-active-menu', function(e) {
+                    // Find Alpine.js component instance
+                    const alpineElement = document.querySelector('[x-data*="activeMenu"]');
+                    if (alpineElement && alpineElement.__x) {
+                        // Set the activeMenu variable in Alpine.js
+                        alpineElement.__x.$data.activeMenu = e.detail.menu;
+                    }
+                });
+
+                // AJAX Navigation System - Intercept sidebar link clicks
                 document.querySelectorAll('#sidebar a[href]').forEach(link => {
-                    const linkPath = new URL(link.href, window.location.origin).pathname;
-
-                    if (linkPath === currentPath) {
-                        // Mark this link as active
-                        const menuDiv = link.querySelector('div');
-                        if (menuDiv) {
-                            menuDiv.classList.add('bg-[#56C5F1]/20');
+                    link.addEventListener('click', function(e) {
+                        // Skip for links that should perform full page loads
+                        if (this.getAttribute('data-full-load') === 'true') {
+                            return true;
                         }
 
-                        // If this is a submenu item, expand its parent menu
-                        const parentSubmenu = link.closest('[x-show]');
-                        if (parentSubmenu) {
-                            // Get the parent menu button
-                            const parentButton = parentSubmenu.previousElementSibling;
-                            if (parentButton && parentButton.tagName === 'BUTTON') {
-                                // Find the parent menu id from the x-show attribute
-                                const parentMenuId = parentSubmenu.getAttribute('x-show').match(/activeMenu === ['"]([^'"]+)['"]/);
-                                if (parentMenuId && parentMenuId[1]) {
-                                    // Set the active menu in Alpine.js
-                                    window.dispatchEvent(new CustomEvent('set-active-menu', {
-                                        detail: { menu: parentMenuId[1] }
-                                    }));
+                        e.preventDefault();
+                        const url = this.getAttribute('href');
 
-                                    // Store in localStorage
-                                    localStorage.setItem('activeMenu', parentMenuId[1]);
-                                    localStorage.setItem('activeSubMenu', currentPath);
-                                }
+                        // Store this as active submenu
+                        localStorage.setItem('activeSubMenu', url);
+
+                        // Check if this is a submenu item
+                        const parentSubmenu = this.closest('[x-show]');
+                        if (parentSubmenu) {
+                            // Find the parent menu id
+                            const parentMenuId = parentSubmenu.getAttribute('x-show').match(/activeMenu === ['"]([^'"]+)['"]/);
+                            if (parentMenuId && parentMenuId[1]) {
+                                localStorage.setItem('activeMenu', parentMenuId[1]);
                             }
                         } else {
-                            // This is a main menu item, clear submenu state
+                            // This is a main menu item, clear active menu state
                             localStorage.removeItem('activeMenu');
-                            localStorage.setItem('activeSubMenu', currentPath);
                         }
-                    }
-                });
-            }
 
-            // Initialize active menus on page load
-            initializeActiveMenus();
+                        // Update browser URL without full page reload
+                        window.history.pushState({url}, '', url);
 
-            // Create a custom event for Alpine.js to set the activeMenu
-            window.addEventListener('set-active-menu', function(e) {
-                // Find Alpine.js component instance
-                const alpineComponent = document.querySelector('[x-data*="activeMenu"]').__x;
-                if (alpineComponent) {
-                    // Set the activeMenu variable in Alpine.js
-                    alpineComponent.$data.activeMenu = e.detail.menu;
-                }
-            });
+                        // Show loading indicator in content area
+                        AppManager.elements.contentArea.innerHTML = '<div class="flex items-center justify-center h-full w-full"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#213268]"></div></div>';
 
-            // AJAX Navigation System - Intercept sidebar link clicks
-            document.querySelectorAll('#sidebar a[href]').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    // Skip for links that should perform full page loads
-                    if (this.getAttribute('data-full-load') === 'true') {
-                        return true;
-                    }
-
-                    e.preventDefault();
-                    const url = this.getAttribute('href');
-
-                    // Store this as active submenu
-                    localStorage.setItem('activeSubMenu', url);
-
-                    // Check if this is a submenu item
-                    const parentSubmenu = this.closest('[x-show]');
-                    if (parentSubmenu) {
-                        // Find the parent menu id
-                        const parentMenuId = parentSubmenu.getAttribute('x-show').match(/activeMenu === ['"]([^'"]+)['"]/);
-                        if (parentMenuId && parentMenuId[1]) {
-                            localStorage.setItem('activeMenu', parentMenuId[1]);
-                        }
-                    } else {
-                        // This is a main menu item, clear active menu state
-                        localStorage.removeItem('activeMenu');
-                    }
-
-                    // Update browser URL without full page reload
-                    window.history.pushState({url}, '', url);
-
-                    // Show loading indicator in content area
-                    contentArea.innerHTML = '<div class="flex items-center justify-center h-full w-full"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#213268]"></div></div>';
-
-                    // Highlight active menu item
-                    document.querySelectorAll('#sidebar a div').forEach(div => {
-                        div.classList.remove('bg-[#56C5F1]/20');
-                    });
-
-                    const activeDiv = this.querySelector('div');
-                    if (activeDiv) {
-                        activeDiv.classList.add('bg-[#56C5F1]/20');
-                    }
-
-                    // Close mobile sidebar if open
-                    if (isSidebarOpen) {
-                        toggleSidebar();
-                    }
-
-                    // Fetch content via AJAX
-                    fetch(url)
-                        .then(response => response.text())
-                        .then(html => {
-                            // Extract only the content part from the response
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-                            const newContent = doc.querySelector('main').innerHTML;
-
-                            // Update content area
-                            contentArea.innerHTML = newContent;
-
-                            // Initialize any scripts needed for the new content
-                            loadDynamicScripts();
-
-                            // Update page title if available
-                            const newTitle = doc.querySelector('title')?.innerText;
-                            if (newTitle) {
-                                document.title = newTitle;
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error loading page:', error);
-                            contentArea.innerHTML = '<div class="p-6 text-center"><h2 class="text-xl text-red-600">Error loading content</h2><p class="mt-2">Please try again or refresh the page.</p></div>';
+                        // Highlight active menu item
+                        document.querySelectorAll('#sidebar a div').forEach(div => {
+                            div.classList.remove('bg-[#56C5F1]/20');
                         });
-                });
-            });
 
-            // Handle browser back/forward navigation
-            window.addEventListener('popstate', function(e) {
-                if (e.state && e.state.url) {
-                    loadContent(e.state.url, false);
-                } else {
-                    window.location.reload();
-                }
-            });
+                        const activeDiv = this.querySelector('div');
+                        if (activeDiv) {
+                            activeDiv.classList.add('bg-[#56C5F1]/20');
+                        }
+
+                        // Close mobile sidebar if open
+                        if (AppManager.state.sidebarOpen) {
+                            AppManager.toggleSidebar();
+                        }
+
+                        // Fetch content via AJAX
+                        fetch(url)
+                            .then(response => response.text())
+                            .then(html => {
+                                // Extract only the content part from the response
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(html, 'text/html');
+                                const newContent = doc.querySelector('main').innerHTML;
+
+                                // Update content area
+                                AppManager.elements.contentArea.innerHTML = newContent;
+
+                                // PENTING: Evaluasi script-script yang ada di konten baru
+                                const scripts = doc.querySelectorAll('main script');
+                                scripts.forEach(script => {
+                                    // Buat elemen script baru
+                                    const newScript = document.createElement('script');
+
+                                    // Salin semua atribut
+                                    Array.from(script.attributes).forEach(attr => {
+                                        newScript.setAttribute(attr.name, attr.value);
+                                    });
+
+                                    // Salin isi script
+                                    newScript.textContent = script.textContent;
+
+                                    // Sisipkan script baru ke dalam dokumen
+                                    document.body.appendChild(newScript);
+                                });
+
+                                // Initialize any scripts needed for the new content
+                                AppManager.loadDynamicScripts();
+
+                                // Buat listener untuk mendeteksi interaksi pengguna dengan modal
+                                document.body.addEventListener('click', function modalClickHandler(e) {
+                                    if (e.target.closest('[data-modal-toggle]') || e.target.closest('[data-toggle="modal"]')) {
+                                        AppManager.loadDynamicScripts(); // Reinisialisasi modal saat tombol modal diklik
+                                    }
+                                });
+
+                                // Update page title if available
+                                const newTitle = doc.querySelector('title')?.innerText;
+                                if (newTitle) {
+                                    document.title = newTitle;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error loading page:', error);
+                                AppManager.elements.contentArea.innerHTML = '<div class="p-6 text-center"><h2 class="text-xl text-red-600">Error loading content</h2><p class="mt-2">Please try again or refresh the page.</p></div>';
+                            });
+                    });
+                });
+
+                // Handle browser back/forward navigation
+                window.addEventListener('popstate', function(e) {
+                    if (e.state && e.state.url) {
+                        AppManager.loadContent(e.state.url, false);
+                    } else {
+                        window.location.reload();
+                    }
+                });
+            },
 
             // Load content without pushing to history (used for back/forward navigation)
-            function loadContent(url, pushToHistory = true) {
+            loadContent: function(url, pushToHistory = true) {
                 fetch(url)
                     .then(response => response.text())
                     .then(html => {
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
-                        contentArea.innerHTML = doc.querySelector('main').innerHTML;
+                        this.elements.contentArea.innerHTML = doc.querySelector('main').innerHTML;
 
                         if (pushToHistory) {
                             window.history.pushState({url}, '', url);
                         }
 
-                        loadDynamicScripts();
+                        this.loadDynamicScripts();
 
                         // Update active menu item
                         document.querySelectorAll('#sidebar a').forEach(link => {
@@ -277,69 +320,105 @@
                     })
                     .catch(error => {
                         console.error('Error loading page:', error);
-                        contentArea.innerHTML = '<div class="p-6 text-center"><h2 class="text-xl text-red-600">Error loading content</h2><p class="mt-2">Please try again or refresh the page.</p></div>';
+                        this.elements.contentArea.innerHTML = '<div class="p-6 text-center"><h2 class="text-xl text-red-600">Error loading content</h2><p class="mt-2">Please try again or refresh the page.</p></div>';
                     });
-            }
+            },
 
-            // Function to initialize scripts for dynamically loaded content
-            function loadDynamicScripts() {
-                // Re-initialize any libraries or components
-                if (typeof AOS !== 'undefined') {
-                    AOS.refresh();
+            // Initialize dynamic scripts
+            loadDynamicScripts: function() {
+                // Inisialisasi semua modal yang mungkin ada
+                if (typeof window.initModals === 'function') {
+                    window.initModals();
                 }
 
-                // If you're using Alpine.js, make sure to reinitialize it for dynamic content
-                if (typeof Alpine !== 'undefined') {
-                    // For Alpine.js v3+
-                    if (Alpine.initTree) {
-                        Alpine.initTree(document.body);
-                    }
-                    // For older Alpine versions
-                    else if (Alpine.initializeComponent) {
-                        document.querySelectorAll('[x-data]').forEach(el => {
-                            Alpine.initializeComponent(el);
-                        });
-                    }
+                if (typeof window.initBrandModals === 'function') {
+                    window.initBrandModals();
+                }
 
-                    // Set active menu from localStorage after Alpine initializes
-                    const storedActiveMenu = localStorage.getItem('activeMenu');
-                    if (storedActiveMenu) {
+                // Panggil fungsi inisialisasi global
+                if (typeof window.initializeAlpineComponents === 'function') {
+                    window.initializeAlpineComponents();
+                }
+
+                // Inisialisasi Alpine.js jika ada
+                if (typeof Alpine !== 'undefined' && Alpine.initTree) {
+                    Alpine.initTree(document.body);
+                }
+            },
+
+            // Initialize active menu state
+            initActiveMenu: function() {
+                const storedActiveMenu = localStorage.getItem('activeMenu');
+                if (storedActiveMenu && storedActiveMenu !== 'null') {
+                    setTimeout(() => {
                         window.dispatchEvent(new CustomEvent('set-active-menu', {
                             detail: { menu: storedActiveMenu }
                         }));
-                    }
+                    }, 100);
+                }
+            },
+
+            initializeComponents: function() {
+                // Initialize modals and other components
+                if (typeof window.reinitializeModals === 'function') {
+                    window.reinitializeModals();
+                }
+
+                if (typeof window.initBrandModals === 'function') {
+                    window.initBrandModals();
+                }
+            }
+        };
+
+        // Start initialization when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            AppManager.init();
+            AOS.init();
+        });
+    </script>
+    <script>
+        // Global initialization function for all Alpine.js components and modals
+        function initializeAlpineComponents() {
+            // PENTING: Selalu inisialisasi modal setelah navigasi halaman
+            if (typeof window.initModals === 'function') {
+                try {
+                    window.initModals();
+                } catch (e) {
+                    console.error('Error initializing modals:', e);
                 }
             }
 
-            // Token refresh logic
-            setInterval(function() {
-                fetch('/auth/refresh-token', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Token refresh failed');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) {
+            // Inisialisasi Alpine.js komponen lainnya
+            if (window.Alpine) {
+                try {
+                    window.Alpine.initTree(document.body);
+                } catch (e) {
+                    console.error('Error initializing Alpine components:', e);
+                }
+            }
+        }
+
+        // Run on initial page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Delay slightly to ensure DOM is fully ready
+            setTimeout(initializeAlpineComponents, 50);
+
+            // Handle AJAX 401 responses
+            $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+                if (jqXHR.status === 401) {
+                    console.log('Session expired, redirecting to login page');
+
+                    // Check if response contains redirect URL
+                    if (jqXHR.responseJSON && jqXHR.responseJSON.redirect) {
+                        window.location.href = jqXHR.responseJSON.redirect;
+                    } else {
                         window.location.href = '/login';
                     }
-                })
-                .catch(error => {
-                    console.error('Error refreshing token:', error);
-                    window.location.href = '/login';
-                });
-            }, 50 * 60 * 1000); // 50 minutes
+                }
+            });
         });
     </script>
+    <!-- Stack for additional scripts -->
     @stack('scripts')
 </body>
 </html>

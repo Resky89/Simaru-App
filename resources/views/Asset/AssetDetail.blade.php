@@ -96,22 +96,63 @@
                 <div class="flex flex-col lg:flex-row gap-4 md:gap-8">
                     <!-- Asset Image and Status -->
                     <div class="w-full lg:w-[350px] xl:w-[400px]">
-                        <div class="bg-[#D9D9D9] rounded-[20px] shadow-md h-[180px] md:h-[268px] w-full flex items-center justify-center overflow-hidden relative">
-                            @if(isset($asset['picture_path']) && $asset['picture_path'])
-                                <img src="http://localhost:5000/public{{ $asset['picture_path'] }}"
-                                     alt="Asset Image"
-                                     class="absolute inset-0 w-full h-full object-cover p-0"
-                                     style="object-position: center;"
-                                     onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4'); this.style.position='relative';">
-                                <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 rounded-[20px]"></div>
-                            @else
-                                <div class="flex flex-col items-center justify-center text-gray-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    <span class="text-sm">No image available</span>
+                        <div class="flip-card-container relative h-[180px] md:h-[268px] w-full">
+                            <div class="flip-card w-full h-full transition-transform duration-700">
+                                <!-- Front side (Asset image) -->
+                                <div class="flip-card-front bg-[#D9D9D9] rounded-[20px] shadow-md flex items-center justify-center overflow-hidden relative w-full h-full">
+                                    @if(isset($asset['picture_path']) && $asset['picture_path'])
+                                        <img src="http://localhost:5000/public{{ $asset['picture_path'] }}"
+                                             alt="Asset Image"
+                                             class="absolute inset-0 w-full h-full object-cover p-0"
+                                             style="object-position: center;"
+                                             onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4'); this.style.position='relative';">
+                                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 rounded-[20px]"></div>
+                                    @else
+                                        <div class="flex flex-col items-center justify-center text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <span class="text-sm">No image available</span>
+                                        </div>
+                                    @endif
+                                    <!-- Icon to flip to QR code -->
+                                    <button class="flip-btn absolute top-2 right-2 p-2 bg-white bg-opacity-70 hover:bg-opacity-100 rounded-full shadow-md z-10 transition-all duration-300">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#213268]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1v-2a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                        </svg>
+                                    </button>
                                 </div>
-                            @endif
+
+                                <!-- Back side (QR Code) -->
+                                <div class="flip-card-back bg-white rounded-[20px] shadow-md flex items-center justify-center overflow-hidden relative w-full h-full">
+                                    <div class="flex flex-col items-center justify-center w-3/4 h-3/4">
+                                        @if(isset($asset['qr_base64']))
+                                            <img src="{{ $asset['qr_base64'] }}"
+                                                 alt="Asset QR Code"
+                                                 class="w-full h-full object-contain">
+                                            <p class="text-xs font-medium mt-2">{{ $asset['asset_code'] }}</p>
+                                        @else
+                                            <div class="flex flex-col items-center justify-center text-gray-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1v-2a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                                </svg>
+                                                <span class="text-sm">QR Code not available</span>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="absolute top-1 left-1 text-xs font-semibold bg-gray-200 rounded-lg px-2 py-1">
+                                        {{ $asset['asset_code'] ?? '-' }}
+                                    </div>
+
+                                    <!-- Icon to flip back to image -->
+                                    <button class="flip-btn absolute top-2 right-2 p-2 bg-white bg-opacity-70 hover:bg-opacity-100 rounded-full shadow-md z-10 transition-all duration-300">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#213268]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Asset identification - mobile layout with smaller text -->
@@ -267,7 +308,7 @@
                         </div>
 
                         <!-- Tab Content -->
-                        <div id="tab-content">
+                        <div id="tab-content" class="overflow-y-auto max-h-[500px] border border-gray-200 rounded-md">
                             <div class="tab-pane" id="document">
                                 @include('Asset.Tabs.Document')
                             </div>
@@ -833,12 +874,46 @@
     </div>
 </div>
 
-@endsection
+<style>
+    /* Flip card styling */
+    .flip-card-container {
+        perspective: 1000px;
+    }
 
-@push('scripts')
+    .flip-card {
+        position: relative;
+        transform-style: preserve-3d;
+    }
+
+    .flip-card.flipped {
+        transform: rotateY(180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+        position: absolute;
+        backface-visibility: hidden;
+    }
+
+    .flip-card-back {
+        transform: rotateY(180deg);
+    }
+</style>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-       // Tab functionality
+        // Get flip card elements
+        const flipCard = document.querySelector('.flip-card');
+        const flipBtns = document.querySelectorAll('.flip-btn');
+
+        // Add click event to all flip buttons
+        flipBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                flipCard.classList.toggle('flipped');
+            });
+        });
+
+         // Tab functionality
        const tabButtons = document.querySelectorAll('.tab-btn');
         const tabPanes = document.querySelectorAll('.tab-pane');
 
@@ -1692,4 +1767,5 @@
         }
     });
 </script>
-@endpush
+
+@endsection
