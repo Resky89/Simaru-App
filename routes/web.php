@@ -292,3 +292,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Asset History routes
     Route::get('/asset-histories/{id}', [AssetHistoryController::class, 'getAssetHistory'])->name('asset-histories.get');
 });
+
+// Fallback route for 404 errors
+Route::fallback(function () {
+    return response()->view('Error.NotFound', [], 404);
+});
