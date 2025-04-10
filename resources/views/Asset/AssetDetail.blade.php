@@ -299,11 +299,11 @@
                                 </svg>
                                 Depreciation
                             </button>
-                            <button class="tab-btn flex-1 flex items-center justify-center gap-2 px-2 py-3 text-gray-500 hover:text-[#213268]" data-tab="scanhistory">
+                            <button class="tab-btn flex-1 flex items-center justify-center gap-2 px-2 py-3 text-gray-500 hover:text-[#213268]" data-tab="finance">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                                 </svg>
-                                Scan History
+                                Finance
                             </button>
                         </div>
 
@@ -324,8 +324,8 @@
                             <div class="tab-pane hidden" id="depreciation">
                                 @include('Asset.Tabs.Depreciation')
                             </div>
-                            <div class="tab-pane hidden" id="scanhistory">
-                                @include('Asset.Tabs.ScanHistory')
+                            <div class="tab-pane hidden" id="finance">
+                                @include('Asset.Tabs.Finance')
                             </div>
                         </div>
                     </div>
