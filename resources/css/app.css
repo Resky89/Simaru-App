@@ -6,7 +6,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source "../**/*.blade.php";
@@ -14,8 +13,44 @@
 @source "../**/*.vue";
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
 }
 
+@layer base {
+    html {
+        font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    }
 
+    /* Ensure minimum font size */
+    body,
+    p,
+    span,
+    div,
+    button,
+    input,
+    select,
+    textarea {
+        font-size: max(10px, 0.75rem) !important;
+    }
+
+    /* Bold headings for better highlighting */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-weight: 700;
+    }
+
+    /* Standard padding for content sections */
+    .content-section,
+    .card-body,
+    .container,
+    .px-responsive {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+}

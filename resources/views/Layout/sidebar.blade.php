@@ -15,8 +15,8 @@
                 $menuItemClass = "w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2 menu-item";
                 $menuLinkClass = "h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20";
                 $iconWrapperClass = "w-6 h-6 ml-5";
-                $menuTextClass = "ml-[20px] font-['Public_Sans'] text-[16px] text-[#757575] font-medium";
-                $submenuTextClass = "font-['Public_Sans'] text-[14px] text-[#757575] font-medium";
+                $menuTextClass = "ml-[20px] font-['Poppins'] text-[16px] text-[#757575] font-medium";
+                $submenuTextClass = "font-['Poppins'] text-[14px] text-[#757575] font-medium";
                 $submenuLinkClass = "h-[41px] flex items-center hover:bg-[#56C5F1]/20 rounded-[8px] px-4";
             @endphp
 

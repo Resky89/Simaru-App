@@ -7,7 +7,15 @@ export default {
       "./resources/**/*.jsx",
     ],
     theme: {
-      extend: {},
+      extend: {
+        fontFamily: {
+          sans: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        },
+        fontSize: {
+          'xs': ['max(10px, 0.75rem)', { lineHeight: '1rem' }],
+          'sm': ['max(10px, 0.875rem)', { lineHeight: '1.25rem' }],
+        }
+      },
     },
     plugins: [],
   };

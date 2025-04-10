@@ -9,16 +9,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js - Only load it ONCE here, with defer -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <!-- Font (Optional - Gunakan font yang modern) -->
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Font - Using Poppins as requested -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
         main {
             min-height: calc(100vh - 4rem);
@@ -33,6 +31,22 @@
         .page-enter-from,
         .page-leave-to {
             opacity: 0;
+        }
+
+        /* Ensure minimum font size */
+        body, p, span, div, button, input, select, textarea {
+            font-size: max(10px, 0.75rem);
+        }
+
+        /* Standard padding for content sections */
+        .content-section {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        /* Bold headings for better highlighting */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
         }
     </style>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -102,16 +116,10 @@
                 // Initialize components
                 this.initSidebar();
                 this.initNavigation();
+                this.initAuth();
 
-                // Initialize auth if method exists
-                if (typeof this.initAuth === 'function') {
-                    this.initAuth();
-                }
-
-                // Set up token refresh if method exists
-                if (typeof this.setupTokenRefresh === 'function') {
-                    this.setupTokenRefresh();
-                }
+                // Set up token refresh
+                this.setupTokenRefresh();
 
                 this.state.initialized = true;
             },
@@ -170,13 +178,16 @@
 
             // Initialize navigation functionality
             initNavigation: function() {
+                // Set initial active states based on current URL
+                this.initializeActiveMenus();
+
                 // Create a custom event for Alpine.js to set the activeMenu
                 window.addEventListener('set-active-menu', function(e) {
                     // Find Alpine.js component instance
-                    const alpineElement = document.querySelector('[x-data*="activeMenu"]');
-                    if (alpineElement && alpineElement.__x) {
+                    const alpineComponent = document.querySelector('[x-data*="activeMenu"]').__x;
+                    if (alpineComponent) {
                         // Set the activeMenu variable in Alpine.js
-                        alpineElement.__x.$data.activeMenu = e.detail.menu;
+                        alpineComponent.$data.activeMenu = e.detail.menu;
                     }
                 });
 
@@ -211,7 +222,7 @@
                         window.history.pushState({url}, '', url);
 
                         // Show loading indicator in content area
-                        AppManager.elements.contentArea.innerHTML = '<div class="flex items-center justify-center h-full w-full"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#213268]"></div></div>';
+                        this.elements.contentArea.innerHTML = '<div class="flex items-center justify-center h-full w-full"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#213268]"></div></div>';
 
                         // Highlight active menu item
                         document.querySelectorAll('#sidebar a div').forEach(div => {
@@ -224,8 +235,8 @@
                         }
 
                         // Close mobile sidebar if open
-                        if (AppManager.state.sidebarOpen) {
-                            AppManager.toggleSidebar();
+                        if (this.state.sidebarOpen) {
+                            this.toggleSidebar();
                         }
 
                         // Fetch content via AJAX
@@ -238,7 +249,7 @@
                                 const newContent = doc.querySelector('main').innerHTML;
 
                                 // Update content area
-                                AppManager.elements.contentArea.innerHTML = newContent;
+                                this.elements.contentArea.innerHTML = newContent;
 
                                 // PENTING: Evaluasi script-script yang ada di konten baru
                                 const scripts = doc.querySelectorAll('main script');
@@ -259,14 +270,14 @@
                                 });
 
                                 // Initialize any scripts needed for the new content
-                                AppManager.loadDynamicScripts();
+                                this.loadDynamicScripts();
 
                                 // Buat listener untuk mendeteksi interaksi pengguna dengan modal
                                 document.body.addEventListener('click', function modalClickHandler(e) {
                                     if (e.target.closest('[data-modal-toggle]') || e.target.closest('[data-toggle="modal"]')) {
-                                        AppManager.loadDynamicScripts(); // Reinisialisasi modal saat tombol modal diklik
+                                        this.loadDynamicScripts(); // Reinisialisasi modal saat tombol modal diklik
                                     }
-                                });
+                                }.bind(this));
 
                                 // Update page title if available
                                 const newTitle = doc.querySelector('title')?.innerText;
@@ -276,7 +287,7 @@
                             })
                             .catch(error => {
                                 console.error('Error loading page:', error);
-                                AppManager.elements.contentArea.innerHTML = '<div class="p-6 text-center"><h2 class="text-xl text-red-600">Error loading content</h2><p class="mt-2">Please try again or refresh the page.</p></div>';
+                                this.elements.contentArea.innerHTML = '<div class="p-6 text-center"><h2 class="text-xl text-red-600">Error loading content</h2><p class="mt-2">Please try again or refresh the page.</p></div>';
                             });
                     });
                 });
@@ -284,11 +295,11 @@
                 // Handle browser back/forward navigation
                 window.addEventListener('popstate', function(e) {
                     if (e.state && e.state.url) {
-                        AppManager.loadContent(e.state.url, false);
+                        this.loadContent(e.state.url, false);
                     } else {
                         window.location.reload();
                     }
-                });
+                }.bind(this));
             },
 
             // Load content without pushing to history (used for back/forward navigation)
@@ -324,25 +335,39 @@
                     });
             },
 
-            // Initialize dynamic scripts
+            // Modify the loadDynamicScripts function to properly reinitialize components
             loadDynamicScripts: function() {
-                // Inisialisasi semua modal yang mungkin ada
-                if (typeof window.initModals === 'function') {
-                    window.initModals();
-                }
+                // Buat fungsi untuk menginisialisasi modal dengan lebih agresif
+                function forceInitModals() {
+                    // Reset flags untuk memaksa semua komponen dimuat ulang
+                    if (window.AppState) {
+                        window.AppState.modalsInitialized = false;
+                        window.AppState.initialized = false;
+                    }
 
-                if (typeof window.initBrandModals === 'function') {
-                    window.initBrandModals();
-                }
+                    // Inisialisasi semua modal yang mungkin ada
+                    if (typeof window.initModals === 'function') {
+                        window.initModals();
+                    }
 
-                // Panggil fungsi inisialisasi global
-                if (typeof window.initializeAlpineComponents === 'function') {
-                    window.initializeAlpineComponents();
-                }
+                    if (typeof window.initBrandModals === 'function') {
+                        window.initBrandModals();
+                    }
 
-                // Inisialisasi Alpine.js jika ada
-                if (typeof Alpine !== 'undefined' && Alpine.initTree) {
-                    Alpine.initTree(document.body);
+                    // Panggil fungsi inisialisasi global
+                    if (typeof window.initializeAlpineComponents === 'function') {
+                        window.initializeAlpineComponents();
+                    }
+
+                    // Inisialisasi Alpine.js jika ada
+                    if (typeof Alpine !== 'undefined' && Alpine.initTree) {
+                        Alpine.initTree(document.body);
+                    }
+
+                    // Tandai sebagai terinisialisasi
+                    if (window.AppState) {
+                        window.AppState.modalsInitialized = true;
+                    }
                 }
             },
 
@@ -367,14 +392,11 @@
                 if (typeof window.initBrandModals === 'function') {
                     window.initBrandModals();
                 }
-            }
+            },
         };
 
-        // Start initialization when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            AppManager.init();
-            AOS.init();
-        });
+        // Start initialization
+        AppManager.init();
     </script>
     <script>
         // Global initialization function for all Alpine.js components and modals
@@ -403,20 +425,35 @@
             // Delay slightly to ensure DOM is fully ready
             setTimeout(initializeAlpineComponents, 50);
 
-            // Handle AJAX 401 responses
+            // Check for errors in AJAX responses
             $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
                 if (jqXHR.status === 401) {
-                    console.log('Session expired, redirecting to login page');
+                    console.log('Received 401 response, attempting to refresh token');
 
-                    // Check if response contains redirect URL
-                    if (jqXHR.responseJSON && jqXHR.responseJSON.redirect) {
-                        window.location.href = jqXHR.responseJSON.redirect;
-                    } else {
-                        window.location.href = '/login';
-                    }
+                    // Try to refresh the token
+                    $.ajax({
+                        url: '/auth/refresh-token',
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                console.log('Token refreshed successfully, retrying original request');
+                                // Retry the original request
+                                $.ajax(ajaxSettings);
+                            } else {
+                                console.log('Token refresh failed, redirecting to login');
+                                window.location.href = '/login';
+                            }
+                        },
+                        error: function() {
+                            console.log('Token refresh failed with error, redirecting to login');
+                            window.location.href = '/login';
+                        }
+                    });
                 }
-            });
-        });
+            })
     </script>
     <!-- Stack for additional scripts -->
     @stack('scripts')

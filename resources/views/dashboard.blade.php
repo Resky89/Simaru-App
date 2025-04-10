@@ -95,7 +95,7 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body p-4">
                 <!-- Title -->
-                <h2 class="text-2xl font-medium text-[#232D42] font-['Inter'] mb-3">Asset By Status</h2>
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Asset By Status</h2>
 
                 <!-- Divider -->
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -148,7 +148,7 @@
             <div class="card-body p-4">
                 <!-- Title and Toggle -->
                 <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-2xl font-medium text-[#232D42] font-['Inter']">Asset By Categories</h2>
+                    <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins']">Asset By Categories</h2>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="displayToggle" class="sr-only peer">
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#213268]"></div>
@@ -186,13 +186,13 @@
                                          data-rotation="{{ 45 + $rotationDegrees }}"></div>
                                 </div>
                                 <div class="absolute inset-0 flex items-center justify-center">
-                                    <span class="number-value font-['Inter'] font-medium text-xl text-[#232D42] animate-count-up"
+                                    <span class="number-value font-['Poppins'] font-medium text-xl text-[#232D42] animate-count-up"
                                           data-target="{{ $category['count'] }}">0</span>
-                                    <span class="percent-value hidden font-['Inter'] font-medium text-xl text-[#232D42] animate-count-up"
+                                    <span class="percent-value hidden font-['Poppins'] font-medium text-xl text-[#232D42] animate-count-up"
                                           data-target="{{ $percentage }}">0%</span>
                                 </div>
                             </div>
-                            <div class="font-['Inter'] font-medium text-lg text-[#232D42]">{{ $category['subcategory_name'] }}</div>
+                            <div class="font-['Poppins'] font-medium text-lg text-[#232D42]">{{ $category['subcategory_name'] }}</div>
                         </div>
                     @empty
                         <div class="col-span-2 text-center py-4 text-gray-500">
@@ -210,7 +210,7 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body p-4">
                 <!-- Title -->
-                <h2 class="text-2xl font-medium text-[#232D42] font-['Inter'] mb-3">Upcoming Assets Calibration</h2>
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Upcoming Assets Calibration</h2>
 
                 <!-- Divider -->
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -221,12 +221,12 @@
                     <div class="flex justify-between items-center">
                         <div class="flex gap-4">
                             <div class="flex flex-col w-[173px]">
-                                <h3 class="text-lg font-['Inter'] font-medium text-[#232D42]">Infusion Pump XYZ</h3>
-                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">ICU Room 1</p>
+                                <h3 class="text-lg font-['Poppins'] font-medium text-[#232D42]">Infusion Pump XYZ</h3>
+                                <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">ICU Room 1</p>
                             </div>
                             <div class="flex flex-col w-[70px]">
-                                <p class="text-[14px] font-['Inter'] text-[#213268]">19 March</p>
-                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Wed</p>
+                                <p class="text-[14px] font-['Poppins'] text-[#213268]">19 March</p>
+                                <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">Wed</p>
                             </div>
                         </div>
                         <button class="flex items-center px-3 py-1.5 border border-[#213268] rounded">
@@ -241,12 +241,12 @@
                     <div class="flex justify-between items-center">
                         <div class="flex gap-4">
                             <div class="flex flex-col w-[173px]">
-                                <h3 class="text-lg font-['Inter'] font-medium text-[#232D42]">Ventilator ABC</h3>
-                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">NICU Room 1</p>
+                                <h3 class="text-lg font-['Poppins'] font-medium text-[#232D42]">Ventilator ABC</h3>
+                                <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">NICU Room 1</p>
                             </div>
                             <div class="flex flex-col w-[70px]">
-                                <p class="text-[14px] font-['Inter'] text-[#213268]">19 March</p>
-                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Wed</p>
+                                <p class="text-[14px] font-['Poppins'] text-[#213268]">19 March</p>
+                                <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">Wed</p>
                             </div>
                         </div>
                         <button class="flex items-center px-3 py-1.5 border border-[#213268] rounded">
@@ -261,12 +261,12 @@
                     <div class="flex justify-between items-center">
                         <div class="flex gap-4">
                             <div class="flex flex-col w-[173px]">
-                                <h3 class="text-lg font-['Inter'] font-medium text-[#232D42]">MRI Scanner</h3>
-                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Radiology</p>
+                                <h3 class="text-lg font-['Poppins'] font-medium text-[#232D42]">MRI Scanner</h3>
+                                <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">Radiology</p>
                             </div>
                             <div class="flex flex-col w-[82px]">
-                                <p class="text-[14px] font-['Inter'] text-[#213268]">23 March</p>
-                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Next Week</p>
+                                <p class="text-[14px] font-['Poppins'] text-[#213268]">23 March</p>
+                                <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">Next Week</p>
                             </div>
                         </div>
                         <button class="flex items-center px-3 py-1.5 bg-[#213268] rounded">
@@ -281,12 +281,12 @@
                     <div class="flex justify-between items-center">
                         <div class="flex gap-4">
                             <div class="flex flex-col w-[173px]">
-                                <h3 class="text-lg font-['Inter'] font-medium text-[#232D42]">Anesthesia Machine</h3>
-                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Operating Room</p>
+                                <h3 class="text-lg font-['Poppins'] font-medium text-[#232D42]">Anesthesia Machine</h3>
+                                <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">Operating Room</p>
                             </div>
                             <div class="flex flex-col w-[82px]">
-                                <p class="text-[14px] font-['Inter'] text-[#213268]">22 March</p>
-                                <p class="text-[14px] font-['Inter'] text-[#8A92A6]">Next Week</p>
+                                <p class="text-[14px] font-['Poppins'] text-[#213268]">22 March</p>
+                                <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">Next Week</p>
                             </div>
                         </div>
                         <button class="flex items-center px-3 py-1.5 border border-[#213268] rounded">
@@ -304,7 +304,7 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body p-4">
                 <!-- Title -->
-                <h2 class="text-2xl font-medium text-[#232D42] font-['Inter'] mb-3">Asset By Location</h2>
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Asset By Location</h2>
 
                 <!-- Divider -->
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -323,8 +323,8 @@
                         @endphp
                         <div class="w-full animate-fade-in" style="animation-delay: {{ $loop->index * 150 }}ms">
                             <div class="flex justify-between items-center mb-2">
-                                <div class="text-lg font-['Inter'] font-medium text-[#232D42]">{{ $location['room_name'] }}</div>
-                                <div class="text-lg font-['Inter'] font-medium text-[#232D42] animate-count-up" data-target="{{ $percentage }}">0%</div>
+                                <div class="text-lg font-['Poppins'] font-medium text-[#232D42]">{{ $location['room_name'] }}</div>
+                                <div class="text-lg font-['Poppins'] font-medium text-[#232D42] animate-count-up" data-target="{{ $percentage }}">0%</div>
                             </div>
                             <div class="relative" x-data="{ showTooltip: false }">
                                 <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
@@ -344,7 +344,7 @@
                                      x-transition:leave-end="opacity-0 transform -translate-y-2"
                                      class="absolute -top-8 {{ $tooltipPosition }}">
                                     <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
-                                        <span class="text-[14px] font-['Inter'] font-medium text-[#344054]">{{ $location['count'] }}</span>
+                                        <span class="text-[14px] font-['Poppins'] font-medium text-[#344054]">{{ $location['count'] }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -365,8 +365,8 @@
         <div class="flex justify-between items-center w-full">
             <!-- Month and Year -->
             <div class="flex items-center p-3 gap-3 bg-white">
-                <h2 id="currentMonth" class="text-2xl font-[Lato] font-black text-[#252525]"></h2>
-                <span id="currentYear" class="text-2xl font-[Lato] font-light text-[#252525]"></span>
+                <h2 id="currentMonth" class="text-2xl font-['Poppins'] font-black text-[#252525]"></h2>
+                <span id="currentYear" class="text-2xl font-['Poppins'] font-light text-[#252525]"></span>
             </div>
 
             <!-- Navigation -->
@@ -388,13 +388,13 @@
         <div class="flex flex-col gap-2 w-full">
             <!-- Days Header -->
             <div class="flex justify-between items-center pb-1 bg-white">
-                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Sun</div>
-                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Mon</div>
-                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Tue</div>
-                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Wed</div>
-                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Thu</div>
-                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Fri</div>
-                <div class="flex-1 text-center text-xs font-[Lato] text-[#252525] opacity-50">Sat</div>
+                <div class="flex-1 text-center text-xs font-['Poppins'] text-[#252525] opacity-50">Sun</div>
+                <div class="flex-1 text-center text-xs font-['Poppins'] text-[#252525] opacity-50">Mon</div>
+                <div class="flex-1 text-center text-xs font-['Poppins'] text-[#252525] opacity-50">Tue</div>
+                <div class="flex-1 text-center text-xs font-['Poppins'] text-[#252525] opacity-50">Wed</div>
+                <div class="flex-1 text-center text-xs font-['Poppins'] text-[#252525] opacity-50">Thu</div>
+                <div class="flex-1 text-center text-xs font-['Poppins'] text-[#252525] opacity-50">Fri</div>
+                <div class="flex-1 text-center text-xs font-['Poppins'] text-[#252525] opacity-50">Sat</div>
             </div>
 
             <!-- Calendar Days -->
@@ -407,7 +407,7 @@
     <!-- Recent Activity -->
     <div class="card bg-white shadow-xl p-4 md:p-7 lg:p-14 space-y-6">
         <!-- Title -->
-        <h2 class="text-2xl md:text-[32px] font-medium font-['Inter'] text-[#213268]">Recent Activity</h2>
+        <h2 class="text-2xl font-medium font-['Poppins'] text-[#213268]">Recent Activity</h2>
 
         <!-- Activity List -->
         <div class="space-y-3.5">
@@ -419,8 +419,8 @@
                 <div class="flex flex-col md:flex-row gap-4 pl-4">
                     <!-- Date & Time -->
                     <div class="flex md:flex-col gap-3 md:gap-3 min-w-[120px]">
-                        <p class="text-xl md:text-2xl font-medium font-['Inter'] text-black">04 Mar 25</p>
-                        <p class="text-lg md:text-xl font-medium font-['Inter'] text-[#757575]">16:00</p>
+                        <p class="text-xl font-medium font-['Poppins'] text-black">04 Mar 25</p>
+                        <p class="text-lg font-medium font-['Poppins'] text-[#757575]">16:00</p>
                     </div>
 
                     <!-- Vertical Divider (hidden on mobile) -->
@@ -428,8 +428,8 @@
 
                     <!-- Content -->
                     <div class="space-y-2 md:space-y-4">
-                        <p class="text-base md:text-lg font-normal font-['Inter'] text-[#757575]">Asset ID: 123456</p>
-                        <p class="text-lg md:text-2xl font-normal font-['Inter'] text-black">You change status from <span class="text-[#DAAE0F]">Checked Out</span> to <span class="text-[#7CB60C]">Available</span></p>
+                        <p class="text-base font-normal font-['Poppins'] text-[#757575]">Asset ID: 123456</p>
+                        <p class="text-xl font-normal font-['Poppins'] text-black">You change status from <span class="text-xl text-[#DAAE0F]">Checked Out</span> to <span class="text-xl text-[#7CB60C]">Available</span></p>
                     </div>
                 </div>
             </div>
@@ -442,8 +442,8 @@
                 <div class="flex flex-col md:flex-row gap-4 pl-4">
                     <!-- Date & Time -->
                     <div class="flex md:flex-col gap-3 md:gap-3 min-w-[120px]">
-                        <p class="text-xl md:text-2xl font-medium font-['Inter'] text-black">03 Mar 25</p>
-                        <p class="text-lg md:text-xl font-medium font-['Inter'] text-[#757575]">15:00</p>
+                        <p class="text-xl font-medium font-['Poppins'] text-black">03 Mar 25</p>
+                        <p class="text-lg font-medium font-['Poppins'] text-[#757575]">15:00</p>
                     </div>
 
                     <!-- Vertical Divider (hidden on mobile) -->
@@ -451,8 +451,8 @@
 
                     <!-- Content -->
                     <div class="space-y-2 md:space-y-4">
-                        <p class="text-base md:text-lg font-normal font-['Inter'] text-[#757575]">Asset ID: 125384</p>
-                        <p class="text-lg md:text-2xl font-normal font-['Inter'] text-black">Jhon Doe change status from <span class="text-[#DAAE0F]">Checked Out</span> to <span class="text-[#7CB60C]">Available</span></p>
+                        <p class="text-base font-normal font-['Poppins'] text-[#757575]">Asset ID: 125384</p>
+                        <p class="text-xl font-normal font-['Poppins'] text-black">Jhon Doe change status from <span class="text-xl text-[#DAAE0F]">Checked Out</span> to <span class="text-xl text-[#7CB60C]">Available</span></p>
                     </div>
                 </div>
             </div>
@@ -623,7 +623,7 @@ function generateCalendar(month, year) {
         const day = prevMonthLastDay - i;
         calendarDays.innerHTML += `
             <div class="p-2 min-h-[104px] bg-white border border-gray-100">
-                <div class="text-xs font-[Lato] text-center text-[#252525] opacity-50">${day}</div>
+                <div class="text-xs font-['Poppins'] text-center text-[#252525] opacity-50">${day}</div>
             </div>
         `;
     }
@@ -641,7 +641,7 @@ function generateCalendar(month, year) {
                 const bgColor = event.type === 'info' ? 'bg-[#E5F6FF]' :
                               event.type === 'urgent' ? 'bg-[#FFE5E5]' :
                               'bg-[#D2F0FF]';
-                return `<div class="px-2 py-1 ${bgColor} text-xs font-[Lato] mb-1 rounded">${event.title}</div>`;
+                return `<div class="px-2 py-1 ${bgColor} text-xs font-['Poppins'] mb-1 rounded">${event.title}</div>`;
             }).join('');
 
             // Add "view more" link if there are more than 3 events
@@ -656,7 +656,7 @@ function generateCalendar(month, year) {
 
         calendarDays.innerHTML += `
             <div class="p-2 min-h-[104px] ${isToday ? 'bg-gray-100' : 'bg-white'} border border-gray-100">
-                <div class="text-sm font-[Lato] ${isToday ? 'font-bold' : ''} mb-2">${day}</div>
+                <div class="text-sm font-['Poppins'] ${isToday ? 'font-bold' : ''} mb-2">${day}</div>
                 <div class="flex flex-col gap-1">
                     ${dayEvents}
                 </div>
@@ -669,7 +669,7 @@ function generateCalendar(month, year) {
     for (let day = 1; day <= remainingDays; day++) {
         calendarDays.innerHTML += `
             <div class="p-2 min-h-[104px] bg-white border border-gray-100">
-                <div class="text-xs font-[Lato] text-center text-[#252525] opacity-50">${day}</div>
+                <div class="text-xs font-['Poppins'] text-center text-[#252525] opacity-50">${day}</div>
             </div>
         `;
     }
