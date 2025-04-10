@@ -10,7 +10,7 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-xl md:text-2xl lg:text-[32px] font-semibold text-[#213268]">ASSET DETAILS</h1>
+                    <h1 class="text-xl md:text-2xl lg:text-[32px] font-semibold text-[#213268]">DETAIL ASSET</h1>
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto justify-start md:justify-end">
@@ -20,7 +20,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
-                                <span class="text-sm">Edit</span>
+                                <span class="text-sm">Ubah</span>
                                 </a>
                         @elseif($asset['current_status'] === 'available')
                             <!-- When status is available: Check Out, Dispose, Lost, Edit buttons -->
@@ -28,25 +28,25 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
-                                    <span>Check Out</span>
+                                    <span>Pinjam</span>
                                 </a>
                             <a href="javascript:void(0)" id="disposeAssetBtn" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                <span class="text-sm">Dispose</span>
+                                <span class="text-sm">Musnahkan</span>
                             </a>
                             <a href="javascript:void(0)" id="lostAssetBtn" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
-                                <span class="text-sm">Lost</span>
+                                <span class="text-sm">Hilang</span>
                             </a>
                             <a href="javascript:void(0)" id="editAssetBtn" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
-                                <span class="text-sm">Edit</span>
+                                <span class="text-sm">Ubah</span>
                             </a>
                         @elseif($asset['current_status'] === 'check out')
                             <!-- When status is check out: Check In, Dispose, Lost, Edit buttons -->
@@ -54,25 +54,25 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                 </svg>
-                                <span>Check In</span>
+                                <span>Kembalikan</span>
                             </a>
                                 <a href="#" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                    <span class="text-sm">Dispose</span>
+                                    <span class="text-sm">Musnahkan</span>
                                 </a>
                                 <a href="javascript:void(0)" id="lostAssetBtn" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
-                                    <span class="text-sm">Lost</span>
+                                    <span class="text-sm">Hilang</span>
                                 </a>
                         <a href="javascript:void(0)" id="editAssetBtn" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
-                            <span class="text-sm">Edit</span>
+                            <span class="text-sm">Ubah</span>
                         </a>
                         @elseif($asset['current_status'] === 'lost')
                             <!-- When status is lost: Found, Edit buttons -->
@@ -80,13 +80,13 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
-                                <span class="text-sm">Found</span>
+                                <span class="text-sm">Ditemukan</span>
                             </a>
                             <a href="javascript:void(0)" id="editAssetBtn" class="flex items-center justify-center gap-2 px-4 py-2 bg-[#203268] rounded-lg text-white">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
-                                <span class="text-sm">Edit</span>
+                                <span class="text-sm">Ubah</span>
                             </a>
                         @endif
                     </div>
@@ -112,7 +112,7 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            <span class="text-sm">No image available</span>
+                                            <span class="text-sm">Tidak ada gambar</span>
                                         </div>
                                     @endif
                                     <!-- Icon to flip to QR code -->
@@ -130,13 +130,12 @@
                                             <img src="{{ $asset['qr_base64'] }}"
                                                  alt="Asset QR Code"
                                                  class="w-full h-full object-contain">
-                                            <p class="text-xs font-medium mt-2">{{ $asset['asset_code'] }}</p>
                                         @else
                                             <div class="flex flex-col items-center justify-center text-gray-400">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1v-2a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" />
                                                 </svg>
-                                                <span class="text-sm">QR Code not available</span>
+                                                <span class="text-sm">QR Code tidak tersedia</span>
                                             </div>
                                         @endif
                                     </div>
@@ -179,42 +178,65 @@
                                 }
                             @endphp
                             <div class="{{ $statusColor }} py-0.5 px-3 rounded-md w-full max-w-[120px] text-center mt-2">
-                                <p class="text-xs text-white">{{ strtoupper($asset['current_status'] ?? 'UNKNOWN') }}</p>
+                                <p class="text-xs text-white">
+                                    @php
+                                        $statusText = 'UNKNOWN';
+                                        if(isset($asset['current_status'])) {
+                                            switch(strtolower($asset['current_status'])) {
+                                                case 'available':
+                                                    $statusText = 'TERSEDIA';
+                                                    break;
+                                                case 'check out':
+                                                    $statusText = 'DIPINJAM';
+                                                    break;
+                                                case 'lost':
+                                                    $statusText = 'HILANG';
+                                                    break;
+                                                case 'dispose':
+                                                    $statusText = 'DIMUSNAHKAN';
+                                                    break;
+                                                default:
+                                                    $statusText = strtoupper($asset['current_status']);
+                                            }
+                                        }
+                                    @endphp
+                                    {{ $statusText }}
+                                </p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Asset Information -->
                     <div class="flex-1 mt-4 lg:mt-0">
-                        <h2 class="text-xl font-semibold text-[#203268] mb-4">Asset Information</h2>
+                        <h2 class="text-xl font-semibold text-[#203268] mb-4">Informasi Asset</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="space-y-4">
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Categories</span>
+                                    <span class="w-[140px] font-semibold">Kategori</span>
                                     <span>{{ $asset['subcategory']['asset_type'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Sub Categories</span>
+                                    <span class="w-[140px] font-semibold">Sub Kategori</span>
                                     <span>{{ $asset['subcategory']['subcategory_name'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Room</span>
+                                    <span class="w-[140px] font-semibold">Ruangan</span>
                                     <span>{{ $asset['room']['room_name'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Building</span>
+                                    <span class="w-[140px] font-semibold">Gedung</span>
                                     <span>{{ $asset['room']['building']['building_name'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Brand</span>
+                                    <span class="w-[140px] font-semibold">Merek</span>
                                     <span>{{ $asset['brand']['brand_name'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Warranty Date</span>
+                                    <span class="w-[140px] font-semibold">Tanggal Berakhir Garansi</span>
                                     <span>{{ $asset['warranty_end_date'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Lost Date</span>
+                                    <span class="w-[140px] font-semibold">Tanggal Hilang</span>
                                     <span>
                                         @if($asset['current_status'] === 'lost' && isset($asset['updated_at']))
                                             @php
@@ -230,27 +252,27 @@
                             </div>
                             <div class="space-y-4">
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Model Number</span>
+                                    <span class="w-[140px] font-semibold">Nomor Model</span>
                                     <span>{{ $asset['model_number'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Serial Number</span>
+                                    <span class="w-[140px] font-semibold">Nomor Seri</span>
                                     <span>{{ $asset['serial_number'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Purchase Cost</span>
+                                    <span class="w-[140px] font-semibold">Harga Beli</span>
                                     <span>{{ number_format((float)($asset['purchase_cost'] ?? 0), 2) }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Purchase Date</span>
+                                    <span class="w-[140px] font-semibold">Tanggal Beli</span>
                                     <span>{{ $asset['purchase_date'] ?? '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Disposal Date</span>
+                                    <span class="w-[140px] font-semibold">Tanggal Dimusnahkan</span>
                                     <span>{{ $asset['current_status'] === 'disposed' ? ($asset['updated_at'] ?? '-') : '-' }}</span>
                                 </div>
                                 <div class="flex">
-                                    <span class="w-[140px] font-semibold">Condition</span>
+                                    <span class="w-[140px] font-semibold">Kondisi</span>
                                     <span>{{ ucfirst($asset['condition'] ?? '-') }}</span>
                                 </div>
                             </div>
@@ -260,7 +282,7 @@
 
                 <!-- Description Section -->
                 <div class="mt-4">
-                    <h2 class="text-xl font-semibold text-black mb-4">Description</h2>
+                    <h2 class="text-xl font-semibold text-black mb-4">Deskripsi</h2>
                     <p class="text-[#000000]">{{ $asset['description'] ?? '-' }}</p>
                 </div>
 
@@ -273,37 +295,37 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <span>Document</span>
+                                <span>Dokumen</span>
                             </button>
                             <button class="tab-btn flex-1 flex items-center justify-center gap-2 px-2 py-3 text-gray-500 hover:text-[#213268]" data-tab="history">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                History
+                                Riwayat
                             </button>
                             <button class="tab-btn flex-1 flex items-center justify-center gap-2 px-2 py-3 text-gray-500 hover:text-[#213268]" data-tab="schedule">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                Schedule
+                                Jadwal
                             </button>
                             <button class="tab-btn flex-1 flex items-center justify-center gap-2 px-2 py-3 text-gray-500 hover:text-[#213268]" data-tab="mutation">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                 </svg>
-                                Mutation
+                                Mutasi
                             </button>
                             <button class="tab-btn flex-1 flex items-center justify-center gap-2 px-2 py-3 text-gray-500 hover:text-[#213268]" data-tab="depreciation">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                Depreciation
+                                Penyusutan
                             </button>
                             <button class="tab-btn flex-1 flex items-center justify-center gap-2 px-2 py-3 text-gray-500 hover:text-[#213268]" data-tab="finance">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                                 </svg>
-                                Finance
+                                Keuangan
                             </button>
                         </div>
 
@@ -344,7 +366,7 @@
                 id="editAssetModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT ASSET</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Ubah Asset</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -359,17 +381,17 @@
                     <div class="p-6">
                         <div class="space-y-4">
                             <!-- Asset Information Section -->
-                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Asset Information</h3>
+                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Asset</h3>
 
                             <!-- Image upload -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Asset Image</label>
+                                <label class="block text-base font-semibold text-[#666666]">Gambar Asset</label>
                                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
                                     <div class="text-center">
                                         <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                         </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-blue-600">browse</span></p>
+                                        <p class="mt-1 text-sm text-gray-600">Unggah gambar Anda atau <span class="text-blue-600">cari</span></p>
                                         <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
                                     </div>
                                     <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
@@ -383,18 +405,18 @@
                             <!-- Basic Asset Details -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Asset Name</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Nama Asset</label>
                                     <input type="text" name="asset_name" id="edit_asset_name" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                        placeholder="Asset name">
+                                        placeholder="Nama Asset">
                                 </div>
 
                                 <!-- Subcategory Dropdown -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Subcategory</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Sub Kategori</label>
                                     <select name="subcategory_id" id="edit_subcategory_id" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select subcategory</option>
+                                        <option value="" disabled selected>Pilih sub kategori</option>
                                         @if(isset($subcategories))
                                             @foreach($subcategories as $subcategory)
                                                 <option value="{{ $subcategory['subcategory_id'] }}">{{ $subcategory['subcategory_name'] }}</option>
@@ -406,21 +428,21 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Condition</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Kondisi</label>
                                     <select name="condition" id="edit_condition" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                        <option value="good">Good</option>
-                                        <option value="slighly damage">Slightly Damage</option>
-                                        <option value="high damage">Highly Damage</option>
+                                        <option value="baik">Baik</option>
+                                        <option value="sedikit rusak">Sedikit Rusak</option>
+                                        <option value="sangat rusak">Sangat Rusak</option>
                                     </select>
                                 </div>
 
                                 <!-- Room Dropdown -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Room</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Ruangan</label>
                                     <select name="room_id" id="edit_room_id" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select room</option>
+                                        <option value="" disabled selected>Pilih ruangan</option>
                                         @foreach($rooms as $room)
                                             <option value="{{ $room['room_id'] }}">
                                                 {{ $room['room_name'] }} ({{ $room['building']['building_name'] ?? '-' }})
@@ -431,35 +453,35 @@
                             </div>
 
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Description</label>
+                                <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
                                 <textarea name="description" id="edit_description"
                                     class="w-full h-[100px] px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] resize-none"
-                                    placeholder="Asset description"></textarea>
+                                    placeholder="Deskripsi Asset"></textarea>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Model Number</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Nomor Model</label>
                                     <input type="text" name="model_number" id="edit_model_number"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                        placeholder="Model number">
+                                        placeholder="Nomor Model">
                                 </div>
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Serial Number</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Nomor Seri</label>
                                     <input type="text" name="serial_number" id="edit_serial_number"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                        placeholder="Serial number">
+                                        placeholder="Nomor Seri">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Purchase Date</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Tanggal Beli</label>
                                     <input type="date" name="purchase_date" id="edit_purchase_date"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
                                 </div>
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Purchase Cost</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Harga Beli</label>
                                     <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                         placeholder="0.00">
@@ -468,16 +490,16 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Warranty End Date</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Tanggal Berakhir Garansi</label>
                                     <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
                                 </div>
                                 <!-- Brand Dropdown -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Brand</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Merek</label>
                                     <select name="brand_id" id="edit_brand_id" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select brand</option>
+                                        <option value="" disabled selected>Pilih merek</option>
                                         @foreach($brands as $brand)
                                             <option value="{{ $brand['brand_id'] }}">{{ $brand['brand_name'] }}</option>
                                         @endforeach
@@ -487,7 +509,7 @@
 
                             <!-- Depreciation Toggle Switch -->
                             <div class="flex items-center justify-between border-t pt-4">
-                                <label for="edit_is_depreciable" class="text-base font-semibold text-[#666666]">Enable Asset Depreciation</label>
+                                <label for="edit_is_depreciable" class="text-base font-semibold text-[#666666]">Aktifkan Penyusutan Asset</label>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" name="is_depreciable" id="edit_is_depreciable" class="sr-only peer depreciation-toggle" value="1">
                                     <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
@@ -502,10 +524,10 @@
 
                             <!-- Depreciation Fields (Hidden by default) -->
                             <div id="edit_depreciation_fields" class="space-y-4 hidden border rounded-lg p-4 border-dashed border-gray-300">
-                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Depreciation Information</h3>
+                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Penyusutan</h3>
 
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Depreciation Method</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Metode Penyusutan</label>
                                     <select name="depreciation_method" id="edit_depreciation_method"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
                                         <option value="Straight Line">Straight Line</option>
@@ -517,13 +539,13 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Acquisition Cost</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Harga Perolehan</label>
                                         <input type="number" step="0.01" name="acquisition_cost" id="edit_acquisition_cost"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                             placeholder="0.00">
                                     </div>
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Salvage Value</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Nilai Sisa</label>
                                         <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                             placeholder="0.00">
@@ -532,13 +554,13 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Asset Life (Months)</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Usia Asset (Bulan)</label>
                                         <input type="number" name="asset_life_months" id="edit_asset_life_months"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                             placeholder="0">
                                     </div>
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Date Acquired</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Tanggal Perolehan</label>
                                         <input type="date" name="date_acquired" id="edit_date_acquired"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
                                     </div>
@@ -547,7 +569,7 @@
 
                             <!-- Submit Button -->
                             <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Update
+                                Perbarui
                             </button>
                         </div>
                     </div>
@@ -566,7 +588,7 @@
                 id="checkoutAssetModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">CHECK OUT</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Pinjam Asset</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -584,7 +606,7 @@
 
                             <!-- Check Out Date -->
                             <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Check Out Date</label>
+                                <label class="block text-base font-medium text-[#666666]">Tanggal Pinjam</label>
                                 <input type="date" name="checkout_date" required
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                     value="{{ date('Y-m-d') }}">
@@ -592,27 +614,27 @@
 
                             <!-- Check Out To -->
                             <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Check Out To</label>
+                                <label class="block text-base font-medium text-[#666666]">Pinjam Ke</label>
                                 <div class="flex items-center gap-8 mt-2">
                                     <div class="flex items-center">
                                         <input type="radio" id="employee" name="checkout_to_type" value="employee"
                                             class="w-4 h-4 text-[#213268]" checked>
-                                        <label for="employee" class="ml-2 text-sm font-medium text-[#666666]">Employee</label>
+                                        <label for="employee" class="ml-2 text-sm font-medium text-[#666666]">Karyawan</label>
                                     </div>
                                     <div class="flex items-center">
                                         <input type="radio" id="location" name="checkout_to_type" value="location"
                                             class="w-4 h-4 text-[#213268]">
-                                        <label for="location" class="ml-2 text-sm font-medium text-[#666666]">Location</label>
+                                        <label for="location" class="ml-2 text-sm font-medium text-[#666666]">Ruangan</label>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Employee Dropdown (shown when Employee radio is selected) -->
                             <div id="employeeDropdown" class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Select Employee</label>
+                                <label class="block text-base font-medium text-[#666666]">Pilih Karyawan</label>
                                 <select name="assigned_to" id="assigned_to" required
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                    <option value="" disabled selected>Select an employee</option>
+                                    <option value="" disabled selected>Pilih Karyawan</option>
                                     @foreach($employees as $employee)
                                         <option value="{{ $employee['employee_id'] }}">{{ $employee['first_name'] }} {{ $employee['last_name'] }}</option>
                                     @endforeach
@@ -623,9 +645,9 @@
                             <div id="locationDropdown" class="space-y-4 hidden">
                                 <!-- Building Dropdown -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-medium text-[#666666]">Select Building</label>
+                                    <label class="block text-base font-medium text-[#666666]">Pilih Gedung</label>
                                     <select id="building_selector" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select a building</option>
+                                        <option value="" disabled selected>Pilih Gedung</option>
                                         @foreach($buildings as $building)
                                             <option value="{{ $building['building_id'] }}">{{ $building['building_name'] }}</option>
                                         @endforeach
@@ -634,24 +656,24 @@
 
                                 <!-- Room Dropdown -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-medium text-[#666666]">Select Room</label>
+                                    <label class="block text-base font-medium text-[#666666]">Pilih Ruangan</label>
                                     <select name="location_id" id="location_id" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select a building first</option>
+                                        <option value="" disabled selected>Pilih Gedung terlebih dahulu</option>
                                     </select>
                                 </div>
                             </div>
 
                             <!-- Notes -->
                             <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Notes</label>
+                                <label class="block text-base font-medium text-[#666666]">Catatan</label>
                                 <textarea name="checkout_notes" rows="3"
                                     class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                    placeholder="Enter Notes"></textarea>
+                                    placeholder="Masukkan Catatan"></textarea>
                             </div>
 
                             <!-- Submit Button -->
                             <button type="submit" id="submitCheckout" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Checkout
+                                Pinjam
                             </button>
                         </div>
                     </div>
@@ -670,7 +692,7 @@
                 id="checkinAssetModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">CHECK IN</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Kembalikan Asset</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -688,26 +710,26 @@
 
                             <!-- Asset Condition -->
                             <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Asset Condition</label>
+                                <label class="block text-base font-medium text-[#666666]">Kondisi Asset</label>
                                 <select name="condition" id="return_condition" required
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                    <option value="GOOD">Good</option>
-                                    <option value="DAMAGED">Damaged</option>
-                                    <option value="NEEDS_REPAIR">Needs Repair</option>
+                                    <option value="GOOD">Baik</option>
+                                    <option value="DAMAGED">Rusak</option>
+                                    <option value="NEEDS_REPAIR">Perlu Perbaikan</option>
                                 </select>
                             </div>
 
                             <!-- Notes -->
                             <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Return Notes</label>
+                                <label class="block text-base font-medium text-[#666666]">Catatan Kembali</label>
                                 <textarea name="return_notes" rows="3" required
                                     class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                    placeholder="Enter details about the return"></textarea>
+                                    placeholder="Masukkan detail tentang pengembalian"></textarea>
                             </div>
 
                             <!-- Submit Button -->
                             <button type="submit" id="submitCheckin" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Check In
+                                Kembalikan
                             </button>
                         </div>
                     </div>
@@ -726,7 +748,7 @@
                 id="reportLostModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">REPORT AS LOST</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Laporan Asset Hilang</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -744,15 +766,15 @@
 
                             <!-- Loss Reason -->
                             <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Lost Reason</label>
+                                <label class="block text-base font-medium text-[#666666]">Alasan Hilang</label>
                                 <textarea name="loss_reason" rows="3" required
                                     class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                    placeholder="Enter details about why the asset is lost"></textarea>
+                                    placeholder="Masukkan detail tentang alasan asset hilang"></textarea>
                             </div>
 
                             <!-- Submit Button -->
                             <button type="submit" id="submitLostReport" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Report as Lost
+                                Laporan Hilang
                             </button>
                         </div>
                     </div>
@@ -771,7 +793,7 @@
                 id="foundAssetModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">REPORT ASSET AS FOUND</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Laporan Asset Ditemukan</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -789,15 +811,15 @@
 
                             <!-- Notes -->
                             <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Found Notes</label>
+                                <label class="block text-base font-medium text-[#666666]">Catatan Ditemukan</label>
                                 <textarea name="found_notes" rows="3" required
                                     class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                    placeholder="Detail where and how the asset was found"></textarea>
+                                    placeholder="Detail tempat dan cara asset ditemukan"></textarea>
                             </div>
 
                             <!-- Submit Button -->
                             <button type="submit" id="submitFound" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Report as Found
+                                Laporan Ditemukan
                             </button>
                         </div>
                     </div>
@@ -816,7 +838,7 @@
                 id="disposeAssetModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DISPOSE ASSET</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Penghapusan Asset</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -835,36 +857,36 @@
 
                             <!-- Disposal Method -->
                             <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Disposal Method</label>
+                                <label class="block text-base font-medium text-[#666666]">Metode Penghapusan</label>
                                 <select name="disposal_method" required
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                    <option value="SOLD">Sold</option>
-                                    <option value="DONATED">Donated</option>
-                                    <option value="RECYCLED">Recycled</option>
-                                    <option value="DESTROYED">Destroyed</option>
-                                    <option value="OTHER">Other</option>
+                                    <option value="SOLD">Terjual</option>
+                                    <option value="DONATED">Donasi</option>
+                                    <option value="RECYCLED">Daur Ulang</option>
+                                    <option value="DESTROYED">Hancurkan</option>
+                                    <option value="OTHER">Lainnya</option>
                                 </select>
                             </div>
 
                             <!-- Disposal Reason -->
                             <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Disposal Reason</label>
+                                <label class="block text-base font-medium text-[#666666]">Alasan Penghapusan</label>
                                 <textarea name="disposal_reason" rows="3" required
                                     class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                    placeholder="Enter reason for disposal"></textarea>
+                                    placeholder="Masukkan alasan penghapusan"></textarea>
                             </div>
 
                             <!-- Additional Notes -->
                             <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Additional Notes</label>
+                                <label class="block text-base font-medium text-[#666666]">Catatan Tambahan</label>
                                 <textarea name="disposal_notes" rows="3"
                                     class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                    placeholder="Enter any additional disposal information"></textarea>
+                                    placeholder="Masukkan informasi tambahan tentang penghapusan"></textarea>
                             </div>
 
                             <!-- Submit Button -->
                             <button type="submit" id="submitDispose" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Dispose Asset
+                                Penghapusan Asset
                             </button>
                         </div>
                     </div>
