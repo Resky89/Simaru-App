@@ -27,13 +27,13 @@
             </svg>
         </div>
 
-        <!-- User Profile -->
-        <div class="flex items-center gap-2 md:gap-3">
+        <!-- User Profile - Now clickable -->
+        <a href="{{ route('profile') }}" class="flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-90 transition-opacity">
             <img src="https://ui-avatars.com/api/?name=Austin+Robertson" alt="User" class="w-8 h-8 md:w-10 md:h-10 rounded-full">
             <div class="text-white hidden md:block">
                 <p class="text-sm font-medium">Austin Robertson</p>
                 <p class="text-xs opacity-60">Super Admin</p>
             </div>
-        </div>
+        </a>
     </div>
 </nav>
