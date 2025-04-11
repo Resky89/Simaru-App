@@ -35,7 +35,7 @@
 
         /* Ensure minimum font size */
         body, p, span, div, button, input, select, textarea {
-            font-size: max(10px, 0.75rem);
+            font-size: max(16px, 0.75rem);
         }
 
         /* Standard padding for content sections */
