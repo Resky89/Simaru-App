@@ -40,29 +40,44 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse($procurements as $procurement)
                             <tr>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                     <input type="checkbox" class="checkbox checkbox-sm" />
                                 </td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">1</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">-</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">-</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $procurement['procurement_code'] }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $procurement['title'] }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $procurement['justification'] }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                    {{ count($procurement['details'] ?? []) }}
+                                </td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                    {{ $procurement['requester']['first_name'] ?? '' }} {{ $procurement['requester']['last_name'] ?? '' }}
+                                </td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                    <span class="px-2 py-1 rounded-full text-xs
+                                        @if($procurement['status'] == 'Submitted') bg-blue-100 text-blue-800
+                                        @elseif($procurement['status'] == 'Approved') bg-green-100 text-green-800
+                                        @elseif($procurement['status'] == 'Rejected') bg-red-100 text-red-800
+                                        @else bg-gray-100 text-gray-800 @endif">
+                                        {{ $procurement['status'] }}
+                                    </span>
+                                </td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center gap-2">
-                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-request-btn">
+                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-request-btn"
+                                                data-id="{{ $procurement['procurement_id'] }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                             </svg>
                                         </button>
-                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-request-btn">
+                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-request-btn"
+                                                data-id="{{ $procurement['procurement_id'] }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </button>
-                                        <a href="{{ route('procurement.detail-request', ['id' => 1]) }}" class="text-[#3D3D3D] hover:text-[#213268]">
+                                        <a href="{{ route('procurement.detail-request', ['id' => $procurement['procurement_id']]) }}" class="text-[#3D3D3D] hover:text-[#213268]">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12s3-6 10-6 10 6 10 6-3 6-10 6-10-6-10-6z" />
@@ -71,37 +86,11 @@
                                     </div>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                    <input type="checkbox" class="checkbox checkbox-sm" />
-                                </td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">2</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">-</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">-</td>
-                                <td class="p-3 border-t border-[#EEF1F4]">
-                                    <div class="flex justify-center gap-2">
-                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-request-btn">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                            </svg>
-                                        </button>
-                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-request-btn">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                        <a href="{{ route('procurement.detail-request', ['id' => 2]) }}" class="text-[#3D3D3D] hover:text-[#213268]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12s3-6 10-6 10 6 10 6-3 6-10 6-10-6-10-6z" />
-                                            </svg>
-                                        </a>
-                                    </div>
-                                </td>
+                                <td colspan="8" class="p-3 text-center text-gray-500">No procurement requests found</td>
                             </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -109,151 +98,128 @@
                 <!-- Pagination -->
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div class="flex gap-2">
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
+                        @if(isset($pagination) && is_array($pagination))
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                   onclick="changePage({{ ($pagination['current_page'] ?? 1) - 1 }})"
+                                   {{ ($pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                             Prev
                         </button>
-                        <div class="flex gap-2">
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">1</button>
-                            <button class="w-8 h-8 flex items-center justify-center bg-[#213268] rounded text-white text-sm">2</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">3</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">4</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">5</button>
-                            <button class="px-2 text-sm">...</button>
-                            <button class="w-8 h-8 flex items-center justify-center border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">20</button>
+
+                            <div class="flex gap-1">
+                                @php
+                                    $currentPage = $pagination['current_page'] ?? 1;
+                                    $totalPages = $pagination['total_pages'] ?? 1;
+                                    $startPage = max(1, min($currentPage - 2, $totalPages - 4));
+                                    $endPage = min($totalPages, max(5, $currentPage + 2));
+                                @endphp
+
+                                @for ($i = $startPage; $i <= $endPage; $i++)
+                                <button class="w-8 h-8 {{ $i == $currentPage ? 'bg-[#213268] text-white' : 'border border-[#D8DAE5] text-[#213268]' }} rounded text-sm hover:bg-gray-50 {{ $i == $currentPage ? '' : 'hover:bg-gray-100' }}"
+                                       onclick="changePage({{ $i }})">
+                                    {{ $i }}
+                                </button>
+                                @endfor
                         </div>
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
+
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                   onclick="changePage({{ ($pagination['current_page'] ?? 1) + 1 }})"
+                                   {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
                             Next
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
-                    </div>
-
-                    <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50">
-                        10 per page
+                        @else
+                            <!-- Default pagination when no data -->
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                                Prev
+                    </button>
+                            <button class="w-8 h-8 bg-[#213268] text-white rounded text-sm">1</button>
+                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@endsection
-
-<!-- Modal Add Request -->
-<div id="requestAssetModal" class="fixed inset-0 z-50 hidden">
-    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-    <div class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                id="requestModalContent">
-                <!-- Header -->
-                <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">REQUEST ASSET</h2>
-                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                        @endif
                 </div>
 
-                <!-- Form -->
-                <div class="p-6">
-                    <div class="space-y-4 max-w-[400px] mx-auto">
-                        <!-- Title Input -->
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Title</label>
-                            <input type="text"
-                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                placeholder="Enter Title">
-                        </div>
-
-                        <!-- Justification Input -->
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Justification</label>
-                            <textarea
-                                class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                placeholder="Enter Justification" rows="3"></textarea>
-                        </div>
-
-                        <!-- Quantity Input -->
-                        <div class="space-y-2">
-                            <label class="block text-base font-semibold text-[#666666]">Quantity</label>
-                            <input type="number"
-                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                placeholder="Enter Quantity">
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                            Submit Request
-                        </button>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-600">
+                            @if(isset($pagination) && is_array($pagination))
+                                @php
+                                    $currentPage = $pagination['current_page'] ?? 1;
+                                    $perPage = $pagination['limit'] ?? 10;
+                                    $total = $pagination['total_items'] ?? count($procurements);
+                                    $from = ($currentPage - 1) * $perPage + 1;
+                                    $to = min($currentPage * $perPage, $total);
+                                @endphp
+                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                            @else
+                                Showing 1 to {{ count($procurements) }} of {{ count($procurements) }} entries
+                            @endif
+                        </span>
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
+                            <option value="10" {{ isset($pagination['limit']) && $pagination['limit'] == 10 ? 'selected' : '' }}>10 per page</option>
+                            <option value="25" {{ isset($pagination['limit']) && $pagination['limit'] == 25 ? 'selected' : '' }}>25 per page</option>
+                            <option value="50" {{ isset($pagination['limit']) && $pagination['limit'] == 50 ? 'selected' : '' }}>50 per page</option>
+                        </select>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@if(isset($error))
+    <div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
+        <div class="flex items-center">
+            <div class="py-1">
+                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold">Error!</p>
+                <p>{{ $error }}</p>
+            </div>
+            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+        </div>
+    </div>
+@endif
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const requestAssetBtn = document.getElementById('requestAssetBtn');
-        const requestAssetModal = document.getElementById('requestAssetModal');
-        const closeButtons = document.querySelectorAll('.close-modal');
+        // Pagination functions
+        window.changePage = function(page) {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('page', page);
+            window.location.href = '{{ route("procurement.request") }}?' + urlParams.toString();
+        };
 
-        function openModal(modal, content) {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-            }, 10);
-        }
+        window.changePerPage = function(limit) {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('limit', limit);
+            urlParams.set('page', 1); // Reset to first page when changing limit
+            window.location.href = '{{ route("procurement.request") }}?' + urlParams.toString();
+        };
 
-        function closeModal(modal, content) {
-            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
-
-        // Request Asset Modal
-        requestAssetBtn.addEventListener('click', () => {
-            openModal(requestAssetModal, requestAssetModal.querySelector('[id$="ModalContent"]'));
-        });
-
-        // Close Modal Handlers
-        closeButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const modal = button.closest('[id$="Modal"]');
-                const content = modal.querySelector('[id$="ModalContent"]');
-                closeModal(modal, content);
+        // Add event listener for edit buttons
+        const editButtons = document.querySelectorAll('.edit-request-btn');
+        editButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                const procurementId = this.getAttribute('data-id');
+                window.location.href = '{{ route("procurement.form-request") }}?id=' + procurementId;
             });
-        });
-
-        // Close on outside click
-        requestAssetModal.addEventListener('click', (e) => {
-            if (e.target === requestAssetModal) {
-                const content = requestAssetModal.querySelector('[id$="ModalContent"]');
-                closeModal(requestAssetModal, content);
-            }
-        });
-
-        // Close on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (!requestAssetModal.classList.contains('hidden')) {
-                    const content = requestAssetModal.querySelector('[id$="ModalContent"]');
-                    closeModal(requestAssetModal, content);
-                }
-            }
         });
     });
 </script>
 @endpush
+@endsection

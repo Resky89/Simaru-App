@@ -15,32 +15,36 @@
 
                 <!-- Form -->
                 <form id="requestForm" class="w-full space-y-6">
+                    @csrf
+                    <input type="hidden" id="procurement_id" name="procurement_id">
+
                     <!-- Title -->
                     <div class="space-y-2">
                         <label class="block text-base font-semibold text-[#666666]">Request Title</label>
-                        <input type="text"
+                        <input type="text" id="title" name="title"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Request Title">
+                            placeholder="Request Title" required>
                     </div>
 
                     <!-- Priority  -->
                     <div class="space-y-2">
                         <label class="block text-base font-semibold text-[#666666]">Priority</label>
-                        <select
-                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                        <select id="priority" name="priority"
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                            required>
                             <option value="" disabled selected>Select priority</option>
-                            <option value="high">High</option>
-                            <option value="medium">Medium</option>
-                            <option value="low">Low</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
                         </select>
                     </div>
 
                      <!-- Justification -->
                      <div class="space-y-2">
                         <label class="block text-base font-semibold text-[#666666]">Justification</label>
-                        <textarea
+                        <textarea id="justification" name="justification"
                             class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Justification" rows="3"></textarea>
+                            placeholder="Justification" rows="3" required></textarea>
                     </div>
 
                     <!-- Item List -->
@@ -60,33 +64,33 @@
                                     <!-- Item Name -->
                                     <div class="space-y-2">
                                         <label class="block text-sm font-medium text-[#666666]">Asset Name</label>
-                                        <input type="text"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Asset Name">
+                                        <input type="text" name="details[0][asset_name]"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
+                                            placeholder="Asset Name" required>
                                     </div>
 
                                     <!-- Quantity -->
                                     <div class="space-y-2">
                                         <label class="block text-sm font-medium text-[#666666]">Qty</label>
-                                        <input type="number"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Qty">
+                                        <input type="number" name="details[0][quantity]"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 quantity"
+                                            placeholder="Qty" min="1" required>
                                     </div>
 
                                     <!-- Unit Price -->
                                     <div class="space-y-2">
                                         <label class="block text-sm font-medium text-[#666666]">Unit Price</label>
-                                        <input type="number"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Unit Price">
+                                        <input type="number" name="details[0][estimated_unit_price]"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 unit-price"
+                                            placeholder="Unit Price" min="0" required>
                                     </div>
                                 </div>
 
                                 <!-- Specifications -->
                                 <div class="space-y-2">
                                     <label class="block text-sm font-medium text-[#666666]">Specifications</label>
-                                    <textarea
-                                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                    <textarea name="details[0][specifications]"
+                                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 specifications"
                                         placeholder="Specifications" rows="2"></textarea>
                                 </div>
                             </div>
@@ -116,6 +120,44 @@
         </div>
     </div>
 </div>
+
+<!-- Success Modal -->
+<div id="successModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="fixed inset-0 bg-black opacity-50"></div>
+    <div class="bg-white p-6 rounded-lg shadow-xl z-10 w-full max-w-md">
+        <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">Success!</h3>
+            <p class="mt-2 text-sm text-gray-500" id="successMessage">Your request has been submitted successfully.</p>
+            <div class="mt-4">
+                <button id="successModalClose" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451]">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div id="errorModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="fixed inset-0 bg-black opacity-50"></div>
+    <div class="bg-white p-6 rounded-lg shadow-xl z-10 w-full max-w-md">
+        <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">Error!</h3>
+            <p class="mt-2 text-sm text-gray-500" id="errorMessage">An error occurred. Please try again.</p>
+            <div class="mt-4">
+                <button id="errorModalClose" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -124,6 +166,67 @@
         const addItemBtn = document.getElementById('addItemBtn');
         const itemContainer = document.getElementById('itemContainer');
         const requestForm = document.getElementById('requestForm');
+        const successModal = document.getElementById('successModal');
+        const errorModal = document.getElementById('errorModal');
+        const successModalClose = document.getElementById('successModalClose');
+        const errorModalClose = document.getElementById('errorModalClose');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Get procurement ID from URL if present (for edit mode)
+        const urlParams = new URLSearchParams(window.location.search);
+        const procurementId = urlParams.get('id');
+
+        // If procurement ID exists, we're in edit mode
+        if (procurementId) {
+            // Set the hidden procurement_id field
+            document.getElementById('procurement_id').value = procurementId;
+
+            // Load procurement data
+            loadProcurementData(procurementId);
+        }
+
+        // Function to load existing procurement data
+        function loadProcurementData(id) {
+            fetch(`/procurement/procurements/${id}`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch procurement data');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status && data.data) {
+                    const procurement = data.data;
+
+                    // Fill in basic info
+                    document.getElementById('title').value = procurement.title;
+                    document.getElementById('priority').value = procurement.priority;
+                    document.getElementById('justification').value = procurement.justification;
+
+                    // Clear existing item entries
+                    itemContainer.innerHTML = '';
+
+                    // Add item entries for each detail
+                    procurement.details.forEach((detail, index) => {
+                        addItemEntry(index, detail);
+                    });
+
+                    // Update delete buttons visibility
+                    updateDeleteButtons();
+                } else {
+                    showError('Failed to load procurement data');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Failed to load procurement data: ' + error.message);
+            });
+        }
 
         // Function to update delete buttons visibility
         function updateDeleteButtons() {
@@ -141,7 +244,7 @@
         }
 
         // Add new item entry
-        addItemBtn.addEventListener('click', function() {
+        function addItemEntry(index, data = null) {
             const newItem = document.createElement('div');
             newItem.className = 'item-entry p-6 border border-[#CCCCCC] rounded-lg relative';
             newItem.innerHTML = `
@@ -156,34 +259,34 @@
                     <!-- Item Name -->
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-[#666666]">Asset Name</label>
-                        <input type="text"
-                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Asset name">
+                        <input type="text" name="details[${index}][asset_name]"
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
+                            placeholder="Asset name" required value="${data ? data.asset_name : ''}">
                     </div>
 
                     <!-- Quantity -->
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-[#666666]">Qty</label>
-                        <input type="number"
-                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Qty">
+                        <input type="number" name="details[${index}][quantity]"
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 quantity"
+                            placeholder="Qty" min="1" required value="${data ? data.quantity : ''}">
                     </div>
 
                     <!-- Unit Price -->
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-[#666666]">Unit Price</label>
-                        <input type="number"
-                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Unit Price">
+                        <input type="number" name="details[${index}][estimated_unit_price]"
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 unit-price"
+                            placeholder="Unit Price" min="0" required value="${data ? data.estimated_unit_price : ''}">
                     </div>
                 </div>
 
                 <!-- Specifications -->
                 <div class="space-y-2">
                     <label class="block text-sm font-medium text-[#666666]">Specifications</label>
-                    <textarea
-                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                        placeholder="Specifications" rows="2"></textarea>
+                    <textarea name="details[${index}][specifications]"
+                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 specifications"
+                        placeholder="Specifications" rows="2">${data ? data.specifications || '' : ''}</textarea>
                 </div>
             `;
 
@@ -195,23 +298,58 @@
                 newItem.remove();
                 // Update delete buttons after removing an item
                 updateDeleteButtons();
+                // Update input names
+                updateInputNames();
             });
+        }
 
+        // Add new item when clicking the add button
+        addItemBtn.addEventListener('click', function() {
+            const itemCount = itemContainer.querySelectorAll('.item-entry').length;
+            addItemEntry(itemCount);
             // Update delete buttons after adding a new item
             updateDeleteButtons();
         });
 
-        // Delegate event listener for delete buttons
-        itemContainer.addEventListener('click', function(e) {
-            if (e.target.closest('.remove-item-btn')) {
-                const items = itemContainer.querySelectorAll('.item-entry');
+        // Function to update input names after removing items
+        function updateInputNames() {
+            const items = itemContainer.querySelectorAll('.item-entry');
+            items.forEach((item, index) => {
+                const assetName = item.querySelector('.asset-name');
+                const quantity = item.querySelector('.quantity');
+                const unitPrice = item.querySelector('.unit-price');
+                const specifications = item.querySelector('.specifications');
+                const assetJustification = item.querySelector('.asset-justification');
 
-                // Don't allow deletion if there's only one item
-                if (items.length > 1) {
-                    e.target.closest('.item-entry').remove();
-                    updateDeleteButtons();
-                }
-            }
+                assetName.name = `details[${index}][asset_name]`;
+                quantity.name = `details[${index}][quantity]`;
+                unitPrice.name = `details[${index}][estimated_unit_price]`;
+                specifications.name = `details[${index}][specifications]`;
+                assetJustification.name = `details[${index}][justification]`;
+            });
+        }
+
+        // Show success modal
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successModal.classList.remove('hidden');
+        }
+
+        // Show error modal
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorModal.classList.remove('hidden');
+        }
+
+        // Close success modal and redirect
+        successModalClose.addEventListener('click', function() {
+            successModal.classList.add('hidden');
+            window.location.href = '{{ route("procurement.request") }}';
+        });
+
+        // Close error modal
+        errorModalClose.addEventListener('click', function() {
+            errorModal.classList.add('hidden');
         });
 
         // Initialize delete buttons visibility
@@ -221,10 +359,90 @@
         requestForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Here you would collect all the form data and send it to the server
-            alert('Form submitted! In a real application, this would save the request.');
+            // Collect form data
+            const formData = new FormData(requestForm);
+            const data = {};
 
-            // You can implement AJAX submission or form redirect as needed
+            // Convert FormData to object
+            for (const [key, value] of formData.entries()) {
+                // Handle nested objects (for details array)
+                if (key.includes('[')) {
+                    const mainKey = key.substring(0, key.indexOf('['));
+                    const subKey = key.substring(key.indexOf('[') + 1, key.indexOf(']'));
+                    const subSubKey = key.includes('][') ? key.substring(key.lastIndexOf('[') + 1, key.lastIndexOf(']')) : null;
+
+                    if (!data[mainKey]) {
+                        data[mainKey] = [];
+                    }
+
+                    if (!data[mainKey][subKey]) {
+                        data[mainKey][subKey] = {};
+                    }
+
+                    // Convert numeric fields to numbers
+                    let processedValue = value;
+                    if (subSubKey === 'quantity' || subSubKey === 'estimated_unit_price') {
+                        processedValue = Number(value);
+                    }
+
+                    if (subSubKey) {
+                        data[mainKey][subKey][subSubKey] = processedValue;
+                    } else {
+                        data[mainKey][subKey] = processedValue;
+                    }
+                } else {
+                    data[key] = value;
+                }
+            }
+
+            // Convert details object to array
+            if (data.details) {
+                const detailsArray = [];
+                Object.keys(data.details).forEach(key => {
+                    detailsArray.push(data.details[key]);
+                });
+                data.details = detailsArray;
+            }
+
+            // Determine if this is a create or update operation
+            const isUpdate = procurementId ? true : false;
+            const url = isUpdate
+                ? `/procurement/procurements/${procurementId}`
+                : '/procurement/procurements';
+            const method = isUpdate ? 'PUT' : 'POST';
+
+            // Get CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // Send the request
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-HTTP-Method-Override': isUpdate ? 'PUT' : 'POST'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.message || 'An error occurred');
+                    });
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result.status) {
+                    showSuccess(isUpdate ? 'Procurement updated successfully' : 'Procurement created successfully');
+                } else {
+                    showError(result.message || 'An error occurred');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError(error.message || 'An error occurred while processing your request');
+            });
         });
     });
 </script>

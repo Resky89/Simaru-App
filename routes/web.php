@@ -18,6 +18,7 @@ use App\Http\Controllers\AssetHistoryController;
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Controllers\BrandController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ProcurementController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -182,9 +183,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Procurement Routes
     Route::prefix('procurement')->name('procurement.')->group(function () {
         // Request Management
-        Route::get('/request', function () {
-            return view('Procurement.Request.Request');
-        })->name('request');
+        Route::get('/request', [ProcurementController::class, 'index'])->name('request');
         Route::get('/form-request', function () {
             return view('Procurement.Request.FormRequest');
         })->name('form-request');
@@ -227,6 +226,11 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/detail-receipt/{id?}', function ($id = null) {
             return view('Procurement.Receipt.DetailReceipt', ['id' => $id]);
         })->name('detail-receipt');
+
+        // Inside the procurement route group
+        Route::post('/procurements', [ProcurementController::class, 'store'])->name('store');
+        Route::put('/procurements/{id}', [ProcurementController::class, 'update'])->name('update');
+        Route::get('/procurements/{id}', [ProcurementController::class, 'getOne'])->name('getOne');
     });
 
     //-------------------------------------------------------------------------
@@ -282,6 +286,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Asset History routes
     Route::get('/asset-histories/{id}', [AssetHistoryController::class, 'getAssetHistory'])->name('asset-histories.get');
+
+    // Procurement routes
+    Route::get('/procurements', [ProcurementController::class, 'index']);
 });
 
 // Fallback route for 404 errors
