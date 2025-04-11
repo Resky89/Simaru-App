@@ -54,6 +54,20 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'asset_url' => env('ASSET_URL'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Backend URL
+    |--------------------------------------------------------------------------
+    |
+    | This URL is used for connecting to the Node.js backend that serves
+    | assets like QR code images. Set this to the root URL of your Node backend.
+    |
+    */
+
+    'backend_url' => env('BACKEND_URL', 'http://localhost:5000'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
