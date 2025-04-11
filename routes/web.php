@@ -183,49 +183,49 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::prefix('procurement')->name('procurement.')->group(function () {
         // Request Management
         Route::get('/request', function () {
-            return view('Procurement.Request');
+            return view('Procurement.Request.Request');
         })->name('request');
         Route::get('/form-request', function () {
-            return view('Procurement.FormRequest');
+            return view('Procurement.Request.FormRequest');
         })->name('form-request');
         Route::get('/detail-request/{id?}', function ($id = null) {
-            return view('Procurement.DetailRequest', ['id' => $id]);
+            return view('Procurement.Request.DetailRequest', ['id' => $id]);
         })->name('detail-request');
 
         // Price Comparison
         Route::get('/price-comparison', function () {
-            return view('Procurement.PriceComparison');
+            return view('Procurement.Comparison.PriceComparison');
         })->name('price-comparison');
         Route::get('/form-comparison/{id?}', function ($id = null) {
-            return view('Procurement.FormComparison', ['id' => $id]);
+            return view('Procurement.Comparison.FormComparison', ['id' => $id]);
         })->name('form-comparison');
         Route::get('/form-vendor-comparison/{id?}', function ($id = null) {
-            return view('Procurement.FormComparisonVendor', ['id' => $id]);
+            return view('Procurement.Comparison.FormComparisonVendor', ['id' => $id]);
         })->name('form-vendor-comparison');
         Route::get('/detail-comparison/{id?}', function ($id = null) {
-            return view('Procurement.DetailComparison', ['id' => $id]);
+            return view('Procurement.Comparison.DetailComparison', ['id' => $id]);
         })->name('detail-comparison');
 
         // Purchase Order
         Route::get('/purchase-order', function () {
-            return view('Procurement.PurchaseOrder');
+            return view('Procurement.PurchaseOrder.PurchaseOrder');
         })->name('purchase-order');
         Route::get('/form-purchase-order/{id?}', function ($id = null) {
-            return view('Procurement.FormPurchaseOrder', ['id' => $id]);
+            return view('Procurement.PurchaseOrder.FormPurchaseOrder', ['id' => $id]);
         })->name('form-purchase-order');
         Route::get('/detail-purchase-order/{id?}', function ($id = null) {
-            return view('Procurement.DetailPurchaseOrder', ['id' => $id]);
+            return view('Procurement.PurchaseOrder.DetailPurchaseOrder', ['id' => $id]);
         })->name('detail-purchase-order');
 
         // Receipt
         Route::get('/receipt', function () {
-            return view('Procurement.Receipt');
+            return view('Procurement.Receipt.Receipt');
         })->name('receipt');
         Route::get('/form-receipt/{id?}', function ($id = null) {
-            return view('Procurement.FormReceipt', ['id' => $id]);
+            return view('Procurement.Receipt.FormReceipt', ['id' => $id]);
         })->name('form-receipt');
         Route::get('/detail-receipt/{id?}', function ($id = null) {
-            return view('Procurement.DetailReceipt', ['id' => $id]);
+            return view('Procurement.Receipt.DetailReceipt', ['id' => $id]);
         })->name('detail-receipt');
     });
 
