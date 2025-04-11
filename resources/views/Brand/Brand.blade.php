@@ -22,19 +22,6 @@
                     </button>
                 </div>
 
-                <!-- Alert Messages -->
-                @if(session('success'))
-                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded" role="alert">
-                        <p>{{ session('success') }}</p>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded" role="alert">
-                        <p>{{ session('error') }}</p>
-                    </div>
-                @endif
-
                 <!-- Brand Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full">
@@ -79,37 +66,37 @@
                 </div>
 
                 <!-- Pagination -->
-                @if(isset($brands_pagination) && $brands_pagination['last_page'] > 1)
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="flex gap-2">
-                        @php
-                            $currentPage = $brands_pagination['current_page'] ?? 1;
-                            $lastPage = $brands_pagination['last_page'] ?? 1;
-                        @endphp
-
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ $currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
-                               onclick="{{ $currentPage > 1 ? 'changePage('.($currentPage - 1).')' : 'void(0)' }}"
-                               {{ $currentPage <= 1 ? 'disabled' : '' }}>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if(isset($brands_pagination))
+                <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+                    <div class="flex items-center space-x-2">
+                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($brands_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($brands_pagination['current_page'] ?? 1) - 1 }})"
+                               {{ ($brands_pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                             Prev
                         </button>
 
                         <div class="flex gap-2">
+                            @php
+                                $currentPage = $brands_pagination['current_page'] ?? 1;
+                                $lastPage = $brands_pagination['last_page'] ?? 1;
+                            @endphp
+
                             @for($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
-                                <button onclick="changePage({{ $i }})"
-                                       class="w-8 h-8 flex items-center justify-center {{ $i == $currentPage ? 'bg-[#213268] text-white' : 'border border-[#D8DAE5] text-[#213268] hover:bg-gray-50' }} rounded text-sm">
+                                <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                     {{ $i }}
-                                </button>
+                                </a>
                             @endfor
                         </div>
 
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ $currentPage >= $lastPage ? 'opacity-50 cursor-not-allowed' : '' }}"
-                               onclick="{{ $currentPage < $lastPage ? 'changePage('.($currentPage + 1).')' : 'void(0)' }}"
-                               {{ $currentPage >= $lastPage ? 'disabled' : '' }}>
+                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($brands_pagination['current_page'] ?? 1) >= ($brands_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($brands_pagination['current_page'] ?? 1) + 1 }})"
+                               {{ ($brands_pagination['current_page'] ?? 1) >= ($brands_pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
                             Next
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
@@ -117,7 +104,6 @@
 
                     <div class="flex items-center gap-2">
                         <span class="text-sm text-gray-600">
-                            @if(isset($brands_pagination) && is_array($brands_pagination))
                                 @php
                                     $currentPage = $brands_pagination['current_page'] ?? 1;
                                     $perPage = $brands_pagination['per_page'] ?? 10;
@@ -126,15 +112,12 @@
                                     $to = min($currentPage * $perPage, $total);
                                 @endphp
                                 Showing {{ $from }} to {{ $to }} of {{ $total }} entries
-                            @else
-                                Showing 1 to {{ count($brands ?? []) }} of {{ count($brands ?? []) }} entries
-                            @endif
                         </span>
                         <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
-                            <option value="10" {{ request()->input('limit') == 10 ? 'selected' : '' }}>10 per page</option>
-                            <option value="25" {{ request()->input('limit') == 25 ? 'selected' : '' }}>25 per page</option>
-                            <option value="50" {{ request()->input('limit') == 50 ? 'selected' : '' }}>50 per page</option>
-                            <option value="100" {{ request()->input('limit') == 100 ? 'selected' : '' }}>100 per page</option>
+                            <option value="10" {{ isset($brands_pagination['per_page']) && $brands_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per page</option>
+                            <option value="25" {{ isset($brands_pagination['per_page']) && $brands_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per page</option>
+                            <option value="50" {{ isset($brands_pagination['per_page']) && $brands_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per page</option>
+                            <option value="100" {{ isset($brands_pagination['per_page']) && $brands_pagination['per_page'] == 100 ? 'selected' : '' }}>100 per page</option>
                         </select>
                     </div>
                 </div>
@@ -221,8 +204,8 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <form action="{{ route('brands.store') }}" method="POST">
-                        @csrf
+                <form action="{{ route('brands.store') }}" method="POST">
+                    @csrf
                         <div class="space-y-4 max-w-[400px] mx-auto">
                             <!-- Brand Input -->
                             <div class="space-y-2">
@@ -238,7 +221,7 @@
                             </button>
                         </div>
                     </form>
-                </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -263,9 +246,9 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <form id="editBrandForm" method="POST">
-                        @csrf
-                        @method('PUT')
+                <form id="editBrandForm" method="POST">
+                    @csrf
+                    @method('PUT')
                         <div class="space-y-4 max-w-[400px] mx-auto">
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">Brand Name</label>
@@ -278,7 +261,7 @@
                             </button>
                         </div>
                     </form>
-                </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -342,7 +325,7 @@
             showToast("{{ session('error') }}", 'error');
         @endif
 
-        // Page navigation functions
+    // Page navigation functions
         window.changePage = function(page) {
             const url = new URL(window.location.href);
             url.searchParams.set('page', page);
@@ -354,24 +337,24 @@
             url.searchParams.set('limit', limit);
             url.searchParams.set('page', 1); // Reset to first page when changing limit
             window.location.href = url.toString();
-        }
+    }
 
-        // Modal functionality
-        function openModal(modal, content) {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-            }, 10);
-        }
+    // Modal functionality
+    function openModal(modal, content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+            content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+        }, 10);
+    }
 
-        function closeModal(modal, content) {
-            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
+    function closeModal(modal, content) {
+        content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+        content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
 
         // Handle Edit Brand button click
         document.querySelectorAll('.edit-brand-btn').forEach(button => {
