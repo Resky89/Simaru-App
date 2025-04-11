@@ -74,14 +74,6 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // ORGANIZATION MANAGEMENT
     //-------------------------------------------------------------------------
 
-    // Department Routes
-    Route::prefix('departments')->group(function () {
-        Route::get('/', [DepartmentController::class, 'index'])->name('departments');
-        Route::post('/store', [DepartmentController::class, 'store'])->name('departments.store');
-        Route::put('/update/{id}', [DepartmentController::class, 'update'])->name('departments.update');
-        Route::delete('/delete/{id}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
-    });
-
     // Location Management
     Route::prefix('location')->group(function () {
         Route::get('/', [LocationController::class, 'index'])->name('location');

@@ -115,32 +115,6 @@
                 </div>
             </div>
 
-            <!-- Simple menu items with consistent structure -->
-            @php
-                $singleMenuItems = [
-                    [
-                        'route' => 'departments',
-                        'name' => 'Department',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />'
-                    ]
-                ];
-            @endphp
-
-            @foreach($singleMenuItems as $item)
-            <div class="{{ $menuItemClass }}">
-                <a href="{{ route($item['route']) }}" class="block">
-                    <div class="{{ $menuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                {!! $item['icon'] !!}
-                            </svg>
-                        </div>
-                        <span class="{{ $menuTextClass }}">{{ $item['name'] }}</span>
-                    </div>
-                </a>
-            </div>
-            @endforeach
-
             <!-- Report -->
             <div class="{{ $menuItemClass }}">
                 <button class="w-full focus:outline-none toggle-menu" data-menu="report">
@@ -160,7 +134,7 @@
                 <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="report" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     @php
                         $reportSubmenuItems = [
-                            ['route' => 'opname', 'name' => 'Report Opname'],
+                            ['route' => 'opname', 'name' => 'Opname Report'],
                             ['route' => 'report.maintenance', 'name' => 'Maintenance Report'],
                             ['route' => 'report.inspection', 'name' => 'Inspection Report'],
                             ['route' => 'report.calibration', 'name' => 'Calibration Report'],
