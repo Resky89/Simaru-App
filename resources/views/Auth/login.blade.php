@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Asset Monitoring</title>
     <link rel="icon" href="images/logo.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .blur-background {
@@ -33,10 +33,10 @@
         <!-- Left Section -->
         <div class="hidden md:flex flex-1 flex-col items-center justify-center px-4 md:px-20">
             <div class="text-center mb-8">
-                <h1 class="text-3xl md:text-4xl font-['Public_Sans'] font-semibold text-[#213268] mb-2">
+                <h1 class="text-3xl md:text-4xl font-['Poppins'] font-semibold text-[#213268] mb-2">
                     ASSETS MONITORING
                 </h1>
-                <p class="text-lg md:text-xl font-['Public_Sans'] text-[#1B8ADB]">
+                <p class="text-lg md:text-xl font-['Poppins'] text-[#1B8ADB]">
                     Track Every Asset, Anytime, Anywhere
                 </p>
             </div>
@@ -49,10 +49,10 @@
         <div class="flex-1 flex items-center justify-center p-4">
             <div class="bg-white p-6 md:p-10 rounded-[30px] shadow-2xl w-full max-w-[450px]">
                 <div class="text-center mb-8">
-                    <h2 class="text-3xl font-['Public_Sans'] font-semibold text-[#213268]">
+                    <h2 class="text-3xl font-['Poppins'] font-semibold text-[#213268]">
                         Welcome Admin,
                     </h2>
-                    <p class="text-3xl font-['Public_Sans'] font-semibold">
+                    <p class="text-3xl font-['Poppins'] font-semibold">
                         Please <span class="text-[#1B8ADB]">Login</span>
                     </p>
                 </div>
@@ -71,37 +71,37 @@
                     @endif
 
                     <div class="space-y-2">
-                        <label class="block text-[#213268] font-['Inter']">User ID</label>
+                        <label class="block text-[#213268] font-['Poppins']">Email</label>
                         <input
                             type="text"
-                            name="user_id"
-                            value="{{ old('user_id') }}"
-                            placeholder="Insert Your User ID"
-                            class="w-full p-3 border border-gray-200 rounded-lg font-['Inter'] text-gray-600 focus:outline-none focus:border-[#1B8ADB]"
+                            name="email"
+                            value="{{ old('email') }}"
+                            placeholder="Insert Your Email"
+                            class="w-full p-3 border border-gray-200 rounded-lg font-['Poppins'] text-gray-600 focus:outline-none focus:border-[#1B8ADB]"
                             required
                         >
                     </div>
 
                     <div class="space-y-2">
-                        <label class="block text-[#213268] font-['Inter']">Password</label>
+                        <label class="block text-[#213268] font-['Poppins']">Password</label>
                         <input
                             type="password"
                             name="password"
                             placeholder="Insert Your Password"
-                            class="w-full p-3 border border-gray-200 rounded-lg font-['Inter'] text-gray-600 focus:outline-none focus:border-[#1B8ADB]"
+                            class="w-full p-3 border border-gray-200 rounded-lg font-['Poppins'] text-gray-600 focus:outline-none focus:border-[#1B8ADB]"
                             required
                         >
                     </div>
 
-                    <button type="submit" class="w-full py-3 bg-[#213268] text-white rounded-lg font-['Inter'] hover:bg-[#1a2857] transition-colors">
+                    <!-- Tambahkan checkbox Remember Me -->
+                    <div class="flex items-center">
+                        <input type="checkbox" name="remember" id="remember" class="mr-2">
+                        <label for="remember" class="text-[#213268] font-['Poppins'] text-sm">Ingat saya</label>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-[#213268] text-white rounded-lg font-['Poppins'] hover:bg-[#1a2857] transition-colors">
                         Log in
                     </button>
-
-                    <div class="text-center">
-                        <a href="{{ route('password.request') }}" class="text-[#213268] hover:text-[#1B8ADB] font-['Inter'] text-sm">
-                            Forgot password?
-                        </a>
-                    </div>
                 </form>
             </div>
         </div>
