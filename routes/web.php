@@ -20,6 +20,7 @@ use App\Http\Controllers\BrandController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ProcurementRequestController;
 use App\Http\Controllers\ProcurementDetailRequestController;
+use App\Http\Controllers\AssetFinanceController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -286,6 +287,13 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Asset History routes
     Route::get('/asset-histories/{id}', [AssetHistoryController::class, 'getAssetHistory'])->name('asset-histories.get');
+
+    // Asset Finance routes
+    Route::get('/asset-transactions/asset/{assetId}', [AssetFinanceController::class, 'getAllTransactions'])->name('asset-transactions.get');
+    Route::put('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'updateTransaction']);
+    Route::delete('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'deleteTransaction']);
+    Route::post('/asset-transactions', [AssetFinanceController::class, 'createTransaction']);
+    Route::get('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'getTransaction']);
 });
 
 // Fallback route for 404 errors
