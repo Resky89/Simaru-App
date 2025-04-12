@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\ApiService;
 
-class ProcurementController extends Controller
+class ProcurementRequestController extends Controller
 {
     protected $apiService;
 
