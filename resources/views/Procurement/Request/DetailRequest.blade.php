@@ -99,13 +99,22 @@
                         </table>
                     </div>
                 </div>
+                <!-- Comparison Title -->
+                <div class="space-y-2">
+                    <label class="block text-base font-semibold text-[#666666]">Make Price Comparison</label>
+                    <input type="text"
+                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                        placeholder="Enter comparison title">
+                </div>
 
                 <!-- Form Buttons -->
                 <div class="flex gap-4 mt-8">
                     <a href="{{ route('procurement.request') }}" class="px-6 py-3 bg-[#333333] text-white rounded-lg text-base hover:bg-gray-800 transform active:scale-[0.98] transition-all duration-200">
                         CANCEL
                     </a>
-                </div>
+                    <button type="submit" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                        SUBMIT
+                    </button>
             </div>
         </div>
     </div>

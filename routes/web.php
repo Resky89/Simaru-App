@@ -230,6 +230,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::post('/procurements', [ProcurementRequestController::class, 'store'])->name('store');
         Route::put('/procurements/{id}', [ProcurementRequestController::class, 'update'])->name('update');
         Route::get('/procurements/{id}', [ProcurementRequestController::class, 'getOne'])->name('getOne');
+        Route::delete('/procurements/{id}', [ProcurementRequestController::class, 'destroy'])->name('destroy');
     });
 
     //-------------------------------------------------------------------------

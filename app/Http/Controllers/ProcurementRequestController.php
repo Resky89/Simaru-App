@@ -230,4 +230,29 @@ class ProcurementRequestController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Delete a procurement request
+     */
+    public function destroy($id)
+    {
+        try {
+            $result = $this->apiService->request('DELETE', "/procurements/{$id}");
+
+            // Check if we got an error response from the ApiService
+            if (isset($result['error'])) {
+                throw new \Exception($result['error']);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Procurement deleted successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to delete procurement: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
