@@ -5,62 +5,98 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            TRANSAKSI
+            TAMBAH TRANSAKSI
         </button>
     </div>
 
-    <!-- Transactions List -->
-    <div class="space-y-2 mb-6">
-        <!-- Transaction Item -->
-        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md border border-[#EEF1F4]">
-            <div class="flex items-center w-1/3">
-                <div class="bg-[#0088CC] p-2 rounded-md mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                </div>
-                <span class="text-sm font-medium">10 Apr 2025</span>
-            </div>
-            <div class="flex items-center justify-end w-2/3">
-                <span class="text-sm font-semibold mr-6 w-40 text-right">Rp 10.000.000,00</span>
-                <span class="text-sm text-gray-600 w-40">Terjual</span>
-                <div class="flex space-x-4">
-                    <button class="text-gray-400 hover:text-red-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>
-                    <button class="text-gray-400 hover:text-blue-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
+    <!-- Transaction Filter/Sort (Optional) -->
+    <div class="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-md">
+        <div class="text-sm font-medium text-gray-700">Total Transaksi: 2</div>
+        <div class="flex space-x-2">
+            <select class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#213268]">
+                <option>Semua Tipe</option>
+                <option>Pemasukan</option>
+                <option>Pengeluaran</option>
+            </select>
+            <select class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#213268]">
+                <option>Terbaru</option>
+                <option>Terlama</option>
+                <option>Nominal (Tinggi-Rendah)</option>
+                <option>Nominal (Rendah-Tinggi)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Transactions List with better headers -->
+    <div class="border rounded-lg overflow-hidden mb-6">
+        <!-- Header -->
+        <div class="bg-gray-100 p-3 grid grid-cols-12 gap-2 text-sm font-semibold text-gray-700 border-b">
+            <div class="col-span-3">Tanggal</div>
+            <div class="col-span-2">Tipe</div>
+            <div class="col-span-3 text-right">Nominal</div>
+            <div class="col-span-3">Keterangan</div>
+            <div class="col-span-1 text-right">Aksi</div>
         </div>
 
-        <!-- Transaction Item -->
-        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md border border-[#EEF1F4]">
-            <div class="flex items-center w-1/3">
-                <div class="bg-[#E74C3C] p-2 rounded-md mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
-                    </svg>
+        <!-- Transaction Items -->
+        <div class="divide-y divide-gray-100">
+            <!-- Transaction Item 1 -->
+            <div class="p-3 grid grid-cols-12 gap-2 items-center hover:bg-gray-50 transition-colors">
+                <div class="col-span-3 flex items-center">
+                    <div class="flex-shrink-0 mr-3">
+                        <div class="bg-[#27AE60] p-2 rounded-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                            </svg>
+                        </div>
+                    </div>
+                    <span class="text-sm">10 Apr 2025</span>
                 </div>
-                <span class="text-sm font-medium">07 Apr 2025</span>
-            </div>
-            <div class="flex items-center justify-end w-2/3">
-                <span class="text-sm font-semibold mr-6 w-40 text-right">Rp 500.000,00</span>
-                <span class="text-sm text-gray-600 w-40">Pemeliharaan layanan</span>
-                <div class="flex space-x-4">
-                    <button class="text-gray-400 hover:text-red-500">
+                <div class="col-span-2">
+                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Pemasukan</span>
+                </div>
+                <div class="col-span-3 text-right font-semibold">Rp 10.000.000,00</div>
+                <div class="col-span-3 text-sm text-gray-600 truncate">Terjual</div>
+                <div class="col-span-1 flex justify-end space-x-2">
+                    <button class="text-gray-400 hover:text-blue-500 focus:outline-none" title="Edit">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                    <button class="text-gray-400 hover:text-red-500 focus:outline-none" title="Hapus">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                     </button>
-                    <button class="text-gray-400 hover:text-blue-500">
+                </div>
+            </div>
+
+            <!-- Transaction Item 2 -->
+            <div class="p-3 grid grid-cols-12 gap-2 items-center hover:bg-gray-50 transition-colors">
+                <div class="col-span-3 flex items-center">
+                    <div class="flex-shrink-0 mr-3">
+                        <div class="bg-[#E74C3C] p-2 rounded-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                            </svg>
+                        </div>
+                    </div>
+                    <span class="text-sm">07 Apr 2025</span>
+                </div>
+                <div class="col-span-2">
+                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">Pengeluaran</span>
+                </div>
+                <div class="col-span-3 text-right font-semibold">Rp 500.000,00</div>
+                <div class="col-span-3 text-sm text-gray-600 truncate">Pemeliharaan layanan</div>
+                <div class="col-span-1 flex justify-end space-x-2">
+                    <button class="text-gray-400 hover:text-blue-500 focus:outline-none" title="Edit">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                    <button class="text-gray-400 hover:text-red-500 focus:outline-none" title="Hapus">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                     </button>
                 </div>
@@ -68,19 +104,42 @@
         </div>
     </div>
 
-    <!-- Summary -->
-    <div class="mt-6 space-y-2 border-t border-gray-200 pt-4">
-        <div class="flex justify-between py-2">
-            <span class="text-sm font-medium">Total Pengeluaran</span>
-            <span class="text-sm font-semibold">Rp 500.000,00</span>
+    <!-- Summary in cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <div class="p-4 bg-red-50 border border-red-100 rounded-lg">
+            <div class="flex items-center mb-2">
+                <div class="mr-2 p-2 bg-red-500 text-white rounded-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                </div>
+                <h3 class="text-sm font-semibold text-gray-700">Total Pengeluaran</h3>
+            </div>
+            <p class="text-xl font-bold text-red-600">Rp 500.000,00</p>
         </div>
-        <div class="flex justify-between py-2">
-            <span class="text-sm font-medium">Total Pemasukan</span>
-            <span class="text-sm font-semibold">Rp 10.000.000,00</span>
+
+        <div class="p-4 bg-green-50 border border-green-100 rounded-lg">
+            <div class="flex items-center mb-2">
+                <div class="mr-2 p-2 bg-green-500 text-white rounded-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                </div>
+                <h3 class="text-sm font-semibold text-gray-700">Total Pemasukan</h3>
+            </div>
+            <p class="text-xl font-bold text-green-600">Rp 10.000.000,00</p>
         </div>
-        <div class="flex justify-between py-2 border-t border-gray-200 pt-3">
-            <span class="text-sm font-bold">Saldo</span>
-            <span class="text-sm font-bold">Rp 9.500.000,00</span>
+
+        <div class="p-4 bg-blue-50 border border-blue-100 rounded-lg">
+            <div class="flex items-center mb-2">
+                <div class="mr-2 p-2 bg-blue-500 text-white rounded-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-sm font-semibold text-gray-700">Saldo Total</h3>
+            </div>
+            <p class="text-xl font-bold text-blue-600">Rp 9.500.000,00</p>
         </div>
     </div>
 
@@ -92,27 +151,46 @@
                 <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                     id="addTransactionModalContent">
                     <!-- Header -->
-                    <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH TRANSAKSI BARU</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" data-modal="addTransactionModal">
-                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                    <div class="bg-[#213268] text-white px-6 py-4">
+                        <h2 class="text-xl sm:text-2xl font-semibold">TAMBAH TRANSAKSI BARU</h2>
                     </div>
+                    <button class="absolute top-4 right-4 p-2 hover:bg-[#162249] rounded-full transition-colors duration-200 close-modal text-white" data-modal="addTransactionModal">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
 
                     <!-- Form -->
                     <form id="addTransactionForm">
                         <div class="p-6">
                             <div class="space-y-4">
-                                <!-- Type Input -->
+                                <!-- Type Input with better options -->
                                 <div class="space-y-2">
                                     <label for="transaction-type" class="block text-base font-semibold text-[#666666]">Tipe <span class="text-red-500">*</span></label>
-                                    <select id="transaction-type" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                        <option value="pengeluaran">Pengeluaran</option>
-                                        <option value="pemasukan">Pemasukan</option>
-                                    </select>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                            <input type="radio" name="transaction-type" value="pengeluaran" class="mr-2 text-[#213268] focus:ring-[#213268]">
+                                            <div class="flex items-center">
+                                                <div class="p-1.5 bg-red-100 rounded-md mr-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                    </svg>
+                                                </div>
+                                                <span>Pengeluaran</span>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                            <input type="radio" name="transaction-type" value="pemasukan" class="mr-2 text-[#213268] focus:ring-[#213268]">
+                                            <div class="flex items-center">
+                                                <div class="p-1.5 bg-green-100 rounded-md mr-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                    </svg>
+                                                </div>
+                                                <span>Pemasukan</span>
+                                            </div>
+                                        </label>
+                                    </div>
                                 </div>
 
                                 <!-- Date Input -->
@@ -122,11 +200,29 @@
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 </div>
 
-                                <!-- Amount Input -->
+                                <!-- Amount Input with currency prefix -->
                                 <div class="space-y-2">
-                                    <label for="transaction-amount" class="block text-base font-semibold text-[#666666]">Nominal (Rp) <span class="text-red-500">*</span></label>
-                                    <input type="text" id="transaction-amount" required placeholder="0,00"
+                                    <label for="transaction-amount" class="block text-base font-semibold text-[#666666]">Nominal <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-500">Rp</span>
+                                        </div>
+                                        <input type="text" id="transaction-amount" required placeholder="0,00"
+                                            class="w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                    </div>
+                                </div>
+
+                                <!-- Category dropdown (Added) -->
+                                <div class="space-y-2">
+                                    <label for="transaction-category" class="block text-base font-semibold text-[#666666]">Kategori</label>
+                                    <select id="transaction-category"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                        <option value="">Pilih Kategori</option>
+                                        <option value="pemeliharaan">Pemeliharaan</option>
+                                        <option value="perbaikan">Perbaikan</option>
+                                        <option value="penjualan">Penjualan</option>
+                                        <option value="lainnya">Lainnya</option>
+                                    </select>
                                 </div>
 
                                 <!-- Notes Input -->
@@ -138,9 +234,12 @@
                                 </div>
 
                                 <!-- Save Button -->
-                                <div class="pt-4">
+                                <div class="pt-4 flex gap-4">
+                                    <button type="button" class="close-modal w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200" data-modal="addTransactionModal">
+                                        Batal
+                                    </button>
                                     <button type="submit" id="addTransactionSubmitBtn"
-                                            class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                            class="w-2/3 h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                         Simpan
                                     </button>
                                 </div>
