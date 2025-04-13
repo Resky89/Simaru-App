@@ -28,23 +28,31 @@
     </div>
 
     <!-- Transactions List with better headers -->
-    <div class="border rounded-lg overflow-hidden mb-6">
-        <!-- Header -->
-        <div class="bg-gray-100 p-3 grid grid-cols-12 gap-2 text-sm font-semibold text-gray-700 border-b">
-            <div class="col-span-3">Tanggal</div>
-            <div class="col-span-2">Tipe</div>
-            <div class="col-span-3 text-right">Nominal</div>
-            <div class="col-span-3">Keterangan</div>
-            <div class="col-span-1 text-right">Aksi</div>
-                </div>
-
-        <!-- Transaction Items Container -->
-        <div id="transaction-items" class="divide-y divide-gray-100">
-            <div class="p-5 text-center text-gray-500">
-                <div class="animate-spin inline-block w-6 h-6 border-2 border-gray-300 border-t-[#213268] rounded-full mb-2"></div>
-                <p>Memuat transaksi...</p>
-            </div>
-        </div>
+    <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-md">
+        <table class="w-full min-w-[500px] border-collapse">
+            <thead>
+                <tr>
+                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Tanggal</th>
+                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-2/12">Tipe</th>
+                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-right w-3/12">Nominal</th>
+                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Keterangan</th>
+                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-1/12">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="transaction-items">
+                <tr class="transaction-loading-row">
+                    <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                        <div class="flex justify-center items-center">
+                            <svg class="animate-spin h-5 w-5 text-[#213268] mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Memuat transaksi...
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <!-- Summary in cards -->
@@ -171,11 +179,8 @@
 
                                 <!-- Save Button -->
                                 <div class="pt-4 flex gap-4">
-                                    <button type="button" class="close-modal w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200" data-modal="addTransactionModal">
-                                        Batal
-                                    </button>
                                     <button type="submit" id="addTransactionSubmitBtn"
-                                            class="w-2/3 h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                            class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                         Simpan
                                     </button>
                                 </div>
@@ -273,11 +278,8 @@
 
                                 <!-- Save Button -->
                                 <div class="pt-4 flex gap-4">
-                                    <button type="button" class="close-modal w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200" data-modal="editTransactionModal">
-                                        Batal
-                                    </button>
                                     <button type="submit" id="editTransactionSubmitBtn"
-                                            class="w-2/3 h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                            class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                         Simpan
                                     </button>
                                 </div>
@@ -406,10 +408,17 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadTransactions() {
         // Show loading state
         transactionItems.innerHTML = `
-            <div class="p-5 text-center text-gray-500">
-                <div class="animate-spin inline-block w-6 h-6 border-2 border-gray-300 border-t-[#213268] rounded-full mb-2"></div>
-                <p>Memuat transaksi...</p>
-            </div>
+            <tr class="transaction-loading-row">
+                <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                    <div class="flex justify-center items-center">
+                        <svg class="animate-spin h-5 w-5 text-[#213268] mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Memuat transaksi...
+                    </div>
+                </td>
+            </tr>
         `;
 
         // Get filter and sort values
@@ -445,9 +454,11 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error fetching transactions:', error);
                 transactionItems.innerHTML = `
-                    <div class="p-5 text-center text-red-500">
-                        <p>Gagal memuat transaksi. Silakan coba lagi.</p>
-                    </div>
+                    <tr>
+                        <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
+                            Gagal memuat transaksi. Silakan coba lagi.
+                        </td>
+                    </tr>
                 `;
             });
     }
@@ -456,9 +467,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayTransactions(transactions) {
         if (!transactions || transactions.length === 0) {
             transactionItems.innerHTML = `
-                <div class="p-5 text-center text-gray-500">
-                    <p>Belum ada transaksi keuangan untuk aset ini.</p>
-                </div>
+                <tr>
+                    <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                        Belum ada transaksi keuangan untuk aset ini.
+                    </td>
+                </tr>
             `;
             return;
         }
@@ -475,35 +488,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 : 'M19 14l-7 7m0 0l-7-7m7 7V3';
 
             html += `
-                <div class="p-3 grid grid-cols-12 gap-2 items-center hover:bg-gray-50 transition-colors" data-id="${transaction.transaction_id}">
-                    <div class="col-span-3 flex items-center">
-                        <div class="flex-shrink-0 mr-3">
-                            <div class="${iconBg} p-2 rounded-md">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}" />
-                                </svg>
+                <tr class="hover:bg-gray-50 transition-colors" data-id="${transaction.transaction_id}">
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 mr-3">
+                                <div class="${iconBg} p-2 rounded-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}" />
+                                    </svg>
+                                </div>
                             </div>
+                            <span>${formatDate(transaction.transaction_date)}</span>
                         </div>
-                        <span class="text-sm">${formatDate(transaction.transaction_date)}</span>
-                    </div>
-                    <div class="col-span-2">
+                    </td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
                         <span class="px-2 py-1 ${typeClass} rounded-full text-xs font-medium">${typeLabel}</span>
-                    </div>
-                    <div class="col-span-3 text-right font-semibold">${formatCurrency(transaction.amount)}</div>
-                    <div class="col-span-3 text-sm text-gray-600 truncate">${transaction.description || '-'}</div>
-                    <div class="col-span-1 flex justify-end space-x-2">
-                        <button class="edit-transaction text-gray-400 hover:text-blue-500 focus:outline-none" title="Edit" data-id="${transaction.transaction_id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </button>
-                        <button class="delete-transaction text-gray-400 hover:text-red-500 focus:outline-none" title="Hapus" data-id="${transaction.transaction_id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+                    </td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-right font-semibold">${formatCurrency(transaction.amount)}</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4] truncate">${transaction.description || '-'}</td>
+                    <td class="p-3 border-t border-[#EEF1F4] text-center">
+                        <div class="flex justify-center items-center space-x-2">
+                            <button class="edit-transaction text-[#3D3D3D] hover:text-[#213268] focus:outline-none" title="Edit" data-id="${transaction.transaction_id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                            <button class="delete-transaction text-[#3D3D3D] hover:text-red-500 focus:outline-none" title="Hapus" data-id="${transaction.transaction_id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
             `;
         });
 
