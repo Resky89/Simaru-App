@@ -1,7 +1,7 @@
 <div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-[#213268]">DOCUMENT</h2>
-        <button id="addDocumentBtn" class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center" onclick="openDocumentModal()">
+        <button id="addDocumentBtn" class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
@@ -93,7 +93,20 @@
                                         </div>
                                     </div>
                                     <div id="document-preview-container" class="mt-2 hidden">
-                                        <img id="document-preview-image" class="max-h-40 rounded-lg" alt="Document Preview">
+                                        <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                            <div class="flex items-center flex-grow overflow-hidden">
+                                                <div id="document-preview-icon" class="flex-shrink-0 mr-3"></div>
+                                                <div class="overflow-hidden">
+                                                    <p id="document-preview-name" class="text-sm font-medium truncate"></p>
+                                                    <p id="document-preview-size" class="text-xs text-gray-500"></p>
+                                                </div>
+                                            </div>
+                                            <button type="button" id="document-clear-btn" class="ml-2 p-1 text-gray-500 hover:text-red-500 transition-colors rounded-full hover:bg-gray-100">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -103,6 +116,18 @@
                                             class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                         Save
                                     </button>
+
+                                    <!-- Upload Progress Indicator (initially hidden) -->
+                                    <div id="uploadProgressContainer" class="hidden mt-4">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-sm font-medium text-[#213268]">Uploading document...</span>
+                                            <span id="uploadProgressText" class="text-sm font-medium text-[#213268]">0%</span>
+                                </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div id="uploadProgressBar" class="bg-[#213268] h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                        </div>
+                                        <div id="uploadStatusMessage" class="mt-2 text-sm text-gray-600"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -210,131 +235,215 @@
     </div>
 </div>
 
-<!-- Add JavaScript for Document Modal functionality -->
+<!-- Toast Notification Container -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
 <script>
-// At the top of your script (outside any DOMContentLoaded)
-console.log('Script loading before DOM');
-
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded');
+    // Function to show toast notifications
+    function showToast(message, type = 'success') {
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+            document.body.appendChild(toastContainer);
+        }
 
-    // Direct standalone form handler for the document upload form
+        // Create the toast element
+        const toast = document.createElement('div');
+
+        // Set classes based on type
+        if (type === 'success') {
+            toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center';
+        } else {
+            toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center';
+        }
+
+        // Add content
+        toast.innerHTML = `
+            <div class="py-1">
+                <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    ${type === 'success'
+                        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                <p>${message}</p>
+            </div>
+            <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
+        `;
+
+        // Add to container
+        toastContainer.appendChild(toast);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(() => {
+                toast.remove();
+            }, 500);
+        }, 5000);
+    }
+
+    // Make showToast available to the DocumentSystem
+    window.showToast = showToast;
+
+    // Define a global openDocumentModal function first
+    window.openDocumentModal = function() {
+        const modal = document.getElementById('addDocumentModal');
+        const modalContent = document.getElementById('addDocumentModalContent');
+        if (modal && modalContent) {
+            modal.classList.remove('hidden');
+            setTimeout(function() {
+                modalContent.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                modalContent.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+            }, 10);
+        }
+    };
+
+    // Set up the document form handler
     const documentForm = document.getElementById('addDocumentForm');
     if (documentForm) {
-        console.log('Document form found, setting up direct handler');
-
-        // Remove any existing submit event listeners
-        const newForm = documentForm.cloneNode(true);
-        documentForm.parentNode.replaceChild(newForm, documentForm);
-
-        // Add our own submit handler
-        newForm.addEventListener('submit', async function(e) {
+        documentForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            console.log('Form submit triggered', this.action);
 
             const submitBtn = this.querySelector('button[type="submit"]');
+            const progressContainer = document.getElementById('uploadProgressContainer');
+            const progressBar = document.getElementById('uploadProgressBar');
+            const progressText = document.getElementById('uploadProgressText');
+            const statusMessage = document.getElementById('uploadStatusMessage');
             const formData = new FormData(this);
+
+            // Validate required fields manually
+            if (!formData.get('document_title')) {
+                showToast('Document title is required', 'error');
+                return;
+            }
+
+            if (!formData.get('document') || !(formData.get('document') instanceof File) || formData.get('document').size === 0) {
+                showToast('Please select a valid file', 'error');
+                return;
+            }
 
             // Show loading state
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
-            try {
-                // Get CSRF token
-                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-                if (!csrfToken) {
-                    throw new Error('CSRF token not found. Please refresh the page.');
-                }
+            // Show progress container
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+            statusMessage.textContent = 'Preparing to upload...';
 
-                console.log('Sending form data to:', this.action);
-                console.log('Form has asset_id:', formData.has('asset_id'));
-                console.log('Form has document:', formData.has('document'));
+            // Use XMLHttpRequest for better progress tracking
+            const xhr = new XMLHttpRequest();
 
-                const response = await fetch(this.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
+            // Set up upload progress handler
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = percentComplete + '%';
+                    progressText.textContent = percentComplete + '%';
 
-                console.log('Response status:', response.status);
-
-                if (!response.ok) {
-                    throw new Error('Server returned error: ' + response.status);
-                }
-
-                const result = await response.json();
-                console.log('Upload result:', result);
-
-                if (result.status) {
-                    // Success - close modal and refresh document list
-                    const modal = document.getElementById('addDocumentModal');
-                    const modalContent = document.getElementById('addDocumentModalContent');
-
-                    if (modal && modalContent && typeof closeModal === 'function') {
-                        closeModal(modal, modalContent);
+                    if (percentComplete < 100) {
+                        statusMessage.textContent = 'Uploading file to server...';
                     } else {
-                        modal.classList.add('hidden');
+                        statusMessage.textContent = 'Processing upload on server...';
                     }
-
-                    // Reset form
-                    this.reset();
-
-                    // Show success message
-                    alert('Document uploaded successfully!');
-
-                    // Reload documents if the list function exists
-                    const docSystem = window.DocumentSystem;
-                    if (docSystem && typeof docSystem.loadDocuments === 'function') {
-                        docSystem.loadDocuments();
-                    } else {
-                        // Force page reload as fallback
-                        location.reload();
-                    }
-                } else {
-                    throw new Error(result.message || 'Failed to upload document');
                 }
-            } catch (error) {
-                console.error('Error during upload:', error);
-                alert(error.message || 'An error occurred during the upload');
-            } finally {
+            });
+
+            // Handle response
+            xhr.addEventListener('load', function() {
+                let result;
+                try {
+                    result = JSON.parse(xhr.responseText);
+                    if (!(xhr.status >= 200 && xhr.status < 300 && result.status)) {
+                        console.error('Upload error:', result);
+                    }
+
+                    if (xhr.status >= 200 && xhr.status < 300 && result.status) {
+                        // Success
+                        progressBar.classList.remove('bg-[#213268]', 'bg-red-500');
+                        progressBar.classList.add('bg-green-500');
+                        statusMessage.textContent = 'Upload successful!';
+                        showToast('Document uploaded successfully!', 'success');
+
+                        // Close modal and reload after success
+                        setTimeout(() => {
+                            const modal = document.getElementById('addDocumentModal');
+                            if (modal) modal.classList.add('hidden');
+
+                            // Reset form
+                            form.reset();
+
+                            // Reload documents
+                            if (typeof DocumentSystem !== 'undefined' &&
+                                typeof DocumentSystem.loadDocuments === 'function') {
+                                DocumentSystem.loadDocuments();
+                            } else {
+                                location.reload();
+                            }
+                        }, 1000);
+                    } else {
+                        // Server returned error
+                        progressBar.classList.remove('bg-[#213268]');
+                        progressBar.classList.add('bg-red-500');
+                        statusMessage.textContent = 'Error: ' + (result.message || 'Server error');
+                        statusMessage.classList.add('text-red-600');
+                        showToast(result.message || 'Failed to upload document', 'error');
+                    }
+                } catch (e) {
+                    // Response parse error
+                    console.error('Error parsing server response:', e);
+                    progressBar.classList.remove('bg-[#213268]');
+                    progressBar.classList.add('bg-red-500');
+                    statusMessage.textContent = 'Error: Could not parse server response';
+                    statusMessage.classList.add('text-red-600');
+                    showToast('Server error: Invalid response format', 'error');
+                }
+
                 // Reset button state
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Save';
+                }, 1000);
+            });
+
+            // Handle network errors
+            xhr.addEventListener('error', function() {
+                progressBar.classList.remove('bg-[#213268]');
+                progressBar.classList.add('bg-red-500');
+                progressBar.style.width = '100%';
+                statusMessage.textContent = 'Network error during file upload';
+                statusMessage.classList.add('text-red-600');
+                showToast('Network error during file upload', 'error');
+
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Save';
-            }
+            });
+
+            // Open and send request
+            xhr.open('POST', this.action);
+            xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]')?.content || '');
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.send(formData);
         });
     }
 
-    // Direct approach without any complex systems
+    // Direct approach for button click handling
     var addBtn = document.getElementById('addDocumentBtn');
-    console.log('Button found:', addBtn);
 
     if (addBtn) {
-        // Add this line to check if the button is visible
-        console.log('Button visible:', addBtn.offsetParent !== null);
-
-        addBtn.onclick = function() {
-            console.log('Button clicked!');
-            var modal = document.getElementById('addDocumentModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                setTimeout(function() {
-                    var modalContent = document.getElementById('addDocumentModalContent');
-                    if (modalContent) {
-                        modalContent.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                        modalContent.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                    }
-                }, 10);
-            } else {
-                console.error('Modal not found');
-            }
-            // Prevent default just in case
-            return false;
-        };
-    } else {
-        console.error('Button not found');
+        addBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.openDocumentModal();
+        });
     }
 
     // Rest of your original code...
@@ -356,7 +465,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         init() {
             if (this.initialized) return;
-            console.log('Initializing Document Management System');
 
             this.setupModalHelpers();
             this.setupEventListeners();
@@ -386,16 +494,21 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         setupEventListeners() {
-            // Add Document Button
-            document.querySelector(this.selectors.addBtn)?.addEventListener('click', () => {
-                const modal = document.querySelector(this.selectors.addModal);
-                const content = document.querySelector(this.selectors.addModalContent);
-                if (modal && content) {
-                    document.querySelector(this.selectors.addForm).reset();
-                    document.querySelector(this.selectors.previewContainer).classList.add('hidden');
-                    openModal(modal, content);
-                }
-            });
+            // Add Document Button - we already handled this above, so just ensure it works with the system
+            const addBtn = document.querySelector(this.selectors.addBtn);
+            if (addBtn) {
+                // Ensure we don't duplicate click handlers
+                addBtn.onclick = null;
+                addBtn.addEventListener('click', () => {
+                    const modal = document.querySelector(this.selectors.addModal);
+                    const content = document.querySelector(this.selectors.addModalContent);
+                    if (modal && content) {
+                        document.querySelector(this.selectors.addForm).reset();
+                        document.querySelector(this.selectors.previewContainer).classList.add('hidden');
+                        openModal(modal, content);
+                    }
+                });
+            }
 
             // Close Modal Buttons
             document.querySelectorAll('.close-modal').forEach(button => {
@@ -436,9 +549,29 @@ document.addEventListener('DOMContentLoaded', function() {
         setupFilePreview() {
             const fileInput = document.querySelector(this.selectors.fileInput);
             const previewContainer = document.querySelector(this.selectors.previewContainer);
-            const previewImage = document.querySelector(this.selectors.previewImage);
+            const previewIcon = document.getElementById('document-preview-icon');
+            const previewName = document.getElementById('document-preview-name');
+            const previewSize = document.getElementById('document-preview-size');
+            const clearBtn = document.getElementById('document-clear-btn');
 
-            if (!fileInput || !previewContainer || !previewImage) return;
+            if (!fileInput || !previewContainer) return;
+
+            // Set up clear button functionality
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Clear the file input
+                    fileInput.value = '';
+
+                    // Hide the preview container
+                    previewContainer.classList.add('hidden');
+
+                    // Reset required state
+                    fileInput.required = true;
+                });
+            }
 
             fileInput.addEventListener('change', function() {
                 const file = this.files[0];
@@ -447,30 +580,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
-                if (file.type.match('image.*')) {
-                    // Handle image preview
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        previewImage.src = e.target.result;
-                        previewContainer.classList.remove('hidden');
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    // Show file icon for non-image files
-                    const fileExt = file.name.split('.').pop().toLowerCase();
-                    const fileIcon = DocumentSystem.getFileIconByType(fileExt);
+                // Update preview container with file details
+                previewName.textContent = file.name;
+                previewSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
 
-                    previewContainer.innerHTML = `
-                        <div class="flex items-center p-3 border border-gray-200 rounded-lg">
-                            <div class="flex-shrink-0 mr-3">${fileIcon}</div>
-                            <div class="overflow-hidden">
-                                <p class="text-sm font-medium truncate">${file.name}</p>
-                                <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
-                            </div>
-                        </div>
-                    `;
-                    previewContainer.classList.remove('hidden');
-                }
+                // Set appropriate icon based on file type
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                previewIcon.innerHTML = DocumentSystem.getFileIconByType(fileExt);
+
+                // Show preview container
+                previewContainer.classList.remove('hidden');
             });
         },
 
@@ -512,11 +631,8 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(result => {
-                console.log('Document API response:', result);
-
                 if (!result.status) {
-                    this.showErrorMessage(tableBody, result.message || 'Failed to load documents');
-                    return;
+                    console.error('Document API error:', result);
                 }
 
                 const documents = result.data || [];
@@ -692,15 +808,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (result.status) {
                         // Reload documents on success
                         this.loadDocuments();
-                        alert('Document deleted successfully');
+                        showToast('Document deleted successfully', 'success');
                     } else {
-                        alert('Error: ' + (result.message || 'Failed to delete document'));
+                        showToast('Error: ' + (result.message || 'Failed to delete document'), 'error');
                     }
                 })
                 .catch(error => {
                     closeModal(modal, content);
                     console.error('Error deleting document:', error);
-                    alert('Error deleting document. Please try again.');
+                    showToast('Error deleting document. Please try again.', 'error');
                 })
                 .finally(() => {
                     // Reset button state
@@ -801,5 +917,76 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the Document System
     DocumentSystem.init();
+
+    // Ensure DocumentSystem is made available globally
+    window.DocumentSystem = DocumentSystem;
+
+    // Emergency fix for document form submission
+    const submitBtn = document.getElementById('addDocumentSubmitBtn');
+    const form = document.getElementById('addDocumentForm');
+
+    if (submitBtn && form) {
+        submitBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Get the CSRF token
+            const token = document.querySelector('meta[name="csrf-token"]')?.content;
+            const formData = new FormData(form);
+
+            // Create loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+            // Use fetch to submit the form with AJAX
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (!result.status) {
+                    console.error('Form submission error:', result);
+                }
+
+                if (result.status) {
+                    // Success
+                    showToast('Document uploaded successfully!', 'success');
+
+                    // Close modal and reload documents
+                    setTimeout(() => {
+                        const modal = document.getElementById('addDocumentModal');
+                        if (modal) modal.classList.add('hidden');
+
+                        // Reset form
+                        form.reset();
+
+                        // Reload documents
+                        if (typeof DocumentSystem !== 'undefined' && typeof DocumentSystem.loadDocuments === 'function') {
+                            DocumentSystem.loadDocuments();
+                        } else {
+                            location.reload();
+                        }
+                    }, 1000);
+                } else {
+                    // Error from server
+                    showToast(result.message || 'Failed to upload document', 'error');
+                }
+            })
+            .catch(error => {
+                // Network or other error
+                console.error('Upload error:', error);
+                showToast('Error uploading document: ' + (error.message || 'Unknown error'), 'error');
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Save';
+            });
+        });
+    }
 });
 </script>

@@ -23,21 +23,8 @@ class AssetDocumentController extends Controller
     public function getAssetDocuments($id)
     {
         try {
-            // Log request info
-            \Log::info('Fetching asset documents for asset ID:', [
-                'asset_id' => $id,
-                'request_url' => request()->fullUrl()
-            ]);
-
             // Fetch the documents for the given asset ID
             $result = $this->apiService->request('GET', "/asset-documents/asset/{$id}");
-
-            // Log API response for debugging
-            \Log::info('API response for asset documents:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'asset_id' => $id
-            ]);
 
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
@@ -93,12 +80,8 @@ class AssetDocumentController extends Controller
     public function store(Request $request)
     {
         try {
-            // Log request info
-            \Log::info('Document upload request:', [
-                'has_file' => $request->hasFile('document'),
-                'asset_id' => $request->asset_id,
-                'title' => $request->document_title
-            ]);
+            // Keep minimal necessary logging for debugging
+            \Log::info('Document upload initiated for asset: ' . $request->asset_id);
 
             // Validate request
             $validated = $request->validate([
@@ -119,14 +102,7 @@ class AssetDocumentController extends Controller
             // Get the file
             $file = $request->file('document');
 
-            // Log file info
-            \Log::info('File details:', [
-                'original_name' => $file->getClientOriginalName(),
-                'mime_type' => $file->getMimeType(),
-                'size' => $file->getSize()
-            ]);
-
-            // Prepare multipart data
+            // Create multipart data with the EXACT field names expected by the API
             $multipartData = [
                 [
                     'name' => 'asset_id',
@@ -141,7 +117,7 @@ class AssetDocumentController extends Controller
                     'contents' => $request->notes ?? ''
                 ],
                 [
-                    'name' => 'document',
+                    'name' => 'document_file',
                     'contents' => fopen($file->getRealPath(), 'r'),
                     'filename' => $file->getClientOriginalName(),
                     'headers' => [
@@ -150,15 +126,24 @@ class AssetDocumentController extends Controller
                 ]
             ];
 
-            // Send to API
+            // Send to API with multipart data
             $result = $this->apiService->request('POST', '/asset-documents', ['multipart' => $multipartData]);
 
-            // Log API response
-            \Log::info('API response:', $result);
-
+            // Only log errors
             if (!isset($result['status']) || $result['status'] !== true) {
-                throw new \Exception($result['message'] ?? 'Failed to upload document');
+                \Log::warning('API document upload failed:', $result);
             }
+
+            // Check for success in the response (handles both 'status' and 'success' formats)
+            $isSuccess = (isset($result['status']) && $result['status'] === true) ||
+                        (isset($result['success']) && $result['success'] === true);
+
+            if (!$isSuccess) {
+                $errorMessage = $result['message'] ?? $result['errors'] ?? 'Failed to upload document';
+                throw new \Exception($errorMessage);
+            }
+
+            \Log::info('Document uploaded successfully for asset: ' . $request->asset_id);
 
             return response()->json([
                 'status' => true,
@@ -188,21 +173,16 @@ class AssetDocumentController extends Controller
     public function destroy($id)
     {
         try {
-            // Log request info
-            \Log::info('Deleting asset document:', [
-                'document_id' => $id,
-                'request_url' => request()->fullUrl()
-            ]);
-
             // Send delete request to the API
             $result = $this->apiService->request('DELETE', "/asset-documents/{$id}");
 
-            // Log API response for debugging
-            \Log::info('API response for asset document deletion:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'document_id' => $id
-            ]);
+            // Only log errors
+            if (!isset($result['status']) || $result['status'] !== true) {
+                \Log::warning('API document deletion failed:', [
+                    'document_id' => $id,
+                    'response' => $result
+                ]);
+            }
 
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
@@ -231,6 +211,8 @@ class AssetDocumentController extends Controller
                     'message' => $errorMessage
                 ], 400);
             }
+
+            \Log::info('Document deleted successfully: ' . $id);
 
             // Return success response
             return response()->json([
