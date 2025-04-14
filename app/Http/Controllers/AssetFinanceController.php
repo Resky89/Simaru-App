@@ -23,12 +23,6 @@ class AssetFinanceController extends Controller
     public function getAllTransactions($assetId, Request $request)
     {
         try {
-            // Log request info
-            \Log::info('Fetching asset transactions for asset ID:', [
-                'asset_id' => $assetId,
-                'request_url' => request()->fullUrl()
-            ]);
-
             // Get pagination parameters
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
@@ -39,16 +33,19 @@ class AssetFinanceController extends Controller
                 'limit' => $limit
             ];
 
+            // Filter parameters
+            if ($request->has('filter')) {
+                $queryParams['filter'] = $request->input('filter');
+            }
+
+            // Sort parameters
+            if ($request->has('sort')) {
+                $queryParams['sort'] = $request->input('sort');
+            }
+
             // Fetch the transactions for the given asset ID
             $result = $this->apiService->request('GET', "/asset-transactions/asset/{$assetId}", [
                 'query' => $queryParams
-            ]);
-
-            // Log API response for debugging
-            \Log::info('API response for asset transactions:', [
-                'api_response_status' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'asset_id' => $assetId
             ]);
 
             // Check for auth errors
@@ -107,83 +104,72 @@ class AssetFinanceController extends Controller
         try {
             // Validate request
             $validated = $request->validate([
-                'asset_id' => 'required|integer',
+                'asset_id' => 'required|numeric',
                 'type' => 'required|string|in:expense,income',
                 'amount' => 'required|numeric',
                 'transaction_date' => 'required|date',
                 'description' => 'nullable|string'
             ]);
 
-            // Log request info
-            \Log::info('Creating asset transaction:', [
-                'asset_id' => $request->asset_id,
+            // Ensure numeric values are properly formatted
+            $data = [
+                'asset_id' => (int) $request->asset_id,
                 'type' => $request->type,
-                'request_url' => request()->fullUrl()
-            ]);
+                'amount' => (float) $request->amount,
+                'transaction_date' => $request->transaction_date,
+                'description' => $request->description
+            ];
 
             // Create the transaction via API service
             $result = $this->apiService->request('POST', '/asset-transactions', [
-                'json' => $request->all()
+                'json' => $data
             ]);
 
-            // Log API response for debugging
-            \Log::info('API response for transaction creation:', [
-                'api_response_status' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'asset_id' => $request->asset_id
-            ]);
-
-            // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during transaction creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
-            }
-
-            // Check for API errors
+            // Only log errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to create transaction';
-
-                \Log::warning('Error during transaction creation:', [
-                    'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 400);
+                \Log::warning('API transaction creation failed:', $result);
             }
 
-            // Return the transaction data as JSON
-            return response()->json($result, 201);
+            // Check for success in the response
+            $isSuccess = isset($result['success']) && $result['success'] === true;
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Validation error during transaction creation:', [
-                'errors' => $e->errors()
-            ]);
+            if (!$isSuccess) {
+                $errorMessage = $result['message'] ?? $result['errors'] ?? 'Gagal membuat transaksi';
 
+                // Fix: Convert array to string if errorMessage is an array
+                if (is_array($errorMessage)) {
+                    $messageString = '';
+                    foreach ($errorMessage as $key => $value) {
+                        if (is_array($value)) {
+                            $messageString .= implode(', ', $value) . '; ';
+                        } else {
+                            $messageString .= (is_string($key) ? "$key: " : '') . "$value; ";
+                        }
+                    }
+                    $errorMessage = trim($messageString);
+                }
+
+                throw new \Exception($errorMessage);
+            }
+
+            \Log::info('Transaction created successfully for asset: ' . $request->asset_id);
+
+            // Return JSON response for toast notification
             return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
+                'success' => true,
+                'message' => 'Transaksi berhasil ditambahkan',
+                'data' => $result['data'] ?? null
+            ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during transaction creation:', [
+            \Log::error('Transaction creation error:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create transaction: ' . $e->getMessage()
+                'message' => 'Gagal membuat transaksi: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -200,75 +186,68 @@ class AssetFinanceController extends Controller
         try {
             // Validate request
             $validated = $request->validate([
-                'asset_id' => 'sometimes|required|integer',
-                'type' => 'sometimes|required|string|in:expense,income',
-                'amount' => 'sometimes|required|numeric',
-                'transaction_date' => 'sometimes|required|date',
+                'asset_id' => 'required|numeric',
+                'type' => 'required|string|in:expense,income',
+                'amount' => 'required|numeric',
+                'transaction_date' => 'required|date',
                 'description' => 'nullable|string'
             ]);
 
-            // Log request info
-            \Log::info('Updating asset transaction:', [
-                'transaction_id' => $transactionId,
-                'request_url' => request()->fullUrl()
-            ]);
+            // Ensure numeric values are properly formatted
+            $data = [
+                'asset_id' => (int) $request->asset_id,
+                'type' => $request->type,
+                'amount' => (float) $request->amount,
+                'transaction_date' => $request->transaction_date,
+                'description' => $request->description
+            ];
 
             // Update the transaction via API service
             $result = $this->apiService->request('PUT', "/asset-transactions/{$transactionId}", [
-                'json' => $request->all()
+                'json' => $data
             ]);
 
-            // Log API response for debugging
-            \Log::info('API response for transaction update:', [
-                'api_response_status' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'transaction_id' => $transactionId
-            ]);
-
-            // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during transaction update:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
-            }
-
-            // Check for API errors
+            // Only log errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to update transaction';
-
-                \Log::warning('Error during transaction update:', [
-                    'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                \Log::warning('API transaction update failed:', [
+                    'transaction_id' => $transactionId,
+                    'response' => $result
                 ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 400);
             }
 
-            // Return the updated transaction data as JSON
-            return response()->json($result);
+            // Check for success in the response
+            $isSuccess = isset($result['success']) && $result['success'] === true;
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Validation error during transaction update:', [
-                'errors' => $e->errors()
-            ]);
+            if (!$isSuccess) {
+                $errorMessage = $result['message'] ?? $result['errors'] ?? 'Gagal mengupdate transaksi';
 
+                // Fix: Convert array to string if errorMessage is an array
+                if (is_array($errorMessage)) {
+                    $messageString = '';
+                    foreach ($errorMessage as $key => $value) {
+                        if (is_array($value)) {
+                            $messageString .= implode(', ', $value) . '; ';
+                        } else {
+                            $messageString .= (is_string($key) ? "$key: " : '') . "$value; ";
+                        }
+                    }
+                    $errorMessage = trim($messageString);
+                }
+
+                throw new \Exception($errorMessage);
+            }
+
+            \Log::info('Transaction updated successfully: ' . $transactionId);
+
+            // Return JSON response for toast notification
             return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
+                'success' => true,
+                'message' => 'Transaksi berhasil diperbarui',
+                'data' => $result['data'] ?? null
+            ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during transaction update:', [
+            \Log::error('Transaction update error:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'transaction_id' => $transactionId
@@ -276,7 +255,7 @@ class AssetFinanceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update transaction: ' . $e->getMessage()
+                'message' => 'Gagal mengupdate transaksi: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -290,58 +269,49 @@ class AssetFinanceController extends Controller
     public function deleteTransaction($transactionId)
     {
         try {
-            // Log request info
-            \Log::info('Deleting asset transaction:', [
-                'transaction_id' => $transactionId,
-                'request_url' => request()->fullUrl()
-            ]);
-
             // Delete the transaction via API service
             $result = $this->apiService->request('DELETE', "/asset-transactions/{$transactionId}");
 
-            // Log API response for debugging
-            \Log::info('API response for transaction deletion:', [
-                'api_response_status' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'transaction_id' => $transactionId
-            ]);
-
-            // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during transaction deletion:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
-            }
-
-            // Check for API errors
+            // Only log errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to delete transaction';
-
-                \Log::warning('Error during transaction deletion:', [
-                    'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                \Log::warning('API transaction deletion failed:', [
+                    'transaction_id' => $transactionId,
+                    'response' => $result
                 ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 400);
             }
 
-            // Return success response
+            // Check for success in the response
+            $isSuccess = isset($result['success']) && $result['success'] === true;
+
+            if (!$isSuccess) {
+                $errorMessage = $result['message'] ?? $result['errors'] ?? 'Gagal menghapus transaksi';
+
+                // Fix: Convert array to string if errorMessage is an array
+                if (is_array($errorMessage)) {
+                    $messageString = '';
+                    foreach ($errorMessage as $key => $value) {
+                        if (is_array($value)) {
+                            $messageString .= implode(', ', $value) . '; ';
+                        } else {
+                            $messageString .= (is_string($key) ? "$key: " : '') . "$value; ";
+                        }
+                    }
+                    $errorMessage = trim($messageString);
+                }
+
+                throw new \Exception($errorMessage);
+            }
+
+            \Log::info('Transaction deleted successfully: ' . $transactionId);
+
+            // Return JSON response for toast notification
             return response()->json([
                 'success' => true,
-                'message' => 'Transaction deleted successfully'
+                'message' => 'Transaksi berhasil dihapus'
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during transaction deletion:', [
+            \Log::error('Transaction deletion error:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'transaction_id' => $transactionId
@@ -349,7 +319,7 @@ class AssetFinanceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete transaction: ' . $e->getMessage()
+                'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -363,55 +333,36 @@ class AssetFinanceController extends Controller
     public function getTransaction($transactionId)
     {
         try {
-            // Log request info
-            \Log::info('Fetching transaction details:', [
-                'transaction_id' => $transactionId,
-                'request_url' => request()->fullUrl()
-            ]);
-
             // Fetch the transaction details
             $result = $this->apiService->request('GET', "/asset-transactions/{$transactionId}");
 
-            // Log API response for debugging
-            \Log::info('API response for transaction details:', [
-                'api_response_status' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'transaction_id' => $transactionId
-            ]);
+            // Check for success in the response
+            $isSuccess = isset($result['success']) && $result['success'] === true;
 
-            // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during transaction retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ]);
+            if (!$isSuccess) {
+                $errorMessage = $result['message'] ?? $result['errors'] ?? 'Failed to retrieve transaction';
 
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
-            }
+                // Fix: Convert array to string if errorMessage is an array
+                if (is_array($errorMessage)) {
+                    $messageString = '';
+                    foreach ($errorMessage as $key => $value) {
+                        if (is_array($value)) {
+                            $messageString .= implode(', ', $value) . '; ';
+                        } else {
+                            $messageString .= (is_string($key) ? "$key: " : '') . "$value; ";
+                        }
+                    }
+                    $errorMessage = trim($messageString);
+                }
 
-            // Check for API errors
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve transaction';
-
-                \Log::warning('Error during transaction retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 400);
+                throw new \Exception($errorMessage);
             }
 
             // Return the transaction data as JSON
             return response()->json($result);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during transaction retrieval:', [
+            \Log::error('Transaction retrieval error:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'transaction_id' => $transactionId

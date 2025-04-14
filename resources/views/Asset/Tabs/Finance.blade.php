@@ -1,8 +1,10 @@
 <div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-[#213268]">TRANSAKSI KEUANGAN</h2>
-        <button id="addTransactionBtn" type="button" class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button id="addTransactionBtn" type="button"
+            class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             TAMBAH TRANSAKSI
@@ -13,12 +15,14 @@
     <div class="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-md">
         <div class="text-sm font-medium text-gray-700" id="transaction-count">Total Transaksi: 0</div>
         <div class="flex space-x-2">
-            <select id="filter-type" class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#213268]">
+            <select id="filter-type"
+                class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#213268]">
                 <option value="all">Semua Tipe</option>
                 <option value="income">Pemasukan</option>
                 <option value="expense">Pengeluaran</option>
             </select>
-            <select id="sort-by" class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#213268]">
+            <select id="sort-by"
+                class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#213268]">
                 <option value="newest">Terbaru</option>
                 <option value="oldest">Terlama</option>
                 <option value="amount-high">Nominal (Tinggi-Rendah)</option>
@@ -43,9 +47,13 @@
                 <tr class="transaction-loading-row">
                     <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                         <div class="flex justify-center items-center">
-                            <svg class="animate-spin h-5 w-5 text-[#213268] mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg class="animate-spin h-5 w-5 text-[#213268] mr-2" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
                             </svg>
                             Memuat transaksi...
                         </div>
@@ -60,9 +68,11 @@
         <div class="p-4 bg-red-50 border border-red-100 rounded-lg">
             <div class="flex items-center mb-2">
                 <div class="mr-2 p-2 bg-red-500 text-white rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                        </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
                 </div>
                 <h3 class="text-sm font-semibold text-gray-700">Total Pengeluaran</h3>
             </div>
@@ -72,8 +82,10 @@
         <div class="p-4 bg-green-50 border border-green-100 rounded-lg">
             <div class="flex items-center mb-2">
                 <div class="mr-2 p-2 bg-green-500 text-white rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5 10l7-7m0 0l7 7m-7-7v18" />
                     </svg>
                 </div>
                 <h3 class="text-sm font-semibold text-gray-700">Total Pemasukan</h3>
@@ -84,9 +96,11 @@
         <div class="p-4 bg-blue-50 border border-blue-100 rounded-lg">
             <div class="flex items-center mb-2">
                 <div class="mr-2 p-2 bg-blue-500 text-white rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
                 <h3 class="text-sm font-semibold text-gray-700">Saldo Total</h3>
             </div>
@@ -104,41 +118,56 @@
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
                         <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH TRANSAKSI BARU</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" data-modal="addTransactionModal">
+                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                            data-modal="addTransactionModal">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
 
                     <!-- Form -->
-                    <form id="addTransactionForm">
+                    <form id="addTransactionForm" action="{{ route('asset-transactions.store') }}" method="POST">
+                        @csrf
                         <div class="p-6">
                             <div class="space-y-4">
                                 <!-- Hidden asset_id field -->
-                                <input type="hidden" id="asset-id" name="asset_id" value="{{ $asset['asset_id'] ?? '' }}">
+                                <input type="hidden" id="asset-id" name="asset_id"
+                                    value="{{ $asset['asset_id'] ?? '' }}">
 
                                 <!-- Type Input with better options -->
                                 <div class="space-y-2">
-                                    <label for="transaction-type" class="block text-base font-semibold text-[#666666]">Tipe <span class="text-red-500">*</span></label>
+                                    <label for="transaction-type"
+                                        class="block text-base font-semibold text-[#666666]">Tipe <span
+                                            class="text-red-500">*</span></label>
                                     <div class="grid grid-cols-2 gap-4">
-                                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                            <input type="radio" name="type" value="expense" class="mr-2 text-[#213268] focus:ring-[#213268]">
+                                        <label
+                                            class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                            <input type="radio" name="type" value="expense"
+                                                class="mr-2 text-[#213268] focus:ring-[#213268]">
                                             <div class="flex items-center">
                                                 <div class="p-1.5 bg-red-100 rounded-md mr-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600"
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                                     </svg>
                                                 </div>
                                                 <span>Pengeluaran</span>
                                             </div>
                                         </label>
-                                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                            <input type="radio" name="type" value="income" class="mr-2 text-[#213268] focus:ring-[#213268]">
+                                        <label
+                                            class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                            <input type="radio" name="type" value="income"
+                                                class="mr-2 text-[#213268] focus:ring-[#213268]">
                                             <div class="flex items-center">
                                                 <div class="p-1.5 bg-green-100 rounded-md mr-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                                                     </svg>
                                                 </div>
                                                 <span>Pemasukan</span>
@@ -149,26 +178,33 @@
 
                                 <!-- Date Input -->
                                 <div class="space-y-2">
-                                    <label for="transaction-date" class="block text-base font-semibold text-[#666666]">Tanggal <span class="text-red-500">*</span></label>
+                                    <label for="transaction-date"
+                                        class="block text-base font-semibold text-[#666666]">Tanggal <span
+                                            class="text-red-500">*</span></label>
                                     <input type="date" id="transaction-date" name="transaction_date" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 </div>
 
                                 <!-- Amount Input with currency prefix -->
                                 <div class="space-y-2">
-                                    <label for="transaction-amount" class="block text-base font-semibold text-[#666666]">Nominal <span class="text-red-500">*</span></label>
+                                    <label for="transaction-amount"
+                                        class="block text-base font-semibold text-[#666666]">Nominal <span
+                                            class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="text-gray-500">Rp</span>
                                         </div>
-                                        <input type="text" id="transaction-amount" name="amount" required placeholder="0,00"
+                                        <input type="text" id="transaction-amount" name="amount" required
+                                            placeholder="0,00"
                                             class="w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                     </div>
                                 </div>
 
                                 <!-- Notes Input -->
                                 <div class="space-y-2">
-                                    <label for="transaction-description" class="block text-base font-semibold text-[#666666]">Keterangan</label>
+                                    <label for="transaction-description"
+                                        class="block text-base font-semibold text-[#666666]">Keterangan</label>
                                     <textarea id="transaction-description" name="description" rows="3"
                                         class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                         placeholder="Keterangan transaksi"></textarea>
@@ -180,7 +216,7 @@
                                 <!-- Save Button -->
                                 <div class="pt-4 flex gap-4">
                                     <button type="submit" id="addTransactionSubmitBtn"
-                                            class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                        class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                         Simpan
                                     </button>
                                 </div>
@@ -202,42 +238,59 @@
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
                         <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT TRANSAKSI</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" data-modal="editTransactionModal">
+                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                            data-modal="editTransactionModal">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
 
                     <!-- Form -->
-                    <form id="editTransactionForm">
+                    <form id="editTransactionForm"
+                        action="{{ route('asset-transactions.update', ['transactionId' => '_id_']) }}" method="POST">
+                        @csrf
+                        @method('PUT')
                         <div class="p-6">
                             <div class="space-y-4">
                                 <!-- Hidden fields -->
                                 <input type="hidden" id="edit-transaction-id" name="transaction_id">
-                                <input type="hidden" id="edit-asset-id" name="asset_id" value="{{ $asset['asset_id'] ?? '' }}">
+                                <input type="hidden" id="edit-asset-id" name="asset_id"
+                                    value="{{ $asset['asset_id'] ?? '' }}">
 
                                 <!-- Type Input -->
                                 <div class="space-y-2">
-                                    <label for="edit-transaction-type" class="block text-base font-semibold text-[#666666]">Tipe <span class="text-red-500">*</span></label>
+                                    <label for="edit-transaction-type"
+                                        class="block text-base font-semibold text-[#666666]">Tipe <span
+                                            class="text-red-500">*</span></label>
                                     <div class="grid grid-cols-2 gap-4">
-                                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                            <input type="radio" name="type" value="expense" id="edit-type-expense" class="mr-2 text-[#213268] focus:ring-[#213268]">
+                                        <label
+                                            class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                            <input type="radio" name="type" value="expense" id="edit-type-expense"
+                                                class="mr-2 text-[#213268] focus:ring-[#213268]">
                                             <div class="flex items-center">
                                                 <div class="p-1.5 bg-red-100 rounded-md mr-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600"
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                                     </svg>
                                                 </div>
                                                 <span>Pengeluaran</span>
                                             </div>
                                         </label>
-                                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                            <input type="radio" name="type" value="income" id="edit-type-income" class="mr-2 text-[#213268] focus:ring-[#213268]">
+                                        <label
+                                            class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                            <input type="radio" name="type" value="income" id="edit-type-income"
+                                                class="mr-2 text-[#213268] focus:ring-[#213268]">
                                             <div class="flex items-center">
                                                 <div class="p-1.5 bg-green-100 rounded-md mr-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                                                     </svg>
                                                 </div>
                                                 <span>Pemasukan</span>
@@ -248,26 +301,33 @@
 
                                 <!-- Date Input -->
                                 <div class="space-y-2">
-                                    <label for="edit-transaction-date" class="block text-base font-semibold text-[#666666]">Tanggal <span class="text-red-500">*</span></label>
+                                    <label for="edit-transaction-date"
+                                        class="block text-base font-semibold text-[#666666]">Tanggal <span
+                                            class="text-red-500">*</span></label>
                                     <input type="date" id="edit-transaction-date" name="transaction_date" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 </div>
 
                                 <!-- Amount Input -->
                                 <div class="space-y-2">
-                                    <label for="edit-transaction-amount" class="block text-base font-semibold text-[#666666]">Nominal <span class="text-red-500">*</span></label>
+                                    <label for="edit-transaction-amount"
+                                        class="block text-base font-semibold text-[#666666]">Nominal <span
+                                            class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span class="text-gray-500">Rp</span>
                                         </div>
-                                        <input type="text" id="edit-transaction-amount" name="amount" required placeholder="0,00"
+                                        <input type="text" id="edit-transaction-amount" name="amount" required
+                                            placeholder="0,00"
                                             class="w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                     </div>
                                 </div>
 
                                 <!-- Notes Input -->
                                 <div class="space-y-2">
-                                    <label for="edit-transaction-description" class="block text-base font-semibold text-[#666666]">Keterangan</label>
+                                    <label for="edit-transaction-description"
+                                        class="block text-base font-semibold text-[#666666]">Keterangan</label>
                                     <textarea id="edit-transaction-description" name="description" rows="3"
                                         class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                         placeholder="Keterangan transaksi"></textarea>
@@ -279,7 +339,7 @@
                                 <!-- Save Button -->
                                 <div class="pt-4 flex gap-4">
                                     <button type="submit" id="editTransactionSubmitBtn"
-                                            class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                        class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                         Simpan
                                     </button>
                                 </div>
@@ -301,28 +361,39 @@
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
                         <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS TRANSAKSI</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" data-modal="deleteTransactionModal">
+                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                            data-modal="deleteTransactionModal">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
 
                     <!-- Content -->
-                    <form id="deleteTransactionForm">
+                    <form id="deleteTransactionForm"
+                        action="{{ route('asset-transactions.destroy', ['transactionId' => '_id_']) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
                         <div class="p-6">
                             <div class="space-y-6 max-w-[400px] mx-auto">
                                 <div class="flex flex-col items-center">
-                                    <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini tidak dapat dibatalkan.</p>
+                                    <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus
+                                        transaksi ini? Tindakan ini tidak dapat dibatalkan.</p>
                                 </div>
                                 <div class="flex gap-3">
-                                    <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200" data-modal="deleteTransactionModal">
+                                    <button type="button"
+                                        class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
+                                        data-modal="deleteTransactionModal">
                                         Batal
                                     </button>
-                                    <button type="submit" id="deleteTransactionSubmitBtn" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                    <button type="submit" id="deleteTransactionSubmitBtn"
+                                        class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
                                         Hapus
                                     </button>
                                 </div>
@@ -335,79 +406,191 @@
     </div>
 </div>
 
+<!-- Toast Notification Container -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
 <!-- Add JavaScript for Transaction functionality -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
-    const addTransactionBtn = document.getElementById('addTransactionBtn');
-    const addTransactionModal = document.getElementById('addTransactionModal');
-    const addTransactionModalContent = document.getElementById('addTransactionModalContent');
-    const editTransactionModal = document.getElementById('editTransactionModal');
-    const editTransactionModalContent = document.getElementById('editTransactionModalContent');
-    const deleteTransactionModal = document.getElementById('deleteTransactionModal');
-    const deleteTransactionModalContent = document.getElementById('deleteTransactionModalContent');
-    const closeModalBtns = document.querySelectorAll('.close-modal');
-    const transactionForm = document.getElementById('addTransactionForm');
-    const editTransactionForm = document.getElementById('editTransactionForm');
-    const deleteTransactionForm = document.getElementById('deleteTransactionForm');
-    const transactionItems = document.getElementById('transaction-items');
-    const formError = document.getElementById('form-error');
-    const filterType = document.getElementById('filter-type');
-    const sortBy = document.getElementById('sort-by');
+    document.addEventListener('DOMContentLoaded', function () {
+        // Function to show toast notifications
+        function showToast(message, type = 'success') {
+            // Create toast container if it doesn't exist
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+                document.body.appendChild(toastContainer);
+            }
 
-    // Finance summary elements
-    const expenseTotal = document.getElementById('expense-total');
-    const incomeTotal = document.getElementById('income-total');
-    const balanceTotal = document.getElementById('balance-total');
-    const transactionCount = document.getElementById('transaction-count');
+            // Create the toast element
+            const toast = document.createElement('div');
 
-    // Asset ID
-    const assetId = document.getElementById('asset-id').value;
+            // Set classes based on type
+            if (type === 'success') {
+                toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center';
+            } else {
+                toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center';
+            }
 
-    // Current page for pagination
-    let currentPage = 1;
+            // Add content
+            toast.innerHTML = `
+                <div class="py-1">
+                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        ${type === 'success'
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                    <p>${message}</p>
+                </div>
+                <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
+            `;
 
-    // Current transaction being deleted
-    let currentDeleteId = null;
+            // Add to container
+            toastContainer.appendChild(toast);
 
-    // Format currency function
-    function formatCurrency(amount) {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(amount).replace('IDR', 'Rp');
-    }
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => {
+                    toast.remove();
+                }, 500);
+            }, 5000);
+        }
 
-    // Format date as DD MMM YYYY
-    function formatDate(dateString) {
-        const options = { day: 'numeric', month: 'short', year: 'numeric' };
-        return new Date(dateString).toLocaleDateString('id-ID', options);
-    }
+        // Make showToast available globally
+        window.showToast = showToast;
 
-    // Open modal function
-    function openModal(modal, content) {
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            content.classList.remove('scale-95', 'opacity-0', 'translate-y-4', 'sm:translate-y-0');
-            content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-        }, 10);
-    }
+        // Define a global openTransactionModal function
+        window.openTransactionModal = function () {
+            const modal = document.getElementById('addTransactionModal');
+            const modalContent = document.getElementById('addTransactionModalContent');
+            if (modal && modalContent) {
+                modal.classList.remove('hidden');
+                setTimeout(function () {
+                    modalContent.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                    modalContent.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                }, 10);
+            }
+        };
 
-    // Close modal function
-    function closeModal(modal, content) {
-        content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-        content.classList.add('scale-95', 'opacity-0', 'translate-y-4', 'sm:translate-y-0');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
-    }
+        // Set up modal helpers
+        function setupModalHelpers() {
+            // Define openModal and closeModal functions
+            window.openModal = window.openModal || function (modal, content) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4', 'sm:translate-y-0');
+                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                }, 10);
+            };
 
-    // Load transactions function
-    function loadTransactions() {
-        // Show loading state
-        transactionItems.innerHTML = `
+            window.closeModal = window.closeModal || function (modal, content) {
+                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                content.classList.add('scale-95', 'opacity-0', 'translate-y-4', 'sm:translate-y-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            };
+        }
+
+        // Initialize modal helpers
+        setupModalHelpers();
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Add Transaction Button
+            const addBtn = document.getElementById('addTransactionBtn');
+            if (addBtn) {
+                // Ensure we don't duplicate click handlers
+                addBtn.onclick = null;
+                addBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const modal = document.getElementById('addTransactionModal');
+                    const content = document.getElementById('addTransactionModalContent');
+                    if (modal && content) {
+                        document.getElementById('addTransactionForm').reset();
+                        openModal(modal, content);
+                    }
+                });
+            }
+
+            // Close Modal Buttons
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', () => {
+                    const modalId = button.getAttribute('data-modal') || button.closest('[id$="Modal"]').id;
+                    const modal = document.getElementById(modalId);
+                    const content = document.getElementById(modalId + 'Content');
+                    if (modal && content) {
+                        closeModal(modal, content);
+                    }
+                });
+            });
+
+            // Event delegation for edit and delete buttons
+            document.addEventListener('click', (e) => {
+                // Edit transaction button handling
+                if (e.target.closest('.edit-transaction')) {
+                    e.preventDefault();
+                    const editBtn = e.target.closest('.edit-transaction');
+                    const transactionId = editBtn.getAttribute('data-id');
+                    editTransaction(transactionId);
+                }
+
+                // Delete transaction button handling
+                if (e.target.closest('.delete-transaction')) {
+                    e.preventDefault();
+                    const deleteBtn = e.target.closest('.delete-transaction');
+                    const transactionId = deleteBtn.getAttribute('data-id');
+                    showDeleteModal(transactionId);
+                }
+            });
+
+            // Tambahkan fungsi ini di bagian setupEventListeners
+            setupAmountInputs();
+        }
+
+        // DOM Elements
+        const assetId = document.getElementById('asset-id')?.value;
+        const transactionItems = document.getElementById('transaction-items');
+        const filterType = document.getElementById('filter-type');
+        const sortBy = document.getElementById('sort-by');
+
+        // Finance summary elements
+        const expenseTotal = document.getElementById('expense-total');
+        const incomeTotal = document.getElementById('income-total');
+        const balanceTotal = document.getElementById('balance-total');
+        const transactionCount = document.getElementById('transaction-count');
+
+        // Current page for pagination
+        let currentPage = 1;
+
+        // Current transaction being deleted
+        let currentDeleteId = null;
+
+        // Format currency function
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount).replace('IDR', 'Rp');
+        }
+
+        // Format date as DD MMM YYYY
+        function formatDate(dateString) {
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+
+        // Load transactions function
+        function loadTransactions() {
+            // Show loading state
+            transactionItems.innerHTML = `
             <tr class="transaction-loading-row">
                 <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                     <div class="flex justify-center items-center">
@@ -421,73 +604,91 @@ document.addEventListener('DOMContentLoaded', function() {
             </tr>
         `;
 
-        // Get filter and sort values
-        const filterValue = filterType.value;
-        const sortValue = sortBy.value;
+            // Get filter and sort values
+            const filterValue = filterType?.value || 'all';
+            const sortValue = sortBy?.value || 'newest';
 
-        // Build query parameters
-        let queryParams = `?page=${currentPage}`;
-        if (filterValue !== 'all') {
-            queryParams += `&filter=${filterValue}`;
-        }
-        if (sortValue) {
-            queryParams += `&sort=${sortValue}`;
-        }
+            // Build query parameters
+            let queryParams = `?page=${currentPage}`;
+            if (filterValue !== 'all') {
+                queryParams += `&filter=${filterValue}`;
+            }
+            if (sortValue) {
+                queryParams += `&sort=${sortValue}`;
+            }
 
-        // Fetch transactions from API
-        fetch(`/asset-transactions/asset/${assetId}${queryParams}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    displayTransactions(data.data.transactions);
-                    updateSummary(data.data.summary);
-                    updatePagination(data.pagination);
-                } else {
-                    showError('Failed to load transactions: ' + data.message);
+            // Use fetch for consistency
+            fetch(`/asset-transactions/asset/${assetId}${queryParams}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
                 }
             })
-            .catch(error => {
-                console.error('Error fetching transactions:', error);
-                transactionItems.innerHTML = `
+                .then(response => {
+                    return response.json().then(data => {
+                        // Add response status to data for error handling
+                        return { ...data, httpStatus: response.status };
+                    });
+                })
+                .then(data => {
+                    console.log('Transactions data:', data);
+
+                    // AssetFinanceController returns 'success', not 'status'
+                    if (data.success) {
+                        displayTransactions(data.data.transactions);
+                        updateSummary(data.data.summary);
+                        if (data.pagination) {
+                            updatePagination(data.pagination);
+                        }
+                    } else {
+                        console.error('Error loading transactions:', data);
+                        transactionItems.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
+                                Gagal memuat transaksi: ${data.message || 'Terjadi kesalahan saat memuat data'}
+                            </td>
+                        </tr>
+                    `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Network error loading transactions:', error);
+                    transactionItems.innerHTML = `
                     <tr>
                         <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
-                            Gagal memuat transaksi. Silakan coba lagi.
+                            Gagal memuat transaksi. Terjadi kesalahan jaringan.
                         </td>
                     </tr>
                 `;
-            });
-    }
+                });
+        }
 
-    // Display transactions function
-    function displayTransactions(transactions) {
-        if (!transactions || transactions.length === 0) {
-            transactionItems.innerHTML = `
+        // Display transactions function
+        function displayTransactions(transactions) {
+            if (!transactions || transactions.length === 0) {
+                transactionItems.innerHTML = `
                 <tr>
                     <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                         Belum ada transaksi keuangan untuk aset ini.
                     </td>
                 </tr>
             `;
-            return;
-        }
+                return;
+            }
 
-        // Build transactions HTML
-        let html = '';
-        transactions.forEach(transaction => {
-            const isIncome = transaction.type === 'income';
-            const typeClass = isIncome ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-            const typeLabel = isIncome ? 'Pemasukan' : 'Pengeluaran';
-            const iconBg = isIncome ? 'bg-[#27AE60]' : 'bg-[#E74C3C]';
-            const iconPath = isIncome
-                ? 'M5 10l7-7m0 0l7 7m-7-7v18'
-                : 'M19 14l-7 7m0 0l-7-7m7 7V3';
+            // Build transactions HTML
+            let html = '';
+            transactions.forEach(transaction => {
+                const isIncome = transaction.type === 'income';
+                const typeClass = isIncome ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                const typeLabel = isIncome ? 'Pemasukan' : 'Pengeluaran';
+                const iconBg = isIncome ? 'bg-[#27AE60]' : 'bg-[#E74C3C]';
+                const iconPath = isIncome
+                    ? 'M5 10l7-7m0 0l7 7m-7-7v18'
+                    : 'M19 14l-7 7m0 0l-7-7m7 7V3';
 
-            html += `
+                html += `
                 <tr class="hover:bg-gray-50 transition-colors" data-id="${transaction.transaction_id}">
                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
                         <div class="flex items-center">
@@ -522,299 +723,436 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                 </tr>
             `;
-        });
-
-        transactionItems.innerHTML = html;
-
-        // Add event listeners to edit/delete buttons
-        document.querySelectorAll('.edit-transaction').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const transactionId = this.getAttribute('data-id');
-                editTransaction(transactionId);
             });
-        });
 
-        document.querySelectorAll('.delete-transaction').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const transactionId = this.getAttribute('data-id');
-                showDeleteModal(transactionId);
-            });
-        });
-    }
-
-    // Update summary function
-    function updateSummary(summary) {
-        if (summary) {
-            expenseTotal.textContent = formatCurrency(summary.expense.total);
-            incomeTotal.textContent = formatCurrency(summary.income.total);
-            balanceTotal.textContent = formatCurrency(summary.balance);
-
-            const totalCount = summary.expense.count + summary.income.count;
-            transactionCount.textContent = `Total Transaksi: ${totalCount}`;
+            transactionItems.innerHTML = html;
         }
-    }
 
-    // Update pagination function
-    function updatePagination(pagination) {
-        // Implement pagination UI if needed
-    }
+        // Update summary function
+        function updateSummary(summary) {
+            if (summary) {
+                expenseTotal.textContent = formatCurrency(summary.expense.total);
+                incomeTotal.textContent = formatCurrency(summary.income.total);
+                balanceTotal.textContent = formatCurrency(summary.balance);
 
-    // Show error function
-    function showError(message) {
-        formError.textContent = message;
-        formError.classList.remove('hidden');
+                const totalCount = summary.expense.count + summary.income.count;
+                transactionCount.textContent = `Total Transaksi: ${totalCount}`;
+            }
+        }
 
-        setTimeout(() => {
-            formError.classList.add('hidden');
-        }, 5000);
-    }
+        // Update pagination function
+        function updatePagination(pagination) {
+            // Implement pagination UI if needed
+        }
 
-    // Edit transaction function
-    function editTransaction(id) {
-        // Show loading state
-        const editFormError = document.getElementById('edit-form-error');
-        editFormError.classList.add('hidden');
+        // Edit transaction function
+        window.editTransaction = function (id) {
+            // Show loading state
+            const editFormError = document.getElementById('edit-form-error');
+            if (editFormError) editFormError.classList.add('hidden');
 
-        // Get transaction details
-        fetch(`/asset-transactions/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const transaction = data.data;
+            fetch(`/asset-transactions/${id}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // AssetFinanceController returns 'success', not 'status'
+                    if (data.success) {
+                        const transaction = data.data;
 
-                    // Populate form fields
-                    document.getElementById('edit-transaction-id').value = transaction.transaction_id;
-                    document.getElementById('edit-asset-id').value = transaction.asset_id;
+                        // Set form action with the correct ID
+                        const form = document.getElementById('editTransactionForm');
+                        form.action = `/asset-transactions/${transaction.transaction_id}`;
 
-                    // Set transaction type
-                    if (transaction.type === 'income') {
-                        document.getElementById('edit-type-income').checked = true;
+                        // Reset form event handlers
+                        const newForm = form.cloneNode(true);
+                        form.parentNode.replaceChild(newForm, form);
+
+                        // Setup the new form
+                        setupEditForm(newForm);
+
+                        // Populate form fields after replacing the form
+                        document.getElementById('edit-transaction-id').value = transaction.transaction_id;
+                        document.getElementById('edit-asset-id').value = transaction.asset_id;
+
+                        // Set transaction type
+                        if (transaction.type === 'income') {
+                            document.getElementById('edit-type-income').checked = true;
+                        } else {
+                            document.getElementById('edit-type-expense').checked = true;
+                        }
+
+                        // Set date, amount, and description
+                        document.getElementById('edit-transaction-date').value = transaction.transaction_date;
+                        document.getElementById('edit-transaction-amount').value = parseFloat(transaction.amount).toLocaleString('id-ID');
+                        document.getElementById('edit-transaction-description').value = transaction.description || '';
+
+                        // Open edit modal
+                        const modal = document.getElementById('editTransactionModal');
+                        const content = document.getElementById('editTransactionModalContent');
+                        openModal(modal, content);
                     } else {
-                        document.getElementById('edit-type-expense').checked = true;
+                        showToast(data.message || 'Failed to load transaction details', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching transaction details:', error);
+                    showToast('Error: ' + error.message, 'error');
+                });
+        }
+
+        // Show delete confirmation modal
+        function showDeleteModal(id) {
+            currentDeleteId = id;
+            const modal = document.getElementById('deleteTransactionModal');
+            const content = document.getElementById('deleteTransactionModalContent');
+            const form = document.getElementById('deleteTransactionForm');
+
+            // Set the form action with the correct ID
+            form.action = `/asset-transactions/${id}`;
+
+            // Reset form event handlers
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+
+            // Setup the new form
+            setupDeleteForm(newForm);
+
+            openModal(modal, content);
+        }
+
+        // Set up the edit transaction form handler
+        function setupEditForm(form) {
+            // Get the edit submit button
+            const editSubmitBtn = document.getElementById('editTransactionSubmitBtn');
+
+            if (editSubmitBtn) {
+                // Remove any existing event handlers
+                const newEditBtn = editSubmitBtn.cloneNode(true);
+                editSubmitBtn.parentNode.replaceChild(newEditBtn, editSubmitBtn);
+
+                // Add click handler
+                newEditBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    // Validate form data
+                    const type = form.querySelector('input[name="type"]:checked')?.value;
+                    const date = document.getElementById('edit-transaction-date')?.value;
+                    let amount = document.getElementById('edit-transaction-amount')?.value;
+
+                    if (!type) {
+                        showToast('Please select a transaction type', 'error');
+                        return;
                     }
 
-                    // Set date, amount, and description
-                    document.getElementById('edit-transaction-date').value = transaction.transaction_date;
-                    document.getElementById('edit-transaction-amount').value = parseFloat(transaction.amount).toLocaleString('id-ID');
-                    document.getElementById('edit-transaction-description').value = transaction.description || '';
+                    if (!date) {
+                        showToast('Please enter a transaction date', 'error');
+                        return;
+                    }
 
-                    // Open edit modal
-                    openModal(editTransactionModal, editTransactionModalContent);
-                } else {
-                    showError('Failed to load transaction details: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching transaction details:', error);
-                showError('An error occurred while loading transaction details');
-            });
-    }
+                    if (!amount) {
+                        showToast('Please enter an amount', 'error');
+                        return;
+                    }
 
-    // Show delete confirmation modal
-    function showDeleteModal(id) {
-        currentDeleteId = id;
-        openModal(deleteTransactionModal, deleteTransactionModalContent);
-    }
+                    // Format amount - ubah dari string ke number
+                    amount = amount.replace(/[^\d,]/g, '');  // Hapus semua karakter kecuali angka dan koma
+                    amount = amount.replace(/,/g, '.');      // Ganti koma dengan titik
+                    amount = parseFloat(amount);             // Konversi ke number
 
-    // Delete transaction function
-    function deleteTransaction(id) {
-        fetch(`/asset-transactions/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    if (isNaN(amount)) {
+                        showToast('Please enter a valid amount', 'error');
+                        return;
+                    }
+
+                    // Show loading state on button
+                    this.disabled = true;
+                    const originalBtnText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+                    // Create FormData from the form
+                    const formData = new FormData(form);
+                    formData.set('amount', amount); // Set amount yang sudah diformat
+
+                    // Convert FormData to JSON
+                    const jsonData = {};
+                    formData.forEach((value, key) => {
+                        jsonData[key] = key === 'amount' ? parseFloat(value) : value;
+                    });
+
+                    // Get CSRF token
+                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                    console.log('Sending updated transaction data:', jsonData);
+
+                    // Use fetch for submission
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': token,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(jsonData)
+                    })
+                        .then(response => response.json())
+                        .then(result => {
+                            console.log('API Response:', result);
+
+                            // Check for success
+                            if (result.success) {
+                                showToast('Transaction updated successfully!', 'success');
+
+                                // Close modal
+                                const modal = document.getElementById('editTransactionModal');
+                                const content = document.getElementById('editTransactionModalContent');
+                                closeModal(modal, content);
+
+                                // Reload transactions
+                                loadTransactions();
+                            } else {
+                                showToast(result.message || 'Failed to update transaction', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error updating transaction:', error);
+                            showToast('Error updating transaction: ' + error.message, 'error');
+                        })
+                        .finally(() => {
+                            // Reset button
+                            this.disabled = false;
+                            this.innerHTML = originalBtnText;
+                        });
+                });
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Reload transactions after delete
+        }
+
+        // Set up the original edit form
+        setupEditForm(document.getElementById('editTransactionForm'));
+
+        // Delete transaction form handler
+        function setupDeleteForm(form) {
+            // Get the delete submit button
+            const deleteSubmitBtn = document.getElementById('deleteTransactionSubmitBtn');
+
+            if (deleteSubmitBtn) {
+                // Remove any existing event handlers
+                const newDeleteBtn = deleteSubmitBtn.cloneNode(true);
+                deleteSubmitBtn.parentNode.replaceChild(newDeleteBtn, deleteSubmitBtn);
+
+                // Add click handler
+                newDeleteBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    if (!currentDeleteId) {
+                        showToast('No transaction selected for deletion', 'error');
+                        return;
+                    }
+
+                    // Show loading state on button
+                    this.disabled = true;
+                    const originalBtnText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+                    // Get CSRF token
+                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                    console.log('Deleting transaction:', currentDeleteId);
+
+                    // Use fetch for deletion
+                    fetch(form.action, {
+                        method: 'POST', // Using POST with _method=DELETE
+                        headers: {
+                            'X-CSRF-TOKEN': token,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ _method: 'DELETE' })
+                    })
+                        .then(response => response.json())
+                        .then(result => {
+                            console.log('API Response:', result);
+
+                            // Always close modal
+                            const modal = document.getElementById('deleteTransactionModal');
+                            const content = document.getElementById('deleteTransactionModalContent');
+                            closeModal(modal, content);
+
+                            // Check for success
+                            if (result.success) {
+                                showToast('Transaction deleted successfully!', 'success');
+                                // Reload transactions
+                                loadTransactions();
+                            } else {
+                                showToast(result.message || 'Failed to delete transaction', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error deleting transaction:', error);
+                            showToast('Error deleting transaction: ' + error.message, 'error');
+
+                            // Close modal on error too
+                            const modal = document.getElementById('deleteTransactionModal');
+                            const content = document.getElementById('deleteTransactionModalContent');
+                            closeModal(modal, content);
+                        })
+                        .finally(() => {
+                            // Reset button
+                            this.disabled = false;
+                            this.innerHTML = originalBtnText;
+                            currentDeleteId = null;
+                        });
+                });
+            }
+        }
+
+        // Set up the original delete form
+        setupDeleteForm(document.getElementById('deleteTransactionForm'));
+
+        // Filter and sort change handlers
+        if (filterType) {
+            filterType.addEventListener('change', function () {
+                currentPage = 1; // Reset to first page when filter changes
                 loadTransactions();
-            } else {
-                showError('Failed to delete transaction: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting transaction:', error);
-            showError('An error occurred while deleting the transaction');
-        });
-    }
-
-    // Add transaction button click
-    if (addTransactionBtn) {
-        addTransactionBtn.addEventListener('click', function() {
-            openModal(addTransactionModal, addTransactionModalContent);
-        });
-    }
-
-    // Close buttons
-    closeModalBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const modalId = btn.getAttribute('data-modal');
-            const modal = document.getElementById(modalId);
-            const content = document.getElementById(modalId + 'Content');
-            if (modal && content) {
-                closeModal(modal, content);
-            }
-        });
-    });
-
-    // Handle transaction form submit
-    if (transactionForm) {
-        transactionForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Clear previous errors
-            formError.classList.add('hidden');
-
-            // Format amount before submission (remove Rp and commas)
-            const amountInput = document.getElementById('transaction-amount');
-            let amount = amountInput.value.replace(/[^\d,]/g, '');
-            amount = amount.replace(/,/g, '.');
-
-            // Prepare form data
-            const formData = new FormData(this);
-            formData.set('amount', amount);
-
-            // Convert to JSON
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
             });
+        }
 
-            // Submit transaction
-            fetch('/asset-transactions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Close modal after submission
-                    closeModal(addTransactionModal, addTransactionModalContent);
+        if (sortBy) {
+            sortBy.addEventListener('change', loadTransactions);
+        }
 
-                    // Clear form
-                    transactionForm.reset();
+        // Setup event listeners
+        setupEventListeners();
 
-                    // Reload transactions
-                    loadTransactions();
-                } else {
-                    showError('Failed to create transaction: ' + data.message);
+        // Initialize - load transactions on page load
+        loadTransactions();
+
+        // Replace the add transaction form handler with this improved version
+        const addTransactionBtn = document.getElementById('addTransactionSubmitBtn');
+        const addTransactionForm = document.getElementById('addTransactionForm');
+
+        if (addTransactionBtn && addTransactionForm) {
+            // Remove any existing event handlers from the form
+            const newAddForm = addTransactionForm.cloneNode(true);
+            addTransactionForm.parentNode.replaceChild(newAddForm, addTransactionForm);
+
+            // Add click handler to the submit button instead of form submit
+            addTransactionBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const form = document.getElementById('addTransactionForm');
+                const type = form.querySelector('input[name="type"]:checked')?.value;
+                const date = document.getElementById('transaction-date')?.value;
+                let amount = document.getElementById('transaction-amount')?.value;
+                const assetId = document.getElementById('asset-id')?.value;
+
+                // Validasi
+                if (!type) {
+                    showToast('Silakan pilih tipe transaksi', 'error');
+                    return;
                 }
-            })
-            .catch(error => {
-                console.error('Error creating transaction:', error);
-                showError('An error occurred while creating the transaction');
-            });
-        });
-    }
-
-    // Handle edit transaction form submit
-    if (editTransactionForm) {
-        editTransactionForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Clear previous errors
-            const editFormError = document.getElementById('edit-form-error');
-            editFormError.classList.add('hidden');
-
-            // Get transaction ID
-            const transactionId = document.getElementById('edit-transaction-id').value;
-
-            // Format amount before submission (remove Rp and commas)
-            const amountInput = document.getElementById('edit-transaction-amount');
-            let amount = amountInput.value.replace(/[^\d,]/g, '');
-            amount = amount.replace(/,/g, '.');
-
-            // Prepare form data
-            const formData = new FormData(this);
-            formData.set('amount', amount);
-
-            // Convert to JSON
-            const data = {};
-            formData.forEach((value, key) => {
-                if (value !== '') {
-                    data[key] = value;
+                if (!date) {
+                    showToast('Silakan masukkan tanggal', 'error');
+                    return;
                 }
-            });
-
-            // Submit updated transaction
-            fetch(`/asset-transactions/${transactionId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Close modal after submission
-                    closeModal(editTransactionModal, editTransactionModalContent);
-
-                    // Reload transactions
-                    loadTransactions();
-                } else {
-                    editFormError.textContent = 'Failed to update transaction: ' + data.message;
-                    editFormError.classList.remove('hidden');
+                if (!amount) {
+                    showToast('Silakan masukkan nominal', 'error');
+                    return;
                 }
-            })
-            .catch(error => {
-                console.error('Error updating transaction:', error);
-                editFormError.textContent = 'An error occurred while updating the transaction';
-                editFormError.classList.remove('hidden');
-            });
-        });
-    }
 
-    // Handle delete transaction form submit
-    if (deleteTransactionForm) {
-        deleteTransactionForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+                // Format amount dan asset_id
+                const formattedAmount = formatAmount(amount);
+                const formattedAssetId = parseInt(assetId, 10);
 
-            if (currentDeleteId) {
+                // Prepare data
+                const jsonData = {
+                    type: type,
+                    transaction_date: date,
+                    amount: formattedAmount,
+                    asset_id: formattedAssetId,
+                    description: document.getElementById('transaction-description')?.value || ''
+                };
+
                 // Show loading state
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalBtnText = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `
-                    <svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                `;
+                this.disabled = true;
+                const originalBtnText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
-                deleteTransaction(currentDeleteId);
+                // Send request
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(jsonData)
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            showToast('Transaksi berhasil ditambahkan', 'success');
+                            closeModal(document.getElementById('addTransactionModal'),
+                                document.getElementById('addTransactionModalContent'));
+                            form.reset();
+                            loadTransactions();
+                        } else {
+                            showToast(result.message || 'Gagal menambahkan transaksi', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Terjadi kesalahan saat menambahkan transaksi', 'error');
+                    })
+                    .finally(() => {
+                        this.disabled = false;
+                        this.innerHTML = originalBtnText;
+                    });
+            });
+        }
 
-                // Close modal after submission
-                closeModal(deleteTransactionModal, deleteTransactionModalContent);
-
-                // Reset button state
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                }, 300);
+        // Tambahkan fungsi ini di bagian setupEventListeners
+        function setupAmountInputs() {
+            // Format amount input saat add transaction
+            const addAmountInput = document.getElementById('transaction-amount');
+            if (addAmountInput) {
+                addAmountInput.addEventListener('input', function (e) {
+                    let value = this.value.replace(/[^\d]/g, '');
+                    if (value) {
+                        value = parseInt(value, 10).toLocaleString('id-ID');
+                    }
+                    this.value = value;
+                });
             }
-        });
-    }
 
-    // Filter and sort change handlers
-    if (filterType) {
-        filterType.addEventListener('change', function() {
-            currentPage = 1; // Reset to first page when filter changes
-            loadTransactions();
-        });
-    }
+            // Format amount input saat edit transaction
+            const editAmountInput = document.getElementById('edit-transaction-amount');
+            if (editAmountInput) {
+                editAmountInput.addEventListener('input', function (e) {
+                    let value = this.value.replace(/[^\d]/g, '');
+                    if (value) {
+                        value = parseInt(value, 10).toLocaleString('id-ID');
+                    }
+                    this.value = value;
+                });
+            }
+        }
 
-    if (sortBy) {
-        sortBy.addEventListener('change', loadTransactions);
-    }
-
-    // Initialize - load transactions on page load
-    loadTransactions();
-});
+        // Modifikasi fungsi untuk format amount
+        function formatAmount(value) {
+            // Hapus semua karakter non-digit dan koma
+            value = value.replace(/[^\d,]/g, '');
+            // Ganti koma dengan titik untuk format desimal yang benar
+            value = value.replace(/,/g, '.');
+            // Konversi ke float
+            return parseFloat(value) || 0;
+        }
+    });
 </script>

@@ -290,10 +290,10 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Asset Finance routes
     Route::get('/asset-transactions/asset/{assetId}', [AssetFinanceController::class, 'getAllTransactions'])->name('asset-transactions.get');
-    Route::put('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'updateTransaction']);
-    Route::delete('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'deleteTransaction']);
-    Route::post('/asset-transactions', [AssetFinanceController::class, 'createTransaction']);
-    Route::get('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'getTransaction']);
+    Route::put('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'updateTransaction'])->name('asset-transactions.update');
+    Route::delete('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'deleteTransaction'])->name('asset-transactions.destroy');
+    Route::post('/asset-transactions', [AssetFinanceController::class, 'createTransaction'])->name('asset-transactions.store');
+    Route::get('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'getTransaction'])->name('asset-transactions.show');
 });
 
 // Fallback route for 404 errors
