@@ -215,7 +215,7 @@
 
                                 <!-- Save Button -->
                                 <div class="pt-4 flex gap-4">
-                                    <button type="submit" id="addTransactionSubmitBtn"
+                                    <button type="button" id="addTransactionSubmitBtn"
                                         class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                         Simpan
                                     </button>
@@ -407,19 +407,51 @@
 </div>
 
 <!-- Toast Notification Container -->
-<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+<div id="finance-toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2"></div>
 
 <!-- Add JavaScript for Transaction functionality -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Function to show toast notifications
-        function showToast(message, type = 'success') {
-            // Create toast container if it doesn't exist
-            let toastContainer = document.getElementById('toast-container');
+        // Initialize toast container or make sure it exists
+        const initializeToastContainer = () => {
+            let toastContainer = document.getElementById('finance-toast-container');
             if (!toastContainer) {
                 toastContainer = document.createElement('div');
-                toastContainer.id = 'toast-container';
-                toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+                toastContainer.id = 'finance-toast-container';
+                toastContainer.className = 'fixed top-4 right-4 z-[9999] flex flex-col gap-2';
+                document.body.appendChild(toastContainer);
+            }
+        };
+
+        // Initialize on page load
+        initializeToastContainer();
+
+        // Also initialize when this tab becomes active (if we're in a tabbed interface)
+        const tabTriggers = document.querySelectorAll('[data-tab]');
+        if (tabTriggers.length > 0) {
+            tabTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function (e) {
+                    const tabId = this.getAttribute('data-tab');
+                    if (tabId === 'finance') {
+                        // If this is the finance tab being activated
+                        setTimeout(initializeToastContainer, 100);
+                    }
+                });
+            });
+        }
+
+        // Function to show toast notifications
+        function showToast(message, type = 'success') {
+            // Ensure container exists
+            initializeToastContainer();
+
+            // Get toast container
+            let toastContainer = document.getElementById('finance-toast-container');
+            if (!toastContainer) {
+                console.error('Toast container still not found!');
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'finance-toast-container';
+                toastContainer.className = 'fixed top-4 right-4 z-[9999] flex flex-col gap-2';
                 document.body.appendChild(toastContainer);
             }
 
@@ -443,7 +475,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                    <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
                     <p>${message}</p>
                 </div>
                 <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
@@ -461,7 +493,9 @@
             }, 5000);
         }
 
-        // Make showToast available globally
+        // Make showToast available globally but with unique name to avoid conflicts
+        window.financeShowToast = showToast;
+        // Also maintain compatibility with existing calls
         window.showToast = showToast;
 
         // Define a global openTransactionModal function
@@ -632,8 +666,6 @@
                     });
                 })
                 .then(data => {
-                    console.log('Transactions data:', data);
-
                     // AssetFinanceController returns 'success', not 'status'
                     if (data.success) {
                         displayTransactions(data.data.transactions);
@@ -815,13 +847,21 @@
             // Set the form action with the correct ID
             form.action = `/asset-transactions/${id}`;
 
-            // Reset form event handlers
+            // Reset form event handlers and state
             const newForm = form.cloneNode(true);
             form.parentNode.replaceChild(newForm, form);
+
+            // Reset delete button state
+            const deleteBtn = newForm.querySelector('#deleteTransactionSubmitBtn');
+            if (deleteBtn) {
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = 'Hapus';
+            }
 
             // Setup the new form
             setupDeleteForm(newForm);
 
+            // Open modal
             openModal(modal, content);
         }
 
@@ -845,17 +885,17 @@
                     let amount = document.getElementById('edit-transaction-amount')?.value;
 
                     if (!type) {
-                        showToast('Please select a transaction type', 'error');
+                        financeShowToast('Please select a transaction type', 'error');
                         return;
                     }
 
                     if (!date) {
-                        showToast('Please enter a transaction date', 'error');
+                        financeShowToast('Please enter a transaction date', 'error');
                         return;
                     }
 
                     if (!amount) {
-                        showToast('Please enter an amount', 'error');
+                        financeShowToast('Please enter an amount', 'error');
                         return;
                     }
 
@@ -865,7 +905,7 @@
                     amount = parseFloat(amount);             // Konversi ke number
 
                     if (isNaN(amount)) {
-                        showToast('Please enter a valid amount', 'error');
+                        financeShowToast('Please enter a valid amount', 'error');
                         return;
                     }
 
@@ -887,8 +927,6 @@
                     // Get CSRF token
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                    console.log('Sending updated transaction data:', jsonData);
-
                     // Use fetch for submission
                     fetch(form.action, {
                         method: 'POST',
@@ -902,11 +940,8 @@
                     })
                         .then(response => response.json())
                         .then(result => {
-                            console.log('API Response:', result);
-
-                            // Check for success
                             if (result.success) {
-                                showToast('Transaction updated successfully!', 'success');
+                                financeShowToast('Transaksi berhasil diperbarui', 'success');
 
                                 // Close modal
                                 const modal = document.getElementById('editTransactionModal');
@@ -916,12 +951,12 @@
                                 // Reload transactions
                                 loadTransactions();
                             } else {
-                                showToast(result.message || 'Failed to update transaction', 'error');
+                                financeShowToast(result.message || 'Gagal memperbarui transaksi', 'error');
                             }
                         })
                         .catch(error => {
-                            console.error('Error updating transaction:', error);
-                            showToast('Error updating transaction: ' + error.message, 'error');
+                            console.error('Error:', error);
+                            financeShowToast('Terjadi kesalahan saat memperbarui transaksi', 'error');
                         })
                         .finally(() => {
                             // Reset button
@@ -962,11 +997,12 @@
                     // Get CSRF token
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                    console.log('Deleting transaction:', currentDeleteId);
+                    // Store button reference
+                    const deleteBtn = this;
 
                     // Use fetch for deletion
                     fetch(form.action, {
-                        method: 'POST', // Using POST with _method=DELETE
+                        method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': token,
                             'X-Requested-With': 'XMLHttpRequest',
@@ -977,35 +1013,30 @@
                     })
                         .then(response => response.json())
                         .then(result => {
-                            console.log('API Response:', result);
-
-                            // Always close modal
+                            // Close modal first
                             const modal = document.getElementById('deleteTransactionModal');
                             const content = document.getElementById('deleteTransactionModalContent');
                             closeModal(modal, content);
 
-                            // Check for success
                             if (result.success) {
-                                showToast('Transaction deleted successfully!', 'success');
-                                // Reload transactions
+                                // Gunakan fungsi yang didefinisikan di atas
+                                financeShowToast('Transaksi berhasil dihapus', 'success');
                                 loadTransactions();
                             } else {
-                                showToast(result.message || 'Failed to delete transaction', 'error');
+                                // Gunakan fungsi yang didefinisikan di atas
+                                financeShowToast(result.message || 'Gagal menghapus transaksi', 'error');
                             }
                         })
                         .catch(error => {
-                            console.error('Error deleting transaction:', error);
-                            showToast('Error deleting transaction: ' + error.message, 'error');
-
-                            // Close modal on error too
-                            const modal = document.getElementById('deleteTransactionModal');
-                            const content = document.getElementById('deleteTransactionModalContent');
-                            closeModal(modal, content);
+                            console.error('Error:', error);
+                            financeShowToast('Terjadi kesalahan saat menghapus transaksi', 'error');
                         })
                         .finally(() => {
-                            // Reset button
-                            this.disabled = false;
-                            this.innerHTML = originalBtnText;
+                            // Always reset the button state
+                            deleteBtn.disabled = false;
+                            deleteBtn.innerHTML = originalBtnText;
+
+                            // Reset currentDeleteId
                             currentDeleteId = null;
                         });
                 });
@@ -1033,90 +1064,98 @@
         // Initialize - load transactions on page load
         loadTransactions();
 
-        // Replace the add transaction form handler with this improved version
-        const addTransactionBtn = document.getElementById('addTransactionSubmitBtn');
-        const addTransactionForm = document.getElementById('addTransactionForm');
+        // Add transaction form handler
+        document.getElementById('addTransactionSubmitBtn')?.addEventListener('click', function (e) {
+            e.preventDefault();
 
-        if (addTransactionBtn && addTransactionForm) {
-            // Remove any existing event handlers from the form
-            const newAddForm = addTransactionForm.cloneNode(true);
-            addTransactionForm.parentNode.replaceChild(newAddForm, addTransactionForm);
+            const form = document.getElementById('addTransactionForm');
+            const formData = new FormData(form);
 
-            // Add click handler to the submit button instead of form submit
-            addTransactionBtn.addEventListener('click', function (e) {
-                e.preventDefault();
+            // Validate required fields
+            const type = formData.get('type');
+            const date = formData.get('transaction_date');
+            let amount = formData.get('amount');
 
-                const form = document.getElementById('addTransactionForm');
-                const type = form.querySelector('input[name="type"]:checked')?.value;
-                const date = document.getElementById('transaction-date')?.value;
-                let amount = document.getElementById('transaction-amount')?.value;
-                const assetId = document.getElementById('asset-id')?.value;
+            if (!type) {
+                financeShowToast('Pilih tipe transaksi', 'error');
+                return;
+            }
 
-                // Validasi
-                if (!type) {
-                    showToast('Silakan pilih tipe transaksi', 'error');
-                    return;
-                }
-                if (!date) {
-                    showToast('Silakan masukkan tanggal', 'error');
-                    return;
-                }
-                if (!amount) {
-                    showToast('Silakan masukkan nominal', 'error');
-                    return;
-                }
+            if (!date) {
+                financeShowToast('Masukkan tanggal transaksi', 'error');
+                return;
+            }
 
-                // Format amount dan asset_id
-                const formattedAmount = formatAmount(amount);
-                const formattedAssetId = parseInt(assetId, 10);
+            if (!amount) {
+                financeShowToast('Masukkan nominal transaksi', 'error');
+                return;
+            }
 
-                // Prepare data
-                const jsonData = {
-                    type: type,
-                    transaction_date: date,
-                    amount: formattedAmount,
-                    asset_id: formattedAssetId,
-                    description: document.getElementById('transaction-description')?.value || ''
-                };
+            // Format amount
+            amount = amount.replace(/[^\d,]/g, '');
+            amount = amount.replace(/,/g, '.');
+            amount = parseFloat(amount);
 
-                // Show loading state
-                this.disabled = true;
-                const originalBtnText = this.innerHTML;
-                this.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            if (isNaN(amount)) {
+                financeShowToast('Masukkan nominal yang valid', 'error');
+                return;
+            }
 
-                // Send request
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(jsonData)
+            // Create JSON data
+            const jsonData = {
+                asset_id: parseInt(formData.get('asset_id')),
+                type: formData.get('type'),
+                amount: amount,
+                transaction_date: formData.get('transaction_date'),
+                description: formData.get('description')
+            };
+
+            // Show loading state
+            this.disabled = true;
+            const originalText = this.innerHTML;
+            this.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+            // Send AJAX request
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        const modal = document.getElementById('addTransactionModal');
+                        const modalContent = document.getElementById('addTransactionModalContent');
+                        closeModal(modal, modalContent);
+
+                        // Reset form
+                        form.reset();
+
+                        // Show success message
+                        financeShowToast('Transaksi berhasil ditambahkan', 'success');
+
+                        // Reload transactions
+                        loadTransactions();
+                    } else {
+                        financeShowToast(data.message || 'Gagal menambahkan transaksi', 'error');
+                    }
                 })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            showToast('Transaksi berhasil ditambahkan', 'success');
-                            closeModal(document.getElementById('addTransactionModal'),
-                                document.getElementById('addTransactionModalContent'));
-                            form.reset();
-                            loadTransactions();
-                        } else {
-                            showToast(result.message || 'Gagal menambahkan transaksi', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('Terjadi kesalahan saat menambahkan transaksi', 'error');
-                    })
-                    .finally(() => {
-                        this.disabled = false;
-                        this.innerHTML = originalBtnText;
-                    });
-            });
-        }
+                .catch(error => {
+                    console.error('Error:', error);
+                    financeShowToast('Terjadi kesalahan saat menambahkan transaksi', 'error');
+                })
+                .finally(() => {
+                    // Reset button state
+                    this.disabled = false;
+                    this.innerHTML = originalText;
+                });
+        });
 
         // Tambahkan fungsi ini di bagian setupEventListeners
         function setupAmountInputs() {

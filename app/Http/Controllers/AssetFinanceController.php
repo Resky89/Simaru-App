@@ -152,14 +152,17 @@ class AssetFinanceController extends Controller
                 throw new \Exception($errorMessage);
             }
 
-            \Log::info('Transaction created successfully for asset: ' . $request->asset_id);
+            // Check if this is an AJAX request
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Transaksi berhasil ditambahkan',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
 
-            // Return JSON response for toast notification
-            return response()->json([
-                'success' => true,
-                'message' => 'Transaksi berhasil ditambahkan',
-                'data' => $result['data'] ?? null
-            ]);
+            // If it's a regular form submission, redirect with success message
+            return redirect()->back()->with('success', 'Transaksi berhasil ditambahkan');
 
         } catch (\Exception $e) {
             \Log::error('Transaction creation error:', [
@@ -167,10 +170,14 @@ class AssetFinanceController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal membuat transaksi: ' . $e->getMessage()
-            ], 500);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal membuat transaksi: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal membuat transaksi: ' . $e->getMessage());
         }
     }
 
@@ -237,8 +244,6 @@ class AssetFinanceController extends Controller
                 throw new \Exception($errorMessage);
             }
 
-            \Log::info('Transaction updated successfully: ' . $transactionId);
-
             // Return JSON response for toast notification
             return response()->json([
                 'success' => true,
@@ -301,8 +306,6 @@ class AssetFinanceController extends Controller
 
                 throw new \Exception($errorMessage);
             }
-
-            \Log::info('Transaction deleted successfully: ' . $transactionId);
 
             // Return JSON response for toast notification
             return response()->json([
