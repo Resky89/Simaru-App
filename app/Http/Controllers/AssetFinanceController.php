@@ -35,12 +35,41 @@ class AssetFinanceController extends Controller
 
             // Filter parameters
             if ($request->has('filter')) {
-                $queryParams['filter'] = $request->input('filter');
+                $filter = $request->input('filter');
+
+                // Only pass valid filter values (income or expense)
+                if (in_array($filter, ['income', 'expense'])) {
+                    $queryParams['type'] = $filter; // Use 'type' parameter for the API
+                }
             }
 
             // Sort parameters
             if ($request->has('sort')) {
-                $queryParams['sort'] = $request->input('sort');
+                $sort = $request->input('sort');
+
+                // Map frontend sort values to API parameters
+                switch ($sort) {
+                    case 'newest':
+                        $queryParams['sort_by'] = 'transaction_date';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    case 'oldest':
+                        $queryParams['sort_by'] = 'transaction_date';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'amount-high':
+                        $queryParams['sort_by'] = 'amount';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    case 'amount-low':
+                        $queryParams['sort_by'] = 'amount';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    default:
+                        // Default sort (newest first)
+                        $queryParams['sort_by'] = 'transaction_date';
+                        $queryParams['sort_order'] = 'desc';
+                }
             }
 
             // Fetch the transactions for the given asset ID

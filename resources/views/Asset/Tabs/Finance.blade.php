@@ -642,16 +642,52 @@
             const filterValue = filterType?.value || 'all';
             const sortValue = sortBy?.value || 'newest';
 
+            // Apply visual filter indication
+            if (filterValue !== 'all') {
+                filterType.classList.add('border-[#213268]', 'bg-blue-50');
+                const filterLabel = filterValue === 'income' ? 'Pemasukan' : 'Pengeluaran';
+                transactionCount.textContent = `Filter: ${filterLabel}`;
+            } else {
+                filterType.classList.remove('border-[#213268]', 'bg-blue-50');
+            }
+
+            // Apply visual sort indication
+            if (sortBy) {
+                // Add a border to indicate active sort
+                sortBy.classList.add('border-[#213268]', 'bg-blue-50');
+
+                // Add visual indicator to show which sort is active
+                let sortLabel = '';
+                switch (sortValue) {
+                    case 'newest':
+                        sortLabel = 'Terbaru';
+                        break;
+                    case 'oldest':
+                        sortLabel = 'Terlama';
+                        break;
+                    case 'amount-high':
+                        sortLabel = 'Nominal (Tinggi-Rendah)';
+                        break;
+                    case 'amount-low':
+                        sortLabel = 'Nominal (Rendah-Tinggi)';
+                        break;
+                }
+            }
+
             // Build query parameters
             let queryParams = `?page=${currentPage}`;
+
             if (filterValue !== 'all') {
                 queryParams += `&filter=${filterValue}`;
             }
+
             if (sortValue) {
                 queryParams += `&sort=${sortValue}`;
             }
 
-            // Use fetch for consistency
+            // Make API request with console logging for debugging
+            console.log(`Fetching transactions with params: ${queryParams}`);
+
             fetch(`/asset-transactions/asset/${assetId}${queryParams}`, {
                 method: 'GET',
                 headers: {
