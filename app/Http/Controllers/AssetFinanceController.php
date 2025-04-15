@@ -97,7 +97,7 @@ class AssetFinanceController extends Controller
      * Create a new financial transaction for an asset
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function createTransaction(Request $request)
     {
