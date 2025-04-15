@@ -171,11 +171,6 @@
                 </button>
                 <!-- Sub Menu -->
                 <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="account" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
-                    <a href="{{ route('employees') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('employee') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Employee</span>
-                        </div>
-                    </a>
                     <a href="{{ route('user') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('user') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">User</span>
