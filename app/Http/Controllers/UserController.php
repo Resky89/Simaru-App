@@ -57,7 +57,7 @@ class UserController extends Controller
             // Check if we got an error response from the ApiService
             if (isset($roleResult['error']) || isset($userResult['error']) || isset($employeeResult['error'])) {
                 $error = isset($roleResult['error']) ? $roleResult['error'] :
-                       (isset($userResult['error']) ? $userResult['error'] : $employeeResult['error']);
+                    (isset($userResult['error']) ? $userResult['error'] : $employeeResult['error']);
 
                 if (strpos($error, 'login') !== false) {
                     return redirect()->route('login')->with('error', $error);
@@ -73,7 +73,7 @@ class UserController extends Controller
             // Link employee names to users
             foreach ($users as &$user) {
                 $employeeId = $user['employee_id'];
-                $employee = collect($employees)->first(function($emp) use ($employeeId) {
+                $employee = collect($employees)->first(function ($emp) use ($employeeId) {
                     return $emp['employee_id'] == $employeeId;
                 });
 
@@ -81,7 +81,7 @@ class UserController extends Controller
 
                 // Also link role name
                 $roleId = $user['role_id'];
-                $role = collect($roles)->first(function($rol) use ($roleId) {
+                $role = collect($roles)->first(function ($rol) use ($roleId) {
                     return $rol['role_id'] == $roleId;
                 });
 
@@ -149,142 +149,6 @@ class UserController extends Controller
     }
 
     /**
-     * Store a newly created role.
-     */
-    public function storeRole(Request $request)
-    {
-        try {
-            // Log the request data
-            \Log::info('Attempting to create role with data:', [
-                'request_data' => $request->all()
-            ]);
-
-            $result = $this->apiService->request('POST', '/roles', [
-                'json' => [
-                    'role_name' => $request->input('role_name'),
-                    'description' => $request->input('description')
-                ]
-            ]);
-
-            // Log the API response
-            \Log::info('API response for role creation:', [
-                'api_response' => $result
-            ]);
-
-            // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during role creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
-            }
-
-            // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
-                \Log::warning('Error during role creation:', [
-                    'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to create role'
-                ]);
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to create role');
-            }
-
-            // Successfully created
-            \Log::info('Role created successfully');
-            return redirect()->route('user')
-                ->with('success', 'Role created successfully');
-        } catch (\Exception $e) {
-            \Log::error('Exception during role creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'role_data' => $request->except('_token')
-            ]);
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Failed to create role: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Update the specified role.
-     */
-    public function updateRole(Request $request, $id)
-    {
-        try {
-            $result = $this->apiService->request('PUT', "/roles/{$id}", [
-                'json' => [
-                    'role_id' => $id,
-                    'role_name' => $request->input('role_name'),
-                    'description' => $request->input('description')
-                ]
-            ]);
-
-            // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
-            }
-
-            // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to update role');
-            }
-
-            // Successfully updated
-            return redirect()->route('user')
-                ->with('success', 'Role updated successfully');
-        } catch (\Exception $e) {
-            \Log::error('Failed to update role', [
-                'error' => $e->getMessage(),
-                'role_id' => $id,
-                'role_data' => $request->except(['_token', '_method'])
-            ]);
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Failed to update role: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Remove the specified role.
-     */
-    public function destroyRole($id)
-    {
-        try {
-            $result = $this->apiService->request('DELETE', "/roles/{$id}");
-
-            // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
-            }
-
-            // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
-                return redirect()->back()
-                    ->with('error', $result['message'] ?? 'Failed to delete role');
-            }
-
-            // Successfully deleted
-            return redirect()->route('user')
-                ->with('success', 'Role deleted successfully');
-        } catch (\Exception $e) {
-            \Log::error('Failed to delete role', [
-                'error' => $e->getMessage(),
-                'role_id' => $id
-            ]);
-
-            return redirect()->back()
-                ->with('error', 'Failed to delete role: ' . $e->getMessage());
-        }
-    }
-
-    /**
      * Get users endpoint
      */
     public function getUsers(Request $request)
@@ -343,8 +207,8 @@ class UserController extends Controller
             $result = $this->apiService->request('POST', '/auth/create-user', [
                 'json' => [
                     'email' => $request->input('email'),
-                    'role_id' => (int)$request->input('role_id'),
-                    'employee_id' => (int)$request->input('employee_id')
+                    'role_id' => (int) $request->input('role_id'),
+                    'employee_id' => (int) $request->input('employee_id')
                 ]
             ]);
 
@@ -408,8 +272,8 @@ class UserController extends Controller
             $result = $this->apiService->request('PUT', "/users/{$id}", [
                 'json' => [
                     'email' => $request->input('email'),
-                    'role_id' => (int)$request->input('role_id'),
-                    'employee_id' => (int)$request->input('employee_id'),
+                    'role_id' => (int) $request->input('role_id'),
+                    'employee_id' => (int) $request->input('employee_id'),
                     'is_active' => $isActive
                 ]
             ]);

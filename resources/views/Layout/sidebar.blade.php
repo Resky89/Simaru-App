@@ -2,7 +2,8 @@
     <!-- Header with Logo -->
     <div class="h-[72px] relative">
         <div class="w-full h-[72px] bg-white shadow-[0_4px_8.1px_2px_#56C5F1] rounded-tr-[20px]">
-            <img src="{{ asset('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI" class="w-[180px] h-[47px] absolute left-[13px] top-[12px]">
+            <img src="{{ asset('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI"
+                class="w-[180px] h-[47px] absolute left-[13px] top-[12px]">
         </div>
     </div>
 
@@ -25,8 +26,10 @@
                 <a href="{{ route('dashboard') }}" class="block dashboard-link" data-menu="dashboard">
                     <div class="{{ $menuLinkClass }} {{ Request::routeIs('dashboard') ? 'bg-[#56C5F1]/20' : '' }}">
                         <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                             </svg>
                         </div>
                         <span class="{{ $menuTextClass }}">Dashboard</span>
@@ -39,25 +42,32 @@
                 <button class="w-full focus:outline-none toggle-menu" data-menu="masterdata">
                     <div class="{{ $menuLinkClass }} menu-header">
                         <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                         </div>
                         <span class="{{ $menuTextClass }}">Master Data</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow" fill="none" viewBox="0 0 24 24" stroke="#757575">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
+                            fill="none" viewBox="0 0 24 24" stroke="#757575">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
                 </button>
                 <!-- Sub Menu -->
-                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="masterdata" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="masterdata"
+                    style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     <a href="{{ route('asset-categories') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-categories') ? 'bg-[#56C5F1]/20' : '' }}">
+                        <div
+                            class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-categories') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Sub Categories</span>
                         </div>
                     </a>
                     <a href="{{ route('asset-view') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-view') ? 'bg-[#56C5F1]/20' : '' }}">
+                        <div
+                            class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-view') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">View Asset</span>
                         </div>
                     </a>
@@ -67,7 +77,8 @@
                         </div>
                     </a>
                     <a href="{{ route('location') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('location') ? 'bg-[#56C5F1]/20' : '' }}">
+                        <div
+                            class="{{ $submenuLinkClass }} {{ Request::routeIs('location') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Location</span>
                         </div>
                     </a>
@@ -84,18 +95,23 @@
                 <button class="w-full focus:outline-none toggle-menu" data-menu="procurement">
                     <div class="{{ $menuLinkClass }} menu-header">
                         <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 16l-4-4m0 0l4-4m-4 4h10M7 16v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 16l-4-4m0 0l4-4m-4 4h10M7 16v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                         </div>
                         <span class="{{ $menuTextClass }}">Procurement</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow" fill="none" viewBox="0 0 24 24" stroke="#757575">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
+                            fill="none" viewBox="0 0 24 24" stroke="#757575">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
                 </button>
                 <!-- Sub Menu -->
-                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="procurement" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="procurement"
+                    style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     @php
                         $procurementSubmenuItems = [
                             ['route' => 'procurement.request', 'name' => 'Request'],
@@ -106,11 +122,12 @@
                     @endphp
 
                     @foreach($procurementSubmenuItems as $item)
-                    <a href="{{ route($item['route']) }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
-                        </div>
-                    </a>
+                        <a href="{{ route($item['route']) }}" class="block">
+                            <div
+                                class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
+                                <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
+                            </div>
+                        </a>
                     @endforeach
                 </div>
             </div>
@@ -120,18 +137,23 @@
                 <button class="w-full focus:outline-none toggle-menu" data-menu="report">
                     <div class="{{ $menuLinkClass }} menu-header">
                         <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
                         <span class="{{ $menuTextClass }}">Report</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow" fill="none" viewBox="0 0 24 24" stroke="#757575">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
+                            fill="none" viewBox="0 0 24 24" stroke="#757575">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
                 </button>
                 <!-- Sub Menu -->
-                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="report" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="report"
+                    style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     @php
                         $reportSubmenuItems = [
                             ['route' => 'opname', 'name' => 'Opname Report'],
@@ -144,11 +166,12 @@
                     @endphp
 
                     @foreach($reportSubmenuItems as $item)
-                    <a href="{{ route($item['route']) }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
-                        </div>
-                    </a>
+                        <a href="{{ route($item['route']) }}" class="block">
+                            <div
+                                class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
+                                <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
+                            </div>
+                        </a>
                     @endforeach
                 </div>
             </div>
@@ -158,21 +181,31 @@
                 <button class="w-full focus:outline-none toggle-menu" data-menu="account">
                     <div class="{{ $menuLinkClass }} menu-header">
                         <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                         </div>
                         <span class="{{ $menuTextClass }}">Account</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow" fill="none" viewBox="0 0 24 24" stroke="#757575">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
+                            fill="none" viewBox="0 0 24 24" stroke="#757575">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
                 </button>
                 <!-- Sub Menu -->
-                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="account" style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="account"
+                    style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     <a href="{{ route('user') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('user') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">User</span>
+                        </div>
+                    </a>
+                    <a href="{{ route('roles') }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('roles') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Role</span>
                         </div>
                     </a>
                 </div>
@@ -188,8 +221,10 @@
                 <button type="submit" class="w-full text-left">
                     <div class="{{ $menuLinkClass }}">
                         <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                         </div>
                         <span class="{{ $menuTextClass }}">Log Out</span>
@@ -201,136 +236,150 @@
 
     <!-- JavaScript for sidebar functionality -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = {
-            // Store DOM references
-            elements: {
-                toggleButtons: document.querySelectorAll('.toggle-menu'),
-                menuItems: document.querySelectorAll('.menu-item'),
-                submenus: document.querySelectorAll('.submenu'),
-                arrows: document.querySelectorAll('.menu-arrow'),
-                menuHeaders: document.querySelectorAll('.menu-header'),
-                directLinks: document.querySelectorAll('#menu-container > .menu-item > a:not(.toggle-menu)'),
-                allLinks: document.querySelectorAll('#sidebar-container a')
-            },
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = {
+                // Store DOM references
+                elements: {
+                    toggleButtons: document.querySelectorAll('.toggle-menu'),
+                    menuItems: document.querySelectorAll('.menu-item'),
+                    submenus: document.querySelectorAll('.submenu'),
+                    arrows: document.querySelectorAll('.menu-arrow'),
+                    menuHeaders: document.querySelectorAll('.menu-header'),
+                    directLinks: document.querySelectorAll('#menu-container > .menu-item > a:not(.toggle-menu)'),
+                    allLinks: document.querySelectorAll('#sidebar-container a')
+                },
 
-            // Helper methods
-            updateElementStyle: function(element, isActive, selector, activeClass, inactiveClass) {
-                if (!element) return;
-                const target = selector ? element.querySelector(selector) : element;
-                if (!target) return;
+                // Helper methods
+                updateElementStyle: function (element, isActive, selector, activeClass, inactiveClass) {
+                    if (!element) return;
+                    const target = selector ? element.querySelector(selector) : element;
+                    if (!target) return;
 
-                if (isActive) {
-                    inactiveClass && target.classList.remove(inactiveClass);
-                    activeClass && target.classList.add(activeClass);
-                } else {
-                    activeClass && target.classList.remove(activeClass);
-                    inactiveClass && target.classList.add(inactiveClass);
-                }
-            },
-
-            // Central method to close all submenus
-            closeAllSubmenus: function() {
-                this.elements.submenus.forEach(submenu => {
-                    submenu.style.maxHeight = '0';
-                    submenu.style.opacity = '0';
-                });
-
-                this.elements.arrows.forEach(arrow => {
-                    arrow.classList.remove('rotate-90');
-                    if (arrow.querySelector('path')) {
-                        arrow.querySelector('path').setAttribute('stroke', '#757575');
+                    if (isActive) {
+                        inactiveClass && target.classList.remove(inactiveClass);
+                        activeClass && target.classList.add(activeClass);
+                    } else {
+                        activeClass && target.classList.remove(activeClass);
+                        inactiveClass && target.classList.add(inactiveClass);
                     }
-                });
+                },
 
-                this.elements.menuHeaders.forEach(header => {
-                    header.classList.remove('bg-[#56C5F1]/20');
-                    this.updateElementStyle(header, false, 'span', 'text-[#213268]', 'text-[#757575]');
-
-                    const svg = header.querySelector('.w-6.h-6:not(.menu-arrow)');
-                    if (svg && svg.querySelector('path')) {
-                        svg.querySelector('path').setAttribute('stroke', '#757575');
-                    }
-                });
-
-                this.elements.menuItems.forEach(item => {
-                    item.classList.remove('opacity-75', 'scale-[0.98]');
-                });
-
-                localStorage.removeItem('activeMenu');
-            },
-
-            // Method to open a specific submenu
-            openSubmenu: function(menuName) {
-                const targetSubmenu = document.querySelector(`.submenu[data-parent="${menuName}"]`);
-                const targetArrow = document.querySelector(`.toggle-menu[data-menu="${menuName}"] .menu-arrow`);
-                const targetHeader = document.querySelector(`.toggle-menu[data-menu="${menuName}"] .menu-header`);
-
-                this.closeAllSubmenus();
-
-                this.elements.menuItems.forEach(item => {
-                    item.classList.add('opacity-75', 'scale-[0.98]');
-                });
-
-                setTimeout(() => {
-                    if (targetSubmenu) {
-                        targetSubmenu.style.maxHeight = targetSubmenu.scrollHeight + 'px';
-                        targetSubmenu.style.opacity = '1';
-                    }
-
-                    if (targetArrow) {
-                        targetArrow.classList.add('rotate-90');
-                        if (targetArrow.querySelector('path')) {
-                            targetArrow.querySelector('path').setAttribute('stroke', '#213268');
-                        }
-                    }
-
-                    if (targetHeader) {
-                        targetHeader.classList.add('bg-[#56C5F1]/20');
-                        this.updateElementStyle(targetHeader, true, 'span', 'text-[#213268]', 'text-[#757575]');
-
-                        const svg = targetHeader.querySelector('.w-6.h-6:not(.menu-arrow)');
-                        if (svg && svg.querySelector('path')) {
-                            svg.querySelector('path').setAttribute('stroke', '#213268');
-                        }
-                    }
-                }, 10);
-
-                if (targetSubmenu) {
-                    const menuItem = targetSubmenu.closest('.menu-item');
-                    if (menuItem) {
-                        menuItem.classList.remove('opacity-75', 'scale-[0.98]');
-                    }
-                }
-
-                localStorage.setItem('activeMenu', menuName);
-            },
-
-            // Toggle a menu (open if closed, close if open)
-            toggleMenu: function(menuName) {
-                const targetSubmenu = document.querySelector(`.submenu[data-parent="${menuName}"]`);
-                const isOpen = (targetSubmenu && targetSubmenu.style.maxHeight !== '0px' && targetSubmenu.style.maxHeight !== '');
-                isOpen ? this.closeAllSubmenus() : this.openSubmenu(menuName);
-            },
-
-            // Initialize sidebar functionality
-            init: function() {
-                const self = this;
-
-                // Toggle button click events
-                this.elements.toggleButtons.forEach(button => {
-                    button.addEventListener('click', function() {
-                        self.toggleMenu(this.getAttribute('data-menu'));
+                // Central method to close all submenus
+                closeAllSubmenus: function () {
+                    this.elements.submenus.forEach(submenu => {
+                        submenu.style.maxHeight = '0';
+                        submenu.style.opacity = '0';
                     });
-                });
 
-                // Direct links click handling
-                this.elements.directLinks.forEach(link => {
-                    link.addEventListener('click', function() {
-                        self.closeAllSubmenus();
-                        const linkDiv = this.querySelector('div');
-                        if (linkDiv) {
-                            linkDiv.classList.add('bg-[#56C5F1]/20');
+                    this.elements.arrows.forEach(arrow => {
+                        arrow.classList.remove('rotate-90');
+                        if (arrow.querySelector('path')) {
+                            arrow.querySelector('path').setAttribute('stroke', '#757575');
+                        }
+                    });
+
+                    this.elements.menuHeaders.forEach(header => {
+                        header.classList.remove('bg-[#56C5F1]/20');
+                        this.updateElementStyle(header, false, 'span', 'text-[#213268]', 'text-[#757575]');
+
+                        const svg = header.querySelector('.w-6.h-6:not(.menu-arrow)');
+                        if (svg && svg.querySelector('path')) {
+                            svg.querySelector('path').setAttribute('stroke', '#757575');
+                        }
+                    });
+
+                    this.elements.menuItems.forEach(item => {
+                        item.classList.remove('opacity-75', 'scale-[0.98]');
+                    });
+
+                    localStorage.removeItem('activeMenu');
+                },
+
+                // Method to open a specific submenu
+                openSubmenu: function (menuName) {
+                    const targetSubmenu = document.querySelector(`.submenu[data-parent="${menuName}"]`);
+                    const targetArrow = document.querySelector(`.toggle-menu[data-menu="${menuName}"] .menu-arrow`);
+                    const targetHeader = document.querySelector(`.toggle-menu[data-menu="${menuName}"] .menu-header`);
+
+                    this.closeAllSubmenus();
+
+                    this.elements.menuItems.forEach(item => {
+                        item.classList.add('opacity-75', 'scale-[0.98]');
+                    });
+
+                    setTimeout(() => {
+                        if (targetSubmenu) {
+                            targetSubmenu.style.maxHeight = targetSubmenu.scrollHeight + 'px';
+                            targetSubmenu.style.opacity = '1';
+                        }
+
+                        if (targetArrow) {
+                            targetArrow.classList.add('rotate-90');
+                            if (targetArrow.querySelector('path')) {
+                                targetArrow.querySelector('path').setAttribute('stroke', '#213268');
+                            }
+                        }
+
+                        if (targetHeader) {
+                            targetHeader.classList.add('bg-[#56C5F1]/20');
+                            this.updateElementStyle(targetHeader, true, 'span', 'text-[#213268]', 'text-[#757575]');
+
+                            const svg = targetHeader.querySelector('.w-6.h-6:not(.menu-arrow)');
+                            if (svg && svg.querySelector('path')) {
+                                svg.querySelector('path').setAttribute('stroke', '#213268');
+                            }
+                        }
+                    }, 10);
+
+                    if (targetSubmenu) {
+                        const menuItem = targetSubmenu.closest('.menu-item');
+                        if (menuItem) {
+                            menuItem.classList.remove('opacity-75', 'scale-[0.98]');
+                        }
+                    }
+
+                    localStorage.setItem('activeMenu', menuName);
+                },
+
+                // Toggle a menu (open if closed, close if open)
+                toggleMenu: function (menuName) {
+                    const targetSubmenu = document.querySelector(`.submenu[data-parent="${menuName}"]`);
+                    const isOpen = (targetSubmenu && targetSubmenu.style.maxHeight !== '0px' && targetSubmenu.style.maxHeight !== '');
+                    isOpen ? this.closeAllSubmenus() : this.openSubmenu(menuName);
+                },
+
+                // Initialize sidebar functionality
+                init: function () {
+                    const self = this;
+
+                    // Toggle button click events
+                    this.elements.toggleButtons.forEach(button => {
+                        button.addEventListener('click', function () {
+                            self.toggleMenu(this.getAttribute('data-menu'));
+                        });
+                    });
+
+                    // Direct links click handling
+                    this.elements.directLinks.forEach(link => {
+                        link.addEventListener('click', function () {
+                            self.closeAllSubmenus();
+                            const linkDiv = this.querySelector('div');
+                            if (linkDiv) {
+                                linkDiv.classList.add('bg-[#56C5F1]/20');
+                                self.updateElementStyle(linkDiv, true, 'span', 'text-[#213268]', 'text-[#757575]');
+
+                                const svg = linkDiv.querySelector('.w-6.h-6');
+                                if (svg && svg.querySelector('path')) {
+                                    svg.querySelector('path').setAttribute('stroke', '#213268');
+                                }
+                            }
+                        });
+                    });
+
+                    // Update active direct links from routing
+                    this.elements.directLinks.forEach(link => {
+                        const linkDiv = link.querySelector('div');
+                        if (linkDiv && linkDiv.classList.contains('bg-[#56C5F1]/20')) {
                             self.updateElementStyle(linkDiv, true, 'span', 'text-[#213268]', 'text-[#757575]');
 
                             const svg = linkDiv.querySelector('.w-6.h-6');
@@ -339,188 +388,174 @@
                             }
                         }
                     });
-                });
 
-                // Update active direct links from routing
-                this.elements.directLinks.forEach(link => {
-                    const linkDiv = link.querySelector('div');
-                    if (linkDiv && linkDiv.classList.contains('bg-[#56C5F1]/20')) {
-                        self.updateElementStyle(linkDiv, true, 'span', 'text-[#213268]', 'text-[#757575]');
+                    // Submenu links click handling
+                    document.querySelectorAll('.submenu a').forEach(link => {
+                        link.addEventListener('click', function () {
+                            self.closeAllSubmenus();
 
-                        const svg = linkDiv.querySelector('.w-6.h-6');
-                        if (svg && svg.querySelector('path')) {
-                            svg.querySelector('path').setAttribute('stroke', '#213268');
-                        }
-                    }
-                });
+                            // Highlight parent menu
+                            const submenu = this.closest('.submenu');
+                            if (submenu) {
+                                const menuName = submenu.getAttribute('data-parent');
+                                const menuHeader = document.querySelector(`.toggle-menu[data-menu="${menuName}"] .menu-header`);
 
-                // Submenu links click handling
-                document.querySelectorAll('.submenu a').forEach(link => {
-                    link.addEventListener('click', function() {
-                        self.closeAllSubmenus();
+                                if (menuHeader) {
+                                    menuHeader.classList.add('bg-[#56C5F1]/20');
+                                    self.updateElementStyle(menuHeader, true, 'span', 'text-[#213268]', 'text-[#757575]');
 
-                        // Highlight parent menu
-                        const submenu = this.closest('.submenu');
-                        if (submenu) {
-                            const menuName = submenu.getAttribute('data-parent');
-                            const menuHeader = document.querySelector(`.toggle-menu[data-menu="${menuName}"] .menu-header`);
-
-                            if (menuHeader) {
-                                menuHeader.classList.add('bg-[#56C5F1]/20');
-                                self.updateElementStyle(menuHeader, true, 'span', 'text-[#213268]', 'text-[#757575]');
-
-                                const svg = menuHeader.querySelector('.w-6.h-6:not(.menu-arrow)');
-                                if (svg && svg.querySelector('path')) {
-                                    svg.querySelector('path').setAttribute('stroke', '#213268');
+                                    const svg = menuHeader.querySelector('.w-6.h-6:not(.menu-arrow)');
+                                    if (svg && svg.querySelector('path')) {
+                                        svg.querySelector('path').setAttribute('stroke', '#213268');
+                                    }
                                 }
                             }
-                        }
 
-                        // Highlight clicked submenu link
-                        const linkDiv = this.querySelector('div');
-                        if (linkDiv) {
-                            linkDiv.classList.add('bg-[#56C5F1]/20');
-                            self.updateElementStyle(linkDiv, true, 'span', 'text-[#213268]', 'text-[#757575]');
+                            // Highlight clicked submenu link
+                            const linkDiv = this.querySelector('div');
+                            if (linkDiv) {
+                                linkDiv.classList.add('bg-[#56C5F1]/20');
+                                self.updateElementStyle(linkDiv, true, 'span', 'text-[#213268]', 'text-[#757575]');
+                            }
+                        });
+                    });
+
+                    // Update active submenu links from routing
+                    document.querySelectorAll('.submenu a div').forEach(div => {
+                        if (div.classList.contains('bg-[#56C5F1]/20')) {
+                            self.updateElementStyle(div, true, 'span', 'text-[#213268]', 'text-[#757575]');
+
+                            const submenu = div.closest('.submenu');
+                            if (submenu) {
+                                const menuName = submenu.getAttribute('data-parent');
+                                localStorage.setItem('activeMenu', menuName);
+                            }
                         }
                     });
-                });
 
-                // Update active submenu links from routing
-                document.querySelectorAll('.submenu a div').forEach(div => {
-                    if (div.classList.contains('bg-[#56C5F1]/20')) {
-                        self.updateElementStyle(div, true, 'span', 'text-[#213268]', 'text-[#757575]');
+                    // Navigation tracking
+                    this.elements.allLinks.forEach(link => {
+                        link.addEventListener('click', function (e) {
+                            const href = this.getAttribute('href');
+                            if (!href || href.startsWith('#') || href.includes('login')) return;
+                            sessionStorage.setItem('sidebarNavigation', 'true');
+                        });
+                    });
 
-                        const submenu = div.closest('.submenu');
-                        if (submenu) {
-                            const menuName = submenu.getAttribute('data-parent');
-                            localStorage.setItem('activeMenu', menuName);
-                        }
+                    // Restore active menu from localStorage
+                    const storedActiveMenu = localStorage.getItem('activeMenu');
+                    if (storedActiveMenu) {
+                        this.openSubmenu(storedActiveMenu);
                     }
-                });
 
-                // Navigation tracking
-                this.elements.allLinks.forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        const href = this.getAttribute('href');
-                        if (!href || href.startsWith('#') || href.includes('login')) return;
-                        sessionStorage.setItem('sidebarNavigation', 'true');
-                    });
-                });
+                    // Make methods available globally
+                    window.toggleSidebarMenu = (menuName) => self.toggleMenu(menuName);
+                    window.closeAllSidebarMenus = () => self.closeAllSubmenus();
+                }
+            };
 
-                // Restore active menu from localStorage
-                const storedActiveMenu = localStorage.getItem('activeMenu');
-                if (storedActiveMenu) {
-                    this.openSubmenu(storedActiveMenu);
+            // Initialize the sidebar
+            sidebar.init();
+
+            // === MODAL INITIALIZATION ===
+            function reinitializeModals() {
+                console.log('Reinitializing modals after sidebar navigation');
+
+                // DOM elements
+                const modals = document.querySelectorAll('[id$="Modal"]');
+                const closeButtons = document.querySelectorAll('.close-modal');
+
+                // Helper functions for modal operations
+                if (typeof window.openModal !== 'function') {
+                    window.openModal = function (modal, content) {
+                        modal.classList.remove('hidden');
+                        setTimeout(() => {
+                            content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                            content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                        }, 10);
+                    };
                 }
 
-                // Make methods available globally
-                window.toggleSidebarMenu = (menuName) => self.toggleMenu(menuName);
-                window.closeAllSidebarMenus = () => self.closeAllSubmenus();
-            }
-        };
+                if (typeof window.closeModal !== 'function') {
+                    window.closeModal = function (modal, content) {
+                        content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                        content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+                        setTimeout(() => {
+                            modal.classList.add('hidden');
+                        }, 300);
+                    };
+                }
 
-        // Initialize the sidebar
-        sidebar.init();
+                // Initialize modal triggers
+                function initModalTrigger(selector, modalIdFunc) {
+                    document.querySelectorAll(selector).forEach(button => {
+                        if (!button.hasAttribute('data-modal-initialized')) {
+                            button.addEventListener('click', function (e) {
+                                e.preventDefault();
+                                const modalId = modalIdFunc(this);
+                                const modal = document.getElementById(modalId);
+                                const content = modal?.querySelector(`#${modalId}Content`);
+                                if (modal && content) openModal(modal, content);
+                            });
+                            button.setAttribute('data-modal-initialized', 'true');
+                        }
+                    });
+                }
 
-        // === MODAL INITIALIZATION ===
-        function reinitializeModals() {
-            console.log('Reinitializing modals after sidebar navigation');
+                // Initialize standard modal buttons
+                initModalTrigger('[id$="Btn"]', btn => btn.id.replace('Btn', 'Modal'));
 
-            // DOM elements
-            const modals = document.querySelectorAll('[id$="Modal"]');
-            const closeButtons = document.querySelectorAll('.close-modal');
+                // Initialize specialized buttons
+                initModalTrigger('.edit-brand-btn', () => 'editBrandModal');
+                initModalTrigger('.delete-brand-btn', () => 'deleteBrandModal');
 
-            // Helper functions for modal operations
-            if (typeof window.openModal !== 'function') {
-                window.openModal = function(modal, content) {
-                    modal.classList.remove('hidden');
-                    setTimeout(() => {
-                        content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                        content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                    }, 10);
-                };
-            }
-
-            if (typeof window.closeModal !== 'function') {
-                window.closeModal = function(modal, content) {
-                    content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                    content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                    setTimeout(() => {
-                        modal.classList.add('hidden');
-                    }, 300);
-                };
-            }
-
-            // Initialize modal triggers
-            function initModalTrigger(selector, modalIdFunc) {
-                document.querySelectorAll(selector).forEach(button => {
+                // Initialize close buttons
+                closeButtons.forEach(button => {
                     if (!button.hasAttribute('data-modal-initialized')) {
-                        button.addEventListener('click', function(e) {
+                        button.addEventListener('click', function (e) {
                             e.preventDefault();
-                            const modalId = modalIdFunc(this);
-                            const modal = document.getElementById(modalId);
-                            const content = modal?.querySelector(`#${modalId}Content`);
-                            if (modal && content) openModal(modal, content);
+                            const modal = button.closest('[id$="Modal"]');
+                            const content = modal.querySelector('[id$="ModalContent"]');
+                            closeModal(modal, content);
                         });
                         button.setAttribute('data-modal-initialized', 'true');
                     }
                 });
+
+                // Initialize background click to close
+                modals.forEach(modal => {
+                    if (!modal.hasAttribute('data-modal-initialized')) {
+                        modal.addEventListener('click', function (e) {
+                            if (e.target === modal) {
+                                const content = modal.querySelector('[id$="ModalContent"]');
+                                closeModal(modal, content);
+                            }
+                        });
+                        modal.setAttribute('data-modal-initialized', 'true');
+                    }
+                });
             }
 
-            // Initialize standard modal buttons
-            initModalTrigger('[id$="Btn"]', btn => btn.id.replace('Btn', 'Modal'));
-
-            // Initialize specialized buttons
-            initModalTrigger('.edit-brand-btn', () => 'editBrandModal');
-            initModalTrigger('.delete-brand-btn', () => 'deleteBrandModal');
-
-            // Initialize close buttons
-            closeButtons.forEach(button => {
-                if (!button.hasAttribute('data-modal-initialized')) {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const modal = button.closest('[id$="Modal"]');
-                        const content = modal.querySelector('[id$="ModalContent"]');
-                        closeModal(modal, content);
-                    });
-                    button.setAttribute('data-modal-initialized', 'true');
+            // Check if page loaded after sidebar navigation
+            window.addEventListener('DOMContentLoaded', function () {
+                if (sessionStorage.getItem('sidebarNavigation') === 'true') {
+                    sessionStorage.removeItem('sidebarNavigation');
+                    reinitializeModals();
                 }
             });
 
-            // Initialize background click to close
-            modals.forEach(modal => {
-                if (!modal.hasAttribute('data-modal-initialized')) {
-                    modal.addEventListener('click', function(e) {
-                        if (e.target === modal) {
-                            const content = modal.querySelector('[id$="ModalContent"]');
-                            closeModal(modal, content);
-                        }
-                    });
-                    modal.setAttribute('data-modal-initialized', 'true');
-                }
-            });
-        }
-
-        // Check if page loaded after sidebar navigation
-        window.addEventListener('DOMContentLoaded', function() {
-            if (sessionStorage.getItem('sidebarNavigation') === 'true') {
-                sessionStorage.removeItem('sidebarNavigation');
-                reinitializeModals();
+            // Watch for content changes
+            const contentArea = document.querySelector('main');
+            if (contentArea) {
+                const observer = new MutationObserver(reinitializeModals);
+                observer.observe(contentArea, {
+                    childList: true,
+                    subtree: true
+                });
             }
+
+            // Make function available globally
+            window.reinitializeModalsAfterNavigation = reinitializeModals;
         });
-
-        // Watch for content changes
-        const contentArea = document.querySelector('main');
-        if (contentArea) {
-            const observer = new MutationObserver(reinitializeModals);
-            observer.observe(contentArea, {
-                childList: true,
-                subtree: true
-            });
-        }
-
-        // Make function available globally
-        window.reinitializeModalsAfterNavigation = reinitializeModals;
-    });
     </script>
 </div>

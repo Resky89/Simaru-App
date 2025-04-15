@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ProcurementRequestController;
 use App\Http\Controllers\ProcurementDetailRequestController;
 use App\Http\Controllers\AssetFinanceController;
+use App\Http\Controllers\RoleController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -112,16 +113,17 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::prefix('user')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('user');
 
-        // Role API Routes
-        Route::post('/roles/store', [UserController::class, 'storeRole'])->name('roles.store');
-        Route::put('/roles/update/{id}', [UserController::class, 'updateRole'])->name('roles.update');
-        Route::delete('/roles/delete/{id}', [UserController::class, 'destroyRole'])->name('roles.destroy');
-
         // User API Routes
         Route::post('/users/store', [UserController::class, 'storeUser'])->name('users.store');
         Route::put('/users/update/{id}', [UserController::class, 'updateUser'])->name('users.update');
         Route::delete('/users/delete/{id}', [UserController::class, 'destroyUser'])->name('users.destroy');
     });
+
+    // Role Management
+    Route::get('/roles', [RoleController::class, 'index'])->name('roles');
+    Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
+    Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
     //-------------------------------------------------------------------------
     // ASSET MANAGEMENT
