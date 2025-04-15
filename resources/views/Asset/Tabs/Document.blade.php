@@ -1,11 +1,11 @@
 <div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-[#213268]">DOCUMENT</h2>
+        <h2 class="text-xl font-bold text-[#213268]">DOKUMEN</h2>
         <button id="addDocumentBtn" class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            DOCUMENT
+            DOKUMEN
         </button>
     </div>
 
@@ -14,11 +14,11 @@
         <table class="w-full min-w-[500px] border-collapse">
             <thead>
                 <tr>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Title</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">File name</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Notes</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Upload Date</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-16 md:w-20">Action</th>
+                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Judul</th>
+                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Nama File</th>
+                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Catatan</th>
+                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Tanggal Upload</th>
+                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-16 md:w-20">Aksi</th>
                 </tr>
             </thead>
             <tbody id="documentTableBody">
@@ -29,7 +29,7 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Loading documents...
+                            Memuat dokumen...
                         </div>
                     </td>
                 </tr>
@@ -47,7 +47,7 @@
                     id="addDocumentModalContent">
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">ADD NEW DOCUMENT</h2>
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH DOKUMEN BARU</h2>
                         <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" data-modal="addDocumentModal">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -63,24 +63,24 @@
                             <div class="space-y-4">
                                 <!-- Title Input -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Title</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Judul</label>
                                     <input type="text" name="document_title" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        placeholder="Document title">
+                                        placeholder="Judul Dokumen">
                                 </div>
 
                                 <!-- Notes Input -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Notes</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Catatan</label>
                                     <textarea name="notes" rows="3"
                                         class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        placeholder="Document notes"></textarea>
+                                        placeholder="Catatan Dokumen"></textarea>
                                 </div>
 
                                 <!-- File Upload -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Insert Your File</label>
-                                    <p class="text-sm text-gray-500">Maximum file size allowed: 10 MB</p>
+                                    <label class="block text-base font-semibold text-[#666666]">Masukkan File Anda</label>
+                                    <p class="text-sm text-gray-500">Ukuran file maksimal: 10 MB</p>
                                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative">
                                         <input type="file" id="document_file" name="document" required
                                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
@@ -88,8 +88,8 @@
                                             <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
-                                            <p class="mt-1 text-sm text-gray-600">Drag your file(s) or <span class="text-blue-600">browse</span></p>
-                                            <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png, docx, doc, pdf or csv</p>
+                                            <p class="mt-1 text-sm text-gray-600">Seret atau <span class="text-blue-600">browse</span></p>
+                                            <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png, docx, doc, pdf atau csv</p>
                                         </div>
                                     </div>
                                     <div id="document-preview-container" class="mt-2 hidden">
@@ -114,13 +114,13 @@
                                 <div class="pt-4">
                                     <button type="submit" id="addDocumentSubmitBtn"
                                             class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Save
+                                        Simpan
                                     </button>
 
                                     <!-- Upload Progress Indicator (initially hidden) -->
                                     <div id="uploadProgressContainer" class="hidden mt-4">
                                         <div class="flex items-center justify-between mb-1">
-                                            <span class="text-sm font-medium text-[#213268]">Uploading document...</span>
+                                            <span class="text-sm font-medium text-[#213268]">Mengupload dokumen...</span>
                                             <span id="uploadProgressText" class="text-sm font-medium text-[#213268]">0%</span>
                                 </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -162,7 +162,7 @@
                                 <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
-                                <p class="mt-2 text-sm text-gray-600">Loading document preview...</p>
+                                <p class="mt-2 text-sm text-gray-600">Memuat pratinjau dokumen...</p>
                             </div>
                             <!-- Image Preview -->
                             <img id="preview-image" class="max-w-full max-h-[500px] object-contain hidden" alt="Document Preview">
@@ -174,12 +174,12 @@
                                     <!-- File type icon will be placed here -->
                                 </div>
                                 <p id="preview-filename" class="text-lg font-medium"></p>
-                                <p class="mt-2 text-sm text-gray-500">This file type cannot be previewed</p>
+                                <p class="mt-2 text-sm text-gray-500">Tipe file ini tidak dapat dipreview</p>
                                 <a id="download-link" href="#" target="_blank" class="mt-4 inline-flex items-center px-4 py-2 bg-[#213268] rounded-md text-white hover:bg-[#152349]">
                                     <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                     </svg>
-                                    Download File
+                                    Unduh File
                                 </a>
                             </div>
                         </div>
@@ -198,7 +198,7 @@
                     id="deleteDocumentModalContent">
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE DOCUMENT</h2>
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS DOKUMEN</h2>
                         <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" data-modal="deleteDocumentModal">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -216,14 +216,14 @@
                                     <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <p class="text-base text-gray-600 text-center">Are you sure you want to delete this document? This action cannot be undone.</p>
+                                    <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus dokumen ini? Aksi ini tidak dapat dibatalkan.</p>
                                 </div>
                                 <div class="flex gap-3">
                                     <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200" data-modal="deleteDocumentModal">
-                                        Cancel
+                                        Batal
                                     </button>
                                     <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                        Delete
+                                        Hapus
                                     </button>
                                 </div>
                             </div>
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </svg>
             </div>
             <div>
-                <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Error!'}</p>
                 <p>${message}</p>
             </div>
             <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
             progressContainer.classList.remove('hidden');
             progressBar.style.width = '0%';
             progressText.textContent = '0%';
-            statusMessage.textContent = 'Preparing to upload...';
+            statusMessage.textContent = 'Mempersiapkan untuk mengupload...';
 
             // Use XMLHttpRequest for better progress tracking
             const xhr = new XMLHttpRequest();
@@ -350,9 +350,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     progressText.textContent = percentComplete + '%';
 
                     if (percentComplete < 100) {
-                        statusMessage.textContent = 'Uploading file to server...';
+                        statusMessage.textContent = 'Mengupload file ke server...';
                     } else {
-                        statusMessage.textContent = 'Processing upload on server...';
+                        statusMessage.textContent = 'Memproses upload ke server...';
                     }
                 }
             });
@@ -370,8 +370,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Success
                         progressBar.classList.remove('bg-[#213268]', 'bg-red-500');
                         progressBar.classList.add('bg-green-500');
-                        statusMessage.textContent = 'Upload successful!';
-                        showToast('Document uploaded successfully!', 'success');
+                        statusMessage.textContent = 'Upload berhasil!';
+                        showToast('Dokumen berhasil diupload!', 'success');
 
                         // Close modal and reload after success
                         setTimeout(() => {
@@ -395,22 +395,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         progressBar.classList.add('bg-red-500');
                         statusMessage.textContent = 'Error: ' + (result.message || 'Server error');
                         statusMessage.classList.add('text-red-600');
-                        showToast(result.message || 'Failed to upload document', 'error');
+                        showToast(result.message || 'Gagal mengupload dokumen', 'error');
                     }
                 } catch (e) {
                     // Response parse error
                     console.error('Error parsing server response:', e);
                     progressBar.classList.remove('bg-[#213268]');
                     progressBar.classList.add('bg-red-500');
-                    statusMessage.textContent = 'Error: Could not parse server response';
+                    statusMessage.textContent = 'Error: Tidak dapat memparsing respons server';
                     statusMessage.classList.add('text-red-600');
-                    showToast('Server error: Invalid response format', 'error');
+                    showToast('Server error: Format respons tidak valid', 'error');
                 }
 
                 // Reset button state
                 setTimeout(() => {
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Save';
+                    submitBtn.innerHTML = 'Simpan';
                 }, 1000);
             });
 
@@ -419,12 +419,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 progressBar.classList.remove('bg-[#213268]');
                 progressBar.classList.add('bg-red-500');
                 progressBar.style.width = '100%';
-                statusMessage.textContent = 'Network error during file upload';
+                statusMessage.textContent = 'Error jaringan selama penguploadan file';
                 statusMessage.classList.add('text-red-600');
-                showToast('Network error during file upload', 'error');
+                showToast('Error jaringan selama penguploadan file', 'error');
 
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Save';
+                submitBtn.innerHTML = 'Simpan';
             });
 
             // Open and send request
@@ -659,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Loading documents...
+                            Memuat dokumen...
                         </div>
                     </td>
                 </tr>
@@ -680,7 +680,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                        No documents found for this asset
+                        Tidak ada dokumen ditemukan untuk aset ini
                     </td>
                 </tr>
             `;
@@ -808,15 +808,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (result.status) {
                         // Reload documents on success
                         this.loadDocuments();
-                        showToast('Document deleted successfully', 'success');
+                        showToast('Dokumen berhasil dihapus', 'success');
                     } else {
-                        showToast('Error: ' + (result.message || 'Failed to delete document'), 'error');
+                        showToast('Error: ' + (result.message || 'Gagal menghapus dokumen'), 'error');
                     }
                 })
                 .catch(error => {
                     closeModal(modal, content);
                     console.error('Error deleting document:', error);
-                    showToast('Error deleting document. Please try again.', 'error');
+                    showToast('Error menghapus dokumen. Silakan coba lagi.', 'error');
                 })
                 .finally(() => {
                     // Reset button state
@@ -954,7 +954,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (result.status) {
                     // Success
-                    showToast('Document uploaded successfully!', 'success');
+                    showToast('Dokumen berhasil diupload!', 'success');
 
                     // Close modal and reload documents
                     setTimeout(() => {
@@ -973,18 +973,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 1000);
                 } else {
                     // Error from server
-                    showToast(result.message || 'Failed to upload document', 'error');
+                    showToast(result.message || 'Gagal mengupload dokumen', 'error');
                 }
             })
             .catch(error => {
                 // Network or other error
                 console.error('Upload error:', error);
-                showToast('Error uploading document: ' + (error.message || 'Unknown error'), 'error');
+                showToast('Error mengupload dokumen: ' + (error.message || 'Error tidak diketahui'), 'error');
             })
             .finally(() => {
                 // Reset button state
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Save';
+                submitBtn.innerHTML = 'Simpan';
             });
         });
     }

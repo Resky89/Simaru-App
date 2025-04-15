@@ -1,12 +1,12 @@
 <div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-[#213268]">DEPRECIATION</h2>
+        <h2 class="text-xl font-bold text-[#213268]">PENYUSUTAN</h2>
         <button class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            MANAGE
+            PENGATURAN
         </button>
     </div>
 
@@ -28,11 +28,11 @@
         <table class="w-full">
             <thead>
                 <tr>
-                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Date Acquired</th>
-                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Total Cost</th>
-                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Salvage Value</th>
-                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Life (Months)</th>
-                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Depreciation Method</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Pengadaan</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Total Biaya</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nilai Sisa</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Usia Asset (Bulan)</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Metode Penyusutan</th>
                 </tr>
             </thead>
                 <tbody id="depreciationSummary">
@@ -49,7 +49,7 @@
 
     <!-- Depreciation Chart -->
     <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
-        <h3 class="text-center text-lg font-semibold text-[#213268] mb-6">Depreciation Monthly Status</h3>
+        <h3 class="text-center text-lg font-semibold text-[#213268] mb-6">Penyusutan Bulanan</h3>
         <div class="h-64 w-full">
             <canvas id="depreciationChart"></canvas>
         </div>
@@ -61,10 +61,10 @@
             <thead>
                 <tr>
                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">#</th>
-                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Month</th>
-                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Depreciation Expense</th>
-                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Accumulated Depreciation at Month-end</th>
-                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Book Value at Month-end</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Bulan</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Pengeluaran Penyusutan</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Penyusutan Akumulasi di Akhir Bulan</th>
+                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nilai Buku di Akhir Bulan</th>
                 </tr>
             </thead>
                 <tbody id="monthlyDepreciationData">
@@ -93,10 +93,10 @@
 
         init() {
             if (this.initialized) return;
-            console.log('Initializing Depreciation System with Asset ID:', this.assetId);
+            console.log('Memulai Sistem Penyusutan dengan Asset ID:', this.assetId);
 
             if (!this.assetId) {
-                console.error('Asset ID is not available');
+                console.error('Asset ID tidak tersedia');
                 this.showError('Asset ID tidak tersedia');
                 return;
             }
@@ -141,7 +141,7 @@
             }
 
             this.showLoading();
-            console.log('Fetching depreciation data for asset ID:', this.assetId);
+            console.log('Mengambil data penyusutan untuk Asset ID:', this.assetId);
 
             fetch(`/asset-depreciation/${this.assetId}`, {
                 method: 'GET',
@@ -157,10 +157,10 @@
                 return response.json();
             })
             .then(data => {
-                console.log('Received depreciation data:', data);
+                console.log('Menerima data penyusutan:', data);
 
                 if (!data.status || !data.data || !data.data.depreciation) {
-                    throw new Error(data.message || 'Invalid data structure received');
+                    throw new Error(data.message || 'Struktur data tidak valid');
                 }
 
                 const depreciation = data.data.depreciation;
@@ -168,7 +168,7 @@
                 this.hideLoading();
             })
             .catch(error => {
-                console.error('Error loading depreciation data:', error);
+                console.error('Error loading depreciation data:', error);  
                 this.showError('Gagal memuat data depresiasi: ' + error.message);
             });
         },
