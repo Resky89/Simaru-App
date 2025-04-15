@@ -136,7 +136,6 @@
                         $reportSubmenuItems = [
                             ['route' => 'opname', 'name' => 'Opname Report'],
                             ['route' => 'report.maintenance', 'name' => 'Maintenance Report'],
-                            ['route' => 'report.inspection', 'name' => 'Inspection Report'],
                             ['route' => 'report.calibration', 'name' => 'Calibration Report'],
                             ['route' => 'report.finance', 'name' => 'Finance Report'],
                             ['route' => 'report.complain', 'name' => 'Complain Report'],
