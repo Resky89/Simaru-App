@@ -32,7 +32,7 @@
                 </div>
                 <div class="flex flex-col">
                     <div class="stat-value text-[28px] font-medium text-[#232D42]">{{ formatCompactNumber($dashboardData['assets_by_status']['under repair'] ?? 0) }}</div>
-                    <div class="stat-title text-[14px] text-[#DAAE0F] m-0 opacity-80">Under Repair</div>
+                    <div class="stat-title text-[14px] text-[#DAAE0F] m-0 opacity-80">Dalam Perbaikan   </div>
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@
                 </div>
                 <div class="flex flex-col">
                     <div class="stat-value text-[28px] font-medium text-[#232D42]">{{ formatCompactCurrency($dashboardData['total_book_value'] ?? 0) }}</div>
-                    <div class="stat-title text-[14px] text-[#F16A1B] m-0 opacity-80">Net Asset Value</div>
+                    <div class="stat-title text-[14px] text-[#F16A1B] m-0 opacity-80">Nilai Buku</div>
                 </div>
             </div>
         </div>
@@ -65,7 +65,7 @@
                 </div>
                 <div class="flex flex-col">
                     <div class="stat-value text-[28px] font-medium text-[#232D42]">{{ formatCompactCurrency($dashboardData['total_acquisition_cost'] ?? 0) }}</div>
-                    <div class="stat-title text-[14px] text-[#6F43CD] m-0 opacity-80">Acquisition Cost</div>
+                    <div class="stat-title text-[14px] text-[#6F43CD] m-0 opacity-80">Biaya Pengadaan</div>
                 </div>
             </div>
         </div>
@@ -83,7 +83,7 @@
                 </div>
                 <div class="flex flex-col">
                     <div class="stat-value text-[28px] font-medium text-[#232D42]">{{ formatCompactNumber($dashboardData['total_users'] ?? 0) }}</div>
-                    <div class="stat-title text-[14px] text-[#1B8ADB] m-0 opacity-80">Users</div>
+                    <div class="stat-title text-[14px] text-[#1B8ADB] m-0 opacity-80">Pengguna</div>
                 </div>
             </div>
         </div>
@@ -95,7 +95,7 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body p-4">
                 <!-- Title -->
-                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Asset By Status</h2>
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Asset Berdasarkan Status</h2>
 
                 <!-- Divider -->
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -112,31 +112,31 @@
                         <!-- Available -->
                         <div class="flex items-center gap-2">
                             <div class="w-2.5 h-2.5 bg-[#7CB60C]"></div>
-                            <span class="text-sm text-[#4F4F4F]">Available</span>
+                            <span class="text-sm text-[#4F4F4F]">Tersedia</span>
                         </div>
 
                         <!-- Maintenance -->
                         <div class="flex items-center gap-2">
                             <div class="w-2.5 h-2.5 bg-[#25B1FF]"></div>
-                            <span class="text-sm text-[#4F4F4F]">Maintenance</span>
+                            <span class="text-sm text-[#4F4F4F]">Perawatan</span>
                         </div>
 
                         <!-- Check Out -->
                         <div class="flex items-center gap-2">
                             <div class="w-2.5 h-2.5 bg-[#FFD016]"></div>
-                            <span class="text-sm text-[#4F4F4F]">Check Out</span>
+                            <span class="text-sm text-[#4F4F4F]">Pinjam</span>
                         </div>
 
                         <!-- Dispose -->
                         <div class="flex items-center gap-2">
                             <div class="w-2.5 h-2.5 bg-[#ACC3EF]"></div>
-                            <span class="text-sm text-[#4F4F4F]">Dispose</span>
+                            <span class="text-sm text-[#4F4F4F]">Dihapuskan</span>
                         </div>
 
                         <!-- Lost -->
                         <div class="flex items-center gap-2">
                             <div class="w-2.5 h-2.5 bg-[#FF4A2B]"></div>
-                            <span class="text-sm text-[#4F4F4F]">Lost</span>
+                            <span class="text-sm text-[#4F4F4F]">Hilang</span>
                         </div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
             <div class="card-body p-4">
                 <!-- Title and Toggle -->
                 <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins']">Asset By Categories</h2>
+                    <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins']">Asset Berdasarkan Kategori</h2>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="displayToggle" class="sr-only peer">
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#213268]"></div>
@@ -210,7 +210,7 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body p-4">
                 <!-- Title -->
-                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Upcoming Assets Calibration</h2>
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Asset Yang Akan Disetel</h2>
 
                 <!-- Divider -->
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -304,7 +304,7 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body p-4">
                 <!-- Title -->
-                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Asset By Location</h2>
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Asset Berdasarkan Lokasi</h2>
 
                 <!-- Divider -->
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -407,7 +407,7 @@
     <!-- Recent Activity -->
     <div class="card bg-white shadow-xl p-4 md:p-7 lg:p-14 space-y-6">
         <!-- Title -->
-        <h2 class="text-2xl font-medium font-['Poppins'] text-[#213268]">Recent Activity</h2>
+        <h2 class="text-2xl font-medium font-['Poppins'] text-[#213268]">Aktivitas Terakhir</h2>
 
         <!-- Activity List -->
         <div class="space-y-3.5">
@@ -429,7 +429,7 @@
                     <!-- Content -->
                     <div class="space-y-2 md:space-y-4">
                         <p class="text-base font-normal font-['Poppins'] text-[#757575]">Asset ID: 123456</p>
-                        <p class="text-xl font-normal font-['Poppins'] text-black">You change status from <span class="text-xl text-[#DAAE0F]">Checked Out</span> to <span class="text-xl text-[#7CB60C]">Available</span></p>
+                        <p class="text-xl font-normal font-['Poppins'] text-black">Anda mengubah status dari <span class="text-xl text-[#DAAE0F]">Pinjam</span> ke <span class="text-xl text-[#7CB60C]">Tersedia</span></p>
                     </div>
                 </div>
             </div>
@@ -452,7 +452,7 @@
                     <!-- Content -->
                     <div class="space-y-2 md:space-y-4">
                         <p class="text-base font-normal font-['Poppins'] text-[#757575]">Asset ID: 125384</p>
-                        <p class="text-xl font-normal font-['Poppins'] text-black">Jhon Doe change status from <span class="text-xl text-[#DAAE0F]">Checked Out</span> to <span class="text-xl text-[#7CB60C]">Available</span></p>
+                        <p class="text-xl font-normal font-['Poppins'] text-black">Jhon Doe mengubah status dari <span class="text-xl text-[#DAAE0F]">Pinjam</span> ke <span class="text-xl text-[#7CB60C]">Tersedia</span></p>
                     </div>
                 </div>
             </div>
@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['Available', 'Maintenance', 'Check Out', 'Dispose', 'Lost'],
+            labels: ['Tersedia', 'Perawatan', 'Pinjam', 'Dihapuskan', 'Hilang'],
             datasets: [{
                 data: [
                     {{ $dashboardData['assets_by_status']['available'] ?? 0 }},
@@ -583,24 +583,24 @@ let currentMonth = currentDate.getMonth();
 let currentYear = currentDate.getFullYear();
 
 const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
 ];
 
 // Sample events data with different types
 const events = {
     "2025-03-13": [
-        { title: "Is this when the Superbowl is?", type: "info" },
-        { title: "Run to the store to get some nachos", type: "info" },
-        { title: "Deadline: Submit application!", type: "urgent" }
+        { title: "Apakah ini saat Superbowl?", type: "info" },
+        { title: "Lari ke toko untuk mendapatkan beberapa nachos", type: "info" },
+        { title: "Batas waktu: Kirim aplikasi!", type: "urgent" }
     ],
     "2025-03-15": [
-        { title: "Team Meeting", type: "info" },
-        { title: "Project Review", type: "urgent" }
+        { title: "Rapat Tim", type: "info" },
+        { title: "Ulasan Proyek", type: "urgent" }
     ],
     "2025-03-20": [
-        { title: "Monthly Report Due", type: "urgent" },
-        { title: "Lunch with Team", type: "info" }
+        { title: "Laporan Bulanan Jatuh Tempo", type: "urgent" },
+        { title: "Lunch dengan Tim", type: "info" }
     ]
 };
 
@@ -648,7 +648,7 @@ function generateCalendar(month, year) {
             if (events[dateStr].length > 3) {
                 dayEvents += `
                     <div class="text-right">
-                        <a href="#" class="text-[#015DE7] text-xs">view more</a>
+                        <a href="#" class="text-[#015DE7] text-xs">lihat lebih banyak</a>
                     </div>
                 `;
             }

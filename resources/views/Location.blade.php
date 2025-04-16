@@ -10,7 +10,7 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">BUILDING</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">Gedung</h1>
 
                     <!-- Button Add Building -->
                     <button id="addBuildingBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
@@ -18,7 +18,7 @@
                             <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                             <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                         </svg>
-                        <span class="text-base">Add Building</span>
+                        <span class="text-base">Tambah Gedung</span>
                     </button>
                 </div>
 
@@ -27,10 +27,10 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">Building_Id</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Building Name</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Address</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">ID Gedung</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Gedung</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Alamat</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -60,7 +60,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="4" class="p-3 text-center text-gray-500">No buildings found</td>
+                                <td colspan="4" class="p-3 text-center text-gray-500">Tidak ada gedung yang ditemukan</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -77,7 +77,7 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                 </svg>
-                                Prev
+                                Sebelumnya
                             </button>
 
                             <div class="flex gap-1">
@@ -98,7 +98,7 @@
                             <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($buildingPagination['current_page'] ?? 1) >= ($buildingPagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
                                    onclick="changeBuildingPage({{ ($buildingPagination['current_page'] ?? 1) + 1 }})"
                                    {{ ($buildingPagination['current_page'] ?? 1) >= ($buildingPagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
-                                Next
+                                Selanjutnya
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
@@ -109,11 +109,11 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                 </svg>
-                                Prev
+                                Sebelumnya
                             </button>
                             <button class="w-8 h-8 bg-[#213268] text-white rounded text-sm">1</button>
                             <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
-                                Next
+                                Selanjutnya
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
@@ -131,9 +131,9 @@
                                     $from = ($currentPage - 1) * $perPage + 1;
                                     $to = min($currentPage * $perPage, $total);
                                 @endphp
-                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                                Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
                             @else
-                                Showing 1 to {{ count($buildings) }} of {{ count($buildings) }} entries
+                                Menampilkan 1 sampai {{ count($buildings) }} dari {{ count($buildings) }} data
                             @endif
                         </span>
                         <select id="buildingPerPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeBuildingPerPage(this.value)">
@@ -153,7 +153,7 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">ROOM</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">Ruangan</h1>
 
                     <!-- Button Add Room -->
                     <button id="addRoomBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
@@ -161,7 +161,7 @@
                             <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                             <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                         </svg>
-                        <span class="text-base">Add Room</span>
+                        <span class="text-base">Tambah Ruangan</span>
                     </button>
                 </div>
 
@@ -170,12 +170,12 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">Room_Id</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Room Name</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Building</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Floor</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">ID Ruangan</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Ruangan</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Gedung</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Lantai</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -209,7 +209,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="p-3 text-center text-gray-500">No rooms found</td>
+                                <td colspan="6" class="p-3 text-center text-gray-500">Tidak ada ruangan yang ditemukan</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -226,7 +226,7 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                 </svg>
-                                Prev
+                                Sebelumnya
                             </button>
                             <div class="flex gap-2">
                                 @php
@@ -246,7 +246,7 @@
                             <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($roomPagination['current_page'] ?? 1) >= ($roomPagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
                                    onclick="changeRoomPage({{ ($roomPagination['current_page'] ?? 1) + 1 }})"
                                    {{ ($roomPagination['current_page'] ?? 1) >= ($roomPagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
-                                Next
+                                Selanjutnya
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
@@ -257,11 +257,11 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                 </svg>
-                                Prev
+                                Sebelumnya
                             </button>
                             <button class="w-8 h-8 bg-[#213268] text-white rounded text-sm">1</button>
                             <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
-                                Next
+                                Selanjutnya
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
@@ -279,15 +279,15 @@
                                     $from = ($currentPage - 1) * $perPage + 1;
                                     $to = min($currentPage * $perPage, $total);
                                 @endphp
-                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                                Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
                             @else
-                                Showing 1 to {{ count($rooms) }} of {{ count($rooms) }} entries
+                                Menampilkan 1 sampai {{ count($rooms) }} dari {{ count($rooms) }} data
                             @endif
                         </span>
                         <select id="roomPerPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeRoomPerPage(this.value)">
-                            <option value="10" {{ isset($roomPagination['limit']) && $roomPagination['limit'] == 10 ? 'selected' : '' }}>10 per page</option>
-                            <option value="25" {{ isset($roomPagination['limit']) && $roomPagination['limit'] == 25 ? 'selected' : '' }}>25 per page</option>
-                            <option value="50" {{ isset($roomPagination['limit']) && $roomPagination['limit'] == 50 ? 'selected' : '' }}>50 per page</option>
+                            <option value="10" {{ isset($roomPagination['limit']) && $roomPagination['limit'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ isset($roomPagination['limit']) && $roomPagination['limit'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ isset($roomPagination['limit']) && $roomPagination['limit'] == 50 ? 'selected' : '' }}>50 per halaman</option>
                         </select>
                     </div>
                 </div>
@@ -306,7 +306,7 @@
                 id="buildingModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">ADD BUILDING</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">Tambah Gedung</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -321,24 +321,24 @@
                         <div class="space-y-4 max-w-[400px] mx-auto">
                             <!-- Building Name Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Building Name</label>
+                                <label class="block text-base font-semibold text-[#666666]">Nama Gedung</label>
                                 <input type="text" name="building_name"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Type here" required>
+                                        placeholder="Ketik nama gedung" required>
                             </div>
 
                             <!-- Address Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Address</label>
+                                <label class="block text-base font-semibold text-[#666666]">Alamat</label>
                                 <input type="text" name="address"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Type here">
+                                    placeholder="Ketik alamat gedung">
                             </div>
 
                             <!-- Button Group -->
                             <div class="pt-4">
                                 <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                    Save
+                                    Simpan
                                 </button>
                             </div>
                         </div>
@@ -358,7 +358,7 @@
                 id="editBuildingModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">EDIT BUILDING</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">Edit Gedung</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -375,24 +375,24 @@
                         <div class="space-y-4 max-w-[400px] mx-auto">
                             <!-- Building Name Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Building Name</label>
+                                <label class="block text-base font-semibold text-[#666666]">Nama Gedung</label>
                                 <input type="text" id="editBuildingName" name="building_name"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Type here" required>
+                                    placeholder="Ketik nama gedung" required>
                             </div>
 
                             <!-- Address Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Address</label>
+                                <label class="block text-base font-semibold text-[#666666]">Alamat</label>
                                 <input type="text" id="editAddress" name="address"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Type here">
+                                    placeholder="Ketik alamat gedung">
                             </div>
 
                             <!-- Button Group -->
                             <div class="pt-4">
                                 <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                    Save
+                                    Simpan
                                 </button>
                             </div>
                         </div>
@@ -412,7 +412,7 @@
                 id="deleteBuildingModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE BUILDING</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Hapus Gedung</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -431,14 +431,14 @@
                                 <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this building? This action cannot be undone.</p>
+                                <p class="text-base text-gray-600 text-center">Apakah anda yakin ingin menghapus gedung ini? Aksi ini tidak dapat dibatalkan.</p>
                             </div>
                             <div class="flex gap-3">
                                 <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                    Cancel
+                                    Batal
                                 </button>
                                 <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         </div>
@@ -458,7 +458,7 @@
                 id="roomModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">ADD ROOM</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">Tambah Ruangan</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -473,19 +473,19 @@
                         <div class="space-y-4 max-w-[400px] mx-auto">
                             <!-- Room Name Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Room Name</label>
+                                <label class="block text-base font-semibold text-[#666666]">Nama Ruangan</label>
                                 <input type="text" name="room_name"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Type here" required>
+                                    placeholder="Ketik nama ruangan" required>
                             </div>
 
                             <!-- Building Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Building</label>
+                                <label class="block text-base font-semibold text-[#666666]">Gedung</label>
                                 <select name="building_id"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                     required>
-                                    <option value="" disabled selected>Select a building</option>
+                                    <option value="" disabled selected>Pilih gedung</option>
                                     @foreach($buildings as $building)
                                     <option value="{{ $building['building_id'] }}">{{ $building['building_name'] }}</option>
                                     @endforeach
@@ -494,24 +494,24 @@
 
                             <!-- Floor Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Floor</label>
+                                <label class="block text-base font-semibold text-[#666666]">Lantai</label>
                                 <input type="text" name="floor_number"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Type here" required>
+                                    placeholder="Ketik lantai ruangan" required>
                             </div>
 
                             <!-- Description Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Description</label>
+                                <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
                                 <textarea name="description"
                                     class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 resize-none"
-                                    placeholder="Type here"></textarea>
+                                    placeholder="Ketik deskripsi ruangan"></textarea>
                             </div>
 
                             <!-- Button Group -->
                             <div class="pt-4">
                                 <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                    Save
+                                    Simpan
                                 </button>
                             </div>
                         </div>
@@ -531,7 +531,7 @@
                 id="editRoomModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">EDIT ROOM</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">Edit Ruangan</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -548,19 +548,19 @@
                         <div class="space-y-4 max-w-[400px] mx-auto">
                             <!-- Room Name Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Room Name</label>
+                                <label class="block text-base font-semibold text-[#666666]">Nama Ruangan</label>
                                 <input type="text" id="editRoomName" name="room_name"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Type here" required>
+                                    placeholder="Ketik nama ruangan" required>
                             </div>
 
                             <!-- Building Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Building</label>
+                                <label class="block text-base font-semibold text-[#666666]">Gedung</label>
                                 <select id="editRoomBuilding" name="building_id"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                     required>
-                                    <option value="" disabled>Select a building</option>
+                                    <option value="" disabled>Pilih gedung</option>
                                     @foreach($buildings as $building)
                                     <option value="{{ $building['building_id'] }}">{{ $building['building_name'] }}</option>
                                     @endforeach
@@ -569,24 +569,24 @@
 
                             <!-- Floor Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Floor</label>
+                                <label class="block text-base font-semibold text-[#666666]">Lantai</label>
                                 <input type="text" id="editRoomFloor" name="floor_number"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Type here" required>
+                                    placeholder="Ketik lantai ruangan" required>
                             </div>
 
                             <!-- Description Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Description</label>
+                                <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
                                 <textarea id="editRoomDescription" name="description"
                                     class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 resize-none"
-                                    placeholder="Type here"></textarea>
+                                    placeholder="Ketik deskripsi ruangan"></textarea>
                             </div>
 
                             <!-- Button Group -->
                             <div class="pt-4">
                                 <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                    Save
+                                    Simpan
                                 </button>
                             </div>
                         </div>
@@ -606,7 +606,7 @@
                 id="deleteRoomModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE ROOM</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Hapus Ruangan</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -625,14 +625,14 @@
                                 <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this room? This action cannot be undone.</p>
+                                <p class="text-base text-gray-600 text-center">Apakah anda yakin ingin menghapus ruangan ini? Aksi ini tidak dapat dibatalkan.</p>
                             </div>
                             <div class="flex gap-3">
                                 <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                    Cancel
+                                    Batal
                                 </button>
                                 <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         </div>
@@ -653,7 +653,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Success!</p>
+            <p class="font-bold">Berhasil!</p>
             <p>{{ session('success') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -682,7 +682,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Error!</p>
+            <p class="font-bold">Gagal!</p>
             <p>{{ session('error') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>

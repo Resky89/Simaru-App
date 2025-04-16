@@ -77,14 +77,14 @@ class LocationController extends Controller
                 'roomPagination' => $roomResult['pagination'] ?? null
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to fetch locations', [
+            \Log::error('Gagal mengambil data lokasi', [
                 'error' => $e->getMessage()
             ]);
 
             return view('Location', [
                 'buildings' => [],
                 'rooms' => [],
-                'error' => 'Failed to fetch location data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data lokasi: ' . $e->getMessage()
             ]);
         }
     }
@@ -130,13 +130,13 @@ class LocationController extends Controller
                 ]);
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to create building');
+                    ->with('error', $result['message'] ?? 'Gagal membuat gedung');
             }
 
             // Successfully created
             \Log::info('Building created successfully');
             return redirect()->route('location')
-                ->with('success', 'Building created successfully');
+                ->with('success', 'Gedung berhasil dibuat');
         } catch (\Exception $e) {
             \Log::error('Exception during building creation:', [
                 'error' => $e->getMessage(),
@@ -146,7 +146,7 @@ class LocationController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to create building: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat gedung: ' . $e->getMessage());
         }
     }
 
@@ -173,12 +173,12 @@ class LocationController extends Controller
             if (isset($result['errors']) || (isset($result['success']) && $result['success'] === false)) {
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to update building');
+                    ->with('error', $result['message'] ?? 'Gagal mengubah gedung');
             }
 
             // Successfully updated
             return redirect()->route('location')
-                ->with('success', 'Building updated successfully');
+                ->with('success', 'Gedung berhasil diubah');
         } catch (\Exception $e) {
             \Log::error('Failed to update building', [
                 'error' => $e->getMessage(),
@@ -188,7 +188,7 @@ class LocationController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to update building: ' . $e->getMessage());
+                ->with('error', 'Gagal mengubah gedung: ' . $e->getMessage());
         }
     }
 
@@ -208,20 +208,20 @@ class LocationController extends Controller
             // Check for other API errors or unsuccessful responses
             if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
                 return redirect()->back()
-                    ->with('error', $result['message'] ?? 'Failed to delete building');
+                    ->with('error', $result['message'] ?? 'Gagal menghapus gedung');
             }
 
             // Successfully deleted
             return redirect()->route('location')
-                ->with('success', 'Building deleted successfully');
+                ->with('success', 'Gedung berhasil dihapus');
         } catch (\Exception $e) {
-            \Log::error('Failed to delete building', [
+            \Log::error('Gagal menghapus gedung', [
                 'error' => $e->getMessage(),
                 'building_id' => $id
             ]);
 
             return redirect()->back()
-                ->with('error', 'Failed to delete building: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus gedung: ' . $e->getMessage());
         }
     }
 
@@ -273,19 +273,19 @@ class LocationController extends Controller
                 \Log::warning('Error during room creation:', [
                     'error' => $result['error'] ?? null,
                     'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to create room'
+                    'message' => $result['message'] ?? 'Gagal membuat ruangan'
                 ]);
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to create room');
+                    ->with('error', $result['message'] ?? 'Gagal membuat ruangan');
             }
 
             // Successfully created
-            \Log::info('Room created successfully');
+            \Log::info('Ruangan berhasil dibuat');
             return redirect()->route('location')
-                ->with('success', 'Room created successfully');
+                ->with('success', 'Ruangan berhasil dibuat');
         } catch (\Exception $e) {
-            \Log::error('Exception during room creation:', [
+            \Log::error('Gagal membuat ruangan', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'room_data' => $request->except('_token')
@@ -293,7 +293,7 @@ class LocationController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to create room: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat ruangan: ' . $e->getMessage());
         }
     }
 
@@ -342,12 +342,12 @@ class LocationController extends Controller
             if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to update room');
+                    ->with('error', $result['message'] ?? 'Gagal mengubah ruangan');
             }
 
             // Successfully updated
             return redirect()->route('location')
-                ->with('success', 'Room updated successfully');
+                ->with('success', 'Ruangan berhasil diubah');
         } catch (\Exception $e) {
             \Log::error('Exception during room update:', [
                 'error' => $e->getMessage(),
@@ -358,7 +358,7 @@ class LocationController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to update room: ' . $e->getMessage());
+                ->with('error', 'Gagal mengubah ruangan: ' . $e->getMessage());
         }
     }
 
@@ -378,12 +378,12 @@ class LocationController extends Controller
             // Check for other API errors or unsuccessful responses
             if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
                 return redirect()->back()
-                    ->with('error', $result['message'] ?? 'Failed to delete room');
+                    ->with('error', $result['message'] ?? 'Gagal menghapus ruangan');
             }
 
             // Successfully deleted
             return redirect()->route('location')
-                ->with('success', 'Room deleted successfully');
+                ->with('success', 'Ruangan berhasil dihapus');
         } catch (\Exception $e) {
             \Log::error('Failed to delete room', [
                 'error' => $e->getMessage(),
@@ -391,7 +391,7 @@ class LocationController extends Controller
             ]);
 
             return redirect()->back()
-                ->with('error', 'Failed to delete room: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus ruangan: ' . $e->getMessage());
         }
     }
 }
