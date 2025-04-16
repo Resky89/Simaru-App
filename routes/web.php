@@ -121,6 +121,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Role Management
     Route::get('/roles', [RoleController::class, 'index'])->name('roles');
+    Route::get('/roles/permissions', [RoleController::class, 'getAllPermissions'])->name('roles.permissions');
+    Route::get('/roles/{id}', [RoleController::class, 'show'])->name('roles.show');
     Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');

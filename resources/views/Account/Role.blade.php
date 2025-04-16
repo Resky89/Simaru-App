@@ -155,7 +155,7 @@
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="addRoleModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
@@ -173,7 +173,7 @@
                         <div class="p-6">
                             <form id="addRoleForm" action="{{ route('roles.store') }}" method="POST">
                                 @csrf
-                                <div class="space-y-4 max-w-[400px] mx-auto">
+                                <div class="space-y-5 mx-auto">
                                     <!-- Role Name Input -->
                                     <div class="space-y-2">
                                         <label class="block text-base font-semibold text-[#666666]">Role Name</label>
@@ -190,8 +190,39 @@
                                             placeholder="Enter role description"></textarea>
                                     </div>
 
+                                    <!-- Permissions Header -->
+                                    <div class="pt-2">
+                                        <div class="pb-4 border-b border-gray-200">
+                                            <h3 class="text-lg font-bold text-[#213268] mb-2">PERMISSIONS</h3>
+                                            <p class="text-sm text-gray-600 mb-4">Decide each user's privileges and what
+                                                they can and can't do within your account.</p>
+
+                                            <div class="flex flex-wrap gap-6 mt-3">
+                                                <div class="flex items-center gap-2">
+                                                    <input type="checkbox" id="add-all-permission"
+                                                        class="checkbox checkbox-primary" data-target="all">
+                                                    <label for="add-all-permission"
+                                                        class="font-semibold cursor-pointer select-none">All
+                                                        Permission</label>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <input type="checkbox" id="add-set-as-admin"
+                                                        class="checkbox checkbox-primary">
+                                                    <label for="add-set-as-admin"
+                                                        class="font-semibold cursor-pointer select-none">Set As
+                                                        Admin</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Permission Groups Container -->
+                                    <div id="add-permissions-container" class="space-y-6 pt-3">
+                                        <p class="text-center text-gray-500 py-4">Loading permissions...</p>
+                                    </div>
+
                                     <!-- Button Group -->
-                                    <div class="pt-4">
+                                    <div class="pt-6">
                                         <button type="submit"
                                             class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                             Save
@@ -210,7 +241,7 @@
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="editRoleModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
@@ -229,7 +260,7 @@
                             <form id="editRoleForm" action="" method="POST">
                                 @csrf
                                 @method('PUT')
-                                <div class="space-y-4 max-w-[400px] mx-auto">
+                                <div class="space-y-5 mx-auto">
                                     <!-- Role Name Input -->
                                     <div class="space-y-2">
                                         <label class="block text-base font-semibold text-[#666666]">Role Name</label>
@@ -246,8 +277,39 @@
                                             placeholder="Enter role description"></textarea>
                                     </div>
 
+                                    <!-- Permissions Header -->
+                                    <div class="pt-2">
+                                        <div class="pb-4 border-b border-gray-200">
+                                            <h3 class="text-lg font-bold text-[#213268] mb-2">PERMISSIONS</h3>
+                                            <p class="text-sm text-gray-600 mb-4">Decide each user's privileges and what
+                                                they can and can't do within your account.</p>
+
+                                            <div class="flex flex-wrap gap-6 mt-3">
+                                                <div class="flex items-center gap-2">
+                                                    <input type="checkbox" id="edit-all-permission"
+                                                        class="checkbox checkbox-primary" data-target="all">
+                                                    <label for="edit-all-permission"
+                                                        class="font-semibold cursor-pointer select-none">All
+                                                        Permission</label>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <input type="checkbox" id="edit-set-as-admin"
+                                                        class="checkbox checkbox-primary">
+                                                    <label for="edit-set-as-admin"
+                                                        class="font-semibold cursor-pointer select-none">Set As
+                                                        Admin</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Permission Groups Container -->
+                                    <div id="edit-permissions-container" class="space-y-6 pt-3">
+                                        <p class="text-center text-gray-500 py-4">Loading permissions...</p>
+                                    </div>
+
                                     <!-- Button Group -->
-                                    <div class="pt-4">
+                                    <div class="pt-6">
                                         <button type="submit"
                                             class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                             Update
@@ -354,34 +416,210 @@
                 }, 300);
             }
 
-            // Add Role Modal
-            document.getElementById('addRoleBtn').addEventListener('click', () => {
-                openModal(addRoleModal, addRoleModal.querySelector('[id$="ModalContent"]'));
-            });
+            // Function to fetch permissions
+            async function fetchPermissions() {
+                try {
+                    const response = await fetch('{{ route("roles.permissions") }}');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch permissions');
+                    }
+                    const data = await response.json();
+                    return data.data || [];
+                } catch (error) {
+                    console.error('Error fetching permissions:', error);
+                    return [];
+                }
+            }
 
-            // Edit Role Modal
+            // Function to render permission checkboxes - improved version
+            function renderPermissionCheckboxes(permissions, selectedIds = [], containerId = 'add-permissions-container') {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+
+                if (!permissions || permissions.length === 0) {
+                    container.innerHTML = '<p class="text-center text-gray-500 py-4">No permissions available</p>';
+                    return;
+                }
+
+                // Group permissions by their category (first part before colon)
+                const groupedPermissions = {};
+                permissions.forEach(permission => {
+                    if (permission.permission_name === '*') {
+                        // Skip the all permissions one as we handle it separately
+                        return;
+                    }
+
+                    let group = 'Other';
+                    if (permission.permission_name.includes(':')) {
+                        group = permission.permission_name.split(':')[0];
+                        // Capitalize first letter
+                        group = group.charAt(0).toUpperCase() + group.slice(1);
+                    }
+
+                    if (!groupedPermissions[group]) {
+                        groupedPermissions[group] = [];
+                    }
+                    groupedPermissions[group].push(permission);
+                });
+
+                // Generate HTML for each group
+                let html = '';
+                for (const [group, perms] of Object.entries(groupedPermissions)) {
+                    html += `
+                                                                    <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
+                                                                        <h4 class="text-[#213268] text-lg font-semibold mb-3 capitalize">${group}</h4>
+                                                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">`;
+
+                    perms.forEach(permission => {
+                        const isChecked = selectedIds.includes(permission.permission_id);
+                        const permId = `${containerId}-perm-${permission.permission_id}`;
+
+                        // Map common permission types to more user-friendly names
+                        let displayName = permission.permission_name;
+                        if (permission.permission_name.includes(':')) {
+                            const action = permission.permission_name.split(':')[1];
+
+                            // Map common actions to more user-friendly names
+                            switch (action) {
+                                case 'view': displayName = 'View Only'; break;
+                                case 'create': displayName = 'Add'; break;
+                                case 'edit': displayName = 'Edit'; break;
+                                case 'delete': displayName = 'Delete'; break;
+                                case 'export': displayName = 'Export'; break;
+                                default: displayName = action.charAt(0).toUpperCase() + action.slice(1);
+                            }
+                        }
+
+                        html += `
+                                                                        <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded">
+                                                                            <input type="checkbox"
+                                                                                id="${permId}"
+                                                                                name="permission_ids[]"
+                                                                                value="${permission.permission_id}"
+                                                                                class="checkbox checkbox-primary mt-1 permission-checkbox"
+                                                                                data-group="${group.toLowerCase()}"
+                                                                                ${isChecked ? 'checked' : ''}>
+                                                                            <label for="${permId}" class="cursor-pointer select-none">
+                                                                                <div class="font-medium">${displayName}</div>
+                                                                                <div class="text-xs text-gray-500">${permission.description}</div>
+                                                                            </label>
+                                                                        </div>`;
+                    });
+
+                    html += `
+                                                                        </div>
+                                                                    </div>`;
+                }
+
+                container.innerHTML = html;
+
+                // Find the "All" permission and set up the all permission checkbox
+                const allPermission = permissions.find(p => p.permission_name === '*');
+                if (allPermission) {
+                    // Create a hidden input for the all permission
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'checkbox';
+                    hiddenInput.name = 'permission_ids[]';
+                    hiddenInput.value = allPermission.permission_id;
+                    hiddenInput.id = `${containerId}-hidden-all-permission`;
+                    hiddenInput.className = 'hidden';
+                    hiddenInput.checked = selectedIds.includes(allPermission.permission_id);
+                    container.appendChild(hiddenInput);
+
+                    // Set the all permission checkbox state
+                    const allCheckbox = document.querySelector(`#${containerId.replace('-permissions-container', '')}-all-permission`);
+                    if (allCheckbox) {
+                        allCheckbox.checked = selectedIds.includes(allPermission.permission_id);
+
+                        // Toggle all checkboxes when the all permission is toggled
+                        allCheckbox.addEventListener('change', function () {
+                            const checkboxes = container.querySelectorAll('.permission-checkbox');
+                            checkboxes.forEach(cb => {
+                                cb.checked = this.checked;
+                            });
+                            document.getElementById(`${containerId}-hidden-all-permission`).checked = this.checked;
+                        });
+                    }
+                }
+            }
+
+            // Update the edit role button event listener in Role.blade.php
             document.querySelectorAll('.edit-role-btn').forEach(button => {
-                button.addEventListener('click', () => {
+                button.addEventListener('click', async () => {
                     const roleId = button.getAttribute('data-role-id');
-                    const roleName = button.getAttribute('data-role-name');
-                    const description = button.getAttribute('data-description');
 
-                    document.getElementById('editRoleForm').action = `{{ route('roles.update', '') }}/${roleId}`;
-                    document.getElementById('edit_role_name').value = roleName;
-                    document.getElementById('edit_description').value = description || '';
+                    try {
+                        // Show loading state
+                        document.getElementById('edit_role_name').value = "Loading...";
+                        document.getElementById('edit_description').value = "Loading...";
+                        document.getElementById('edit-permissions-container').innerHTML = '<p class="text-center text-gray-500 py-4">Loading role data...</p>';
 
-                    openModal(editRoleModal, editRoleModal.querySelector('[id$="ModalContent"]'));
+                        // Open the modal while loading
+                        openModal(editRoleModal, document.getElementById('editRoleModalContent'));
+
+                        // Fetch role data from the API - use the named route
+                        const response = await fetch(`{{ route('roles.show', '') }}/${roleId}`);
+
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch role details');
+                        }
+
+                        // Parse the response
+                        const roleData = await response.json();
+
+                        if (!roleData.status) {
+                            throw new Error(roleData.message || 'Failed to fetch role details');
+                        }
+
+                        // Set form action
+                        document.getElementById('editRoleForm').action = `{{ route('roles.update', '') }}/${roleId}`;
+
+                        // Populate form fields with data from API
+                        const role = roleData.data;
+                        document.getElementById('edit_role_name').value = role.role_name;
+                        document.getElementById('edit_description').value = role.description || '';
+
+                        // Load all permissions then select the ones from our role
+                        const permissions = await fetchPermissions();
+                        const selectedPermissionIds = role.permissions?.map(p => p.permission_id) || [];
+
+                        // Render the permissions with the correct ones selected
+                        renderPermissionCheckboxes(permissions, selectedPermissionIds, 'edit-permissions-container');
+
+                    } catch (error) {
+                        console.error('Error loading role:', error);
+                        showToast(`Error loading role: ${error.message}`, 'error');
+
+                        // Load permissions with empty selection in case of error
+                        const permissions = await fetchPermissions();
+                        renderPermissionCheckboxes(permissions, [], 'edit-permissions-container');
+                    }
                 });
             });
 
-            // Delete Role Modal
+            // Add event listener for delete role button
             document.querySelectorAll('.delete-role-btn').forEach(button => {
                 button.addEventListener('click', () => {
                     const roleId = button.getAttribute('data-role-id');
+
+                    // Set the form action for delete
                     document.getElementById('deleteRoleForm').action = `{{ route('roles.destroy', '') }}/${roleId}`;
 
-                    openModal(deleteRoleModal, deleteRoleModal.querySelector('[id$="ModalContent"]'));
+                    // Open the delete modal
+                    openModal(deleteRoleModal, document.getElementById('deleteRoleModalContent'));
                 });
+            });
+
+            // Add event listener for add role button to open the modal
+            document.getElementById('addRoleBtn').addEventListener('click', async () => {
+                const permissions = await fetchPermissions();
+                renderPermissionCheckboxes(permissions, [], 'add-permissions-container');
+
+                // Reset the form
+                document.getElementById('addRoleForm').reset();
+
+                // Open the add modal
+                openModal(addRoleModal, document.getElementById('addRoleModalContent'));
             });
 
             // Close Modal Handlers
@@ -429,38 +667,38 @@
                     borderColor = 'border-green-500';
                     textColor = 'text-green-700';
                     icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>`;
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>`;
                 } else if (type === 'error') {
                     bgColor = 'bg-red-100';
                     borderColor = 'border-red-500';
                     textColor = 'text-red-700';
                     icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>`;
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>`;
                 } else {
                     bgColor = 'bg-blue-100';
                     borderColor = 'border-blue-500';
                     textColor = 'text-blue-700';
                     icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>`;
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>`;
                 }
 
                 toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
                 toast.setAttribute('role', 'alert');
                 toast.innerHTML = `
-                    <div class="flex items-center">
-                        <div class="py-1">
-                            ${icon}
-                        </div>
-                        <div>
-                            <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-                            <p>${message}</p>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
+                                                <div class="flex items-center">
+                                                    <div class="py-1">
+                                                        ${icon}
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
+                                                        <p>${message}</p>
+                                                    </div>
+                                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                </div>
+                                            `;
 
                 // Add to container
                 toastContainer.appendChild(toast);

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,13 +16,16 @@
         }
     </style>
 </head>
+
 <body class="relative w-screen h-screen overflow-hidden bg-white">
     <!-- Background Blurs Circles -->
     <div class="absolute blur-background w-[300px] h-[300px] rounded-full left-[-100px] top-[-50px] bg-[#ACC3EF]"></div>
     <div class="absolute blur-background w-[200px] h-[200px] rounded-full right-[500px] top-[100px] bg-[#7CE1FF]"></div>
     <div class="absolute blur-background w-[250px] h-[250px] rounded-full right-[-50px] top-[-50px] bg-[#25B1FF]"></div>
-    <div class="absolute blur-background w-[250px] h-[250px] rounded-full left-[-50px] bottom-[-50px] bg-[#25B1FF]"></div>
-    <div class="absolute blur-background w-[350px] h-[350px] rounded-full right-[-100px] bottom-[-100px] bg-[#213268]"></div>
+    <div class="absolute blur-background w-[250px] h-[250px] rounded-full left-[-50px] bottom-[-50px] bg-[#25B1FF]">
+    </div>
+    <div class="absolute blur-background w-[350px] h-[350px] rounded-full right-[-100px] bottom-[-100px] bg-[#213268]">
+    </div>
 
     <!-- Logo -->
     <div class="absolute left-1/2 transform -translate-x-1/2 md:left-8 md:transform-none top-8">
@@ -61,36 +65,28 @@
                     @csrf
 
                     @if ($errors->any())
-                    <div class="bg-red-50 text-red-500 p-4 rounded-lg mb-6">
-                        <ul class="list-disc list-inside">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
+                        <div class="bg-red-50 text-red-500 p-4 rounded-lg mb-6">
+                            <ul class="list-disc list-inside">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
                     @endif
 
                     <div class="space-y-2">
-                        <label class="block text-[#213268] font-['Poppins']">Email</label>
-                        <input
-                            type="text"
-                            name="email"
-                            value="{{ old('email') }}"
-                            placeholder="Insert Your Email"
+                        <label class="block text-[#213268] font-['Poppins']">Kode Karyawan</label>
+                        <input type="text" name="employee_number" value="{{ old('employee_number') }}"
+                            placeholder="Masukkan Kode Karyawan"
                             class="w-full p-3 border border-gray-200 rounded-lg font-['Poppins'] text-gray-600 focus:outline-none focus:border-[#1B8ADB]"
-                            required
-                        >
+                            required>
                     </div>
 
                     <div class="space-y-2">
                         <label class="block text-[#213268] font-['Poppins']">Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Insert Your Password"
+                        <input type="password" name="password" placeholder="Masukkan Password"
                             class="w-full p-3 border border-gray-200 rounded-lg font-['Poppins'] text-gray-600 focus:outline-none focus:border-[#1B8ADB]"
-                            required
-                        >
+                            required>
                     </div>
 
                     <!-- Tambahkan checkbox Remember Me -->
@@ -99,7 +95,8 @@
                         <label for="remember" class="text-[#213268] font-['Poppins'] text-sm">Ingat saya</label>
                     </div>
 
-                    <button type="submit" class="w-full py-3 bg-[#213268] text-white rounded-lg font-['Poppins'] hover:bg-[#1a2857] transition-colors">
+                    <button type="submit"
+                        class="w-full py-3 bg-[#213268] text-white rounded-lg font-['Poppins'] hover:bg-[#1a2857] transition-colors">
                         Log in
                     </button>
                 </form>
@@ -107,4 +104,5 @@
         </div>
     </div>
 </body>
+
 </html>

@@ -43,7 +43,7 @@ class AuthController extends Controller
     {
         try {
             // Check if we have a refresh token in cookie - if so, try to auto-login
-            if (!$request->filled('email') && !$request->filled('password') && $request->cookie('refresh_token')) {
+            if (!$request->filled('employee_number') && !$request->filled('password') && $request->cookie('refresh_token')) {
                 $apiService = app(ApiService::class);
                 session(['refresh_token' => $request->cookie('refresh_token')]);
 
@@ -56,13 +56,13 @@ class AuthController extends Controller
                 }
             }
 
-            \Log::info('Login attempt', ['email' => $request->email]);
+            \Log::info('Login attempt', ['employee_number' => $request->employee_number]);
 
             $validator = Validator::make($request->all(), [
-                'email' => 'required',
+                'employee_number' => 'required',
                 'password' => 'required'
             ], [
-                'email.required' => 'User ID is required',
+                'employee_number.required' => 'Employee Number is required',
                 'password.required' => 'Password is required'
             ]);
 
@@ -79,7 +79,7 @@ class AuthController extends Controller
 
             $response = $client->post(config('services.api.base_url') . '/auth/login', [
                 'json' => [
-                    'email' => $request->email,
+                    'employee_number' => $request->employee_number,
                     'password' => $request->password,
                 ]
             ]);
@@ -91,7 +91,7 @@ class AuthController extends Controller
                 // Store tokens in both session and cookies
                 $request->session()->put('access_token', $result['data']['accessToken']);
                 $request->session()->put('refresh_token', $result['data']['refreshToken']);
-                $request->session()->put('email', $request->email);
+                $request->session()->put('employee_number', $request->employee_number);
                 $request->session()->put('token_validated_at', now()->timestamp);
 
                 // Store user ID in session for logout functionality
@@ -121,14 +121,14 @@ class AuthController extends Controller
                 return redirect()->route('dashboard');
             }
 
-            \Log::warning('Login failed - invalid credentials', ['email' => $request->email]);
+            \Log::warning('Login failed - invalid credentials', ['employee_number' => $request->employee_number]);
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'employee_number' => ['The provided credentials are incorrect.'],
             ]);
 
         } catch (GuzzleException $e) {
             \Log::error('Login API connection error', [
-                'email' => $request->email,
+                'employee_number' => $request->employee_number,
                 'error' => $e->getMessage()
             ]);
             return redirect()
@@ -137,7 +137,7 @@ class AuthController extends Controller
                 ->withInput($request->except('password'));
         } catch (\Exception $e) {
             \Log::error('Login error', [
-                'email' => $request->email,
+                'employee_number' => $request->employee_number,
                 'error' => $e->getMessage()
             ]);
             return redirect()
@@ -219,7 +219,7 @@ class AuthController extends Controller
     private function clearAuthSession(Request $request)
     {
         // Update to also forget remember_user
-        $request->session()->forget(['access_token', 'refresh_token', 'email', 'token_validated_at', 'user_id', 'remember_user']);
+        $request->session()->forget(['access_token', 'refresh_token', 'employee_number', 'token_validated_at', 'user_id', 'remember_user']);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
@@ -229,263 +229,6 @@ class AuthController extends Controller
         }
         if ($request->cookie('access_token')) {
             cookie()->queue(cookie()->forget('access_token'));
-        }
-    }
-
-    /**
-     * Refresh the access token
-     */
-    // public function refreshToken(Request $request)
-    // {
-    //     try {
-    //         $refreshToken = $request->session()->get('refresh_token') ?: $request->cookie('refresh_token');
-    //         if (!$refreshToken) {
-    //             // No refresh token available, clear session and indicate authentication failure
-    //             $this->clearAuthSession($request);
-    //             return response()->json(['success' => false, 'message' => 'No refresh token found', 'redirect' => route('login')], 401);
-    //         }
-
-    //         $client = new Client();
-
-    //         \Log::info('Attempting to refresh token with refresh token');
-
-    //         $response = $client->post(config('services.api.base_url') . '/auth/refresh-token', [
-    //             'json' => [
-    //                 'refreshToken' => $refreshToken
-    //             ],
-    //             'http_errors' => false
-    //         ]);
-
-    //         $statusCode = $response->getStatusCode();
-    //         \Log::info('Refresh token response status: ' . $statusCode);
-
-    //         if ($statusCode !== 200) {
-    //             // Refresh token is invalid or expired, clear session and redirect to login
-    //             \Log::warning('Refresh token failed with status: ' . $statusCode);
-    //             $this->clearAuthSession($request);
-    //             return response()->json(['success' => false, 'message' => 'Token refresh failed', 'redirect' => route('login')], 401);
-    //         }
-
-    //         $result = json_decode($response->getBody()->getContents(), true);
-    //         \Log::info('Refresh token API response', ['status' => $result['status'] ?? 'unknown']);
-
-    //         if (isset($result['status']) && $result['status']) {
-    //             // Update the tokens in session
-    //             $request->session()->put('access_token', $result['data']['accessToken']);
-    //             $request->session()->put('refresh_token', $result['data']['refreshToken']);
-    //             $request->session()->put('token_refreshed_at', now()->timestamp);
-
-    //             // Also update the refresh token cookie if remember me was enabled or if cookie already exists
-    //             if (session('remember_user') || $request->cookie('refresh_token')) {
-    //                 \Log::info('Setting refresh token cookie');
-    //                 $cookie = cookie(
-    //                     'refresh_token',
-    //                     $result['data']['refreshToken'],
-    //                     config('auth.refresh_token_cookie_lifetime', 43200) // 30 days in minutes
-    //                 );
-
-    //                 cookie()->queue($cookie);
-    //             }
-
-    //             return response()->json(['success' => true]);
-    //         }
-
-    //         // Refresh token request was processed but returned unsuccessful status
-    //         \Log::warning('Refresh token request was unsuccessful');
-    //         $this->clearAuthSession($request);
-    //         return response()->json(['success' => false, 'message' => 'Failed to refresh token', 'redirect' => route('login')], 401);
-    //     } catch (\Exception $e) {
-    //         \Log::error('Token refresh exception', ['error' => $e->getMessage()]);
-    //         $this->clearAuthSession($request);
-    //         return response()->json(['success' => false, 'message' => 'Token refresh failed', 'redirect' => route('login')], 500);
-    //     }
-    // }
-
-    /**
-     * Show forgot password form
-     */
-    public function showForgotPassword()
-    {
-        return view('Auth.forget_password');
-    }
-
-    /**
-     * Handle forgot password request
-     */
-    public function forgotPassword(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|email',
-            ], [
-                'email.required' => 'Email is required',
-                'email.email' => 'Please enter a valid email address',
-            ]);
-
-            if ($validator->fails()) {
-                return redirect()
-                    ->back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-
-            $client = new Client();
-            \Log::info('Sending forgot password request to API', ['email' => $request->email]);
-
-            $response = $client->post(config('services.api.base_url') . '/auth/forgot-password', [
-                'json' => [
-                    'email' => $request->email,
-                    'reset_url' => route('password.reset', ['token' => 'TOKEN'])
-                ]
-            ]);
-
-            $result = json_decode($response->getBody()->getContents(), true);
-            \Log::info('Forgot password API response', ['status' => $result['status'] ?? null]);
-
-            if (isset($result['status']) && $result['status']) {
-                return redirect()
-                    ->back()
-                    ->with('success', 'Password reset link has been sent to your email');
-            }
-
-            return redirect()
-                ->back()
-                ->withErrors(['email' => $result['message'] ?? 'Failed to process your request'])
-                ->withInput();
-
-        } catch (GuzzleException $e) {
-            \Log::error('Forgot password API connection error', [
-                'email' => $request->email,
-                'error' => $e->getMessage()
-            ]);
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'Failed to connect to authentication server'])
-                ->withInput();
-        } catch (\Exception $e) {
-            \Log::error('Forgot password error', [
-                'email' => $request->email,
-                'error' => $e->getMessage()
-            ]);
-            return redirect()
-                ->back()
-                ->withErrors(['error' => $e->getMessage()])
-                ->withInput();
-        }
-    }
-
-    /**
-     * Show reset password form
-     */
-    public function showResetPassword(Request $request, $token)
-    {
-        return view('Auth.create_password', [
-            'token' => $token,
-            'email' => $request->email
-        ]);
-    }
-
-    /**
-     * Handle reset password request
-     */
-    public function resetPassword(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'token' => 'required',
-                'email' => 'required|email',
-                'password' => 'required|min:8|confirmed',
-            ], [
-                'token.required' => 'Token is missing',
-                'email.required' => 'Email is required',
-                'email.email' => 'Please enter a valid email address',
-                'password.required' => 'Password is required',
-                'password.min' => 'Password must be at least 8 characters',
-                'password.confirmed' => 'Password confirmation does not match',
-            ]);
-
-            if ($validator->fails()) {
-                return redirect()
-                    ->back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-
-            $client = new Client();
-            \Log::info('Sending reset password request to API');
-
-            $response = $client->post(config('services.api.base_url') . '/auth/reset-password', [
-                'json' => [
-                    'email' => $request->email,
-                    'token' => $request->token,
-                    'password' => $request->password
-                ]
-            ]);
-
-            $result = json_decode($response->getBody()->getContents(), true);
-            \Log::info('Reset password API response', ['status' => $result['status'] ?? null]);
-
-            if (isset($result['status']) && $result['status']) {
-                return redirect()
-                    ->route('login')
-                    ->with('success', 'Your password has been reset successfully');
-            }
-
-            return redirect()
-                ->back()
-                ->withErrors(['error' => $result['message'] ?? 'Failed to reset password'])
-                ->withInput();
-
-        } catch (GuzzleException $e) {
-            \Log::error('Reset password API connection error', [
-                'error' => $e->getMessage()
-            ]);
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'Failed to connect to authentication server']);
-        } catch (\Exception $e) {
-            \Log::error('Reset password error', [
-                'error' => $e->getMessage()
-            ]);
-            return redirect()
-                ->back()
-                ->withErrors(['error' => $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Verify if the token is valid
-     */
-    public function verifyToken(Request $request)
-    {
-        try {
-            // Use API service to validate token
-            $apiService = app(ApiService::class);
-            $isValid = $apiService->validateToken();
-
-            if ($isValid) {
-                return response()->json(['status' => true, 'message' => 'Token is valid']);
-            }
-
-            // If we reach here, token validation failed but we may have refreshed it
-            if (session('access_token')) {
-                // We managed to refresh token
-                return response()->json(['status' => true, 'message' => 'Token has been refreshed']);
-            }
-
-            // Token validation failed and couldn't refresh
-            $this->clearAuthSession($request);
-
-            return response()->json([
-                'status' => false,
-                'message' => 'Your session has expired. Please login again.'
-            ], 401);
-        } catch (\Exception $e) {
-            \Log::error('Token verification failed', ['error' => $e->getMessage()]);
-            return response()->json([
-                'status' => false,
-                'message' => 'Authentication error'
-            ], 500);
         }
     }
 }

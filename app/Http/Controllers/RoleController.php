@@ -24,7 +24,7 @@ class RoleController extends Controller
             $rolePage = $request->input('role_page', 1);
             $roleLimit = $request->input('role_limit', 10);
 
-            $roleResult = $this->apiService->request('GET', '/roles', [
+            $response = $this->apiService->request('GET', '/roles', [
                 'query' => [
                     'page' => $rolePage,
                     'limit' => $roleLimit,
@@ -34,23 +34,27 @@ class RoleController extends Controller
             ]);
 
             // Check if we got an error response from the ApiService
-            if (isset($roleResult['error'])) {
-                if (strpos($roleResult['error'], 'login') !== false) {
-                    return redirect()->route('login')->with('error', $roleResult['error']);
+            if (isset($response['error'])) {
+                if (strpos($response['error'], 'login') !== false) {
+                    return redirect()->route('login')->with('error', $response['error']);
                 }
-
-                throw new \Exception($roleResult['error']);
+                throw new \Exception($response['error']);
             }
 
-            $roles = $roleResult['data'] ?? [];
+            // Check status in the new response format
+            if (isset($response['status']) && $response['status'] === false) {
+                throw new \Exception($response['message'] ?? 'Failed to fetch roles');
+            }
 
-            // Format pagination for roles
+            $roles = $response['data'] ?? [];
+
+            // Format pagination based on the new response format
             $rolePagination = null;
-            if (isset($roleResult['pagination'])) {
-                $pagination = $roleResult['pagination'];
+            if (isset($response['pagination'])) {
+                $pagination = $response['pagination'];
                 $rolePagination = [
                     'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
+                    'last_page' => $pagination['total_pages'] ?? 1,
                     'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
                     'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
                     'total' => $pagination['total_items'] ?? 0,
@@ -67,7 +71,7 @@ class RoleController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to fetch role data', [
+            \Log::error('Gagal mengambil data role', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -77,7 +81,7 @@ class RoleController extends Controller
                     'data' => [],
                     'pagination' => null
                 ],
-                'error' => 'Failed to fetch data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data: ' . $e->getMessage()
             ]);
         }
     }
@@ -96,7 +100,8 @@ class RoleController extends Controller
             $result = $this->apiService->request('POST', '/roles', [
                 'json' => [
                     'role_name' => $request->input('role_name'),
-                    'description' => $request->input('description')
+                    'description' => $request->input('description'),
+                    'permission_ids' => $request->input('permission_ids', [])
                 ]
             ]);
 
@@ -115,21 +120,23 @@ class RoleController extends Controller
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (
+                isset($result['error']) || (isset($result['success']) && $result['success'] === false) ||
+                (isset($result['status']) && $result['status'] === false)
+            ) {
                 \Log::warning('Error during role creation:', [
                     'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
                     'message' => $result['message'] ?? 'Failed to create role'
                 ]);
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to create role');
+                    ->with('error', $result['message'] ?? 'Gagal membuat role');
             }
 
             // Successfully created
             \Log::info('Role created successfully');
             return redirect()->route('roles')
-                ->with('success', 'Role created successfully');
+                ->with('success', 'Role berhasil dibuat');
         } catch (\Exception $e) {
             \Log::error('Exception during role creation:', [
                 'error' => $e->getMessage(),
@@ -139,7 +146,7 @@ class RoleController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to create role: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat role: ' . $e->getMessage());
         }
     }
 
@@ -153,7 +160,8 @@ class RoleController extends Controller
                 'json' => [
                     'role_id' => $id,
                     'role_name' => $request->input('role_name'),
-                    'description' => $request->input('description')
+                    'description' => $request->input('description'),
+                    'permission_ids' => $request->input('permission_ids', [])
                 ]
             ]);
 
@@ -163,17 +171,21 @@ class RoleController extends Controller
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (
+                isset($result['error']) ||
+                (isset($result['success']) && $result['success'] === false) ||
+                (isset($result['status']) && $result['status'] === false)
+            ) {
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to update role');
+                    ->with('error', $result['message'] ?? 'Gagal memperbarui role');
             }
 
             // Successfully updated
             return redirect()->route('roles')
-                ->with('success', 'Role updated successfully');
+                ->with('success', 'Role berhasil diperbarui');
         } catch (\Exception $e) {
-            \Log::error('Failed to update role', [
+            \Log::error('Gagal memperbarui role', [
                 'error' => $e->getMessage(),
                 'role_id' => $id,
                 'role_data' => $request->except(['_token', '_method'])
@@ -181,7 +193,7 @@ class RoleController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to update role: ' . $e->getMessage());
+                ->with('error', 'Gagal memperbarui role: ' . $e->getMessage());
         }
     }
 
@@ -199,22 +211,115 @@ class RoleController extends Controller
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (
+                isset($result['error']) ||
+                (isset($result['success']) && $result['success'] === false) ||
+                (isset($result['status']) && $result['status'] === false)
+            ) {
                 return redirect()->back()
                     ->with('error', $result['message'] ?? 'Failed to delete role');
             }
 
             // Successfully deleted
             return redirect()->route('roles')
-                ->with('success', 'Role deleted successfully');
+                ->with('success', 'Role berhasil dihapus');
         } catch (\Exception $e) {
-            \Log::error('Failed to delete role', [
+            \Log::error('Gagal menghapus role', [
                 'error' => $e->getMessage(),
                 'role_id' => $id
             ]);
 
             return redirect()->back()
-                ->with('error', 'Failed to delete role: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus role: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get all permissions
+     */
+    public function getAllPermissions(Request $request)
+    {
+        try {
+            // Fetch permissions
+            $page = $request->input('page', 1);
+            $limit = $request->input('limit', 10);
+
+            $response = $this->apiService->request('GET', '/permissions', [
+                'query' => [
+                    'page' => $page,
+                    'limit' => $limit
+                ]
+            ]);
+
+            // Check if we got an error response from the ApiService
+            if (isset($response['error'])) {
+                if (strpos($response['error'], 'login') !== false) {
+                    return response()->json(['error' => 'Authentication failed'], 401);
+                }
+                throw new \Exception($response['error']);
+            }
+
+            // Check status in the response format
+            if (isset($response['status']) && $response['status'] === false) {
+                throw new \Exception($response['message'] ?? 'Failed to fetch permissions');
+            }
+
+            $permissions = $response['data'] ?? [];
+            $pagination = $response['pagination'] ?? null;
+
+            return response()->json([
+                'status' => true,
+                'data' => $permissions,
+                'pagination' => $pagination
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Gagal mengambil data permission', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal mengambil data permission: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get a specific role by ID.
+     */
+    public function show($id)
+    {
+        try {
+            \Log::info('Fetching role with ID: ' . $id);
+
+            $response = $this->apiService->request('GET', "/roles/{$id}");
+
+            // Check if we got an error response from the ApiService
+            if (isset($response['error'])) {
+                if (strpos($response['error'], 'login') !== false) {
+                    return response()->json(['status' => false, 'error' => 'Authentication failed'], 401);
+                }
+                throw new \Exception($response['error']);
+            }
+
+            // Check status in the response format
+            if (isset($response['status']) && $response['status'] === false) {
+                throw new \Exception($response['message'] ?? 'Failed to fetch role');
+            }
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            \Log::error('Failed to fetch role details', [
+                'error' => $e->getMessage(),
+                'role_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to fetch role details: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
