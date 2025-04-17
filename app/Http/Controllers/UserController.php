@@ -33,7 +33,7 @@ class UserController extends Controller
                 ]
             ]);
 
-            // Fetch users
+            // Fetch users with the new response format
             $userPage = $request->input('user_page', 1);
             $userLimit = $request->input('user_limit', 10);
 
@@ -46,18 +46,9 @@ class UserController extends Controller
                 ]
             ]);
 
-            // Fetch employees for dropdown and data linking
-            $employeeResult = $this->apiService->request('GET', '/employees', [
-                'query' => [
-                    'page' => 1,
-                    'limit' => 100 // Get a reasonable number of employees for the dropdown
-                ]
-            ]);
-
             // Check if we got an error response from the ApiService
-            if (isset($roleResult['error']) || isset($userResult['error']) || isset($employeeResult['error'])) {
-                $error = isset($roleResult['error']) ? $roleResult['error'] :
-                    (isset($userResult['error']) ? $userResult['error'] : $employeeResult['error']);
+            if (isset($roleResult['error']) || isset($userResult['error'])) {
+                $error = isset($roleResult['error']) ? $roleResult['error'] : $userResult['error'];
 
                 if (strpos($error, 'login') !== false) {
                     return redirect()->route('login')->with('error', $error);
@@ -68,25 +59,6 @@ class UserController extends Controller
 
             $roles = $roleResult['data'] ?? [];
             $users = $userResult['data'] ?? [];
-            $employees = $employeeResult['data'] ?? [];
-
-            // Link employee names to users
-            foreach ($users as &$user) {
-                $employeeId = $user['employee_id'];
-                $employee = collect($employees)->first(function ($emp) use ($employeeId) {
-                    return $emp['employee_id'] == $employeeId;
-                });
-
-                $user['employee_name'] = $employee ? ($employee['first_name'] . ' ' . $employee['last_name']) : 'Unknown';
-
-                // Also link role name
-                $roleId = $user['role_id'];
-                $role = collect($roles)->first(function ($rol) use ($roleId) {
-                    return $rol['role_id'] == $roleId;
-                });
-
-                $user['role_name'] = $role ? $role['role_name'] : 'Unknown';
-            }
 
             // Format pagination for roles
             $rolePagination = null;
@@ -126,8 +98,7 @@ class UserController extends Controller
                     'pagination' => $rolePagination
                 ],
                 'users' => $users,
-                'user_pagination' => $userPagination,
-                'employees' => $employees
+                'user_pagination' => $userPagination
             ]);
         } catch (\Exception $e) {
             \Log::error('Failed to fetch user data', [
@@ -142,7 +113,6 @@ class UserController extends Controller
                 ],
                 'users' => [],
                 'user_pagination' => null,
-                'employees' => [],
                 'error' => 'Failed to fetch data: ' . $e->getMessage()
             ]);
         }
@@ -175,10 +145,9 @@ class UserController extends Controller
                 throw new \Exception($result['error']);
             }
 
-            // Adapt to the new response structure
             return view('Account.User', [
                 'users' => $result['data'] ?? [],
-                'pagination' => $result['pagination'] ?? null
+                'user_pagination' => $result['pagination'] ?? null
             ]);
         } catch (\Exception $e) {
             \Log::error('Failed to fetch users', [
@@ -200,21 +169,22 @@ class UserController extends Controller
         try {
             // Log the request data
             \Log::info('Attempting to create user with data:', [
-                'request_data' => $request->all()
+                'request_data' => $request->except('password')
             ]);
 
-            // Updated endpoint for user creation with number conversions
+            // Updated endpoint for user creation with updated fields
             $result = $this->apiService->request('POST', '/auth/create-user', [
                 'json' => [
-                    'email' => $request->input('email'),
-                    'role_id' => (int) $request->input('role_id'),
-                    'employee_id' => (int) $request->input('employee_id')
+                    'employee_number' => $request->input('employee_number'),
+                    'password' => $request->input('password'),
+                    'role_ids' => array_map('intval', (array) $request->input('role_ids', [])),
+                    'is_active' => $request->has('is_active') ? (bool) $request->input('is_active') : true
                 ]
             ]);
 
             // Log the API response
             \Log::info('API response for user creation:', [
-                'api_response' => $result
+                'api_response' => isset($result['error']) ? $result : 'Success response (redacted)'
             ]);
 
             // Check if we got an auth error response
@@ -233,7 +203,7 @@ class UserController extends Controller
                     'message' => $result['message'] ?? 'Failed to create user'
                 ]);
                 return redirect()->back()
-                    ->withInput()
+                    ->withInput($request->except('password'))
                     ->with('error', $result['message'] ?? 'Failed to create user');
             }
 
@@ -245,11 +215,11 @@ class UserController extends Controller
             \Log::error('Exception during user creation:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'user_data' => $request->except('_token')
+                'user_data' => $request->except(['_token', 'password'])
             ]);
 
             return redirect()->back()
-                ->withInput()
+                ->withInput($request->except('password'))
                 ->with('error', 'Failed to create user: ' . $e->getMessage());
         }
     }
@@ -263,24 +233,28 @@ class UserController extends Controller
             // Log the request data
             \Log::info('Attempting to update user with data:', [
                 'user_id' => $id,
-                'request_data' => $request->all()
+                'request_data' => $request->except('password')
             ]);
 
-            // Convert is_active to boolean - true if 1, false otherwise
-            $isActive = $request->input('is_active') == '1' ? true : false;
+            // Prepare the JSON payload
+            $jsonPayload = [
+                'employee_number' => $request->input('employee_number'),
+                'role_ids' => array_map('intval', (array) $request->input('role_ids', [])),
+                'is_active' => $request->has('is_active') ? (bool) $request->input('is_active') : true
+            ];
+
+            // Add password only if provided
+            if ($request->filled('password')) {
+                $jsonPayload['password'] = $request->input('password');
+            }
 
             $result = $this->apiService->request('PUT', "/users/{$id}", [
-                'json' => [
-                    'email' => $request->input('email'),
-                    'role_id' => (int) $request->input('role_id'),
-                    'employee_id' => (int) $request->input('employee_id'),
-                    'is_active' => $isActive
-                ]
+                'json' => $jsonPayload
             ]);
 
             // Log the API response
             \Log::info('API response for user update:', [
-                'api_response' => $result
+                'api_response' => isset($result['error']) ? $result : 'Success response (redacted)'
             ]);
 
             // Check if we got an auth error response
@@ -299,7 +273,7 @@ class UserController extends Controller
                     'message' => $result['message'] ?? 'Failed to update user'
                 ]);
                 return redirect()->back()
-                    ->withInput()
+                    ->withInput($request->except('password'))
                     ->with('error', $result['message'] ?? 'Failed to update user');
             }
 
@@ -312,11 +286,11 @@ class UserController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_id' => $id,
-                'user_data' => $request->except(['_token', '_method'])
+                'user_data' => $request->except(['_token', '_method', 'password'])
             ]);
 
             return redirect()->back()
-                ->withInput()
+                ->withInput($request->except('password'))
                 ->with('error', 'Failed to update user: ' . $e->getMessage());
         }
     }

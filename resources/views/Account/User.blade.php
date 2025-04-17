@@ -34,9 +34,8 @@
                                         <input type="checkbox" class="checkbox checkbox-sm" />
                                     </th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">User ID</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Email</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Employee</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Role</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Employee Number</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Roles</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Status</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action
                                     </th>
@@ -49,10 +48,21 @@
                                             <input type="checkbox" class="checkbox checkbox-sm" />
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $user['user_id'] ?? '-' }}</td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $user['email'] ?? '-' }}</td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $user['employee_name'] ?? '-' }}
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $user['employee_number'] ?? '-' }}
                                         </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $user['role_name'] ?? '-' }}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            @if(isset($user['roles']) && is_array($user['roles']))
+                                                <div class="flex flex-wrap gap-1">
+                                                    @foreach($user['roles'] as $role)
+                                                        <span class="px-2 py-1 bg-gray-100 rounded-full text-xs">
+                                                            {{ $role['role_name'] ?? '-' }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             <span
                                                 class="px-2 py-1 rounded text-xs {{ ($user['is_active'] ?? false) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
@@ -62,9 +72,9 @@
                                         <td class="p-3 border-t border-[#EEF1F4]">
                                             <div class="flex justify-center gap-2">
                                                 <button class="text-[#3D3D3D] hover:text-[#213268] edit-user-btn"
-                                                    data-user-id="{{ $user['user_id'] }}" data-email="{{ $user['email'] }}"
-                                                    data-employee-id="{{ $user['employee_id'] }}"
-                                                    data-role-id="{{ $user['role_id'] }}"
+                                                    data-user-id="{{ $user['user_id'] }}"
+                                                    data-employee-number="{{ $user['employee_number'] }}"
+                                                    data-role-ids="{{ isset($user['roles']) ? json_encode(array_column($user['roles'], 'role_id')) : '[]' }}"
                                                     data-is-active="{{ $user['is_active'] ? 'true' : 'false' }}">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -78,29 +88,12 @@
                                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
-
-                                                <!-- Verification Icon -->
-                                                @if($user['verified'] ?? false)
-                                                    <button class="text-green-500 hover:text-green-600" title="Verified">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                    </button>
-                                                @else
-                                                    <button class="text-yellow-500 hover:text-yellow-600" title="Not Verified">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                                        </svg>
-                                                    </button>
-                                                @endif
                                             </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No users found
+                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No users found
                                         </td>
                                     </tr>
                                 @endforelse
@@ -197,39 +190,66 @@
                             <form id="addUserForm" action="{{ route('users.store') }}" method="POST">
                                 @csrf
                                 <div class="space-y-4 max-w-[400px] mx-auto">
-                                    <!-- Email Input -->
+                                    <!-- Employee Number Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Email</label>
-                                        <input type="email" name="email"
+                                        <label class="block text-base font-semibold text-[#666666]">Employee Number</label>
+                                        <input type="text" name="employee_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Enter email address" required>
+                                            placeholder="Enter employee number" required>
                                     </div>
 
-                                    <!-- Role Selection -->
+                                    <!-- Password Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Role</label>
-                                        <select name="role_id"
+                                        <label class="block text-base font-semibold text-[#666666]">Password</label>
+                                        <input type="password" name="password"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            required>
-                                            <option value="" disabled selected>Select a role</option>
-                                            @foreach($roles['data'] as $role)
-                                                <option value="{{ $role['role_id'] }}">{{ $role['role_name'] }}</option>
-                                            @endforeach
-                                        </select>
+                                            placeholder="Enter password" required>
                                     </div>
 
-                                    <!-- Employee Selection -->
+                                    <!-- Roles Selection for Add User Modal -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Employee</label>
-                                        <select name="employee_id"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            required>
-                                            <option value="" disabled selected>Select an employee</option>
-                                            @foreach($employees as $employee)
-                                                <option value="{{ $employee['employee_id'] }}">{{ $employee['first_name'] }}
-                                                    {{ $employee['last_name'] }}
-                                                </option>
-                                            @endforeach
+                                        <label class="block text-base font-semibold text-[#666666]">Roles</label>
+                                        <div class="relative">
+                                            <div
+                                                class="w-full min-h-[45px] px-3 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus-within:border-[#213268] focus-within:ring-2 focus-within:ring-[#213268] focus-within:ring-opacity-20 transition-all duration-200">
+                                                <div class="flex flex-wrap gap-2 mb-1">
+                                                    <div id="add-selected-roles-display" class="flex flex-wrap gap-2"></div>
+                                                    <div class="relative flex-grow min-w-[120px]">
+                                                        <input type="text" id="add-roles-input"
+                                                            class="w-full border-none focus:ring-0 p-0 py-1 text-sm bg-transparent"
+                                                            placeholder="Type to search roles">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </div>
+                                            <div id="add-roles-dropdown"
+                                                class="absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg shadow-lg max-h-[200px] overflow-y-auto hidden">
+                                                @foreach($roles['data'] as $role)
+                                                    <div class="p-2 hover:bg-gray-50 role-option cursor-pointer"
+                                                        data-role-id="{{ $role['role_id'] }}"
+                                                        data-role-name="{{ $role['role_name'] }}" data-target="add">
+                                                        <span class="text-sm text-gray-700">{{ $role['role_name'] }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        <div id="add-role-hidden-inputs"></div>
+                                    </div>
+
+                                    <!-- Active Status -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Status</label>
+                                        <select name="is_active"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                            <option value="1" selected>Active</option>
+                                            <option value="0">Inactive</option>
                                         </select>
                                     </div>
 
@@ -273,40 +293,50 @@
                                 @csrf
                                 @method('PUT')
                                 <div class="space-y-4 max-w-[400px] mx-auto">
-                                    <!-- Email Input -->
+                                    <!-- Employee Number Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Email</label>
-                                        <input type="email" id="edit_email" name="email"
+                                        <label class="block text-base font-semibold text-[#666666]">Employee Number</label>
+                                        <input type="text" id="edit_employee_number" name="employee_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Enter email address" required>
+                                            placeholder="Enter employee number" required>
                                     </div>
 
-                                    <!-- Role Selection -->
+                                    <!-- Roles Selection for Edit User Modal -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Role</label>
-                                        <select id="edit_role_id" name="role_id"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            required>
-                                            <option value="" disabled>Select a role</option>
-                                            @foreach($roles['data'] as $role)
-                                                <option value="{{ $role['role_id'] }}">{{ $role['role_name'] }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <!-- Employee Selection -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Employee</label>
-                                        <select id="edit_employee_id" name="employee_id"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            required>
-                                            <option value="" disabled>Select an employee</option>
-                                            @foreach($employees as $employee)
-                                                <option value="{{ $employee['employee_id'] }}">{{ $employee['first_name'] }}
-                                                    {{ $employee['last_name'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <label class="block text-base font-semibold text-[#666666]">Roles</label>
+                                        <div class="relative">
+                                            <div
+                                                class="w-full min-h-[45px] px-3 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus-within:border-[#213268] focus-within:ring-2 focus-within:ring-[#213268] focus-within:ring-opacity-20 transition-all duration-200">
+                                                <div class="flex flex-wrap gap-2 mb-1">
+                                                    <div id="edit-selected-roles-display" class="flex flex-wrap gap-2">
+                                                    </div>
+                                                    <div class="relative flex-grow min-w-[120px]">
+                                                        <input type="text" id="edit-roles-input"
+                                                            class="w-full border-none focus:ring-0 p-0 py-1 text-sm bg-transparent"
+                                                            placeholder="Type to search roles">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 pointer-events-none">
+                                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </div>
+                                            <div id="edit-roles-dropdown"
+                                                class="absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg shadow-lg max-h-[200px] overflow-y-auto hidden">
+                                                @foreach($roles['data'] as $role)
+                                                    <div class="p-2 hover:bg-gray-50 role-option cursor-pointer"
+                                                        data-role-id="{{ $role['role_id'] }}"
+                                                        data-role-name="{{ $role['role_name'] }}" data-target="edit">
+                                                        <span class="text-sm text-gray-700">{{ $role['role_name'] }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        <div id="edit-role-hidden-inputs"></div>
                                     </div>
 
                                     <!-- Active Status -->
@@ -397,6 +427,235 @@
                 window.location.href = url.toString();
             }
 
+            // Set up role search and selection for both modals
+            setupRoleSearch('add-roles-input', 'add-roles-dropdown', 'add-selected-roles-display', 'add-role-hidden-inputs');
+            setupRoleSearch('edit-roles-input', 'edit-roles-dropdown', 'edit-selected-roles-display', 'edit-role-hidden-inputs');
+
+            // Setup role search functionality
+            function setupRoleSearch(inputId, dropdownId, displayContainerId, hiddenInputsId) {
+                const input = document.getElementById(inputId);
+                const dropdown = document.getElementById(dropdownId);
+                const displayContainer = document.getElementById(displayContainerId);
+                const hiddenInputsContainer = document.getElementById(hiddenInputsId);
+                const inputContainer = input.closest('.relative');
+
+                // Store selected roles
+                const selectedRoles = new Map();
+
+                // Show dropdown when input is focused
+                input.addEventListener('focus', function () {
+                    if (this.value.trim() === '') {
+                        // Show all available options
+                        const options = dropdown.querySelectorAll('.role-option');
+                        options.forEach(option => {
+                            const roleId = option.getAttribute('data-role-id');
+                            if (!selectedRoles.has(roleId)) {
+                                option.classList.remove('hidden');
+                            } else {
+                                option.classList.add('hidden');
+                            }
+                        });
+
+                        dropdown.classList.remove('hidden');
+                    }
+                });
+
+                // Filter options while typing
+                input.addEventListener('input', function () {
+                    const searchTerm = this.value.toLowerCase().trim();
+
+                    if (searchTerm.length > 0) {
+                        // Show dropdown
+                        dropdown.classList.remove('hidden');
+
+                        // Filter options
+                        const options = dropdown.querySelectorAll('.role-option');
+                        let hasVisibleOptions = false;
+
+                        options.forEach(option => {
+                            const roleName = option.getAttribute('data-role-name').toLowerCase();
+                            const roleId = option.getAttribute('data-role-id');
+
+                            // Hide already selected roles and non-matching roles
+                            if (selectedRoles.has(roleId) || !roleName.includes(searchTerm)) {
+                                option.classList.add('hidden');
+                            } else {
+                                option.classList.remove('hidden');
+                                hasVisibleOptions = true;
+                            }
+                        });
+
+                        // Hide dropdown if no options match
+                        if (!hasVisibleOptions) {
+                            dropdown.classList.add('hidden');
+                        }
+                    } else {
+                        // Show all available options when input is empty
+                        const options = dropdown.querySelectorAll('.role-option');
+                        let hasVisibleOptions = false;
+
+                        options.forEach(option => {
+                            const roleId = option.getAttribute('data-role-id');
+                            if (!selectedRoles.has(roleId)) {
+                                option.classList.remove('hidden');
+                                hasVisibleOptions = true;
+                            } else {
+                                option.classList.add('hidden');
+                            }
+                        });
+
+                        if (hasVisibleOptions) {
+                            dropdown.classList.remove('hidden');
+                        } else {
+                            dropdown.classList.add('hidden');
+                        }
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!inputContainer.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+
+                // Handle role selection
+                dropdown.addEventListener('click', function (e) {
+                    const option = e.target.closest('.role-option');
+                    if (option) {
+                        const roleId = option.getAttribute('data-role-id');
+                        const roleName = option.getAttribute('data-role-name');
+
+                        // Add role if not already selected
+                        if (!selectedRoles.has(roleId)) {
+                            selectedRoles.set(roleId, roleName);
+                            renderSelectedRoles();
+                        }
+
+                        // Clear input and hide dropdown
+                        input.value = '';
+
+                        // Show all unselected options
+                        const options = dropdown.querySelectorAll('.role-option');
+                        let hasVisibleOptions = false;
+
+                        options.forEach(opt => {
+                            const id = opt.getAttribute('data-role-id');
+                            if (!selectedRoles.has(id)) {
+                                opt.classList.remove('hidden');
+                                hasVisibleOptions = true;
+                            } else {
+                                opt.classList.add('hidden');
+                            }
+                        });
+
+                        if (hasVisibleOptions) {
+                            dropdown.classList.remove('hidden');
+                        } else {
+                            dropdown.classList.add('hidden');
+                        }
+
+                        // Focus back on input for more selections
+                        input.focus();
+                    }
+                });
+
+                // Render selected roles
+                function renderSelectedRoles() {
+                    // Clear containers
+                    displayContainer.innerHTML = '';
+                    hiddenInputsContainer.innerHTML = '';
+
+                    // Add badges and hidden inputs for each selected role
+                    selectedRoles.forEach((roleName, roleId) => {
+                        // Create badge
+                        const badge = document.createElement('div');
+                        badge.className = 'inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-md text-xs';
+                        badge.innerHTML = `
+                                <span>${roleName}</span>
+                                <span class="cursor-pointer hover:text-red-500 font-medium" data-role-id="${roleId}">×</span>
+                            `;
+
+                        // Remove badge when clicking the x
+                        badge.querySelector('span:last-child').addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            const roleId = this.getAttribute('data-role-id');
+                            selectedRoles.delete(roleId);
+                            renderSelectedRoles();
+                            input.focus();
+
+                            // Update dropdown to show this option again
+                            const option = dropdown.querySelector(`.role-option[data-role-id="${roleId}"]`);
+                            if (option) {
+                                option.classList.remove('hidden');
+                            }
+                        });
+
+                        displayContainer.appendChild(badge);
+
+                        // Create hidden input for form submission
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'role_ids[]';
+                        hiddenInput.value = roleId;
+                        hiddenInputsContainer.appendChild(hiddenInput);
+                    });
+                }
+
+                // Allow container click to focus the input
+                inputContainer.addEventListener('click', function (e) {
+                    if (e.target === this || e.target.closest('.flex.flex-wrap')) {
+                        input.focus();
+                    }
+                });
+
+                // Public method to set selected roles (for edit form)
+                window[`set${inputId.split('-')[0].charAt(0).toUpperCase() + inputId.split('-')[0].slice(1)}SelectedRoles`] = function (roleIds, roleNames) {
+                    // Clear existing selections
+                    selectedRoles.clear();
+
+                    // Add new selections
+                    if (Array.isArray(roleIds) && Array.isArray(roleNames) && roleIds.length === roleNames.length) {
+                        roleIds.forEach((id, index) => {
+                            selectedRoles.set(id.toString(), roleNames[index]);
+                        });
+                    }
+
+                    renderSelectedRoles();
+                };
+            }
+
+            // Modified setupEditUserForm function to handle role names
+            window.setupEditUserForm = function (userId, employeeNumber, roleIds, isActive) {
+                const form = document.getElementById('editUserForm');
+                form.action = `{{ route('users.update', '') }}/${userId}`;
+
+                // Set employee number
+                document.getElementById('edit_employee_number').value = employeeNumber;
+
+                // Set is_active value
+                document.getElementById('edit_is_active').value = (isActive === 'true') ? '1' : '0';
+
+                // Get role names for the selected role IDs
+                const roleNames = roleIds.map(roleId => {
+                    const element = document.querySelector(`.role-option[data-role-id="${roleId}"]`);
+                    return element ? element.getAttribute('data-role-name') : '';
+                }).filter(name => name !== '');
+
+                // Set selected roles
+                window.setEditSelectedRoles(roleIds, roleNames);
+
+                // Open the modal
+                const modal = document.getElementById('editUserModal');
+                const content = document.getElementById('editUserModalContent');
+                openModal(modal, content);
+            };
+
+            // Reset role selection when opening Add User modal
+            document.getElementById('addUserBtn').addEventListener('click', () => {
+                window.setAddSelectedRoles([], []);
+            });
+
             // Toast container
             const toastContainer = document.createElement('div');
             toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-4';
@@ -424,26 +683,24 @@
                 setTimeout(() => {
                     modal.classList.add('hidden');
                 }, 300);
-            }
 
-            // Add User Modal
-            document.getElementById('addUserBtn').addEventListener('click', () => {
-                openModal(addUserModal, addUserModal.querySelector('[id$="ModalContent"]'));
-            });
+                // Hide any open dropdowns
+                document.getElementById('add-roles-dropdown').classList.add('hidden');
+                document.getElementById('edit-roles-dropdown').classList.add('hidden');
+            }
 
             // Edit User Modal
             document.querySelectorAll('.edit-user-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const userId = this.getAttribute('data-user-id');
-                    const email = this.getAttribute('data-email');
-                    const employeeId = this.getAttribute('data-employee-id');
-                    const roleId = this.getAttribute('data-role-id');
+                    const employeeNumber = this.getAttribute('data-employee-number');
+                    const roleIds = JSON.parse(this.getAttribute('data-role-ids') || '[]');
                     const isActive = this.getAttribute('data-is-active');
 
-                    console.log('Button data-is-active:', isActive); // Debug
+                    console.log('Button data:', { userId, employeeNumber, roleIds, isActive }); // Debug
 
                     // Use the global function to set up the form
-                    window.setupEditUserForm(userId, email, employeeId, roleId, isActive);
+                    window.setupEditUserForm(userId, employeeNumber, roleIds, isActive);
                 });
             });
 
@@ -502,38 +759,38 @@
                     borderColor = 'border-green-500';
                     textColor = 'text-green-700';
                     icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>`;
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>`;
                 } else if (type === 'error') {
                     bgColor = 'bg-red-100';
                     borderColor = 'border-red-500';
                     textColor = 'text-red-700';
                     icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>`;
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>`;
                 } else {
                     bgColor = 'bg-blue-100';
                     borderColor = 'border-blue-500';
                     textColor = 'text-blue-700';
                     icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>`;
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>`;
                 }
 
                 toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
                 toast.setAttribute('role', 'alert');
                 toast.innerHTML = `
-                            <div class="flex items-center">
-                                <div class="py-1">
-                                    ${icon}
-                                </div>
-                                <div>
-                                    <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-                                    <p>${message}</p>
-                                </div>
-                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                            </div>
-                        `;
+                                                        <div class="flex items-center">
+                                                            <div class="py-1">
+                                                                ${icon}
+                                                            </div>
+                                                            <div>
+                                                                <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
+                                                                <p>${message}</p>
+                                                            </div>
+                                                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                        </div>
+                                                    `;
 
                 // Add to container
                 toastContainer.appendChild(toast);
@@ -555,57 +812,6 @@
                     }, 300);
                 }, 5000);
             }
-
-            // For the add user form
-            const addUserForm = document.getElementById('addUserForm');
-            if (addUserForm) {
-                addUserForm.addEventListener('submit', function (e) {
-                    // Convert select values to numbers
-                    const roleSelect = this.querySelector('[name="role_id"]');
-                    const employeeSelect = this.querySelector('[name="employee_id"]');
-
-                    roleSelect.value = parseInt(roleSelect.value, 10);
-                    employeeSelect.value = parseInt(employeeSelect.value, 10);
-                });
-            }
-
-            // For the edit user form
-            const editUserForm = document.getElementById('editUserForm');
-            if (editUserForm) {
-                editUserForm.addEventListener('submit', function (e) {
-                    // Convert select values to numbers
-                    const roleSelect = this.querySelector('[name="role_id"]');
-                    const employeeSelect = this.querySelector('[name="employee_id"]');
-                    const isActiveSelect = this.querySelector('[name="is_active"]');
-
-                    roleSelect.value = parseInt(roleSelect.value, 10);
-                    employeeSelect.value = parseInt(employeeSelect.value, 10);
-                    isActiveSelect.value = parseInt(isActiveSelect.value, 10);
-                });
-            }
-
-            // Add this function to window scope for handling edit user form setup
-            window.setupEditUserForm = function (userId, email, employeeId, roleId, isActive) {
-                console.log('isActive received:', isActive); // Debug
-
-                const form = document.getElementById('editUserForm');
-                form.action = `{{ route('users.update', '') }}/${userId}`;
-
-                document.getElementById('edit_email').value = email;
-
-                // Set the values for dropdown selects - make sure they are strings for HTML selects
-                document.getElementById('edit_employee_id').value = employeeId.toString();
-                document.getElementById('edit_role_id').value = roleId.toString();
-
-                // For is_active, convert boolean string to select option value
-                // The value should be "1" for true/active and "0" for false/inactive
-                document.getElementById('edit_is_active').value = (isActive === 'true') ? '1' : '0';
-
-                // Open the modal
-                const modal = document.getElementById('editUserModal');
-                const content = document.getElementById('editUserModalContent');
-                openModal(modal, content);
-            };
         });
     </script>
 

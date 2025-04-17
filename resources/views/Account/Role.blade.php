@@ -459,9 +459,9 @@
                 let html = '';
                 for (const [group, perms] of Object.entries(groupedPermissions)) {
                     html += `
-                                    <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
-                                        <h4 class="text-[#213268] text-lg font-semibold mb-3 capitalize">${group}</h4>
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">`;
+                                                                    <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
+                                                                        <h4 class="text-[#213268] text-lg font-semibold mb-3 capitalize">${group}</h4>
+                                                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">`;
 
                     perms.forEach(permission => {
                         // Check if this is a view permission
@@ -495,23 +495,23 @@
 
                         html += `
                                     <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded ${isDisabled ? 'bg-gray-50' : ''}">
-                                        <input type="checkbox"
-                                            id="${permId}"
-                                            name="permission_ids[]"
-                                            value="${permission.permission_id}"
-                                            class="checkbox checkbox-primary mt-1 permission-checkbox"
-                                            data-group="${group.toLowerCase()}"
+                                                                            <input type="checkbox"
+                                                                                id="${permId}"
+                                                                                name="permission_ids[]"
+                                                                                value="${permission.permission_id}"
+                                                                                class="checkbox checkbox-primary mt-1 permission-checkbox"
+                                                                                data-group="${group.toLowerCase()}"
                                             data-is-view="${isViewPermission ? 'true' : 'false'}"
                                             ${isChecked ? 'checked' : ''}
                                             ${isDisabled ? 'disabled' : ''}>
                                         <label for="${permId}" class="cursor-pointer select-none ${isDisabled ? 'text-gray-500' : ''}">
-                                            <div class="font-medium">${displayName}</div>
+                                                                                <div class="font-medium">${displayName}</div>
                                             <div class="text-xs text-gray-500">
                                                 ${permission.description}
                                                 ${isDisabled ? '<span class="text-blue-500 font-medium"> (Required)</span>' : ''}
                                             </div>
-                                        </label>
-                                    </div>`;
+                                                                            </label>
+                                                                        </div>`;
 
                         // For view permissions in both modals, add a hidden input to ensure the value is submitted
                         if (isViewPermission) {
@@ -520,8 +520,8 @@
                     });
 
                     html += `
-                                    </div>
-                                </div>`;
+                                                                        </div>
+                                                                    </div>`;
                 }
 
                 // Add the HTML to the container after the notification
@@ -730,38 +730,38 @@
                     borderColor = 'border-green-500';
                     textColor = 'text-green-700';
                     icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                            </svg>`;
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>`;
                 } else if (type === 'error') {
                     bgColor = 'bg-red-100';
                     borderColor = 'border-red-500';
                     textColor = 'text-red-700';
                     icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                            </svg>`;
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>`;
                 } else {
                     bgColor = 'bg-blue-100';
                     borderColor = 'border-blue-500';
                     textColor = 'text-blue-700';
                     icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                            </svg>`;
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>`;
                 }
 
                 toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
                 toast.setAttribute('role', 'alert');
                 toast.innerHTML = `
-                                                                            <div class="flex items-center">
-                                                                                <div class="py-1">
-                                                                                    ${icon}
-                                                                                </div>
-                                                                                <div>
-                                                                                    <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-                                                                                    <p>${message}</p>
-                                                                                </div>
-                                                                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                                                            </div>
-                                                                        `;
+                                                <div class="flex items-center">
+                                                    <div class="py-1">
+                                                        ${icon}
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
+                                                        <p>${message}</p>
+                                                    </div>
+                                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                </div>
+                                            `;
 
                 // Add to container
                 toastContainer.appendChild(toast);
