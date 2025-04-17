@@ -205,13 +205,6 @@
                                                         class="font-semibold cursor-pointer select-none">All
                                                         Permission</label>
                                                 </div>
-                                                <div class="flex items-center gap-2">
-                                                    <input type="checkbox" id="add-set-as-admin"
-                                                        class="checkbox checkbox-primary">
-                                                    <label for="add-set-as-admin"
-                                                        class="font-semibold cursor-pointer select-none">Set As
-                                                        Admin</label>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -291,13 +284,6 @@
                                                     <label for="edit-all-permission"
                                                         class="font-semibold cursor-pointer select-none">All
                                                         Permission</label>
-                                                </div>
-                                                <div class="flex items-center gap-2">
-                                                    <input type="checkbox" id="edit-set-as-admin"
-                                                        class="checkbox checkbox-primary">
-                                                    <label for="edit-set-as-admin"
-                                                        class="font-semibold cursor-pointer select-none">Set As
-                                                        Admin</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -441,6 +427,13 @@
                     return;
                 }
 
+                // Add a notification about auto-checked view permissions at the top for both modals
+                const noteDiv = document.createElement('div');
+                noteDiv.className = 'bg-blue-50 text-blue-700 p-3 rounded-md mb-4';
+                noteDiv.innerHTML = '<p class="text-sm"><strong>Note:</strong> All "View" permissions are automatically enabled and cannot be disabled as they are required for basic functionality.</p>';
+                container.innerHTML = '';
+                container.appendChild(noteDiv);
+
                 // Group permissions by their category (first part before colon)
                 const groupedPermissions = {};
                 permissions.forEach(permission => {
@@ -466,12 +459,22 @@
                 let html = '';
                 for (const [group, perms] of Object.entries(groupedPermissions)) {
                     html += `
-                                                                    <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
-                                                                        <h4 class="text-[#213268] text-lg font-semibold mb-3 capitalize">${group}</h4>
-                                                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">`;
+                                    <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
+                                        <h4 class="text-[#213268] text-lg font-semibold mb-3 capitalize">${group}</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">`;
 
                     perms.forEach(permission => {
-                        const isChecked = selectedIds.includes(permission.permission_id);
+                        // Check if this is a view permission
+                        const isViewPermission = permission.permission_name.includes(':view');
+
+                        // Always select view permissions in both modals
+                        let isChecked = selectedIds.includes(permission.permission_id);
+                        if (isViewPermission) {
+                            isChecked = true;
+                        }
+
+                        // Disable view permissions in both modals
+                        const isDisabled = isViewPermission;
                         const permId = `${containerId}-perm-${permission.permission_id}`;
 
                         // Map common permission types to more user-friendly names
@@ -491,27 +494,38 @@
                         }
 
                         html += `
-                                                                        <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded">
-                                                                            <input type="checkbox"
-                                                                                id="${permId}"
-                                                                                name="permission_ids[]"
-                                                                                value="${permission.permission_id}"
-                                                                                class="checkbox checkbox-primary mt-1 permission-checkbox"
-                                                                                data-group="${group.toLowerCase()}"
-                                                                                ${isChecked ? 'checked' : ''}>
-                                                                            <label for="${permId}" class="cursor-pointer select-none">
-                                                                                <div class="font-medium">${displayName}</div>
-                                                                                <div class="text-xs text-gray-500">${permission.description}</div>
-                                                                            </label>
-                                                                        </div>`;
+                                    <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded ${isDisabled ? 'bg-gray-50' : ''}">
+                                        <input type="checkbox"
+                                            id="${permId}"
+                                            name="permission_ids[]"
+                                            value="${permission.permission_id}"
+                                            class="checkbox checkbox-primary mt-1 permission-checkbox"
+                                            data-group="${group.toLowerCase()}"
+                                            data-is-view="${isViewPermission ? 'true' : 'false'}"
+                                            ${isChecked ? 'checked' : ''}
+                                            ${isDisabled ? 'disabled' : ''}>
+                                        <label for="${permId}" class="cursor-pointer select-none ${isDisabled ? 'text-gray-500' : ''}">
+                                            <div class="font-medium">${displayName}</div>
+                                            <div class="text-xs text-gray-500">
+                                                ${permission.description}
+                                                ${isDisabled ? '<span class="text-blue-500 font-medium"> (Required)</span>' : ''}
+                                            </div>
+                                        </label>
+                                    </div>`;
+
+                        // For view permissions in both modals, add a hidden input to ensure the value is submitted
+                        if (isViewPermission) {
+                            html += `<input type="hidden" name="permission_ids[]" value="${permission.permission_id}" data-view="true">`;
+                        }
                     });
 
                     html += `
-                                                                        </div>
-                                                                    </div>`;
+                                    </div>
+                                </div>`;
                 }
 
-                container.innerHTML = html;
+                // Add the HTML to the container after the notification
+                container.innerHTML += html;
 
                 // Find the "All" permission and set up the all permission checkbox
                 const allPermission = permissions.find(p => p.permission_name === '*');
@@ -533,12 +547,61 @@
 
                         // Toggle all checkboxes when the all permission is toggled
                         allCheckbox.addEventListener('change', function () {
-                            const checkboxes = container.querySelectorAll('.permission-checkbox');
-                            checkboxes.forEach(cb => {
-                                cb.checked = this.checked;
+                            const allCheckboxes = container.querySelectorAll('.permission-checkbox');
+                            const nonViewCheckboxes = container.querySelectorAll('.permission-checkbox[data-is-view="false"]');
+                            const hiddenAllInput = document.getElementById(`${containerId}-hidden-all-permission`);
+
+                            // First, handle the checkbox states
+                            allCheckboxes.forEach(cb => {
+                                // Set checked state for all checkboxes (view and non-view)
+                                cb.checked = this.checked || cb.getAttribute('data-is-view') === 'true';
                             });
-                            document.getElementById(`${containerId}-hidden-all-permission`).checked = this.checked;
+
+                            // Then, handle disabled state only for non-view checkboxes
+                            nonViewCheckboxes.forEach(cb => {
+                                // Only disable non-view checkboxes when All is checked
+                                cb.disabled = this.checked;
+                            });
+
+                            // Update the hidden input for All permission
+                            hiddenAllInput.checked = this.checked;
+
+                            // Handle hidden inputs for form submission
+                            if (this.checked) {
+                                // Add hidden inputs for all permissions when "All Permission" is checked
+                                permissions.forEach(permission => {
+                                    if (permission.permission_name !== '*' && !permission.permission_name.includes(':view')) {
+                                        // Check if the hidden input already exists
+                                        const existingInput = container.querySelector(`input[type="hidden"][name="permission_ids[]"][value="${permission.permission_id}"]`);
+                                        if (!existingInput) {
+                                            const hiddenInput = document.createElement('input');
+                                            hiddenInput.type = 'hidden';
+                                            hiddenInput.name = 'permission_ids[]';
+                                            hiddenInput.value = permission.permission_id;
+                                            container.appendChild(hiddenInput);
+                                        }
+                                    }
+                                });
+                            } else {
+                                // Remove the hidden inputs for non-view permissions when unchecked
+                                const hiddenInputs = container.querySelectorAll('input[type="hidden"][name="permission_ids[]"]:not([data-view="true"])');
+                                hiddenInputs.forEach(input => {
+                                    // Don't remove the "All" permission hidden input
+                                    if (input.id !== `${containerId}-hidden-all-permission`) {
+                                        input.remove();
+                                    }
+                                });
+                            }
                         });
+
+                        // If "All Permission" is already checked on load, handle initial state
+                        if (allCheckbox.checked) {
+                            const nonViewCheckboxes = container.querySelectorAll('.permission-checkbox[data-is-view="false"]');
+                            nonViewCheckboxes.forEach(cb => {
+                                cb.disabled = true;
+                                cb.checked = true;
+                            });
+                        }
                     }
                 }
             }
@@ -667,38 +730,38 @@
                     borderColor = 'border-green-500';
                     textColor = 'text-green-700';
                     icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>`;
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            </svg>`;
                 } else if (type === 'error') {
                     bgColor = 'bg-red-100';
                     borderColor = 'border-red-500';
                     textColor = 'text-red-700';
                     icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>`;
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            </svg>`;
                 } else {
                     bgColor = 'bg-blue-100';
                     borderColor = 'border-blue-500';
                     textColor = 'text-blue-700';
                     icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>`;
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            </svg>`;
                 }
 
                 toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
                 toast.setAttribute('role', 'alert');
                 toast.innerHTML = `
-                                                <div class="flex items-center">
-                                                    <div class="py-1">
-                                                        ${icon}
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-                                                        <p>${message}</p>
-                                                    </div>
-                                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                                </div>
-                                            `;
+                                                                            <div class="flex items-center">
+                                                                                <div class="py-1">
+                                                                                    ${icon}
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
+                                                                                    <p>${message}</p>
+                                                                                </div>
+                                                                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                                            </div>
+                                                                        `;
 
                 // Add to container
                 toastContainer.appendChild(toast);
@@ -720,6 +783,29 @@
                     }, 300);
                 }, 5000);
             }
+
+            // Also need to update the permissions header sections in both modals to remove "Set as Admin"
+            document.addEventListener('DOMContentLoaded', function () {
+                // Find and modify the permission header sections
+                const addPermissionHeader = document.querySelector('#addRoleModal .pb-4.border-b.border-gray-200 .flex.flex-wrap.gap-6.mt-3');
+                const editPermissionHeader = document.querySelector('#editRoleModal .pb-4.border-b.border-gray-200 .flex.flex-wrap.gap-6.mt-3');
+
+                if (addPermissionHeader) {
+                    // Remove the "Set as Admin" checkbox
+                    const setAsAdminDiv = addPermissionHeader.querySelector('div:nth-child(2)');
+                    if (setAsAdminDiv) {
+                        setAsAdminDiv.remove();
+                    }
+                }
+
+                if (editPermissionHeader) {
+                    // Remove the "Set as Admin" checkbox
+                    const setAsAdminDiv = editPermissionHeader.querySelector('div:nth-child(2)');
+                    if (setAsAdminDiv) {
+                        setAsAdminDiv.remove();
+                    }
+                }
+            });
         });
     </script>
 
