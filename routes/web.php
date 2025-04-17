@@ -93,14 +93,6 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::delete('/rooms/delete/{id}', [LocationController::class, 'destroyRoom'])->name('rooms.destroy');
     });
 
-    // Employee Management
-    Route::prefix('employees')->group(function () {
-        Route::get('/', [EmployeeController::class, 'index'])->name('employees');
-        Route::post('/store', [EmployeeController::class, 'store'])->name('employees.store');
-        Route::put('/update/{id}', [EmployeeController::class, 'update'])->name('employees.update');
-        Route::delete('/delete/{id}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
-    });
-
     // Vendor Management
     Route::prefix('vendor')->group(function () {
         Route::get('/', [VendorController::class, 'index'])->name('vendor');
