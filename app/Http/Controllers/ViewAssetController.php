@@ -76,15 +76,19 @@ class ViewAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if ((isset($brandsResult['error']) && in_array($brandsResult['error'], ['auth_failed', 'session_expired'])) ||
-                (isset($assetsResult['error']) && in_array($assetsResult['error'], ['auth_failed', 'session_expired']))) {
+            if (
+                (isset($brandsResult['error']) && in_array($brandsResult['error'], ['auth_failed', 'session_expired'])) ||
+                (isset($assetsResult['error']) && in_array($assetsResult['error'], ['auth_failed', 'session_expired']))
+            ) {
                 $errorMessage = $brandsResult['message'] ?? $assetsResult['message'] ?? 'Authentication failed';
                 return redirect()->route('login')->with('error', $errorMessage);
             }
 
             // Check for API errors based on status flag
-            if ((!isset($assetsResult['status']) || $assetsResult['status'] !== true) ||
-                (!isset($brandsResult['status']) || $brandsResult['status'] !== true)) {
+            if (
+                (!isset($assetsResult['status']) || $assetsResult['status'] !== true) ||
+                (!isset($brandsResult['status']) || $brandsResult['status'] !== true)
+            ) {
                 $errorMessage = $assetsResult['message'] ?? $brandsResult['message'] ?? 'Failed to fetch data';
 
                 \Log::warning('Error during data retrieval:', [
@@ -250,25 +254,25 @@ class ViewAssetController extends Controller
             $assetData = [
                 'asset_name' => $request->input('asset_name'),
                 'description' => $request->input('description'),
-                'subcategory_id' => (int)$request->input('subcategory_id'),
+                'subcategory_id' => (int) $request->input('subcategory_id'),
                 'model_number' => $request->input('model_number'),
                 'serial_number' => $request->input('serial_number'),
                 'purchase_date' => $request->input('purchase_date'),
-                'purchase_cost' => (float)$request->input('purchase_cost'),
+                'purchase_cost' => (float) $request->input('purchase_cost'),
                 'warranty_end_date' => $request->input('warranty_end_date'),
                 'current_status' => $request->input('current_status', 'available'),
                 'condition' => $request->input('condition', 'good'),
-                'room_id' => (int)$request->input('room_id'),
-                'brand_id' => (int)$request->input('brand_id'),
+                'room_id' => (int) $request->input('room_id'),
+                'brand_id' => (int) $request->input('brand_id'),
                 'is_depreciable' => $request->input('is_depreciable') === '1' // Simpan sebagai true/false, bukan boolean string
             ];
 
             // Add depreciation data if asset is depreciable - use flat structure like updateAsset
             if ($request->input('is_depreciable') === '1') {
                 $assetData['depreciation_method'] = $request->input('depreciation_method');
-                $assetData['acquisition_cost'] = (float)$request->input('acquisition_cost');
-                $assetData['salvage_value'] = (float)$request->input('salvage_value');
-                $assetData['asset_life_months'] = (int)$request->input('asset_life_months');
+                $assetData['acquisition_cost'] = (float) $request->input('acquisition_cost');
+                $assetData['salvage_value'] = (float) $request->input('salvage_value');
+                $assetData['asset_life_months'] = (int) $request->input('asset_life_months');
                 $assetData['date_acquired'] = $request->input('date_acquired');
             }
 
@@ -401,26 +405,26 @@ class ViewAssetController extends Controller
                 'asset_id' => $id,
                 'asset_name' => $request->input('asset_name'),
                 'description' => $request->input('description'),
-                'subcategory_id' => (int)$request->input('subcategory_id'),
+                'subcategory_id' => (int) $request->input('subcategory_id'),
                 'model_number' => $request->input('model_number'),
                 'serial_number' => $request->input('serial_number'),
                 'purchase_date' => $request->input('purchase_date'),
-                'purchase_cost' => (float)$request->input('purchase_cost'),
+                'purchase_cost' => (float) $request->input('purchase_cost'),
                 'warranty_end_date' => $request->input('warranty_end_date'),
                 'current_status' => $request->input('current_status', 'available'),
                 'condition' => $request->input('condition'),
-                'room_id' => (int)$request->input('room_id'),
-                'brand_id' => (int)$request->input('brand_id'),
-                'is_depreciable' => (bool)($request->input('is_depreciable') === '1')
+                'room_id' => (int) $request->input('room_id'),
+                'brand_id' => (int) $request->input('brand_id'),
+                'is_depreciable' => (bool) ($request->input('is_depreciable') === '1')
             ];
 
             // Jika asset depreciable, tambahkan field depreciation langsung ke root object
             // ini berbeda dari struktur sebelumnya yang nested
             if ($request->input('is_depreciable') === '1') {
                 $assetData['depreciation_method'] = $request->input('depreciation_method');
-                $assetData['acquisition_cost'] = (float)$request->input('acquisition_cost');
-                $assetData['salvage_value'] = (float)$request->input('salvage_value');
-                $assetData['asset_life_months'] = (int)$request->input('asset_life_months');
+                $assetData['acquisition_cost'] = (float) $request->input('acquisition_cost');
+                $assetData['salvage_value'] = (float) $request->input('salvage_value');
+                $assetData['asset_life_months'] = (int) $request->input('asset_life_months');
                 $assetData['date_acquired'] = $request->input('date_acquired');
             }
 
@@ -472,9 +476,11 @@ class ViewAssetController extends Controller
             }
 
             // PERBAIKAN: Check for other API errors or unsuccessful responses
-            if (isset($result['error']) ||
+            if (
+                isset($result['error']) ||
                 (isset($result['status']) && $result['status'] === false) ||
-                (isset($result['success']) && $result['success'] === false)) {
+                (isset($result['success']) && $result['success'] === false)
+            ) {
 
                 \Log::warning('Error during asset update:', [
                     'error' => $result['error'] ?? null,
@@ -1007,6 +1013,119 @@ class ViewAssetController extends Controller
             ]);
 
             return redirect()->back()->with('error', $errorMessage);
+        }
+    }
+
+    /**
+     * Get asset data for AJAX requests.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAssetData(Request $request)
+    {
+        try {
+            $page = $request->input('page', 1);
+            $limit = $request->input('limit', 10);
+            $search = $request->input('search', '');
+
+            // Log request info
+            \Log::info('Fetching assets with parameters for AJAX:', [
+                'page' => $page,
+                'limit' => $limit,
+                'search' => $search,
+                'request_url' => $request->fullUrl()
+            ]);
+
+            // Build query parameters
+            $queryParams = [
+                'page' => $page,
+                'limit' => $limit,
+                'sort_by' => 'asset_id',
+                'sort_order' => 'asc'
+            ];
+
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            // Fetch assets
+            $assetsResult = $this->apiService->request('GET', '/assets', [
+                'query' => $queryParams
+            ]);
+
+            // Fetch subcategories which contain asset type information
+            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
+
+            // Log API responses for debugging
+            \Log::info('API response for assets AJAX list:', [
+                'assets_status' => $assetsResult['status'] ?? null,
+                'assets_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0
+            ]);
+
+            // Check for auth errors
+            if (isset($assetsResult['error']) && in_array($assetsResult['error'], ['auth_failed', 'session_expired'])) {
+                return response()->json([
+                    'error' => $assetsResult['message'] ?? 'Authentication failed'
+                ], 401);
+            }
+
+            // Process assets and add subcategory info
+            $assets = $assetsResult['data'] ?? [];
+            $subcategories = $subcategoriesResult['data'] ?? [];
+
+            // Map subcategories by ID for quick lookup
+            $subcategoryMap = [];
+            foreach ($subcategories as $subcategory) {
+                $subcategoryMap[$subcategory['subcategory_id']] = $subcategory;
+            }
+
+            // Add subcategory data to each asset
+            foreach ($assets as &$asset) {
+                if (isset($asset['subcategory_id']) && isset($subcategoryMap[$asset['subcategory_id']])) {
+                    $asset['subcategory'] = $subcategoryMap[$asset['subcategory_id']];
+                }
+
+                // Ensure room data is properly structured
+                if (!isset($asset['room'])) {
+                    $asset['room'] = [];
+                }
+
+                if (!isset($asset['room']['building'])) {
+                    $asset['room']['building'] = ['building_name' => '-'];
+                }
+            }
+
+            // Format pagination
+            $assetsPagination = null;
+            if (isset($assetsResult['pagination'])) {
+                $pagination = $assetsResult['pagination'];
+                $assetsPagination = [
+                    'current_page' => $pagination['current_page'] ?? 1,
+                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
+                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
+                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
+                    'total' => $pagination['total_items'] ?? 0,
+                    'per_page' => $pagination['limit'] ?? 10,
+                    'next_page_url' => ($pagination['has_next'] ?? false) ? url()->current() . '?page=' . ($pagination['current_page'] + 1) : null,
+                    'prev_page_url' => ($pagination['has_prev'] ?? false) ? url()->current() . '?page=' . ($pagination['current_page'] - 1) : null,
+                ];
+            }
+
+            // Return JSON response
+            return response()->json([
+                'assets' => $assets,
+                'assets_pagination' => $assetsPagination
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Exception during asset data retrieval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to fetch assets: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

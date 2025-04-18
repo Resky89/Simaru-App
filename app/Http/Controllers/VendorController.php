@@ -43,6 +43,15 @@ class VendorController extends Controller
                 throw new \Exception($result['error']);
             }
 
+            // Return JSON response if requested
+            if ($request->has('json') && $request->input('json') == 'true') {
+                \Log::info('Returning vendors as JSON', [
+                    'count' => count($result['data'] ?? []),
+                    'sample' => !empty($result['data']) ? $result['data'][0] : null
+                ]);
+                return response()->json($result['data'] ?? []);
+            }
+
             return view('Vendor', [
                 'vendors' => $result['data'] ?? [],
                 'pagination' => $result['pagination'] ?? null
@@ -51,6 +60,11 @@ class VendorController extends Controller
             \Log::error('Failed to fetch vendors', [
                 'error' => $e->getMessage()
             ]);
+
+            // Return empty array if JSON response is requested
+            if ($request->has('json') && $request->input('json') == 'true') {
+                return response()->json([]);
+            }
 
             return view('Vendor', [
                 'vendors' => [],

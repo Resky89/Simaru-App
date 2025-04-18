@@ -22,6 +22,7 @@ use App\Http\Controllers\ProcurementRequestController;
 use App\Http\Controllers\ProcurementDetailRequestController;
 use App\Http\Controllers\AssetFinanceController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\CalibrationController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -156,6 +157,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Asset routes
     Route::get('/assets', [ViewAssetController::class, 'index'])->name('assets');
+    Route::get('/assets/data', [ViewAssetController::class, 'getAssetData'])->name('assets.data');
     Route::get('/assets/{id}', [ViewAssetController::class, 'getAsset'])->name('assets.get');
     Route::post('/assets', [ViewAssetController::class, 'storeAsset'])->name('assets.store');
     Route::put('/assets/{id}', [ViewAssetController::class, 'updateAsset'])->name('assets.update');
@@ -283,6 +285,13 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Asset History routes
     Route::get('/asset-histories/{id}', [AssetHistoryController::class, 'getAssetHistory'])->name('asset-histories.get');
+
+    // Calibration route
+    Route::get('/calibrations', [CalibrationController::class, 'index'])->name('calibration');
+    Route::post('/calibrations/bulk', [CalibrationController::class, 'createBulkCalibrations'])->name('calibrations.bulk.create');
+    Route::get('/calibrations/{id}', [CalibrationController::class, 'getCalibration']);
+    Route::put('/calibrations/{id}', [CalibrationController::class, 'update']);
+    Route::delete('/calibrations/{id}', [CalibrationController::class, 'destroy']);
 
     // Asset Finance routes
     Route::get('/asset-transactions/asset/{assetId}', [AssetFinanceController::class, 'getAllTransactions'])->name('asset-transactions.get');

@@ -1,0 +1,1541 @@
+@extends('Layout.app')
+
+@section('title', 'Calibration Management')
+
+@section('content')
+    <div class="h-full space-y-4 md:space-y-6">
+        <!-- Calibration Section -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body p-4 md:p-7">
+                <div class="flex flex-col gap-6">
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">CALIBRATION</h1>
+
+                        <!-- Button Add Calibration -->
+                        <button id="addCalibrationBtn"
+                            class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6"
+                                    stroke-linecap="round" />
+                                <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <span class="text-base">Add Calibration</span>
+                        </button>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="relative flex-grow">
+                            <input type="text" id="searchInput" placeholder="Search by asset name or code..."
+                                class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <select id="statusFilter"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="">All Status</option>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="overdue">Overdue</option>
+                            </select>
+                            <button id="filterBtn" class="px-4 py-2 bg-[#213268] text-white rounded-lg">
+                                Apply Filter
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Calibration Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
+                                        <input type="checkbox" class="checkbox checkbox-sm" />
+                                    </th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Task Code</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Location</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Planned Date</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Status</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($calibrations ?? [] as $calibration)
+                                                            <tr>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                                    <input type="checkbox" class="checkbox checkbox-sm" />
+                                                                </td>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $calibration['task_code'] ?? '-' }}
+                                                                </td>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                    <div class="flex flex-col">
+                                                                        <span class="font-medium">{{ $calibration['asset_name'] ?? '-' }}</span>
+                                                                        <span class="text-gray-500">{{ $calibration['asset_code'] ?? '-' }}</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                    @if(isset($calibration['location']))
+                                                                        <div class="flex flex-col">
+                                                                            <span>{{ $calibration['location']['room_name'] ?? '-' }}</span>
+                                                                            <span
+                                                                                class="text-gray-500">{{ $calibration['location']['building_name'] ?? '-' }}</span>
+                                                                        </div>
+                                                                    @else
+                                                                        -
+                                                                    @endif
+                                                                </td>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                    {{ $calibration['planning_calibration_date'] ? date('d M Y', strtotime($calibration['planning_calibration_date'])) : '-' }}
+                                                                </td>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                    @php
+                                                                        $statusClass = '';
+                                                                        $status = $calibration['status_calibration'] ?? '';
+
+                                                                        if ($status == 'scheduled') {
+                                                                            $statusClass = 'bg-blue-100 text-blue-800';
+                                                                        } elseif ($status == 'in_progress') {
+                                                                            $statusClass = 'bg-yellow-100 text-yellow-800';
+                                                                        } elseif ($status == 'completed') {
+                                                                            $statusClass = 'bg-green-100 text-green-800';
+                                                                        } elseif ($status == 'overdue') {
+                                                                            $statusClass = 'bg-red-100 text-red-800';
+                                                                        }
+                                                                    @endphp
+                                                                    <span class="px-2 py-1 rounded text-xs {{ $statusClass }}">
+                                                                        {{ ucfirst($status) ?: '-' }}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="p-3 border-t border-[#EEF1F4]">
+                                                                    <div class="flex justify-center gap-2">
+                                                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-calibration-btn"
+                                                                            data-id="{{ $calibration['id'] }}">
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                                            </svg>
+                                                                        </button>
+                                                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-calibration-btn"
+                                                                            data-id="{{ $calibration['id'] }}">
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                                            </svg>
+                                                                        </button>
+                                                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-calibration-btn"
+                                                                            data-id="{{ $calibration['id'] }}">
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                            </svg>
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No
+                                            calibrations found</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+                        <div class="flex items-center space-x-2">
+                            <a href="{{ isset($pagination['has_prev']) && $pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] - 1]) : '#' }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_prev']) || !$pagination['has_prev'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
+                            </a>
+                            <div class="flex gap-2">
+                                @php
+                                    $currentPage = $pagination['current_page'] ?? 1;
+                                    $totalPages = $pagination['total_pages'] ?? 1;
+                                    $maxPagesShown = 5; // Show max 5 pages at once
+                                    $startPage = max(1, $currentPage - 2);
+                                    $endPage = min($totalPages, $startPage + $maxPagesShown - 1);
+
+                                    if ($endPage - $startPage + 1 < $maxPagesShown) {
+                                        $startPage = max(1, $endPage - $maxPagesShown + 1);
+                                    }
+                                @endphp
+
+                                @if($startPage > 1)
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                        1
+                                    </a>
+                                    @if($startPage > 2)
+                                        <span class="flex items-center justify-center">
+                                            ...
+                                        </span>
+                                    @endif
+                                @endif
+
+                                @for ($i = $startPage; $i <= $endPage; $i++)
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                        class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
+                                        {{ $i }}
+                                    </a>
+                                @endfor
+
+                                @if($endPage < $totalPages)
+                                    @if($endPage < $totalPages - 1)
+                                        <span class="flex items-center justify-center">
+                                            ...
+                                        </span>
+                                    @endif
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => $totalPages]) }}"
+                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                        {{ $totalPages }}
+                                    </a>
+                                @endif
+                            </div>
+                            <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                Next
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+
+                        <div class="flex items-center gap-2 mt-4 md:mt-0">
+                            <span class="text-sm text-gray-600">
+                                @if(isset($pagination) && isset($pagination['total_items']))
+                                    Showing {{ ($pagination['current_page'] - 1) * $pagination['limit'] + 1 }}
+                                    to {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
+                                    of {{ $pagination['total_items'] }} entries
+                                @else
+                                    Showing 0 to 0 of 0 entries
+                                @endif
+                            </span>
+                            <select id="perPageSelect"
+                                class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
+                                onchange="changePerPage(this.value)">
+                                <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per page</option>
+                                <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per page</option>
+                                <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per page</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Calibration Modal - Changed to Perform Calibration Modal -->
+        <div id="viewCalibrationModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[800px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="viewCalibrationModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">PERFORM CALIBRATION</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                data-modal="viewCalibrationModal">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-6">
+                            <form id="updateCalibrationForm" class="space-y-6" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" id="calibration_id" name="calibration_id">
+
+                                <!-- Required fields note -->
+                                <div class="text-sm text-gray-600 mb-4">
+                                    Field marked <span class="text-red-500">*</span> are required to fill or mandatory
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <!-- Left Column -->
+                                    <div class="space-y-4">
+                                        <!-- Planning Date -->
+                                        <div>
+                                            <label for="planning_calibration_date"
+                                                class="block text-sm font-medium text-gray-700">
+                                                PLANNING DATE<span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="date" id="planning_date_display" name="planning_calibration_date"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Work Date (Actual Calibration Date) -->
+                                        <div>
+                                            <label for="actual_calibration_date"
+                                                class="block text-sm font-medium text-gray-700">
+                                                WORK DATE<span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="date" id="actual_calibration_date" name="actual_calibration_date"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                required>
+                                        </div>
+
+                                        <!-- Next Calibration Date -->
+                                        <div>
+                                            <label for="next_calibration_date"
+                                                class="block text-sm font-medium text-gray-700">
+                                                NEXT CALIBRATION<span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="date" id="next_calibration_date" name="next_calibration_date"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                required>
+                                        </div>
+
+                                        <!-- Asset Code -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">ASSET CODE</label>
+                                            <input type="text" id="asset_code_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Asset Name -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">ASSET NAME</label>
+                                            <input type="text" id="asset_name_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Brand (Merk) -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">MERK</label>
+                                            <input type="text" id="brand_name_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Type -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">TYPE</label>
+                                            <input type="text" id="model_number_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right Column -->
+                                    <div class="space-y-4">
+                                        <!-- Serial Number -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">SERIAL NUMBER</label>
+                                            <input type="text" id="serial_number_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Location -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">LOCATION</label>
+                                            <input type="text" id="location_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Vendor -->
+                                        <div>
+                                            <label for="vendor_id" class="block text-sm font-medium text-gray-700">
+                                                VENDOR
+                                            </label>
+                                            <select id="vendor_id" name="vendor_id"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
+                                                <option value="">Select Vendor</option>
+                                                <!-- Vendor options will be populated dynamically -->
+                                            </select>
+                                        </div>
+
+                                        <!-- Certificate Number -->
+                                        <div>
+                                            <label for="certificate_number" class="block text-sm font-medium text-gray-700">
+                                                CERTIFICATES NUMBER<span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" id="certificate_number" name="certificate_number"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                required>
+                                        </div>
+
+                                        <!-- Service Price -->
+                                        <div>
+                                            <label for="calibration_price" class="block text-sm font-medium text-gray-700">
+                                                SERVICE PRICE
+                                            </label>
+                                            <input type="number" id="calibration_price" name="calibration_price" step="0.01"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
+                                        </div>
+
+                                        <!-- Result -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">
+                                                RESULT<span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="mt-2 flex items-center space-x-6">
+                                                <div class="flex items-center">
+                                                    <input type="radio" id="result_pass" name="calibration_result"
+                                                        value="pass" class="h-4 w-4 text-[#213268] focus:ring-[#213268]"
+                                                        required>
+                                                    <label for="result_pass" class="ml-2 text-sm text-gray-700">Pass
+                                                        (Laik)</label>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <input type="radio" id="result_fail" name="calibration_result"
+                                                        value="fail" class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
+                                                    <label for="result_fail" class="ml-2 text-sm text-gray-700">Fails (Tidak
+                                                        Laik)</label>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <input type="radio" id="result_unknown" name="calibration_result"
+                                                        value="unknown" class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
+                                                    <label for="result_unknown" class="ml-2 text-sm text-gray-700">Unknown
+                                                        (Tidak ditemukan)</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Document File -->
+                                        <div>
+                                            <label for="document_file"
+                                                class="block text-sm font-medium text-gray-700">UPLOADED FILES</label>
+                                            <div class="mt-1 flex items-center">
+                                                <input type="file" id="document_file" name="document_file" class="sr-only"
+                                                    accept=".pdf,.jpg,.jpeg,.png">
+                                                <button type="button" id="browseFileBtn"
+                                                    class="inline-flex items-center px-4 py-2 bg-[#25B1FF] text-white rounded-md hover:bg-[#1d9ad9] mr-2">
+                                                    Upload Files
+                                                </button>
+                                                <span id="selectedFileName" class="text-sm text-gray-500">No file
+                                                    selected</span>
+                                            </div>
+                                            <p class="mt-1 text-xs text-gray-500">Accepted formats: PDF, JPG, JPEG, PNG
+                                                (Max: 10MB)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Calibration Notes - Full Width -->
+                                <div>
+                                    <label for="notes" class="block text-sm font-medium text-gray-700">CALIBRATION
+                                        NOTES</label>
+                                    <textarea id="notes" name="notes" rows="3"
+                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"></textarea>
+                                </div>
+
+                                <!-- Status -->
+                                <input type="hidden" id="status_calibration" name="status_calibration" value="completed">
+
+                                <div class="pt-4 flex justify-end gap-4">
+                                    <button type="button"
+                                        class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                                        data-modal="viewCalibrationModal">
+                                        Cancel
+                                    </button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transition-colors duration-200">
+                                        Save Calibration
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteCalibrationModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[400px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="deleteCalibrationModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Delete Calibration</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                data-modal="deleteCalibrationModal">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-6">
+                            <div class="text-center">
+                                <svg class="mx-auto mb-4 w-14 h-14 text-red-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <h3 class="mb-5 text-lg font-normal text-gray-800">Are you sure you want to delete this
+                                    calibration record?</h3>
+                                <p class="mb-5 text-sm text-gray-600">This action cannot be undone.</p>
+
+                                <input type="hidden" id="delete_calibration_id">
+
+                                <div class="flex justify-center gap-4">
+                                    <button type="button"
+                                        class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                                        data-modal="deleteCalibrationModal">
+                                        Cancel
+                                    </button>
+                                    <button type="button" id="confirmDeleteBtn"
+                                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Calibration Modal -->
+        <div id="addCalibrationModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[850px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="addCalibrationModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Add New Calibration Schedule</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                data-modal="addCalibrationModal">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Form -->
+                        <div class="p-6">
+                            <form id="addCalibrationForm" class="space-y-6">
+                                @csrf
+                                <!-- Required fields note -->
+                                <div class="text-sm text-gray-600">
+                                    Field marked <span class="text-red-500">*</span> are required to fill or mandatory
+                                </div>
+
+                                <!-- Schedule Date -->
+                                <div class="bg-[#B0DAE5] p-4 rounded-lg">
+                                    <div class="flex items-center gap-4">
+                                        <div class="min-w-[150px]">
+                                            <label class="block text-base font-semibold">
+                                                SCHEDULE START<span class="text-red-500">*</span>
+                                            </label>
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="date" name="planning_calibration_date"
+                                                id="planning_calibration_date"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                required>
+                                        </div>
+                                        <div>
+                                            <button type="button" id="addAssetsBtn"
+                                                class="bg-[#4299e1] hover:bg-[#3182ce] text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
+                                                <span class="text-xl mr-1">+</span>
+                                                Add Assets
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Selected Assets Table -->
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead>
+                                            <tr>
+                                                <th
+                                                    class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center w-[40px]">
+                                                    No</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
+                                                    AssetCode</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Asset
+                                                    Name</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
+                                                    Description</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Asset
+                                                    Type</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Category
+                                                    Name</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center">Action
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="selectedAssetsList">
+                                            <tr>
+                                                <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No
+                                                    data available in table</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination for selected assets -->
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-gray-600">Show</span>
+                                    <select id="selectedAssetsPerPage"
+                                        class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
+                                        <option value="15">15</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                    <span class="text-sm text-gray-600">entries</span>
+                                </div>
+
+                                <!-- Button Group -->
+                                <div class="pt-4 flex justify-end gap-4">
+                                    <button type="submit"
+                                        class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                        Save
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Asset Selection Modal -->
+        <div id="assetSelectionModal" class="fixed inset-0 z-[60] hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[1200px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="assetSelectionModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Select Assets</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                data-modal="assetSelectionModal">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-6">
+                            <!-- Search and Filter -->
+                            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                                <div class="relative flex-grow">
+                                    <input type="text" id="assetSearchInput"
+                                        placeholder="Search by asset name, code, or serial number..."
+                                        class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Assets Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
+                                                <input type="checkbox" id="selectAllAssets" class="checkbox checkbox-sm">
+                                            </th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Code
+                                            </th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name
+                                            </th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description
+                                            </th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type
+                                            </th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Category
+                                                Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="assetSelectionList">
+                                        <tr>
+                                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                Loading assets...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+                                <div class="flex items-center space-x-2" id="assetPaginationControls">
+                                    <!-- Pagination will be inserted here -->
+                                </div>
+
+                                <div class="flex items-center gap-2 mt-4 md:mt-0">
+                                    <span class="text-sm text-gray-600" id="assetPaginationInfo">
+                                        Showing 0 to 0 of 0 entries
+                                    </span>
+                                    <select id="assetPerPageSelect"
+                                        class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
+                                        <option value="10">10 per page</option>
+                                        <option value="25">25 per page</option>
+                                        <option value="50">50 per page</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Button Group -->
+                            <div class="pt-4 flex justify-end gap-4">
+                                <button type="button"
+                                    class="close-modal px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                                    data-modal="assetSelectionModal">
+                                    Cancel
+                                </button>
+                                <button type="button" id="selectAssetsBtn"
+                                    class="px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                    Select
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to change items per page
+            window.changePerPage = function (limit) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('limit', limit);
+                window.location.href = url.toString();
+            }
+
+            // Apply filter function
+            document.getElementById('filterBtn').addEventListener('click', function () {
+                const searchTerm = document.getElementById('searchInput').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+
+                const url = new URL(window.location.href);
+                if (searchTerm) url.searchParams.set('search', searchTerm);
+                else url.searchParams.delete('search');
+
+                if (statusFilter) url.searchParams.set('status', statusFilter);
+                else url.searchParams.delete('status');
+
+                url.searchParams.set('page', 1); // Reset to first page on filter change
+                window.location.href = url.toString();
+            });
+
+            // Search input - submit on enter key
+            document.getElementById('searchInput').addEventListener('keyup', function (event) {
+                if (event.key === 'Enter') {
+                    document.getElementById('filterBtn').click();
+                }
+            });
+
+            // Set existing search and filter values
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('search')) {
+                document.getElementById('searchInput').value = urlParams.get('search');
+            }
+            if (urlParams.has('status')) {
+                document.getElementById('statusFilter').value = urlParams.get('status');
+            }
+
+            // Modal handling
+            const modals = {
+                view: document.getElementById('viewCalibrationModal'),
+                add: document.getElementById('addCalibrationModal'),
+                asset: document.getElementById('assetSelectionModal'),
+                delete: document.getElementById('deleteCalibrationModal')
+            };
+
+            const modalContents = {
+                view: document.getElementById('viewCalibrationModalContent'),
+                add: document.getElementById('addCalibrationModalContent'),
+                asset: document.getElementById('assetSelectionModalContent'),
+                delete: document.getElementById('deleteCalibrationModalContent')
+            };
+
+            // Function to open modal
+            function openModal(modal, content) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                }, 10);
+            }
+
+            // Function to close modal
+            function closeModal(modal, content) {
+                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+
+            // Close modal buttons
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', () => {
+                    const modalId = button.getAttribute('data-modal');
+                    const modal = document.getElementById(modalId);
+                    const content = modal.querySelector('[id$="ModalContent"]');
+                    closeModal(modal, content);
+                });
+            });
+
+            // Load vendors for dropdown
+            function loadVendors() {
+                console.log('Loading vendors...');
+                fetch('/vendor?json=true', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        console.log('Vendor API response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Vendor data received:', data);
+                        const select = document.getElementById('vendor_id');
+                        select.innerHTML = '<option value="">Select Vendor</option>';
+
+                        if (Array.isArray(data)) {
+                            console.log('Processing vendors as array, length:', data.length);
+                            data.forEach(vendor => {
+                                const option = document.createElement('option');
+                                option.value = vendor.vendor_id;
+                                option.textContent = vendor.vendor_name;
+                                select.appendChild(option);
+                            });
+                        } else if (data.vendors && Array.isArray(data.vendors)) {
+                            console.log('Processing vendors as data.vendors array, length:', data.vendors.length);
+                            data.vendors.forEach(vendor => {
+                                const option = document.createElement('option');
+                                option.value = vendor.vendor_id;
+                                option.textContent = vendor.vendor_name;
+                                select.appendChild(option);
+                            });
+                        } else {
+                            console.error('Unexpected vendor data format:', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading vendors:', error);
+                    });
+            }
+
+            // Edit calibration buttons
+            document.querySelectorAll('.edit-calibration-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const calibrationId = this.getAttribute('data-id');
+                    document.getElementById('calibration_id').value = calibrationId;
+
+                    // Set current date as work date by default when modal opens
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('actual_calibration_date').value = today;
+
+                    // Load vendors for dropdown
+                    loadVendors();
+
+                    // Fetch calibration details
+                    fetch(`/calibrations/${calibrationId}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const calibration = data.data;
+
+                                // Set read-only display fields
+                                document.getElementById('planning_date_display').value = calibration.planning_calibration_date || '';
+                                document.getElementById('asset_code_display').value = calibration.asset_code || '-';
+                                document.getElementById('asset_name_display').value = calibration.asset_name || '-';
+                                document.getElementById('brand_name_display').value = calibration.brand_name || '-';
+                                document.getElementById('model_number_display').value = calibration.model_number || '-';
+                                document.getElementById('serial_number_display').value = calibration.serial_number || '-';
+
+                                // Set location display
+                                let locationText = '-';
+                                if (calibration.location) {
+                                    const locationParts = [];
+                                    if (calibration.location.room_name) locationParts.push(calibration.location.room_name);
+                                    if (calibration.location.floor_number) locationParts.push(calibration.location.floor_number);
+                                    if (calibration.location.building_name) locationParts.push(calibration.location.building_name);
+                                    if (locationParts.length > 0) {
+                                        locationText = locationParts.join(' | ');
+                                    }
+                                }
+                                document.getElementById('location_display').value = locationText;
+
+                                // Set form fields
+                                console.log('Calibration vendor_id:', calibration.vendor_id);
+                                document.getElementById('vendor_id').value = calibration.vendor_id || '';
+
+                                // Only set next_calibration_date if it exists in the data
+                                if (calibration.next_calibration_date) {
+                                    document.getElementById('next_calibration_date').value = calibration.next_calibration_date;
+                                }
+
+                                document.getElementById('certificate_number').value = calibration.certificate_number || '';
+                                document.getElementById('calibration_price').value = calibration.calibration_price || '';
+                                document.getElementById('notes').value = calibration.notes || '';
+
+                                // Set radio button for result
+                                if (calibration.calibration_result === 'pass') {
+                                    document.getElementById('result_pass').checked = true;
+                                } else if (calibration.calibration_result === 'fail') {
+                                    document.getElementById('result_fail').checked = true;
+                                } else if (calibration.calibration_result === 'unknown') {
+                                    document.getElementById('result_unknown').checked = true;
+                                }
+
+                                // Show existing certificate filename if available
+                                if (calibration.certificate_file_path) {
+                                    const filename = calibration.certificate_file_path.split('/').pop();
+                                    document.getElementById('selectedFileName').textContent = filename;
+                                } else {
+                                    document.getElementById('selectedFileName').textContent = 'No file selected';
+                                }
+
+                                // Open modal
+                                openModal(modals.view, modalContents.view);
+                            } else {
+                                showToast('Failed to load calibration details', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('An error occurred while fetching calibration details', 'error');
+                        });
+                });
+            });
+
+            // Add file browse button functionality
+            document.getElementById('browseFileBtn')?.addEventListener('click', function () {
+                document.getElementById('document_file').click();
+            });
+
+            document.getElementById('document_file')?.addEventListener('change', function () {
+                const fileName = this.files[0]?.name || 'No file selected';
+                document.getElementById('selectedFileName').textContent = fileName;
+            });
+
+            // Delete calibration buttons
+            document.querySelectorAll('.delete-calibration-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const calibrationId = this.getAttribute('data-id');
+                    document.getElementById('delete_calibration_id').value = calibrationId;
+
+                    // Open delete confirmation modal
+                    openModal(modals.delete, modalContents.delete);
+                });
+            });
+
+            // Confirm Delete Button
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+                const calibrationId = document.getElementById('delete_calibration_id').value;
+
+                fetch(`/calibrations/${calibrationId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Close the modal
+                        closeModal(modals.delete, modalContents.delete);
+
+                        if (data.success) {
+                            showToast(data.message || 'Calibration deleted successfully', 'success');
+
+                            // Reload page after a short delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            showToast(data.message || 'Failed to delete calibration', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        closeModal(modals.delete, modalContents.delete);
+                        showToast('An error occurred while deleting the calibration', 'error');
+                    });
+            });
+
+            // Update Calibration Form Submit
+            document.getElementById('updateCalibrationForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const calibrationId = document.getElementById('calibration_id').value;
+                const formData = new FormData(this);
+
+                // Remove empty fields to avoid overwriting with null
+                for (const [key, value] of formData.entries()) {
+                    if (value === "" && key !== 'document_file') {
+                        formData.delete(key);
+                    }
+                }
+
+                // Add _method field for PUT request
+                formData.append('_method', 'PUT');
+
+                fetch(`/calibrations/${calibrationId}`, {
+                    method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Close the modal
+                            closeModal(modals.view, modalContents.view);
+
+                            // Show success message
+                            showToast(data.message || 'Calibration updated successfully', 'success');
+
+                            // Reload the page after a short delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            showToast(data.message || 'Failed to update calibration', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while updating the calibration', 'error');
+                    });
+            });
+
+            // Selected Assets Management
+            let selectedAssets = [];
+
+            // Add Assets Button
+            document.getElementById('addAssetsBtn')?.addEventListener('click', function () {
+                // Open asset selection modal
+                openModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
+                // Load assets
+                loadAssets();
+            });
+
+            // Debounce function to limit how often a function can be called
+            function debounce(func, wait) {
+                let timeout;
+                return function () {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        func.apply(context, args);
+                    }, wait);
+                };
+            }
+
+            // Handle search input with debounce
+            document.getElementById('assetSearchInput')?.addEventListener('input', debounce(function () {
+                loadAssets(1);
+            }, 500));
+
+            // Load assets for selection
+            function loadAssets(page = 1) {
+                const searchTerm = document.getElementById('assetSearchInput').value;
+                const limit = document.getElementById('assetPerPageSelect').value;
+
+                // Show loading state
+                document.getElementById('assetSelectionList').innerHTML = `
+                                                                                                                    <tr>
+                                                                                                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Loading assets...</td>
+                                                                                                                    </tr>
+                                                                                                                `;
+
+                // Fetch assets from API
+                fetch(`/assets/data?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const assets = data.assets || [];
+                        // Debug
+                        console.log("First asset:", assets.length > 0 ? assets[0] : "No assets");
+
+                        if (assets.length === 0) {
+                            document.getElementById('assetSelectionList').innerHTML = `
+                                                                                                    <tr>
+                                                                                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No assets found</td>
+                                                                                                    </tr>
+                                                                                                `;
+                            return;
+                        }
+
+                        // Render assets
+                        let html = '';
+                        assets.forEach(asset => {
+                            const isSelected = selectedAssets.some(selectedAsset => selectedAsset.asset_id === asset.asset_id);
+
+                            // Extract subcategory name properly
+                            let subcategoryName = '-';
+                            try {
+                                if (asset.subcategory) {
+                                    subcategoryName = asset.subcategory.subcategory_name || '-';
+                                }
+                            } catch (e) {
+                                console.error("Error getting subcategory name:", e);
+                            }
+
+                            // Get asset type
+                            const assetType = asset.subcategory ? asset.subcategory.asset_type || '-' : '-';
+
+                            html += `
+                                                                                                    <tr>
+                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                                                                            <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}"
+                                                                                                                data-asset-id="${asset.asset_id}"
+                                                                                                                data-asset-name="${asset.asset_name || ''}"
+                                                                                                                data-asset-code="${asset.asset_code || ''}"
+                                                                                                                data-asset-description="${asset.description || ''}"
+                                                                                                                data-asset-type="${assetType}"
+                                                                                                                data-category-name="${subcategoryName}">
+                                                                                                        </td>
+                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
+                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                                                            <div class="flex flex-col">
+                                                                                                                <span class="font-medium">${asset.asset_name || '-'}</span>
+                                                                                                            </div>
+                                                                                                        </td>
+                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
+                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetType}</td>
+                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${subcategoryName}</td>
+                                                                                                    </tr>
+                                                                                                `;
+                        });
+
+                        document.getElementById('assetSelectionList').innerHTML = html;
+
+                        // Setup pagination and event handlers
+                        setupAssetPagination(data.assets_pagination);
+                        attachCheckboxHandlers();
+                    })
+                    .catch(error => {
+                        console.error('Error loading assets:', error);
+                        document.getElementById('assetSelectionList').innerHTML = `
+                                                                                                <tr>
+                                                                                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Error loading assets</td>
+                                                                                                </tr>
+                                                                                            `;
+                    });
+            }
+
+            // Add this separate function to handle checkbox events
+            function attachCheckboxHandlers() {
+                const checkboxes = document.querySelectorAll('.asset-checkbox');
+
+                // First remove any existing event listeners
+                checkboxes.forEach(checkbox => {
+                    const newCheckbox = checkbox.cloneNode(true);
+                    checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+                });
+
+                // Now add fresh event listeners
+                document.querySelectorAll('.asset-checkbox').forEach(checkbox => {
+                    checkbox.onclick = function () {
+                        const assetId = parseInt(this.getAttribute('data-asset-id'));
+                        const assetName = this.getAttribute('data-asset-name');
+                        const assetCode = this.getAttribute('data-asset-code');
+                        const description = this.getAttribute('data-asset-description');
+                        const assetType = this.getAttribute('data-asset-type');
+                        const categoryName = this.getAttribute('data-category-name');
+
+                        if (this.checked) {
+                            // Add to selected assets if not already there
+                            if (!selectedAssets.some(asset => asset.asset_id === assetId)) {
+                                selectedAssets.push({
+                                    asset_id: assetId,
+                                    asset_name: assetName,
+                                    asset_code: assetCode,
+                                    description: description,
+                                    asset_type: assetType,
+                                    subcategory_name: categoryName
+                                });
+                            }
+                        } else {
+                            // Remove from selected assets
+                            selectedAssets = selectedAssets.filter(asset => asset.asset_id !== assetId);
+                        }
+
+                        console.log("Updated selectedAssets:", selectedAssets);
+                    };
+                });
+
+                // Handle Select All checkbox
+                const selectAllCheckbox = document.getElementById('selectAllAssets');
+                if (selectAllCheckbox) {
+                    const newSelectAll = selectAllCheckbox.cloneNode(true);
+                    selectAllCheckbox.parentNode.replaceChild(newSelectAll, selectAllCheckbox);
+
+                    document.getElementById('selectAllAssets').onclick = function () {
+                        const checkboxes = document.querySelectorAll('.asset-checkbox');
+                        checkboxes.forEach(checkbox => {
+                            checkbox.checked = this.checked;
+
+                            // Manually trigger the checkbox's onclick event
+                            if (checkbox.onclick) checkbox.onclick();
+                        });
+                    };
+                }
+            }
+
+            // Setup asset pagination
+            function setupAssetPagination(pagination) {
+                if (!pagination) return;
+
+                const currentPage = pagination.current_page;
+                const lastPage = pagination.last_page;
+                const from = pagination.from;
+                const to = pagination.to;
+                const total = pagination.total;
+
+                // Update pagination info
+                document.getElementById('assetPaginationInfo').textContent = `Showing ${from} to ${to} of ${total} entries`;
+
+                // Generate pagination controls
+                let paginationHtml = '';
+
+                // Previous button
+                paginationHtml += `
+                                                                                            <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                                                                                               onclick="${currentPage > 1 ? 'loadAssets(' + (currentPage - 1) + '); return false;' : 'return false;'}">
+                                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                                                                                </svg>
+                                                                                                Prev
+                                                                                            </a>
+                                                                                        `;
+
+                // Page numbers
+                paginationHtml += '<div class="flex gap-2">';
+
+                const maxPagesShown = 5;
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(lastPage, startPage + maxPagesShown - 1);
+
+                if (endPage - startPage + 1 < maxPagesShown) {
+                    startPage = Math.max(1, endPage - maxPagesShown + 1);
+                }
+
+                if (startPage > 1) {
+                    paginationHtml += `
+                                                                                                <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                                                                                   onclick="loadAssets(${startPage}); return false;">${startPage}</a>
+                                                                                            `;
+
+                    if (startPage > 2) {
+                        paginationHtml += '<span class="flex items-center justify-center">...</span>';
+                    }
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    paginationHtml += `
+                                                                                                <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
+                                                                                                   onclick="loadAssets(${i}); return false;">${i}</a>
+                                                                                            `;
+                }
+
+                if (endPage < lastPage) {
+                    if (endPage < lastPage - 1) {
+                        paginationHtml += '<span class="flex items-center justify-center">...</span>';
+                    }
+
+                    paginationHtml += `
+                                                                                                <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                                                                                   onclick="loadAssets(${endPage}); return false;">${endPage}</a>
+                                                                                            `;
+                }
+
+                paginationHtml += '</div>';
+
+                // Next button
+                paginationHtml += `
+                                                                                            <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= lastPage ? 'opacity-50 cursor-not-allowed' : ''}"
+                                                                                               onclick="${currentPage < lastPage ? 'loadAssets(' + (currentPage + 1) + '); return false;' : 'return false;'}">
+                                                                                                Next
+                                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                                                                </svg>
+                                                                                            </a>
+                                                                                        `;
+
+                document.getElementById('assetPaginationControls').innerHTML = paginationHtml;
+            }
+
+            // Select Assets Button
+            document.getElementById('selectAssetsBtn')?.addEventListener('click', function () {
+                // Close the asset selection modal
+                closeModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
+
+                // Update the selected assets table
+                updateSelectedAssetsTable();
+            });
+
+            // Update the selected assets table
+            function updateSelectedAssetsTable() {
+                if (selectedAssets.length === 0) {
+                    document.getElementById('selectedAssetsList').innerHTML = `
+                                                                                                <tr>
+                                                                                                    <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No data available in table</td>
+                                                                                                </tr>
+                                                                                            `;
+                    return;
+                }
+
+                let html = '';
+                selectedAssets.forEach((asset, index) => {
+                    html += `
+                                                                                                <tr>
+                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
+                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
+                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                                                        <div class="flex flex-col">
+                                                                                                            <span class="font-medium">${asset.asset_name || '-'}</span>
+                                                                                                        </div>
+                                                                                                    </td>
+                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
+                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
+                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.subcategory_name || '-'}</td>
+                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                                                                        <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.asset_id})">
+                                                                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                                            </svg>
+                                                                                                        </button>
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                            `;
+                });
+
+                document.getElementById('selectedAssetsList').innerHTML = html;
+            }
+
+            // Remove selected asset
+            function removeSelectedAsset(assetId) {
+                selectedAssets = selectedAssets.filter(asset => asset.asset_id !== assetId);
+                updateSelectedAssetsTable();
+            }
+
+            // Form submission
+            document.getElementById('addCalibrationForm')?.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                if (selectedAssets.length === 0) {
+                    alert('Please select at least one asset for calibration.');
+                    return;
+                }
+
+                const planningDate = document.getElementById('planning_calibration_date').value;
+
+                if (!planningDate) {
+                    alert('Please select a schedule start date.');
+                    return;
+                }
+
+                // Prepare data for submission
+                const formData = {
+                    asset_ids: selectedAssets.map(asset => asset.asset_id),
+                    planning_calibration_date: planningDate
+                };
+
+                // Send the request
+                fetch('/calibrations/bulk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Close the modal
+                            closeModal(document.getElementById('addCalibrationModal'), document.getElementById('addCalibrationModalContent'));
+
+                            // Show success message
+                            showToast(data.message, 'success');
+
+                            // Reload the page to show the new calibrations
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            // Show error message
+                            showToast(data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error creating calibrations:', error);
+                        showToast('An error occurred while creating calibrations.', 'error');
+                    });
+            });
+
+            // Per page selection
+            document.getElementById('assetPerPageSelect')?.addEventListener('change', function () {
+                loadAssets(1);
+            });
+
+            // Add a toast notification function
+            function showToast(message, type = 'success') {
+                const id = type === 'success' ? 'successNotification' : 'errorNotification';
+                const color = type === 'success' ? 'green' : 'red';
+                const icon = type === 'success'
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />';
+
+                // Create toast element
+                const toast = document.createElement('div');
+                toast.id = id;
+                toast.className = `fixed top-4 right-4 bg-${color}-100 border-l-4 border-${color}-500 text-${color}-700 p-4 rounded shadow-md z-50`;
+                toast.role = 'alert';
+
+                toast.innerHTML = `
+                                                                                            <div class="flex items-center">
+                                                                                                <div class="py-1">
+                                                                                                    <svg class="h-6 w-6 text-${color}-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                        ${icon}
+                                                                                                    </svg>
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                                                                                                    <p>${message}</p>
+                                                                                                </div>
+                                                                                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                                                            </div>
+                                                                                        `;
+
+                // Add to document
+                document.body.appendChild(toast);
+
+                // Remove after 5 seconds
+                setTimeout(function () {
+                    toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function () {
+                        toast.remove();
+                    }, 500);
+                }, 5000);
+            }
+        });
+    </script>
+
+    <!--Success and Error Notifications -->
+    @if(session('success'))
+        <div id="successNotification"
+            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
+            role="alert">
+            <div class="flex items-center">
+                <div class="py-1">
+                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">Success!</p>
+                    <p>{{ session('success') }}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+            </div>
+        </div>
+
+        <script>
+            setTimeout(function () {
+                const notification = document.getElementById('successNotification');
+                if (notification) {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function () {
+                        notification.remove();
+                    }, 500);
+                }
+            }, 5000); // Hide after 5 seconds
+        </script>
+    @endif
+
+    @if(session('error'))
+        <div id="errorNotification"
+            class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
+            role="alert">
+            <div class="flex items-center">
+                <div class="py-1">
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">Error!</p>
+                    <p>{{ session('error') }}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+            </div>
+        </div>
+
+        <script>
+            setTimeout(function () {
+                const notification = document.getElementById('errorNotification');
+                if (notification) {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function () {
+                        notification.remove();
+                    }, 500);
+                }
+            }, 5000); // Hide after 5 seconds
+        </script>
+    @endif
+@endsection
