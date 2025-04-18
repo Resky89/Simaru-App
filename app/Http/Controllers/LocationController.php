@@ -64,17 +64,49 @@ class LocationController extends Controller
 
             foreach ($rooms as &$room) {
                 $buildingId = $room['building_id'];
-                $building = collect($buildings)->first(function($building) use ($buildingId) {
+                $building = collect($buildings)->first(function ($building) use ($buildingId) {
                     return $building['building_id'] == $buildingId;
                 });
                 $room['building_name'] = $building ? $building['building_name'] : 'Unknown';
             }
 
+            // Format pagination for buildings
+            $buildingPagination = null;
+            if (isset($buildingResult['pagination'])) {
+                $pagination = $buildingResult['pagination'];
+                $buildingPagination = [
+                    'current_page' => $pagination['current_page'] ?? 1,
+                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
+                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
+                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
+                    'total' => $pagination['total_items'] ?? 0,
+                    'per_page' => $pagination['limit'] ?? 10,
+                    'next_page_url' => $pagination['has_next'] ? url()->current() . '?building_page=' . ($pagination['current_page'] + 1) : null,
+                    'prev_page_url' => $pagination['has_prev'] ? url()->current() . '?building_page=' . ($pagination['current_page'] - 1) : null,
+                ];
+            }
+
+            // Format pagination for rooms
+            $roomPagination = null;
+            if (isset($roomResult['pagination'])) {
+                $pagination = $roomResult['pagination'];
+                $roomPagination = [
+                    'current_page' => $pagination['current_page'] ?? 1,
+                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
+                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
+                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
+                    'total' => $pagination['total_items'] ?? 0,
+                    'per_page' => $pagination['limit'] ?? 10,
+                    'next_page_url' => $pagination['has_next'] ? url()->current() . '?room_page=' . ($pagination['current_page'] + 1) : null,
+                    'prev_page_url' => $pagination['has_prev'] ? url()->current() . '?room_page=' . ($pagination['current_page'] - 1) : null,
+                ];
+            }
+
             return view('Location', [
                 'buildings' => $buildingResult['data'] ?? [],
-                'buildingPagination' => $buildingResult['pagination'] ?? null,
+                'buildingPagination' => $buildingPagination,
                 'rooms' => $rooms,
-                'roomPagination' => $roomResult['pagination'] ?? null
+                'roomPagination' => $roomPagination
             ]);
         } catch (\Exception $e) {
             \Log::error('Gagal mengambil data lokasi', [
@@ -237,7 +269,7 @@ class LocationController extends Controller
             ]);
 
             // Cast building_id to integer
-            $buildingId = (int)$request->input('building_id');
+            $buildingId = (int) $request->input('building_id');
 
             \Log::info('Building ID cast to integer:', ['building_id' => $buildingId]);
 
@@ -310,12 +342,12 @@ class LocationController extends Controller
             ]);
 
             // Cast building_id to integer
-            $buildingId = (int)$request->input('building_id');
+            $buildingId = (int) $request->input('building_id');
 
             \Log::info('Building ID cast to integer:', ['building_id' => $buildingId]);
 
             $payload = [
-                'room_id' => (int)$id,
+                'room_id' => (int) $id,
                 'room_name' => $request->input('room_name'),
                 'building_id' => $buildingId,
                 'floor_number' => $request->input('floor_number'),
