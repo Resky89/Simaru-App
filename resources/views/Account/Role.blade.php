@@ -105,7 +105,7 @@
                                 @endphp
 
                                 @for ($i = 1; $i <= $lastPage; $i++)
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['role_page' => $i]) }}"
                                         class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                         {{ $i }}
                                     </a>
@@ -434,6 +434,18 @@
                 container.innerHTML = '';
                 container.appendChild(noteDiv);
 
+                // First, add all view permissions as hidden inputs to ensure they're always submitted
+                permissions.forEach(permission => {
+                    if (permission.permission_name.includes(':view')) {
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'permission_ids[]';
+                        hiddenInput.value = parseInt(permission.permission_id);
+                        hiddenInput.dataset.viewPermission = 'true';
+                        container.appendChild(hiddenInput);
+                    }
+                });
+
                 // Group permissions by their category (first part before colon)
                 const groupedPermissions = {};
                 permissions.forEach(permission => {
@@ -441,7 +453,6 @@
                         // Skip the all permissions one as we handle it separately
                         return;
                     }
-
                     let group = 'Other';
                     if (permission.permission_name.includes(':')) {
                         group = permission.permission_name.split(':')[0];
@@ -459,9 +470,9 @@
                 let html = '';
                 for (const [group, perms] of Object.entries(groupedPermissions)) {
                     html += `
-                                                                    <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
-                                                                        <h4 class="text-[#213268] text-lg font-semibold mb-3 capitalize">${group}</h4>
-                                                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">`;
+                                                                                                    <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
+                                                                                                        <h4 class="text-[#213268] text-lg font-semibold mb-3 capitalize">${group}</h4>
+                                                                                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">`;
 
                     perms.forEach(permission => {
                         // Check if this is a view permission
@@ -494,34 +505,34 @@
                         }
 
                         html += `
-                                    <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded ${isDisabled ? 'bg-gray-50' : ''}">
-                                                                            <input type="checkbox"
-                                                                                id="${permId}"
-                                                                                name="permission_ids[]"
-                                                                                value="${permission.permission_id}"
-                                                                                class="checkbox checkbox-primary mt-1 permission-checkbox"
-                                                                                data-group="${group.toLowerCase()}"
-                                            data-is-view="${isViewPermission ? 'true' : 'false'}"
-                                            ${isChecked ? 'checked' : ''}
-                                            ${isDisabled ? 'disabled' : ''}>
-                                        <label for="${permId}" class="cursor-pointer select-none ${isDisabled ? 'text-gray-500' : ''}">
-                                                                                <div class="font-medium">${displayName}</div>
-                                            <div class="text-xs text-gray-500">
-                                                ${permission.description}
-                                                ${isDisabled ? '<span class="text-blue-500 font-medium"> (Required)</span>' : ''}
-                                            </div>
-                                                                            </label>
-                                                                        </div>`;
+                                                                    <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded ${isDisabled ? 'bg-gray-50' : ''}">
+                                                                                                            <input type="checkbox"
+                                                                                                                id="${permId}"
+                                                                                                                name="permission_ids[]"
+                                                                                                                value="${parseInt(permission.permission_id)}"
+                                                                                                                class="checkbox checkbox-primary mt-1 permission-checkbox"
+                                                                                                                data-group="${group.toLowerCase()}"
+                                                                            data-is-view="${isViewPermission ? 'true' : 'false'}"
+                                                                            ${isChecked ? 'checked' : ''}
+                                                                            ${isDisabled ? 'disabled' : ''}>
+                                                                        <label for="${permId}" class="cursor-pointer select-none ${isDisabled ? 'text-gray-500' : ''}">
+                                                                                                                <div class="font-medium">${displayName}</div>
+                                                                            <div class="text-xs text-gray-500">
+                                                                                ${permission.description}
+                                                                                ${isDisabled ? '<span class="text-blue-500 font-medium"> (Required)</span>' : ''}
+                                                                            </div>
+                                                                                                            </label>
+                                                                                                        </div>`;
 
                         // For view permissions in both modals, add a hidden input to ensure the value is submitted
                         if (isViewPermission) {
-                            html += `<input type="hidden" name="permission_ids[]" value="${permission.permission_id}" data-view="true">`;
+                            html += `<input type="hidden" name="permission_ids[]" value="${parseInt(permission.permission_id)}" data-view-permission="true">`;
                         }
                     });
 
                     html += `
-                                                                        </div>
-                                                                    </div>`;
+                                                                                                        </div>
+                                                                                                    </div>`;
                 }
 
                 // Add the HTML to the container after the notification
@@ -583,9 +594,9 @@
                                     }
                                 });
                             } else {
-                                // Remove the hidden inputs for non-view permissions when unchecked
-                                const hiddenInputs = container.querySelectorAll('input[type="hidden"][name="permission_ids[]"]:not([data-view="true"])');
-                                hiddenInputs.forEach(input => {
+                                // Remove only non-view permission hidden inputs when "All Permission" is unchecked
+                                const nonViewHiddenInputs = container.querySelectorAll('input[type="hidden"][name="permission_ids[]"]:not([data-view-permission="true"])');
+                                nonViewHiddenInputs.forEach(input => {
                                     // Don't remove the "All" permission hidden input
                                     if (input.id !== `${containerId}-hidden-all-permission`) {
                                         input.remove();
@@ -730,38 +741,38 @@
                     borderColor = 'border-green-500';
                     textColor = 'text-green-700';
                     icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>`;
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                                </svg>`;
                 } else if (type === 'error') {
                     bgColor = 'bg-red-100';
                     borderColor = 'border-red-500';
                     textColor = 'text-red-700';
                     icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>`;
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                                </svg>`;
                 } else {
                     bgColor = 'bg-blue-100';
                     borderColor = 'border-blue-500';
                     textColor = 'text-blue-700';
                     icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>`;
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                                </svg>`;
                 }
 
                 toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
                 toast.setAttribute('role', 'alert');
                 toast.innerHTML = `
-                                                <div class="flex items-center">
-                                                    <div class="py-1">
-                                                        ${icon}
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-                                                        <p>${message}</p>
-                                                    </div>
-                                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                                </div>
-                                            `;
+                                                                                <div class="flex items-center">
+                                                                                    <div class="py-1">
+                                                                                        ${icon}
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
+                                                                                        <p>${message}</p>
+                                                                                    </div>
+                                                                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                                                </div>
+                                                                            `;
 
                 // Add to container
                 toastContainer.appendChild(toast);
@@ -805,6 +816,131 @@
                         setAsAdminDiv.remove();
                     }
                 }
+            });
+
+            // Add Role Form Submit Handler
+            document.getElementById('addRoleForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Get all checked checkboxes and hidden inputs with permission IDs
+                const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
+
+                // Create a new form with the same action and method
+                const form = document.createElement('form');
+                form.action = this.action;
+                form.method = this.method;
+
+                // Copy the CSRF token
+                const csrfToken = this.querySelector('input[name="_token"]');
+                if (csrfToken) {
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = '_token';
+                    tokenInput.value = csrfToken.value;
+                    form.appendChild(tokenInput);
+                }
+
+                // Add role name and description
+                const roleName = this.querySelector('[name="role_name"]');
+                const description = this.querySelector('[name="description"]');
+
+                const roleNameInput = document.createElement('input');
+                roleNameInput.type = 'hidden';
+                roleNameInput.name = 'role_name';
+                roleNameInput.value = roleName.value;
+                form.appendChild(roleNameInput);
+
+                const descInput = document.createElement('input');
+                descInput.type = 'hidden';
+                descInput.name = 'description';
+                descInput.value = description.value;
+                form.appendChild(descInput);
+
+                // Add numeric permission IDs, avoiding duplicates
+                const uniqueIds = new Set();
+                permissionInputs.forEach(input => {
+                    uniqueIds.add(parseInt(input.value));
+                });
+
+                uniqueIds.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'permission_ids[]';
+                    input.value = id; // This is now a number
+                    form.appendChild(input);
+                });
+
+                // Append form to body, submit it, then remove it
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+            });
+
+            // Edit Role Form Submit Handler (similar logic)
+            document.getElementById('editRoleForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Get all checked checkboxes and hidden inputs with permission IDs
+                const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
+
+                // Create a new form with the same action and method
+                const form = document.createElement('form');
+                form.action = this.action;
+                form.method = this.method;
+
+                // Copy the CSRF token and method field
+                const csrfToken = this.querySelector('input[name="_token"]');
+                if (csrfToken) {
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = '_token';
+                    tokenInput.value = csrfToken.value;
+                    form.appendChild(tokenInput);
+                }
+
+                const methodField = this.querySelector('input[name="_method"]');
+                if (methodField) {
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = methodField.value;
+                    form.appendChild(methodInput);
+                }
+
+                // Add role name and description
+                const roleName = this.querySelector('[name="role_name"]');
+                const description = this.querySelector('[name="description"]');
+
+                const roleNameInput = document.createElement('input');
+                roleNameInput.type = 'hidden';
+                roleNameInput.name = 'role_name';
+                roleNameInput.value = roleName.value;
+                form.appendChild(roleNameInput);
+
+                const descInput = document.createElement('input');
+                descInput.type = 'hidden';
+                descInput.name = 'description';
+                descInput.value = description.value;
+                form.appendChild(descInput);
+
+                // Add numeric permission IDs, avoiding duplicates
+                const uniqueIds = new Set();
+                permissionInputs.forEach(input => {
+                    uniqueIds.add(parseInt(input.value));
+                });
+
+                uniqueIds.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'permission_ids[]';
+                    input.value = id; // This is now a number
+                    form.appendChild(input);
+                });
+
+                // Append form to body, submit it, then remove it
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
             });
         });
     </script>

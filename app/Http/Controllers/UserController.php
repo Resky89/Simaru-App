@@ -42,7 +42,7 @@ class UserController extends Controller
                     'page' => $userPage,
                     'limit' => $userLimit,
                     'sort_by' => 'user_id',
-                    'sort_order' => 'asc'
+                    'sort_order' => 'asc' // Sort from lowest ID (oldest) to highest ID (newest)
                 ]
             ]);
 
@@ -132,7 +132,7 @@ class UserController extends Controller
                     'page' => $page,
                     'limit' => $limit,
                     'sort_by' => 'user_id',
-                    'sort_order' => 'asc'
+                    'sort_order' => 'asc' // Sort from lowest ID (oldest) to highest ID (newest)
                 ]
             ]);
 
@@ -173,7 +173,7 @@ class UserController extends Controller
             ]);
 
             // Updated endpoint for user creation with updated fields
-            $result = $this->apiService->request('POST', '/auth/create-user', [
+            $result = $this->apiService->request('POST', '/users', [
                 'json' => [
                     'employee_number' => $request->input('employee_number'),
                     'password' => $request->input('password'),

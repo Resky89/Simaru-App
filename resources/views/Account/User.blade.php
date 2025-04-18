@@ -117,14 +117,45 @@
                                 @php
                                     $currentPage = $user_pagination['current_page'] ?? 1;
                                     $lastPage = $user_pagination['last_page'] ?? 1;
+                                    $maxPagesShown = 5; // Show max 5 pages at once
+                                    $startPage = max(1, $currentPage - 2);
+                                    $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
+
+                                    if ($endPage - $startPage + 1 < $maxPagesShown) {
+                                        $startPage = max(1, $endPage - $maxPagesShown + 1);
+                                    }
                                 @endphp
 
-                                @for ($i = 1; $i <= $lastPage; $i++)
+                                @if($startPage > 1)
+                                    <a href="{{ request()->fullUrlWithQuery(['user_page' => 1]) }}"
+                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                        1
+                                    </a>
+                                    @if($startPage > 2)
+                                        <span class="flex items-center justify-center">
+                                            ...
+                                        </span>
+                                    @endif
+                                @endif
+
+                                @for ($i = $startPage; $i <= $endPage; $i++)
                                     <a href="{{ request()->fullUrlWithQuery(['user_page' => $i]) }}"
                                         class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                         {{ $i }}
                                     </a>
                                 @endfor
+
+                                @if($endPage < $lastPage)
+                                    @if($endPage < $lastPage - 1)
+                                        <span class="flex items-center justify-center">
+                                            ...
+                                        </span>
+                                    @endif
+                                    <a href="{{ request()->fullUrlWithQuery(['user_page' => $lastPage]) }}"
+                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                        {{ $lastPage }}
+                                    </a>
+                                @endif
                             </div>
                             <a href="{{ $user_pagination['next_page_url'] ?? '#' }}"
                                 class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($user_pagination['current_page'] ?? 1) >= ($user_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
@@ -572,9 +603,9 @@
                         const badge = document.createElement('div');
                         badge.className = 'inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-md text-xs';
                         badge.innerHTML = `
-                                <span>${roleName}</span>
-                                <span class="cursor-pointer hover:text-red-500 font-medium" data-role-id="${roleId}">×</span>
-                            `;
+                                            <span>${roleName}</span>
+                                            <span class="cursor-pointer hover:text-red-500 font-medium" data-role-id="${roleId}">×</span>
+                                        `;
 
                         // Remove badge when clicking the x
                         badge.querySelector('span:last-child').addEventListener('click', function (e) {
@@ -759,38 +790,38 @@
                     borderColor = 'border-green-500';
                     textColor = 'text-green-700';
                     icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>`;
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                    </svg>`;
                 } else if (type === 'error') {
                     bgColor = 'bg-red-100';
                     borderColor = 'border-red-500';
                     textColor = 'text-red-700';
                     icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>`;
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                    </svg>`;
                 } else {
                     bgColor = 'bg-blue-100';
                     borderColor = 'border-blue-500';
                     textColor = 'text-blue-700';
                     icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>`;
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                    </svg>`;
                 }
 
                 toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
                 toast.setAttribute('role', 'alert');
                 toast.innerHTML = `
-                                                        <div class="flex items-center">
-                                                            <div class="py-1">
-                                                                ${icon}
-                                                            </div>
-                                                            <div>
-                                                                <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-                                                                <p>${message}</p>
-                                                            </div>
-                                                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                                        </div>
-                                                    `;
+                                                                    <div class="flex items-center">
+                                                                        <div class="py-1">
+                                                                            ${icon}
+                                                                        </div>
+                                                                        <div>
+                                                                            <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
+                                                                            <p>${message}</p>
+                                                                        </div>
+                                                                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                                    </div>
+                                                                `;
 
                 // Add to container
                 toastContainer.appendChild(toast);

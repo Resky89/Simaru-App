@@ -97,11 +97,19 @@ class RoleController extends Controller
                 'request_data' => $request->all()
             ]);
 
+            // Convert permission_ids to integers
+            $permissionIds = [];
+            if ($request->has('permission_ids')) {
+                $permissionIds = array_map(function ($id) {
+                    return (int) $id;
+                }, $request->input('permission_ids', []));
+            }
+
             $result = $this->apiService->request('POST', '/roles', [
                 'json' => [
                     'role_name' => $request->input('role_name'),
                     'description' => $request->input('description'),
-                    'permission_ids' => $request->input('permission_ids', [])
+                    'permission_ids' => $permissionIds
                 ]
             ]);
 
@@ -156,12 +164,20 @@ class RoleController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            // Convert permission_ids to integers
+            $permissionIds = [];
+            if ($request->has('permission_ids')) {
+                $permissionIds = array_map(function ($id) {
+                    return (int) $id;
+                }, $request->input('permission_ids', []));
+            }
+
             $result = $this->apiService->request('PUT', "/roles/{$id}", [
                 'json' => [
                     'role_id' => $id,
                     'role_name' => $request->input('role_name'),
                     'description' => $request->input('description'),
-                    'permission_ids' => $request->input('permission_ids', [])
+                    'permission_ids' => $permissionIds
                 ]
             ]);
 
