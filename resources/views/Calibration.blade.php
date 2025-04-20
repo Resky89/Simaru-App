@@ -1178,87 +1178,6 @@
                     });
             });
 
-            // Add this code to handle URL parameters for notifications when page loads
-            document.addEventListener('DOMContentLoaded', function() {
-                // Check for success or error messages in URL
-                const urlParams = new URLSearchParams(window.location.search);
-
-                if (urlParams.has('success')) {
-                    showToast(decodeURIComponent(urlParams.get('success')), 'success');
-
-                    // Clean URL without reloading
-                    const url = new URL(window.location);
-                    url.searchParams.delete('success');
-                    window.history.pushState({}, '', url);
-                }
-
-                if (urlParams.has('error')) {
-                    showToast(decodeURIComponent(urlParams.get('error')), 'error');
-
-                    // Clean URL without reloading
-                    const url = new URL(window.location);
-                    url.searchParams.delete('error');
-                    window.history.pushState({}, '', url);
-                }
-            });
-
-            // Also modify the createBulkCalibrations form submission (addCalibrationForm)
-            document.getElementById('addCalibrationForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                // Check if we have selected assets
-                if (selectedAssets.length === 0) {
-                    showToast('Please select at least one asset', 'error');
-                    return;
-                }
-
-                // Get planning date
-                const planningDate = document.getElementById('planning_calibration_date').value;
-                if (!planningDate) {
-                    showToast('Please select a planning date', 'error');
-                    return;
-                }
-
-                // Prepare the data
-                const assetIds = selectedAssets.map(asset => asset.asset_id);
-                const requestData = {
-                    asset_ids: assetIds,
-                    planning_calibration_date: planningDate
-                };
-
-                // Submit the data
-                fetch('{{ route('calibrations.bulk.create') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(requestData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Close the modal
-                    closeModal(modals.add, modalContents.add);
-
-                    if (data.success) {
-                        // Show toast notification directly
-                        showToast(data.message || 'Calibrations created successfully', 'success');
-
-                        // Reload the page after a short delay
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        showToast(data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('An error occurred while creating calibrations.', 'error');
-                });
-            });
-
             // Selected Assets Management
             let selectedAssets = [];
 
@@ -1349,7 +1268,8 @@
                                                                                                                                     data-asset-code="${asset.asset_code || ''}"
                                                                                                                                     data-asset-description="${asset.description || ''}"
                                                                                                                                     data-asset-type="${assetType}"
-                                                                                                                                    data-category-name="${subcategoryName}">
+                                                                                                                                    data-category-name="${subcategoryName}"
+                                                                                                                                    ${isSelected ? 'checked' : ''}>
                                                                                                                             </td>
                                                                                                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
                                                                                                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">
@@ -1380,7 +1300,7 @@
                     });
             }
 
-            // Add this separate function to handle checkbox events
+            // Handle this separate function to handle checkbox events
             function attachCheckboxHandlers() {
                 const checkboxes = document.querySelectorAll('.asset-checkbox');
 
@@ -1394,30 +1314,29 @@
                 document.querySelectorAll('.asset-checkbox').forEach(checkbox => {
                     checkbox.onclick = function () {
                         const assetId = parseInt(this.getAttribute('data-asset-id'));
-                        const assetName = this.getAttribute('data-asset-name');
-                        const assetCode = this.getAttribute('data-asset-code');
-                        const description = this.getAttribute('data-asset-description');
-                        const assetType = this.getAttribute('data-asset-type');
-                        const categoryName = this.getAttribute('data-category-name');
 
+                        // Always remove the asset first to avoid any potential duplicates
+                        selectedAssets = selectedAssets.filter(asset => asset.asset_id !== assetId);
+
+                        // Then add it back if checked
                         if (this.checked) {
-                            // Add to selected assets if not already there
-                            if (!selectedAssets.some(asset => asset.asset_id === assetId)) {
-                                selectedAssets.push({
-                                    asset_id: assetId,
-                                    asset_name: assetName,
-                                    asset_code: assetCode,
-                                    description: description,
-                                    asset_type: assetType,
-                                    subcategory_name: categoryName
-                                });
-                            }
-                        } else {
-                            // Remove from selected assets
-                            selectedAssets = selectedAssets.filter(asset => asset.asset_id !== assetId);
+                            const assetName = this.getAttribute('data-asset-name');
+                            const assetCode = this.getAttribute('data-asset-code');
+                            const description = this.getAttribute('data-asset-description');
+                            const assetType = this.getAttribute('data-asset-type');
+                            const categoryName = this.getAttribute('data-category-name');
+
+                            selectedAssets.push({
+                                asset_id: assetId,
+                                asset_name: assetName,
+                                asset_code: assetCode,
+                                description: description,
+                                asset_type: assetType,
+                                subcategory_name: categoryName
+                            });
                         }
 
-                        console.log("Updated selectedAssets:", selectedAssets);
+                        console.log("Updated selectedAssets:", selectedAssets.length, "items");
                     };
                 });
 
@@ -1524,6 +1443,26 @@
 
             // Select Assets Button
             document.getElementById('selectAssetsBtn')?.addEventListener('click', function () {
+                // Check for duplicate assets and deduplicate the array
+                const uniqueAssetIds = [...new Set(selectedAssets.map(asset => asset.asset_id))];
+                if (uniqueAssetIds.length < selectedAssets.length) {
+                    console.log("Deduplicating selectedAssets array");
+
+                    const uniqueAssets = [];
+                    const seenIds = new Set();
+
+                    // Keep only the first occurrence of each asset
+                    selectedAssets.forEach(asset => {
+                        if (!seenIds.has(asset.asset_id)) {
+                            uniqueAssets.push(asset);
+                            seenIds.add(asset.asset_id);
+                        }
+                    });
+
+                    // Update the selectedAssets array
+                    selectedAssets = uniqueAssets;
+                }
+
                 // Close the asset selection modal
                 closeModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
 
@@ -1599,18 +1538,40 @@
                 console.clear();
                 console.log("Submitting these assets:", JSON.stringify(selectedAssets));
 
-                // Get just the IDs for the API
-                const assetIds = selectedAssets.map(asset => asset.asset_id);
-                console.log("Asset IDs being submitted:", assetIds);
+                // Ensure we have no duplicates in our selectedAssets array
+                const uniqueAssetIds = [...new Set(selectedAssets.map(asset => asset.asset_id))];
+                console.log("Original asset IDs count:", selectedAssets.length);
+                console.log("Unique asset IDs count:", uniqueAssetIds.length);
 
-                // Prepare data for submission
+                // If we detected duplicates, deduplicate the selectedAssets array
+                if (uniqueAssetIds.length < selectedAssets.length) {
+                    const uniqueAssets = [];
+                    const seenIds = new Set();
+
+                    // Keep only the first occurrence of each asset
+                    selectedAssets.forEach(asset => {
+                        if (!seenIds.has(asset.asset_id)) {
+                            uniqueAssets.push(asset);
+                            seenIds.add(asset.asset_id);
+                        }
+                    });
+
+                    // Update the selectedAssets array
+                    selectedAssets = uniqueAssets;
+                    updateSelectedAssetsTable();
+
+                    // Show a notification that we removed duplicates
+                    showToast('Duplicate assets were detected and removed.', 'success');
+                }
+
+                // Prepare data for submission with unique IDs
                 const formData = {
-                    asset_ids: assetIds,
+                    asset_ids: uniqueAssetIds,
                     planning_calibration_date: planningDate
                 };
 
                 // Send the request
-                fetch('/calibrations/bulk', {
+                fetch('{{ route('calibrations.bulk.create') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
