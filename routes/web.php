@@ -3,9 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\VendorController;
-use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ViewAssetController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\CategoriesController;
@@ -291,7 +289,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::post('/calibrations/bulk', [CalibrationController::class, 'createBulkCalibrations'])->name('calibrations.bulk.create');
     Route::get('/calibrations/{id}', [CalibrationController::class, 'getCalibration']);
     Route::put('/calibrations/{id}', [CalibrationController::class, 'update']);
-    Route::delete('/calibrations/{id}', [CalibrationController::class, 'destroy']);
+    Route::delete('/calibrations/bulk', [CalibrationController::class, 'destroy'])->name('calibrations.bulk.delete');
 
     // Asset Finance routes
     Route::get('/asset-transactions/asset/{assetId}', [AssetFinanceController::class, 'getAllTransactions'])->name('asset-transactions.get');

@@ -49,6 +49,9 @@
                             <button id="filterBtn" class="px-4 py-2 bg-[#213268] text-white rounded-lg">
                                 Apply Filter
                             </button>
+                            <button id="bulkDeleteBtn" class="hidden px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200">
+                                Delete Selected
+                            </button>
                         </div>
                     </div>
 
@@ -58,7 +61,7 @@
                             <thead>
                                 <tr>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
-                                        <input type="checkbox" class="checkbox checkbox-sm" />
+                                        <input type="checkbox" id="selectAllCalibrations" class="checkbox checkbox-sm" />
                                     </th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Task Code</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset</th>
@@ -73,7 +76,7 @@
                                 @forelse($calibrations ?? [] as $calibration)
                                                             <tr>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                    <input type="checkbox" class="checkbox checkbox-sm" />
+                                                                    <input type="checkbox" class="calibration-checkbox checkbox checkbox-sm" data-id="{{ $calibration['id'] }}" />
                                                                 </td>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $calibration['task_code'] ?? '-' }}
                                                                 </td>
@@ -87,8 +90,7 @@
                                                                     @if(isset($calibration['location']))
                                                                         <div class="flex flex-col">
                                                                             <span>{{ $calibration['location']['room_name'] ?? '-' }}</span>
-                                                                            <span
-                                                                                class="text-gray-500">{{ $calibration['location']['building_name'] ?? '-' }}</span>
+                                                    <span class="text-gray-500">{{ $calibration['location']['building_name'] ?? '-' }}</span>
                                                                         </div>
                                                                     @else
                                                                         -
@@ -474,11 +476,11 @@
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[400px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="deleteCalibrationModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Delete Calibration</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE CALIBRATION</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="deleteCalibrationModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -488,33 +490,30 @@
                             </button>
                         </div>
 
-                        <!-- Content -->
+                        <!-- Form -->
+                        <form id="deleteCalibrationForm" method="POST">
+                            @csrf
                         <div class="p-6">
-                            <div class="text-center">
-                                <svg class="mx-auto mb-4 w-14 h-14 text-red-500" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                <div class="space-y-6 max-w-[400px] mx-auto">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <h3 class="mb-5 text-lg font-normal text-gray-800">Are you sure you want to delete this
-                                    calibration record?</h3>
-                                <p class="mb-5 text-sm text-gray-600">This action cannot be undone.</p>
-
-                                <input type="hidden" id="delete_calibration_id">
-
-                                <div class="flex justify-center gap-4">
-                                    <button type="button"
-                                        class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                                        <p class="text-base text-gray-600 text-center">Are you sure you want to delete this calibration record? This action cannot be undone.</p>
+                                        <p id="deleteCalibrationName" class="text-base font-semibold text-center mt-2"></p>
+                                    </div>
+                                    <div class="flex gap-3">
+                                        <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
                                         data-modal="deleteCalibrationModal">
                                         Cancel
                                     </button>
-                                    <button type="button" id="confirmDeleteBtn"
-                                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+                                        <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
                                         Delete
                                     </button>
                                 </div>
                             </div>
                         </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -735,6 +734,85 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Handle 'Select All' checkbox for calibrations table
+            const selectAllCalibrations = document.getElementById('selectAllCalibrations');
+            if (selectAllCalibrations) {
+                selectAllCalibrations.addEventListener('change', function() {
+                    const isChecked = this.checked;
+                    document.querySelectorAll('.calibration-checkbox').forEach(checkbox => {
+                        checkbox.checked = isChecked;
+                    });
+                    updateBulkDeleteButtonVisibility();
+                });
+
+                // Update "Select All" checkbox state based on individual checkboxes
+                document.addEventListener('change', function(e) {
+                    if (e.target.classList.contains('calibration-checkbox')) {
+                        const allCheckboxes = document.querySelectorAll('.calibration-checkbox');
+                        const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
+                        selectAllCalibrations.checked = allCheckboxes.length === checkedCheckboxes.length;
+                        selectAllCalibrations.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+                        updateBulkDeleteButtonVisibility();
+                    }
+                });
+            }
+
+            // Handle bulk delete button visibility and functionality
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+            function updateBulkDeleteButtonVisibility() {
+                const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
+                if (checkedCheckboxes.length > 0) {
+                    bulkDeleteBtn.classList.remove('hidden');
+                } else {
+                    bulkDeleteBtn.classList.add('hidden');
+                }
+            }
+
+            // Handle bulk delete action
+            if (bulkDeleteBtn) {
+                bulkDeleteBtn.addEventListener('click', function() {
+                    const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
+                    if (checkedCheckboxes.length === 0) {
+                        showToast('No calibrations selected', 'error');
+                        return;
+                    }
+
+                    // Get the IDs of the selected calibrations
+                    const selectedIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.getAttribute('data-id'));
+
+                    // Open confirmation modal with count information
+                    const deleteCalibrationName = document.getElementById('deleteCalibrationName');
+                    if (deleteCalibrationName) {
+                        deleteCalibrationName.textContent = `${selectedIds.length} selected calibration records`;
+                    }
+
+                    // Set up the form for bulk delete
+                    const calibrationForm = document.getElementById('deleteCalibrationForm');
+                    if (calibrationForm) {
+                        // Set form action to the correct URL using the named route
+                        calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
+
+                        // Store the IDs in a hidden input - we'll use this in the submit handler
+                        let hiddenInput = document.getElementById('delete_calibration_id');
+                        if (!hiddenInput) {
+                            hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.id = 'delete_calibration_id';
+                            calibrationForm.appendChild(hiddenInput);
+                        }
+
+                        // Store as comma-separated string - the submit handler will convert to array
+                        hiddenInput.value = selectedIds.join(',');
+
+                        console.log('Preparing bulk delete for IDs:', selectedIds);
+
+                        // Open delete confirmation modal
+                        openModal(modals.delete, modalContents.delete);
+                    }
+                });
+            }
+
             // Function to change items per page
             window.changePerPage = function (limit) {
                 const url = new URL(window.location.href);
@@ -963,46 +1041,97 @@
             document.querySelectorAll('.delete-calibration-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const calibrationId = this.getAttribute('data-id');
-                    document.getElementById('delete_calibration_id').value = calibrationId;
+                    const calibrationForm = document.getElementById('deleteCalibrationForm');
+                    const deleteCalibrationName = document.getElementById('deleteCalibrationName');
+
+                    // Get calibration details to show in the confirmation modal
+                    const assetName = this.closest('tr').querySelector('td:nth-child(3) .font-medium').textContent;
+                    const assetCode = this.closest('tr').querySelector('td:nth-child(3) .text-gray-500').textContent;
+
+                    // Set form action to the correct URL using the named route
+                    calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
+
+                    // Add hidden input for the calibration ID - without setting the name attribute
+                    let hiddenInput = document.getElementById('delete_calibration_id');
+                    if (!hiddenInput) {
+                        hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.id = 'delete_calibration_id';
+                        calibrationForm.appendChild(hiddenInput);
+                    }
+                    hiddenInput.value = calibrationId;
+
+                    // Set calibration name in the modal
+                    deleteCalibrationName.textContent = `${assetName} (${assetCode})`;
 
                     // Open delete confirmation modal
                     openModal(modals.delete, modalContents.delete);
                 });
             });
 
-            // Confirm Delete Button
-            document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-                const calibrationId = document.getElementById('delete_calibration_id').value;
+            // Form submission handler for delete
+            document.getElementById('deleteCalibrationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
 
-                fetch(`/calibrations/${calibrationId}`, {
+                const form = this;
+                const calibrationIdInput = document.getElementById('delete_calibration_id').value;
+
+                // Check if the value contains a comma, which indicates multiple IDs
+                const isMultiple = calibrationIdInput.includes(',');
+                let ids = [];
+
+                if (isMultiple) {
+                    // For multiple calibrations, split the comma-separated string
+                    ids = calibrationIdInput.split(',').map(id => parseInt(id.trim()));
+                } else {
+                    // For single calibration, create array with one element
+                    ids = [parseInt(calibrationIdInput)];
+                }
+
+                // Log the request data for debugging
+                console.log('Sending delete request with IDs:', ids);
+
+                // Make the DELETE request to the server
+                fetch("{{ route('calibrations.bulk.delete') }}", {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ ids }) // Simple payload with just the IDs array
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            console.error('Server error response:', data);
+                            throw new Error(data.message || `Server responded with status ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Close the modal
+                    closeModal(modals.delete, modalContents.delete);
+
+                    if (data.success) {
+                        // Show toast notification directly
+                        showToast(data.message || 'Calibration(s) deleted successfully', 'success');
+
+                        // Reload the page after a short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showToast(data.message || 'Failed to delete calibration', 'error');
+                        console.error('Delete error:', data.errors);
                     }
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Close the modal
-                        closeModal(modals.delete, modalContents.delete);
-
-                        if (data.success) {
-                            showToast(data.message || 'Calibration deleted successfully', 'success');
-
-                            // Reload page after a short delay
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-                        } else {
-                            showToast(data.message || 'Failed to delete calibration', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        closeModal(modals.delete, modalContents.delete);
-                        showToast('An error occurred while deleting the calibration', 'error');
-                    });
+                .catch(error => {
+                    console.error('Delete request failed:', error);
+                    closeModal(modals.delete, modalContents.delete);
+                    showToast(error.message || 'An error occurred while deleting the calibration', 'error');
+                });
             });
 
             // Update Calibration Form Submit
@@ -1012,12 +1141,8 @@
                 const calibrationId = document.getElementById('calibration_id').value;
                 const formData = new FormData(this);
 
-                // Remove empty fields to avoid overwriting with null
-                for (const [key, value] of formData.entries()) {
-                    if (value === "" && key !== 'document_file') {
-                        formData.delete(key);
-                    }
-                }
+                // Remove the calibration_id from form data since it's used in the URL
+                formData.delete('calibration_id');
 
                 // Add _method field for PUT request
                 formData.append('_method', 'PUT');
@@ -1036,10 +1161,10 @@
                             // Close the modal
                             closeModal(modals.view, modalContents.view);
 
-                            // Show success message
-                            showToast(data.message || 'Calibration updated successfully', 'success');
+                            // Change the success message to "Calibration telah dilakukan"
+                            showToast('Calibration telah dilakukan', 'success');
 
-                            // Reload the page after a short delay
+                            // Reload the page after a short delay to see the changes
                             setTimeout(() => {
                                 window.location.reload();
                             }, 1500);
@@ -1051,6 +1176,87 @@
                         console.error('Error:', error);
                         showToast('An error occurred while updating the calibration', 'error');
                     });
+            });
+
+            // Add this code to handle URL parameters for notifications when page loads
+            document.addEventListener('DOMContentLoaded', function() {
+                // Check for success or error messages in URL
+                const urlParams = new URLSearchParams(window.location.search);
+
+                if (urlParams.has('success')) {
+                    showToast(decodeURIComponent(urlParams.get('success')), 'success');
+
+                    // Clean URL without reloading
+                    const url = new URL(window.location);
+                    url.searchParams.delete('success');
+                    window.history.pushState({}, '', url);
+                }
+
+                if (urlParams.has('error')) {
+                    showToast(decodeURIComponent(urlParams.get('error')), 'error');
+
+                    // Clean URL without reloading
+                    const url = new URL(window.location);
+                    url.searchParams.delete('error');
+                    window.history.pushState({}, '', url);
+                }
+            });
+
+            // Also modify the createBulkCalibrations form submission (addCalibrationForm)
+            document.getElementById('addCalibrationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Check if we have selected assets
+                if (selectedAssets.length === 0) {
+                    showToast('Please select at least one asset', 'error');
+                    return;
+                }
+
+                // Get planning date
+                const planningDate = document.getElementById('planning_calibration_date').value;
+                if (!planningDate) {
+                    showToast('Please select a planning date', 'error');
+                    return;
+                }
+
+                // Prepare the data
+                const assetIds = selectedAssets.map(asset => asset.asset_id);
+                const requestData = {
+                    asset_ids: assetIds,
+                    planning_calibration_date: planningDate
+                };
+
+                // Submit the data
+                fetch('{{ route('calibrations.bulk.create') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Close the modal
+                    closeModal(modals.add, modalContents.add);
+
+                    if (data.success) {
+                        // Show toast notification directly
+                        showToast(data.message || 'Calibrations created successfully', 'success');
+
+                        // Reload the page after a short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('An error occurred while creating calibrations.', 'error');
+                });
             });
 
             // Selected Assets Management
@@ -1089,10 +1295,10 @@
 
                 // Show loading state
                 document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                    <tr>
-                                                                                                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Loading assets...</td>
-                                                                                                                    </tr>
-                                                                                                                `;
+                                                                                                                                        <tr>
+                                                                                                                                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Loading assets...</td>
+                                                                                                                                        </tr>
+                                                                                                                                    `;
 
                 // Fetch assets from API
                 fetch(`/assets/data?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`, {
@@ -1109,10 +1315,10 @@
 
                         if (assets.length === 0) {
                             document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                    <tr>
-                                                                                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No assets found</td>
-                                                                                                    </tr>
-                                                                                                `;
+                                                                                                                        <tr>
+                                                                                                                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No assets found</td>
+                                                                                                                        </tr>
+                                                                                                                    `;
                             return;
                         }
 
@@ -1135,27 +1341,27 @@
                             const assetType = asset.subcategory ? asset.subcategory.asset_type || '-' : '-';
 
                             html += `
-                                                                                                    <tr>
-                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                            <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}"
-                                                                                                                data-asset-id="${asset.asset_id}"
-                                                                                                                data-asset-name="${asset.asset_name || ''}"
-                                                                                                                data-asset-code="${asset.asset_code || ''}"
-                                                                                                                data-asset-description="${asset.description || ''}"
-                                                                                                                data-asset-type="${assetType}"
-                                                                                                                data-category-name="${subcategoryName}">
-                                                                                                        </td>
-                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
-                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                                                            <div class="flex flex-col">
-                                                                                                                <span class="font-medium">${asset.asset_name || '-'}</span>
-                                                                                                            </div>
-                                                                                                        </td>
-                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
-                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetType}</td>
-                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${subcategoryName}</td>
-                                                                                                    </tr>
-                                                                                                `;
+                                                                                                                        <tr>
+                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                                                                                                <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}"
+                                                                                                                                    data-asset-id="${asset.asset_id}"
+                                                                                                                                    data-asset-name="${asset.asset_name || ''}"
+                                                                                                                                    data-asset-code="${asset.asset_code || ''}"
+                                                                                                                                    data-asset-description="${asset.description || ''}"
+                                                                                                                                    data-asset-type="${assetType}"
+                                                                                                                                    data-category-name="${subcategoryName}">
+                                                                                                                            </td>
+                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
+                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                                                                                <div class="flex flex-col">
+                                                                                                                                    <span class="font-medium">${asset.asset_name || '-'}</span>
+                                                                                                                                </div>
+                                                                                                                            </td>
+                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
+                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetType}</td>
+                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${subcategoryName}</td>
+                                                                                                                        </tr>
+                                                                                                                    `;
                         });
 
                         document.getElementById('assetSelectionList').innerHTML = html;
@@ -1167,10 +1373,10 @@
                     .catch(error => {
                         console.error('Error loading assets:', error);
                         document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                <tr>
-                                                                                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Error loading assets</td>
-                                                                                                </tr>
-                                                                                            `;
+                                                                                                                    <tr>
+                                                                                                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Error loading assets</td>
+                                                                                                                    </tr>
+                                                                                                                `;
                     });
             }
 
@@ -1251,14 +1457,14 @@
 
                 // Previous button
                 paginationHtml += `
-                                                                                            <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
-                                                                                               onclick="${currentPage > 1 ? 'loadAssets(' + (currentPage - 1) + '); return false;' : 'return false;'}">
-                                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                                                                                                </svg>
-                                                                                                Prev
-                                                                                            </a>
-                                                                                        `;
+                                                                                                                <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                                                                                                                   onclick="${currentPage > 1 ? 'loadAssets(' + (currentPage - 1) + '); return false;' : 'return false;'}">
+                                                                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                                                                                                    </svg>
+                                                                                                                    Prev
+                                                                                                                </a>
+                                                                                                            `;
 
                 // Page numbers
                 paginationHtml += '<div class="flex gap-2">';
@@ -1273,9 +1479,9 @@
 
                 if (startPage > 1) {
                     paginationHtml += `
-                                                                                                <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
-                                                                                                   onclick="loadAssets(${startPage}); return false;">${startPage}</a>
-                                                                                            `;
+                                                                                                                    <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                                                                                                       onclick="loadAssets(${startPage}); return false;">${startPage}</a>
+                                                                                                                `;
 
                     if (startPage > 2) {
                         paginationHtml += '<span class="flex items-center justify-center">...</span>';
@@ -1284,9 +1490,9 @@
 
                 for (let i = startPage; i <= endPage; i++) {
                     paginationHtml += `
-                                                                                                <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
-                                                                                                   onclick="loadAssets(${i}); return false;">${i}</a>
-                                                                                            `;
+                                                                                                                    <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
+                                                                                                                       onclick="loadAssets(${i}); return false;">${i}</a>
+                                                                                                                `;
                 }
 
                 if (endPage < lastPage) {
@@ -1295,23 +1501,23 @@
                     }
 
                     paginationHtml += `
-                                                                                                <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
-                                                                                                   onclick="loadAssets(${endPage}); return false;">${endPage}</a>
-                                                                                            `;
+                                                                                                                    <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                                                                                                       onclick="loadAssets(${endPage}); return false;">${endPage}</a>
+                                                                                                                `;
                 }
 
                 paginationHtml += '</div>';
 
                 // Next button
                 paginationHtml += `
-                                                                                            <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= lastPage ? 'opacity-50 cursor-not-allowed' : ''}"
-                                                                                               onclick="${currentPage < lastPage ? 'loadAssets(' + (currentPage + 1) + '); return false;' : 'return false;'}">
-                                                                                                Next
-                                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                                                                                </svg>
-                                                                                            </a>
-                                                                                        `;
+                                                                                                                <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= lastPage ? 'opacity-50 cursor-not-allowed' : ''}"
+                                                                                                                   onclick="${currentPage < lastPage ? 'loadAssets(' + (currentPage + 1) + '); return false;' : 'return false;'}">
+                                                                                                                    Next
+                                                                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                                                                                    </svg>
+                                                                                                                </a>
+                                                                                                            `;
 
                 document.getElementById('assetPaginationControls').innerHTML = paginationHtml;
             }
@@ -1321,6 +1527,9 @@
                 // Close the asset selection modal
                 closeModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
 
+                // Log the selected assets before updating the table
+                console.log("Selected assets before updating table:", JSON.stringify(selectedAssets));
+
                 // Update the selected assets table
                 updateSelectedAssetsTable();
             });
@@ -1329,36 +1538,36 @@
             function updateSelectedAssetsTable() {
                 if (selectedAssets.length === 0) {
                     document.getElementById('selectedAssetsList').innerHTML = `
-                                                                                                <tr>
-                                                                                                    <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No data available in table</td>
-                                                                                                </tr>
-                                                                                            `;
+                                                                                                                    <tr>
+                                                                                                                        <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No data available in table</td>
+                                                                                                                    </tr>
+                                                                                                                `;
                     return;
                 }
 
                 let html = '';
                 selectedAssets.forEach((asset, index) => {
                     html += `
-                                                                                                <tr>
-                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
-                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
-                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                                                        <div class="flex flex-col">
-                                                                                                            <span class="font-medium">${asset.asset_name || '-'}</span>
-                                                                                                        </div>
-                                                                                                    </td>
-                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
-                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
-                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.subcategory_name || '-'}</td>
-                                                                                                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                        <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.asset_id})">
-                                                                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                                                            </svg>
-                                                                                                        </button>
-                                                                                                    </td>
-                                                                                                </tr>
-                                                                                            `;
+                                                                                                                    <tr>
+                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
+                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
+                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                                                                            <div class="flex flex-col">
+                                                                                                                                <span class="font-medium">${asset.asset_name || '-'}</span>
+                                                                                                                            </div>
+                                                                                                                        </td>
+                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
+                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
+                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.subcategory_name || '-'}</td>
+                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                                                                                            <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.asset_id})">
+                                                                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                                                                </svg>
+                                                                                                                            </button>
+                                                                                                                        </td>
+                                                                                                                    </tr>
+                                                                                                                `;
                 });
 
                 document.getElementById('selectedAssetsList').innerHTML = html;
@@ -1375,20 +1584,28 @@
                 e.preventDefault();
 
                 if (selectedAssets.length === 0) {
-                    alert('Please select at least one asset for calibration.');
+                    showToast('Please select at least one asset for calibration.', 'error');
                     return;
                 }
 
                 const planningDate = document.getElementById('planning_calibration_date').value;
 
                 if (!planningDate) {
-                    alert('Please select a schedule start date.');
+                    showToast('Please select a schedule start date.', 'error');
                     return;
                 }
 
+                // Clear console and log what we're sending
+                console.clear();
+                console.log("Submitting these assets:", JSON.stringify(selectedAssets));
+
+                // Get just the IDs for the API
+                const assetIds = selectedAssets.map(asset => asset.asset_id);
+                console.log("Asset IDs being submitted:", assetIds);
+
                 // Prepare data for submission
                 const formData = {
-                    asset_ids: selectedAssets.map(asset => asset.asset_id),
+                    asset_ids: assetIds,
                     planning_calibration_date: planningDate
                 };
 
@@ -1402,11 +1619,11 @@
                     },
                     body: JSON.stringify(formData)
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Close the modal
-                            closeModal(document.getElementById('addCalibrationModal'), document.getElementById('addCalibrationModalContent'));
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close the modal
+                        closeModal(document.getElementById('addCalibrationModal'), document.getElementById('addCalibrationModalContent'));
 
                             // Show success message
                             showToast(data.message, 'success');
@@ -1446,19 +1663,19 @@
                 toast.role = 'alert';
 
                 toast.innerHTML = `
-                                                                                            <div class="flex items-center">
-                                                                                                <div class="py-1">
-                                                                                                    <svg class="h-6 w-6 text-${color}-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                        ${icon}
-                                                                                                    </svg>
-                                                                                                </div>
-                                                                                                <div>
-                                                                                                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
-                                                                                                    <p>${message}</p>
-                                                                                                </div>
-                                                                                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                                                                            </div>
-                                                                                        `;
+                                                                                                                <div class="flex items-center">
+                                                                                                                    <div class="py-1">
+                                                                                                                        <svg class="h-6 w-6 text-${color}-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                                            ${icon}
+                                                                                                                        </svg>
+                                                                                                                    </div>
+                                                                                                                    <div>
+                                                                                                                        <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                                                                                                                        <p>${message}</p>
+                                                                                                                    </div>
+                                                                                                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                                                                                </div>
+                                                                                                            `;
 
                 // Add to document
                 document.body.appendChild(toast);
