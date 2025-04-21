@@ -69,7 +69,7 @@ class OpnameReportController extends Controller
                 ];
             }
 
-            return view('Report.OpnameReport', [
+            return view('Report.OpnameReport.OpnameReport', [
                 'opnames' => $opnames,
                 'pagination' => $pagination,
                 'search' => $search
@@ -80,7 +80,7 @@ class OpnameReportController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return view('Report.OpnameReport', [
+            return view('Report.OpnameReport.OpnameReport', [
                 'opnames' => [],
                 'pagination' => null,
                 'error' => 'Failed to retrieve opname reports: ' . $e->getMessage()
@@ -161,56 +161,14 @@ class OpnameReportController extends Controller
         }
     }
 
-    /**
-     * Get a single opname by ID.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getOpname($id)
-    {
-        try {
-            $result = $this->apiService->request('GET', "/asset-opnames/{$id}");
 
-            // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during opname retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
-            }
-
-            // Return the response
-            return response()->json([
-                'success' => true,
-                'data' => $result['data'] ?? null,
-                'message' => 'Opname report retrieved successfully'
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Exception during opname retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'opname_id' => $id
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve opname: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 
     /**
      * Display the opname detail page.
      *
      * @param int $id
-     * @return \Illuminate\View\View
+     * @param Request $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function showOpnameDetail($id, Request $request)
     {

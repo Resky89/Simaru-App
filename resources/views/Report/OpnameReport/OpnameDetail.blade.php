@@ -2,6 +2,25 @@
 
 @section('title', 'Opname Detail')
 
+@section('styles')
+<style>
+    .active-filter {
+        background-color: #213268;
+        color: white;
+        border-color: #213268;
+    }
+
+    .status-filter-btn:not(.active-filter) {
+        background-color: white;
+        color: #213268;
+    }
+
+    .status-filter-btn:hover:not(.active-filter) {
+        background-color: #F8F9FA;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
     <!-- Opname Detail Section -->
@@ -140,9 +159,34 @@
                     </div>
                 </div>
 
+                <!-- Status Filter Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <button data-status="all" class="status-filter-btn active-filter px-4 py-2 rounded-md bg-[#213268] text-white text-sm font-medium hover:bg-[#1a2857] transition-all duration-150">
+                        All Status
+                    </button>
+                    <button data-status="found" class="status-filter-btn px-4 py-2 rounded-md bg-white border border-[#D8DAE5] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-150">
+                        <span class="inline-flex items-center">
+                            <span class="h-2 w-2 rounded-full bg-green-600 mr-1.5"></span>
+                            Found
+                        </span>
+                    </button>
+                    <button data-status="missing" class="status-filter-btn px-4 py-2 rounded-md bg-white border border-[#D8DAE5] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-150">
+                        <span class="inline-flex items-center">
+                            <span class="h-2 w-2 rounded-full bg-red-600 mr-1.5"></span>
+                            Missing
+                        </span>
+                    </button>
+                    <button data-status="misplaced" class="status-filter-btn px-4 py-2 rounded-md bg-white border border-[#D8DAE5] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-150">
+                        <span class="inline-flex items-center">
+                            <span class="h-2 w-2 rounded-full bg-amber-500 mr-1.5"></span>
+                            Misplaced
+                        </span>
+                    </button>
+                </div>
+
                 <!-- Assets Table -->
                 <div class="overflow-x-auto rounded-md border border-[#EEF1F4]">
-                    <table class="w-full">
+                    <table class="w-full" id="assetsTable">
                         <thead>
                             <tr>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Asset Code</th>
@@ -156,7 +200,7 @@
                         </thead>
                         <tbody>
                             @forelse($details as $asset)
-                                <tr class="hover:bg-[#F8F9FA] transition-all duration-150">
+                                <tr class="hover:bg-[#F8F9FA] transition-all duration-150 asset-row">
                                     <td class="p-3 text-sm border-t border-[#EEF1F4] font-medium">{{ $asset['asset_code'] ?? '-' }}</td>
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">{{ $asset['asset_description'] ?? '-' }}</td>
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">
@@ -237,14 +281,25 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr>
+                                <tr id="no-results-row" style="display: none;">
+                                    <td colspan="7" class="p-6 text-sm border-t border-[#EEF1F4] text-center text-gray-500">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <p>No assets match your search criteria</p>
+                                            <button id="clear-search" class="mt-3 text-sm text-[#213268] font-medium hover:underline">Clear Search</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr id="empty-table-row">
                                     <td colspan="7" class="p-6 text-sm border-t border-[#EEF1F4] text-center text-gray-500">
                                         <div class="flex flex-col items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                             <p>No asset details found for this opname</p>
-                                            <button class="mt-3 text-sm text-[#213268] font-medium hover:underline">Refresh Data</button>
+                                            <button class="mt-3 text-sm text-[#213268] font-medium hover:underline" onclick="window.location.reload()">Refresh Data</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -345,23 +400,111 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Function to change items per page
-        window.changePerPage = function(limit) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('limit', limit);
-            window.location.href = url.toString();
+        const searchInput = document.getElementById('table-search');
+        const assetsTable = document.getElementById('assetsTable');
+        const assetRows = document.querySelectorAll('.asset-row');
+        const noResultsRow = document.getElementById('no-results-row');
+        const emptyTableRow = document.getElementById('empty-table-row');
+        const clearSearchButton = document.getElementById('clear-search');
+
+        // Add debounce function to limit how often search is performed
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
         }
 
-        // Search functionality
-        const searchInput = document.getElementById('table-search');
-        if (searchInput) {
-            searchInput.addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('search', this.value);
-                    url.searchParams.set('page', 1); // Reset to first page on new search
-                    window.location.href = url.toString();
+        // Function to filter table rows
+        const filterTable = debounce(function() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            let matchFound = false;
+
+            // If search is empty, show all rows
+            if (searchTerm === '') {
+                assetRows.forEach(row => {
+                    row.style.display = '';
+                });
+                noResultsRow.style.display = 'none';
+                return;
+            }
+
+            // Loop through all rows and hide those that don't match the search term
+            assetRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    matchFound = true;
+                } else {
+                    row.style.display = 'none';
                 }
+            });
+
+            // Show "no results" message if no matches found
+            if (!matchFound && assetRows.length > 0) {
+                noResultsRow.style.display = 'table-row';
+                emptyTableRow.style.display = 'none';
+            } else {
+                noResultsRow.style.display = 'none';
+                // Only show empty table row if we have no asset rows at all
+                emptyTableRow.style.display = assetRows.length === 0 ? 'table-row' : 'none';
+            }
+        }, 300);
+
+        // Add event listener to search input
+        if (searchInput) {
+            searchInput.addEventListener('input', filterTable);
+        }
+
+        // Add event listener to clear search button
+        if (clearSearchButton) {
+            clearSearchButton.addEventListener('click', function() {
+                searchInput.value = '';
+                filterTable();
+            });
+        }
+
+        // Add status filter functionality
+        const statusFilters = document.querySelectorAll('.status-filter-btn');
+        if (statusFilters.length > 0) {
+            statusFilters.forEach(button => {
+                button.addEventListener('click', function() {
+                    const status = this.dataset.status;
+
+                    // Toggle active class on buttons
+                    statusFilters.forEach(btn => btn.classList.remove('active-filter'));
+                    this.classList.add('active-filter');
+
+                    let matchFound = false;
+
+                    // Filter rows by status
+                    assetRows.forEach(row => {
+                        if (status === 'all') {
+                            row.style.display = '';
+                            matchFound = true;
+                        } else {
+                            const statusCell = row.querySelector('td:nth-child(4)');
+                            const statusText = statusCell.textContent.toLowerCase().trim();
+
+                            if (statusText.includes(status.toLowerCase())) {
+                                row.style.display = '';
+                                matchFound = true;
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        }
+                    });
+
+                    // Show "no results" message if no matches found
+                    if (!matchFound && assetRows.length > 0) {
+                        noResultsRow.style.display = 'table-row';
+                        emptyTableRow.style.display = 'none';
+                    } else {
+                        noResultsRow.style.display = 'none';
+                        emptyTableRow.style.display = assetRows.length === 0 ? 'table-row' : 'none';
+                    }
+                });
             });
         }
     });
