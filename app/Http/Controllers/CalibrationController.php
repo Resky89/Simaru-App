@@ -18,7 +18,7 @@ class CalibrationController extends Controller
      * Display a listing of calibrations.
      *
      * @param Request $request
-     * @return \Illuminate\View\View
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function index(Request $request)
     {
@@ -27,6 +27,7 @@ class CalibrationController extends Controller
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
             $status = $request->input('status', '');
+            $sort = $request->input('sort', 'newest');
 
             // Log request info
             \Log::info('Fetching calibrations for view with parameters:', [
@@ -34,7 +35,8 @@ class CalibrationController extends Controller
                 'limit' => $limit,
                 'search' => $search,
                 'status' => $status,
-                'request_url' => $request->fullUrl()
+                'request_url' => $request->fullUrl(),
+                'ajax' => $request->ajax()
             ]);
 
             // Build query parameters
@@ -50,7 +52,26 @@ class CalibrationController extends Controller
 
             // Add status filter if provided
             if (!empty($status)) {
-                $queryParams['status'] = $status;
+                // Only pass valid status values
+                if (in_array($status, ['scheduled', 'in_progress', 'completed', 'overdue', 'cancelled'])) {
+                    $queryParams['status'] = $status; // Pass the status parameter to the API
+                }
+            }
+
+            // Handle sorting with the already defined $sort variable
+            switch ($sort) {
+                case 'newest':
+                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
+                case 'oldest':
+                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                default:
+                    // Default sort (newest first)
+                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_order'] = 'desc';
             }
 
             // Fetch calibrations
@@ -64,6 +85,13 @@ class CalibrationController extends Controller
                     'error' => $result['error'],
                     'message' => $result['message'] ?? 'Authentication failed'
                 ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $result['message'] ?? 'Authentication failed'
+                    ], 401);
+                }
 
                 return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
@@ -79,12 +107,22 @@ class CalibrationController extends Controller
             $calibrations = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
 
-            // Return the view with data
+            // For AJAX requests, return JSON response
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'calibrations' => $calibrations,
+                    'pagination' => $pagination
+                ]);
+            }
+
+            // Return the view with data for regular requests
             return view('Calibration', [
                 'calibrations' => $calibrations,
                 'pagination' => $pagination,
                 'search' => $search,
-                'status' => $status
+                'status' => $status,
+                'sort' => $sort
             ]);
 
         } catch (\Exception $e) {
@@ -93,11 +131,19 @@ class CalibrationController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to retrieve calibrations: ' . $e->getMessage()
+                ], 500);
+            }
+
             return view('Calibration', [
                 'calibrations' => [],
                 'pagination' => null,
                 'search' => $search,
                 'status' => $status,
+                'sort' => $sort,
                 'error' => 'Failed to retrieve calibrations: ' . $e->getMessage()
             ]);
         }
@@ -188,72 +234,72 @@ class CalibrationController extends Controller
         }
     }
 
-/**
- * Create calibrations in bulk.
- *
- * @param Request $request
- * @return \Illuminate\Http\JsonResponse
- */
-public function createBulkCalibrations(Request $request)
-{
-    try {
-        // Validate the request
-        $request->validate([
-            'asset_ids' => 'required|array',
-            'planning_calibration_date' => 'required|date'
-        ]);
-
-        // Log request info
-        \Log::info('Creating bulk calibrations with parameters:', [
-            'asset_ids' => $request->input('asset_ids'),
-            'planning_date' => $request->input('planning_calibration_date'),
-            'request_url' => $request->fullUrl()
-        ]);
-
-        // Remove any duplicate asset IDs to prevent duplicate calibrations
-        $assetIds = array_unique($request->input('asset_ids'));
-
-        // Prepare request data with deduplicated asset IDs
-        $requestData = [
-            'asset_ids' => $assetIds,
-            'planning_calibration_date' => $request->input('planning_calibration_date')
-        ];
-
-        // Send request to API
-        $result = $this->apiService->request('POST', '/calibrations/bulk', [
-            'json' => $requestData
-        ]);
-
-        // Log API response for debugging
-        \Log::info('API response for bulk calibration creation:', [
-            'api_response_status' => $result['status'] ?? null,
-            'api_response_message' => $result['message'] ?? null
-        ]);
-
-        // Check for auth errors
-        if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-            \Log::warning('Authentication error during bulk calibration creation:', [
-                'error' => $result['error'],
-                'message' => $result['message'] ?? 'Authentication failed'
+    /**
+     * Create calibrations in bulk.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function createBulkCalibrations(Request $request)
+    {
+        try {
+            // Validate the request
+            $request->validate([
+                'asset_ids' => 'required|array',
+                'planning_calibration_date' => 'required|date'
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => $result['message'] ?? 'Authentication failed'
-            ], 401);
-        }
-
-        // Check if the request was successful
-        if (!isset($result['success']) || $result['success'] !== true) {
-            \Log::warning('Error during bulk calibration creation:', [
-                'message' => $result['message'] ?? 'Failed to create calibrations'
+            // Log request info
+            \Log::info('Creating bulk calibrations with parameters:', [
+                'asset_ids' => $request->input('asset_ids'),
+                'planning_date' => $request->input('planning_calibration_date'),
+                'request_url' => $request->fullUrl()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => $result['message'] ?? 'Failed to create calibrations'
-            ], 400);
-        }
+            // Remove any duplicate asset IDs to prevent duplicate calibrations
+            $assetIds = array_unique($request->input('asset_ids'));
+
+            // Prepare request data with deduplicated asset IDs
+            $requestData = [
+                'asset_ids' => $assetIds,
+                'planning_calibration_date' => $request->input('planning_calibration_date')
+            ];
+
+            // Send request to API
+            $result = $this->apiService->request('POST', '/calibrations/bulk', [
+                'json' => $requestData
+            ]);
+
+            // Log API response for debugging
+            \Log::info('API response for bulk calibration creation:', [
+                'api_response_status' => $result['status'] ?? null,
+                'api_response_message' => $result['message'] ?? null
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during bulk calibration creation:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ], 401);
+            }
+
+            // Check if the request was successful
+            if (!isset($result['success']) || $result['success'] !== true) {
+                \Log::warning('Error during bulk calibration creation:', [
+                    'message' => $result['message'] ?? 'Failed to create calibrations'
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Failed to create calibrations'
+                ], 400);
+            }
 
             // For AJAX requests
             if ($request->ajax() || $request->wantsJson()) {
@@ -265,8 +311,7 @@ public function createBulkCalibrations(Request $request)
             }
 
             // For regular form submissions, redirect with session flash
-            return redirect()->route('calibrations.index')
-                ->with('success', $result['message'] ?? 'Calibrations created successfully');
+            return redirect()->route('calibration')->with('success', 'Calibrations created successfully');
 
         } catch (\Exception $e) {
             \Log::error('Exception during bulk calibration creation:', [
@@ -274,19 +319,19 @@ public function createBulkCalibrations(Request $request)
                 'trace' => $e->getTraceAsString()
             ]);
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to create calibrations: ' . $e->getMessage()
-        ], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create calibrations: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     /**
      * Update a calibration record.
      *
      * @param Request $request
      * @param int $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $id)
     {
@@ -310,8 +355,6 @@ public function createBulkCalibrations(Request $request)
                 'request_url' => $request->fullUrl()
             ]);
 
-            // Prepare request data - ONLY include the fields that were submitted
-            // Don't use except() as it will include empty fields
             $requestData = [];
             $fields = [
                 'actual_calibration_date',
@@ -405,8 +448,7 @@ public function createBulkCalibrations(Request $request)
             }
 
             // For regular form submissions, redirect with session flash
-            return redirect()->route('calibrations.index')
-                ->with('success', 'Calibration telah dilakukan');
+            return redirect()->route('calibration')->with('success', 'Calibration telah dilakukan');
 
         } catch (\Exception $e) {
             \Log::error('Exception during calibration update:', [
@@ -425,7 +467,7 @@ public function createBulkCalibrations(Request $request)
      * Delete a calibration record or multiple records.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function destroy(Request $request)
     {
@@ -516,8 +558,7 @@ public function createBulkCalibrations(Request $request)
             }
 
             // For regular form submissions, redirect with session flash
-            return redirect()->route('calibrations.index')
-                ->with('success', $result['message'] ?? 'Calibrations deleted successfully');
+            return redirect()->route('calibration')->with('success', 'Calibrations deleted successfully');
 
         } catch (\Exception $e) {
             \Log::error('Exception during calibration deletion:', [

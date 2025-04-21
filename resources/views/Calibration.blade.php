@@ -41,14 +41,16 @@
                             <select id="statusFilter"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="">All Status</option>
-                                <option value="scheduled">Scheduled</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                                <option value="overdue">Overdue</option>
+                                <option value="scheduled">scheduled</option>
+                                <option value="in_progress">in_progress</option>
+                                <option value="completed">completed</option>
+                                <option value="cancelled">cancelled</option>
                             </select>
-                            <button id="filterBtn" class="px-4 py-2 bg-[#213268] text-white rounded-lg">
-                                Apply Filter
-                            </button>
+                            <select id="sortOrder"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                            </select>
                             <button id="bulkDeleteBtn" class="hidden px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200">
                                 Delete Selected
                             </button>
@@ -732,8 +734,147 @@
         </div>
     </div>
 
+    <!-- Success and Error Notifications -->
+    @if(session('success'))
+        <div id="successNotification"
+            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
+            role="alert">
+            <div class="flex items-center">
+                <div class="py-1">
+                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">Berhasil!</p>
+                    <p>{{ session('success') }}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+            </div>
+        </div>
+
+        <script>
+            setTimeout(function () {
+                const notification = document.getElementById('successNotification');
+                if (notification) {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function () {
+                        notification.remove();
+                    }, 500);
+                }
+            }, 5000); // Hide after 5 seconds
+        </script>
+    @endif
+
+    @if(session('error'))
+        <div id="errorNotification"
+            class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
+            role="alert">
+            <div class="flex items-center">
+                <div class="py-1">
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">Gagal!</p>
+                    <p>{{ session('error') }}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+            </div>
+        </div>
+
+        <script>
+            setTimeout(function () {
+                const notification = document.getElementById('errorNotification');
+                if (notification) {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function () {
+                        notification.remove();
+                    }, 500);
+                }
+            }, 5000); // Hide after 5 seconds
+        </script>
+    @endif
+
+    @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Mengatur tanggal minimum untuk input tanggal (tidak bisa memilih tanggal yang sudah lewat)
+            const today = new Date().toISOString().split('T')[0];
+
+            // Set min attribute untuk planning_calibration_date di modal add calibration
+            const planningDateInput = document.getElementById('planning_calibration_date');
+            if (planningDateInput) {
+                planningDateInput.setAttribute('min', today);
+            }
+
+            // Set min attribute untuk next_calibration_date di modal perform calibration
+            const nextCalibrationDateInput = document.getElementById('next_calibration_date');
+            if (nextCalibrationDateInput) {
+                nextCalibrationDateInput.setAttribute('min', today);
+            }
+
+            // Define a showToast function that creates notifications in the same style as the static ones
+            window.showToast = function(message, type = 'success') {
+                // Remove existing notifications with the same type
+                const existingNotification = document.getElementById(type === 'success' ? 'successNotification' : 'errorNotification');
+                if (existingNotification) {
+                    existingNotification.remove();
+                }
+
+                // Create the notification element
+                const notification = document.createElement('div');
+                notification.id = type === 'success' ? 'successNotification' : 'errorNotification';
+                notification.className = `fixed top-4 right-4 bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md z-50`;
+                notification.setAttribute('role', 'alert');
+
+                // Set inner HTML
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-${type === 'success' ? 'green' : 'red'}-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="${type === 'success' ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'}" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
+                            <p>${message}</p>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+
+                // Add to document
+                document.body.appendChild(notification);
+
+                // Auto-hide after 5 seconds
+                setTimeout(function() {
+                    if (document.getElementById(notification.id)) {
+                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(function() {
+                            if (document.getElementById(notification.id)) {
+                                notification.remove();
+                            }
+                        }, 500);
+                    }
+                }, 5000);
+
+                return notification;
+            };
+
+            // Show flash messages with the showToast function
+            @if(session('success'))
+            showToast("{{ session('success') }}", 'success');
+            @endif
+
+            @if(session('error'))
+            showToast("{{ session('error') }}", 'error');
+            @endif
+
             // Handle 'Select All' checkbox for calibrations table
             const selectAllCalibrations = document.getElementById('selectAllCalibrations');
             if (selectAllCalibrations) {
@@ -820,37 +961,55 @@
                 window.location.href = url.toString();
             }
 
-            // Apply filter function
-            document.getElementById('filterBtn').addEventListener('click', function () {
+            // Status filter - apply immediately on change
+            document.getElementById('statusFilter').addEventListener('change', function() {
+                applyFilters();
+            });
+
+            // Sort order - apply immediately on change
+            document.getElementById('sortOrder').addEventListener('change', function() {
+                applyFilters();
+            });
+
+            // Function to apply all filters and sorting
+            function applyFilters() {
                 const searchTerm = document.getElementById('searchInput').value;
                 const statusFilter = document.getElementById('statusFilter').value;
+                const sortOrder = document.getElementById('sortOrder').value;
 
                 const url = new URL(window.location.href);
+
+                // Set search parameter
                 if (searchTerm) url.searchParams.set('search', searchTerm);
                 else url.searchParams.delete('search');
 
+                // Set status parameter
                 if (statusFilter) url.searchParams.set('status', statusFilter);
                 else url.searchParams.delete('status');
 
-                url.searchParams.set('page', 1); // Reset to first page on filter change
+                // Set sort parameter
+                if (sortOrder) url.searchParams.set('sort', sortOrder);
+                else url.searchParams.delete('sort');
+
+                // Reset to first page on filter change
+                url.searchParams.set('page', 1);
+
+                // Redirect to new URL with filters
                 window.location.href = url.toString();
-            });
+            }
 
-            // Search input - submit on enter key
-            document.getElementById('searchInput').addEventListener('keyup', function (event) {
-                if (event.key === 'Enter') {
-                    document.getElementById('filterBtn').click();
-                }
-            });
+            // Search input - apply filters on debounce
+            document.getElementById('searchInput')?.addEventListener('input', debounce(function() {
+                applyFilters();
+            }, 500));
 
-            // Set existing search and filter values
+            // Set existing sort value from URL
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('search')) {
-                document.getElementById('searchInput').value = urlParams.get('search');
+            if (urlParams.has('sort')) {
+                document.getElementById('sortOrder').value = urlParams.get('sort');
             }
-            if (urlParams.has('status')) {
-                document.getElementById('statusFilter').value = urlParams.get('status');
-            }
+
+            // Remove the old event listener and filterBtn click handler since we don't need them anymore
 
             // Modal handling
             const modals = {
@@ -897,6 +1056,13 @@
 
             // Add Calibration Button Click Handler
             document.getElementById('addCalibrationBtn').addEventListener('click', function() {
+                // Set min date untuk planning_calibration_date setiap kali modal dibuka
+                const today = new Date().toISOString().split('T')[0];
+                const planningDateInput = document.getElementById('planning_calibration_date');
+                if (planningDateInput) {
+                    planningDateInput.setAttribute('min', today);
+                }
+
                 openModal(modals.add, modalContents.add);
             });
 
@@ -952,6 +1118,12 @@
                     // Set current date as work date by default when modal opens
                     const today = new Date().toISOString().split('T')[0];
                     document.getElementById('actual_calibration_date').value = today;
+
+                    // Set min date untuk next_calibration_date setiap kali modal dibuka
+                    const nextCalibrationDateInput = document.getElementById('next_calibration_date');
+                    if (nextCalibrationDateInput) {
+                        nextCalibrationDateInput.setAttribute('min', today);
+                    }
 
                     // Load vendors for dropdown
                     loadVendors();
@@ -1120,13 +1292,8 @@
                     closeModal(modals.delete, modalContents.delete);
 
                     if (data.success) {
-                        // Show toast notification directly
-                        showToast(data.message || 'Calibration(s) deleted successfully', 'success');
-
-                        // Reload the page after a short delay
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
+                        // Jangan redirect dengan JavaScript, biarkan server redirect dengan flash message
+                        window.location.reload(); // Atau gunakan form submit normal
                     } else {
                         showToast(data.message || 'Failed to delete calibration', 'error');
                         console.error('Delete error:', data.errors);
@@ -1166,13 +1333,9 @@
                             // Close the modal
                             closeModal(modals.view, modalContents.view);
 
-                            // Change the success message to "Calibration telah dilakukan"
-                            showToast('Calibration telah dilakukan', 'success');
-
-                            // Reload the page after a short delay to see the changes
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
+                            // Redirect to index page instead of showing toast directly
+                            // The toast will be shown via session after redirect
+                            window.location.href = "{{ route('calibration') }}";
                         } else {
                             showToast(data.message || 'Failed to update calibration', 'error');
                         }
@@ -1591,22 +1754,18 @@
                         // Close the modal
                         closeModal(document.getElementById('addCalibrationModal'), document.getElementById('addCalibrationModalContent'));
 
-                            // Show success message
-                            showToast(data.message, 'success');
-
-                            // Reload the page to show the new calibrations
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-                        } else {
-                            // Show error message
-                            showToast(data.message, 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error creating calibrations:', error);
-                        showToast('An error occurred while creating calibrations.', 'error');
-                    });
+                        // Redirect to index page instead of showing toast directly
+                        // The toast will be shown via session after redirect
+                        window.location.href = "{{ route('calibration') }}";
+                    } else {
+                        // Show error message
+                        showToast(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error creating calibrations:', error);
+                    showToast('An error occurred while creating calibrations.', 'error');
+                });
             });
 
             // Per page selection
@@ -1614,111 +1773,19 @@
                 loadAssets(1);
             });
 
-            // Add a toast notification function
-            function showToast(message, type = 'success') {
-                const id = type === 'success' ? 'successNotification' : 'errorNotification';
-                const color = type === 'success' ? 'green' : 'red';
-                const icon = type === 'success'
-                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />';
-
-                // Create toast element
-                const toast = document.createElement('div');
-                toast.id = id;
-                toast.className = `fixed top-4 right-4 bg-${color}-100 border-l-4 border-${color}-500 text-${color}-700 p-4 rounded shadow-md z-50`;
-                toast.role = 'alert';
-
-                toast.innerHTML = `
-                                                                                                                <div class="flex items-center">
-                                                                                                                    <div class="py-1">
-                                                                                                                        <svg class="h-6 w-6 text-${color}-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                                            ${icon}
-                                                                                                                        </svg>
-                                                                                                                    </div>
-                                                                                                                    <div>
-                                                                                                                        <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
-                                                                                                                        <p>${message}</p>
-                                                                                                                    </div>
-                                                                                                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                                                                                                </div>
-                                                                                                            `;
-
-                // Add to document
-                document.body.appendChild(toast);
-
-                // Remove after 5 seconds
-                setTimeout(function () {
-                    toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function () {
-                        toast.remove();
-                    }, 500);
-                }, 5000);
+            // Debounce function (reuse the existing one in the file)
+            function debounce(func, wait) {
+                let timeout;
+                return function () {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        func.apply(context, args);
+                    }, wait);
+                };
             }
         });
     </script>
-
-    <!--Success and Error Notifications -->
-    @if(session('success'))
-        <div id="successNotification"
-            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
-            role="alert">
-            <div class="flex items-center">
-                <div class="py-1">
-                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">Success!</p>
-                    <p>{{ session('success') }}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-            </div>
-        </div>
-
-        <script>
-            setTimeout(function () {
-                const notification = document.getElementById('successNotification');
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function () {
-                        notification.remove();
-                    }, 500);
-                }
-            }, 5000); // Hide after 5 seconds
-        </script>
-    @endif
-
-    @if(session('error'))
-        <div id="errorNotification"
-            class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
-            role="alert">
-            <div class="flex items-center">
-                <div class="py-1">
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">Error!</p>
-                    <p>{{ session('error') }}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-            </div>
-        </div>
-
-        <script>
-            setTimeout(function () {
-                const notification = document.getElementById('errorNotification');
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function () {
-                        notification.remove();
-                    }, 500);
-                }
-            }, 5000); // Hide after 5 seconds
-        </script>
-    @endif
+    @endpush
 @endsection
