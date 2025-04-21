@@ -172,7 +172,7 @@
                     style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     @php
                         $reportSubmenuItems = [
-                            ['route' => 'opname', 'name' => 'Opname Report'],
+                            ['route' => 'report.opname', 'name' => 'Opname Report'],
                             ['route' => 'report.maintenance', 'name' => 'Maintenance Report'],
                             ['route' => 'report.calibration', 'name' => 'Calibration Report'],
                             ['route' => 'report.finance', 'name' => 'Finance Report'],

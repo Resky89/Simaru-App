@@ -21,6 +21,7 @@ use App\Http\Controllers\ProcurementDetailRequestController;
 use App\Http\Controllers\AssetFinanceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CalibrationController;
+use App\Http\Controllers\OpnameReportController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -254,12 +255,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/inspection', function () {
             return view('Report.InspectionReport');
         })->name('inspection');
+        Route::get('/opname', [OpnameReportController::class, 'index'])->name('opname');
     });
-
-    // Opname
-    Route::get('/opname', function () {
-        return view('Opname');
-    })->name('opname');
 
     // Asset QR routes
     Route::post('/assets/qr/generate-bulk', [ViewAssetController::class, 'generateBulkQR'])->name('assets.qr.generate-bulk');
@@ -297,6 +294,10 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::delete('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'deleteTransaction'])->name('asset-transactions.destroy');
     Route::post('/asset-transactions', [AssetFinanceController::class, 'createTransaction'])->name('asset-transactions.store');
     Route::get('/asset-transactions/{transactionId}', [AssetFinanceController::class, 'getTransaction'])->name('asset-transactions.show');
+
+    // Opname report routes
+    Route::get('/opnames', [OpnameReportController::class, 'getAllOpnames'])->name('opnames.getAll');
+    Route::get('/opname-detail/{id}', [OpnameReportController::class, 'showOpnameDetail'])->name('opnames.detail');
 });
 
 // Fallback route for 404 errors
