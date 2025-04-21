@@ -895,6 +895,11 @@
                 });
             });
 
+            // Add Calibration Button Click Handler
+            document.getElementById('addCalibrationBtn').addEventListener('click', function() {
+                openModal(modals.add, modalContents.add);
+            });
+
             // Load vendors for dropdown
             function loadVendors() {
                 console.log('Loading vendors...');
