@@ -250,7 +250,7 @@ class OpnameReportController extends Controller
      *
      * @param int $id
      * @param Request $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function exportOpnameDetailPDF($id, Request $request)
     {
