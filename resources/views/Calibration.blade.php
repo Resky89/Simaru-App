@@ -801,7 +801,19 @@
 
     @push('scripts')
     <script>
+        // Flash messages from server
+        const flashSuccess = @json(session('success') ?? null);
+        const flashError = @json(session('error') ?? null);
+
         document.addEventListener('DOMContentLoaded', function () {
+            // Check for flash messages on page load that didn't trigger the toast
+            if (typeof flashSuccess !== 'undefined' && flashSuccess) {
+                showToast(flashSuccess, 'success');
+            }
+            if (typeof flashError !== 'undefined' && flashError) {
+                showToast(flashError, 'error');
+            }
+
             // Mengatur tanggal minimum untuk input tanggal (tidak bisa memilih tanggal yang sudah lewat)
             const today = new Date().toISOString().split('T')[0];
 
@@ -819,6 +831,8 @@
 
             // Define a showToast function that creates notifications in the same style as the static ones
             window.showToast = function(message, type = 'success') {
+                console.log('Showing toast:', message, type); // Debug log
+
                 // Remove existing notifications with the same type
                 const existingNotification = document.getElementById(type === 'success' ? 'successNotification' : 'errorNotification');
                 if (existingNotification) {
@@ -1292,8 +1306,13 @@
                     closeModal(modals.delete, modalContents.delete);
 
                     if (data.success) {
-                        // Jangan redirect dengan JavaScript, biarkan server redirect dengan flash message
-                        window.location.reload(); // Atau gunakan form submit normal
+                        // Show toast notification first
+                        showToast(data.message || 'Calibrations deleted successfully', 'success');
+
+                        // Delay the redirect slightly to allow the toast to be seen
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
                     } else {
                         showToast(data.message || 'Failed to delete calibration', 'error');
                         console.error('Delete error:', data.errors);
@@ -1333,9 +1352,13 @@
                             // Close the modal
                             closeModal(modals.view, modalContents.view);
 
-                            // Redirect to index page instead of showing toast directly
-                            // The toast will be shown via session after redirect
-                            window.location.href = "{{ route('calibration') }}";
+                            // Show toast notification first
+                            showToast(data.message || 'Calibration updated successfully', 'success');
+
+                            // Delay the redirect slightly to allow the toast to be seen
+                            setTimeout(() => {
+                                window.location.href = "{{ route('calibration') }}";
+                            }, 1000);
                         } else {
                             showToast(data.message || 'Failed to update calibration', 'error');
                         }
@@ -1754,9 +1777,13 @@
                         // Close the modal
                         closeModal(document.getElementById('addCalibrationModal'), document.getElementById('addCalibrationModalContent'));
 
-                        // Redirect to index page instead of showing toast directly
-                        // The toast will be shown via session after redirect
-                        window.location.href = "{{ route('calibration') }}";
+                        // Show toast notification first
+                        showToast(data.message || 'Calibrations created successfully', 'success');
+
+                        // Delay the redirect slightly to allow the toast to be seen
+                        setTimeout(() => {
+                            window.location.href = "{{ route('calibration') }}";
+                        }, 1000);
                     } else {
                         // Show error message
                         showToast(data.message, 'error');
