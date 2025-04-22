@@ -298,6 +298,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Opname report routes
     Route::get('/opnames', [OpnameReportController::class, 'getAllOpnames'])->name('opnames.getAll');
     Route::get('/opname-detail/{id}', [OpnameReportController::class, 'showOpnameDetail'])->name('opnames.detail');
+    Route::get('/opname-detail/{id}/export-pdf', [OpnameReportController::class, 'exportOpnameDetailPDF'])->name('opnames.export.pdf');
 });
 
 // Fallback route for 404 errors

@@ -45,12 +45,12 @@
 
                     <!-- Export Buttons -->
                     <div class="flex gap-2">
-                        <button class="flex items-center gap-2 px-4 py-2 bg-white border border-[#D8DAE5] rounded-md text-[#213268] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-200">
+                        <a href="{{ route('opnames.export.pdf', ['id' => $opnameId]) }}" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-white border border-[#D8DAE5] rounded-md text-[#213268] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             Export PDF
-                        </button>
+                        </a>
                         <button class="flex items-center gap-2 px-4 py-2 bg-white border border-[#D8DAE5] rounded-md text-[#213268] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

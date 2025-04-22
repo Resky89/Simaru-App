@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OpnameReportController extends Controller
 {
@@ -161,8 +162,6 @@ class OpnameReportController extends Controller
         }
     }
 
-
-
     /**
      * Display the opname detail page.
      *
@@ -243,6 +242,76 @@ class OpnameReportController extends Controller
                 'roomInfo' => null,
                 'error' => 'Failed to retrieve opname details: ' . $e->getMessage()
             ]);
+        }
+    }
+
+    /**
+     * Export opname detail as PDF
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function exportOpnameDetailPDF($id, Request $request)
+    {
+        try {
+            \Log::info('Starting opname detail PDF export', ['id' => $id]);
+
+            // Use the exact same data retrieval approach as showOpnameDetail
+            $result = $this->apiService->request('GET', "/asset-opname-details/opname/{$id}", [
+                'query' => [
+                    'page' => 1,
+                    'limit' => 100 // Large limit to get all data
+                ]
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during opname detail PDF export', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed',
+                    'opname_id' => $id
+                ]);
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Extract data exactly like in showOpnameDetail method - using data directly from server
+            $opnameData = $result ?? [];
+            $details = $opnameData['data'] ?? [];
+            $opnameCode = !empty($details) && isset($details[0]['opname_code']) ? $details[0]['opname_code'] : 'N/A';
+            $summary = $opnameData['summary'] ?? [];
+            $roomInfo = $opnameData['room_info'] ?? [];
+
+            \Log::info('Data prepared for PDF export', [
+                'opnameCode' => $opnameCode,
+                'details_count' => count($details),
+                'has_summary' => !empty($summary),
+                'has_roomInfo' => !empty($roomInfo)
+            ]);
+
+            // Create the PDF with the data - exactly matching the structure used in the view
+            $pdf = Pdf::loadView('Report.OpnameReport.OpnameDetailPDF', [
+                'opnameId' => $id,
+                'opnameCode' => $opnameCode,
+                'details' => $details,
+                'pagination' => null, // Not needed for PDF
+                'summary' => $summary,
+                'roomInfo' => $roomInfo,
+            ]);
+
+            // Set paper size and orientation
+            $pdf->setPaper('a4', 'portrait');
+
+            \Log::info('PDF generation successful, streaming to browser');
+            return $pdf->stream("opname_detail_{$id}.pdf");
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during opname detail PDF export', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'opname_id' => $id
+            ]);
+            return redirect()->back()->with('error', 'Failed to export opname detail as PDF: ' . $e->getMessage());
         }
     }
 }
