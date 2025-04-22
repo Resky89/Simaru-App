@@ -22,6 +22,7 @@ use App\Http\Controllers\AssetFinanceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CalibrationController;
 use App\Http\Controllers\OpnameReportController;
+use App\Http\Controllers\FinanceReportController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -249,9 +250,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/maintenance', function () {
             return view('Report.MaintenanceReport');
         })->name('maintenance');
-        Route::get('/finance', function () {
-            return view('Report.FinanceReport');
-        })->name('finance');
+        Route::get('/finance', [FinanceReportController::class, 'getAllTransactions'])->name('finance');
+        Route::get('/finance/export-pdf', [FinanceReportController::class, 'exportFinanceReportPDF'])->name('finance.export.pdf');
         Route::get('/inspection', function () {
             return view('Report.InspectionReport');
         })->name('inspection');
