@@ -23,6 +23,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CalibrationController;
 use App\Http\Controllers\OpnameReportController;
 use App\Http\Controllers\FinanceReportController;
+use App\Http\Controllers\ComplainRepairController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -238,9 +239,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Report Routes
     Route::prefix('report')->name('report.')->group(function () {
-        Route::get('/complain', function () {
-            return view('Report.ComplainReport');
-        })->name('complain');
+        Route::get('/complain', [ComplainRepairController::class, 'getAllComplaints'])->name('complain');
+        Route::get('/complain/export-pdf', [ComplainRepairController::class, 'exportComplaintPDF'])->name('complain.export.pdf');
         Route::get('/depreciation', function () {
             return view('Report.DepreciationReport');
         })->name('depreciation');
@@ -299,6 +299,13 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::get('/opnames', [OpnameReportController::class, 'getAllOpnames'])->name('opnames.getAll');
     Route::get('/opname-detail/{id}', [OpnameReportController::class, 'showOpnameDetail'])->name('opnames.detail');
     Route::get('/opname-detail/{id}/export-pdf', [OpnameReportController::class, 'exportOpnameDetailPDF'])->name('opnames.export.pdf');
+
+    // Complaint & Repair Routes
+    Route::prefix('complaint-repair')->name('complaint.')->group(function () {
+        Route::get('/', [ComplainRepairController::class, 'getAllComplaints'])->name('index');
+        Route::get('/detail/{id}', [ComplainRepairController::class, 'showComplaintDetail'])->name('detail');
+        Route::get('/export-pdf', [ComplainRepairController::class, 'exportComplaintPDF'])->name('export.pdf');
+    });
 });
 
 // Fallback route for 404 errors
