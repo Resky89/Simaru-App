@@ -113,7 +113,7 @@ class FinanceReportController extends Controller
                     ], 400);
                 }
 
-                return view('Report.FinanceReport', [
+                return view('Report.FinanceReport.FinanceReport', [
                     'transactions' => [],
                     'pagination' => null,
                     'search' => $search,
@@ -137,7 +137,7 @@ class FinanceReportController extends Controller
             }
 
             // For regular requests, return view
-            return view('Report.FinanceReport', [
+            return view('Report.FinanceReport.FinanceReport', [
                 'transactions' => $transactions,
                 'pagination' => $pagination,
                 'search' => $search,
@@ -157,7 +157,7 @@ class FinanceReportController extends Controller
                 ], 500);
             }
 
-            return view('Report.FinanceReport', [
+            return view('Report.FinanceReport.FinanceReport', [
                 'transactions' => [],
                 'pagination' => null,
                 'search' => $search,
@@ -231,7 +231,7 @@ class FinanceReportController extends Controller
             ]);
 
             // Create the PDF with the data
-            $pdf = Pdf::loadView('Report.FinanceReportPDF', [
+            $pdf = Pdf::loadView('Report.FinanceReport.FinanceReportPDF', [
                 'transactions' => $transactions,
                 'search' => $search,
                 'sort' => $sort
