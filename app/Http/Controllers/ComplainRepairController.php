@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ComplainRepairController extends Controller
 {
@@ -221,7 +222,7 @@ class ComplainRepairController extends Controller
             }
 
             // For regular requests, return view
-            return view('ComplainRepair.ComplaintDetail', [
+            return view('ComplainRepair.ComplainRepairDetail', [
                 'complaint' => $complaint
             ]);
 
@@ -240,6 +241,105 @@ class ComplainRepairController extends Controller
             }
 
             return redirect()->route('complaint.index')->with('error', 'Failed to retrieve complaint detail: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export complaints data to PDF
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function exportComplaintPDF(Request $request)
+    {
+        try {
+            // Get filter parameters
+            $search = $request->input('search', '');
+            $sort = $request->input('sort', 'newest');
+            $status = $request->input('status', '');
+
+            // Log request info
+            \Log::info('Exporting complaints to PDF with parameters:', [
+                'search' => $search,
+                'sort' => $sort,
+                'status' => $status,
+                'request_url' => $request->fullUrl()
+            ]);
+
+            // Build query parameters
+            $queryParams = [
+                'page' => 1,
+                'limit' => 1000  // Get a large number for export
+            ];
+
+            // Add search parameter if provided
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            // Add status filter if provided
+            if (!empty($status)) {
+                $queryParams['status'] = $status;
+            }
+
+            // Handle sorting
+            switch ($sort) {
+                case 'newest':
+                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
+                case 'oldest':
+                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                default:
+                    // Default sort (newest first)
+                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_order'] = 'desc';
+            }
+
+            // Fetch complaints from API
+            $result = $this->apiService->request('GET', '/complaints', [
+                'query' => $queryParams
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during complaints export:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Get complaints data
+            $complaints = $result['data'] ?? [];
+
+            // Generate PDF
+            $pdf = Pdf::loadView('ComplainRepair.ComplainRepairPDF', [
+                'complaints' => $complaints,
+                'search' => $search,
+                'sort' => $sort,
+                'status' => $status,
+                'date_generated' => now()->format('d M Y H:i:s')
+            ]);
+
+            // Log PDF generation
+            \Log::info('Complaints PDF generated successfully', [
+                'complaints_count' => count($complaints)
+            ]);
+
+            // Stream the PDF to browser
+            return $pdf->stream('complaint_report_' . now()->format('YmdHis') . '.pdf');
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during complaints PDF export:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to export Complain and Repair as PDF: ' . $e->getMessage());
         }
     }
 }

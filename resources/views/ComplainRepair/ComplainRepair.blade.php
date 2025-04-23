@@ -306,7 +306,7 @@
             const searchParams = url.searchParams;
 
             // Create the PDF export URL with the same parameters
-            const exportUrl = "{{ route('report.complain.export.pdf') }}?" + searchParams.toString();
+            const exportUrl = "{{ route('complaint.export.pdf') }}?" + searchParams.toString();
 
             // Redirect to the export URL
             window.open(exportUrl, '_blank');
