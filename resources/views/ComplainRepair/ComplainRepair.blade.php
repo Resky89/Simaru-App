@@ -12,13 +12,23 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">COMPLAINT & REPAIR</h1>
 
-                    <!-- Button Export PDF -->
-                    <button id="exportBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        <span class="text-base">Export PDF</span>
-                    </button>
+                    <div class="flex gap-3">
+                        <!-- Create Complaint Button -->
+                        <button id="createComplaintBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            <span class="text-base">Create Complaint</span>
+                        </button>
+
+                        <!-- Button Export PDF -->
+                        <button id="exportBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            <span class="text-base">Export PDF</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Search and Filter -->
@@ -226,14 +236,133 @@
     </div>
 </div>
 
+
+<!-- Create Complaint Modal -->
+<div id="createComplaintModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="createComplaintModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">CREATE COMPLAINT</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Error messages container -->
+                <div id="errorMessages" class="px-6 pt-4"></div>
+
+                <!-- Form -->
+                <form id="complaintForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <!-- Complaint Information Section -->
+                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Complaint Information</h3>
+
+                            <!-- Asset Selection -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Asset*</label>
+                                <select id="assetId" name="asset_id" required
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                    <option value="" selected disabled>Select an asset</option>
+                                    @foreach($assets ?? [] as $asset)
+                                        <option value="{{ $asset['asset_id'] }}">{{ $asset['asset_name'] }} (ID: {{ $asset['asset_id'] }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Description*</label>
+                                <textarea id="description" name="description" rows="4" required
+                                    class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
+                                    placeholder="Describe the issue..."></textarea>
+                            </div>
+
+                            <!-- Image Upload -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Image*</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-blue-600">browse</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png (Max file size: 5MB)</p>
+                                    </div>
+                                    <input id="imageFile" name="image_file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" required />
+                                    <!-- Preview image container -->
+                                    <div id="imagePreview" class="mt-4 w-full hidden">
+                                        <div class="relative">
+                                            <img id="previewImg" src="#" alt="Preview" class="max-h-40 mx-auto rounded-lg">
+                                            <button type="button" id="removeImage" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                Create Complaint
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // ===== VARIABLE DECLARATIONS =====
+        // DOM Elements
+        const imageFile = document.getElementById('imageFile');
+        const previewImg = document.getElementById('previewImg');
+        const imagePreview = document.getElementById('imagePreview');
+        const removeImage = document.getElementById('removeImage');
+        const complaintForm = document.getElementById('complaintForm');
+        const errorMsgDiv = document.getElementById('errorMessages');
+        const createComplaintBtn = document.getElementById('createComplaintBtn');
+        const createComplaintModal = document.getElementById('createComplaintModal');
+        const createComplaintModalContent = document.getElementById('createComplaintModalContent');
+        const closeModalBtns = document.querySelectorAll('.close-modal');
         const exportBtn = document.getElementById('exportBtn');
         const searchInput = document.getElementById('searchInput');
         const sortOrder = document.getElementById('sortOrder');
         const statusFilter = document.getElementById('statusFilter');
         const perPageSelect = document.getElementById('perPageSelect');
+        const assetIdSelect = document.getElementById('assetId');
+
+        // ===== UTILITY FUNCTIONS =====
+        // Modal functions
+        function openModal(modal, content) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+            }, 10);
+        }
+
+        function closeModal(modal, content) {
+            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
 
         // Debounce function to limit how often search is triggered
         function debounce(func, wait) {
@@ -279,14 +408,130 @@
             window.location.href = url.toString();
         }
 
-        // Function to change items per page
-        window.changePerPage = function(limit) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('limit', limit);
-            window.location.href = url.toString();
+        // ===== DATA LOADING FUNCTIONS =====
+        function showNotification(title, message, type = 'info') {
+            // Check if notification container exists, if not create it
+            let notificationContainer = document.getElementById('notification-container');
+
+            if (!notificationContainer) {
+                notificationContainer = document.createElement('div');
+                notificationContainer.id = 'notification-container';
+                notificationContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-md';
+                document.body.appendChild(notificationContainer);
+            }
+
+            // Create notification element
+            const notification = document.createElement('div');
+
+            // Set classes based on notification type
+            let bgColor = 'bg-blue-500';
+            if (type === 'success') bgColor = 'bg-green-500';
+            if (type === 'error') bgColor = 'bg-red-500';
+            if (type === 'warning') bgColor = 'bg-yellow-500';
+
+            notification.className = `${bgColor} text-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-in-out transform translate-x-0`;
+
+            // Set notification content
+            notification.innerHTML = `
+                <div class="p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            ${type === 'success'
+                                ? `<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                  </svg>`
+                                : `<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                  </svg>`
+                            }
+                        </div>
+                        <div class="ml-3 w-0 flex-1">
+                            <p class="text-sm font-medium">${title}</p>
+                            <p class="mt-1 text-sm">${message}</p>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex">
+                            <button class="inline-flex text-white focus:outline-none focus:text-gray-300">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add close functionality
+            const closeBtn = notification.querySelector('button');
+            closeBtn.addEventListener('click', () => {
+                notification.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+
+            // Add to container
+            notificationContainer.appendChild(notification);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
         }
 
-        // Add event listeners
+        imageFile?.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                }
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        removeImage?.addEventListener('click', function() {
+            imageFile.value = '';
+            imagePreview.classList.add('hidden');
+            previewImg.src = '#';
+        });
+
+        // Modal Controls
+        createComplaintBtn?.addEventListener('click', function() {
+            openModal(createComplaintModal, createComplaintModalContent);
+
+            // Clear form and error messages
+            complaintForm?.reset();
+            if (errorMsgDiv) errorMsgDiv.innerHTML = '';
+
+            // Reset image preview
+            if (imagePreview) {
+                imagePreview.classList.add('hidden');
+            }
+        });
+
+        closeModalBtns?.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('[id$="Modal"]');
+                const content = modal.querySelector('[id$="ModalContent"]');
+                if (modal && content) {
+                    closeModal(modal, content);
+                }
+            });
+        });
+
+        createComplaintModal?.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeModal(createComplaintModal, createComplaintModalContent);
+            }
+        });
+
+        // Search and Filtering
         searchInput?.addEventListener('input', debounce(function() {
             applyFilters();
         }, 500));
@@ -311,13 +556,151 @@
             // Redirect to the export URL
             window.open(exportUrl, '_blank');
         });
-    });
 
-    // Function to view complaint details
+        // Function to change items per page
+        window.changePerPage = function(limit) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', limit);
+            window.location.href = url.toString();
+        }
+
+        // ===== FORM SUBMISSION =====
+        complaintForm?.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(complaintForm);
+
+            // Validate form
+            let isValid = true;
+            let errorMessage = '';
+
+            // Basic validation for required fields
+            if (!formData.get('asset_id')) {
+                isValid = false;
+                errorMessage = 'Asset is required';
+            }
+
+            if (!formData.get('description').trim()) {
+                isValid = false;
+                errorMessage = 'Description is required';
+            }
+
+            // Check for image file
+            if (!formData.get('image_file') || formData.get('image_file').size === 0) {
+                isValid = false;
+                errorMessage = 'Image is required';
+            }
+
+            // If validation fails, show error and exit
+            if (!isValid) {
+                errorMsgDiv.innerHTML = `
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                        <p class="font-bold">Validation Error</p>
+                        <p>${errorMessage}</p>
+                    </div>
+                `;
+                errorMsgDiv.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = complaintForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing...
+            `;
+
+            // Submit form data
+            fetch('{{ route('complaint.create') }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+
+                if (data.status) {
+                    // Success - close modal and reload page
+                    closeModal(createComplaintModal, createComplaintModalContent);
+
+                    // Show success message
+                    showNotification('Success', data.message, 'success');
+
+                    // Reload the page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Show validation errors
+                    if (data.errors) {
+                        let errorHtml = '<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">';
+                        errorHtml += '<p class="font-bold">Validation errors:</p><ul class="list-disc pl-5">';
+
+                        Object.keys(data.errors).forEach(field => {
+                            data.errors[field].forEach(error => {
+                                errorHtml += `<li>${error}</li>`;
+                            });
+                        });
+
+                        errorHtml += '</ul></div>';
+                        errorMsgDiv.innerHTML = errorHtml;
+                    } else {
+                        // Show general error message
+                        errorMsgDiv.innerHTML = `
+                            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                                <p class="font-bold">Error</p>
+                                <p>${data.message || 'An error occurred while creating the complaint.'}</p>
+                            </div>
+                        `;
+                    }
+
+                    // Scroll to error messages
+                    errorMsgDiv.scrollIntoView({ behavior: 'smooth' });
+                    }
+                })
+                .catch(error => {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+
+                // Show error message
+                errorMsgDiv.innerHTML = `
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                        <p class="font-bold">Error</p>
+                        <p>An unexpected error occurred. Please try again.</p>
+                    </div>
+                `;
+                console.error('Error submitting complaint:', error);
+            });
+        });
+
+        // ===== GLOBAL FUNCTIONS =====
+        // Function to view complaint details - defined globally
+        function viewComplaintDetails(id) {
+            // Redirect to the complaint detail page
+            window.location.href = "{{ route('complaint.detail', '') }}/" + id;
+        }
+    });
+</script>
+
+<script>
+    // ===== GLOBAL FUNCTIONS =====
+    // Function to view complaint details - defined globally
     function viewComplaintDetails(id) {
         // Redirect to the complaint detail page
         window.location.href = "{{ route('complaint.detail', '') }}/" + id;
     }
 </script>
 @endpush
-@endsection
+

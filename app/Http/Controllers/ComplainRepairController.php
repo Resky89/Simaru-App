@@ -79,6 +79,18 @@ class ComplainRepairController extends Controller
                 'query' => $queryParams
             ]);
 
+            // Fetch subcategories for dropdown
+            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
+
+            // Fetch assets for dropdown (limited number for initial load)
+            $assetsResult = $this->apiService->request('GET', '/assets', [
+                'query' => [
+                    'limit' => 100,
+                    'sort_by' => 'asset_name',
+                    'sort_order' => 'asc'
+                ]
+            ]);
+
             // Log API response for debugging
             \Log::info('API response for complaints:', [
                 'api_response_status' => $result['status'] ?? null,
@@ -107,6 +119,22 @@ class ComplainRepairController extends Controller
             $complaints = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
 
+            // Parse subcategories and group by asset type
+            $subcategories = $subcategoriesResult['data'] ?? [];
+            $medicalSubcategories = [];
+            $nonMedicalSubcategories = [];
+
+            foreach ($subcategories as $subcategory) {
+                if (isset($subcategory['asset_type']) && $subcategory['asset_type'] === 'medical') {
+                    $medicalSubcategories[] = $subcategory;
+                } elseif (isset($subcategory['asset_type']) && $subcategory['asset_type'] === 'non_medical') {
+                    $nonMedicalSubcategories[] = $subcategory;
+                }
+            }
+
+            // Get assets data
+            $assets = $assetsResult['data'] ?? [];
+
             // For AJAX or JSON requests, return JSON response
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -123,7 +151,10 @@ class ComplainRepairController extends Controller
                 'pagination' => $pagination,
                 'search' => $search,
                 'sort' => $sort,
-                'status' => $status
+                'status' => $status,
+                'medicalSubcategories' => $medicalSubcategories,
+                'nonMedicalSubcategories' => $nonMedicalSubcategories,
+                'assets' => $assets
             ]);
 
         } catch (\Exception $e) {
@@ -145,6 +176,9 @@ class ComplainRepairController extends Controller
                 'search' => $search,
                 'sort' => $sort,
                 'status' => $status,
+                'medicalSubcategories' => [],
+                'nonMedicalSubcategories' => [],
+                'assets' => [],
                 'error' => 'Failed to retrieve complaints: ' . $e->getMessage()
             ]);
         }
@@ -340,6 +374,115 @@ class ComplainRepairController extends Controller
             ]);
 
             return redirect()->back()->with('error', 'Failed to export Complain and Repair as PDF: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Create a new complaint
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function createComplaint(Request $request)
+    {
+        try {
+            // Validate request based on the image showing only 3 required fields
+            $validator = \Validator::make($request->all(), [
+                'asset_id' => 'required|integer',
+                'description' => 'required|string',
+                'image_file' => 'required|image|max:5120', // max 5MB
+            ]);
+
+            if ($validator->fails()) {
+                \Log::warning('Complaint creation validation failed:', [
+                    'errors' => $validator->errors()->toArray()
+                ]);
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // Log request info
+            \Log::info('Creating new complaint:', [
+                'asset_id' => $request->input('asset_id'),
+                'has_image' => $request->hasFile('image_file')
+            ]);
+
+            // Prepare multipart request data
+            $multipart = [
+                [
+                    'name' => 'asset_id',
+                    'contents' => $request->input('asset_id')
+                ],
+                [
+                    'name' => 'description',
+                    'contents' => $request->input('description')
+                ]
+            ];
+
+            // Handle image file
+            if ($request->hasFile('image_file') && $request->file('image_file')->isValid()) {
+                $multipart[] = [
+                    'name' => 'image_file',
+                    'contents' => fopen($request->file('image_file')->getPathname(), 'r'),
+                    'filename' => $request->file('image_file')->getClientOriginalName()
+                ];
+            }
+
+            // Send request to API
+            $result = $this->apiService->request('POST', '/complaints', [
+                'multipart' => $multipart
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during complaint creation:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                return response()->json([
+                    'status' => false,
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ], 401);
+            }
+
+            // Check for API errors
+            if (!isset($result['status']) || $result['status'] !== true) {
+                \Log::error('API error during complaint creation:', [
+                    'api_response' => $result
+                ]);
+
+                return response()->json([
+                    'status' => false,
+                    'message' => $result['message'] ?? 'Failed to create complaint'
+                ], 500);
+            }
+
+            // Success response
+            \Log::info('Complaint created successfully', [
+                'complaint_id' => $result['data']['id'] ?? null
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Complaint created successfully',
+                'data' => $result['data']
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during complaint creation:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to create complaint: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
