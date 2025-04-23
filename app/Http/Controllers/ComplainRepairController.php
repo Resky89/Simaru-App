@@ -381,11 +381,14 @@ class ComplainRepairController extends Controller
      * Create a new complaint
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function createComplaint(Request $request)
     {
         try {
+            // Check if the request is AJAX
+            $isAjax = $request->ajax() || $request->wantsJson();
+
             // Validate request based on the image showing only 3 required fields
             $validator = \Validator::make($request->all(), [
                 'asset_id' => 'required|integer',
@@ -398,11 +401,18 @@ class ComplainRepairController extends Controller
                     'errors' => $validator->errors()->toArray()
                 ]);
 
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
+                if ($isAjax) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Validation failed',
+                        'errors' => $validator->errors()
+                    ], 422);
+                }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors($validator)
+                    ->with('error', 'Please check the form for errors.');
             }
 
             // Log request info
@@ -444,10 +454,15 @@ class ComplainRepairController extends Controller
                     'message' => $result['message'] ?? 'Authentication failed'
                 ]);
 
-                return response()->json([
-                    'status' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                if ($isAjax) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => $result['message'] ?? 'Authentication failed'
+                    ], 401);
+                }
+
+                return redirect()->route('login')
+                    ->with('error', $result['message'] ?? 'Authentication failed');
             }
 
             // Check for API errors
@@ -456,10 +471,27 @@ class ComplainRepairController extends Controller
                     'api_response' => $result
                 ]);
 
-                return response()->json([
-                    'status' => false,
-                    'message' => $result['message'] ?? 'Failed to create complaint'
-                ], 500);
+                // Return appropriate response based on request type
+                if ($isAjax) {
+                    // For AJAX requests, return JSON
+                    if (isset($result['errors'])) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => $result['message'] ?? 'Failed to create complaint',
+                            'errors' => $result['errors']
+                        ], 422);
+                    } else {
+                        return response()->json([
+                            'status' => false,
+                            'message' => $result['message'] ?? 'Failed to create complaint'
+                        ], 500);
+                    }
+                } else {
+                    // For regular requests, redirect back with error
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', $result['message'] ?? 'Failed to create complaint');
+                }
             }
 
             // Success response
@@ -467,11 +499,18 @@ class ComplainRepairController extends Controller
                 'complaint_id' => $result['data']['id'] ?? null
             ]);
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Complaint created successfully',
-                'data' => $result['data']
-            ]);
+            if ($isAjax) {
+                // For AJAX requests, return JSON success
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Complaint created successfully',
+                    'data' => $result['data'] ?? null
+                ]);
+            } else {
+                // For regular requests, redirect with success message
+                return redirect()->route('complaint.index')
+                    ->with('success', 'Complaint created successfully');
+            }
 
         } catch (\Exception $e) {
             \Log::error('Exception during complaint creation:', [
@@ -479,10 +518,120 @@ class ComplainRepairController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Failed to create complaint: ' . $e->getMessage()
-            ], 500);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to create complaint: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to create complaint: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a complaint
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function destroyComplaint($id, Request $request)
+    {
+        try {
+            // Check if the request is AJAX
+            $isAjax = $request->ajax() || $request->wantsJson();
+
+            // Log request info
+            \Log::info('Attempting to delete complaint:', [
+                'complaint_id' => $id,
+                'request_url' => $request->fullUrl(),
+                'is_ajax' => $isAjax
+            ]);
+
+            // Send delete request to API
+            $result = $this->apiService->request('DELETE', "/complaints/{$id}");
+
+            // Log API response
+            \Log::info('API response for complaint deletion:', [
+                'complaint_id' => $id,
+                'api_response' => $result
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during complaint deletion:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed',
+                    'complaint_id' => $id
+                ]);
+
+                if ($isAjax) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => $result['message'] ?? 'Authentication failed'
+                    ], 401);
+                }
+
+                return redirect()->route('login')
+                    ->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check for API errors
+            if (!isset($result['status']) || $result['status'] !== true) {
+                \Log::error('API error during complaint deletion:', [
+                    'complaint_id' => $id,
+                    'api_response' => $result
+                ]);
+
+                // Return appropriate response based on request type
+                if ($isAjax) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => $result['message'] ?? 'Failed to delete complaint'
+                    ], 500);
+                } else {
+                    return redirect()->back()
+                        ->with('error', $result['message'] ?? 'Failed to delete complaint');
+                }
+            }
+
+            // Success response
+            \Log::info('Complaint deleted successfully', [
+                'complaint_id' => $id
+            ]);
+
+            if ($isAjax) {
+                // For AJAX requests, return JSON success
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Complaint deleted successfully',
+                    'data' => $result['data'] ?? null
+                ]);
+            } else {
+                // For regular requests, redirect with success message
+                return redirect()->route('complaint.index')
+                    ->with('success', 'Complaint deleted successfully');
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during complaint deletion:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'complaint_id' => $id
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to delete complaint: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->with('error', 'Failed to delete complaint: ' . $e->getMessage());
         }
     }
 }

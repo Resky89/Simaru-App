@@ -306,6 +306,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/detail/{id}', [ComplainRepairController::class, 'showComplaintDetail'])->name('detail');
         Route::get('/export-pdf', [ComplainRepairController::class, 'exportComplaintPDF'])->name('export.pdf');
         Route::post('/complaints', [ComplainRepairController::class, 'createComplaint'])->name('create');
+        Route::delete('/complaints/{id}', [ComplainRepairController::class, 'destroyComplaint'])->name('destroy');
     });
 });
 

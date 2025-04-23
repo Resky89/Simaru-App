@@ -135,6 +135,15 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                             </button>
+                                            <button
+                                                class="p-1 text-[#213268] hover:text-red-500 hover:bg-gray-100 rounded-full transition-all duration-200 delete-complaint-btn"
+                                                data-id="{{ $complaint['id'] }}"
+                                                data-name="{{ $complaint['asset_name'] ?? 'Unknown' }}"
+                                                title="Delete Complaint">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -255,11 +264,23 @@
                 </div>
 
                 <!-- Error messages container -->
-                <div id="errorMessages" class="px-6 pt-4"></div>
+                <div id="errorMessages" class="px-6 pt-4">
+                    @if ($errors->any())
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                        <p class="font-bold">Validation errors:</p>
+                        <ul class="list-disc pl-5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+                </div>
 
                 <!-- Form -->
-                <form id="complaintForm" enctype="multipart/form-data">
+                <form id="complaintForm" action="{{ route('complaint.create') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="handle_ajax" value="0">
                     <div class="p-6">
                         <div class="space-y-4">
                             <!-- Complaint Information Section -->
@@ -322,9 +343,87 @@
         </div>
     </div>
 </div>
-@endsection
 
-@push('scripts')
+<!-- Delete Complaint Confirmation Modal -->
+<div id="deleteComplaintModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="deleteComplaintModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Delete Complaint</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <form id="deleteComplaintForm" action="" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" id="deleteComplaintId" name="complaint_id">
+                    <div class="p-6">
+                        <div class="space-y-6 max-w-[400px] mx-auto">
+                            <div class="flex flex-col items-center">
+                                <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this complaint? This action cannot be undone.</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button type="button"
+                                    class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                    Cancel
+                                </button>
+                                <button type="submit"
+                                    class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if(session('success'))
+<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Success!</p>
+            <p>{{ session('success') }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+
+<script>
+    setTimeout(function() {
+        const notification = document.getElementById('successNotification');
+        if (notification) {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(function() {
+                notification.remove();
+            }, 500);
+        }
+    }, 5000); // Hide after 5 seconds
+</script>
+@endif
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // ===== VARIABLE DECLARATIONS =====
@@ -345,6 +444,15 @@
         const statusFilter = document.getElementById('statusFilter');
         const perPageSelect = document.getElementById('perPageSelect');
         const assetIdSelect = document.getElementById('assetId');
+
+        // Check for flash messages from session and show toast notifications
+        @if(session('success'))
+            showToast("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showToast("{{ session('error') }}", 'error');
+        @endif
 
         // ===== UTILITY FUNCTIONS =====
         // Modal functions
@@ -408,76 +516,40 @@
             window.location.href = url.toString();
         }
 
-        // ===== DATA LOADING FUNCTIONS =====
-        function showNotification(title, message, type = 'info') {
-            // Check if notification container exists, if not create it
-            let notificationContainer = document.getElementById('notification-container');
+        // Function to show toast notifications
+        window.showToast = function(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
 
-            if (!notificationContainer) {
-                notificationContainer = document.createElement('div');
-                notificationContainer.id = 'notification-container';
-                notificationContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-md';
-                document.body.appendChild(notificationContainer);
+            if (type === 'success') {
+                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+            } else {
+                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
             }
 
-            // Create notification element
-            const notification = document.createElement('div');
-
-            // Set classes based on notification type
-            let bgColor = 'bg-blue-500';
-            if (type === 'success') bgColor = 'bg-green-500';
-            if (type === 'error') bgColor = 'bg-red-500';
-            if (type === 'warning') bgColor = 'bg-yellow-500';
-
-            notification.className = `${bgColor} text-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-in-out transform translate-x-0`;
-
-            // Set notification content
-            notification.innerHTML = `
-                <div class="p-4">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            ${type === 'success'
-                                ? `<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                  </svg>`
-                                : `<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                  </svg>`
-                            }
-                        </div>
-                        <div class="ml-3 w-0 flex-1">
-                            <p class="text-sm font-medium">${title}</p>
-                            <p class="mt-1 text-sm">${message}</p>
-                        </div>
-                        <div class="ml-4 flex-shrink-0 flex">
-                            <button class="inline-flex text-white focus:outline-none focus:text-gray-300">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+            toast.innerHTML = `
+                <div class="py-1">
+                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        ${type === 'success'
+                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                    </svg>
                 </div>
+                <div>
+                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                    <p>${message}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
             `;
 
-            // Add close functionality
-            const closeBtn = notification.querySelector('button');
-            closeBtn.addEventListener('click', () => {
-                notification.classList.add('opacity-0', 'translate-x-full');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            });
+            document.body.appendChild(toast);
 
-            // Add to container
-            notificationContainer.appendChild(notification);
-
-            // Auto-remove after 5 seconds
+            // Auto-remove the toast after 5 seconds
             setTimeout(() => {
-                notification.classList.add('opacity-0', 'translate-x-full');
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                 setTimeout(() => {
-                    notification.remove();
-                }, 300);
+                    toast.remove();
+                }, 500);
             }, 5000);
         }
 
@@ -566,11 +638,8 @@
 
         // ===== FORM SUBMISSION =====
         complaintForm?.addEventListener('submit', function(e) {
-            e.preventDefault();
-
+            // Basic client-side validation
             const formData = new FormData(complaintForm);
-
-            // Validate form
             let isValid = true;
             let errorMessage = '';
 
@@ -591,8 +660,9 @@
                 errorMessage = 'Image is required';
             }
 
-            // If validation fails, show error and exit
+            // If validation fails, prevent form submission and show error
             if (!isValid) {
+                e.preventDefault();
                 errorMsgDiv.innerHTML = `
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
                         <p class="font-bold">Validation Error</p>
@@ -603,99 +673,322 @@
                 return;
             }
 
-            // Show loading state
-            const submitBtn = complaintForm.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing...
-            `;
+            // If validation passes, form will submit normally
+        });
 
-            // Submit form data
-            fetch('{{ route('complaint.create') }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                // Reset button state
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
+        // Delete complaint functionality
+        const deleteComplaintModal = document.getElementById('deleteComplaintModal');
+        const deleteComplaintModalContent = document.getElementById('deleteComplaintModalContent');
+        const deleteComplaintForm = document.getElementById('deleteComplaintForm');
+        const deleteComplaintId = document.getElementById('deleteComplaintId');
 
-                if (data.status) {
-                    // Success - close modal and reload page
-                    closeModal(createComplaintModal, createComplaintModalContent);
+        // Delete button click handlers
+        document.querySelectorAll('.delete-complaint-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const complaintId = button.getAttribute('data-id');
+                deleteComplaintForm.action = `{{ route('complaint.destroy', '') }}/${complaintId}`;
+                deleteComplaintId.value = complaintId;
 
-                    // Show success message
-                    showNotification('Success', data.message, 'success');
-
-                    // Reload the page after a short delay
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    // Show validation errors
-                    if (data.errors) {
-                        let errorHtml = '<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">';
-                        errorHtml += '<p class="font-bold">Validation errors:</p><ul class="list-disc pl-5">';
-
-                        Object.keys(data.errors).forEach(field => {
-                            data.errors[field].forEach(error => {
-                                errorHtml += `<li>${error}</li>`;
-                            });
-                        });
-
-                        errorHtml += '</ul></div>';
-                        errorMsgDiv.innerHTML = errorHtml;
-                    } else {
-                        // Show general error message
-                        errorMsgDiv.innerHTML = `
-                            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                                <p class="font-bold">Error</p>
-                                <p>${data.message || 'An error occurred while creating the complaint.'}</p>
-                            </div>
-                        `;
-                    }
-
-                    // Scroll to error messages
-                    errorMsgDiv.scrollIntoView({ behavior: 'smooth' });
-                    }
-                })
-                .catch(error => {
-                // Reset button state
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-
-                // Show error message
-                errorMsgDiv.innerHTML = `
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                        <p class="font-bold">Error</p>
-                        <p>An unexpected error occurred. Please try again.</p>
-                    </div>
-                `;
-                console.error('Error submitting complaint:', error);
+                // Open delete modal
+                openModal(deleteComplaintModal, deleteComplaintModalContent);
             });
         });
 
-        // ===== GLOBAL FUNCTIONS =====
-        // Function to view complaint details - defined globally
-        function viewComplaintDetails(id) {
-            // Redirect to the complaint detail page
-            window.location.href = "{{ route('complaint.detail', '') }}/" + id;
-        }
+        // Close modal when clicking outside
+        deleteComplaintModal?.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeModal(deleteComplaintModal, deleteComplaintModalContent);
+            }
+        });
     });
-</script>
 
+    // Function to view complaint details - defined globally
+    function viewComplaintDetails(id) {
+        // Redirect to the complaint detail page
+        window.location.href = "{{ route('complaint.detail', '') }}/" + id;
+    }
+</script>
+@endsection
+
+@push('scripts')
 <script>
-    // ===== GLOBAL FUNCTIONS =====
+    document.addEventListener('DOMContentLoaded', function() {
+        // ===== VARIABLE DECLARATIONS =====
+        // DOM Elements
+        const imageFile = document.getElementById('imageFile');
+        const previewImg = document.getElementById('previewImg');
+        const imagePreview = document.getElementById('imagePreview');
+        const removeImage = document.getElementById('removeImage');
+        const complaintForm = document.getElementById('complaintForm');
+        const errorMsgDiv = document.getElementById('errorMessages');
+        const createComplaintBtn = document.getElementById('createComplaintBtn');
+        const createComplaintModal = document.getElementById('createComplaintModal');
+        const createComplaintModalContent = document.getElementById('createComplaintModalContent');
+        const closeModalBtns = document.querySelectorAll('.close-modal');
+        const exportBtn = document.getElementById('exportBtn');
+        const searchInput = document.getElementById('searchInput');
+        const sortOrder = document.getElementById('sortOrder');
+        const statusFilter = document.getElementById('statusFilter');
+        const perPageSelect = document.getElementById('perPageSelect');
+        const assetIdSelect = document.getElementById('assetId');
+
+        // Check for flash messages from session and show toast notifications
+        @if(session('success'))
+            showToast("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showToast("{{ session('error') }}", 'error');
+        @endif
+
+        // ===== UTILITY FUNCTIONS =====
+        // Modal functions
+        function openModal(modal, content) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+            }, 10);
+        }
+
+        function closeModal(modal, content) {
+            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Debounce function to limit how often search is triggered
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    func.apply(context, args);
+                }, wait);
+            };
+        }
+
+        // Function to apply filters
+        function applyFilters() {
+            const searchTerm = searchInput.value;
+            const sort = sortOrder.value;
+            const status = statusFilter.value;
+            const limit = perPageSelect?.value || 10;
+
+            const url = new URL(window.location.href);
+
+            // Set search parameter
+            if (searchTerm) url.searchParams.set('search', searchTerm);
+            else url.searchParams.delete('search');
+
+            // Set sort parameter
+            if (sort) url.searchParams.set('sort', sort);
+            else url.searchParams.delete('sort');
+
+            // Set status parameter
+            if (status) url.searchParams.set('status', status);
+            else url.searchParams.delete('status');
+
+            // Set limit parameter
+            url.searchParams.set('limit', limit);
+
+            // Reset to first page when filters change
+            url.searchParams.set('page', 1);
+
+            // Redirect to new URL with filters
+            window.location.href = url.toString();
+        }
+
+        // Function to show toast notifications
+        window.showToast = function(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
+
+            if (type === 'success') {
+                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+            } else {
+                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+            }
+
+            toast.innerHTML = `
+                <div class="py-1">
+                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        ${type === 'success'
+                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                    <p>${message}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Auto-remove the toast after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => {
+                    toast.remove();
+                }, 500);
+            }, 5000);
+        }
+
+        imageFile?.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                }
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        removeImage?.addEventListener('click', function() {
+            imageFile.value = '';
+            imagePreview.classList.add('hidden');
+            previewImg.src = '#';
+        });
+
+        // Modal Controls
+        createComplaintBtn?.addEventListener('click', function() {
+            openModal(createComplaintModal, createComplaintModalContent);
+
+            // Clear form and error messages
+            complaintForm?.reset();
+            if (errorMsgDiv) errorMsgDiv.innerHTML = '';
+
+            // Reset image preview
+            if (imagePreview) {
+                imagePreview.classList.add('hidden');
+            }
+        });
+
+        closeModalBtns?.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('[id$="Modal"]');
+                const content = modal.querySelector('[id$="ModalContent"]');
+                if (modal && content) {
+                    closeModal(modal, content);
+                }
+            });
+        });
+
+        createComplaintModal?.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeModal(createComplaintModal, createComplaintModalContent);
+            }
+        });
+
+        // Search and Filtering
+        searchInput?.addEventListener('input', debounce(function() {
+            applyFilters();
+        }, 500));
+
+        sortOrder?.addEventListener('change', function() {
+            applyFilters();
+        });
+
+        statusFilter?.addEventListener('change', function() {
+            applyFilters();
+        });
+
+        // Export PDF functionality
+        exportBtn?.addEventListener('click', () => {
+            // Get current URL parameters
+            const url = new URL(window.location.href);
+            const searchParams = url.searchParams;
+
+            // Create the PDF export URL with the same parameters
+            const exportUrl = "{{ route('complaint.export.pdf') }}?" + searchParams.toString();
+
+            // Redirect to the export URL
+            window.open(exportUrl, '_blank');
+        });
+
+        // Function to change items per page
+        window.changePerPage = function(limit) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', limit);
+            window.location.href = url.toString();
+        }
+
+        // ===== FORM SUBMISSION =====
+        complaintForm?.addEventListener('submit', function(e) {
+            // Basic client-side validation
+            const formData = new FormData(complaintForm);
+            let isValid = true;
+            let errorMessage = '';
+
+            // Basic validation for required fields
+            if (!formData.get('asset_id')) {
+                isValid = false;
+                errorMessage = 'Asset is required';
+            }
+
+            if (!formData.get('description').trim()) {
+                isValid = false;
+                errorMessage = 'Description is required';
+            }
+
+            // Check for image file
+            if (!formData.get('image_file') || formData.get('image_file').size === 0) {
+                isValid = false;
+                errorMessage = 'Image is required';
+            }
+
+            // If validation fails, prevent form submission and show error
+            if (!isValid) {
+                e.preventDefault();
+                errorMsgDiv.innerHTML = `
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                        <p class="font-bold">Validation Error</p>
+                        <p>${errorMessage}</p>
+                    </div>
+                `;
+                errorMsgDiv.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            // If validation passes, form will submit normally
+        });
+
+        // Delete complaint functionality
+        const deleteComplaintModal = document.getElementById('deleteComplaintModal');
+        const deleteComplaintModalContent = document.getElementById('deleteComplaintModalContent');
+        const deleteComplaintForm = document.getElementById('deleteComplaintForm');
+        const deleteComplaintId = document.getElementById('deleteComplaintId');
+
+        // Delete button click handlers
+        document.querySelectorAll('.delete-complaint-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const complaintId = button.getAttribute('data-id');
+                deleteComplaintForm.action = `{{ route('complaint.destroy', '') }}/${complaintId}`;
+                deleteComplaintId.value = complaintId;
+
+                // Open delete modal
+                openModal(deleteComplaintModal, deleteComplaintModalContent);
+            });
+        });
+
+        // Close modal when clicking outside
+        deleteComplaintModal?.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeModal(deleteComplaintModal, deleteComplaintModalContent);
+            }
+        });
+    });
+
     // Function to view complaint details - defined globally
     function viewComplaintDetails(id) {
         // Redirect to the complaint detail page
