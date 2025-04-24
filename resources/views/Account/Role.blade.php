@@ -417,7 +417,7 @@
                 }
             }
 
-            // Function to render permission checkboxes - improved version
+            // Function to render permission checkboxes - restructured version
             function renderPermissionCheckboxes(permissions, selectedIds = [], containerId = 'add-permissions-container') {
                 const container = document.getElementById(containerId);
                 if (!container) return;
@@ -427,75 +427,99 @@
                     return;
                 }
 
-                // Add a notification about auto-checked view permissions at the top for both modals
-                const noteDiv = document.createElement('div');
-                noteDiv.className = 'bg-blue-50 text-blue-700 p-3 rounded-md mb-4';
-                noteDiv.innerHTML = '<p class="text-sm"><strong>Note:</strong> All "View" permissions are automatically enabled and cannot be disabled as they are required for basic functionality.</p>';
+                // Clear the container
                 container.innerHTML = '';
-                container.appendChild(noteDiv);
 
-                // First, add all view permissions as hidden inputs to ensure they're always submitted
-                permissions.forEach(permission => {
-                    if (permission.permission_name.includes(':view')) {
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'permission_ids[]';
-                        hiddenInput.value = parseInt(permission.permission_id);
-                        hiddenInput.dataset.viewPermission = 'true';
-                        container.appendChild(hiddenInput);
-                    }
-                });
-
-                // Group permissions by their category (first part before colon)
+                // Group permissions by their feature/menu (first part before colon)
                 const groupedPermissions = {};
                 permissions.forEach(permission => {
                     if (permission.permission_name === '*') {
                         // Skip the all permissions one as we handle it separately
                         return;
                     }
+
                     let group = 'Other';
+                    let action = '';
+
                     if (permission.permission_name.includes(':')) {
-                        group = permission.permission_name.split(':')[0];
+                        const parts = permission.permission_name.split(':');
+                        group = parts[0];
+                        action = parts[1];
                         // Capitalize first letter
                         group = group.charAt(0).toUpperCase() + group.slice(1);
                     }
 
                     if (!groupedPermissions[group]) {
-                        groupedPermissions[group] = [];
+                        groupedPermissions[group] = {
+                            viewPermission: null,
+                            otherPermissions: []
+                        };
                     }
-                    groupedPermissions[group].push(permission);
+
+                    // Separate view permissions from other permissions
+                    if (action === 'view') {
+                        groupedPermissions[group].viewPermission = permission;
+                    } else {
+                        groupedPermissions[group].otherPermissions.push(permission);
+                    }
                 });
 
                 // Generate HTML for each group
                 let html = '';
-                for (const [group, perms] of Object.entries(groupedPermissions)) {
+                for (const [group, permGroup] of Object.entries(groupedPermissions)) {
+                    const { viewPermission, otherPermissions } = permGroup;
+
+                    // Generate unique IDs for this group
+                    const groupId = group.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                    const groupContainerId = `${containerId}-${groupId}-container`;
+
+                    // Format the display name - replace underscores with spaces and capitalize each word
+                    const displayGroupName = group.replace(/_/g, ' ').replace(/\w\S*/g, function(txt) {
+                        return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
+                    });
+
                     html += `
-                                                                                                    <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
-                                                                                                        <h4 class="text-[#213268] text-lg font-semibold mb-3 capitalize">${group}</h4>
-                                                                                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">`;
+                        <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-3">
+                                    <h4 class="text-[#213268] text-lg font-semibold capitalize">${displayGroupName}</h4>`;
 
-                    perms.forEach(permission => {
-                        // Check if this is a view permission
-                        const isViewPermission = permission.permission_name.includes(':view');
+                    // Add View Only checkbox next to the group name if it exists
+                    if (viewPermission) {
+                        const viewPermId = `${containerId}-perm-${viewPermission.permission_id}`;
+                        const isViewChecked = selectedIds.includes(viewPermission.permission_id);
 
-                        // Always select view permissions in both modals
-                        let isChecked = selectedIds.includes(permission.permission_id);
-                        if (isViewPermission) {
-                            isChecked = true;
-                        }
+                        html += `
+                                    <input type="checkbox"
+                                        id="${viewPermId}"
+                                        name="permission_ids[]"
+                                        value="${parseInt(viewPermission.permission_id)}"
+                                        class="checkbox checkbox-primary view-permission-checkbox"
+                                        data-group="${groupId}"
+                                        ${isViewChecked ? 'checked' : ''}>
+                                `;
+                    }
 
-                        // Disable view permissions in both modals
-                        const isDisabled = isViewPermission;
+                    html += `
+                                </div>
+                            </div>
+
+                            <p class="text-sm text-gray-500 mb-3">${viewPermission ? viewPermission.description : 'Manage permissions for this feature'}</p>
+
+                            <!-- Other permissions container -->
+                            <div id="${groupContainerId}" class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3" ${viewPermission && !selectedIds.includes(viewPermission.permission_id) ? 'style="display:none;"' : ''}>`;
+
+                    // Add other permissions
+                    otherPermissions.forEach(permission => {
+                        const isChecked = selectedIds.includes(permission.permission_id);
                         const permId = `${containerId}-perm-${permission.permission_id}`;
 
-                        // Map common permission types to more user-friendly names
+                        // Map common actions to more user-friendly names
                         let displayName = permission.permission_name;
                         if (permission.permission_name.includes(':')) {
                             const action = permission.permission_name.split(':')[1];
 
-                            // Map common actions to more user-friendly names
                             switch (action) {
-                                case 'view': displayName = 'View Only'; break;
                                 case 'create': displayName = 'Add'; break;
                                 case 'edit': displayName = 'Edit'; break;
                                 case 'delete': displayName = 'Delete'; break;
@@ -505,38 +529,49 @@
                         }
 
                         html += `
-                                                                    <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded ${isDisabled ? 'bg-gray-50' : ''}">
-                                                                                                            <input type="checkbox"
-                                                                                                                id="${permId}"
-                                                                                                                name="permission_ids[]"
-                                                                                                                value="${parseInt(permission.permission_id)}"
-                                                                                                                class="checkbox checkbox-primary mt-1 permission-checkbox"
-                                                                                                                data-group="${group.toLowerCase()}"
-                                                                            data-is-view="${isViewPermission ? 'true' : 'false'}"
-                                                                            ${isChecked ? 'checked' : ''}
-                                                                            ${isDisabled ? 'disabled' : ''}>
-                                                                        <label for="${permId}" class="cursor-pointer select-none ${isDisabled ? 'text-gray-500' : ''}">
-                                                                                                                <div class="font-medium">${displayName}</div>
-                                                                            <div class="text-xs text-gray-500">
-                                                                                ${permission.description}
-                                                                                ${isDisabled ? '<span class="text-blue-500 font-medium"> (Required)</span>' : ''}
-                                                                            </div>
-                                                                                                            </label>
-                                                                                                        </div>`;
-
-                        // For view permissions in both modals, add a hidden input to ensure the value is submitted
-                        if (isViewPermission) {
-                            html += `<input type="hidden" name="permission_ids[]" value="${parseInt(permission.permission_id)}" data-view-permission="true">`;
-                        }
+                                <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded">
+                                    <input type="checkbox"
+                                        id="${permId}"
+                                        name="permission_ids[]"
+                                        value="${parseInt(permission.permission_id)}"
+                                        class="checkbox checkbox-primary mt-1 permission-checkbox"
+                                        data-group="${groupId}"
+                                        ${isChecked ? 'checked' : ''}>
+                                    <label for="${permId}" class="cursor-pointer select-none">
+                                        <div class="font-medium">${displayName}</div>
+                                        <div class="text-xs text-gray-500">${permission.description}</div>
+                                    </label>
+                                </div>`;
                     });
 
                     html += `
-                                                                                                        </div>
-                                                                                                    </div>`;
+                            </div>
+                        </div>`;
                 }
 
-                // Add the HTML to the container after the notification
-                container.innerHTML += html;
+                // Add the HTML to the container
+                container.innerHTML = html;
+
+                // Add event listeners for view checkboxes to show/hide other permissions
+                container.querySelectorAll('.view-permission-checkbox').forEach(checkbox => {
+                    const groupId = checkbox.getAttribute('data-group');
+                    const permissionsContainer = document.getElementById(`${containerId}-${groupId}-container`);
+
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            // Show other permissions when view is checked
+                            permissionsContainer.style.display = 'grid';
+                        } else {
+                            // Hide other permissions when view is unchecked
+                            permissionsContainer.style.display = 'none';
+
+                            // Uncheck all other permissions in this group
+                            permissionsContainer.querySelectorAll('.permission-checkbox').forEach(cb => {
+                                cb.checked = false;
+                            });
+                        }
+                    });
+                });
 
                 // Find the "All" permission and set up the all permission checkbox
                 const allPermission = permissions.find(p => p.permission_name === '*');
@@ -558,20 +593,19 @@
 
                         // Toggle all checkboxes when the all permission is toggled
                         allCheckbox.addEventListener('change', function () {
-                            const allCheckboxes = container.querySelectorAll('.permission-checkbox');
-                            const nonViewCheckboxes = container.querySelectorAll('.permission-checkbox[data-is-view="false"]');
+                            const allCheckboxes = container.querySelectorAll('.permission-checkbox, .view-permission-checkbox');
                             const hiddenAllInput = document.getElementById(`${containerId}-hidden-all-permission`);
 
-                            // First, handle the checkbox states
+                            // Set checked state for all checkboxes
                             allCheckboxes.forEach(cb => {
-                                // Set checked state for all checkboxes (view and non-view)
-                                cb.checked = this.checked || cb.getAttribute('data-is-view') === 'true';
-                            });
-
-                            // Then, handle disabled state only for non-view checkboxes
-                            nonViewCheckboxes.forEach(cb => {
-                                // Only disable non-view checkboxes when All is checked
+                                cb.checked = this.checked;
                                 cb.disabled = this.checked;
+
+                                // If this is a view checkbox, trigger its change event to show/hide other permissions
+                                if (cb.classList.contains('view-permission-checkbox')) {
+                                    const event = new Event('change');
+                                    cb.dispatchEvent(event);
+                                }
                             });
 
                             // Update the hidden input for All permission
@@ -581,7 +615,7 @@
                             if (this.checked) {
                                 // Add hidden inputs for all permissions when "All Permission" is checked
                                 permissions.forEach(permission => {
-                                    if (permission.permission_name !== '*' && !permission.permission_name.includes(':view')) {
+                                    if (permission.permission_name !== '*') {
                                         // Check if the hidden input already exists
                                         const existingInput = container.querySelector(`input[type="hidden"][name="permission_ids[]"][value="${permission.permission_id}"]`);
                                         if (!existingInput) {
@@ -594,23 +628,25 @@
                                     }
                                 });
                             } else {
-                                // Remove only non-view permission hidden inputs when "All Permission" is unchecked
-                                const nonViewHiddenInputs = container.querySelectorAll('input[type="hidden"][name="permission_ids[]"]:not([data-view-permission="true"])');
-                                nonViewHiddenInputs.forEach(input => {
-                                    // Don't remove the "All" permission hidden input
-                                    if (input.id !== `${containerId}-hidden-all-permission`) {
-                                        input.remove();
-                                    }
+                                // Remove hidden inputs when "All Permission" is unchecked
+                                const hiddenInputs = container.querySelectorAll('input[type="hidden"][name="permission_ids[]"]:not([id])');
+                                hiddenInputs.forEach(input => {
+                                    input.remove();
                                 });
                             }
                         });
 
                         // If "All Permission" is already checked on load, handle initial state
                         if (allCheckbox.checked) {
-                            const nonViewCheckboxes = container.querySelectorAll('.permission-checkbox[data-is-view="false"]');
-                            nonViewCheckboxes.forEach(cb => {
+                            const checkboxes = container.querySelectorAll('.permission-checkbox, .view-permission-checkbox');
+                            checkboxes.forEach(cb => {
                                 cb.disabled = true;
                                 cb.checked = true;
+                            });
+
+                            // Make sure all permission containers are visible
+                            container.querySelectorAll('[id$="-container"]').forEach(container => {
+                                container.style.display = 'grid';
                             });
                         }
                     }
