@@ -24,6 +24,8 @@ use App\Http\Controllers\CalibrationController;
 use App\Http\Controllers\OpnameReportController;
 use App\Http\Controllers\FinanceReportController;
 use App\Http\Controllers\ComplainRepairController;
+use App\Http\Controllers\BuildingController;
+use App\Http\Controllers\RoomController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -80,19 +82,20 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // ORGANIZATION MANAGEMENT
     //-------------------------------------------------------------------------
 
-    // Location Management
-    Route::prefix('location')->group(function () {
-        Route::get('/', [LocationController::class, 'index'])->name('location');
+    // Building Management
+    Route::prefix('buildings')->group(function () {
+        Route::get('/', [BuildingController::class, 'index'])->name('buildings');
+        Route::post('/store', [BuildingController::class, 'store'])->name('buildings.store');
+        Route::put('/update/{id}', [BuildingController::class, 'update'])->name('buildings.update');
+        Route::delete('/delete/{id}', [BuildingController::class, 'destroy'])->name('buildings.destroy');
+    });
 
-        // Building API Routes
-        Route::post('/buildings/store', [LocationController::class, 'storeBuilding'])->name('buildings.store');
-        Route::put('/buildings/update/{id}', [LocationController::class, 'updateBuilding'])->name('buildings.update');
-        Route::delete('/buildings/delete/{id}', [LocationController::class, 'destroyBuilding'])->name('buildings.destroy');
-
-        // Room API Routes
-        Route::post('/rooms/store', [LocationController::class, 'storeRoom'])->name('rooms.store');
-        Route::put('/rooms/update/{id}', [LocationController::class, 'updateRoom'])->name('rooms.update');
-        Route::delete('/rooms/delete/{id}', [LocationController::class, 'destroyRoom'])->name('rooms.destroy');
+    // Room Management
+    Route::prefix('rooms')->group(function () {
+        Route::get('/', [RoomController::class, 'index'])->name('rooms');
+        Route::post('/store', [RoomController::class, 'store'])->name('rooms.store');
+        Route::put('/update/{id}', [RoomController::class, 'update'])->name('rooms.update');
+        Route::delete('/delete/{id}', [RoomController::class, 'destroy'])->name('rooms.destroy');
     });
 
     // Vendor Management

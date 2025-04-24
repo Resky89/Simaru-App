@@ -76,10 +76,14 @@
                             <span class="{{ $submenuTextClass }}">Brands</span>
                         </div>
                     </a>
-                    <a href="{{ route('location') }}" class="block">
-                        <div
-                            class="{{ $submenuLinkClass }} {{ Request::routeIs('location') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Location</span>
+                    <a href="{{ route('buildings') }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('buildings') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Buildings</span>
+                        </div>
+                    </a>
+                    <a href="{{ route('rooms') }}" class="block">
+                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('rooms') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Rooms</span>
                         </div>
                     </a>
                     <a href="{{ route('vendor') }}" class="block">
