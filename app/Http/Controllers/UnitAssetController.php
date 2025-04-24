@@ -7,7 +7,7 @@ use App\Services\ApiService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Http;
 
-class ViewAssetController extends Controller
+class UnitAssetController extends Controller
 {
     protected $apiService;
 
@@ -211,7 +211,7 @@ class ViewAssetController extends Controller
                 ];
             }
 
-            return view('Asset.ViewAsset', [
+            return view('Asset.UnitAsset', [
                 'assets' => $assets,
                 'brands' => $brands,
                 'assets_pagination' => $assetsPagination,
@@ -226,7 +226,7 @@ class ViewAssetController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return view('Asset.ViewAsset', [
+            return view('Asset.UnitAsset', [
                 'assets' => [],
                 'brands' => [],
                 'assets_pagination' => null,

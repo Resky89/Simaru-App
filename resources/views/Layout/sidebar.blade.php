@@ -193,10 +193,7 @@
                     @php
                         $reportSubmenuItems = [
                             ['route' => 'report.opname', 'name' => 'Opname Report'],
-                            ['route' => 'report.maintenance', 'name' => 'Maintenance Report'],
-                            ['route' => 'report.calibration', 'name' => 'Calibration Report'],
                             ['route' => 'report.finance', 'name' => 'Finance Report'],
-                            ['route' => 'report.complain', 'name' => 'Complain Report'],
                             ['route' => 'report.depreciation', 'name' => 'Depreciation Report'],
                         ];
                     @endphp

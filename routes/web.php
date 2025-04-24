@@ -4,8 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\VendorController;
-use App\Http\Controllers\ViewAssetController;
-use App\Http\Controllers\LocationController;
+use App\Http\Controllers\UnitAssetController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AssetDetailsController;
@@ -133,7 +132,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/categories', function () {
             return redirect()->route('categories');
         })->name('categories');
-        Route::get('/view', [ViewAssetController::class, 'index'])->name('view');
+        Route::get('/unit', [UnitAssetController::class, 'index'])->name('unit');
         Route::get('/detail/{id?}', [AssetDetailsController::class, 'show'])->name('details');
     });
 
@@ -160,13 +159,13 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Asset routes
-    Route::get('/assets', [ViewAssetController::class, 'index'])->name('assets');
-    Route::get('/assets/data', [ViewAssetController::class, 'getAssetData'])->name('assets.data');
-    Route::get('/assets/{id}', [ViewAssetController::class, 'getAsset'])->name('assets.get');
-    Route::post('/assets', [ViewAssetController::class, 'storeAsset'])->name('assets.store');
-    Route::put('/assets/{id}', [ViewAssetController::class, 'updateAsset'])->name('assets.update');
-    Route::delete('/assets/{id}', [ViewAssetController::class, 'destroyAsset'])->name('assets.destroy');
-    Route::get('assets/barcode/generate/{id}', [ViewAssetController::class, 'generateBarcode'])->name('assets.barcode.generate');
+    Route::get('/assets', [UnitAssetController::class, 'index'])->name('assets');
+    Route::get('/assets/data', [UnitAssetController::class, 'getAssetData'])->name('assets.data');
+    Route::get('/assets/{id}', [UnitAssetController::class, 'getAsset'])->name('assets.get');
+    Route::post('/assets', [UnitAssetController::class, 'storeAsset'])->name('assets.store');
+    Route::put('/assets/{id}', [UnitAssetController::class, 'updateAsset'])->name('assets.update');
+    Route::delete('/assets/{id}', [UnitAssetController::class, 'destroyAsset'])->name('assets.destroy');
+    Route::get('assets/barcode/generate/{id}', [UnitAssetController::class, 'generateBarcode'])->name('assets.barcode.generate');
 
     // Asset Documents routes
     Route::get('/asset-documents/asset/{id}', [AssetDocumentController::class, 'getAssetDocuments'])->name('asset-documents.get');
@@ -262,9 +261,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Asset QR routes
-    Route::post('/assets/qr/generate-bulk', [ViewAssetController::class, 'generateBulkQR'])->name('assets.qr.generate-bulk');
-    Route::get('/assets/qr/preview', [ViewAssetController::class, 'previewQRCodes'])->name('assets.qr.preview');
-    Route::match(['get', 'post'], '/assets/qr/print-pdf', [ViewAssetController::class, 'printQRCodesPDF'])->name('assets.qr.print-pdf');
+    Route::post('/assets/qr/generate-bulk', [UnitAssetController::class, 'generateBulkQR'])->name('assets.qr.generate-bulk');
+    Route::get('/assets/qr/preview', [UnitAssetController::class, 'previewQRCodes'])->name('assets.qr.preview');
+    Route::match(['get', 'post'], '/assets/qr/print-pdf', [UnitAssetController::class, 'printQRCodesPDF'])->name('assets.qr.print-pdf');
 
     // Checkout routes
     Route::post('/assets/checkout', [AssetDetailsController::class, 'checkoutAsset'])->name('asset.checkout');
