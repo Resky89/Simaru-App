@@ -88,7 +88,6 @@
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                         <div class="flex flex-col">
                                             <span class="font-medium">{{ $complaint['asset_name'] ?? '-' }}</span>
-                                            <span class="text-gray-500">ID: {{ $complaint['asset_id'] ?? '-' }}</span>
                                         </div>
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
@@ -133,6 +132,15 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                class="p-1 text-[#213268] hover:bg-green-100 hover:text-green-700 rounded-full transition-all duration-200 repair-complaint-btn"
+                                                data-id="{{ $complaint['id'] }}"
+                                                data-asset="{{ $complaint['asset_name'] ?? 'Unknown' }}"
+                                                title="Repair Complaint">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                                 </svg>
                                             </button>
                                             <button
@@ -289,13 +297,47 @@
                             <!-- Asset Selection -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">Asset*</label>
-                                <select id="assetId" name="asset_id" required
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                    <option value="" selected disabled>Select an asset</option>
-                                    @foreach($assets ?? [] as $asset)
-                                        <option value="{{ $asset['asset_id'] }}">{{ $asset['asset_name'] }} (ID: {{ $asset['asset_id'] }})</option>
-                                    @endforeach
-                                </select>
+                                <div class="relative">
+                                    <input type="text" id="assetSearch"
+                                        placeholder="Search for an asset..."
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
+                                    />
+                                    <input type="hidden" id="assetId" name="asset_id" required />
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                    <div id="assetDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-y-auto max-h-60 hidden">
+                                        <div class="p-2" id="assetDropdownContent">
+                                            <!-- Options will be populated dynamically -->
+                                        </div>
+                                        <div id="assetLoadingIndicator" class="p-2 text-center text-gray-500 hidden">
+                                            <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <p class="mt-1">Loading...</p>
+                                        </div>
+                                        <div id="assetNoResults" class="p-2 text-center text-gray-500 hidden">
+                                            No assets found
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="selectedAssetInfo" class="mt-2 p-2 bg-gray-100 rounded-lg hidden">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="font-medium" id="selectedAssetName"></p>
+                                            <p class="text-sm text-gray-500" id="selectedAssetId"></p>
+                                        </div>
+                                        <button type="button" id="clearAssetSelection" class="text-red-600 hover:text-red-800">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Description -->
@@ -395,6 +437,116 @@
     </div>
 </div>
 
+<!-- Repair Complaint Modal -->
+<div id="repairComplaintModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="repairComplaintModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">REPAIR COMPLAINT</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Error messages container -->
+                <div id="repairErrorMessages" class="px-6 pt-4"></div>
+
+                <!-- Form -->
+                <form id="repairForm" action="{{ route('complaint.repair.create') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="complaint_id" id="repairComplaintId">
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <!-- Repair Information Section -->
+                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Repair Information</h3>
+
+                            <!-- Asset Name Display -->
+                            <div class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                <p class="text-sm text-gray-500">Repairing Asset:</p>
+                                <p class="text-base font-medium" id="repairAssetName"></p>
+                            </div>
+
+                            <!-- Repair Description -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Repair Description*</label>
+                                <textarea id="repairDescription" name="repair_description" rows="3" required
+                                    class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
+                                    placeholder="Describe the repair work..."></textarea>
+                            </div>
+
+                             <!-- Final Result -->
+                             <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Final Result*</label>
+                                <select id="finalResult" name="final_result" required
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20">
+                                    <option value="" disabled selected>Select a final result</option>
+                                    <option value="Good">Good</option>
+                                    <option value="Slightly Damage">Slightly Damage</option>
+                                    <option value="Heavy Damage">Heavy Damage</option>
+                                    <option value="Waiting for Part">Waiting for Part</option>
+                                </select>
+                            </div>
+
+                            <!-- Repair Cost -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Repair Cost*</label>
+                                <input type="number" id="repairCost" name="repair_cost" required
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
+                                    placeholder="Cost in IDR">
+                            </div>
+
+                            <!-- Parts Replaced -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Parts Replaced*</label>
+                                <input type="text" id="partsReplaced" name="parts_replaced" required
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
+                                    placeholder="List of replaced parts">
+                            </div>
+
+                            <!-- Image Upload -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Repair Image*</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-blue-600">browse</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png (Max file size: 5MB)</p>
+                                    </div>
+                                    <input id="repairImageFile" name="file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" required />
+                                    <!-- Preview image container -->
+                                    <div id="repairImagePreview" class="mt-4 w-full hidden">
+                                        <div class="relative">
+                                            <img id="repairPreviewImg" src="#" alt="Preview" class="max-h-40 mx-auto rounded-lg">
+                                            <button type="button" id="removeRepairImage" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                Submit Repair
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @if(session('success'))
 <div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
     <div class="flex items-center">
@@ -425,6 +577,43 @@
 @endif
 
 <script>
+    // Define showToast function first
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
+
+        if (type === 'success') {
+            toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+        } else {
+            toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+        }
+
+        toast.innerHTML = `
+            <div class="py-1">
+                <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    ${type === 'success'
+                        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                <p>${message}</p>
+            </div>
+            <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Auto-remove the toast after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(() => {
+                toast.remove();
+            }, 500);
+        }, 5000);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // ===== VARIABLE DECLARATIONS =====
         // DOM Elements
@@ -443,7 +632,16 @@
         const sortOrder = document.getElementById('sortOrder');
         const statusFilter = document.getElementById('statusFilter');
         const perPageSelect = document.getElementById('perPageSelect');
-        const assetIdSelect = document.getElementById('assetId');
+        const assetSearch = document.getElementById('assetSearch');
+        const assetDropdown = document.getElementById('assetDropdown');
+        const assetDropdownContent = document.getElementById('assetDropdownContent');
+        const assetLoadingIndicator = document.getElementById('assetLoadingIndicator');
+        const assetNoResults = document.getElementById('assetNoResults');
+        const assetId = document.getElementById('assetId');
+        const selectedAssetInfo = document.getElementById('selectedAssetInfo');
+        const selectedAssetName = document.getElementById('selectedAssetName');
+        const selectedAssetId = document.getElementById('selectedAssetId');
+        const clearAssetSelection = document.getElementById('clearAssetSelection');
 
         // Check for flash messages from session and show toast notifications
         @if(session('success'))
@@ -514,43 +712,6 @@
 
             // Redirect to new URL with filters
             window.location.href = url.toString();
-        }
-
-        // Function to show toast notifications
-        window.showToast = function(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
-
-            if (type === 'success') {
-                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-            } else {
-                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
-            }
-
-            toast.innerHTML = `
-                <div class="py-1">
-                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        ${type === 'success'
-                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
-                    <p>${message}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
-            `;
-
-            document.body.appendChild(toast);
-
-            // Auto-remove the toast after 5 seconds
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => {
-                    toast.remove();
-                }, 500);
-            }, 5000);
         }
 
         imageFile?.addEventListener('change', function() {
@@ -636,6 +797,117 @@
             window.location.href = url.toString();
         }
 
+        // ===== ASSET SEARCH FUNCTIONALITY WITH DEBOUNCE =====
+        const assets = @json($assets ?? []);
+        let assetSearchTimeout;
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (assetSearch && assetDropdown && !assetSearch.contains(e.target) && !assetDropdown.contains(e.target)) {
+                assetDropdown.classList.add('hidden');
+            }
+        });
+
+        // Open dropdown when focusing on search input
+        assetSearch?.addEventListener('focus', function() {
+            // Only show dropdown if we haven't selected an asset yet
+            if (!assetId.value) {
+                displayFilteredAssets(assets, '');
+                assetDropdown.classList.remove('hidden');
+            }
+        });
+
+        // Handle asset search with debounce
+        assetSearch?.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+
+            // Show loading indicator and dropdown
+            assetLoadingIndicator.classList.remove('hidden');
+            assetNoResults.classList.add('hidden');
+            assetDropdownContent.innerHTML = '';
+            assetDropdown.classList.remove('hidden');
+
+            // Clear any existing timeout
+            clearTimeout(assetSearchTimeout);
+
+            // Set new timeout for debounce (300ms)
+            assetSearchTimeout = setTimeout(function() {
+                // Filter assets client-side
+                filterAssets(searchTerm);
+            }, 300);
+        });
+
+        // Function to filter assets based on search term
+        function filterAssets(searchTerm) {
+            assetLoadingIndicator.classList.add('hidden');
+
+            if (!assets || assets.length === 0) {
+                assetNoResults.classList.remove('hidden');
+                return;
+            }
+
+            // Filter assets by name, code or ID
+            let filteredAssets = assets;
+            if (searchTerm) {
+                filteredAssets = assets.filter(asset =>
+                    (asset.asset_name && asset.asset_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (asset.asset_code && asset.asset_code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (asset.asset_id && asset.asset_id.toString().includes(searchTerm))
+                );
+            }
+
+            displayFilteredAssets(filteredAssets, searchTerm);
+        }
+
+        // Function to display filtered assets in dropdown
+        function displayFilteredAssets(filteredAssets, searchTerm) {
+            assetDropdownContent.innerHTML = '';
+
+            if (!filteredAssets || filteredAssets.length === 0) {
+                assetNoResults.classList.remove('hidden');
+                return;
+            }
+
+            assetNoResults.classList.add('hidden');
+
+            // Limit to first 100 results for performance
+            const assetsToShow = filteredAssets.slice(0, 100);
+
+            assetsToShow.forEach(asset => {
+                const div = document.createElement('div');
+                div.className = 'p-2 hover:bg-gray-100 cursor-pointer rounded transition-colors';
+                div.innerHTML = `
+                    <div class="font-medium">${asset.asset_name}</div>
+                    <div class="text-xs text-gray-500">Code: ${asset.asset_code || 'N/A'}</div>
+                `;
+
+                div.addEventListener('click', function() {
+                    selectAsset(asset);
+                });
+
+                assetDropdownContent.appendChild(div);
+            });
+        }
+
+        // Function to select an asset
+        function selectAsset(asset) {
+            assetId.value = asset.asset_id;
+            assetSearch.value = asset.asset_name;
+            assetDropdown.classList.add('hidden');
+
+            // Show selected asset info
+            selectedAssetName.textContent = asset.asset_name;
+            selectedAssetId.textContent = `Code: ${asset.asset_code || 'N/A'}`;
+            selectedAssetInfo.classList.remove('hidden');
+        }
+
+        // Clear asset selection
+        clearAssetSelection?.addEventListener('click', function() {
+            assetId.value = '';
+            assetSearch.value = '';
+            selectedAssetInfo.classList.add('hidden');
+        });
+
         // ===== FORM SUBMISSION =====
         complaintForm?.addEventListener('submit', function(e) {
             // Basic client-side validation
@@ -676,11 +948,100 @@
             // If validation passes, form will submit normally
         });
 
+        // Repair form submission validation
+        const repairForm = document.getElementById('repairForm');
+        const repairErrorMsgDiv = document.getElementById('repairErrorMessages');
+
+        repairForm?.addEventListener('submit', function(e) {
+            // Basic client-side validation
+            const formData = new FormData(repairForm);
+            let isValid = true;
+            let errorMessage = '';
+
+            // Basic validation for required fields
+            if (!formData.get('complaint_id')) {
+                isValid = false;
+                errorMessage = 'Complaint ID is required';
+            }
+
+            if (!formData.get('repair_description').trim()) {
+                isValid = false;
+                errorMessage = 'Repair description is required';
+            }
+
+            if (!formData.get('final_result').trim()) {
+                isValid = false;
+                errorMessage = 'Final result is required';
+            }
+
+            if (!formData.get('repair_cost')) {
+                isValid = false;
+                errorMessage = 'Repair cost is required';
+            }
+
+            if (!formData.get('parts_replaced').trim()) {
+                isValid = false;
+                errorMessage = 'Parts replaced is required';
+            }
+
+            // Check for image file
+            if (!formData.get('file') || formData.get('file').size === 0) {
+                isValid = false;
+                errorMessage = 'Repair image is required';
+            }
+
+            // If validation fails, prevent form submission and show error
+            if (!isValid) {
+                e.preventDefault();
+                repairErrorMsgDiv.innerHTML = `
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                        <p class="font-bold">Validation Error</p>
+                        <p>${errorMessage}</p>
+                    </div>
+                `;
+                repairErrorMsgDiv.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            // If validation passes, form will submit normally
+        });
+
         // Delete complaint functionality
         const deleteComplaintModal = document.getElementById('deleteComplaintModal');
         const deleteComplaintModalContent = document.getElementById('deleteComplaintModalContent');
         const deleteComplaintForm = document.getElementById('deleteComplaintForm');
         const deleteComplaintId = document.getElementById('deleteComplaintId');
+
+        // Repair complaint functionality
+        const repairComplaintModal = document.getElementById('repairComplaintModal');
+        const repairComplaintModalContent = document.getElementById('repairComplaintModalContent');
+        const repairComplaintId = document.getElementById('repairComplaintId');
+        const repairAssetName = document.getElementById('repairAssetName');
+        const repairImageFile = document.getElementById('repairImageFile');
+        const repairPreviewImg = document.getElementById('repairPreviewImg');
+        const repairImagePreview = document.getElementById('repairImagePreview');
+        const removeRepairImage = document.getElementById('removeRepairImage');
+
+        // Image preview for repair
+        repairImageFile?.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    repairPreviewImg.src = e.target.result;
+                    repairImagePreview.classList.remove('hidden');
+                }
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        removeRepairImage?.addEventListener('click', function() {
+            repairImageFile.value = '';
+            repairImagePreview.classList.add('hidden');
+            repairPreviewImg.src = '#';
+        });
 
         // Delete button click handlers
         document.querySelectorAll('.delete-complaint-btn').forEach(button => {
@@ -694,10 +1055,41 @@
             });
         });
 
+        // Repair button click handlers
+        document.querySelectorAll('.repair-complaint-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const complaintId = button.getAttribute('data-id');
+                const assetName = button.getAttribute('data-asset');
+
+                // Set form data
+                repairComplaintId.value = complaintId;
+                repairAssetName.textContent = assetName;
+
+                // Reset form and error messages
+                repairForm?.reset();
+                if (repairErrorMsgDiv) repairErrorMsgDiv.innerHTML = '';
+
+                // Reset image preview
+                if (repairImagePreview) {
+                    repairImagePreview.classList.add('hidden');
+                }
+
+                // Open repair modal
+                openModal(repairComplaintModal, repairComplaintModalContent);
+            });
+        });
+
         // Close modal when clicking outside
         deleteComplaintModal?.addEventListener('click', function(event) {
             if (event.target === this) {
                 closeModal(deleteComplaintModal, deleteComplaintModalContent);
+            }
+        });
+
+        // Close repair modal when clicking outside
+        repairComplaintModal?.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeModal(repairComplaintModal, repairComplaintModalContent);
             }
         });
     });
@@ -709,291 +1101,4 @@
     }
 </script>
 @endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // ===== VARIABLE DECLARATIONS =====
-        // DOM Elements
-        const imageFile = document.getElementById('imageFile');
-        const previewImg = document.getElementById('previewImg');
-        const imagePreview = document.getElementById('imagePreview');
-        const removeImage = document.getElementById('removeImage');
-        const complaintForm = document.getElementById('complaintForm');
-        const errorMsgDiv = document.getElementById('errorMessages');
-        const createComplaintBtn = document.getElementById('createComplaintBtn');
-        const createComplaintModal = document.getElementById('createComplaintModal');
-        const createComplaintModalContent = document.getElementById('createComplaintModalContent');
-        const closeModalBtns = document.querySelectorAll('.close-modal');
-        const exportBtn = document.getElementById('exportBtn');
-        const searchInput = document.getElementById('searchInput');
-        const sortOrder = document.getElementById('sortOrder');
-        const statusFilter = document.getElementById('statusFilter');
-        const perPageSelect = document.getElementById('perPageSelect');
-        const assetIdSelect = document.getElementById('assetId');
-
-        // Check for flash messages from session and show toast notifications
-        @if(session('success'))
-            showToast("{{ session('success') }}", 'success');
-        @endif
-
-        @if(session('error'))
-            showToast("{{ session('error') }}", 'error');
-        @endif
-
-        // ===== UTILITY FUNCTIONS =====
-        // Modal functions
-        function openModal(modal, content) {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-            }, 10);
-        }
-
-        function closeModal(modal, content) {
-            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
-
-        // Debounce function to limit how often search is triggered
-        function debounce(func, wait) {
-            let timeout;
-            return function() {
-                const context = this;
-                const args = arguments;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    func.apply(context, args);
-                }, wait);
-            };
-        }
-
-        // Function to apply filters
-        function applyFilters() {
-            const searchTerm = searchInput.value;
-            const sort = sortOrder.value;
-            const status = statusFilter.value;
-            const limit = perPageSelect?.value || 10;
-
-            const url = new URL(window.location.href);
-
-            // Set search parameter
-            if (searchTerm) url.searchParams.set('search', searchTerm);
-            else url.searchParams.delete('search');
-
-            // Set sort parameter
-            if (sort) url.searchParams.set('sort', sort);
-            else url.searchParams.delete('sort');
-
-            // Set status parameter
-            if (status) url.searchParams.set('status', status);
-            else url.searchParams.delete('status');
-
-            // Set limit parameter
-            url.searchParams.set('limit', limit);
-
-            // Reset to first page when filters change
-            url.searchParams.set('page', 1);
-
-            // Redirect to new URL with filters
-            window.location.href = url.toString();
-        }
-
-        // Function to show toast notifications
-        window.showToast = function(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
-
-            if (type === 'success') {
-                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-            } else {
-                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
-            }
-
-            toast.innerHTML = `
-                <div class="py-1">
-                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        ${type === 'success'
-                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
-                    <p>${message}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
-            `;
-
-            document.body.appendChild(toast);
-
-            // Auto-remove the toast after 5 seconds
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => {
-                    toast.remove();
-                }, 500);
-            }, 5000);
-        }
-
-        imageFile?.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    imagePreview.classList.remove('hidden');
-                }
-
-                reader.readAsDataURL(file);
-            }
-        });
-
-        removeImage?.addEventListener('click', function() {
-            imageFile.value = '';
-            imagePreview.classList.add('hidden');
-            previewImg.src = '#';
-        });
-
-        // Modal Controls
-        createComplaintBtn?.addEventListener('click', function() {
-            openModal(createComplaintModal, createComplaintModalContent);
-
-            // Clear form and error messages
-            complaintForm?.reset();
-            if (errorMsgDiv) errorMsgDiv.innerHTML = '';
-
-            // Reset image preview
-            if (imagePreview) {
-                imagePreview.classList.add('hidden');
-            }
-        });
-
-        closeModalBtns?.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const modal = this.closest('[id$="Modal"]');
-                const content = modal.querySelector('[id$="ModalContent"]');
-                if (modal && content) {
-                    closeModal(modal, content);
-                }
-            });
-        });
-
-        createComplaintModal?.addEventListener('click', function(event) {
-            if (event.target === this) {
-                closeModal(createComplaintModal, createComplaintModalContent);
-            }
-        });
-
-        // Search and Filtering
-        searchInput?.addEventListener('input', debounce(function() {
-            applyFilters();
-        }, 500));
-
-        sortOrder?.addEventListener('change', function() {
-            applyFilters();
-        });
-
-        statusFilter?.addEventListener('change', function() {
-            applyFilters();
-        });
-
-        // Export PDF functionality
-        exportBtn?.addEventListener('click', () => {
-            // Get current URL parameters
-            const url = new URL(window.location.href);
-            const searchParams = url.searchParams;
-
-            // Create the PDF export URL with the same parameters
-            const exportUrl = "{{ route('complaint.export.pdf') }}?" + searchParams.toString();
-
-            // Redirect to the export URL
-            window.open(exportUrl, '_blank');
-        });
-
-        // Function to change items per page
-        window.changePerPage = function(limit) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('limit', limit);
-            window.location.href = url.toString();
-        }
-
-        // ===== FORM SUBMISSION =====
-        complaintForm?.addEventListener('submit', function(e) {
-            // Basic client-side validation
-            const formData = new FormData(complaintForm);
-            let isValid = true;
-            let errorMessage = '';
-
-            // Basic validation for required fields
-            if (!formData.get('asset_id')) {
-                isValid = false;
-                errorMessage = 'Asset is required';
-            }
-
-            if (!formData.get('description').trim()) {
-                isValid = false;
-                errorMessage = 'Description is required';
-            }
-
-            // Check for image file
-            if (!formData.get('image_file') || formData.get('image_file').size === 0) {
-                isValid = false;
-                errorMessage = 'Image is required';
-            }
-
-            // If validation fails, prevent form submission and show error
-            if (!isValid) {
-                e.preventDefault();
-                errorMsgDiv.innerHTML = `
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                        <p class="font-bold">Validation Error</p>
-                        <p>${errorMessage}</p>
-                    </div>
-                `;
-                errorMsgDiv.scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
-
-            // If validation passes, form will submit normally
-        });
-
-        // Delete complaint functionality
-        const deleteComplaintModal = document.getElementById('deleteComplaintModal');
-        const deleteComplaintModalContent = document.getElementById('deleteComplaintModalContent');
-        const deleteComplaintForm = document.getElementById('deleteComplaintForm');
-        const deleteComplaintId = document.getElementById('deleteComplaintId');
-
-        // Delete button click handlers
-        document.querySelectorAll('.delete-complaint-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const complaintId = button.getAttribute('data-id');
-                deleteComplaintForm.action = `{{ route('complaint.destroy', '') }}/${complaintId}`;
-                deleteComplaintId.value = complaintId;
-
-                // Open delete modal
-                openModal(deleteComplaintModal, deleteComplaintModalContent);
-            });
-        });
-
-        // Close modal when clicking outside
-        deleteComplaintModal?.addEventListener('click', function(event) {
-            if (event.target === this) {
-                closeModal(deleteComplaintModal, deleteComplaintModalContent);
-            }
-        });
-    });
-
-    // Function to view complaint details - defined globally
-    function viewComplaintDetails(id) {
-        // Redirect to the complaint detail page
-        window.location.href = "{{ route('complaint.detail', '') }}/" + id;
-    }
-</script>
-@endpush
 

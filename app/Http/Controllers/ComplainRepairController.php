@@ -79,9 +79,6 @@ class ComplainRepairController extends Controller
                 'query' => $queryParams
             ]);
 
-            // Fetch subcategories for dropdown
-            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
-
             // Fetch assets for dropdown (limited number for initial load)
             $assetsResult = $this->apiService->request('GET', '/assets', [
                 'query' => [
@@ -119,19 +116,6 @@ class ComplainRepairController extends Controller
             $complaints = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
 
-            // Parse subcategories and group by asset type
-            $subcategories = $subcategoriesResult['data'] ?? [];
-            $medicalSubcategories = [];
-            $nonMedicalSubcategories = [];
-
-            foreach ($subcategories as $subcategory) {
-                if (isset($subcategory['asset_type']) && $subcategory['asset_type'] === 'medical') {
-                    $medicalSubcategories[] = $subcategory;
-                } elseif (isset($subcategory['asset_type']) && $subcategory['asset_type'] === 'non_medical') {
-                    $nonMedicalSubcategories[] = $subcategory;
-                }
-            }
-
             // Get assets data
             $assets = $assetsResult['data'] ?? [];
 
@@ -152,8 +136,6 @@ class ComplainRepairController extends Controller
                 'search' => $search,
                 'sort' => $sort,
                 'status' => $status,
-                'medicalSubcategories' => $medicalSubcategories,
-                'nonMedicalSubcategories' => $nonMedicalSubcategories,
                 'assets' => $assets
             ]);
 
@@ -176,8 +158,6 @@ class ComplainRepairController extends Controller
                 'search' => $search,
                 'sort' => $sort,
                 'status' => $status,
-                'medicalSubcategories' => [],
-                'nonMedicalSubcategories' => [],
                 'assets' => [],
                 'error' => 'Failed to retrieve complaints: ' . $e->getMessage()
             ]);
@@ -632,6 +612,276 @@ class ComplainRepairController extends Controller
 
             return redirect()->back()
                 ->with('error', 'Failed to delete complaint: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Create a new repair record for a complaint
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function createRepair(Request $request)
+    {
+        try {
+            // Check if the request is AJAX
+            $isAjax = $request->ajax() || $request->wantsJson();
+
+            // Validate request
+            $validator = \Validator::make($request->all(), [
+                'complaint_id' => 'required|integer',
+                'repair_description' => 'required|string',
+                'final_result' => 'required|string|in:Good,Slightly Damage,Heavy Damage,Waiting for Part',
+                'repair_cost' => 'required|numeric',
+                'parts_replaced' => 'required|string',
+                'file' => 'required|image|max:5120', // max 5MB
+            ]);
+
+            if ($validator->fails()) {
+                \Log::warning('Repair creation validation failed:', [
+                    'errors' => $validator->errors()->toArray()
+                ]);
+
+                if ($isAjax) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Validation failed',
+                        'errors' => $validator->errors()
+                    ], 422);
+                }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors($validator)
+                    ->with('error', 'Please check the form for errors.');
+            }
+
+            // Log request info
+            \Log::info('Creating new repair:', [
+                'complaint_id' => $request->input('complaint_id'),
+                'has_image' => $request->hasFile('file')
+            ]);
+
+            // Prepare multipart request data
+            $multipart = [
+                [
+                    'name' => 'complaint_id',
+                    'contents' => $request->input('complaint_id')
+                ],
+                [
+                    'name' => 'repair_description',
+                    'contents' => $request->input('repair_description')
+                ],
+                [
+                    'name' => 'final_result',
+                    'contents' => $request->input('final_result')
+                ],
+                [
+                    'name' => 'repair_cost',
+                    'contents' => $request->input('repair_cost')
+                ],
+                [
+                    'name' => 'parts_replaced',
+                    'contents' => $request->input('parts_replaced')
+                ]
+            ];
+
+            // Handle image file
+            if ($request->hasFile('file') && $request->file('file')->isValid()) {
+                $multipart[] = [
+                    'name' => 'file',
+                    'contents' => fopen($request->file('file')->getPathname(), 'r'),
+                    'filename' => $request->file('file')->getClientOriginalName()
+                ];
+            }
+
+            // Send request to API
+            $result = $this->apiService->request('POST', '/repairs', [
+                'multipart' => $multipart
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during repair creation:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                if ($isAjax) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => $result['message'] ?? 'Authentication failed'
+                    ], 401);
+                }
+
+                return redirect()->route('login')
+                    ->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check for API errors
+            if (!isset($result['status']) || $result['status'] !== true) {
+                \Log::error('API error during repair creation:', [
+                    'api_response' => $result
+                ]);
+
+                // Return appropriate response based on request type
+                if ($isAjax) {
+                    // For AJAX requests, return JSON
+                    if (isset($result['errors'])) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => $result['message'] ?? 'Failed to create repair',
+                            'errors' => $result['errors']
+                        ], 422);
+                    } else {
+                        return response()->json([
+                            'status' => false,
+                            'message' => $result['message'] ?? 'Failed to create repair'
+                        ], 500);
+                    }
+                } else {
+                    // For regular requests, redirect back with error
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', $result['message'] ?? 'Failed to create repair');
+                }
+            }
+
+            // Success response
+            \Log::info('Repair created successfully', [
+                'repair_id' => $result['data']['id'] ?? null
+            ]);
+
+            if ($isAjax) {
+                // For AJAX requests, return JSON success
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Repair created successfully',
+                    'data' => $result['data'] ?? null
+                ]);
+            } else {
+                // For regular requests, redirect with success message
+                return redirect()->route('complaint.detail', ['id' => $request->input('complaint_id')])
+                    ->with('success', 'Repair created successfully');
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during repair creation:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to create repair: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to create repair: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export complaint detail to PDF
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function exportComplaintDetailPDF($id, Request $request)
+    {
+        try {
+            // Log request info
+            \Log::info('Exporting complaint detail to PDF:', [
+                'complaint_id' => $id,
+                'request_url' => $request->fullUrl()
+            ]);
+
+            // Fetch complaint details from API
+            $result = $this->apiService->request('GET', "/complaints/{$id}");
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during complaint detail PDF export:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed',
+                    'complaint_id' => $id
+                ]);
+
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check if complaint exists
+            if (!isset($result['data'])) {
+                \Log::warning('Complaint not found during PDF export:', [
+                    'complaint_id' => $id
+                ]);
+
+                return redirect()->route('complaint.index')->with('error', 'Complaint not found');
+            }
+
+            // Get complaint data
+            $complaint = $result['data'];
+
+            // Convert images to base64
+            if (!empty($complaint['complaint_picture_path'])) {
+                try {
+                    $imagePath = 'http://localhost:5000/public/images/' . basename($complaint['complaint_picture_path']);
+                    $imageData = file_get_contents($imagePath);
+                    if ($imageData !== false) {
+                        $complaint['complaint_picture_base64'] = base64_encode($imageData);
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to get complaint image for PDF:', [
+                        'error' => $e->getMessage(),
+                        'complaint_id' => $id,
+                        'image_path' => $complaint['complaint_picture_path'] ?? 'N/A'
+                    ]);
+                }
+            }
+
+            // Convert repair image to base64 if exists
+            if (!empty($complaint['repair']) && !empty($complaint['repair']['repair_picture_path'])) {
+                try {
+                    $repairImagePath = 'http://localhost:5000/public/images/' . basename($complaint['repair']['repair_picture_path']);
+                    $repairImageData = file_get_contents($repairImagePath);
+                    if ($repairImageData !== false) {
+                        $complaint['repair']['repair_picture_base64'] = base64_encode($repairImageData);
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to get repair image for PDF:', [
+                        'error' => $e->getMessage(),
+                        'complaint_id' => $id,
+                        'repair_id' => $complaint['repair']['id'] ?? 'N/A',
+                        'image_path' => $complaint['repair']['repair_picture_path'] ?? 'N/A'
+                    ]);
+                }
+            }
+
+            // Generate PDF
+            $pdf = Pdf::loadView('ComplainRepair.ComplainRepairDetailPDF', [
+                'complaint' => $complaint
+            ]);
+
+            // Log PDF generation
+            \Log::info('Complaint detail PDF generated successfully', [
+                'complaint_id' => $id
+            ]);
+
+            // Stream the PDF to browser
+            return $pdf->stream('complaint_detail_' . $id . '_' . now()->format('YmdHis') . '.pdf');
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during complaint detail PDF export:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'complaint_id' => $id
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to export complaint detail as PDF: ' . $e->getMessage());
         }
     }
 }

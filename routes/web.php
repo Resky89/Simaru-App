@@ -305,8 +305,10 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/', [ComplainRepairController::class, 'getAllComplaints'])->name('index');
         Route::get('/detail/{id}', [ComplainRepairController::class, 'showComplaintDetail'])->name('detail');
         Route::get('/export-pdf', [ComplainRepairController::class, 'exportComplaintPDF'])->name('export.pdf');
+        Route::get('/detail/{id}/export-pdf', [ComplainRepairController::class, 'exportComplaintDetailPDF'])->name('detail.export.pdf');
         Route::post('/complaints', [ComplainRepairController::class, 'createComplaint'])->name('create');
         Route::delete('/complaints/{id}', [ComplainRepairController::class, 'destroyComplaint'])->name('destroy');
+        Route::post('/repairs', [ComplainRepairController::class, 'createRepair'])->name('repair.create');
     });
 });
 
