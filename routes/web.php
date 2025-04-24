@@ -25,6 +25,7 @@ use App\Http\Controllers\FinanceReportController;
 use App\Http\Controllers\ComplainRepairController;
 use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\MasterAssetController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -134,6 +135,16 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         })->name('categories');
         Route::get('/unit', [UnitAssetController::class, 'index'])->name('unit');
         Route::get('/detail/{id?}', [AssetDetailsController::class, 'show'])->name('details');
+    });
+
+    // Master Asset routes
+    Route::prefix('asset-master')->group(function () {
+        Route::get('/', [MasterAssetController::class, 'index'])->name('asset-master');
+        Route::post('/', [MasterAssetController::class, 'storeMasterAsset'])->name('asset-master.store');
+        Route::get('/data', [MasterAssetController::class, 'getMasterAssetData'])->name('asset-master.data');
+        Route::get('/{id}', [MasterAssetController::class, 'getMasterAsset'])->name('asset-master.get');
+        Route::put('/{id}', [MasterAssetController::class, 'updateMasterAsset'])->name('asset-master.update');
+        Route::delete('/{id}', [MasterAssetController::class, 'destroyMasterAsset'])->name('asset-master.destroy');
     });
 
     // Asset direct routes

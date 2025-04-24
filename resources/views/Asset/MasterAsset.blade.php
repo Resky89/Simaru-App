@@ -1,0 +1,1335 @@
+@extends('Layout.app')
+
+@section('title', 'Master Asset Management')
+
+@section('content')
+<div class="h-full space-y-4 md:space-y-6">
+    <!-- Asset Section -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body p-4 md:p-7">
+            <div class="flex flex-col gap-6">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">MASTER ASSET</h1>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-wrap gap-3">
+                        <button id="addMasterAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            <span class="text-base">Add Master Asset</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Asset Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">ID</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Subcategory</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Brand</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Depreciable</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Calibration</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(isset($masterAssets) && count($masterAssets) > 0)
+                                @foreach($masterAssets as $asset)
+                                <tr data-asset-id="{{ $asset['asset_master_id'] ?? '' }}">
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_master_id'] ?? '' }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_name'] ?? '-' }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_type'] ?? '-' }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['subcategory_name'] ?? '-' }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['brand_name'] ?? '-' }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                        @if(isset($asset['is_depreciable']) && $asset['is_depreciable'])
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Yes</span>
+                                        @else
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">No</span>
+                                        @endif
+                                    </td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                        @if(isset($asset['needs_calibration']) && $asset['needs_calibration'])
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Yes</span>
+                                        @else
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">No</span>
+                                        @endif
+                                    </td>
+                                    <td class="p-3 border-t border-[#EEF1F4] text-center">
+                                        <div class="flex justify-center items-center space-x-2">
+                                            <button class="text-[#3D3D3D] hover:text-[#213268] edit-asset-btn"
+                                                data-id="{{ $asset['asset_master_id'] ?? '' }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <button class="text-[#3D3D3D] hover:text-red-500 delete-asset-btn"
+                                                data-id="{{ $asset['asset_master_id'] ?? '' }}"
+                                                data-name="{{ $asset['asset_name'] ?? '' }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="8" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No master assets found</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination for Assets -->
+                @if(isset($masterAssets_pagination) && $masterAssets_pagination)
+                <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+                    <div class="flex items-center space-x-2">
+                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($masterAssets_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($masterAssets_pagination['current_page'] ?? 1) - 1 }})"
+                               {{ ($masterAssets_pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Prev
+                        </button>
+
+                        <div class="flex gap-2">
+                            @php
+                                $currentPage = $masterAssets_pagination['current_page'] ?? 1;
+                                $lastPage = $masterAssets_pagination['last_page'] ?? 1;
+                            @endphp
+
+                            @for($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
+                                <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
+                                    {{ $i }}
+                                </a>
+                            @endfor
+                        </div>
+
+                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($masterAssets_pagination['current_page'] ?? 1) >= ($masterAssets_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($masterAssets_pagination['current_page'] ?? 1) + 1 }})"
+                               {{ ($masterAssets_pagination['current_page'] ?? 1) >= ($masterAssets_pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
+                            Next
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-600">
+                            @if(isset($masterAssets_pagination) && is_array($masterAssets_pagination))
+                                @php
+                                    $currentPage = $masterAssets_pagination['current_page'] ?? 1;
+                                    $perPage = $masterAssets_pagination['per_page'] ?? 10;
+                                    $total = $masterAssets_pagination['total'] ?? count($masterAssets ?? []);
+                                    $from = ($currentPage - 1) * $perPage + 1;
+                                    $to = min($currentPage * $perPage, $total);
+                                @endphp
+                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                            @else
+                                Showing 1 to {{ count($masterAssets ?? []) }} of {{ count($masterAssets ?? []) }} entries
+                            @endif
+                        </span>
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
+                            <option value="10" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per page</option>
+                            <option value="25" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per page</option>
+                            <option value="50" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per page</option>
+                        </select>
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Master Asset Modal -->
+<div id="addMasterAssetModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="addMasterAssetModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">ADD MASTER ASSET</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <form action="{{ route('asset-master.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <!-- Asset Information Section -->
+                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Asset Information</h3>
+
+                            <!-- Basic Asset Details -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Asset Name</label>
+                                    <input type="text" name="asset_name" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                        placeholder="Asset name">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Asset Type</label>
+                                    <select name="asset_type" id="asset_type" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <option value="" disabled selected>Select Asset Type</option>
+                                        @foreach($assetTypes as $type)
+                                        <option value="{{ $type }}">{{ $type }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Subcategory Dropdown -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Subcategory</label>
+                                    <div class="custom-select-container relative">
+                                        <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="Search subcategory...">
+                                        <input type="hidden" name="subcategory_id" id="subcategory_id" required>
+                                        <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
+                                            <div class="p-2 text-center text-gray-500">Type to search...</div>
+                                            @foreach($subcategories as $subcategory)
+                                            <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
+                                                data-value="{{ $subcategory['subcategory_id'] }}"
+                                                data-type="{{ $subcategory['asset_type'] }}">
+                                                {{ $subcategory['subcategory_name'] }}
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Brand Dropdown -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Brand</label>
+                                    <div class="custom-select-container relative">
+                                        <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="Search brand...">
+                                        <input type="hidden" name="brand_id" required>
+                                        <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
+                                            <div class="p-2 text-center text-gray-500">Type to search...</div>
+                                            @foreach($brands as $brand)
+                                            <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
+                                                data-value="{{ $brand['brand_id'] }}">
+                                                {{ $brand['brand_name'] }}
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Description</label>
+                                <textarea name="description"
+                                    class="w-full h-[100px] px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] resize-none"
+                                    placeholder="Asset description"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Depreciation Toggle Switch -->
+                                <div class="flex items-center justify-between">
+                                    <label for="is_depreciable" class="text-base font-semibold text-[#666666]">Enable Asset Depreciation</label>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="is_depreciable" id="is_depreciable" class="sr-only peer depreciation-toggle" value="true">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
+                                            peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
+                                            peer-checked:after:border-white after:content-[''] after:absolute
+                                            after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
+                                            after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                                            peer-checked:bg-[#213268]"></div>
+                                        <span class="ml-2 text-sm font-medium text-gray-900 depreciation-status">No</span>
+                                    </label>
+                                </div>
+
+                                <!-- Calibration Toggle Switch -->
+                                <div class="flex items-center justify-between">
+                                    <label for="needs_calibration" class="text-base font-semibold text-[#666666]">Needs Calibration</label>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="needs_calibration" id="needs_calibration" class="sr-only peer calibration-toggle" value="true">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
+                                            peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
+                                            peer-checked:after:border-white after:content-[''] after:absolute
+                                            after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
+                                            after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                                            peer-checked:bg-[#213268]"></div>
+                                        <span class="ml-2 text-sm font-medium text-gray-900 calibration-status">No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Master Asset Modal -->
+<div id="editMasterAssetModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="editMasterAssetModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT MASTER ASSET</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <form id="editMasterAssetForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="p-6">
+                        <!-- Loading indicator -->
+                        <div class="text-center" id="edit-loading">
+                            <div class="inline-block w-8 h-8 border-4 border-[#213268] border-t-transparent rounded-full animate-spin"></div>
+                            <p class="mt-2 text-gray-600">Loading asset data...</p>
+                        </div>
+
+                        <div id="edit-form-content" class="space-y-4 hidden">
+                            <!-- Asset Information Section -->
+                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Asset Information</h3>
+
+                            <!-- Image upload -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Asset Image</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
+                                    <!-- Current image preview -->
+                                    <div id="current-image" class="mt-2 mb-4 w-full hidden">
+                                        <img src="" class="max-h-40 mx-auto rounded-lg" alt="Current Image">
+                                    </div>
+
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-blue-600">browse</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
+                                    </div>
+                                    <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                    <!-- New image preview -->
+                                    <div id="edit-image-preview" class="mt-4 w-full hidden">
+                                        <img src="" class="max-h-40 mx-auto rounded-lg" alt="New Image">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Basic Asset Details -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Asset Name</label>
+                                    <input type="text" name="asset_name" id="edit_asset_name" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                        placeholder="Asset name">
+                                </div>
+
+                                <!-- Asset Type Field -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Asset Type</label>
+                                    <select name="asset_type" id="edit_asset_type" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <option value="" disabled selected>Select Asset Type</option>
+                                        <option value="non_medical">Non Medical</option>
+                                        <option value="medical">Medical</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Subcategory Dropdown -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Subcategory</label>
+                                    <div class="custom-select-container relative">
+                                        <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="Search subcategory...">
+                                        <input type="hidden" name="subcategory_id" id="edit_subcategory_id" required>
+                                        <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
+                                            <div class="p-2 text-center text-gray-500">Type to search...</div>
+                                            @foreach($subcategories as $subcategory)
+                                            <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
+                                                data-value="{{ $subcategory['subcategory_id'] }}">
+                                                {{ $subcategory['subcategory_name'] }}
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Brand Dropdown - Moved from below into this grid -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Brand</label>
+                                    <div class="custom-select-container relative">
+                                        <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="Search brand...">
+                                        <input type="hidden" name="brand_id" id="edit_brand_id" required>
+                                        <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
+                                            <div class="p-2 text-center text-gray-500">Type to search...</div>
+                                            @foreach($brands as $brand)
+                                            <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
+                                                data-value="{{ $brand['brand_id'] }}">
+                                                {{ $brand['brand_name'] }}
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Description</label>
+                                <textarea name="description" id="edit_description"
+                                    class="w-full h-[100px] px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] resize-none"
+                                    placeholder="Asset description"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Depreciation Toggle Switch -->
+                                <div class="flex items-center justify-between">
+                                    <label for="edit_is_depreciable" class="text-base font-semibold text-[#666666]">Enable Asset Depreciation</label>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="is_depreciable" id="edit_is_depreciable" class="sr-only peer depreciation-toggle" value="1">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
+                                            peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
+                                            peer-checked:after:border-white after:content-[''] after:absolute
+                                            after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
+                                            after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                                            peer-checked:bg-[#213268]"></div>
+                                        <span class="ml-2 text-sm font-medium text-gray-900 depreciation-status">No</span>
+                                    </label>
+                                </div>
+
+                                <!-- Calibration Toggle Switch -->
+                                <div class="flex items-center justify-between">
+                                    <label for="edit_needs_calibration" class="text-base font-semibold text-[#666666]">Needs Calibration</label>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="needs_calibration" id="edit_needs_calibration" class="sr-only peer calibration-toggle" value="1">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
+                                            peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
+                                            peer-checked:after:border-white after:content-[''] after:absolute
+                                            after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
+                                            after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                                            peer-checked:bg-[#213268]"></div>
+                                        <span class="ml-2 text-sm font-medium text-gray-900 calibration-status">No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" id="edit-submit-btn" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                Update
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="deleteModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE MASTER ASSET</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <form id="delete-form" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <div class="p-6">
+                        <div class="space-y-6 max-w-[400px] mx-auto">
+                            <div class="flex flex-col items-center">
+                                <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this master asset? This action cannot be undone.</p>
+                                <p id="delete-asset-name" class="text-base font-semibold text-center mt-2"></p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if(session('success'))
+<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Success!</p>
+            <p>{{ session('success') }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+@endif
+
+@if(session('error') || isset($error))
+<div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold">Error!</p>
+            <p>{{ session('error') ?? $error ?? 'An error occurred' }}</p>
+        </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    </div>
+</div>
+@endif
+
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Modal functionality
+        const openModal = function(modal, content) {
+            console.log('Opening modal', modal.id);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+            }, 10);
+        };
+
+        const closeModal = function(modal, content) {
+            console.log('Closing modal', modal.id);
+            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        // Debounce function to limit function calls
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // Initialize custom select dropdowns
+        function initCustomSelects() {
+            document.querySelectorAll('.custom-select-container').forEach(container => {
+                const searchInput = container.querySelector('.search-input');
+                const hiddenInput = container.querySelector('input[type="hidden"]');
+                const optionsContainer = container.querySelector('.options-container');
+                const options = container.querySelectorAll('.option');
+
+                // Store all options in a variable for quick access
+                const allOptions = Array.from(options);
+
+                // Debug info about available options
+                console.log(`Select for ${hiddenInput.id || 'unknown'} has ${allOptions.length} options`);
+
+                // Lazy loading configuration
+                const maxInitialOptions = 30; // Show fewer options initially for better performance
+                const loadMoreIncrement = 50; // Load this many more options when "Load more" is clicked
+                let isFullyLoaded = allOptions.length <= maxInitialOptions;
+                let visibleCount = Math.min(maxInitialOptions, allOptions.length);
+
+                // Initialize with limited options if there are many
+                if (!isFullyLoaded) {
+                    // Hide options beyond the initial limit
+                    allOptions.forEach((option, index) => {
+                        if (index >= maxInitialOptions) {
+                            option.style.display = 'none';
+                        }
+                    });
+
+                    // Add a "load more" option at the end
+                    const loadMoreDiv = document.createElement('div');
+                    loadMoreDiv.className = 'load-more p-3 text-center text-blue-600 hover:bg-gray-100 cursor-pointer';
+                    loadMoreDiv.textContent = `Load more options... (${visibleCount} of ${allOptions.length})`;
+                    loadMoreDiv.addEventListener('click', function() {
+                        // Calculate how many more to show
+                        const newVisibleCount = Math.min(visibleCount + loadMoreIncrement, allOptions.length);
+
+                        // Show the next batch of options
+                        for (let i = visibleCount; i < newVisibleCount; i++) {
+                            allOptions[i].style.display = '';
+                        }
+
+                        visibleCount = newVisibleCount;
+
+                        // Update load more text or remove if all loaded
+                        if (visibleCount >= allOptions.length) {
+                            this.remove();
+                            isFullyLoaded = true;
+                        } else {
+                            this.textContent = `Load more options... (${visibleCount} of ${allOptions.length})`;
+                        }
+
+                        // Apply current search filter if there is one
+                        const searchValue = searchInput.value.toLowerCase().trim();
+                        if (searchValue) {
+                            filterOptions(searchValue);
+                        }
+                    });
+                    optionsContainer.appendChild(loadMoreDiv);
+                }
+
+                // Show options when input is focused
+                searchInput.addEventListener('focus', () => {
+                    optionsContainer.classList.remove('hidden');
+
+                    // Reset search and show all loaded options
+                    if (searchInput.value === '') {
+                        if (isFullyLoaded) {
+                            allOptions.forEach(option => {
+                                option.style.display = '';
+                            });
+                        } else {
+                            // Show only initial options
+                            allOptions.forEach((option, index) => {
+                                option.style.display = index < visibleCount ? '' : 'none';
+                            });
+
+                            // Make sure load more button is visible if needed
+                            const loadMoreBtn = optionsContainer.querySelector('.load-more');
+                            if (!loadMoreBtn && !isFullyLoaded) {
+                                const loadMoreDiv = document.createElement('div');
+                                loadMoreDiv.className = 'load-more p-3 text-center text-blue-600 hover:bg-gray-100 cursor-pointer';
+                                loadMoreDiv.textContent = `Load more options... (${visibleCount} of ${allOptions.length})`;
+                                loadMoreDiv.addEventListener('click', function() {
+                                    const newVisibleCount = Math.min(visibleCount + loadMoreIncrement, allOptions.length);
+                                    for (let i = visibleCount; i < newVisibleCount; i++) {
+                                        allOptions[i].style.display = '';
+                                    }
+                                    visibleCount = newVisibleCount;
+
+                                    if (visibleCount >= allOptions.length) {
+                                        this.remove();
+                                        isFullyLoaded = true;
+                                    } else {
+                                        this.textContent = `Load more options... (${visibleCount} of ${allOptions.length})`;
+                                    }
+                                });
+                                optionsContainer.appendChild(loadMoreDiv);
+                            }
+                        }
+                    } else {
+                        // If there's already a search term, filter by it
+                        filterOptions(searchInput.value.toLowerCase().trim());
+                    }
+                });
+
+                // Hide options when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!container.contains(e.target)) {
+                        optionsContainer.classList.add('hidden');
+                    }
+                });
+
+                // Function to filter options by search term
+                function filterOptions(searchValue) {
+                    // For search operations, we'll search through ALL options, not just visible ones
+                    isFullyLoaded = true; // When searching, ignore lazy loading limits
+
+                    let hasResults = false;
+                    const matchingOptions = [];
+
+                    // Remove any existing no-results message
+                    const existingNoResults = optionsContainer.querySelector('.no-results');
+                    if (existingNoResults) {
+                        existingNoResults.remove();
+                    }
+
+                    // Remove load more button when filtering
+                    const loadMoreBtn = optionsContainer.querySelector('.load-more');
+                    if (loadMoreBtn) {
+                        loadMoreBtn.remove();
+                    }
+
+                    // First find exact matches (start with)
+                    allOptions.forEach(option => {
+                        const text = option.textContent.trim().toLowerCase();
+                        if (text.startsWith(searchValue)) {
+                            matchingOptions.push(option);
+                            option.style.display = '';
+                            hasResults = true;
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+
+                    // If no exact matches, look for contains matches
+                    if (!hasResults) {
+                        allOptions.forEach(option => {
+                            const text = option.textContent.trim().toLowerCase();
+                            if (text.includes(searchValue)) {
+                                matchingOptions.push(option);
+                                option.style.display = '';
+                                hasResults = true;
+                            }
+                        });
+                    }
+
+                    // Show no results message if needed
+                    if (!hasResults) {
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = 'no-results p-3 text-center text-gray-500';
+                        msgDiv.textContent = 'No results found';
+                        optionsContainer.appendChild(msgDiv);
+                    } else {
+                        // Show the matched options and scroll to the first match
+                        if (matchingOptions.length > 0) {
+                            matchingOptions[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                            // Add result count if there are many matches
+                            if (matchingOptions.length > 10) {
+                                const countDiv = document.createElement('div');
+                                countDiv.className = 'results-count p-2 text-center text-xs text-gray-500';
+                                countDiv.textContent = `Found ${matchingOptions.length} matches`;
+                                optionsContainer.insertBefore(countDiv, optionsContainer.firstChild);
+                            }
+                        }
+                    }
+                }
+
+                // Search functionality with debounce
+                searchInput.addEventListener('input', debounce(function() {
+                    const searchValue = this.value.toLowerCase().trim();
+
+                    if (searchValue === '') {
+                        // If search is cleared, reset to show initial options
+                        if (isFullyLoaded) {
+                            allOptions.forEach(option => {
+                                option.style.display = '';
+                            });
+                        } else {
+                            // Only show limited options
+                            allOptions.forEach((option, index) => {
+                                option.style.display = index < visibleCount ? '' : 'none';
+                            });
+
+                            // Make sure "load more" is visible
+                            if (!optionsContainer.querySelector('.load-more')) {
+                                const loadMoreDiv = document.createElement('div');
+                                loadMoreDiv.className = 'load-more p-3 text-center text-blue-600 hover:bg-gray-100 cursor-pointer';
+                                loadMoreDiv.textContent = `Load more options... (${visibleCount} of ${allOptions.length})`;
+                                loadMoreDiv.addEventListener('click', function() {
+                                    const newVisibleCount = Math.min(visibleCount + loadMoreIncrement, allOptions.length);
+                                    for (let i = visibleCount; i < newVisibleCount; i++) {
+                                        allOptions[i].style.display = '';
+                                    }
+                                    visibleCount = newVisibleCount;
+
+                                    if (visibleCount >= allOptions.length) {
+                                        this.remove();
+                                        isFullyLoaded = true;
+                                    } else {
+                                        this.textContent = `Load more options... (${visibleCount} of ${allOptions.length})`;
+                                    }
+                                });
+                                optionsContainer.appendChild(loadMoreDiv);
+                            }
+                        }
+
+                        // Remove any no-results message
+                        const existingNoResults = optionsContainer.querySelector('.no-results');
+                        if (existingNoResults) {
+                            existingNoResults.remove();
+                        }
+
+                        // Remove any results count message
+                        const resultsCount = optionsContainer.querySelector('.results-count');
+                        if (resultsCount) {
+                            resultsCount.remove();
+                        }
+                    } else {
+                        // For search: always search through all options (even if they were hidden by lazy loading)
+                        // This ensures we find all matches even in lazy loaded data
+                        filterOptions(searchValue);
+                    }
+                }, 200)); // Reduced debounce time for more responsiveness
+
+                // Set selected option
+                options.forEach(option => {
+                    option.addEventListener('click', () => {
+                        const value = option.dataset.value;
+                        const text = option.textContent.trim();
+
+                        hiddenInput.value = value;
+                        searchInput.value = text;
+                        optionsContainer.classList.add('hidden');
+
+                        // Trigger change event to notify form of the selection
+                        const event = new Event('change', { bubbles: true });
+                        hiddenInput.dispatchEvent(event);
+                    });
+                });
+            });
+        }
+
+        // Function to set select value and display text
+        function setSelectValue(selectId, value) {
+            if (!value) return;
+
+            // Get the elements
+            const hiddenInput = document.getElementById(selectId);
+            if (!hiddenInput) return;
+
+            const container = hiddenInput.closest('.custom-select-container');
+            const searchInput = container.querySelector('.search-input');
+            const options = container.querySelectorAll('.option');
+
+            // Set the hidden input value
+            hiddenInput.value = value.toString();
+
+            // Find the matching option to display its text
+            let foundOption = null;
+
+            // Try to find the option in the DOM
+            Array.from(options).forEach(option => {
+                if (option.dataset.value === value.toString()) {
+                    foundOption = option;
+                }
+            });
+
+            // If option not found in DOM, try to find it in the data
+            if (!foundOption) {
+                if (selectId === 'edit_subcategory_id') {
+                    const subcategories = @json($subcategories);
+                    const subcategory = subcategories.find(sc => sc.subcategory_id.toString() === value.toString());
+                    if (subcategory) {
+                        console.log('Found subcategory in data:', subcategory);
+                        searchInput.value = subcategory.subcategory_name || value.toString();
+
+                        // Ensure this option is visible
+                        ensureOptionVisible(container, value);
+                        return;
+                    }
+                } else if (selectId === 'edit_brand_id') {
+                    const brands = @json($brands);
+                    const brand = brands.find(b => b.brand_id.toString() === value.toString());
+                    if (brand) {
+                        console.log('Found brand in data:', brand);
+                        searchInput.value = brand.brand_name || value.toString();
+
+                        // Ensure this option is visible
+                        ensureOptionVisible(container, value);
+                        return;
+                    }
+                }
+            }
+
+            // Update the display text
+            if (foundOption) {
+                searchInput.value = foundOption.textContent.trim();
+
+                // Make sure this option is visible
+                foundOption.style.display = '';
+
+                // Ensure we can see this option
+                setTimeout(() => {
+                    foundOption.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            } else {
+                console.warn(`Option with value "${value}" not found for ${selectId}`);
+                searchInput.value = value.toString();
+            }
+        }
+
+        // Initialize all custom selects
+        initCustomSelects();
+
+        // Update asset type filter for subcategory
+        document.getElementById('asset_type')?.addEventListener('change', function() {
+            const selectedType = this.value;
+            const container = document.querySelector('#subcategory_id').closest('.custom-select-container');
+            const options = container.querySelectorAll('.option');
+
+            options.forEach(option => {
+                const optionType = option.dataset.type;
+                if (!selectedType || option.value === '' || optionType === selectedType) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+
+            // Reset the subcategory selection
+            const hiddenInput = container.querySelector('input[type="hidden"]');
+            const searchInput = container.querySelector('.search-input');
+            hiddenInput.value = '';
+            searchInput.value = '';
+        });
+
+        // Add master asset button
+        document.getElementById('addMasterAssetBtn')?.addEventListener('click', function() {
+            const modal = document.getElementById('addMasterAssetModal');
+            const content = document.getElementById('addMasterAssetModalContent');
+            if (modal && content) {
+                openModal(modal, content);
+            }
+        });
+
+        // Edit asset functionality
+        document.querySelectorAll('.edit-asset-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const assetId = this.dataset.id;
+                const editModal = document.getElementById('editMasterAssetModal');
+                const editContent = document.getElementById('editMasterAssetModalContent');
+                const loadingIndicator = document.getElementById('edit-loading');
+                const formContent = document.getElementById('edit-form-content');
+                const submitBtn = document.getElementById('edit-submit-btn');
+
+                if (editModal && editContent) {
+                    // Reset form and show loading
+                    document.getElementById('editMasterAssetForm').reset();
+                    document.getElementById('editMasterAssetForm').action = `{{ url('asset-master') }}/${assetId}`;
+
+                    // Show loading indicator
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    if (formContent) formContent.classList.add('hidden');
+                    if (submitBtn) submitBtn.disabled = true;
+
+                    // Open the modal while loading
+                    openModal(editModal, editContent);
+
+                    // Fetch asset data with proper error handling
+                    fetch(`{{ url('asset-master') }}/${assetId}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => {
+                        // First check if response is ok (status in 200-299 range)
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+
+                        // Check Content-Type header
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            throw new Error(`Expected JSON response but got ${contentType}`);
+                        }
+
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data || !data.masterAsset) {
+                            throw new Error('Invalid response data structure');
+                        }
+
+                        const asset = data.masterAsset;
+                        console.log('Fetched asset data:', asset);
+
+                        // Fill in form fields
+                        document.getElementById('edit_asset_name').value = asset.asset_name || '';
+                        document.getElementById('edit_description').value = asset.description || '';
+
+                        // Set asset type
+                        if (asset.asset_type) {
+                            document.getElementById('edit_asset_type').value = asset.asset_type;
+                        }
+
+                        // Set subcategory and brand using the helper function
+                        setSelectValue('edit_subcategory_id', asset.subcategory_id);
+                        setSelectValue('edit_brand_id', asset.brand_id);
+
+                        // Handle checkboxes
+                        document.getElementById('edit_is_depreciable').checked = Boolean(asset.is_depreciable);
+                        document.getElementById('edit_needs_calibration').checked = Boolean(asset.needs_calibration);
+
+                        // Update toggle status text
+                        const depreciationStatus = document.querySelector('#editMasterAssetModal .depreciation-status');
+                        if (depreciationStatus) {
+                            depreciationStatus.textContent = asset.is_depreciable ? 'Yes' : 'No';
+                        }
+
+                        const calibrationStatus = document.querySelector('#editMasterAssetModal .calibration-status');
+                        if (calibrationStatus) {
+                            calibrationStatus.textContent = asset.needs_calibration ? 'Yes' : 'No';
+                        }
+
+                        // Handle image if present
+                        if (asset.reference_image_url) {
+                            const imgElement = document.querySelector('#current-image img');
+                            if (imgElement) {
+                                imgElement.src = asset.reference_image_url;
+                                document.getElementById('current-image').classList.remove('hidden');
+                            }
+                        } else {
+                            const currentImage = document.getElementById('current-image');
+                            if (currentImage) currentImage.classList.add('hidden');
+                        }
+
+                        // Hide loading and show form
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                        if (formContent) formContent.classList.remove('hidden');
+                        if (submitBtn) submitBtn.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching asset data:', error);
+
+                        // Hide loading indicator
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+
+                        // Show an error message in the modal
+                        if (formContent) {
+                            formContent.innerHTML = `
+                                <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                                    <p class="font-medium">Error fetching asset data</p>
+                                    <p>${error.message}</p>
+                                    <p class="mt-2">Please try again or contact support if the problem persists.</p>
+                                </div>
+                                <button type="button" class="close-modal w-full h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300">
+                                    Close
+                                </button>
+                            `;
+                            formContent.classList.remove('hidden');
+                        }
+
+                        // Reattach close event listeners
+                        formContent.querySelectorAll('.close-modal').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                closeModal(editModal, editContent);
+                            });
+                        });
+                    });
+                }
+            });
+        });
+
+        // Delete asset functionality
+        document.querySelectorAll('.delete-asset-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const assetId = this.dataset.id;
+                const assetName = this.dataset.name;
+                const deleteModal = document.getElementById('deleteModal');
+                const deleteContent = document.getElementById('deleteModalContent');
+
+                if (deleteModal && deleteContent) {
+                    document.getElementById('delete-asset-name').textContent = assetName;
+                    document.getElementById('delete-form').action = `{{ url('asset-master') }}/${assetId}`;
+                    openModal(deleteModal, deleteContent);
+                }
+            });
+        });
+
+        // Modal close buttons
+        document.querySelectorAll('.close-modal').forEach(closeButton => {
+            closeButton.addEventListener('click', function() {
+                const modal = this.closest('[id$="Modal"]');
+                const content = modal.querySelector('[id$="Content"]');
+                if (modal && content) {
+                    closeModal(modal, content);
+                }
+            });
+        });
+
+        // Close modal when clicking outside
+        document.querySelectorAll('[id$="Modal"]').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    const content = this.querySelector('[id$="Content"]');
+                    if (content) {
+                        closeModal(this, content);
+                    }
+                }
+            });
+        });
+
+        // File upload preview for add modal
+        document.getElementById('image_file')?.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgElement = document.querySelector('#image-preview img');
+                    imgElement.src = e.target.result;
+                    document.getElementById('image-preview').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // File upload preview for edit modal
+        document.getElementById('edit_image_file')?.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgElement = document.querySelector('#edit-image-preview img');
+                    imgElement.src = e.target.result;
+                    document.getElementById('edit-image-preview').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Toggle switches for add form
+        document.getElementById('is_depreciable')?.addEventListener('change', function() {
+            document.querySelectorAll('.depreciation-status')[0].textContent = this.checked ? 'Yes' : 'No';
+        });
+
+        document.getElementById('needs_calibration')?.addEventListener('change', function() {
+            document.querySelectorAll('.calibration-status')[0].textContent = this.checked ? 'Yes' : 'No';
+        });
+
+        // Toggle switches for edit form
+        document.getElementById('edit_is_depreciable')?.addEventListener('change', function() {
+            document.querySelectorAll('.depreciation-status')[1].textContent = this.checked ? 'Yes' : 'No';
+        });
+
+        document.getElementById('edit_needs_calibration')?.addEventListener('change', function() {
+            document.querySelectorAll('.calibration-status')[1].textContent = this.checked ? 'Yes' : 'No';
+        });
+
+        // Pagination helpers
+        window.changePage = function(page) {
+            if (page < 1) return;
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.location.href = url.toString();
+        };
+
+        window.changePerPage = function(perPage) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', perPage);
+            url.searchParams.set('page', 1); // Reset to page 1 when changing items per page
+            window.location.href = url.toString();
+        };
+
+        // Auto-hide notifications after 5 seconds
+        setTimeout(function() {
+            const notifications = document.querySelectorAll('#successNotification, #errorNotification');
+            notifications.forEach(notification => {
+                if (notification) {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => notification.remove(), 500);
+                }
+            });
+        }, 5000);
+
+        // Function to find subcategory name by ID
+        function getSubcategoryNameById(id) {
+            const subcategories = @json($subcategories);
+            const subcategory = subcategories.find(sc => sc.subcategory_id.toString() === id.toString());
+            return subcategory ? subcategory.subcategory_name : 'Unknown Subcategory';
+        }
+
+        // Function to ensure specific options are always shown if they match
+        function ensureOptionVisible(container, value) {
+            if (!value) return;
+
+            const optionsContainer = container.querySelector('.options-container');
+            const allOptions = Array.from(container.querySelectorAll('.option'));
+            const targetOption = allOptions.find(option => option.dataset.value === value.toString());
+
+            if (targetOption) {
+                targetOption.style.display = '';
+
+                // If we have an exact match, scroll to it
+                setTimeout(() => {
+                    targetOption.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        }
+
+        // Make sure the selected options are always visible regardless of lazy loading
+        document.querySelectorAll('.custom-select-container').forEach(container => {
+            const hiddenInput = container.querySelector('input[type="hidden"]');
+            if (hiddenInput && hiddenInput.value) {
+                ensureOptionVisible(container, hiddenInput.value);
+            }
+        });
+
+        // Add event listeners for asset type selection to filter subcategories
+        function initAssetTypeFilters() {
+            // For add modal
+            document.getElementById('asset_type')?.addEventListener('change', function() {
+                filterSubcategoriesByAssetType(this.value, 'subcategory_id');
+            });
+
+            // For edit modal
+            document.getElementById('edit_asset_type')?.addEventListener('change', function() {
+                filterSubcategoriesByAssetType(this.value, 'edit_subcategory_id');
+            });
+        }
+
+        // Function to filter subcategories by selected asset type
+        function filterSubcategoriesByAssetType(assetType, subcategoryFieldId) {
+            if (!assetType) return;
+
+            console.log(`Filtering subcategories for asset type: ${assetType}`);
+
+            const subcategoryContainer = document.getElementById(subcategoryFieldId).closest('.custom-select-container');
+            const searchInput = subcategoryContainer.querySelector('.search-input');
+            const hiddenInput = subcategoryContainer.querySelector('input[type="hidden"]');
+            const optionsContainer = subcategoryContainer.querySelector('.options-container');
+            const options = Array.from(subcategoryContainer.querySelectorAll('.option'));
+
+            // Clear current selection since we're changing the available options
+            searchInput.value = '';
+            hiddenInput.value = '';
+
+            // Remove any existing messages
+            const existingMessages = optionsContainer.querySelectorAll('.no-results, .results-count, .load-more');
+            existingMessages.forEach(el => el.remove());
+
+            // Count matching options for this asset type
+            let matchingCount = 0;
+            let visibleCount = 0;
+            const maxInitialOptions = 30;
+
+            // Filter options based on asset type attribute
+            options.forEach((option, index) => {
+                const optionAssetType = option.getAttribute('data-type');
+
+                if (optionAssetType === assetType) {
+                    matchingCount++;
+
+                    // Show only the first batch
+                    if (matchingCount <= maxInitialOptions) {
+                        option.style.display = '';
+                        visibleCount++;
+                    } else {
+                        option.style.display = 'none';
+                    }
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+
+            // Add load more button if there are more matching options
+            if (matchingCount > maxInitialOptions) {
+                const loadMoreDiv = document.createElement('div');
+                loadMoreDiv.className = 'load-more p-3 text-center text-blue-600 hover:bg-gray-100 cursor-pointer';
+                loadMoreDiv.textContent = `Load more options... (${visibleCount} of ${matchingCount})`;
+
+                loadMoreDiv.addEventListener('click', function() {
+                    // Load more filtered options
+                    let newVisible = 0;
+                    let loaded = 0;
+                    const loadMoreIncrement = 50;
+
+                    options.forEach(option => {
+                        const optionAssetType = option.getAttribute('data-type');
+
+                        if (optionAssetType === assetType) {
+                            newVisible++;
+
+                            if (newVisible > visibleCount && loaded < loadMoreIncrement) {
+                                option.style.display = '';
+                                loaded++;
+                            }
+                        }
+                    });
+
+                    visibleCount += loaded;
+
+                    // Update or remove load more button
+                    if (visibleCount >= matchingCount) {
+                        this.remove();
+                    } else {
+                        this.textContent = `Load more options... (${visibleCount} of ${matchingCount})`;
+                    }
+                });
+
+                optionsContainer.appendChild(loadMoreDiv);
+            } else if (matchingCount === 0) {
+                // No matching subcategories
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'no-results p-3 text-center text-gray-500';
+                msgDiv.textContent = `No subcategories found for ${assetType === 'medical' ? 'Medical' : 'Non Medical'} asset type`;
+                optionsContainer.appendChild(msgDiv);
+            }
+
+            // Add count message
+            const countDiv = document.createElement('div');
+            countDiv.className = 'results-count p-2 text-center text-xs text-gray-500';
+            countDiv.textContent = `${matchingCount} subcategories for ${assetType === 'medical' ? 'Medical' : 'Non Medical'}`;
+            optionsContainer.insertBefore(countDiv, optionsContainer.firstChild);
+
+            console.log(`Found ${matchingCount} subcategories for asset type ${assetType}`);
+        }
+
+        // Initialize custom selects and asset type filters
+        initCustomSelects();
+        initAssetTypeFilters();
+
+        // If asset type is already selected on page load, filter subcategories
+        const addAssetType = document.getElementById('asset_type');
+        if (addAssetType && addAssetType.value) {
+            filterSubcategoriesByAssetType(addAssetType.value, 'subcategory_id');
+        }
+
+        const editAssetType = document.getElementById('edit_asset_type');
+        if (editAssetType && editAssetType.value) {
+            filterSubcategoriesByAssetType(editAssetType.value, 'edit_subcategory_id');
+        }
+    });
+</script>
+@endpush
