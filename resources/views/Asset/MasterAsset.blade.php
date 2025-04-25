@@ -23,6 +23,37 @@
                     </div>
                 </div>
 
+                <!-- Search and Filter -->
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="relative flex-grow">
+                        <input type="text" id="searchInput" placeholder="Search by asset name, type, or brand..."
+                            class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-4">
+                        <select id="assetTypeFilter"
+                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="">All Types</option>
+                            @foreach($assetTypes as $type)
+                                <option value="{{ $type }}">{{ ucfirst(str_replace('_', ' ', $type)) }}</option>
+                            @endforeach
+                        </select>
+
+                        <select id="sortOrder"
+                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="name_asc">Name (A-Z)</option>
+                            <option value="name_desc">Name (Z-A)</option>
+                        </select>
+                    </div>
+                </div>
+
                 <!-- Asset Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full">
@@ -179,6 +210,34 @@
                             <!-- Asset Information Section -->
                             <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Asset Information</h3>
 
+                            <!-- Image upload - Improved visibility -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#213268]">Asset Image <span class="text-sm font-normal text-[#666666]">(Upload a reference image for this asset)</span></label>
+                                <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                    <!-- Image preview -->
+                                    <div id="image-preview" class="mt-2 mb-4 w-full hidden">
+                                        <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                            <img src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Selected Image">
+                                            <button type="button" id="remove-image" class="remove-image-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-[#213268] font-semibold">browse files</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: jpg, jpeg, png</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                    </div>
+                                    <input type="file" id="image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                </div>
+                            </div>
+
                             <!-- Basic Asset Details -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
@@ -327,10 +386,17 @@
                             <!-- Image upload -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">Asset Image</label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
+                                <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                     <!-- Current image preview -->
-                                    <div id="current-image" class="mt-2 mb-4 w-full hidden">
-                                        <img src="" class="max-h-40 mx-auto rounded-lg" alt="Current Image">
+                                    <div id="edit-image-container" class="mt-2 mb-4 w-full hidden">
+                                        <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                            <img src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Asset Image">
+                                            <button type="button" class="remove-image-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div class="text-center">
@@ -341,10 +407,6 @@
                                         <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
                                     </div>
                                     <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                    <!-- New image preview -->
-                                    <div id="edit-image-preview" class="mt-4 w-full hidden">
-                                        <img src="" class="max-h-40 mx-auto rounded-lg" alt="New Image">
-                                    </div>
                                 </div>
                             </div>
 
@@ -982,7 +1044,9 @@
                         }
 
                         const asset = data.masterAsset;
-                        console.log('Fetched asset data:', asset);
+                        console.log('Fetched asset data for image check:', asset);
+                        console.log('Image URL property value:', asset.reference_image_path);
+                        console.log('All asset properties:', Object.keys(asset));
 
                         // Fill in form fields
                         document.getElementById('edit_asset_name').value = asset.asset_name || '';
@@ -1013,14 +1077,55 @@
                         }
 
                         // Handle image if present
-                        if (asset.reference_image_url) {
-                            const imgElement = document.querySelector('#current-image img');
+                        if (asset.reference_image_path) {
+                            const imgElement = document.querySelector('#edit-image-container img');
                             if (imgElement) {
-                                imgElement.src = asset.reference_image_url;
-                                document.getElementById('current-image').classList.remove('hidden');
+                                try {
+                                    // Define the base URL - using the confirmed server location
+                                    const baseUrl = "http://localhost:5000/public";
+
+                                    // Process the image URL
+                                    let imageUrl = asset.reference_image_path;
+
+                                    // If URL is not absolute, prepend the base URL
+                                    if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('//')) {
+                                        // Remove leading slash if present to avoid double slashes
+                                        if (imageUrl.startsWith('/')) {
+                                            imageUrl = imageUrl.substring(1);
+                                        }
+                                        imageUrl = `${baseUrl}/${imageUrl}`;
+                                    }
+
+                                    console.log('Using master asset image URL:', imageUrl);
+
+                                    // Set the image source and display it
+                                    imgElement.src = imageUrl;
+                                    document.getElementById('edit-image-container').classList.remove('hidden');
+
+                                    // Ensure new image preview is hidden
+                                    document.getElementById('edit-image-preview').classList.add('hidden');
+
+                                    // Reset file input
+                                    const fileInput = document.getElementById('edit_image_file');
+                                    if (fileInput) {
+                                        fileInput.value = '';
+                                    }
+
+                                    // Add debug info
+                                    imgElement.onerror = function() {
+                                        console.error(`Failed to load image from URL: ${imageUrl}`);
+                                        document.getElementById('edit-image-container').classList.add('hidden');
+                                    };
+
+                                    imgElement.onload = function() {
+                                        console.log(`Successfully loaded image from URL: ${imageUrl}`);
+                                    };
+                                } catch (error) {
+                                    console.error('Error setting image URL:', error);
+                                }
                             }
                         } else {
-                            const currentImage = document.getElementById('current-image');
+                            const currentImage = document.getElementById('edit-image-container');
                             if (currentImage) currentImage.classList.add('hidden');
                         }
 
@@ -1082,6 +1187,12 @@
             closeButton.addEventListener('click', function() {
                 const modal = this.closest('[id$="Modal"]');
                 const content = modal.querySelector('[id$="Content"]');
+
+                // If it's the edit master asset modal, reset the form
+                if (modal.id === 'editMasterAssetModal') {
+                    resetEditMasterAssetForm();
+                }
+
                 if (modal && content) {
                     closeModal(modal, content);
                 }
@@ -1093,6 +1204,12 @@
             modal.addEventListener('click', function(e) {
                 if (e.target === this) {
                     const content = this.querySelector('[id$="Content"]');
+
+                    // If it's the edit master asset modal, reset the form
+                    if (this.id === 'editMasterAssetModal') {
+                        resetEditMasterAssetForm();
+                    }
+
                     if (content) {
                         closeModal(this, content);
                     }
@@ -1120,11 +1237,51 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const imgElement = document.querySelector('#edit-image-preview img');
+                    const imgElement = document.querySelector('#edit-image-container img');
                     imgElement.src = e.target.result;
-                    document.getElementById('edit-image-preview').classList.remove('hidden');
+                    document.getElementById('edit-image-container').classList.remove('hidden');
                 }
                 reader.readAsDataURL(file);
+            }
+        });
+
+        // Remove image button for add modal
+        document.getElementById('remove-image')?.addEventListener('click', function() {
+            const fileInput = document.getElementById('image_file');
+            const previewContainer = document.getElementById('image-preview');
+
+            if (fileInput) {
+                fileInput.value = ''; // Clear the file input
+            }
+
+            if (previewContainer) {
+                previewContainer.classList.add('hidden'); // Hide the preview
+            }
+        });
+
+        // Add remove image functionality for edit modal
+        document.querySelector('#edit-image-container .remove-image-btn')?.addEventListener('click', function() {
+            const fileInput = document.getElementById('edit_image_file');
+            const imageContainer = document.getElementById('edit-image-container');
+
+            if (fileInput) {
+                fileInput.value = ''; // Clear the file input
+            }
+
+            if (imageContainer) {
+                imageContainer.classList.add('hidden'); // Hide the preview
+            }
+
+            // Add a hidden input to signal that the image should be removed
+            const removeImageInput = document.createElement('input');
+            removeImageInput.type = 'hidden';
+            removeImageInput.name = 'remove_image';
+            removeImageInput.value = '1';
+
+            // Add to form if not already present
+            const form = document.getElementById('editMasterAssetForm');
+            if (form && !form.querySelector('input[name="remove_image"]')) {
+                form.appendChild(removeImageInput);
             }
         });
 
@@ -1330,6 +1487,139 @@
         if (editAssetType && editAssetType.value) {
             filterSubcategoriesByAssetType(editAssetType.value, 'edit_subcategory_id');
         }
+
+        // Function to reset the edit master asset form
+        function resetEditMasterAssetForm() {
+            // Reset file input
+            const fileInput = document.getElementById('edit_image_file');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+
+            // Hide image preview
+            const imageContainer = document.getElementById('edit-image-container');
+            if (imageContainer) {
+                imageContainer.classList.add('hidden');
+            }
+
+            // Remove any remove_image flag
+            const form = document.getElementById('editMasterAssetForm');
+            if (form) {
+                const removeImageInput = form.querySelector('input[name="remove_image"]');
+                if (removeImageInput) {
+                    removeImageInput.remove();
+                }
+            }
+        }
+
+        // Auto-hide notifications after 5 seconds
+        setTimeout(function() {
+            const notifications = document.querySelectorAll('#successNotification, #errorNotification');
+            notifications.forEach(notification => {
+                if (notification) {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => notification.remove(), 500);
+                }
+            });
+        }, 5000);
+
+        // Function to apply filters and sorting
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const assetTypeFilter = document.getElementById('assetTypeFilter').value;
+            const sortOrder = document.getElementById('sortOrder').value;
+
+            console.log('Applying filters:', {
+                search: searchTerm,
+                assetType: assetTypeFilter,
+                sort: sortOrder
+            });
+
+            const url = new URL(window.location.href);
+
+            // Set search parameter
+            if (searchTerm) url.searchParams.set('search', searchTerm);
+            else url.searchParams.delete('search');
+
+            // Set asset type parameter
+            if (assetTypeFilter) url.searchParams.set('type', assetTypeFilter);
+            else url.searchParams.delete('type');
+
+            // Set sort parameter
+            if (sortOrder) url.searchParams.set('sort', sortOrder);
+            else url.searchParams.delete('sort');
+
+            // Reset to first page on filter change
+            url.searchParams.set('page', 1);
+
+            console.log('Filter URL:', url.toString());
+
+            // Redirect to new URL with filters
+            window.location.href = url.toString();
+        }
+
+        // Apply debounce to search input
+        document.getElementById('searchInput')?.addEventListener('input', debounce(function() {
+            applyFilters();
+        }, 500));
+
+        // Asset type filter - apply immediately on change
+        document.getElementById('assetTypeFilter')?.addEventListener('change', function() {
+            console.log('Asset Type Changed:', this.value);
+            applyFilters();
+        });
+
+        // Sort order - apply immediately on change
+        document.getElementById('sortOrder')?.addEventListener('change', function() {
+            applyFilters();
+        });
+
+        // Set existing values from URL
+        function setFilterValuesFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Set search input value
+            if (urlParams.has('search')) {
+                document.getElementById('searchInput').value = urlParams.get('search');
+            }
+
+            // Set asset type filter value
+            if (urlParams.has('type')) {
+                const assetType = urlParams.get('type');
+                console.log('Setting asset type from URL:', assetType);
+                const assetTypeFilter = document.getElementById('assetTypeFilter');
+                if (assetTypeFilter) {
+                    // First check if the value exists in the options
+                    let found = false;
+                    for (let i = 0; i < assetTypeFilter.options.length; i++) {
+                        if (assetTypeFilter.options[i].value === assetType) {
+                            assetTypeFilter.selectedIndex = i;
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // If not found, add it and select
+                    if (!found && assetType) {
+                        const option = new Option(assetType, assetType);
+                        assetTypeFilter.add(option);
+                        assetTypeFilter.value = assetType;
+                    }
+
+                    console.log('Asset type filter value after set:', assetTypeFilter.value);
+                }
+            }
+
+            // Set sort order value
+            if (urlParams.has('sort')) {
+                document.getElementById('sortOrder').value = urlParams.get('sort');
+            }
+        }
+
+        // Initialize filter values from URL on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setFilterValuesFromUrl();
+        });
     });
 </script>
 @endpush

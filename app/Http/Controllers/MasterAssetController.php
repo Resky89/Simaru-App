@@ -24,25 +24,64 @@ class MasterAssetController extends Controller
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 100);
             $search = $request->input('search', '');
+            $assetType = $request->input('type', '');
+            $brandId = $request->input('brand', '');
+            $subcategoryId = $request->input('category', '');
+            $sortOrder = $request->input('sort', 'newest');
 
             // Log request info
             \Log::info('Fetching master assets with parameters:', [
                 'page' => $page,
                 'limit' => $limit,
                 'search' => $search,
+                'asset_type' => $assetType,
+                'brand_id' => $brandId,
+                'subcategory_id' => $subcategoryId,
+                'sort' => $sortOrder,
                 'request_url' => $request->fullUrl()
             ]);
 
             // Build query parameters
             $queryParams = [
                 'page' => $page,
-                'limit' => $limit,
-                'sort_by' => 'asset_master_id',
-                'sort_order' => 'desc'
+                'limit' => $limit
             ];
+
+            // Set sort parameters based on sortOrder
+            switch ($sortOrder) {
+                case 'oldest':
+                    $queryParams['sort_by'] = 'asset_master_id';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                case 'name_asc':
+                    $queryParams['sort_by'] = 'asset_name';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                case 'name_desc':
+                    $queryParams['sort_by'] = 'asset_name';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
+                case 'newest':
+                default:
+                    $queryParams['sort_by'] = 'asset_master_id';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
+            }
 
             if (!empty($search)) {
                 $queryParams['search'] = $search;
+            }
+
+            if (!empty($assetType)) {
+                $queryParams['asset_type'] = $assetType;
+            }
+
+            if (!empty($brandId)) {
+                $queryParams['brand_id'] = $brandId;
+            }
+
+            if (!empty($subcategoryId)) {
+                $queryParams['subcategory_id'] = $subcategoryId;
             }
 
             // Fetch master assets
@@ -121,8 +160,12 @@ class MasterAssetController extends Controller
             // Extract asset types from subcategories
             $assetTypes = [];
             foreach ($subcategories as $subcategory) {
-                if (isset($subcategory['asset_type']) && !in_array($subcategory['asset_type'], $assetTypes)) {
-                    $assetTypes[] = $subcategory['asset_type'];
+                if (isset($subcategory['asset_type']) && !empty($subcategory['asset_type'])) {
+                    // Normalize the asset_type value
+                    $type = strtolower(trim($subcategory['asset_type']));
+                    if (!in_array($type, $assetTypes)) {
+                        $assetTypes[] = $type;
+                    }
                 }
             }
 
@@ -347,9 +390,15 @@ class MasterAssetController extends Controller
                 'description' => $request->input('description'),
                 'subcategory_id' => (int) $request->input('subcategory_id'),
                 'brand_id' => (int) $request->input('brand_id'),
-                'is_depreciable' => (bool) ($request->input('is_depreciable') === '1'),
-                'needs_calibration' => (bool) ($request->input('needs_calibration') === '1')
+                'is_depreciable' => $request->has('is_depreciable'),
+                'needs_calibration' => $request->has('needs_calibration'),
+                'asset_type' => $request->input('asset_type')
             ];
+
+            // Check if the image should be removed
+            if ($request->has('remove_image')) {
+                $masterAssetData['remove_image'] = true;
+            }
 
             // Log structured data yang akan dikirim ke API
             \Log::info('Sending to API:', [
@@ -357,22 +406,32 @@ class MasterAssetController extends Controller
             ]);
 
             // Handle image upload if present
-            if ($request->hasFile('reference_image')) {
+            if ($request->hasFile('image_file')) {
                 $multipartData = [];
 
                 // Send each field asset data individually in multipart
                 foreach ($masterAssetData as $key => $value) {
+                    // Convert boolean values to string for multipart
+                    if (is_bool($value)) {
+                        // Explicitly convert to 'true'/'false' strings
+                        $value = $value ? 'true' : 'false';
+                    } elseif (is_array($value)) {
+                        $value = json_encode($value);
+                    } elseif ($value === null) {
+                        $value = ''; // Convert null to empty string
+                    }
+
                     $multipartData[] = [
                         'name' => $key,
-                        'contents' => is_array($value) ? json_encode($value) : $value
+                        'contents' => (string)$value // Ensure all values are strings
                     ];
                 }
 
                 // Add file upload
                 $multipartData[] = [
-                    'name' => 'reference_image',
-                    'contents' => fopen($request->file('reference_image')->getPathname(), 'r'),
-                    'filename' => $request->file('reference_image')->getClientOriginalName()
+                    'name' => 'image_file',
+                    'contents' => fopen($request->file('image_file')->getPathname(), 'r'),
+                    'filename' => $request->file('image_file')->getClientOriginalName()
                 ];
 
                 $options = ['multipart' => $multipartData];
