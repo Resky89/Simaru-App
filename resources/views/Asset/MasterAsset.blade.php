@@ -81,7 +81,19 @@
                                 <tr data-asset-id="{{ $asset['asset_master_id'] ?? '' }}">
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_master_id'] ?? '' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_name'] ?? '-' }}</td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_type'] ?? '-' }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                        @if(isset($asset['asset_type']))
+                                            @if(strtolower($asset['asset_type']) == 'medical')
+                                                Medical
+                                            @elseif(strtolower($asset['asset_type']) == 'non_medical')
+                                                Non Medical
+                                            @else
+                                                {{ $asset['asset_type'] }}
+                                            @endif
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['subcategory_name'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['brand_name'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
@@ -258,9 +270,8 @@
                                     <select name="asset_type" id="asset_type" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                         <option value="" disabled selected>Select Asset Type</option>
-                                        @foreach($assetTypes as $type)
-                                        <option value="{{ $type }}">{{ $type }}</option>
-                                        @endforeach
+                                        <option value="medical">medical</option>
+                                        <option value="non_medical">non_medical</option>
                                     </select>
                                 </div>
                             </div>
@@ -604,6 +615,14 @@
                                     <li>Maximum 100 records per import</li>
                                     <li>File types supported: .xlsx, .xls, .csv</li>
                                 </ul>
+                                <div class="mt-3 flex justify-end">
+                                    <a href="{{ asset('docs/ImportAsetTemplate.xlsx') }}" download class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-[#213268] rounded-md hover:bg-[#152451] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                        </svg>
+                                        Download Template
+                                    </a>
+                                </div>
                             </div>
 
                             <!-- File Upload -->
@@ -742,12 +761,12 @@
     <div class="flex items-center">
         <div class="py-1">
             <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </div>
         <div>
             <p class="font-bold">Error!</p>
-            <p>{{ session('error') ?? $error ?? 'An error occurred' }}</p>
+            <p>{!! session('error') ?? $error ?? 'An error occurred' !!}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
     </div>
@@ -2113,6 +2132,10 @@
             // Update count
             previewCount.textContent = `${data.length} items found`;
 
+            // Find duplicate entries if any
+            const duplicates = findDuplicates(data);
+            const hasDuplicates = Object.keys(duplicates).length > 0;
+
             // Add rows
             data.forEach((item, index) => {
                 const row = document.createElement('tr');
@@ -2140,12 +2163,53 @@
 
                 previewTableBody.appendChild(row);
             });
+
+            // Show duplicate warnings if any found
+            if (hasDuplicates) {
+                const warnings = [];
+                for (const [key, indexes] of Object.entries(duplicates)) {
+                    if (indexes.length > 1) {
+                        const item = data[indexes[0]];
+                        warnings.push(`Duplicate entry found: "${item.asset_name}" (${formatAssetType(item.asset_type)}, ${item.subcategory_name}, ${item.brand_name})`);
+                    }
+                }
+                showWarnings(warnings);
+            }
+        }
+
+        // Function to find duplicate entries in data
+        function findDuplicates(data) {
+            const duplicateMap = {};
+
+            data.forEach((item, index) => {
+                // Create a unique key from asset properties
+                const key = `${item.asset_name}|${item.asset_type}|${item.subcategory_name}|${item.brand_name}`.toLowerCase();
+
+                // Add to duplicates map
+                if (!duplicateMap[key]) {
+                    duplicateMap[key] = [];
+                }
+                duplicateMap[key].push(index);
+            });
+
+            // Filter out non-duplicates (entries with only one index)
+            return Object.fromEntries(
+                Object.entries(duplicateMap).filter(([key, indexes]) => indexes.length > 1)
+            );
         }
 
         // Format asset type for display
         function formatAssetType(type) {
             if (typeof type !== 'string') return '-';
-            return type.toLowerCase().replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+            const lowerType = type.toLowerCase();
+            if (lowerType === 'medical') {
+                return 'Medical';
+            } else if (lowerType === 'non_medical') {
+                return 'Non Medical';
+            } else {
+                return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            }
         }
 
         // Show warnings in the UI
@@ -2194,24 +2258,165 @@
             excelError.classList.add('hidden');
         });
 
-        // Handle import form submission to include the file
+        // Handle import form submission with AJAX
         importForm?.addEventListener('submit', function(e) {
-            // Clone the original file input with its file
+            e.preventDefault(); // Prevent traditional form submission
+
+            // Get form data
+            const formData = new FormData(this);
+
+            // Add the Excel file to the form data
             const originalFileInput = document.getElementById('excel_file');
-
             if (originalFileInput && originalFileInput.files.length > 0) {
-                // Clone the input element
-                const fileInputClone = originalFileInput.cloneNode(true);
-
-                // Change name to ensure no duplicates
-                fileInputClone.name = 'excel_file_upload';
-
-                // Append the cloned input to the form
-                this.appendChild(fileInputClone);
-
-                console.log('File added to form for upload:', fileInputClone.files[0].name);
+                formData.append('excel_file_upload', originalFileInput.files[0]);
             }
+
+            // Show loading state
+            const importBtn = document.getElementById('import-btn');
+            const originalBtnText = importBtn.innerHTML;
+            importBtn.disabled = true;
+            importBtn.innerHTML = `
+                <div class="flex items-center justify-center">
+                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <span>Importing...</span>
+                </div>
+            `;
+
+            // Send AJAX request
+            fetch('{{ route('asset-master.import') }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => {
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json().then(data => {
+                        // Add status to the data object
+                        data.status = response.status;
+                        return data;
+                    });
+                } else {
+                    // If not JSON, it's likely an error page or redirect
+                    throw new Error('Invalid response format');
+                }
+            })
+            .then(data => {
+                // Reset button state
+                importBtn.disabled = false;
+                importBtn.innerHTML = originalBtnText;
+
+                if (data.status >= 200 && data.status < 300) {
+                    // Success response
+                    console.log('Import successful:', data);
+
+                    // Close the modal
+                    const modal = document.getElementById('importMasterAssetModal');
+                    const content = document.getElementById('importMasterAssetModalContent');
+                    closeModal(modal, content);
+
+                    // Show success notification
+                    showNotification('success', data.message || 'Assets imported successfully!');
+
+                    // Reload the page to show updated data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    // Error response
+                    console.error('Import error:', data);
+
+                    // Show error notification toast (outside the modal)
+                    let errorMessage = data.message || 'An error occurred during import.';
+                    if (data.errors) {
+                        const errorList = Object.values(data.errors);
+                        if (errorList.length > 0) {
+                            errorMessage += ': ' + errorList.join(', ');
+                        }
+                    }
+                    showNotification('error', errorMessage);
+                }
+            })
+            .catch(error => {
+                // Reset button state
+                importBtn.disabled = false;
+                importBtn.innerHTML = originalBtnText;
+
+                console.error('Import fetch error:', error);
+
+                // Show error notification toast
+                showNotification('error', 'An unexpected error occurred. Please try again.');
+            });
         });
+
+        // Helper function to show notifications
+        function showNotification(type, message) {
+            // Create the notification element
+            const notification = document.createElement('div');
+            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right';
+            notification.role = 'alert';
+
+            if (type === 'success') {
+                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Success!</p>
+                            <p>${message}</p>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            } else {
+                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Error!</p>
+                            <p>${message}</p>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            }
+
+            // Add to document
+            document.body.appendChild(notification);
+
+            // Auto-remove notification after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        }
+
+        // Add slide-in animation to CSS
+        document.head.insertAdjacentHTML('beforeend', `
+            <style>
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+                .animate-slide-in-right {
+                    animation: slideInRight 0.3s ease-out forwards;
+                }
+            </style>
+        `);
     });
 </script>
 @endpush

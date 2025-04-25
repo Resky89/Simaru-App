@@ -804,7 +804,8 @@ class MasterAssetController extends Controller
         try {
             \Log::info('Attempting to import master assets from Excel', [
                 'has_file' => $request->hasFile('excel_file_upload'),
-                'has_excel_data' => $request->has('excel_data')
+                'has_excel_data' => $request->has('excel_data'),
+                'is_ajax' => $request->ajax()
             ]);
 
             if ($request->hasFile('excel_file_upload')) {
@@ -828,6 +829,9 @@ class MasterAssetController extends Controller
                 $excelData = $request->input('excel_data');
 
                 if (empty($excelData)) {
+                    if ($request->ajax()) {
+                        return response()->json(['success' => false, 'message' => 'No valid data found for import'], 400);
+                    }
                     return redirect()->back()->with('error', 'No valid data found for import');
                 }
 
@@ -835,6 +839,9 @@ class MasterAssetController extends Controller
                 $parsedData = json_decode($excelData, true);
 
                 if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsedData) || empty($parsedData)) {
+                    if ($request->ajax()) {
+                        return response()->json(['success' => false, 'message' => 'Invalid data format for import'], 400);
+                    }
                     return redirect()->back()->with('error', 'Invalid data format for import');
                 }
 
@@ -849,6 +856,9 @@ class MasterAssetController extends Controller
                     ]
                 ]);
             } else {
+                if ($request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'No Excel file or data provided'], 400);
+                }
                 return redirect()->back()->with('error', 'No Excel file or data provided');
             }
 
@@ -863,6 +873,10 @@ class MasterAssetController extends Controller
                     'error' => $result['error'],
                     'message' => $result['message'] ?? 'Authentication failed'
                 ]);
+
+                if ($request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $result['message'] ?? 'Authentication failed'], 401);
+                }
                 return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
@@ -877,8 +891,42 @@ class MasterAssetController extends Controller
                     'message' => $result['message'] ?? 'Failed to import master assets'
                 ]);
 
-                // Format error message if available
+                // Format error message including detailed errors from the response
                 $errorMessage = $result['message'] ?? 'Failed to import master assets';
+
+                // Extract and format detailed error information if available
+                if (isset($result['data']['errors']) && is_array($result['data']['errors']) && count($result['data']['errors']) > 0) {
+                    $errorDetails = [];
+
+                    foreach ($result['data']['errors'] as $error) {
+                        if (isset($error['row']) && isset($error['asset_name']) && isset($error['reason'])) {
+                            $errorDetails[] = "Row {$error['row']}: {$error['asset_name']} - {$error['reason']}";
+                        } elseif (is_string($error)) {
+                            $errorDetails[] = $error;
+                        } elseif (is_array($error) && isset($error['message'])) {
+                            $errorDetails[] = $error['message'];
+                        }
+                    }
+
+                    if ($request->ajax()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => $errorMessage,
+                            'errors' => $errorDetails
+                        ], 400);
+                    }
+
+                    // For non-AJAX, format as HTML
+                    $errorMessage .= "<ul class='list-disc pl-4 mt-2'>";
+                    foreach ($errorDetails as $detail) {
+                        $errorMessage .= "<li>{$detail}</li>";
+                    }
+                    $errorMessage .= "</ul>";
+                } else {
+                    if ($request->ajax()) {
+                        return response()->json(['success' => false, 'message' => $errorMessage], 400);
+                    }
+                }
 
                 return redirect()->back()->with('error', $errorMessage);
             }
@@ -894,13 +942,33 @@ class MasterAssetController extends Controller
                 $successMessage .= " ({$failedCount} failed)";
             }
 
-            // Redirect back with success message
+            // Return response based on request type
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => [
+                        'total' => $totalImported,
+                        'success' => $successCount,
+                        'failed' => $failedCount
+                    ]
+                ]);
+            }
+
+            // Redirect back with success message for non-AJAX requests
             return redirect()->route('asset-master')->with('success', $successMessage);
         } catch (\Exception $e) {
             \Log::error('Exception during master asset import:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to import master assets: ' . $e->getMessage()
+                ], 500);
+            }
 
             return redirect()->back()->with('error', 'Failed to import master assets: ' . $e->getMessage());
         }
