@@ -795,4 +795,114 @@ class MasterAssetController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Import master assets from Excel data.
+     */
+    public function importMasterAsset(Request $request)
+    {
+        try {
+            \Log::info('Attempting to import master assets from Excel', [
+                'has_file' => $request->hasFile('excel_file_upload'),
+                'has_excel_data' => $request->has('excel_data')
+            ]);
+
+            if ($request->hasFile('excel_file_upload')) {
+                // Use multipart form data to send the actual file
+                $multipartData = [];
+
+                // Add the Excel file
+                $multipartData[] = [
+                    'name' => 'excel_file',
+                    'contents' => fopen($request->file('excel_file_upload')->getPathname(), 'r'),
+                    'filename' => $request->file('excel_file_upload')->getClientOriginalName()
+                ];
+
+                // Send the actual file to API
+                $result = $this->apiService->request('POST', '/asset-masters/import', [
+                    'multipart' => $multipartData
+                ]);
+            } else if ($request->has('excel_data')) {
+                // Fallback to the previous method if no file but has parsed data
+                // Get the JSON data from the form
+                $excelData = $request->input('excel_data');
+
+                if (empty($excelData)) {
+                    return redirect()->back()->with('error', 'No valid data found for import');
+                }
+
+                // Decode the JSON data
+                $parsedData = json_decode($excelData, true);
+
+                if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsedData) || empty($parsedData)) {
+                    return redirect()->back()->with('error', 'Invalid data format for import');
+                }
+
+                \Log::info('Parsed Excel data for import', [
+                    'record_count' => count($parsedData)
+                ]);
+
+                // Send data to API
+                $result = $this->apiService->request('POST', '/asset-masters/import', [
+                    'json' => [
+                        'data' => $parsedData
+                    ]
+                ]);
+            } else {
+                return redirect()->back()->with('error', 'No Excel file or data provided');
+            }
+
+            // Log the API response
+            \Log::info('API response for master asset import:', [
+                'api_response' => $result
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during master asset import:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check for other API errors or unsuccessful responses
+            if (
+                isset($result['error']) ||
+                (isset($result['success']) && $result['success'] === false)
+            ) {
+                \Log::warning('Error during master asset import:', [
+                    'error' => $result['error'] ?? null,
+                    'success' => $result['success'] ?? null,
+                    'message' => $result['message'] ?? 'Failed to import master assets'
+                ]);
+
+                // Format error message if available
+                $errorMessage = $result['message'] ?? 'Failed to import master assets';
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Extract import results
+            $totalImported = $result['data']['total'] ?? 0;
+            $successCount = $result['data']['success'] ?? 0;
+            $failedCount = $result['data']['failed'] ?? 0;
+
+            // Prepare success message
+            $successMessage = "Successfully imported {$successCount} master assets";
+            if ($failedCount > 0) {
+                $successMessage .= " ({$failedCount} failed)";
+            }
+
+            // Redirect back with success message
+            return redirect()->route('asset-master')->with('success', $successMessage);
+        } catch (\Exception $e) {
+            \Log::error('Exception during master asset import:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to import master assets: ' . $e->getMessage());
+        }
+    }
 }

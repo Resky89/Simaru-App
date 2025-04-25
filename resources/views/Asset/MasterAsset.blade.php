@@ -14,6 +14,12 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap gap-3">
+                        <button id="importMasterAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-green-600 rounded-lg text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v8" />
+                            </svg>
+                            <span class="text-base">Import Excel</span>
+                        </button>
                         <button id="addMasterAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -568,6 +574,152 @@
     </div>
 </div>
 
+<!-- Import Master Asset Modal -->
+<div id="importMasterAssetModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="importMasterAssetModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">IMPORT MASTER ASSETS</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Step 1: File Selection -->
+                <div id="import-step-1" class="block">
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            <!-- Import Instructions -->
+                            <div class="text-gray-600 text-sm bg-blue-50 p-4 rounded-lg">
+                                <p class="font-medium text-blue-600 mb-2">Import Instructions:</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Use the Excel template format for importing</li>
+                                    <li>Required columns: Asset Name, Asset Type, Subcategory, Brand</li>
+                                    <li>Maximum 100 records per import</li>
+                                    <li>File types supported: .xlsx, .xls, .csv</li>
+                                </ul>
+                            </div>
+
+                            <!-- File Upload -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#213268]">Excel File</label>
+                                <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                    <!-- File preview -->
+                                    <div id="excel-file-name" class="mt-2 mb-4 w-full hidden">
+                                        <div class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                            <div class="flex items-center">
+                                                <svg class="w-6 h-6 text-green-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                                <span id="file-name-text" class="text-sm text-gray-700 truncate"></span>
+                                                <button type="button" id="remove-excel" class="ml-auto text-red-500 hover:text-red-700">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-gray-600">Drag your Excel file or <span class="text-[#213268] font-semibold">browse files</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: xlsx, xls, csv</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                    </div>
+                                    <input type="file" id="excel_file" name="excel_file" accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                </div>
+                            </div>
+
+                            <!-- Error Message -->
+                            <div id="excel-error" class="hidden text-red-500 text-sm"></div>
+
+                            <!-- Loading Indicator -->
+                            <div id="excel-loading" class="hidden text-center py-2">
+                                <div class="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                <p class="mt-2 text-sm text-gray-600">Processing Excel data...</p>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="flex gap-3">
+                                <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                    Cancel
+                                </button>
+                                <button type="button" id="preview-btn" disabled class="w-1/2 h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Preview Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Data Preview -->
+                <div id="import-step-2" class="hidden">
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            <!-- Preview Header -->
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-[#213268]">Data Preview</h3>
+                                <span class="text-sm text-gray-500" id="preview-count">0 items found</span>
+                            </div>
+
+                            <!-- Preview Table -->
+                            <div class="overflow-x-auto max-h-[400px] border border-gray-200 rounded-lg">
+                                <table class="w-full">
+                                    <thead class="sticky top-0 bg-[#213268] text-white">
+                                        <tr>
+                                            <th class="p-3 text-left text-xs font-semibold">No</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Asset Name</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Asset Type</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Subcategory</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Brand</th>
+                                            <th class="p-3 text-center text-xs font-semibold">Depreciable</th>
+                                            <th class="p-3 text-center text-xs font-semibold">Calibration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="preview-table-body">
+                                        <!-- Preview data will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Warning/Error Messages -->
+                            <div id="preview-warnings" class="hidden text-yellow-600 text-sm bg-yellow-50 p-4 rounded-lg">
+                                <p class="font-medium mb-2">Warnings:</p>
+                                <ul class="list-disc pl-5" id="warning-list">
+                                    <!-- Warning messages will be inserted here -->
+                                </ul>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex gap-3">
+                                <button type="button" id="back-to-upload-btn" class="w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                    Back
+                                </button>
+                                <form action="{{ route('asset-master.import') }}" method="POST" id="import-form" class="w-2/3" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="excel_data" id="excel_data">
+                                    <button type="submit" id="import-btn" class="w-full h-[45px] bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200">
+                                        Import Data
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @if(session('success'))
 <div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
     <div class="flex items-center">
@@ -605,6 +757,8 @@
 @endsection
 
 @push('scripts')
+<!-- SheetJS library for Excel parsing -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Modal functionality
@@ -1619,6 +1773,444 @@
         // Initialize filter values from URL on page load
         document.addEventListener('DOMContentLoaded', function() {
             setFilterValuesFromUrl();
+        });
+
+        // Import master asset button
+        document.getElementById('importMasterAssetBtn')?.addEventListener('click', function() {
+            const modal = document.getElementById('importMasterAssetModal');
+            const content = document.getElementById('importMasterAssetModalContent');
+            if (modal && content) {
+                openModal(modal, content);
+            }
+        });
+
+        // Excel file upload preview
+        document.getElementById('excel_file')?.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                document.getElementById('file-name-text').textContent = file.name;
+                document.getElementById('excel-file-name').classList.remove('hidden');
+            }
+        });
+
+        // Remove excel file button
+        document.getElementById('remove-excel')?.addEventListener('click', function() {
+            const fileInput = document.getElementById('excel_file');
+            const previewContainer = document.getElementById('excel-file-name');
+
+            if (fileInput) {
+                fileInput.value = ''; // Clear the file input
+            }
+
+            if (previewContainer) {
+                previewContainer.classList.add('hidden'); // Hide the preview
+            }
+
+            // Disable import button when file is removed
+            document.getElementById('import-submit-btn').disabled = true;
+            document.getElementById('import-submit-btn').classList.add('opacity-50', 'cursor-not-allowed');
+        });
+
+        // Variables to store parsed Excel data
+        let excelData = [];
+        let headers = [];
+        let hasValidationErrors = false;
+
+        // Function to open the preview modal
+        function openPreviewModal() {
+            const modal = document.getElementById('excelPreviewModal');
+            const content = document.getElementById('excelPreviewModalContent');
+
+            if (modal && content) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                }, 10);
+            }
+        }
+
+        // Function to close the preview modal
+        function closePreviewModal() {
+            const modal = document.getElementById('excelPreviewModal');
+            const content = document.getElementById('excelPreviewModalContent');
+
+            if (modal && content) {
+                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // Excel file upload preview and validation
+        const excelFileInput = document.getElementById('excel_file');
+        const previewBtn = document.getElementById('preview-btn');
+        const excelError = document.getElementById('excel-error');
+        const excelLoading = document.getElementById('excel-loading');
+        const importStep1 = document.getElementById('import-step-1');
+        const importStep2 = document.getElementById('import-step-2');
+        const backToUploadBtn = document.getElementById('back-to-upload-btn');
+        const importForm = document.getElementById('import-form');
+        const excelDataInput = document.getElementById('excel_data');
+        const previewTableBody = document.getElementById('preview-table-body');
+        const previewCount = document.getElementById('preview-count');
+        const previewWarnings = document.getElementById('preview-warnings');
+        const warningList = document.getElementById('warning-list');
+
+        let parsedExcelData = null;
+
+        // Enable/disable preview button based on file selection
+        document.getElementById('excel_file')?.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                document.getElementById('file-name-text').textContent = file.name;
+                document.getElementById('excel-file-name').classList.remove('hidden');
+                previewBtn.disabled = false;
+            } else {
+                previewBtn.disabled = true;
+            }
+        });
+
+        // Preview button functionality
+        previewBtn?.addEventListener('click', function() {
+            const file = excelFileInput.files[0];
+            if (!file) {
+                excelError.textContent = 'Please select an Excel file first.';
+                excelError.classList.remove('hidden');
+                return;
+            }
+
+            // Reset previous errors and show loading
+            excelError.classList.add('hidden');
+            excelLoading.classList.remove('hidden');
+            previewBtn.disabled = true;
+
+            // Parse the Excel file
+            parseExcelFile(file).then(data => {
+                console.log('Parsed Excel data:', data);
+
+                // Hide loading and enable preview button
+                excelLoading.classList.add('hidden');
+                previewBtn.disabled = false;
+
+                if (data.length === 0) {
+                    excelError.textContent = 'The Excel file appears to be empty or could not be parsed.';
+                    excelError.classList.remove('hidden');
+                    return;
+                }
+
+                // Store parsed data
+                parsedExcelData = data;
+
+                // Display the data in preview table
+                populatePreviewTable(data);
+
+                // Switch to preview step
+                importStep1.classList.add('hidden');
+                importStep2.classList.remove('hidden');
+
+                // Prepare form data for submission
+                excelDataInput.value = JSON.stringify(data);
+            }).catch(error => {
+                console.error('Error parsing Excel file:', error);
+                excelLoading.classList.add('hidden');
+                previewBtn.disabled = false;
+                excelError.textContent = 'Error parsing Excel file: ' + error.message;
+                excelError.classList.remove('hidden');
+            });
+        });
+
+        // Back button from preview to upload
+        backToUploadBtn?.addEventListener('click', function() {
+            importStep2.classList.add('hidden');
+            importStep1.classList.remove('hidden');
+        });
+
+        // Function to parse Excel file
+        async function parseExcelFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    try {
+                        const data = e.target.result;
+                        const workbook = XLSX.read(data, { type: 'array' });
+
+                        // Get the first sheet
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+
+                        // Convert to JSON
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+                            header: 1,
+                            defval: "" // Default value for empty cells
+                        });
+
+                        // Parse the data to extract headers and content
+                        const result = processExcelData(jsonData);
+                        resolve(result);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                reader.onerror = function(error) {
+                    reject(error);
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Process Excel data to match API expectations
+        function processExcelData(data) {
+            // Skip empty rows
+            const nonEmptyRows = data.filter(row => row.some(cell => cell !== ""));
+
+            if (nonEmptyRows.length < 2) {
+                // Need at least headers and one data row
+                return [];
+            }
+
+            // Get headers (first row)
+            const headers = nonEmptyRows[0].map(header =>
+                String(header).trim().toLowerCase().replace(/\s+/g, '_')
+            );
+
+            // Required headers and their mapping to API fields
+            const headerMapping = {
+                'asset_name': 'asset_name',
+                'name': 'asset_name',
+                'asset': 'asset_name',
+                'nama_aset': 'asset_name',
+                'nama_asset': 'asset_name',
+                'nama aset': 'asset_name',
+                'asset_type': 'asset_type',
+                'type': 'asset_type',
+                'tipe_aset': 'asset_type',
+                'tipe aset': 'asset_type',
+                'subcategory': 'subcategory_name',
+                'subcategory_name': 'subcategory_name',
+                'sub_category': 'subcategory_name',
+                'nama_kategori': 'subcategory_name',
+                'nama kategori': 'subcategory_name',
+                'kategori': 'subcategory_name',
+                'category': 'subcategory_name',
+                'brand': 'brand_name',
+                'brand_name': 'brand_name',
+                'nama_brand': 'brand_name',
+                'nama brand': 'brand_name',
+                'description': 'description',
+                'deskripsi': 'description',
+                'is_depreciable': 'is_depreciable',
+                'depreciable': 'is_depreciable',
+                'dapat_didepresiasi': 'is_depreciable',
+                'dapat didepresiasi': 'is_depreciable',
+                'needs_calibration': 'needs_calibration',
+                'calibration': 'needs_calibration',
+                'perlu_kalibrasi': 'needs_calibration',
+                'perlu kalibrasi': 'needs_calibration'
+            };
+
+            // Find header indexes
+            const headerIndexes = {};
+            headers.forEach((header, index) => {
+                // Check if this header matches any of our expected headers
+                for (const [key, value] of Object.entries(headerMapping)) {
+                    if (header === key || header.includes(key)) {
+                        headerIndexes[value] = index;
+                        break;
+                    }
+                }
+            });
+
+            // Process data rows
+            const processedData = [];
+            const warnings = [];
+
+            // Skip header row, process data rows
+            for (let i = 1; i < nonEmptyRows.length; i++) {
+                const row = nonEmptyRows[i];
+                const rowData = {
+                    asset_name: '',
+                    asset_type: '',
+                    subcategory_name: '',
+                    brand_name: '',
+                    description: '',
+                    is_depreciable: false,
+                    needs_calibration: false
+                };
+
+                // Extract values based on header mapping
+                for (const [key, index] of Object.entries(headerIndexes)) {
+                    if (index !== undefined && index < row.length) {
+                        let value = row[index];
+
+                        // Handle boolean fields
+                        if (key === 'is_depreciable' || key === 'needs_calibration') {
+                            // Convert various formats to boolean
+                            if (typeof value === 'string') {
+                                value = value.toLowerCase();
+                                rowData[key] = value === 'yes' || value === 'true' || value === '1' || value === 'y' || value === 'ya';
+                            } else if (typeof value === 'number') {
+                                rowData[key] = value === 1;
+                            } else {
+                                rowData[key] = Boolean(value);
+                            }
+                        } else {
+                            rowData[key] = String(value).trim();
+                        }
+                    }
+                }
+
+                // Validate required fields
+                if (!rowData.asset_name) {
+                    warnings.push(`Row ${i+1}: Missing asset name`);
+                }
+
+                if (!rowData.asset_type) {
+                    warnings.push(`Row ${i+1}: Missing asset type`);
+                } else {
+                    // Normalize asset_type
+                    if (rowData.asset_type.toLowerCase().includes('medical')) {
+                        rowData.asset_type = 'medical';
+                    } else {
+                        rowData.asset_type = 'non_medical';
+                    }
+                }
+
+                if (!rowData.subcategory_name) {
+                    warnings.push(`Row ${i+1}: Missing subcategory`);
+                }
+
+                if (!rowData.brand_name) {
+                    warnings.push(`Row ${i+1}: Missing brand`);
+                }
+
+                // Add row number for display
+                rowData._rowNum = i;
+
+                processedData.push(rowData);
+            }
+
+            // Store warnings for display
+            if (warnings.length > 0) {
+                showWarnings(warnings);
+            } else {
+                hideWarnings();
+            }
+
+            return processedData;
+        }
+
+        // Populate preview table with data
+        function populatePreviewTable(data) {
+            // Clear existing rows
+            previewTableBody.innerHTML = '';
+
+            // Update count
+            previewCount.textContent = `${data.length} items found`;
+
+            // Add rows
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+
+                row.innerHTML = `
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${index + 1}</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${item.asset_name || '-'}</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${item.asset_type ? formatAssetType(item.asset_type) : '-'}</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${item.subcategory_name || '-'}</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${item.brand_name || '-'}</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                        ${item.is_depreciable ?
+                            '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Yes</span>' :
+                            '<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">No</span>'
+                        }
+                    </td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                        ${item.needs_calibration ?
+                            '<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Yes</span>' :
+                            '<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">No</span>'
+                        }
+                    </td>
+                `;
+
+                previewTableBody.appendChild(row);
+            });
+        }
+
+        // Format asset type for display
+        function formatAssetType(type) {
+            if (typeof type !== 'string') return '-';
+            return type.toLowerCase().replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        // Show warnings in the UI
+        function showWarnings(warnings) {
+            if (!warnings || warnings.length === 0) {
+                hideWarnings();
+                return;
+            }
+
+            // Clear previous warnings
+            warningList.innerHTML = '';
+
+            // Add new warnings
+            warnings.forEach(warning => {
+                const li = document.createElement('li');
+                li.textContent = warning;
+                warningList.appendChild(li);
+            });
+
+            // Show warnings container
+            previewWarnings.classList.remove('hidden');
+        }
+
+        // Hide warnings
+        function hideWarnings() {
+            previewWarnings.classList.add('hidden');
+        }
+
+        // Remove excel file button
+        document.getElementById('remove-excel')?.addEventListener('click', function() {
+            const fileInput = document.getElementById('excel_file');
+            const previewContainer = document.getElementById('excel-file-name');
+
+            if (fileInput) {
+                fileInput.value = ''; // Clear the file input
+            }
+
+            if (previewContainer) {
+                previewContainer.classList.add('hidden'); // Hide the preview
+            }
+
+            // Disable preview button
+            previewBtn.disabled = true;
+
+            // Hide any error messages
+            excelError.classList.add('hidden');
+        });
+
+        // Handle import form submission to include the file
+        importForm?.addEventListener('submit', function(e) {
+            // Clone the original file input with its file
+            const originalFileInput = document.getElementById('excel_file');
+
+            if (originalFileInput && originalFileInput.files.length > 0) {
+                // Clone the input element
+                const fileInputClone = originalFileInput.cloneNode(true);
+
+                // Change name to ensure no duplicates
+                fileInputClone.name = 'excel_file_upload';
+
+                // Append the cloned input to the form
+                this.appendChild(fileInputClone);
+
+                console.log('File added to form for upload:', fileInputClone.files[0].name);
+            }
         });
     });
 </script>
