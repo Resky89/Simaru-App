@@ -361,16 +361,6 @@
                                 </button>
                                 <button
                                     class="tab-btn flex-1 flex items-center justify-center gap-2 px-2 py-3 text-gray-500 hover:text-[#213268]"
-                                    data-tab="schedule">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    Jadwal
-                                </button>
-                                <button
-                                    class="tab-btn flex-1 flex items-center justify-center gap-2 px-2 py-3 text-gray-500 hover:text-[#213268]"
                                     data-tab="mutation">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
@@ -408,9 +398,6 @@
                                 </div>
                                 <div class="tab-pane hidden" id="history">
                                     @include('Asset.Tabs.History')
-                                </div>
-                                <div class="tab-pane hidden" id="schedule">
-                                    @include('Asset.Tabs.Schedule')
                                 </div>
                                 <div class="tab-pane hidden" id="mutation">
                                     @include('Asset.Tabs.Mutation')

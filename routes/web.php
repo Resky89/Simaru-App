@@ -161,7 +161,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/by-asset-type', [CategoriesController::class, 'getByAssetType'])->name('categories.by-asset-type');
     });
 
-    // Brand routes - REPLACING OLD BRAND ROUTES
+    // Brand routes
     Route::prefix('brands')->group(function () {
         Route::get('/', [BrandController::class, 'index'])->name('brands');
         Route::get('/{id}', [BrandController::class, 'getBrand'])->name('brands.get');
@@ -178,6 +178,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::put('/assets/{id}', [UnitAssetController::class, 'updateAsset'])->name('assets.update');
     Route::delete('/assets/{id}', [UnitAssetController::class, 'destroyAsset'])->name('assets.destroy');
     Route::get('assets/barcode/generate/{id}', [UnitAssetController::class, 'generateBarcode'])->name('assets.barcode.generate');
+    Route::post('/assets/import', [UnitAssetController::class, 'importAssets'])->name('assets.import');
 
     // Asset Documents routes
     Route::get('/asset-documents/asset/{id}', [AssetDocumentController::class, 'getAssetDocuments'])->name('asset-documents.get');

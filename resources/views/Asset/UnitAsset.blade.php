@@ -14,6 +14,12 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap gap-3">
+                        <button id="importAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-green-600 rounded-lg text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v8" />
+                            </svg>
+                            <span class="text-base">Import Excel</span>
+                        </button>
                         <button id="printQRBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
@@ -93,7 +99,6 @@
                                             <button class="text-[#3D3D3D] hover:text-[#213268] edit-asset-btn"
                                                 data-id="{{ $asset['asset_id'] ?? '' }}"
                                                 data-name="{{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '' }}"
-                                                data-model-number="{{ $asset['model_number'] ?? '' }}"
                                                 data-serial-number="{{ $asset['serial_number'] ?? '' }}"
                                                 data-purchase-date="{{ $asset['purchase_date'] ?? '' }}"
                                                 data-purchase-cost="{{ $asset['purchase_cost'] ?? '' }}"
@@ -628,7 +633,7 @@
     <div class="flex items-center">
         <div class="py-1">
             <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </div>
         <div>
@@ -710,20 +715,201 @@
 </div>
 
 <div id="printQRPDFNotification" class="hidden fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">QR Codes Generated!</p>
-            <p>Your QR codes are ready to print.</p>
-        </div>
+        <div class="flex items-center">
+            <div class="py-1">
+                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold">QR Codes Generated!</p>
+                <p>Your QR codes are ready to print.</p>
+            </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.classList.add('hidden')">×</span>
+        </div>
+</div>
+
+<!-- Import Asset Modal -->
+<div id="importAssetModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+    <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="importAssetModalContent">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-6 pb-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">IMPORT ASSETS</h2>
+                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Step 1: File Selection -->
+                <div id="import-step-1" class="block">
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            <!-- Import Instructions -->
+                            <div class="text-gray-600 text-sm bg-blue-50 p-4 rounded-lg">
+                                <p class="font-medium text-blue-600 mb-2">Import Instructions:</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Use the Excel template format for importing</li>
+                                    <li>Required columns: Asset Master ID, Serial Number, Room ID, etc.</li>
+                                    <li>Maximum 100 records per import</li>
+                                    <li>File types supported: .xlsx, .xls, .csv</li>
+                                </ul>
+                                <div class="mt-3 flex justify-end">
+                                    <a href="{{ asset('docs/ImportAssetTemplate.xlsx') }}" download class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-[#213268] rounded-md hover:bg-[#152451] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                        </svg>
+                                        Download Template
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- File Upload -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#213268]">Excel File</label>
+                                <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                    <!-- File preview -->
+                                    <div id="excel-file-name" class="mt-2 mb-4 w-full hidden">
+                                        <div class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                            <div class="flex items-center">
+                                                <svg class="w-6 h-6 text-green-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                                <span id="file-name-text" class="text-sm text-gray-700 truncate"></span>
+                                                <button type="button" id="remove-excel" class="ml-auto text-red-500 hover:text-red-700">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+        </div>
     </div>
 </div>
 
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-gray-600">Drag your Excel file or <span class="text-[#213268] font-semibold">browse files</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: xlsx, xls, csv</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                    </div>
+                                    <input type="file" id="excel_file" name="excel_file" accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                </div>
+                            </div>
+
+                            <!-- Error Message -->
+                            <div id="excel-error" class="hidden text-red-500 text-sm"></div>
+
+                            <!-- Loading Indicator -->
+                            <div id="excel-loading" class="hidden text-center py-2">
+                                <div class="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                <p class="mt-2 text-sm text-gray-600">Processing Excel data...</p>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="flex gap-3">
+                                <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                    Cancel
+                                </button>
+                                <button type="button" id="preview-btn" disabled class="w-1/2 h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Preview Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Import Progress -->
+                <div id="import-step-2" class="hidden">
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            <!-- Preview Header -->
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-[#213268]">Data Preview</h3>
+                                <span class="text-sm text-gray-500" id="preview-count">0 items found</span>
+                            </div>
+
+                            <!-- Preview Table -->
+                            <div class="overflow-x-auto max-h-[400px] border border-gray-200 rounded-lg">
+                                <table class="w-full">
+                                    <thead class="sticky top-0 bg-[#213268] text-white">
+                                        <tr>
+                                            <th class="p-3 text-left text-xs font-semibold">No</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Asset Master ID</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Serial Number</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Room ID</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Purchase Date</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Purchase Cost</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Warranty End Date</th>
+                                            <th class="p-3 text-left text-xs font-semibold">User ID</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Current Status</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Condition</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Depreciation Method</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Acquisition Cost</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Salvage Value</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Asset Life (months)</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Date Acquired</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="preview-table-body">
+                                        <!-- Preview data will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Warning/Error Messages -->
+                            <div id="preview-warnings" class="hidden text-yellow-600 text-sm bg-yellow-50 p-4 rounded-lg">
+                                <p class="font-medium mb-2">Warnings:</p>
+                                <ul class="list-disc pl-5" id="warning-list">
+                                    <!-- Warning messages will be inserted here -->
+                                </ul>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex gap-3">
+                                <button type="button" id="back-to-upload-btn" class="w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                    Back
+                                </button>
+                                <form action="{{ route('assets.import') }}" method="POST" id="import-form" class="w-2/3" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="excel_data" id="excel_data">
+                                    <button type="submit" id="import-btn" class="w-full h-[45px] bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200">
+                                        Import Data
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Import Result -->
+                <div id="import-step-3" class="hidden">
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            <div class="flex flex-col items-center">
+                                <svg class="mb-4 w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-lg font-semibold text-[#213268]">Import Successful!</p>
+                                <p class="mt-2 text-sm text-gray-600">Your assets have been imported successfully.</p>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="button" class="close-modal px-6 py-2 bg-[#213268] text-white rounded-lg hover:bg-[#152451] transition-colors duration-200">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @push('scripts')
 <script>
@@ -1029,42 +1215,50 @@
 
                 // Update user selection display
                 if (asset.user_id) {
+                    // Log information for debugging
+                    console.log('Updating user field for user_id:', asset.user_id);
+
                     // Set the hidden input for user ID
                     setFieldValue('edit_selected_user_id', asset.user_id);
 
                     // Find user in the global users data by user_id
                     const users = window.usersData || [];
-                    const user = users.find(u => u.user_id == asset.user_id);
+                    console.log('Available users data:', users);
 
+                    const user = users.find(u => u.user_id == asset.user_id);
+                    console.log('Found user in global data:', user);
+
+                    // Check asset.user data
+                    console.log('User data from asset:', asset.user);
+
+                    // Start with User ID as fallback
                     let userDisplay = `User ID: ${asset.user_id}`;
 
-                    // If found in global data, use employee_number
-                    if (user && user.employee_number) {
-                        userDisplay = user.employee_number;
+                    // Check user from global data
+                    if (user) {
+                        if (user.employee_number) {
+                            userDisplay = user.employee_number;
+                            console.log('Using employee_number from global data:', user.employee_number);
+                        } else if (user.name) {
+                            userDisplay = user.name;
+                            console.log('Using name from global data:', user.name);
+                        }
                     }
                     // Try from the asset.user data if available
-                    else if (asset.user && asset.user.employee_number) {
-                        userDisplay = asset.user.employee_number;
-                    }
-                    // Fallback to name if no employee_number
-                    else if (asset.user && asset.user.name) {
-                        userDisplay = asset.user.name;
+                    else if (asset.user) {
+                        if (asset.user.employee_number) {
+                            userDisplay = asset.user.employee_number;
+                            console.log('Using employee_number from asset.user:', asset.user.employee_number);
+                        } else if (asset.user.name) {
+                            userDisplay = asset.user.name;
+                            console.log('Using name from asset.user:', asset.user.name);
+                        }
                     }
 
-                    setFieldValue('edit_user_search', userDisplay);
+                    console.log('Final user display value:', userDisplay);
+                    document.getElementById('edit_user_search').value = userDisplay;
                 }
 
-            // Handle asset image preview
-            const previewImage = document.getElementById('edit_image_preview');
-            const previewContainer = document.getElementById('edit_preview-container');
-
-            if (previewImage && previewContainer && asset.picture_path) {
-                previewImage.src = `{{ config('app.backend_url') }}/public${asset.picture_path}`;
-                previewImage.classList.remove('hidden');
-                previewContainer.classList.remove('hidden');
-            } else if (previewContainer) {
-                previewContainer.classList.add('hidden');
-            }
         })
         .catch(error => {
             console.error('Error fetching asset data:', error);
@@ -1261,35 +1455,6 @@
                 });
             }
 
-            // Image preview handlers
-            const imagePreviewHandlers = [
-                { input: 'image_file', preview: 'preview-image', container: 'preview-container' },
-                { input: 'edit_image_file', preview: 'edit_image_preview', container: 'edit_preview-container' }
-            ];
-
-            imagePreviewHandlers.forEach(handler => {
-                const input = document.getElementById(handler.input);
-                const preview = document.getElementById(handler.preview);
-                const container = document.getElementById(handler.container);
-
-                if (input && preview && container) {
-                    input.addEventListener('change', function() {
-                        if (this.files && this.files[0]) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                preview.src = e.target.result;
-                                preview.classList.remove('hidden');
-                                container.classList.remove('hidden');
-                            };
-                            reader.readAsDataURL(this.files[0]);
-                        } else {
-                            preview.classList.add('hidden');
-                            container.classList.add('hidden');
-                        }
-                    });
-                }
-            });
-
             // Print QR form handler
             const printQRForm = document.getElementById('printQRForm');
             if (printQRForm) {
@@ -1300,10 +1465,10 @@
                     const action = this.action;
 
                     // Close the modal
-                    const modal = document.getElementById('printQRModal');
-                    if (modal) {
-                        closeModal(modal);
-                    }
+                        const modal = document.getElementById('printQRModal');
+                        if (modal) {
+                            closeModal(modal);
+                        }
 
                     // Create and submit a form to open in a new tab
                     const form = document.createElement('form');
@@ -1608,6 +1773,7 @@
                         searchTerm = searchTerm.toLowerCase();
                         users = users.filter(user => {
                             return (user.employee_number && user.employee_number.toLowerCase().includes(searchTerm)) ||
+                                   (user.name && user.name.toLowerCase().includes(searchTerm)) ||
                                    (user.user_id && user.user_id.toString().includes(searchTerm));
                         });
                     }
@@ -1625,21 +1791,33 @@
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
-                            // Display employee_number if available, otherwise user_id
-                            const displayName = user.employee_number
-                                ? `${user.employee_number}`
-                                : `User ID: ${user.user_id}`;
+                            // Display employee_number with user's name if available
+                            let displayText = '';
+                            if (user.employee_number) {
+                                displayText = user.employee_number;
+                                if (user.name) {
+                                    displayText += ` - ${user.name}`;
+                                }
+                            } else {
+                                displayText = user.name || `User ID: ${user.user_id}`;
+                            }
 
-                            li.textContent = displayName;
+                            li.textContent = displayText;
                             li.setAttribute('data-id', user.user_id);
-                            li.setAttribute('data-name', displayName);
+                            li.setAttribute('data-employee-number', user.employee_number || '');
+                            li.setAttribute('data-name', displayText);
 
                             li.addEventListener('click', function() {
                                 // Set the selected user ID and display
                                 selectedUserId.value = this.getAttribute('data-id');
 
-                                // Update the search input
-                                searchInput.value = this.getAttribute('data-name');
+                                // Update the search input with employee number
+                                const employeeNumber = this.getAttribute('data-employee-number');
+                                if (employeeNumber) {
+                                    searchInput.value = employeeNumber;
+                                } else {
+                                    searchInput.value = this.getAttribute('data-name');
+                                }
 
                                 // Hide dropdown
                                 dropdown.classList.add('hidden');
@@ -1757,7 +1935,525 @@
         initEventHandlers();
         initSearchComponents();
         checkUrlParams();
+
+        // Import functionality
+        const importAssetBtn = document.getElementById('importAssetBtn');
+        const importAssetModal = document.getElementById('importAssetModal');
+        const importAssetModalContent = document.getElementById('importAssetModalContent');
+
+        if (importAssetBtn && importAssetModal && importAssetModalContent) {
+            importAssetBtn.addEventListener('click', function() {
+                openModal(importAssetModal, importAssetModalContent);
+            });
+        }
+
+        // File input handling
+        const excelFile = document.getElementById('excel_file');
+        const excelFileNameContainer = document.getElementById('excel-file-name');
+        const excelFileNameText = document.getElementById('file-name-text');
+        const removeExcelBtn = document.getElementById('remove-excel');
+        const previewBtn = document.getElementById('preview-btn');
+        const excelErrorMsg = document.getElementById('excel-error');
+        const excelLoadingIndicator = document.getElementById('excel-loading');
+
+        if (excelFile) {
+            excelFile.addEventListener('change', function(e) {
+                if (excelErrorMsg) excelErrorMsg.classList.add('hidden');
+
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    const fileExt = file.name.split('.').pop().toLowerCase();
+
+                    if (!['xlsx', 'xls', 'csv'].includes(fileExt)) {
+                        if (excelErrorMsg) {
+                            excelErrorMsg.textContent = 'Invalid file type. Please upload an Excel file (.xlsx, .xls) or CSV file.';
+                            excelErrorMsg.classList.remove('hidden');
+                        }
+                        this.value = '';
+                        if (excelFileNameContainer) excelFileNameContainer.classList.add('hidden');
+                        if (previewBtn) previewBtn.disabled = true;
+                        return;
+                    }
+
+                    if (excelFileNameText) excelFileNameText.textContent = file.name;
+                    if (excelFileNameContainer) excelFileNameContainer.classList.remove('hidden');
+                    if (previewBtn) previewBtn.disabled = false;
+                } else {
+                    if (excelFileNameContainer) excelFileNameContainer.classList.add('hidden');
+                    if (previewBtn) previewBtn.disabled = true;
+                }
+            });
+        }
+
+        if (removeExcelBtn) {
+            removeExcelBtn.addEventListener('click', function() {
+                if (excelFile) excelFile.value = '';
+                if (excelFileNameContainer) excelFileNameContainer.classList.add('hidden');
+                if (previewBtn) previewBtn.disabled = true;
+                if (excelErrorMsg) excelErrorMsg.classList.add('hidden');
+            });
+        }
+
+        // Preview button handling
+        if (previewBtn) {
+            previewBtn.addEventListener('click', function() {
+                if (!excelFile || !excelFile.files || !excelFile.files[0]) {
+                    if (excelErrorMsg) {
+                        excelErrorMsg.textContent = 'Please select a file first.';
+                        excelErrorMsg.classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                const file = excelFile.files[0];
+
+                if (excelLoadingIndicator) excelLoadingIndicator.classList.remove('hidden');
+                if (excelErrorMsg) excelErrorMsg.classList.add('hidden');
+
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    try {
+                        // Use XLSX.js to parse Excel data
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+
+                        // Get first sheet
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+                        // Convert to JSON
+                        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                        // Process data
+                        if (rows.length < 2) {
+                            throw new Error('The file contains no data or is missing headers.');
+                        }
+
+                        // Process the Excel data
+                        processExcelData(rows);
+
+                        if (excelLoadingIndicator) excelLoadingIndicator.classList.add('hidden');
+
+                        // Show step 2
+                        document.getElementById('import-step-1').classList.add('hidden');
+                        document.getElementById('import-step-2').classList.remove('hidden');
+                    } catch (error) {
+                        console.error('Excel parsing error:', error);
+                        if (excelLoadingIndicator) excelLoadingIndicator.classList.add('hidden');
+                        if (excelErrorMsg) {
+                            excelErrorMsg.textContent = 'Error processing file: ' + error.message;
+                            excelErrorMsg.classList.remove('hidden');
+                        }
+                    }
+                };
+
+                reader.onerror = function() {
+                    console.error('FileReader error:', reader.error);
+                    if (excelLoadingIndicator) excelLoadingIndicator.classList.add('hidden');
+                    if (excelErrorMsg) {
+                        excelErrorMsg.textContent = 'Error reading the file. Please try another file.';
+                        excelErrorMsg.classList.remove('hidden');
+                    }
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Back button handling
+        const backToUploadBtn = document.getElementById('back-to-upload-btn');
+        if (backToUploadBtn) {
+            backToUploadBtn.addEventListener('click', function() {
+                document.getElementById('import-step-2').classList.add('hidden');
+                document.getElementById('import-step-1').classList.remove('hidden');
+            });
+        }
+
+        // Function to process Excel data
+        function processExcelData(data) {
+            // Get headers (first row)
+            const headers = data[0];
+            // Remove empty rows
+            const rows = data.slice(1).filter(row => row.length > 0 && row.some(cell => cell !== null && cell !== ''));
+
+            // Map headers to normalized names
+            const headerMap = {};
+            headers.forEach((header, index) => {
+                if (header) {
+                    const normalizedHeader = String(header).toLowerCase().trim()
+                        .replace(/\s+/g, '_')
+                        .replace(/[^a-z0-9_]/g, '');
+                    headerMap[normalizedHeader] = index;
+                }
+            });
+
+            // Transform data for preview
+            const previewData = [];
+            const warnings = [];
+
+            rows.forEach((row, rowIndex) => {
+                const item = {};
+
+                // Helper function to get value by possible header names
+                const getValue = (possibleNames) => {
+                    for (const name of possibleNames) {
+                        const normalizedName = name.toLowerCase().trim()
+                            .replace(/\s+/g, '_')
+                            .replace(/[^a-z0-9_]/g, '');
+
+                        if (headerMap[normalizedName] !== undefined) {
+                            return row[headerMap[normalizedName]];
+                        }
+                    }
+                    return null;
+                };
+
+                // Map values to normalized fields
+                item.asset_master_id = getValue(['asset_master_id', 'asset master id', 'master id', 'master_id', 'kode master aset']);
+                item.serial_number = getValue(['serial_number', 'serial number', 'serialnumber', 'serial', 'nomor serial']);
+                item.room_id = getValue(['room_id', 'room id', 'room', 'nama ruangan']);
+                item.purchase_date = getValue(['purchase_date', 'purchase date', 'date', 'purchasedate', 'tanggal pembelian']);
+                item.purchase_cost = getValue(['purchase_cost', 'purchase cost', 'cost', 'price', 'biaya pembelian']);
+                item.warranty_end_date = getValue(['warranty_end_date', 'warranty end date', 'warranty', 'warrantyenddate', 'tanggal akhir garansi']);
+                item.condition = getValue(['condition', 'asset condition', 'asset_condition', 'kondisi']) || 'good';
+                item.user_id = getValue(['user_id', 'user id', 'user', 'userid', 'nomor karyawan']);
+                item.current_status = getValue(['current_status', 'current status', 'status']) || 'available';
+
+                // Get depreciation method and normalize it
+                const rawDepreciationMethod = getValue(['depreciation_method', 'depreciation method', 'method', 'metode depresiasi']);
+
+                // Map the display values from the dropdown to server-expected values
+                let normalizedMethod = null;
+
+                if (rawDepreciationMethod) {
+                    // Convert to lowercase and trim for more accurate matching
+                    const depMethodLower = typeof rawDepreciationMethod === 'string'
+                        ? rawDepreciationMethod.toLowerCase().trim()
+                        : String(rawDepreciationMethod).toLowerCase().trim();
+
+                    // Map dropdown display values to server-expected values
+                    if (depMethodLower === 'straight line') {
+                        normalizedMethod = 'straight_line';
+                    } else if (depMethodLower === 'declining balance') {
+                        normalizedMethod = 'declining_balance';
+                    } else if (depMethodLower === 'double declining balance') {
+                        normalizedMethod = 'double_declining_balance';
+                    } else if (depMethodLower === '150% declining balance') {
+                        normalizedMethod = 'declining_balance_150';
+                    } else if (depMethodLower === 'sum of the year\'s digits') {
+                        normalizedMethod = 'sum_of_years_digits';
+                    } else {
+                        // If it's already in server format, keep it
+                        normalizedMethod = depMethodLower;
+                    }
+                }
+
+                item.depreciation_method = normalizedMethod;
+                item.acquisition_cost = getValue(['acquisition_cost', 'acquisition cost', 'acquisitioncost', 'biaya perolehan']);
+                item.salvage_value = getValue(['salvage_value', 'salvage value', 'salvagevalue', 'nilai sisa']);
+                item.asset_life_months = getValue(['asset_life_months', 'asset life months', 'asset life', 'umur aset', 'umur aset (bulan)']);
+                item.date_acquired = getValue(['date_acquired', 'date acquired', 'dateacquired', 'tanggal perolehan']);
+
+                // Validate required fields
+                if (!item.asset_master_id) {
+                    warnings.push(`Row ${rowIndex + 1}: Missing Asset Master ID`);
+                }
+
+                if (!item.serial_number) {
+                    warnings.push(`Row ${rowIndex + 1}: Missing Serial Number`);
+                }
+
+                if (!item.room_id) {
+                    warnings.push(`Row ${rowIndex + 1}: Missing Room ID`);
+                }
+
+                // Add row index for reference
+                item._rowNum = rowIndex + 1;
+
+                previewData.push(item);
+            });
+
+            // Check for duplicate serial numbers
+            const serialNumberMap = {};
+            previewData.forEach(item => {
+                if (item.serial_number) {
+                    if (!serialNumberMap[item.serial_number]) {
+                        serialNumberMap[item.serial_number] = [];
+                    }
+                    serialNumberMap[item.serial_number].push(item._rowNum);
+                }
+            });
+
+            // Add duplicate warnings
+            Object.entries(serialNumberMap).forEach(([serialNumber, rows]) => {
+                if (rows.length > 1) {
+                    warnings.push(`Duplicate Serial Number "${serialNumber}" found in rows: ${rows.join(', ')}`);
+                }
+            });
+
+            // Update hidden field with JSON data for form submission
+            document.getElementById('excel_data').value = JSON.stringify(previewData);
+
+            // Show preview with warnings
+            showDataPreview(previewData, warnings);
+        }
+
+        // Function to show data preview
+        function showDataPreview(data, warnings) {
+            const previewTableBody = document.getElementById('preview-table-body');
+            const previewCount = document.getElementById('preview-count');
+            const warningsContainer = document.getElementById('preview-warnings');
+            const warningsList = document.getElementById('warning-list');
+
+            if (!previewTableBody || !previewCount) return;
+
+            // Clear previous content
+            previewTableBody.innerHTML = '';
+            if (warningsList) warningsList.innerHTML = '';
+            if (warningsContainer) warningsContainer.classList.add('hidden');
+
+            // Update count
+            previewCount.textContent = `${data.length} items found`;
+
+            // Generate table rows
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+
+                // Add row number
+                const indexCell = document.createElement('td');
+                indexCell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
+                indexCell.textContent = index + 1;
+                row.appendChild(indexCell);
+
+                // Add data cells
+                const fields = ['asset_master_id', 'serial_number', 'room_id', 'purchase_date', 'purchase_cost',
+                                'warranty_end_date', 'condition', 'user_id', 'current_status', 'depreciation_method',
+                                'acquisition_cost', 'salvage_value', 'asset_life_months', 'date_acquired'];
+
+                fields.forEach(field => {
+                    const cell = document.createElement('td');
+                    cell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
+
+                    // Apply special formatting for boolean fields or use default text
+                    if (typeof item[field] === 'boolean') {
+                        const isTrue = item[field];
+                        cell.innerHTML = isTrue ?
+                            '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Yes</span>' :
+                            '<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">No</span>';
+                    } else {
+                        cell.textContent = item[field] || '-';
+                    }
+
+                    row.appendChild(cell);
+                });
+
+                previewTableBody.appendChild(row);
+            });
+
+            // Show warnings if any
+            if (warnings && warnings.length > 0 && warningsList && warningsContainer) {
+                warnings.forEach(warning => {
+                    const li = document.createElement('li');
+                    li.textContent = warning;
+                    warningsList.appendChild(li);
+                });
+                warningsContainer.classList.remove('hidden');
+
+                // Disable import button if there are critical warnings
+                const importBtn = document.getElementById('import-btn');
+                const hasCriticalWarnings = warnings.some(warning =>
+                    warning.includes('Missing Asset Master ID') ||
+                    warning.includes('Missing Serial Number') ||
+                    warning.includes('Missing Room ID')
+                );
+
+                if (importBtn && hasCriticalWarnings) {
+                    importBtn.disabled = true;
+                    importBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else if (importBtn) {
+                    importBtn.disabled = false;
+                    importBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        }
+
+        // Handle import form submission with AJAX
+        const importForm = document.getElementById('import-form');
+        importForm?.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent traditional form submission
+
+            // Get form data
+            const formData = new FormData(this);
+
+            // Add the Excel file to the form data if needed
+            const originalFileInput = document.getElementById('excel_file');
+            if (originalFileInput && originalFileInput.files.length > 0) {
+                formData.append('excel_file_upload', originalFileInput.files[0]);
+            }
+
+            // Show loading state
+            const importBtn = document.getElementById('import-btn');
+            const originalBtnText = importBtn.innerHTML;
+            importBtn.disabled = true;
+            importBtn.innerHTML = `
+                <div class="flex items-center justify-center">
+                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <span>Importing...</span>
+                </div>
+            `;
+
+            // Send AJAX request
+            fetch('{{ route('assets.import') }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => {
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json().then(data => {
+                        // Add status to the data object
+                        data.status = response.status;
+                        return data;
+                    });
+                } else {
+                    // If not JSON, it's likely an error page or redirect
+                    throw new Error('Invalid response format');
+                }
+            })
+            .then(data => {
+                // Reset button state
+                importBtn.disabled = false;
+                importBtn.innerHTML = originalBtnText;
+
+                if (data.success === true || (data.status >= 200 && data.status < 300)) {
+                    // Success response
+                    console.log('Import successful:', data);
+
+                    // Close the modal
+                    const modal = document.getElementById('importAssetModal');
+                    closeModal(modal);
+
+                    // Show success notification
+                    showNotification('success', data.message || 'Assets imported successfully!');
+
+                    // Reload the page to show updated data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    // Error response
+                    console.error('Import error:', data);
+
+                    // Show error notification toast (outside the modal)
+                    let errorMessage = data.message || 'An error occurred during import.';
+
+                    // Check for detailed error information in the API response
+                    if (data.data && data.data.errors && Array.isArray(data.data.errors)) {
+                        const detailedErrors = data.data.errors.map(error =>
+                            `Row ${error.row}: ${error.reason || 'Unknown error'}`
+                        );
+                        if (detailedErrors.length > 0) {
+                            errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+                            detailedErrors.forEach(err => {
+                                errorMessage += `<li>${err}</li>`;
+                            });
+                            errorMessage += '</ul>';
+                        }
+                    } else if (data.errors) {
+                        const errorList = Object.values(data.errors);
+                        if (errorList.length > 0) {
+                            errorMessage += ': ' + errorList.join(', ');
+                        }
+                    }
+
+                    showNotification('error', errorMessage);
+                }
+            })
+            .catch(error => {
+                // Reset button state
+                importBtn.disabled = false;
+                importBtn.innerHTML = originalBtnText;
+
+                console.error('Import fetch error:', error);
+
+                // Show error notification toast
+                showNotification('error', 'An unexpected error occurred. Please try again.');
+            });
+        });
+
+        // Helper function to show notifications
+        function showNotification(type, message) {
+            // Create the notification element
+            const notification = document.createElement('div');
+            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+            notification.role = 'alert';
+
+            if (type === 'success') {
+                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                notification.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Success!</p>
+                            <div>${message}</div>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            } else {
+                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+                notification.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div class="flex-grow">
+                            <p class="font-bold">Error!</p>
+                            <div>${message}</div>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            }
+
+            // Add to document
+            document.body.appendChild(notification);
+
+            // Auto-remove notification after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        }
+
+        // Add slide-in animation to CSS
+        document.head.insertAdjacentHTML('beforeend', `
+            <style>
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+                .animate-slide-in-right {
+                    animation: slideInRight 0.3s ease-out forwards;
+                }
+            </style>
+        `);
     });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 @endpush
 @endsection

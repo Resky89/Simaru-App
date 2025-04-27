@@ -78,8 +78,8 @@ class UnitAssetController extends Controller
             // Fetch all users for the dropdown
             $usersResult = $this->apiService->request('GET', '/users', [
                 'query' => [
-                    'limit' => 100, // Get a reasonable number of users
-                    'sort_by' => 'user_id',
+                    'limit' => 30, // Get only a minimal set of users for fallback, we now use lazy loading
+                    'sort_by' => 'employee_number',
                     'sort_order' => 'asc'
                 ]
             ]);
@@ -649,6 +649,58 @@ class UnitAssetController extends Controller
     public function getAsset($id)
     {
         try {
+            // Check if this is a user search request - this lets us use the same endpoint for user search without adding a new route
+            if ($id === 'search' && request()->ajax() && request()->wantsJson()) {
+                \Log::info('Processing users search request:', [
+                    'search' => request()->input('search'),
+                    'limit' => request()->input('limit', 10),
+                    'offset' => request()->input('offset', 0)
+                ]);
+                
+                // Build query parameters for users API
+                $searchTerm = request()->input('search');
+                $limit = request()->input('limit', 10);
+                $offset = request()->input('offset', 0);
+                
+                $queryParams = [
+                    'limit' => $limit,
+                    'offset' => $offset,
+                    'sort_by' => 'employee_number', // Sort by employee number for easier searching
+                    'sort_order' => 'asc'
+                ];
+                
+                if (!empty($searchTerm)) {
+                    $queryParams['search'] = $searchTerm;
+                }
+                
+                // Call the API to get users
+                $usersResult = $this->apiService->request('GET', '/users', [
+                    'query' => $queryParams
+                ]);
+                
+                // Check for errors
+                if (isset($usersResult['error']) || !isset($usersResult['success']) || $usersResult['success'] !== true) {
+                    $errorMessage = $usersResult['message'] ?? 'Failed to fetch users';
+                    \Log::warning('Error fetching users:', [
+                        'error' => $usersResult['error'] ?? 'unknown',
+                        'message' => $errorMessage
+                    ]);
+                    
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage
+                    ], 400);
+                }
+                
+                // Return the users data
+                return response()->json([
+                    'success' => true,
+                    'data' => $usersResult['data'] ?? [],
+                    'pagination' => $usersResult['pagination'] ?? null
+                ]);
+            }
+            
+            // Regular asset fetch logic continues below
             // Log request info
             \Log::info('Fetching single asset with ID:', [
                 'asset_id' => $id,
@@ -736,6 +788,24 @@ class UnitAssetController extends Controller
                     ]
                 ]);
                 $assetMasters = $assetMastersResult['data'] ?? [];
+
+                // If we have a user_id, fetch user details to ensure we have complete information
+                if (isset($asset['user_id']) && $asset['user_id']) {
+                    try {
+                        $userResult = $this->apiService->request('GET', "/users/{$asset['user_id']}");
+                        if (isset($userResult['success']) && $userResult['success'] === true && isset($userResult['data'])) {
+                            // Enhance the user object with complete details
+                            $asset['user'] = $userResult['data'];
+                            \Log::info('Enhanced user data for asset:', [
+                                'asset_id' => $id,
+                                'user_id' => $asset['user_id'],
+                                'employee_number' => $asset['user']['employee_number'] ?? 'not available'
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning("Error fetching user details: {$e->getMessage()}");
+                    }
+                }
 
                 // Return complete data set for the modal
                 return response()->json([
@@ -1219,6 +1289,187 @@ class UnitAssetController extends Controller
             return response()->json([
                 'error' => 'Failed to fetch assets: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Import assets from Excel/CSV file
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function importAssets(Request $request)
+    {
+        try {
+            \Log::info('Attempting to import assets from Excel', [
+                'has_file' => $request->hasFile('excel_file_upload'),
+                'has_excel_data' => $request->has('excel_data'),
+                'is_ajax' => $request->ajax()
+            ]);
+
+            if ($request->hasFile('excel_file_upload')) {
+                // Use multipart form data to send the actual file
+                $multipartData = [];
+
+                // Add the Excel file
+                $multipartData[] = [
+                    'name' => 'excel_file',
+                    'contents' => fopen($request->file('excel_file_upload')->getPathname(), 'r'),
+                    'filename' => $request->file('excel_file_upload')->getClientOriginalName()
+                ];
+
+                // Send the actual file to API
+                $result = $this->apiService->request('POST', '/assets/import', [
+                    'multipart' => $multipartData
+                ]);
+            } else if ($request->has('excel_data')) {
+                // Fallback to the previous method if no file but has parsed data
+                // Get the JSON data from the form
+                $excelData = $request->input('excel_data');
+
+                if (empty($excelData)) {
+                    if ($request->ajax()) {
+                        return response()->json(['success' => false, 'message' => 'No valid data found for import'], 400);
+                    }
+                    return redirect()->back()->with('error', 'No valid data found for import');
+                }
+
+                // Decode the JSON data
+                $parsedData = json_decode($excelData, true);
+
+                if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsedData) || empty($parsedData)) {
+                    if ($request->ajax()) {
+                        return response()->json(['success' => false, 'message' => 'Invalid data format for import'], 400);
+                    }
+                    return redirect()->back()->with('error', 'Invalid data format for import');
+                }
+
+                \Log::info('Parsed Excel data for import', [
+                    'record_count' => count($parsedData)
+                ]);
+
+                // Send data to API
+                $result = $this->apiService->request('POST', '/assets/import', [
+                    'json' => [
+                        'data' => $parsedData
+                    ]
+                ]);
+            } else {
+                if ($request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'No Excel file or data provided'], 400);
+                }
+                return redirect()->back()->with('error', 'No Excel file or data provided');
+            }
+
+            // Log the API response
+            \Log::info('API response for asset import:', [
+                'api_response' => $result
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during asset import:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                if ($request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $result['message'] ?? 'Authentication failed'], 401);
+                }
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check for other API errors or unsuccessful responses
+            if (
+                isset($result['error']) ||
+                (isset($result['success']) && $result['success'] === false)
+            ) {
+                \Log::warning('Error during asset import:', [
+                    'error' => $result['error'] ?? null,
+                    'success' => $result['success'] ?? null,
+                    'message' => $result['message'] ?? 'Failed to import assets'
+                ]);
+
+                // Format error message including detailed errors from the response
+                $errorMessage = $result['message'] ?? 'Failed to import assets';
+
+                // Extract and format detailed error information if available
+                if (isset($result['data']['errors']) && is_array($result['data']['errors']) && count($result['data']['errors']) > 0) {
+                    $errorDetails = [];
+
+                    foreach ($result['data']['errors'] as $error) {
+                        if (isset($error['row']) && isset($error['asset_name']) && isset($error['reason'])) {
+                            $errorDetails[] = "Row {$error['row']}: {$error['asset_name']} - {$error['reason']}";
+                        } elseif (is_string($error)) {
+                            $errorDetails[] = $error;
+                        } elseif (is_array($error) && isset($error['message'])) {
+                            $errorDetails[] = $error['message'];
+                        }
+                    }
+
+                    if ($request->ajax()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => $errorMessage,
+                            'errors' => $errorDetails
+                        ], 400);
+                    }
+
+                    // For non-AJAX, format as HTML
+                    $errorMessage .= "<ul class='list-disc pl-4 mt-2'>";
+                    foreach ($errorDetails as $detail) {
+                        $errorMessage .= "<li>{$detail}</li>";
+                    }
+                    $errorMessage .= "</ul>";
+                } else {
+                    if ($request->ajax()) {
+                        return response()->json(['success' => false, 'message' => $errorMessage], 400);
+                    }
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Extract import results
+            $totalImported = $result['data']['total'] ?? 0;
+            $successCount = $result['data']['success'] ?? 0;
+            $failedCount = $result['data']['failed'] ?? 0;
+
+            // Prepare success message
+            $successMessage = "Successfully imported {$successCount} assets";
+            if ($failedCount > 0) {
+                $successMessage .= " ({$failedCount} failed)";
+            }
+
+            // Return response based on request type
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => [
+                        'total' => $totalImported,
+                        'success' => $successCount,
+                        'failed' => $failedCount
+                    ]
+                ]);
+            }
+
+            // Redirect back with success message for non-AJAX requests
+            return redirect()->route('assets')->with('success', $successMessage);
+        } catch (\Exception $e) {
+            \Log::error('Exception during asset import:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to import assets: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to import assets: ' . $e->getMessage());
         }
     }
 }
