@@ -23,7 +23,7 @@ class UnitAssetController extends Controller
     {
         try {
             $page = $request->input('page', 1);
-            $limit = $request->input('limit', 10);
+            $limit = $request->input('limit', 1000);
             $search = $request->input('search', '');
             $statusFilter = $request->input('status', '');
 
@@ -78,7 +78,7 @@ class UnitAssetController extends Controller
             // Fetch all users for the dropdown
             $usersResult = $this->apiService->request('GET', '/users', [
                 'query' => [
-                    'limit' => 30, // Get only a minimal set of users for fallback, we now use lazy loading
+                    'limit' => 1000, // Get only a minimal set of users for fallback, we now use lazy loading
                     'sort_by' => 'employee_number',
                     'sort_order' => 'asc'
                 ]
