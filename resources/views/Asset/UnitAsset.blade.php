@@ -24,7 +24,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
-                            <span class="text-base">Download PDF</span>
+                            <span class="text-base">Export PDF</span>
                         </button>
                         <button id="addAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,7 +45,6 @@
                                 </th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Code</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Category Name</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Action</th>
@@ -59,27 +58,27 @@
                                         <input type="checkbox" class="asset-checkbox checkbox checkbox-sm" data-asset-id="{{ $asset['asset_id'] ?? '' }}" />
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_code'] ?? '-' }}</td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_name'] ?? '-' }}</td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['description'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                    @if(isset($asset['subcategory']) && isset($asset['subcategory']['asset_type']))
-                                        @if($asset['subcategory']['asset_type'] == 'medical')
-                                            Medical
-                                        @elseif($asset['subcategory']['asset_type'] == 'non_medical')
-                                            Non Medical
-                                        @else
-                                            {{ $asset['subcategory']['asset_type'] }}
-                                        @endif
-                                    @else
-                                        -
-                                    @endif
+                                        {{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '-' }}
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        @if(isset($asset['subcategory']) && isset($asset['subcategory']['subcategory_name']))
-                                            {{ $asset['subcategory']['subcategory_name'] }}
+                                        @if(isset($asset['asset_master']) && isset($asset['asset_master']['asset_master_code']))
+                                            @php
+                                                $code = $asset['asset_master']['asset_master_code'];
+                                                $assetType = 'Non Medical';
+                                                if (strpos($code, 'MED-') === 0) {
+                                                    $assetType = 'Medical';
+                                                } elseif (strpos($code, 'NMED-') === 0) {
+                                                    $assetType = 'Non Medical';
+                                                }
+                                            @endphp
+                                            {{ $assetType }}
                                         @else
-                                            -
+                                            Non Medical
                                         @endif
+                                    </td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                        {{ $asset['asset_master']['subcategory_name'] ?? '-' }}
                                     </td>
                                     <td class="p-3 border-t border-[#EEF1F4] text-center">
                                         <div class="flex justify-center items-center space-x-2">
@@ -93,9 +92,7 @@
                                             </button>
                                             <button class="text-[#3D3D3D] hover:text-[#213268] edit-asset-btn"
                                                 data-id="{{ $asset['asset_id'] ?? '' }}"
-                                                data-name="{{ $asset['asset_name'] ?? '' }}"
-                                                data-description="{{ $asset['description'] ?? '' }}"
-                                                data-subcategory-id="{{ $asset['subcategory']['subcategory_id'] ?? '' }}"
+                                                data-name="{{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '' }}"
                                                 data-model-number="{{ $asset['model_number'] ?? '' }}"
                                                 data-serial-number="{{ $asset['serial_number'] ?? '' }}"
                                                 data-purchase-date="{{ $asset['purchase_date'] ?? '' }}"
@@ -103,9 +100,8 @@
                                                 data-warranty-end-date="{{ $asset['warranty_end_date'] ?? '' }}"
                                                 data-current-status="{{ $asset['current_status'] ?? '' }}"
                                                 data-condition="{{ $asset['condition'] ?? '' }}"
-                                                data-room-id="{{ $asset['room']['room_id'] ?? '' }}"
-                                                data-brand-id="{{ $asset['brand']['brand_id'] ?? '' }}"
-                                                data-is-depreciable="{{ $asset['is_depreciable'] ? 'true' : 'false' }}"
+                                                data-room-id="{{ $asset['room_id'] ?? '' }}"
+                                                data-is-depreciable="{{ isset($asset['asset_master']) && isset($asset['asset_master']['is_depreciable']) && $asset['asset_master']['is_depreciable'] ? 'true' : 'false' }}"
                                                 data-image-path="{{ $asset['picture_path'] ?? '' }}">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -113,7 +109,7 @@
                                             </button>
                                             <button class="text-[#3D3D3D] hover:text-red-500 delete-asset-btn"
                                                 data-id="{{ $asset['asset_id'] ?? '' }}"
-                                                data-name="{{ $asset['asset_name'] ?? '' }}">
+                                                data-name="{{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '' }}">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
@@ -124,7 +120,7 @@
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No assets found</td>
+                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No assets found</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -213,159 +209,118 @@
                     </button>
                 </div>
 
-                <!-- Form -->
-                <form action="{{ route('assets.store') }}" method="POST" enctype="multipart/form-data">
+                <!-- Add Asset Form -->
+                <form action="{{ route('assets.store') }}" method="POST">
                     @csrf
                     <div class="p-6">
                         <div class="space-y-4">
                             <!-- Asset Information Section -->
                             <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Asset Information</h3>
 
-                            <!-- Image upload -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Asset Image</label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-blue-600">browse</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
-                                    </div>
-                                    <input type="file" id="image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                    <!-- Preview image di dalam container -->
-                                    <div id="preview-container" class="mt-4 w-full hidden">
-                                        <img id="preview-image" class="max-h-40 mx-auto rounded-lg" alt="Asset Image">
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Basic Asset Details -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Asset Name</label>
-                                    <input type="text" name="asset_name" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                        placeholder="Asset name">
-                                </div>
+                                <!-- Asset Master Dropdown -->
+                                <div class="mb-4">
+                                    <label for="asset_master_id" class="block text-gray-700 text-sm font-bold mb-2">Asset Master</label>
+                                    <div class="relative">
+                                        <input type="text" id="asset_master_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Search asset master...">
+                                        <input type="hidden" name="asset_master_id" id="selected_asset_master_id">
+                                        <input type="hidden" id="selected_is_depreciable" value="false">
 
-                                <!-- Subcategory Dropdown -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Subcategory</label>
-                                    <select name="subcategory_id" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select subcategory</option>
-                                        @foreach($subcategories as $subcategory)
-                                            <option value="{{ $subcategory['subcategory_id'] }}">{{ $subcategory['subcategory_name'] }}</option>
-                                        @endforeach
-                                    </select>
+                                        <!-- Dropdown -->
+                                        <div id="asset_master_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                                            <!-- Loading indicator -->
+                                            <div id="asset_master_loading" class="flex justify-center py-2">
+                                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                            <ul id="asset_master_list" class="max-h-56 overflow-y-auto"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="mb-4">
+                                    <label for="serial_number" class="block text-gray-700 text-sm font-bold mb-2">Serial Number</label>
+                                    <input type="text" name="serial_number" id="serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Serial number">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Condition</label>
-                                    <select name="condition" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                <div class="mb-4">
+                                    <label for="purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Purchase Date</label>
+                                    <input type="date" name="purchase_date" id="purchase_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Purchase Cost</label>
+                                    <input type="number" name="purchase_cost" id="purchase_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="mb-4">
+                                    <label for="warranty_end_date" class="block text-gray-700 text-sm font-bold mb-2">Warranty End Date</label>
+                                    <input type="date" name="warranty_end_date" id="warranty_end_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                </div>
+                                <!-- Room Dropdown -->
+                                <div class="mb-4">
+                                    <label for="room_id" class="block text-gray-700 text-sm font-bold mb-2">Room</label>
+                                    <div class="relative">
+                                        <input type="text" id="room_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Search for room...">
+                                        <input type="hidden" name="room_id" id="selected_room_id">
+                                        <div id="room_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                                            <!-- Loading indicator -->
+                                            <div id="room_loading" class="flex justify-center py-2">
+                                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </div>
+                                            <ul id="room_list" class="max-h-56 overflow-y-auto"></ul>
+                                        </div>
+                                    </div>
+                                    <div id="selected_room_display" class="hidden">
+                                        <span id="selected_room_name"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="mb-4">
+                                    <label for="condition" class="block text-gray-700 text-sm font-bold mb-2">Condition</label>
+                                    <select name="condition" id="condition" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                         <option value="good">Good</option>
-                                        <option value="slighly damage">Slightly Damage</option></option>
+                                        <option value="slightly damage">Slightly Damage</option>
                                         <option value="high damage">Highly Damage</option>
                                     </select>
                                 </div>
-
-                                <!-- Room Dropdown -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Room</label>
-                                    <select name="room_id" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select room</option>
-                                        @foreach($rooms as $room)
-                                            <option value="{{ $room['room_id'] }}">
-                                                {{ $room['room_name'] }} ({{ $room['building_name'] }})
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                <!-- User ID Field -->
+                                <div class="mb-4">
+                                    <label for="user_id" class="block text-gray-700 text-sm font-bold mb-2">Karyawan yang Bertanggung Jawab</label>
+                                    <div class="relative">
+                                        <input type="text" id="user_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari karyawan (nomor karyawan)...">
+                                        <input type="hidden" name="user_id" id="selected_user_id">
+                                        <div id="user_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                                            <!-- Loading indicator -->
+                                            <div id="user_loading" class="flex justify-center py-2">
+                                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </div>
+                                            <ul id="user_list" class="max-h-56 overflow-y-auto"></ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Description</label>
-                                <textarea name="description"
-                                    class="w-full h-[100px] px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] resize-none"
-                                    placeholder="Asset description"></textarea>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Model Number</label>
-                                    <input type="text" name="model_number"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                        placeholder="Model number">
-                                </div>
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Serial Number</label>
-                                    <input type="text" name="serial_number"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                        placeholder="Serial number">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Purchase Date</label>
-                                    <input type="date" name="purchase_date"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                </div>
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Purchase Cost</label>
-                                    <input type="number" name="purchase_cost" step="0.01"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                        placeholder="0.00">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Warranty End Date</label>
-                                    <input type="date" name="warranty_end_date"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                </div>
-                                <!-- Brand Dropdown -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Brand</label>
-                                    <select name="brand_id" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select brand</option>
-                                        @foreach($brands as $brand)
-                                            <option value="{{ $brand['brand_id'] }}">{{ $brand['brand_name'] }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Depreciation Toggle Switch -->
-                            <div class="flex items-center justify-between border-t pt-4">
-                                <label for="is_depreciable" class="text-base font-semibold text-[#666666]">Enable Asset Depreciation</label>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="is_depreciable" id="is_depreciable" class="sr-only peer depreciation-toggle" value="1">
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
-                                        peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
-                                        peer-checked:after:border-white after:content-[''] after:absolute
-                                        after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
-                                        after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                                        peer-checked:bg-[#213268]"></div>
-                                    <span class="ml-2 text-sm font-medium text-gray-900 depreciation-status">No</span>
-                                </label>
-                            </div>
-
-                            <!-- Depreciation Fields (Hidden by default) -->
-                            <div id="depreciation_fields" class="space-y-4 hidden border rounded-lg p-4 border-dashed border-gray-300">
+                            <!-- Depreciation Fields Section -->
+                            <div id="depreciation_fields" class="space-y-4 border rounded-lg p-4 border-dashed border-gray-300 hidden">
                                 <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Depreciation Information</h3>
 
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Depreciation Method</label>
-                                    <select name="depreciation_method" id="depreciation_method"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                <div class="mb-4">
+                                    <label for="depreciation_method" class="block text-gray-700 text-sm font-bold mb-2">Depreciation Method</label>
+                                    <select name="depreciation_method" id="depreciation_method" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                         <option value="Straight Line">Straight Line</option>
                                         <option value="Double Declining Balance">Double Declining Balance</option>
                                         <option value="150% Declining Balance">150% Declining Balance</option>
@@ -374,30 +329,24 @@
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Acquisition Cost</label>
-                                        <input type="number" step="0.01" name="acquisition_cost" id="acquisition_cost"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="0.00">
+                                    <div class="mb-4">
+                                        <label for="acquisition_cost" class="block text-gray-700 text-sm font-bold mb-2">Acquisition Cost</label>
+                                        <input type="number" name="acquisition_cost" id="acquisition_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
                                     </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Salvage Value</label>
-                                        <input type="number" step="0.01" name="salvage_value" id="salvage_value"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="0.00">
+                                    <div class="mb-4">
+                                        <label for="salvage_value" class="block text-gray-700 text-sm font-bold mb-2">Salvage Value</label>
+                                        <input type="number" name="salvage_value" id="salvage_value" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Asset Life (months)</label>
-                                        <input type="number" name="asset_life_months" id="asset_life_months"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                    <div class="mb-4">
+                                        <label for="asset_life_months" class="block text-gray-700 text-sm font-bold mb-2">Asset Life (months)</label>
+                                        <input type="number" name="asset_life_months" id="asset_life_months" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Date Acquired</label>
-                                        <input type="date" name="date_acquired" id="date_acquired"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                    <div class="mb-4">
+                                        <label for="date_acquired" class="block text-gray-700 text-sm font-bold mb-2">Date Acquired</label>
+                                        <input type="date" name="date_acquired" id="date_acquired" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     </div>
                                 </div>
                             </div>
@@ -414,7 +363,7 @@
     </div>
 </div>
 
-<!-- Edit Asset Modal - Fixed with proper depreciation fields section -->
+<!-- Edit Asset Modal -->
 <div id="editAssetModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -431,8 +380,8 @@
                     </button>
                 </div>
 
-                <!-- Form -->
-                <form id="editAssetForm" method="POST" enctype="multipart/form-data">
+                <!-- Edit Asset Form -->
+                <form id="editAssetForm" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="p-6">
@@ -440,106 +389,42 @@
                             <!-- Asset Information Section -->
                             <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Asset Information</h3>
 
-                            <!-- Image upload -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Asset Image</label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your images(s) or <span class="text-blue-600">browse</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
-                                    </div>
-                                    <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                    <!-- Preview image di dalam container -->
-                                    <div id="edit_preview-container" class="mt-4 w-full hidden">
-                                        <img id="edit_image_preview" class="max-h-40 mx-auto rounded-lg hidden" alt="Asset Image">
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Basic Asset Details -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Asset Name</label>
-                                    <input type="text" name="asset_name" id="edit_asset_name" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                        placeholder="Asset name">
-                                </div>
+                                <div class="mb-4">
+                                    <label for="edit_asset_master_id" class="block text-gray-700 text-sm font-bold mb-2">Asset Master</label>
+                                    <div class="relative">
+                                        <input type="text" id="edit_asset_master_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Search asset master...">
+                                        <input type="hidden" name="asset_master_id" id="edit_selected_asset_master_id">
+                                        <input type="hidden" id="edit_selected_is_depreciable" value="false">
 
-                                <!-- Subcategory Dropdown -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Subcategory</label>
-                                    <select name="subcategory_id" id="edit_subcategory_id" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select subcategory</option>
-                                        @foreach($subcategories as $subcategory)
-                                            <option value="{{ $subcategory['subcategory_id'] }}">{{ $subcategory['subcategory_name'] }}</option>
-                                        @endforeach
-                                    </select>
+                                        <!-- Dropdown -->
+                                        <div id="edit_asset_master_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                                            <!-- Loading indicator -->
+                                            <div id="edit_asset_master_loading" class="flex justify-center py-2">
+                                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                            <ul id="edit_asset_master_list" class="max-h-56 overflow-y-auto"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="mb-4">
+                                    <label for="edit_serial_number" class="block text-gray-700 text-sm font-bold mb-2">Serial Number</label>
+                                    <input type="text" name="serial_number" id="edit_serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Serial number">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Condition</label>
-                                    <select name="condition" id="edit_condition" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="good">Good</option>
-                                        <option value="slighly damage">Slightly Damage</option></option>
-                                        <option value="high damage">Highly Damage</option>
-                                    </select>
+                                <div class="mb-4">
+                                    <label for="edit_purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Purchase Date</label>
+                                    <input type="date" name="purchase_date" id="edit_purchase_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 </div>
-
-                                <!-- Room Dropdown -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Room</label>
-                                    <select name="room_id" id="edit_room_id" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select room</option>
-                                        @foreach($rooms as $room)
-                                            <option value="{{ $room['room_id'] }}">
-                                                {{ $room['room_name'] }} ({{ $room['building_name'] }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Description</label>
-                                <textarea name="description" id="edit_description"
-                                    class="w-full h-[100px] px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] resize-none"
-                                    placeholder="Asset description"></textarea>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Model Number</label>
-                                    <input type="text" name="model_number" id="edit_model_number"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                        placeholder="Model number">
-                                </div>
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Serial Number</label>
-                                    <input type="text" name="serial_number" id="edit_serial_number"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                        placeholder="Serial number">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Purchase Date</label>
-                                    <input type="date" name="purchase_date" id="edit_purchase_date"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                </div>
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Purchase Cost</label>
-                                    <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                        placeholder="0.00">
+                                <div class="mb-4">
+                                    <label for="edit_purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Purchase Cost</label>
+                                    <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
                                 </div>
                             </div>
 
@@ -549,36 +434,65 @@
                                     <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                 </div>
-                                <!-- Brand Dropdown -->
+                                <!-- Room Dropdown -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Brand</label>
-                                    <select name="brand_id" id="edit_brand_id" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Select brand</option>
-                                        @foreach($brands as $brand)
-                                            <option value="{{ $brand['brand_id'] }}">{{ $brand['brand_name'] }}</option>
-                                        @endforeach
-                                    </select>
+                                    <label class="block text-base font-semibold text-[#666666]">Room</label>
+                                    <div class="relative">
+                                        <input type="text" id="edit_room_search"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="Search for room..." autocomplete="off">
+                                        <input type="hidden" name="room_id" id="edit_selected_room_id" required>
+                                        <div id="edit_room_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                            <div id="edit_room_loading" class="p-2 text-gray-500 text-center">
+                                                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span>Loading rooms...</span>
+                                            </div>
+                                            <ul id="edit_room_list" class="py-1"></ul>
+                                        </div>
+                                    </div>
+                                    <div id="edit_selected_room_display" class="hidden">
+                                        <span id="edit_selected_room_name"></span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Depreciation Toggle Switch -->
-                            <div class="flex items-center justify-between border-t pt-4">
-                                <label for="edit_is_depreciable" class="text-base font-semibold text-[#666666]">Enable Asset Depreciation</label>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="is_depreciable" id="edit_is_depreciable" class="sr-only peer depreciation-toggle" value="1">
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
-                                        peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
-                                        peer-checked:after:border-white after:content-[''] after:absolute
-                                        after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
-                                        after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                                        peer-checked:bg-[#213268]"></div>
-                                    <span class="ml-2 text-sm font-medium text-gray-900 depreciation-status">No</span>
-                                </label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Condition</label>
+                                    <select name="condition" id="edit_condition" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <option value="good">Good</option>
+                                        <option value="slightly damage">Slightly Damage</option>
+                                        <option value="high damage">Highly Damage</option>
+                                    </select>
+                                </div>
+                                <!-- User ID Field -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-semibold text-[#666666]">Karyawan yang Bertanggung Jawab</label>
+                                    <div class="relative">
+                                        <input type="text" id="edit_user_search"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="Cari karyawan (nomor karyawan)..." autocomplete="off">
+                                        <input type="hidden" name="user_id" id="edit_selected_user_id">
+                                        <div id="edit_user_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                            <div id="edit_user_loading" class="p-2 text-gray-500 text-center">
+                                                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span>Loading users...</span>
+                                            </div>
+                                            <ul id="edit_user_list" class="py-1"></ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Depreciation Fields (Hidden by default) -->
-                            <div id="edit_depreciation_fields" class="space-y-4 hidden border rounded-lg p-4 border-dashed border-gray-300">
+                            <!-- Depreciation Fields Section -->
+                            <div id="edit_depreciation_fields" class="space-y-4 border rounded-lg p-4 border-dashed border-gray-300 hidden">
                                 <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Depreciation Information</h3>
 
                                 <div class="space-y-2">
@@ -609,10 +523,9 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Asset Life (Months)</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Asset Life (months)</label>
                                         <input type="number" name="asset_life_months" id="edit_asset_life_months"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="0">
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                     </div>
                                     <div class="space-y-2">
                                         <label class="block text-base font-semibold text-[#666666]">Date Acquired</label>
@@ -695,6 +608,19 @@
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
     </div>
 </div>
+<script>
+    // Auto-hide the success notification after 5 seconds
+    setTimeout(function() {
+        const notification = document.getElementById('successNotification');
+        if (notification) {
+            notification.style.transition = "opacity 1s ease";
+            notification.style.opacity = 0;
+            setTimeout(function() {
+                notification.remove();
+            }, 1000);
+        }
+    }, 5000);
+</script>
 @endif
 
 @if(session('error'))
@@ -712,6 +638,19 @@
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
     </div>
 </div>
+<script>
+    // Auto-hide the error notification after 5 seconds
+    setTimeout(function() {
+        const notification = document.getElementById('errorNotification');
+        if (notification) {
+            notification.style.transition = "opacity 1s ease";
+            notification.style.opacity = 0;
+            setTimeout(function() {
+                notification.remove();
+            }, 1000);
+        }
+    }, 5000);
+</script>
 @endif
 
 <!-- Modified Print QR Modal -->
@@ -732,7 +671,7 @@
                 </div>
 
                 <!-- Form -->
-                <form id="printQRForm" method="POST" action="{{ url('/assets/qr/print-pdf') }}">
+                <form id="printQRForm" method="POST" action="{{ url('/assets/qr/print-pdf') }}" target="_blank">
                     @csrf
                     <div class="p-6">
                         <div class="space-y-4 max-w-[400px] mx-auto">
@@ -770,1536 +709,1055 @@
     </div>
 </div>
 
-<!-- Add a Print QR PDF button to show after generation -->
 <div id="printQRPDFNotification" class="hidden fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center justify-between">
-        <div class="flex items-center">
-            <div class="py-1">
-                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div>
-                <p class="font-bold">QR Codes Generated!</p>
-                <p>Your QR codes are ready to print.</p>
-            </div>
+    <div class="flex items-center">
+        <div class="py-1">
+            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
         </div>
-        <div class="ml-4">
-            <a id="printPdfLink" href="{{ url('/assets/qr/print-pdf') }}" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                Print PDF
-            </a>
+        <div>
+            <p class="font-bold">QR Codes Generated!</p>
+            <p>Your QR codes are ready to print.</p>
         </div>
+        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.classList.add('hidden')">×</span>
     </div>
 </div>
 
+
 @push('scripts')
 <script>
-    // Definisikan fungsi global untuk modal
-    if (typeof window.BrandModalSystem === 'undefined') {
-        window.BrandModalSystem = {
-            initialized: false,
+    // Store user data in a global variable
+    window.usersData = @json($users ?? []);
+</script>
 
-            // Fungsi utama inisialisasi
-            init: function() {
-                console.log('BrandModalSystem: Initializing brand modals');
-                this.setupModalFunctions();
-                this.attachEventHandlers();
-                this.initialized = true;
-            },
-
-            // Setup fungsi dasar modal
-            setupModalFunctions: function() {
-                window.openModal = function(modal, content) {
-                    console.log('Opening modal', modal.id);
-                    modal.classList.remove('hidden');
-                    setTimeout(() => {
-                        content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                        content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                    }, 10);
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Debounce utility function to limit how often a function can be called
+        function debounce(func, wait, immediate) {
+            let timeout;
+            return function() {
+                const context = this, args = arguments;
+                const later = function() {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
                 };
-
-                window.closeModal = function(modal, content) {
-                    console.log('Closing modal', modal.id);
-                    content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                    content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                    setTimeout(() => {
-                        modal.classList.add('hidden');
-                    }, 300);
-                };
-            },
-
-            // Pasang event listener menggunakan event delegation
-            attachEventHandlers: function() {
-                // Add brand button handler
-                document.getElementById('addBrandBtn')?.addEventListener('click', function() {
-                    const addModal = document.getElementById('addBrandModal');
-                    const addContent = document.getElementById('brandModalContent');
-                    if (addModal && addContent) {
-                        openModal(addModal, addContent);
-                    }
-                });
-
-                // Event delegation untuk edit dan delete buttons
-                document.addEventListener('click', function(event) {
-                    // Edit button handler
-                    if (event.target.closest('.edit-brand-btn')) {
-                        event.preventDefault();
-                        const btn = event.target.closest('.edit-brand-btn');
-                        const brandId = btn.dataset.id;
-                        const brandName = btn.dataset.name;
-
-                        const editModal = document.getElementById('editBrandModal');
-                        const editContent = document.getElementById('editBrandModalContent');
-                        const editForm = document.getElementById('editBrandForm');
-                        const editInput = document.getElementById('editBrandInput');
-
-                        if (editModal && editContent && editForm && editInput) {
-                            editForm.action = "{{ route('brands.update','') }}/" + brandId;
-                            editInput.value = brandName;
-                            openModal(editModal, editContent);
-                        }
-                    }
-
-                    // Delete button handler
-                    if (event.target.closest('.delete-brand-btn')) {
-                        event.preventDefault();
-                        const btn = event.target.closest('.delete-brand-btn');
-                        const brandId = btn.dataset.id;
-                        const brandName = btn.dataset.name;
-
-                        const deleteModal = document.getElementById('deleteBrandModal');
-                        const deleteContent = document.getElementById('deleteBrandModalContent');
-                        const deleteForm = document.getElementById('deleteBrandForm');
-                        const deleteBrandNameEl = document.getElementById('deleteBrandName');
-
-                        if (deleteModal && deleteContent && deleteForm && deleteBrandNameEl) {
-                            deleteForm.action = "{{ route('brands.destroy', '') }}/" + brandId;
-                            deleteBrandNameEl.textContent = brandName;
-                            openModal(deleteModal, deleteContent);
-                        }
-                    }
-
-                    // Close button handler
-                    if (event.target.closest('.close-modal')) {
-                        const modal = event.target.closest('[id$="Modal"]');
-                        const content = modal.querySelector('[id$="ModalContent"]');
-                        if (modal && content) {
-                            closeModal(modal, content);
-                        }
-                    }
-                });
-
-                // Handle click outside modal
-                const modals = document.querySelectorAll('[id$="Modal"]');
-                modals.forEach(modal => {
-                    modal.addEventListener('click', function(e) {
-                        if (e.target === this) {
-                            const content = this.querySelector('[id$="ModalContent"]');
-                            if (content) {
-                                closeModal(this, content);
-                            }
-                        }
-                    });
-                });
-            }
-        };
-
-        // Auto-hide notifications after 5 seconds
-        setTimeout(function() {
-            const notifications = document.querySelectorAll('#successNotification, #errorNotification');
-            notifications.forEach(notification => {
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(() => notification.remove(), 500);
-                }
-            });
-        }, 5000);
-
-        // Definisikan fungsi global untuk inisialisasi
-        window.initBrandModals = function() {
-            if (!window.BrandModalSystem.initialized) {
-                window.BrandModalSystem.init();
-            } else {
-                console.log('BrandModalSystem already initialized, refreshing event handlers');
-                window.BrandModalSystem.attachEventHandlers();
-            }
-        };
-    }
-
-    // Inisialisasi saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOMContentLoaded: Starting brand modal init');
-        setTimeout(function() {
-            if (typeof window.initBrandModals === 'function') {
-                window.initBrandModals();
-            }
-        }, 100);
-    });
-
-    // Function to change page
-    window.changePage = function(page) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('page', page);
-        window.location.href = url.toString();
-    }
-
-    // Function to change items per page
-    window.changePerPage = function(limit) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('limit', limit);
-        url.searchParams.set('page', 1); // Reset to first page when changing limit
-        window.location.href = url.toString();
-    }
-
-    // Asset Modal System
-    if (typeof window.AssetModalSystem === 'undefined') {
-        window.AssetModalSystem = {
-            initialized: false,
-
-            init: function() {
-                console.log('AssetModalSystem: Initializing asset modals');
-                this.setupModalFunctions();
-                this.attachEventHandlers();
-                this.setupFormHandlers();
-                this.initialized = true;
-            },
-
-            setupModalFunctions: function() {
-                // Reuse existing modal functions if already defined
-                if (typeof window.openModal !== 'function') {
-                    window.openModal = function(modal, content) {
-                        modal.classList.remove('hidden');
-                        setTimeout(() => {
-                            content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                            content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                        }, 10);
-                    };
-                }
-
-                if (typeof window.closeModal !== 'function') {
-                    window.closeModal = function(modal, content) {
-                        content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                        content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                        setTimeout(() => {
-                            modal.classList.add('hidden');
-                        }, 300);
-                    };
-                }
-            },
-
-            toggleDepreciationFields: function(form) {
-                const isDepreciable = form.querySelector('#edit_is_depreciable').checked;
-                const depreciationFields = document.getElementById('edit_depreciation_fields');
-                const statusText = form.querySelector('.depreciation-status');
-
-                if (statusText) {
-                    statusText.textContent = isDepreciable ? 'Yes' : 'No';
-                }
-
-                if (depreciationFields) {
-                    if (isDepreciable) {
-                        depreciationFields.classList.remove('hidden');
-
-                        // Enable input fields
-                        const inputs = depreciationFields.querySelectorAll('input, select');
-                        inputs.forEach(input => {
-                            input.disabled = false;
-                            input.classList.remove('bg-gray-100');
-                        });
-                    } else {
-                        depreciationFields.classList.add('hidden');
-
-                        // Don't disable fields to ensure they're submitted with the form
-                        const inputs = depreciationFields.querySelectorAll('input, select');
-                        inputs.forEach(input => {
-                            // input.disabled = true; // Don't disable as disabled fields aren't submitted
-                            input.classList.add('bg-gray-100');
-                        });
-                    }
-                }
-            },
-
-            setupFormHandlers: function() {
-                // Setup depreciation toggle for add form
-                const addForm = document.querySelector('#addAssetModal form');
-                if (addForm) {
-                    const depreciableCheckbox = addForm.querySelector('[name="is_depreciable"]');
-                    if (depreciableCheckbox) {
-                        depreciableCheckbox.addEventListener('change', () => this.toggleDepreciationFields(addForm));
-                        // Initial setup
-                        this.toggleDepreciationFields(addForm);
-                    }
-
-                    // Setup file preview for add form
-                    const fileInput = addForm.querySelector('input[type="file"]');
-                    const previewContainer = addForm.querySelector('#image_preview_container');
-                    if (fileInput && previewContainer) {
-                        fileInput.addEventListener('change', function() {
-                            if (this.files && this.files[0]) {
-                                const reader = new FileReader();
-                                reader.onload = function(e) {
-                                    const img = previewContainer.querySelector('img') || document.createElement('img');
-                                    img.src = e.target.result;
-                                    img.classList.add('w-full', 'h-auto', 'max-h-48', 'object-contain');
-                                    if (!img.parentNode) {
-                                        previewContainer.innerHTML = '';
-                                        previewContainer.appendChild(img);
-                                    }
-                                    previewContainer.classList.remove('hidden');
-                                }
-                                reader.readAsDataURL(this.files[0]);
-                            }
-                        });
-                    }
-                }
-
-                // Setup depreciation toggle for edit form
-                const editForm = document.querySelector('#editAssetModal form');
-                if (editForm) {
-                    const depreciableCheckbox = editForm.querySelector('[name="is_depreciable"]');
-                    if (depreciableCheckbox) {
-                        depreciableCheckbox.addEventListener('change', () => this.toggleDepreciationFields(editForm));
-                    }
-
-                    // Setup file preview for edit form
-                    const fileInput = editForm.querySelector('input[type="file"]');
-                    const previewContainer = editForm.querySelector('#edit_image_preview_container');
-                    if (fileInput && previewContainer) {
-                        fileInput.addEventListener('change', function() {
-                            if (this.files && this.files[0]) {
-                                const reader = new FileReader();
-                                reader.onload = function(e) {
-                                    const img = previewContainer.querySelector('img') || document.createElement('img');
-                                    img.src = e.target.result;
-                                    img.classList.add('w-full', 'h-auto', 'max-h-48', 'object-contain');
-                                    if (!img.parentNode) {
-                                        previewContainer.innerHTML = '';
-                                        previewContainer.appendChild(img);
-                                    }
-                                    previewContainer.classList.remove('hidden');
-                                }
-                                reader.readAsDataURL(this.files[0]);
-                            }
-                        });
-                    }
-                }
-
-                // Tambahkan ini di akhir fungsi setupFormHandlers (baris sekitar 1240-1241)
-                document.getElementById('editAssetForm')?.addEventListener('submit', function(e) {
-                    // Jika is_depreciable dicentang, pastikan semua field depreciation enabled
-                    if (document.getElementById('edit_is_depreciable').checked) {
-                        const depreciationFields = document.getElementById('edit_depreciation_fields');
-                        if (depreciationFields) {
-                            const inputFields = depreciationFields.querySelectorAll('input, select');
-                            inputFields.forEach(input => {
-                                // Re-enable all fields before submitting to ensure values are sent
-                                input.disabled = false;
-                            });
-                        }
-                    }
-                });
-            },
-
-            // Attach event handlers
-            attachEventHandlers: function() {
-                // Add asset button
-                document.getElementById('addAssetBtn')?.addEventListener('click', function() {
-                    const addModal = document.getElementById('addAssetModal');
-                    const addContent = document.getElementById('addAssetModalContent');
-                    if (addModal && addContent) {
-                        openModal(addModal, addContent);
-                    }
-                });
-
-                // Edit asset button handler using event delegation
-                document.addEventListener('click', function(event) {
-                    // If clicked on edit asset button or its child elements
-                    if (event.target.closest('.edit-asset-btn')) {
-                        event.preventDefault();
-                        const btn = event.target.closest('.edit-asset-btn');
-                        const assetId = btn.dataset.id;
-
-                        // Show loading indicator or disable button
-                        btn.classList.add('opacity-50', 'pointer-events-none');
-
-                        // Fetch complete asset data from server
-                        fetch(`{{ route('assets.get', '') }}/${assetId}`, {
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            // Re-enable button
-                            btn.classList.remove('opacity-50', 'pointer-events-none');
-
-                            if (data.error) {
-                                console.error('Error fetching asset:', data.error);
-                                alert('Failed to load asset data: ' + data.error);
-                                return;
-                            }
-
-                            // Set up the edit form with the complete asset data
-                            setupEditAssetForm(data.asset);
-                        })
-                        .catch(error => {
-                            // Re-enable button
-                            btn.classList.remove('opacity-50', 'pointer-events-none');
-                            console.error('Error fetching asset:', error);
-                            alert('Failed to load asset data. Please try again.');
-                        });
-                    }
-
-                    // Delete asset button handler - moved inside the click event listener
-                    if (event.target.closest('.delete-asset-btn')) {
-                        event.preventDefault();
-                        const deleteBtn = event.target.closest('.delete-asset-btn');
-                        const assetId = deleteBtn.dataset.id;
-                        const assetName = deleteBtn.dataset.name;
-
-                        const deleteModal = document.getElementById('deleteAssetModal');
-                        const deleteContent = document.getElementById('deleteAssetModalContent');
-                        const deleteForm = document.getElementById('deleteAssetForm');
-                        const deleteAssetNameEl = document.getElementById('deleteAssetName');
-
-                        if (deleteModal && deleteContent && deleteForm && deleteAssetNameEl) {
-                            deleteForm.action = `{{ route('assets.destroy', '') }}/${assetId}`;
-                            deleteAssetNameEl.textContent = assetName;
-                            openModal(deleteModal, deleteContent);
-                        }
-                    }
-                }.bind(this));
-
-                // Close modal handlers
-                document.querySelectorAll('.close-modal').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const modal = this.closest('[id$="Modal"]');
-                        const content = modal.querySelector('[id$="ModalContent"]');
-                        if (modal && content) {
-                            closeModal(modal, content);
-                        }
-                    });
-                });
-            }
-        };
-
-        // Global init function
-        window.initAssetModals = function() {
-            if (!window.AssetModalSystem.initialized) {
-                window.AssetModalSystem.init();
-            } else {
-                console.log('AssetModalSystem already initialized, refreshing event handlers');
-                window.AssetModalSystem.attachEventHandlers();
-            }
-        };
-    }
-
-    // Inisialisasi saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOMContentLoaded: Starting asset modal init');
-        setTimeout(function() {
-            if (typeof window.initAssetModals === 'function') {
-                window.initAssetModals();
-            }
-        }, 100);
-    });
-
-    // Add this function to handle depreciation toggle behavior
-    function setupDepreciationToggle(prefix = '') {
-        const toggleId = prefix ? `${prefix}is_depreciable` : 'is_depreciable';
-        const fieldsId = prefix ? `${prefix}depreciation_fields` : 'depreciation_fields';
-
-        const toggle = document.getElementById(toggleId);
-        const fields = document.getElementById(fieldsId);
-
-        if (!toggle || !fields) {
-            console.error(`Depreciation toggle elements not found. Toggle ID: ${toggleId}, Fields ID: ${fieldsId}`);
-            return;
+                const callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
         }
 
-        const statusText = toggle.closest('label').querySelector('.depreciation-status');
+        // Reusable function to toggle depreciation fields visibility
+        function toggleDepreciationFields(depreciationFields, isDepreciable) {
+            if (!depreciationFields) return;
 
-        // Set initial state
-        updateDepreciationFields(toggle.checked);
-
-        // Add event listener
-        toggle.addEventListener('change', function() {
-            updateDepreciationFields(this.checked);
-        });
-
-        function updateDepreciationFields(isChecked) {
-            // Update status text
-            if (statusText) {
-                statusText.textContent = isChecked ? 'Yes' : 'No';
-            }
-
-            // Show/hide fields
-            if (isChecked) {
-                fields.classList.remove('hidden');
-
-                // Enable input fields inside
-                const inputFields = fields.querySelectorAll('input, select, textarea');
-                inputFields.forEach(input => {
-                    input.disabled = false;
-                    input.classList.remove('bg-gray-100');
-
-                    // Mark required fields
-                    if (['depreciation_method', 'acquisition_cost', 'salvage_value', 'asset_life_months', 'date_acquired']
-                        .some(field => input.id.includes(field))) {
-                        input.required = true;
-                    }
-                });
-            } else {
-                fields.classList.add('hidden');
-
-                // Make fields not required when depreciation is disabled
-                const inputFields = fields.querySelectorAll('input, select, textarea');
-                inputFields.forEach(input => {
-                    input.required = false;
-                    // Don't disable the fields as disabled fields aren't submitted
-                    // input.disabled = true;
-                    input.classList.add('bg-gray-100');
-                });
-            }
-        }
-    }
-
-    // Initialize modal systems
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOMContentLoaded: Starting modal initialization');
-
-        // Setup depreciation toggles after DOM is loaded
-        setupDepreciationToggle(''); // For add modal
-        setupDepreciationToggle('edit_'); // For edit modal
-
-        // Add form submission handlers to ensure depreciation fields are enabled
-        document.querySelector('form[action*="assets.store"]')?.addEventListener('submit', function(e) {
-            if (document.getElementById('is_depreciable').checked) {
-                // Re-enable all depreciation fields right before submission
-                const depreciationFields = document.getElementById('depreciation_fields');
-                if (depreciationFields) {
-                    const inputFields = depreciationFields.querySelectorAll('input, select');
-                    inputFields.forEach(input => {
-                        input.disabled = false;
-                    });
-                }
-            }
-        });
-
-        // Also add for edit form
-        document.getElementById('editAssetForm')?.addEventListener('submit', function(e) {
-            if (document.getElementById('edit_is_depreciable').checked) {
-                // Re-enable all depreciation fields right before submission
-                const depreciationFields = document.getElementById('edit_depreciation_fields');
-                if (depreciationFields) {
-                    const inputFields = depreciationFields.querySelectorAll('input, select');
-                    inputFields.forEach(input => {
-                        input.disabled = false;
-                    });
-                }
-            }
-        });
-
-        if (typeof window.initAssetModals === 'function') {
-            window.initAssetModals();
-        }
-    });
-
-    // Function to set up the edit asset form with data from the server
-    function setupEditAssetForm(asset) {
-        console.log('Setting up edit asset form with data:', asset);
-
-        // Get form element
-        const form = document.getElementById('editAssetForm');
-        if (!form) {
-            console.error('Edit asset form not found');
-            return;
-        }
-
-        // Set form action
-        form.action = `{{ route('assets.update', '') }}/${asset.asset_id}`;
-
-        // Reset form first to clear any previous data
-        form.reset();
-
-        // Fill basic text inputs
-        document.getElementById('edit_asset_name').value = asset.asset_name || '';
-        document.getElementById('edit_description').value = asset.description || '';
-        document.getElementById('edit_model_number').value = asset.model_number || '';
-        document.getElementById('edit_serial_number').value = asset.serial_number || '';
-        document.getElementById('edit_purchase_cost').value = asset.purchase_cost || '';
-
-        // Handle dates (ensure formatting is correct)
-        if (asset.purchase_date) {
-            const purchaseDate = asset.purchase_date.split(' ')[0]; // Get just the date part
-            document.getElementById('edit_purchase_date').value = purchaseDate;
-        }
-
-        if (asset.warranty_end_date) {
-            const warrantyDate = asset.warranty_end_date.split(' ')[0]; // Get just the date part
-            document.getElementById('edit_warranty_end_date').value = warrantyDate;
-        }
-
-        // Properly select values in dropdowns - after they've been populated with options
-        setTimeout(() => {
-            setSelectValue('edit_subcategory_id', asset.subcategory?.subcategory_id);
-            setSelectValue('edit_room_id', asset.room?.room_id);
-            setSelectValue('edit_brand_id', asset.brand?.brand_id);
-            setSelectValue('edit_condition', asset.condition);
-        }, 100);
-
-        // Set depreciation toggle
-        const depreciableToggle = document.getElementById('edit_is_depreciable');
-        const depreciationStatus = form.querySelector('.depreciation-status');
-        const depreciationFields = document.getElementById('edit_depreciation_fields');
-
-        if (depreciableToggle && depreciationFields) {
-            // Set the toggle state based on asset data
-            depreciableToggle.checked = asset.is_depreciable == 1;
-
-            // Update the status text
-            if (depreciationStatus) {
-                depreciationStatus.textContent = asset.is_depreciable == 1 ? 'Yes' : 'No';
-            }
-
-            // Show/hide depreciation fields based on toggle state
-            if (asset.is_depreciable == 1) {
-                depreciationFields.classList.remove('hidden');
-
-                // Enable fields
-                const inputs = depreciationFields.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => {
-                    input.disabled = false;
-                    input.classList.remove('bg-gray-100');
-                });
-
-                // Fill depreciation data if available
-                if (asset.depreciation) {
-                    // Set depreciation method
-                    setSelectValue('edit_depreciation_method', asset.depreciation.depreciation_method);
-
-                    // Fill other depreciation fields
-                    document.getElementById('edit_acquisition_cost').value = asset.depreciation.acquisition_cost || '';
-                    document.getElementById('edit_salvage_value').value = asset.depreciation.salvage_value || '';
-                    document.getElementById('edit_asset_life_months').value = asset.depreciation.asset_life_months || '';
-
-                    // Handle date acquired
-                    if (asset.depreciation.date_acquired) {
-                        const dateAcquired = asset.depreciation.date_acquired.split(' ')[0];
-                        document.getElementById('edit_date_acquired').value = dateAcquired;
-                    }
-                }
-            } else {
-                depreciationFields.classList.add('hidden');
-
-                // Disable fields
-                const inputs = depreciationFields.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => {
-                    input.disabled = true;
-                    input.classList.add('bg-gray-100');
-                });
-            }
-        }
-
-        // Handle image preview if available
-        if (asset.picture_path) {
-            const imagePreview = document.getElementById('edit_image_preview');
-            const previewContainer = document.getElementById('edit_preview-container');
-
-            if (imagePreview && previewContainer) {
-                // Define the base URL - using the confirmed server location
-                const baseUrl = "http://localhost:5000/public";
-
-                // Process the image URL
-                let imageUrl = asset.picture_path;
-
-                // If URL is not absolute, prepend the base URL
-                if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('//')) {
-                    // Remove leading slash if present to avoid double slashes
-                    if (imageUrl.startsWith('/')) {
-                        imageUrl = imageUrl.substring(1);
-                    }
-                    imageUrl = `${baseUrl}/${imageUrl}`;
-                }
-
-                console.log('Using image URL:', imageUrl);
-
-                // Set the image source and display it
-                imagePreview.src = imageUrl;
-                imagePreview.classList.remove('hidden');
-                previewContainer.classList.remove('hidden');
-            }
-        } else {
-            // Hide the preview if no image
-            const imagePreview = document.getElementById('edit_image_preview');
-            const previewContainer = document.getElementById('edit_preview-container');
-            if (imagePreview && previewContainer) {
-                imagePreview.classList.add('hidden');
-                previewContainer.classList.add('hidden');
-            }
-        }
-
-        // Open the modal
-        const editModal = document.getElementById('editAssetModal');
-        const editContent = document.getElementById('editAssetModalContent');
-        if (editModal && editContent) {
-            openModal(editModal, editContent);
-        }
-    }
-
-    // Helper function to properly set dropdown values
-    function setSelectValue(selectId, value) {
-        const select = document.getElementById(selectId);
-        if (!select || value === undefined || value === null) {
-            return;
-        }
-
-        // Convert to string for comparison
-        const valueStr = String(value);
-
-        // Try to find exact match first
-        for (let i = 0; i < select.options.length; i++) {
-            if (select.options[i].value === valueStr) {
-                select.selectedIndex = i;
-                return;
-            }
-        }
-
-        // If no exact match found, try case-insensitive match
-        for (let i = 0; i < select.options.length; i++) {
-            if (select.options[i].value.toLowerCase() === valueStr.toLowerCase()) {
-                select.selectedIndex = i;
-                return;
-            }
-        }
-
-        console.warn(`No matching option found for ${selectId} with value "${valueStr}"`);
-    }
-
-    // Function untuk menambahkan/menghapus atribut required pada field depreciation
-    function toggleDepreciationFields(asset) {
-        const isDepreciable = document.getElementById('edit_is_depreciable').checked;
-        const depreciationFields = document.getElementById('edit_depreciation_fields');
-        const depreciationStatus = document.querySelector('.depreciation-status');
-
-        if (depreciationStatus) {
-            depreciationStatus.textContent = isDepreciable ? 'Yes' : 'No';
-        }
-
-        if (!depreciationFields) return;
-
-        if (isDepreciable) {
-            depreciationFields.classList.remove('hidden');
-
-            // Enable fields dan set required attribute
-            const requiredFields = [
-                'edit_depreciation_method',
-                'edit_acquisition_cost',
-                'edit_salvage_value',
-                'edit_asset_life_months',
-                'edit_date_acquired'
-            ];
-
-            requiredFields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (field) {
-                    field.disabled = false;
-                    field.required = true;
-                    field.classList.remove('bg-gray-100');
-                }
-            });
-
-            // Fill depreciation data if available
-            if (asset && asset.depreciation) {
-                // Set depreciation method
-                setSelectValue('edit_depreciation_method', asset.depreciation.depreciation_method);
-
-                // Fill other depreciation fields
-                document.getElementById('edit_acquisition_cost').value = asset.depreciation.acquisition_cost || asset.purchase_cost || '';
-                document.getElementById('edit_salvage_value').value = asset.depreciation.salvage_value || '';
-                document.getElementById('edit_asset_life_months').value = asset.depreciation.asset_life_months || '';
-
-                // Handle date acquired
-                if (asset.depreciation.date_acquired) {
-                    const dateAcquired = asset.depreciation.date_acquired.split(' ')[0];
-                    document.getElementById('edit_date_acquired').value = dateAcquired;
-                }
-            } else if (asset) {
-                // Isi dengan data default jika tidak ada data depreciation
-                document.getElementById('edit_acquisition_cost').value = asset.purchase_cost || '';
-                document.getElementById('edit_date_acquired').value = asset.purchase_date ? asset.purchase_date.split(' ')[0] : '';
-            }
-        } else {
-            depreciationFields.classList.add('hidden');
-
-            // Don't disable fields to ensure values are submitted, just make them not required
             const inputs = depreciationFields.querySelectorAll('input, select');
-            inputs.forEach(input => {
-                // input.disabled = true; // Don't disable as disabled fields aren't submitted
-                input.required = false;
-                input.classList.add('bg-gray-100');
-            });
+
+                if (isDepreciable) {
+                    depreciationFields.classList.remove('hidden');
+                    inputs.forEach(input => {
+                        input.disabled = false;
+                        input.required = true;
+                    });
+                } else {
+                    depreciationFields.classList.add('hidden');
+                    inputs.forEach(input => {
+                        input.disabled = true;
+                        input.required = false;
+                    });
+                }
         }
 
-        // Handle image preview jika tersedia sebagai bagian dari asset
-        if (asset && asset.picture_path) {
-            const imagePreview = document.getElementById('edit_image_preview');
-            const previewContainer = document.getElementById('edit_preview-container');
-            if (imagePreview && previewContainer) {
-                imagePreview.src = asset.picture_path;
-                imagePreview.classList.remove('hidden');
-                previewContainer.classList.remove('hidden');
-            }
-        } else if (asset) {
-            // Hide preview jika tidak ada gambar
-            const imagePreview = document.getElementById('edit_image_preview');
-            const previewContainer = document.getElementById('edit_preview-container');
-            if (imagePreview && previewContainer) {
-                imagePreview.classList.add('hidden');
-                previewContainer.classList.add('hidden');
+        // Helper function to set field value safely
+        function setFieldValue(fieldId, value) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.value = value || '';
             }
         }
-    }
 
-    // Menambahkan event listener untuk toggleDepreciationFields setiap kali toggle diubah
-    document.addEventListener('DOMContentLoaded', function() {
-        const depreciableToggle = document.getElementById('edit_is_depreciable');
-        if (depreciableToggle) {
-            depreciableToggle.addEventListener('change', function() {
-                // Ambil data asset dari fungsi terakhir
-                const assetName = document.getElementById('edit_asset_name').value;
-                const assetId = document.getElementById('editAssetForm').action.split('/').pop();
-
-                // Buat objek minimum asset untuk diteruskan ke toggleDepreciationFields
-                const minimalAsset = {
-                    asset_id: assetId,
-                    asset_name: assetName,
-                    purchase_cost: document.getElementById('edit_purchase_cost').value,
-                    purchase_date: document.getElementById('edit_purchase_date').value,
-                    is_depreciable: this.checked ? 1 : 0
-                };
-
-                toggleDepreciationFields(minimalAsset);
-            });
+        // Helper function to set select dropdown value
+        function setSelectValue(selectId, value) {
+            const select = document.getElementById(selectId);
+            if (select && value) {
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value == value) {
+                        select.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
         }
-    });
 
-    // Consolidated function to fetch asset data for editing
-    function fetchAssetForEdit(assetId) {
-        console.log('Fetching asset data for ID:', assetId);
+        // Function to open modal with animation
+        window.openModal = function(modal, content) {
+            if (!modal || !content) return;
 
-        // Show loading indicator or spinner here if needed
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.add('opacity-100', 'scale-100', 'translate-y-0');
+                content.classList.remove('opacity-0', 'scale-95', 'translate-y-4');
+            }, 10);
+        };
 
-        return fetch(`{{ route('assets.get', '') }}/${assetId}`, {
+        // Function to close modal with animation
+        window.closeModal = function(modal) {
+            if (!modal) return;
+
+            const content = modal.querySelector('.transform');
+            if (!content) return;
+
+            // Reset form jika ada di dalam modal
+            const forms = modal.querySelectorAll('form');
+            forms.forEach(form => {
+                form.reset();
+
+                // Reset hidden inputs yang mungkin tidak terpengaruh oleh form.reset()
+                const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+                hiddenInputs.forEach(input => {
+                    input.value = '';
+                });
+
+                // Reset semua text inputs
+                const textInputs = form.querySelectorAll('input[type="text"], input[type="search"]');
+                textInputs.forEach(input => {
+                    input.value = '';
+                });
+
+                // Reset select elements
+                const selects = form.querySelectorAll('select');
+                selects.forEach(select => {
+                    if (select.options.length > 0) {
+                        select.selectedIndex = 0;
+                    }
+                });
+
+                // Sembunyikan dropdown yang mungkin terbuka
+                const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('hidden');
+                });
+
+                // Reset depreciation fields
+                const depreciationFields = form.querySelector('#depreciation_fields') || form.querySelector('#edit_depreciation_fields');
+                if (depreciationFields) {
+                    depreciationFields.classList.add('hidden');
+                    const inputs = depreciationFields.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        input.disabled = true;
+                        input.required = false;
+                        if (input.tagName === 'INPUT') {
+                            input.value = '';
+                        } else if (input.tagName === 'SELECT' && input.options.length > 0) {
+                            input.selectedIndex = 0;
+                        }
+                    });
+                }
+            });
+
+            content.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
+            content.classList.add('opacity-0', 'scale-95', 'translate-y-4');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        // Single implementation of setupWithData for editing assets
+        window.setupWithData = function(assetId) {
+        console.log('Setting up edit modal for asset ID:', assetId);
+
+        // Get the edit modal elements
+        const editModal = document.getElementById('editAssetModal');
+        const editModalContent = document.getElementById('editAssetModalContent');
+
+            // Reset form and show loading
+        const form = document.getElementById('editAssetForm');
+        if (form) {
+            form.reset();  // Clear previous values
+            form.action = `{{ url('assets') }}/${assetId}`; // Set form action URL
+        }
+
+        // Open the modal while loading
+        if (editModal && editModalContent) {
+            openModal(editModal, editModalContent);
+        }
+
+        // Fetch asset data from the server
+        fetch(`{{ url('assets') }}/${assetId}`, {
             method: 'GET',
             headers: {
+                'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
             return response.json();
         })
-        .then(data => {
-            if (data.error) {
-                throw new Error(data.error);
+        .then(result => {
+            console.log('API response:', result);
+
+            if (!result.success) {
+                console.error('Error fetching asset data:', result.message);
+                alert('Failed to load asset data: ' + (result.message || 'Unknown error'));
+                return;
             }
 
-            if (!data.asset) {
-                throw new Error('No asset data returned from server');
-            }
+            const asset = result.data;
+            console.log('Asset data received:', asset);
 
-            // If fresh dropdown data is available, update the dropdowns
-            if (data.subcategories && data.subcategories.length > 0) {
-                updateDropdownOptions('edit_subcategory_id', data.subcategories, 'subcategory_id', 'subcategory_name');
-            }
+                // Fill in basic fields
+            setFieldValue('edit_serial_number', asset.serial_number);
+            setFieldValue('edit_purchase_date', asset.purchase_date);
+            setFieldValue('edit_purchase_cost', asset.purchase_cost);
+            setFieldValue('edit_warranty_end_date', asset.warranty_end_date);
+            setFieldValue('edit_user_id', asset.user_id);
 
-            if (data.rooms && data.rooms.length > 0) {
-                updateDropdownOptions('edit_room_id', data.rooms, 'room_id', 'room_name', (room) => {
-                    return `${room.room_name} (${room.building_name})`;
-                });
-            }
+            // Set the asset master information
+                const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
+                if (assetMasterId) {
+                document.getElementById('edit_selected_asset_master_id').value = assetMasterId;
 
-            if (data.brands && data.brands.length > 0) {
-                updateDropdownOptions('edit_brand_id', data.brands, 'brand_id', 'brand_name');
-            }
+                // Set display name
+                const assetMasterName = asset.asset_master && asset.asset_master.asset_name
+                    ? asset.asset_master.asset_name
+                    : 'Asset Master ID: ' + assetMasterId;
 
-            return data.asset;
-        });
-    }
+                document.getElementById('edit_asset_master_search').value = assetMasterName;
 
-    // Helper function to update dropdown options
-    function updateDropdownOptions(selectId, items, valueField, textField, textFormatter = null) {
-        const select = document.getElementById(selectId);
-        if (!select) return;
+                // Set depreciable flag
+                const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
+                document.getElementById('edit_selected_is_depreciable').value = isDepreciable ? 'true' : 'false';
 
-        // Save the current selected value
-        const currentValue = select.value;
-
-        // Keep the first option (usually "Select...")
-        const firstOption = select.options.length > 0 ? select.options[0] : null;
-
-        // Clear existing options
-        select.innerHTML = '';
-
-        // Add back the first option if it existed
-        if (firstOption) {
-            select.appendChild(firstOption);
-        }
-
-        // Add new options
-        items.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item[valueField];
-            option.textContent = textFormatter ? textFormatter(item) : item[textField];
-            select.appendChild(option);
-        });
-
-        // Try to restore the previous selection
-        if (currentValue) {
-            setSelectValue(selectId, currentValue);
-        }
-    }
-
-    // Set up the edit button click handler
-    document.addEventListener('DOMContentLoaded', function() {
-        // Use event delegation for edit buttons
-        document.addEventListener('click', function(event) {
-            const editButton = event.target.closest('.edit-asset-btn');
-            if (!editButton) return;
-
-            event.preventDefault();
-
-            const assetId = editButton.dataset.id;
-
-            // Disable button and show loading state
-            editButton.classList.add('opacity-50', 'pointer-events-none');
-
-            // Fetch asset data and dropdown options
-            fetch(`{{ route('assets.get', '') }}/${assetId}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Received data from server:', data);
-
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-
-                if (!data.asset) {
-                    throw new Error('No asset data returned from server');
-                }
-
-                // Update dropdowns with fresh data before filling form
-                if (data.subcategories && data.subcategories.length > 0) {
-                    updateDropdownOptions('edit_subcategory_id', data.subcategories, 'subcategory_id', 'subcategory_name');
-                }
-
-                if (data.rooms && data.rooms.length > 0) {
-                    updateDropdownOptions('edit_room_id', data.rooms, 'room_id', 'room_name', (room) => {
-                        return `${room.room_name} (${room.building_name || ''})`;
-                    });
-                }
-
-                if (data.brands && data.brands.length > 0) {
-                    updateDropdownOptions('edit_brand_id', data.brands, 'brand_id', 'brand_name');
-                }
-
-                // Now fill the form with asset data
-                setupEditAssetForm(data.asset);
-            })
-            .catch(error => {
-                console.error('Error fetching asset data:', error);
-                alert('Failed to load asset data: ' + error.message);
-            })
-            .finally(() => {
-                // Re-enable button
-                editButton.classList.remove('opacity-50', 'pointer-events-none');
-            });
-        });
-    });
-
-    // Helper function to update dropdown options
-    function updateDropdownOptions(selectId, items, valueField, textField, textFormatter = null) {
-        const select = document.getElementById(selectId);
-        if (!select) {
-            console.error(`Dropdown with ID ${selectId} not found`);
-            return;
-        }
-
-        console.log(`Updating ${selectId} dropdown with ${items.length} options`);
-
-        // Save the current selected value if any
-        const currentValue = select.value;
-
-        // Keep the first option (usually "Select...")
-        const firstOption = select.options.length > 0 ? select.options[0].cloneNode(true) : null;
-
-        // Clear existing options
-        select.innerHTML = '';
-
-        // Add back the first option if it existed
-        if (firstOption) {
-            select.appendChild(firstOption);
-        }
-
-        // Add new options
-        items.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item[valueField];
-            option.textContent = textFormatter ? textFormatter(item) : item[textField];
-            select.appendChild(option);
-        });
-
-        // Try to restore the previous selection or set to new value if it exists
-        if (currentValue) {
-            setSelectValue(selectId, currentValue);
-        }
-    }
-
-    // Function to set up the edit asset form with data from the server
-    function setupEditAssetForm(asset) {
-        console.log('Setting up edit asset form with data:', asset);
-
-        // Get form element
-        const form = document.getElementById('editAssetForm');
-        if (!form) {
-            console.error('Edit asset form not found');
-            return;
-        }
-
-        // Set form action
-        form.action = `{{ route('assets.update', '') }}/${asset.asset_id}`;
-
-        // Reset form first to clear any previous data
-        form.reset();
-
-        // Fill basic text inputs
-        document.getElementById('edit_asset_name').value = asset.asset_name || '';
-        document.getElementById('edit_description').value = asset.description || '';
-        document.getElementById('edit_model_number').value = asset.model_number || '';
-        document.getElementById('edit_serial_number').value = asset.serial_number || '';
-        document.getElementById('edit_purchase_cost').value = asset.purchase_cost || '';
-
-        // Handle dates (ensure formatting is correct)
-        if (asset.purchase_date) {
-            const purchaseDate = asset.purchase_date.split(' ')[0]; // Get just the date part
-            document.getElementById('edit_purchase_date').value = purchaseDate;
-        }
-
-        if (asset.warranty_end_date) {
-            const warrantyDate = asset.warranty_end_date.split(' ')[0]; // Get just the date part
-            document.getElementById('edit_warranty_end_date').value = warrantyDate;
-        }
-
-        // Properly select values in dropdowns - after they've been populated with options
-        setTimeout(() => {
-            setSelectValue('edit_subcategory_id', asset.subcategory?.subcategory_id);
-            setSelectValue('edit_room_id', asset.room?.room_id);
-            setSelectValue('edit_brand_id', asset.brand?.brand_id);
-            setSelectValue('edit_condition', asset.condition);
-        }, 100);
-
-        // Set depreciation toggle
-        const depreciableToggle = document.getElementById('edit_is_depreciable');
-        const depreciationStatus = form.querySelector('.depreciation-status');
-        const depreciationFields = document.getElementById('edit_depreciation_fields');
-
-        if (depreciableToggle && depreciationFields) {
-            // Set the toggle state based on asset data
-            depreciableToggle.checked = asset.is_depreciable == 1;
-
-            // Update the status text
-            if (depreciationStatus) {
-                depreciationStatus.textContent = asset.is_depreciable == 1 ? 'Yes' : 'No';
-            }
-
-            // Show/hide depreciation fields based on toggle state
-            if (asset.is_depreciable == 1) {
-                depreciationFields.classList.remove('hidden');
-
-                // Enable fields
-                const inputs = depreciationFields.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => {
-                    input.disabled = false;
-                    input.classList.remove('bg-gray-100');
-                });
-
-                // Fill depreciation data if available
-                if (asset.depreciation) {
-                    // Set depreciation method
-                    setSelectValue('edit_depreciation_method', asset.depreciation.depreciation_method);
-
-                    // Fill other depreciation fields
-                    document.getElementById('edit_acquisition_cost').value = asset.depreciation.acquisition_cost || '';
-                    document.getElementById('edit_salvage_value').value = asset.depreciation.salvage_value || '';
-                    document.getElementById('edit_asset_life_months').value = asset.depreciation.asset_life_months || '';
-
-                    // Handle date acquired
-                    if (asset.depreciation.date_acquired) {
-                        const dateAcquired = asset.depreciation.date_acquired.split(' ')[0];
-                        document.getElementById('edit_date_acquired').value = dateAcquired;
+                // Show/hide depreciation fields
+                const depreciationFields = document.getElementById('edit_depreciation_fields');
+                if (depreciationFields) {
+                        toggleDepreciationFields(depreciationFields, isDepreciable);
                     }
                 }
-            } else {
-                depreciationFields.classList.add('hidden');
 
-                // Disable fields
-                const inputs = depreciationFields.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => {
-                    input.disabled = true;
-                    input.classList.add('bg-gray-100');
-                });
+                // Set room information with proper checks
+            if (asset.room_id) {
+                // Set the room selection for the searchable dropdown
+                document.getElementById('edit_selected_room_id').value = asset.room_id;
+
+                // Set the room display name
+                    let roomName = "Room ID: " + asset.room_id;
+                if (asset.room) {
+                    const buildingName = asset.room.building ? asset.room.building.building_name :
+                                        (asset.room.building_name ? asset.room.building_name : 'Unknown Building');
+                    roomName = `${asset.room.room_name} (${buildingName})`;
+                } else {
+                    // Try to find the room in the available rooms data
+                        const rooms = @json($rooms ?? []);
+                    const selectedRoom = rooms.find(room => room.room_id == asset.room_id);
+                    if (selectedRoom) {
+                        roomName = `${selectedRoom.room_name} (${selectedRoom.building_name || 'Unknown Building'})`;
+                    }
+                }
+
+                // Update the search input and display
+                document.getElementById('edit_room_search').value = roomName;
+                    const roomNameEl = document.getElementById('edit_selected_room_name');
+                    if (roomNameEl) roomNameEl.textContent = roomName;
             }
-        }
 
-        // Handle image preview if available
-        if (asset.picture_path) {
-            const imagePreview = document.getElementById('edit_image_preview');
+                // Set condition
+            setSelectValue('edit_condition', asset.condition || 'good');
+
+            // Handle depreciation fields
+            const depreciationFields = document.getElementById('edit_depreciation_fields');
+            if (depreciationFields) {
+                    // Check if the asset has depreciation data or is depreciable
+                const hasDepreciationData =
+                    asset.depreciation_method ||
+                    asset.acquisition_cost ||
+                    asset.salvage_value ||
+                    asset.asset_life_months ||
+                    asset.date_acquired ||
+                    (asset.depreciation && Object.keys(asset.depreciation).length > 0);
+
+                const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
+
+                if (hasDepreciationData || isDepreciable) {
+                        toggleDepreciationFields(depreciationFields, true);
+
+                        // Fill depreciation data from either direct properties or nested object
+                        const depData = asset.depreciation || asset;
+                        setFieldValue('edit_acquisition_cost', depData.acquisition_cost || '');
+                        setFieldValue('edit_salvage_value', depData.salvage_value || '');
+                        setFieldValue('edit_asset_life_months', depData.asset_life_months || '');
+                        setFieldValue('edit_date_acquired', depData.date_acquired || '');
+
+                        // Handle depreciation method dropdown
+                    const depMethodSelect = document.getElementById('edit_depreciation_method');
+                        const depreciationMethod = depData.depreciation_method || '';
+
+                        if (depMethodSelect && depreciationMethod) {
+                            // Try exact match first
+                            let found = false;
+                            for (let i = 0; i < depMethodSelect.options.length; i++) {
+                                if (depMethodSelect.options[i].value === depreciationMethod) {
+                                    depMethodSelect.selectedIndex = i;
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            // If no exact match, try fuzzy match
+                            if (!found) {
+                                const methodLower = depreciationMethod.toLowerCase();
+                                for (let i = 0; i < depMethodSelect.options.length; i++) {
+                                    const optionText = depMethodSelect.options[i].textContent.toLowerCase();
+                                    if (optionText.includes(methodLower) || methodLower.includes(optionText)) {
+                                        depMethodSelect.selectedIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        toggleDepreciationFields(depreciationFields, false);
+                    }
+                }
+
+                // Update user selection display
+                if (asset.user_id) {
+                    // Set the hidden input for user ID
+                    setFieldValue('edit_selected_user_id', asset.user_id);
+
+                    // Find user in the global users data by user_id
+                    const users = window.usersData || [];
+                    const user = users.find(u => u.user_id == asset.user_id);
+
+                    let userDisplay = `User ID: ${asset.user_id}`;
+
+                    // If found in global data, use employee_number
+                    if (user && user.employee_number) {
+                        userDisplay = user.employee_number;
+                    }
+                    // Try from the asset.user data if available
+                    else if (asset.user && asset.user.employee_number) {
+                        userDisplay = asset.user.employee_number;
+                    }
+                    // Fallback to name if no employee_number
+                    else if (asset.user && asset.user.name) {
+                        userDisplay = asset.user.name;
+                    }
+
+                    setFieldValue('edit_user_search', userDisplay);
+                }
+
+            // Handle asset image preview
+            const previewImage = document.getElementById('edit_image_preview');
             const previewContainer = document.getElementById('edit_preview-container');
 
-            if (imagePreview && previewContainer) {
-                // Define the base URL - using the confirmed server location
-                const baseUrl = "http://localhost:5000/public";
-
-                // Process the image URL
-                let imageUrl = asset.picture_path;
-
-                // If URL is not absolute, prepend the base URL
-                if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('//')) {
-                    // Remove leading slash if present to avoid double slashes
-                    if (imageUrl.startsWith('/')) {
-                        imageUrl = imageUrl.substring(1);
-                    }
-                    imageUrl = `${baseUrl}/${imageUrl}`;
-                }
-
-                console.log('Using image URL:', imageUrl);
-
-                // Set the image source and display it
-                imagePreview.src = imageUrl;
-                imagePreview.classList.remove('hidden');
+            if (previewImage && previewContainer && asset.picture_path) {
+                previewImage.src = `{{ config('app.backend_url') }}/public${asset.picture_path}`;
+                previewImage.classList.remove('hidden');
                 previewContainer.classList.remove('hidden');
-            }
-        } else {
-            // Hide the preview if no image
-            const imagePreview = document.getElementById('edit_image_preview');
-            const previewContainer = document.getElementById('edit_preview-container');
-            if (imagePreview && previewContainer) {
-                imagePreview.classList.add('hidden');
+            } else if (previewContainer) {
                 previewContainer.classList.add('hidden');
             }
-        }
+        })
+        .catch(error => {
+            console.error('Error fetching asset data:', error);
+            alert('Failed to load asset data. Please try again: ' + error.message);
+        });
+        };
 
-        // Open the modal
-        const editModal = document.getElementById('editAssetModal');
-        const editContent = document.getElementById('editAssetModalContent');
-        if (editModal && editContent) {
-            openModal(editModal, editContent);
-        }
-    }
+        // Initialize the asset master dropdown handlers once
+        function initAssetMasterListeners() {
+            // Add modal - tambahkan listener untuk selected_is_depreciable
+            const addSelectedIsDepreciable = document.getElementById('selected_is_depreciable');
+            const addDepreciationFields = document.getElementById('depreciation_fields');
 
-    // Helper function to properly set dropdown values
-    function setSelectValue(selectId, value) {
-        const select = document.getElementById(selectId);
-        if (!select || value === undefined || value === null) {
-            return;
-        }
-
-        // Convert to string for comparison
-        const valueStr = String(value);
-
-        // Try to find exact match first
-        for (let i = 0; i < select.options.length; i++) {
-            if (select.options[i].value === valueStr) {
-                select.selectedIndex = i;
-                return;
-            }
-        }
-
-        // If no exact match found, try case-insensitive match
-        for (let i = 0; i < select.options.length; i++) {
-            if (select.options[i].value.toLowerCase() === valueStr.toLowerCase()) {
-                select.selectedIndex = i;
-                return;
-            }
-        }
-
-        console.warn(`No matching option found for ${selectId} with value "${valueStr}"`);
-    }
-
-    // Add the image preview functionality for both add and edit modals
-    document.addEventListener('DOMContentLoaded', function() {
-        // Image preview for Add Asset modal
-        const addImageInput = document.querySelector('#addAssetModal input[type="file"]');
-        const addPreviewContainer = document.getElementById('preview-container');
-        const addPreviewImage = document.getElementById('preview-image');
-
-        if (addImageInput && addPreviewContainer && addPreviewImage) {
-            addImageInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        addPreviewImage.src = e.target.result;
-                        addPreviewContainer.classList.remove('hidden');
-                    }
-                    reader.readAsDataURL(this.files[0]);
-                }
-            });
-        }
-
-        // Image preview for Edit Asset modal
-        const editImageInput = document.querySelector('#editAssetModal input[type="file"]');
-        const editPreviewContainer = document.getElementById('edit_preview-container');
-        const editPreviewImage = document.getElementById('edit_image_preview');
-
-        if (editImageInput && editPreviewContainer && editPreviewImage) {
-            editImageInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        editPreviewImage.src = e.target.result;
-                        editPreviewImage.classList.remove('hidden');
-                        editPreviewContainer.classList.remove('hidden');
-                    }
-                    reader.readAsDataURL(this.files[0]);
-                }
-            });
-        }
-    });
-
-    // Consolidated code for form submission handler - this replaces the redundant implementations
-    document.addEventListener('DOMContentLoaded', function() {
-        // Event listener for edit asset form
-        const editForm = document.getElementById('editAssetForm');
-        if (editForm) {
-            editForm.addEventListener('submit', function(e) {
-                // Enable all depreciation fields before form submission
-                const isDepreciable = document.getElementById('edit_is_depreciable').checked;
-                if (isDepreciable) {
-                    const depreciationFields = document.getElementById('edit_depreciation_fields');
-                    if (depreciationFields) {
-                        const inputs = depreciationFields.querySelectorAll('input, select');
-
-                        // Validate that all required fields are filled
-                        let allFilled = true;
-                        inputs.forEach(input => {
-                            // Re-enable fields so their values are sent
-                            input.disabled = false;
-
-                            // Check if field is empty
-                            if (input.required && !input.value.trim()) {
-                                allFilled = false;
-                                input.classList.add('border-red-500');
-                            } else {
-                                input.classList.remove('border-red-500');
-                            }
-                        });
-
-                        // Stop submission if any fields are empty
-                        if (!allFilled) {
-                            e.preventDefault();
-                            alert('Please fill all required depreciation fields');
-                            return false;
+            if (addSelectedIsDepreciable && addDepreciationFields) {
+                // Observer untuk memantau perubahan nilai
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                            const isDepreciable = addSelectedIsDepreciable.value === 'true';
+                            toggleDepreciationFields(addDepreciationFields, isDepreciable);
                         }
-                    }
-                }
-            });
-        }
-    });
-
-    // Single implementation of updateDropdownOptions - remove any duplicates
-    function updateDropdownOptions(selectId, options, valueKey, textKey, textFormatter) {
-        const select = document.getElementById(selectId);
-        if (!select) return;
-
-        // Store the currently selected value before clearing options
-        const currentValue = select.value;
-
-        // Clear existing options except the first one (if it's a placeholder)
-        while (select.options.length > 1 && select.options[0].disabled) {
-            select.remove(1);
-        }
-
-        // If no placeholder exists, remove all options
-        if (select.options.length > 0 && !select.options[0].disabled) {
-            select.innerHTML = '';
-        }
-
-        // Add new options
-        options.forEach(option => {
-            const optionValue = option[valueKey];
-            const optionText = textFormatter ? textFormatter(option) : option[textKey];
-            const optElement = document.createElement('option');
-            optElement.value = optionValue;
-            optElement.textContent = optionText;
-            select.appendChild(optElement);
-        });
-
-        return currentValue;
-    }
-
-    // Function to change asset page
-    window.changeAssetPage = function(page) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('page', page);
-        window.location.href = url.toString();
-    }
-
-    // Function to change asset items per page
-    window.changeAssetPerPage = function(limit) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('limit', limit);
-        url.searchParams.set('page', 1); // Reset to first page when changing limit
-        window.location.href = url.toString();
-    }
-
-    // Function to change brand page
-    window.changeBrandPage = function(page) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('brand_page', page);
-        window.location.href = url.toString();
-    }
-
-    // Function to change brand items per page
-    window.changeBrandPerPage = function(limit) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('brand_limit', limit);
-        url.searchParams.set('brand_page', 1); // Reset to first page when changing limit
-        window.location.href = url.toString();
-    }
-
-    // Select All functionality
-    const selectAllCheckbox = document.getElementById('select-all-assets');
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
-            const isChecked = this.checked;
-            const checkboxes = document.querySelectorAll('table tbody input.asset-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = isChecked;
-            });
-        });
-    }
-
-    // Debug code to check room data structure
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Debugging room data structure in ViewAsset.blade.php');
-
-        // Check room data structure in add modal
-        const roomSelect = document.querySelector('select[name="room_id"]');
-        if (roomSelect) {
-            console.log('Add Modal Room Select Options:', Array.from(roomSelect.options).map(opt => ({
-                value: opt.value,
-                text: opt.textContent
-            })));
-        }
-
-        // Inspect all room data passed to the view
-        const roomData = @json($rooms);
-        console.log('Room Data Passed to View:', roomData);
-
-        // Check if building_name exists at root level
-        if (roomData && roomData.length > 0) {
-            const firstRoom = roomData[0];
-            console.log('First Room Object Structure:', firstRoom);
-            console.log('Has building_name at root?', 'building_name' in firstRoom);
-            console.log('Has building object?', 'building' in firstRoom);
-
-            if ('building' in firstRoom) {
-                console.log('Building object structure:', firstRoom.building);
-            }
-        }
-    });
-
-    // Removed duplicate event handlers for printQRBtn and printQRForm
-
-    // Select all assets checkbox
-    document.getElementById('select-all-assets')?.addEventListener('change', function() {
-        document.querySelectorAll('.asset-checkbox').forEach(checkbox => {
-            checkbox.checked = this.checked;
-        });
-    });
-
-    // QR Code and Modal functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        // Check if we have a success message about QR generation
-        @if(session('success') && str_contains(session('success'), 'QR codes generated'))
-            document.getElementById('printQRPDFNotification').classList.remove('hidden');
-
-            // Get the stored asset_ids from localStorage
-            const storedAssetIds = localStorage.getItem('selectedAssetIds');
-            if (storedAssetIds) {
-                // Update the Print PDF link to include the selected asset IDs
-                const printPdfLink = document.getElementById('printPdfLink');
-                if (printPdfLink) {
-                    printPdfLink.href = "{{ url('/assets/qr/print-pdf') }}?asset_ids=" + storedAssetIds;
-                    console.log('Updated print PDF link with asset IDs:', storedAssetIds);
-                }
-            }
-
-            // Hide after 10 seconds
-            setTimeout(function() {
-                document.getElementById('printQRPDFNotification').classList.add('hidden');
-            }, 10000);
-        @endif
-
-        // SINGLE Print QR button event handler - make sure no other event handlers exist for this button!
-        const printQRBtn = document.getElementById('printQRBtn');
-        if (printQRBtn) {
-            // Remove any existing event listeners (just to be sure)
-            const newPrintQRBtn = printQRBtn.cloneNode(true);
-            printQRBtn.parentNode.replaceChild(newPrintQRBtn, printQRBtn);
-
-            // Add the only event listener we want
-            newPrintQRBtn.addEventListener('click', function(e) {
-                if (e) e.preventDefault(); // Prevent default action
-                if (e) e.stopPropagation(); // Stop event propagation
-
-                // Get selected assets
-                const selectedCheckboxes = document.querySelectorAll('.asset-checkbox:checked');
-                console.log('Selected checkboxes:', selectedCheckboxes.length);
-
-                const selectedIds = Array.from(selectedCheckboxes).map(checkbox => {
-                    console.log('Checkbox dataset:', checkbox.dataset);
-                    return checkbox.dataset.assetId;
+                    });
                 });
 
-                console.log('Selected asset IDs:', selectedIds);
+                // Konfigurasi observer
+                const config = { attributes: true, attributeFilter: ['value'] };
+                observer.observe(addSelectedIsDepreciable, config);
 
-                if (selectedIds.length === 0) {
-                    alert('Please select at least one asset to print QR code.');
+                // Tambahkan juga event listener untuk direct changes
+                addSelectedIsDepreciable.addEventListener('change', function() {
+                    const isDepreciable = this.value === 'true';
+                    toggleDepreciationFields(addDepreciationFields, isDepreciable);
+                });
+
+                // Cek juga saat inisialisasi
+                const isInitiallyDepreciable = addSelectedIsDepreciable.value === 'true';
+                toggleDepreciationFields(addDepreciationFields, isInitiallyDepreciable);
+            }
+
+            // Edit modal
+            const editAssetMasterSelect = document.getElementById('edit_asset_master_id');
+            const editDepreciationFields = document.getElementById('edit_depreciation_fields');
+
+            if (editAssetMasterSelect && editDepreciationFields) {
+                editAssetMasterSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const isDepreciable = selectedOption.getAttribute('data-depreciable') === 'true';
+                    toggleDepreciationFields(editDepreciationFields, isDepreciable);
+                });
+            }
+        }
+
+        // Consolidated function to initialize event handlers for buttons and modals
+        function initEventHandlers() {
+            // Edit Asset Button handlers
+            document.querySelectorAll('.edit-asset-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const assetId = this.getAttribute('data-id');
+                    setupWithData(assetId);
+                });
+            });
+
+            // Delete Asset Button handlers
+            document.querySelectorAll('.delete-asset-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const assetId = this.getAttribute('data-id');
+                    const assetName = this.getAttribute('data-name');
+                    const deleteModal = document.getElementById('deleteAssetModal');
+                    const deleteContent = document.getElementById('deleteAssetModalContent');
+
+                    if (deleteModal && deleteContent) {
+                        document.getElementById('deleteAssetName').textContent = assetName;
+                        const deleteForm = document.getElementById('deleteAssetForm');
+                        if (deleteForm) {
+                            deleteForm.action = `{{ url('assets') }}/${assetId}`;
+                        }
+                        openModal(deleteModal, deleteContent);
+                    }
+                });
+            });
+
+            // Add Asset button handler
+            const addAssetBtn = document.getElementById('addAssetBtn');
+            const addAssetModal = document.getElementById('addAssetModal');
+            const addAssetModalContent = document.getElementById('addAssetModalContent');
+
+            if (addAssetBtn && addAssetModal && addAssetModalContent) {
+                addAssetBtn.addEventListener('click', function() {
+                    openModal(addAssetModal, addAssetModalContent);
+                });
+            }
+
+            // Print QR button handler
+            document.getElementById('printQRBtn')?.addEventListener('click', function() {
+                const checkedAssets = document.querySelectorAll('.asset-checkbox:checked');
+                const assetIds = Array.from(checkedAssets).map(checkbox => checkbox.getAttribute('data-asset-id'));
+
+                if (assetIds.length === 0) {
+                    alert('Please select at least one asset to print QR codes.');
                     return;
                 }
 
-                // Store the selected IDs in localStorage for later use
-                localStorage.setItem('selectedAssetIds', selectedIds.join(','));
+                // Update the hidden input with selected asset IDs
+                document.getElementById('selectedAssetIds').value = assetIds.join(',');
 
-                // Set the selected IDs to the hidden input
-                document.getElementById('selectedAssetIds').value = selectedIds.join(',');
-                console.log('Hidden input value set to:', document.getElementById('selectedAssetIds').value);
+                // Update the count display
+                document.getElementById('selectedAssetsCount').textContent = `Selected Assets: ${assetIds.length}`;
 
-                // Update the count text
-                document.getElementById('selectedAssetsCount').textContent =
-                    `Selected Assets: ${selectedIds.length}`;
-
-                // Show the modal
+                // Open the print QR modal
                 const printQRModal = document.getElementById('printQRModal');
                 const printQRModalContent = document.getElementById('printQRModalContent');
-                if (printQRModal && printQRModalContent) {
-                    openModal(printQRModal, printQRModalContent);
-                }
-
-                return false; // Prevent default action
+                openModal(printQRModal, printQRModalContent);
             });
+
+            // Select all assets checkbox
+            document.getElementById('select-all-assets')?.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.asset-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+
+            // Close modal buttons
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', function() {
+                    const modal = this.closest('[id$="Modal"]');
+                    closeModal(modal);
+                });
+            });
+
+            // Close on outside click
+            document.querySelectorAll('.fixed.inset-0.bg-black.bg-opacity-50').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        const modal = this.parentElement;
+                        if (modal) {
+                            closeModal(modal);
+                        }
+                    }
+                });
+            });
+
+            // Edit form submission handler
+            const editForm = document.getElementById('editAssetForm');
+            if (editForm) {
+                editForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const assetId = this.action.split('/').pop();
+
+                    // Set the current_status to 'available' if it doesn't exist in the form
+                    if (!formData.has('current_status')) {
+                        formData.append('current_status', 'available');
+                    }
+
+                    // Check if depreciation fields are visible and add them to formData if they are
+                    const depreciationFields = document.getElementById('edit_depreciation_fields');
+                    if (depreciationFields && !depreciationFields.classList.contains('hidden')) {
+                        // Make sure depreciation data is included
+                        const fieldsToCheck = [
+                            { id: 'edit_depreciation_method', name: 'depreciation_method' },
+                            { id: 'edit_acquisition_cost', name: 'acquisition_cost' },
+                            { id: 'edit_salvage_value', name: 'salvage_value' },
+                            { id: 'edit_asset_life_months', name: 'asset_life_months' },
+                            { id: 'edit_date_acquired', name: 'date_acquired' }
+                        ];
+
+                        fieldsToCheck.forEach(field => {
+                            const element = document.getElementById(field.id);
+                            if (element && element.value && !formData.has(field.name)) {
+                                formData.append(field.name, element.value);
+                            }
+                        });
+                    }
+
+                    // Use a traditional form submission
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `{{ url('assets') }}/${assetId}`;
+                    form.style.display = 'none';
+
+                    // Append all form data
+                    for (const [key, value] of formData.entries()) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        form.appendChild(input);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                });
+            }
+
+            // Image preview handlers
+            const imagePreviewHandlers = [
+                { input: 'image_file', preview: 'preview-image', container: 'preview-container' },
+                { input: 'edit_image_file', preview: 'edit_image_preview', container: 'edit_preview-container' }
+            ];
+
+            imagePreviewHandlers.forEach(handler => {
+                const input = document.getElementById(handler.input);
+                const preview = document.getElementById(handler.preview);
+                const container = document.getElementById(handler.container);
+
+                if (input && preview && container) {
+                    input.addEventListener('change', function() {
+                        if (this.files && this.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                preview.src = e.target.result;
+                                preview.classList.remove('hidden');
+                                container.classList.remove('hidden');
+                            };
+                            reader.readAsDataURL(this.files[0]);
+                        } else {
+                            preview.classList.add('hidden');
+                            container.classList.add('hidden');
+                        }
+                    });
+                }
+            });
+
+            // Print QR form handler
+            const printQRForm = document.getElementById('printQRForm');
+            if (printQRForm) {
+                printQRForm.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Prevent the default form submission
+
+                    const formData = new FormData(this);
+                    const action = this.action;
+
+                    // Close the modal
+                    const modal = document.getElementById('printQRModal');
+                    if (modal) {
+                        closeModal(modal);
+                    }
+
+                    // Create and submit a form to open in a new tab
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = action;
+                    form.target = '_blank'; // Open in new tab
+                    form.style.display = 'none';
+
+                    // Append all form data
+                    for (const [key, value] of formData.entries()) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        form.appendChild(input);
+                    }
+
+                    // Add CSRF token
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    form.appendChild(csrfInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+
+                    // Show notification
+                    const notification = document.getElementById('printQRPDFNotification');
+                    if (notification) {
+                        notification.classList.remove('hidden');
+                        setTimeout(() => {
+                            notification.classList.add('hidden');
+                        }, 5000);
+                    }
+
+                    // Reload the current page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                });
+            }
         }
 
-        // SINGLE Form submission handler
-        const printQRForm = document.getElementById('printQRForm');
-        if (printQRForm) {
-            // Remove any existing event listeners (just to be sure)
-            const newPrintQRForm = printQRForm.cloneNode(true);
-            printQRForm.parentNode.replaceChild(newPrintQRForm, printQRForm);
+        // Initialize room search functionality
+        function initRoomSearch(
+            searchInput,
+            dropdown,
+            roomList,
+            loadingIndicator,
+            selectedRoomId,
+            selectedRoomName,
+            selectedRoomDisplay
+        ) {
+            if (!searchInput || !dropdown || !roomList) return;
 
-            // Add the only event listener we want
-            newPrintQRForm.addEventListener('submit', function(e) {
-                // Prevent default to handle form submission manually
-                e.preventDefault();
-
-                // Get the selected asset IDs
-                const selectedIds = document.getElementById('selectedAssetIds').value;
-                console.log('Form submission - selected IDs value:', selectedIds);
-
-                if (!selectedIds) {
-                    alert('No assets selected.');
-                    return false;
+            // Toggle dropdown visibility
+            searchInput.addEventListener('focus', function() {
+                dropdown.classList.remove('hidden');
+                if (roomList.children.length === 0) {
+                    loadRooms(''); // Initial load on focus
                 }
-
-                console.log('Submitting form with asset IDs:', selectedIds);
-
-                // Get the form data
-                const qrSize = document.querySelector('select[name="qr_size"]').value;
-                const quantity = document.querySelector('input[name="quantity"]').value || 1;
-
-                // Close the modal
-                const printQRModal = document.getElementById('printQRModal');
-                const printQRModalContent = document.getElementById('printQRModalContent');
-                if (printQRModal && printQRModalContent) {
-                    closeModal(printQRModal, printQRModalContent);
-                }
-
-                // Open PDF directly in a new tab instead of showing notification
-                window.open("{{ url('/assets/qr/print-pdf') }}?asset_ids=" + selectedIds + "&qr_size=" + qrSize + "&quantity=" + quantity, '_blank');
-
-                // Still submit the form to generate the PDF
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = "{{ url('/assets/qr/generate-bulk') }}";
-                form.style.display = 'none';
-
-                // Add CSRF token
-                const csrfToken = document.createElement('input');
-                csrfToken.type = 'hidden';
-                csrfToken.name = '_token';
-                csrfToken.value = "{{ csrf_token() }}";
-                form.appendChild(csrfToken);
-
-                // Add asset IDs
-                const assetIdsInput = document.createElement('input');
-                assetIdsInput.type = 'hidden';
-                assetIdsInput.name = 'asset_ids';
-                assetIdsInput.value = selectedIds;
-                form.appendChild(assetIdsInput);
-
-                // Add QR size
-                const qrSizeInput = document.createElement('input');
-                qrSizeInput.type = 'hidden';
-                qrSizeInput.name = 'qr_size';
-                qrSizeInput.value = qrSize;
-                form.appendChild(qrSizeInput);
-
-                // Add quantity
-                const quantityInput = document.createElement('input');
-                quantityInput.type = 'hidden';
-                quantityInput.name = 'quantity';
-                quantityInput.value = quantity;
-                form.appendChild(quantityInput);
-
-                // Add form to the document and submit it
-                document.body.appendChild(form);
-                form.submit();
             });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            // Search input handler with debounce
+            const debouncedSearch = debounce(function(e) {
+                loadRooms(e.target.value);
+            }, 300);
+
+            searchInput.addEventListener('input', debouncedSearch);
+
+            // Function to load rooms
+            async function loadRooms(searchTerm) {
+                // Show loading indicator
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                roomList.innerHTML = '';
+
+                try {
+                    // Use the existing rooms data from the page
+                    let rooms = @json($rooms ?? []);
+
+                    // Filter rooms based on search term
+                    if (searchTerm) {
+                        searchTerm = searchTerm.toLowerCase();
+                        rooms = rooms.filter(room =>
+                            (room.room_name && room.room_name.toLowerCase().includes(searchTerm)) ||
+                            (room.building_name && room.building_name.toLowerCase().includes(searchTerm))
+                        );
+                    }
+
+                    // Sort rooms by name for better UX
+                    rooms.sort((a, b) => (a.room_name || '').localeCompare(b.room_name || ''));
+
+                    // Populate dropdown
+                    roomList.innerHTML = '';
+
+                    if (rooms.length === 0) {
+                        const noResults = document.createElement('li');
+                        noResults.className = 'px-4 py-2 text-gray-500 italic';
+                        noResults.textContent = 'No rooms found';
+                        roomList.appendChild(noResults);
+                    } else {
+                        rooms.forEach(room => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                            li.textContent = `${room.room_name} (${room.building_name || 'Unknown Building'})`;
+                            li.setAttribute('data-id', room.room_id);
+                            li.setAttribute('data-name', `${room.room_name} (${room.building_name || 'Unknown Building'})`);
+
+                            li.addEventListener('click', function() {
+                                // Set the selected room ID and name
+                                selectedRoomId.value = this.getAttribute('data-id');
+                                if (selectedRoomName) {
+                                    selectedRoomName.textContent = this.getAttribute('data-name');
+                                }
+
+                                // Update the search input
+                                searchInput.value = this.getAttribute('data-name');
+
+                                // Hide dropdown
+                                dropdown.classList.add('hidden');
+                            });
+
+                            roomList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading rooms:', error);
+                    const errorItem = document.createElement('li');
+                    errorItem.className = 'px-4 py-2 text-red-500';
+                    errorItem.textContent = 'Error loading rooms';
+                    roomList.appendChild(errorItem);
+                } finally {
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
         }
 
-        // Make sure close buttons work
-        document.querySelectorAll('.close-modal').forEach(button => {
-            button.addEventListener('click', function() {
-                const modal = this.closest('[id$="Modal"]');
-                const content = modal.querySelector('[id$="ModalContent"]');
-                if (modal && content) {
-                    closeModal(modal, content);
+        // Initialize asset master search functionality
+        function initAssetMasterSearch(
+            searchInput,
+            dropdown,
+            assetMasterList,
+            loadingIndicator,
+            selectedAssetMasterId,
+            selectedIsDepreciable,
+            depreciationFields
+        ) {
+            if (!searchInput || !dropdown || !assetMasterList) return;
+
+            // Toggle dropdown visibility
+            searchInput.addEventListener('focus', function() {
+                dropdown.classList.remove('hidden');
+                if (assetMasterList.children.length === 0) {
+                    loadAssetMasters(''); // Initial load on focus
                 }
             });
-        });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            // Search input handler with debounce
+            const debouncedSearch = debounce(function(e) {
+                loadAssetMasters(e.target.value);
+            }, 300);
+
+            searchInput.addEventListener('input', debouncedSearch);
+
+            // Function to load asset masters
+            async function loadAssetMasters(searchTerm) {
+                // Show loading indicator
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                assetMasterList.innerHTML = '';
+
+                try {
+                    // Fetch asset masters data from the API
+                    const response = await fetch(`{{ route('asset-master.data') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`);
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch asset masters');
+                    }
+
+                    const result = await response.json();
+                    let assetMasters = result.masterAssets || [];
+
+                    // Populate dropdown
+                    assetMasterList.innerHTML = '';
+
+                    if (assetMasters.length === 0) {
+                        const noResults = document.createElement('li');
+                        noResults.className = 'px-4 py-2 text-gray-500 italic';
+                        noResults.textContent = 'No asset masters found';
+                        assetMasterList.appendChild(noResults);
+                    } else {
+                        assetMasters.forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                            const assetMasterName = item.asset_name || 'Unknown';
+
+                            li.textContent = assetMasterName;
+                            li.setAttribute('data-id', item.asset_master_id);
+                            li.setAttribute('data-name', assetMasterName);
+
+                            // Get is_depreciable value
+                            const isDepreciable = item.is_depreciable === true;
+
+                            li.setAttribute('data-depreciable', isDepreciable);
+
+                            li.addEventListener('click', function() {
+                                // Set the selected asset master ID and name
+                                selectedAssetMasterId.value = this.getAttribute('data-id');
+
+                                // Update the search input
+                                searchInput.value = this.getAttribute('data-name');
+
+                                // Set is_depreciable flag
+                                const isDepreciable = this.getAttribute('data-depreciable') === 'true';
+                                selectedIsDepreciable.setAttribute('value', isDepreciable.toString());
+                                // Trigger change event
+                                const event = new Event('change');
+                                selectedIsDepreciable.dispatchEvent(event);
+
+                                // Show/hide depreciation fields based on is_depreciable
+                                toggleDepreciationFields(depreciationFields, isDepreciable);
+
+                                // Hide dropdown
+                                dropdown.classList.add('hidden');
+                            });
+
+                            assetMasterList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading asset masters:', error);
+                    const errorItem = document.createElement('li');
+                    errorItem.className = 'px-4 py-2 text-red-500';
+                    errorItem.textContent = 'Error loading asset masters';
+                    assetMasterList.appendChild(errorItem);
+                } finally {
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
+        }
+
+        // Initialize user search functionality
+        function initUserSearch(
+            searchInput,
+            dropdown,
+            userList,
+            loadingIndicator,
+            selectedUserId
+        ) {
+            if (!searchInput || !dropdown || !userList) return;
+
+            // Toggle dropdown visibility
+            searchInput.addEventListener('focus', function() {
+                dropdown.classList.remove('hidden');
+                if (userList.children.length === 0) {
+                    loadUsers(''); // Initial load on focus
+                }
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            // Search input handler with debounce
+            const debouncedSearch = debounce(function(e) {
+                loadUsers(e.target.value);
+            }, 300);
+
+            searchInput.addEventListener('input', debouncedSearch);
+
+            // Function to load users
+            async function loadUsers(searchTerm) {
+                // Show loading indicator
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                userList.innerHTML = '';
+
+                try {
+                    // Use locally available data instead of fetching from server
+                    let users = window.usersData || [];
+
+                    // Filter users based on search term
+                    if (searchTerm) {
+                        searchTerm = searchTerm.toLowerCase();
+                        users = users.filter(user => {
+                            return (user.employee_number && user.employee_number.toLowerCase().includes(searchTerm)) ||
+                                   (user.user_id && user.user_id.toString().includes(searchTerm));
+                        });
+                    }
+
+                    // Populate dropdown
+                    userList.innerHTML = '';
+
+                    if (users.length === 0) {
+                        const noResults = document.createElement('li');
+                        noResults.className = 'px-4 py-2 text-gray-500 italic';
+                        noResults.textContent = 'No users found';
+                        userList.appendChild(noResults);
+                    } else {
+                        users.forEach(user => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                            // Display employee_number if available, otherwise user_id
+                            const displayName = user.employee_number
+                                ? `${user.employee_number}`
+                                : `User ID: ${user.user_id}`;
+
+                            li.textContent = displayName;
+                            li.setAttribute('data-id', user.user_id);
+                            li.setAttribute('data-name', displayName);
+
+                            li.addEventListener('click', function() {
+                                // Set the selected user ID and display
+                                selectedUserId.value = this.getAttribute('data-id');
+
+                                // Update the search input
+                                searchInput.value = this.getAttribute('data-name');
+
+                                // Hide dropdown
+                                dropdown.classList.add('hidden');
+                            });
+
+                            userList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                    const errorItem = document.createElement('li');
+                    errorItem.className = 'px-4 py-2 text-red-500';
+                    errorItem.textContent = 'Error processing user data';
+                    userList.appendChild(errorItem);
+                } finally {
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
+        }
+
+        // Initialize all search components
+        function initSearchComponents() {
+            // Room search for add modal
+            initRoomSearch(
+                document.getElementById('room_search'),
+                document.getElementById('room_dropdown'),
+                document.getElementById('room_list'),
+                document.getElementById('room_loading'),
+                document.getElementById('selected_room_id'),
+                document.getElementById('selected_room_name'),
+                document.getElementById('selected_room_display')
+            );
+
+            // Room search for edit modal
+            initRoomSearch(
+                document.getElementById('edit_room_search'),
+                document.getElementById('edit_room_dropdown'),
+                document.getElementById('edit_room_list'),
+                document.getElementById('edit_room_loading'),
+                document.getElementById('edit_selected_room_id'),
+                document.getElementById('edit_selected_room_name'),
+                document.getElementById('edit_selected_room_display')
+            );
+
+            // Asset master search for add modal
+            initAssetMasterSearch(
+                document.getElementById('asset_master_search'),
+                document.getElementById('asset_master_dropdown'),
+                document.getElementById('asset_master_list'),
+                document.getElementById('asset_master_loading'),
+                document.getElementById('selected_asset_master_id'),
+                document.getElementById('selected_is_depreciable'),
+                document.getElementById('depreciation_fields')
+            );
+
+            // Asset master search for edit modal
+            initAssetMasterSearch(
+                document.getElementById('edit_asset_master_search'),
+                document.getElementById('edit_asset_master_dropdown'),
+                document.getElementById('edit_asset_master_list'),
+                document.getElementById('edit_asset_master_loading'),
+                document.getElementById('edit_selected_asset_master_id'),
+                document.getElementById('edit_selected_is_depreciable'),
+                document.getElementById('edit_depreciation_fields')
+            );
+
+            // User search for add modal
+            initUserSearch(
+                document.getElementById('user_search'),
+                document.getElementById('user_dropdown'),
+                document.getElementById('user_list'),
+                document.getElementById('user_loading'),
+                document.getElementById('selected_user_id')
+            );
+
+            // User search for edit modal
+            initUserSearch(
+                document.getElementById('edit_user_search'),
+                document.getElementById('edit_user_dropdown'),
+                document.getElementById('edit_user_list'),
+                document.getElementById('edit_user_loading'),
+                document.getElementById('edit_selected_user_id')
+            );
+        }
+
+        // Function to check URL parameters
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success')) {
+                alert('Asset updated successfully!');
+            }
+        }
+
+        // Function to handle changing page
+        window.changeAssetPage = function(page) {
+            const limit = document.getElementById('assetPerPageSelect')?.value || 10;
+
+            // Traditional page reload method
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.location.href = url.toString();
+        };
+
+        // Function to handle changing items per page
+        window.changeAssetPerPage = function(perPage) {
+            // Traditional page reload method
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', perPage);
+            url.searchParams.set('page', 1); // Reset to first page
+            window.location.href = url.toString();
+        };
+
+        // Initialize everything
+        initAssetMasterListeners();
+        initEventHandlers();
+        initSearchComponents();
+        checkUrlParams();
     });
-
-    // REMOVE ALL OTHER EVENT LISTENERS FOR printQRBtn
-    // ...
-
 </script>
 @endpush
 @endsection

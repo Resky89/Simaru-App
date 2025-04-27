@@ -25,30 +25,38 @@ class UnitAssetController extends Controller
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
+            $statusFilter = $request->input('status', '');
 
             // Log request info
             \Log::info('Fetching assets with parameters:', [
                 'page' => $page,
                 'limit' => $limit,
                 'search' => $search,
+                'status' => $statusFilter,
                 'request_url' => $request->fullUrl()
             ]);
 
             // Build query parameters
-            $queryParams = [
+            $query = [
                 'page' => $page,
                 'limit' => $limit,
                 'sort_by' => 'asset_id',
-                'sort_order' => 'asc'
+                'sort_order' => 'desc'
             ];
 
+            // Add search filter if provided
             if (!empty($search)) {
-                $queryParams['search'] = $search;
+                $query['search'] = $search;
+            }
+
+            // Add status filter if provided
+            if (!empty($statusFilter)) {
+                $query['status'] = $statusFilter;
             }
 
             // Fetch assets
             $assetsResult = $this->apiService->request('GET', '/assets', [
-                'query' => $queryParams
+                'query' => $query
             ]);
 
             // Fetch subcategories which contain asset type information
@@ -67,11 +75,20 @@ class UnitAssetController extends Controller
                 ]
             ]);
 
+            // Fetch all users for the dropdown
+            $usersResult = $this->apiService->request('GET', '/users', [
+                'query' => [
+                    'limit' => 100, // Get a reasonable number of users
+                    'sort_by' => 'user_id',
+                    'sort_order' => 'asc'
+                ]
+            ]);
+
             // Log API responses for debugging
             \Log::info('API response for assets list:', [
-                'assets_status' => $assetsResult['status'] ?? null,
+                'assets_success' => $assetsResult['success'] ?? null,
                 'assets_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0,
-                'brands_status' => $brandsResult['status'] ?? null,
+                'brands_success' => $brandsResult['success'] ?? null,
                 'brands_count' => isset($brandsResult['data']) ? count($brandsResult['data']) : 0
             ]);
 
@@ -84,27 +101,28 @@ class UnitAssetController extends Controller
                 return redirect()->route('login')->with('error', $errorMessage);
             }
 
-            // Check for API errors based on status flag
+            // Check for API errors based on success flag
             if (
-                (!isset($assetsResult['status']) || $assetsResult['status'] !== true) ||
-                (!isset($brandsResult['status']) || $brandsResult['status'] !== true)
+                (!isset($assetsResult['success']) || $assetsResult['success'] !== true) ||
+                (!isset($brandsResult['success']) || $brandsResult['success'] !== true)
             ) {
                 $errorMessage = $assetsResult['message'] ?? $brandsResult['message'] ?? 'Failed to fetch data';
 
                 \Log::warning('Error during data retrieval:', [
-                    'assets_status' => $assetsResult['status'] ?? false,
-                    'brands_status' => $brandsResult['status'] ?? false,
+                    'assets_success' => $assetsResult['success'] ?? false,
+                    'brands_success' => $brandsResult['success'] ?? false,
                     'message' => $errorMessage
                 ]);
 
-                return view('Asset.ViewAsset', [
+                return view('Asset.UnitAsset', [
                     'assets' => [],
                     'brands' => [],
+                    'users' => [],
+                    'rooms' => [],
                     'assets_pagination' => null,
                     'brands_pagination' => null,
                     'subcategories' => [],
                     'assetTypes' => [],
-                    'rooms' => [],
                     'error' => $errorMessage
                 ]);
             }
@@ -124,26 +142,7 @@ class UnitAssetController extends Controller
             $rooms = $roomsResult['data'] ?? [];
             $brands = $brandsResult['data'] ?? [];
             $assets = $assetsResult['data'] ?? [];
-
-            // Use either pagination structure, prioritizing the assets one
-            $pagination = $assetsResult['pagination'] ?? $brandsResult['pagination'] ?? null;
-
-            // Setelah mendapatkan data assets dari API
-            foreach ($assets as &$asset) {
-                // Pastikan semua properti yang diperlukan ada
-                if (!isset($asset['room'])) {
-                    $asset['room'] = [];
-                }
-
-                if (!isset($asset['room']['building'])) {
-                    $asset['room']['building'] = ['building_name' => '-'];
-                }
-
-                // Tambahkan default values untuk properti lain yang mungkin missing
-                if (!isset($asset['room']['room_name'])) {
-                    $asset['room']['room_name'] = '-';
-                }
-            }
+            $users = $usersResult['data'] ?? [];
 
             // Transform the rooms data to include building_name at root level for compatibility
             $transformedRooms = [];
@@ -163,7 +162,7 @@ class UnitAssetController extends Controller
                     // Ambil data building dari API jika perlu
                     try {
                         $buildingResult = $this->apiService->request('GET', "/buildings/{$buildingId}");
-                        if (isset($buildingResult['status']) && $buildingResult['status'] === true && isset($buildingResult['data']['building_name'])) {
+                        if (isset($buildingResult['success']) && $buildingResult['success'] === true && isset($buildingResult['data']['building_name'])) {
                             $buildingName = $buildingResult['data']['building_name'];
                         }
                     } catch (\Exception $e) {
@@ -211,14 +210,61 @@ class UnitAssetController extends Controller
                 ];
             }
 
+            // Map subcategories by ID for quick lookup
+            $subcategoryMap = [];
+            foreach ($subcategories as $subcategory) {
+                $subcategoryMap[$subcategory['subcategory_id']] = $subcategory;
+            }
+
+            // Add subcategory data to each asset
+            foreach ($assets as &$asset) {
+                if (isset($asset['subcategory_id']) && isset($subcategoryMap[$asset['subcategory_id']])) {
+                    $asset['subcategory'] = $subcategoryMap[$asset['subcategory_id']];
+                }
+
+                // Ensure room data is properly structured
+                if (!isset($asset['room'])) {
+                    $asset['room'] = [];
+                }
+
+                if (!isset($asset['room']['building'])) {
+                    $asset['room']['building'] = ['building_name' => '-'];
+                }
+
+                // If asset_name is not set but asset_master has a name, use it
+                if ((!isset($asset['asset_name']) || empty($asset['asset_name'])) &&
+                    isset($asset['asset_master']) && isset($asset['asset_master']['asset_master_name'])) {
+                    $asset['asset_name'] = $asset['asset_master']['asset_master_name'];
+                }
+
+                // If description is not set but asset_master has a description, use it
+                if ((!isset($asset['description']) || empty($asset['description'])) &&
+                    isset($asset['asset_master']) && isset($asset['asset_master']['description'])) {
+                    $asset['description'] = $asset['asset_master']['description'];
+                }
+
+                // For subcategory, we need to handle cases where it might be nested in asset_master
+                if (!isset($asset['subcategory']) || empty($asset['subcategory'])) {
+                    if (isset($asset['asset_master']) && isset($asset['asset_master']['subcategory'])) {
+                        $asset['subcategory'] = $asset['asset_master']['subcategory'];
+                    } elseif (isset($asset['asset_master']) && isset($asset['asset_master']['subcategory_id'])) {
+                        $subcatId = $asset['asset_master']['subcategory_id'];
+                        if (isset($subcategoryMap[$subcatId])) {
+                            $asset['subcategory'] = $subcategoryMap[$subcatId];
+                        }
+                    }
+                }
+            }
+
             return view('Asset.UnitAsset', [
                 'assets' => $assets,
                 'brands' => $brands,
+                'users' => $users,
+                'rooms' => $transformedRooms,
                 'assets_pagination' => $assetsPagination,
                 'brands_pagination' => $brandsPagination,
                 'subcategories' => $subcategories,
-                'assetTypes' => $assetTypes,
-                'rooms' => $transformedRooms
+                'assetTypes' => $assetTypes
             ]);
         } catch (\Exception $e) {
             \Log::error('Exception during data retrieval:', [
@@ -229,11 +275,12 @@ class UnitAssetController extends Controller
             return view('Asset.UnitAsset', [
                 'assets' => [],
                 'brands' => [],
+                'users' => [],
+                'rooms' => [],
                 'assets_pagination' => null,
                 'brands_pagination' => null,
                 'subcategories' => [],
                 'assetTypes' => [],
-                'rooms' => [],
                 'error' => 'Failed to fetch data: ' . $e->getMessage()
             ]);
         }
@@ -250,25 +297,21 @@ class UnitAssetController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            // Prepare asset data
+            // Prepare asset data with the new format that uses asset_master_id
             $assetData = [
-                'asset_name' => $request->input('asset_name'),
-                'description' => $request->input('description'),
-                'subcategory_id' => (int) $request->input('subcategory_id'),
-                'model_number' => $request->input('model_number'),
+                'asset_master_id' => (int) $request->input('asset_master_id'),
                 'serial_number' => $request->input('serial_number'),
                 'purchase_date' => $request->input('purchase_date'),
                 'purchase_cost' => (float) $request->input('purchase_cost'),
                 'warranty_end_date' => $request->input('warranty_end_date'),
+                'user_id' => $request->input('user_id') ? (int) $request->input('user_id') : null,
                 'current_status' => $request->input('current_status', 'available'),
                 'condition' => $request->input('condition', 'good'),
-                'room_id' => (int) $request->input('room_id'),
-                'brand_id' => (int) $request->input('brand_id'),
-                'is_depreciable' => $request->input('is_depreciable') === '1' // Simpan sebagai true/false, bukan boolean string
+                'room_id' => (int) $request->input('room_id')
             ];
 
-            // Add depreciation data if asset is depreciable - use flat structure like updateAsset
-            if ($request->input('is_depreciable') === '1') {
+            // Add depreciation data if present - now directly from the request without checking is_depreciable
+            if ($request->has('depreciation_method')) {
                 $assetData['depreciation_method'] = $request->input('depreciation_method');
                 $assetData['acquisition_cost'] = (float) $request->input('acquisition_cost');
                 $assetData['salvage_value'] = (float) $request->input('salvage_value');
@@ -285,13 +328,15 @@ class UnitAssetController extends Controller
             if ($request->hasFile('image_file')) {
                 $multipartData = [];
 
-                // Add asset data as form fields - perbaiki konversi tipe data
+                // Add asset data as form fields
                 foreach ($assetData as $key => $value) {
-                    // Perbaiki konversi boolean and other types
+                    // Convert values appropriately for multipart
                     if (is_bool($value)) {
-                        $value = $value ? 'true' : 'false'; // Konversi boolean ke string 'true'/'false'
+                        $value = $value ? 'true' : 'false';
                     } elseif (is_array($value)) {
-                        $value = json_encode($value); // Konversi array ke JSON string
+                        $value = json_encode($value);
+                    } elseif ($value === null) {
+                        $value = ''; // Convert null to empty string for multipart
                     }
 
                     $multipartData[] = ['name' => $key, 'contents' => $value];
@@ -327,10 +372,9 @@ class UnitAssetController extends Controller
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['status']) && $result['status'] === false) || (isset($result['success']) && $result['success'] === false)) {
+            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
                 \Log::warning('Error during asset creation:', [
                     'error' => $result['error'] ?? null,
-                    'status' => $result['status'] ?? null,
                     'success' => $result['success'] ?? null,
                     'message' => $result['message'] ?? $result['errors'] ?? 'Failed to create asset'
                 ]);
@@ -372,6 +416,7 @@ class UnitAssetController extends Controller
 
             // Successfully created
             \Log::info('Asset created successfully', [
+                'asset_id' => $result['data']['asset_id'] ?? 'unknown',
                 'asset_code' => $result['data']['asset_code'] ?? 'unknown'
             ]);
             return redirect()->route('assets')
@@ -400,27 +445,21 @@ class UnitAssetController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            // Prepare asset data - struktur yang lebih sederhana
+            // Prepare asset data with new format
             $assetData = [
                 'asset_id' => $id,
-                'asset_name' => $request->input('asset_name'),
-                'description' => $request->input('description'),
-                'subcategory_id' => (int) $request->input('subcategory_id'),
-                'model_number' => $request->input('model_number'),
                 'serial_number' => $request->input('serial_number'),
                 'purchase_date' => $request->input('purchase_date'),
                 'purchase_cost' => (float) $request->input('purchase_cost'),
                 'warranty_end_date' => $request->input('warranty_end_date'),
+                'user_id' => $request->input('user_id') ? (int) $request->input('user_id') : null,
                 'current_status' => $request->input('current_status', 'available'),
                 'condition' => $request->input('condition'),
-                'room_id' => (int) $request->input('room_id'),
-                'brand_id' => (int) $request->input('brand_id'),
-                'is_depreciable' => (bool) ($request->input('is_depreciable') === '1')
+                'room_id' => (int) $request->input('room_id')
             ];
 
-            // Jika asset depreciable, tambahkan field depreciation langsung ke root object
-            // ini berbeda dari struktur sebelumnya yang nested
-            if ($request->input('is_depreciable') === '1') {
+            // Add depreciation fields directly without checking is_depreciable
+            if ($request->has('depreciation_method')) {
                 $assetData['depreciation_method'] = $request->input('depreciation_method');
                 $assetData['acquisition_cost'] = (float) $request->input('acquisition_cost');
                 $assetData['salvage_value'] = (float) $request->input('salvage_value');
@@ -439,9 +478,18 @@ class UnitAssetController extends Controller
 
                 // Kirim setiap field asset data secara individual dalam multipart
                 foreach ($assetData as $key => $value) {
+                    // Convert values appropriately for multipart
+                    if (is_bool($value)) {
+                        $value = $value ? 'true' : 'false';
+                    } elseif (is_array($value)) {
+                        $value = json_encode($value);
+                    } elseif ($value === null) {
+                        $value = ''; // Convert null to empty string for multipart
+                    }
+
                     $multipartData[] = [
                         'name' => $key,
-                        'contents' => is_array($value) ? json_encode($value) : $value
+                        'contents' => $value
                     ];
                 }
 
@@ -456,7 +504,7 @@ class UnitAssetController extends Controller
                 $result = $this->apiService->request('PUT', "/assets/{$id}", $options);
             } else {
                 // No file upload, just send JSON data
-                $options = ['json' => $assetData];  // Kirim data langsung tanpa asset_data wrapper
+                $options = ['json' => $assetData];
                 $result = $this->apiService->request('PUT', "/assets/{$id}", $options);
             }
 
@@ -475,16 +523,14 @@ class UnitAssetController extends Controller
                 return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
-            // PERBAIKAN: Check for other API errors or unsuccessful responses
+            // Check for other API errors or unsuccessful responses
             if (
                 isset($result['error']) ||
-                (isset($result['status']) && $result['status'] === false) ||
                 (isset($result['success']) && $result['success'] === false)
             ) {
 
                 \Log::warning('Error during asset update:', [
                     'error' => $result['error'] ?? null,
-                    'status' => $result['status'] ?? null,
                     'success' => $result['success'] ?? null,
                     'message' => $result['message'] ?? 'Failed to update asset',
                     'errors' => $result['errors'] ?? []
@@ -571,10 +617,10 @@ class UnitAssetController extends Controller
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['status']) && $result['status'] === false)) {
+            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
                 \Log::warning('Error during asset deletion:', [
                     'error' => $result['error'] ?? null,
-                    'status' => $result['status'] ?? null,
+                    'success' => $result['success'] ?? null,
                     'message' => $result['message'] ?? 'Failed to delete asset'
                 ]);
                 return redirect()->back()
@@ -615,7 +661,7 @@ class UnitAssetController extends Controller
 
             // Log API response for debugging
             \Log::info('API response for single asset:', [
-                'api_response_status' => $result['status'] ?? null,
+                'api_response_success' => $result['success'] ?? null,
                 'api_response_message' => $result['message'] ?? null,
                 'asset_id' => $id
             ]);
@@ -628,23 +674,23 @@ class UnitAssetController extends Controller
                 ]);
 
                 if (request()->ajax()) {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json(['success' => false, 'message' => $result['message'] ?? 'Authentication failed'], 401);
                 }
 
                 return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
-            // Check for API errors based on status flag
-            if (!isset($result['status']) || $result['status'] !== true) {
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
                 $errorMessage = $result['message'] ?? 'Failed to retrieve asset';
 
                 \Log::warning('Error during asset retrieval:', [
-                    'status' => $result['status'] ?? false,
+                    'success' => $result['success'] ?? false,
                     'message' => $errorMessage
                 ]);
 
                 if (request()->ajax()) {
-                    return response()->json(['error' => $errorMessage], 400);
+                    return response()->json(['success' => false, 'message' => $errorMessage], 400);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -656,7 +702,7 @@ class UnitAssetController extends Controller
                 $errorMessage = 'Asset not found or response data is invalid';
 
                 if (request()->ajax()) {
-                    return response()->json(['error' => $errorMessage], 404);
+                    return response()->json(['success' => false, 'message' => $errorMessage], 404);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -681,12 +727,24 @@ class UnitAssetController extends Controller
                 ]);
                 $brands = $brandsResult['data'] ?? [];
 
+                // Fetch asset masters
+                $assetMastersResult = $this->apiService->request('GET', '/asset-masters', [
+                    'query' => [
+                        'limit' => 100,
+                        'sort_by' => 'asset_master_id',
+                        'sort_order' => 'asc'
+                    ]
+                ]);
+                $assetMasters = $assetMastersResult['data'] ?? [];
+
                 // Return complete data set for the modal
                 return response()->json([
-                    'asset' => $asset,
+                    'success' => true,
+                    'data' => $asset,
                     'subcategories' => $subcategories,
                     'rooms' => $rooms,
-                    'brands' => $brands
+                    'brands' => $brands,
+                    'assetMasters' => $assetMasters
                 ]);
             }
 
@@ -702,7 +760,7 @@ class UnitAssetController extends Controller
             ]);
 
             if (request()->ajax()) {
-                return response()->json(['error' => $errorMessage], 500);
+                return response()->json(['success' => false, 'message' => $errorMessage], 500);
             }
 
             return redirect()->back()->with('error', $errorMessage);
@@ -747,12 +805,12 @@ class UnitAssetController extends Controller
             }
 
             // Check for other API errors
-            if (isset($result['error']) || (isset($result['status']) && $result['status'] === false)) {
+            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
                 $errorMessage = $result['message'] ?? 'Failed to generate barcode';
 
                 \Log::warning('Error during barcode generation:', [
                     'error' => $result['error'] ?? null,
-                    'status' => $result['status'] ?? null,
+                    'success' => $result['success'] ?? null,
                     'message' => $errorMessage
                 ]);
 
@@ -834,7 +892,7 @@ class UnitAssetController extends Controller
             ]);
 
             \Log::info('API response for bulk QR generation:', [
-                'status' => isset($result['status']) ? $result['status'] : 'not set',
+                'success' => isset($result['success']) ? $result['success'] : 'not set',
                 'message' => isset($result['message']) ? $result['message'] : 'no message',
                 'data_count' => isset($result['data']) ? count($result['data']) : 0
             ]);
@@ -849,7 +907,7 @@ class UnitAssetController extends Controller
             }
 
             // Check for other API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
+            if (!isset($result['success']) || $result['success'] !== true) {
                 \Log::error('API error in bulk QR generation:', [
                     'result' => $result
                 ]);
@@ -883,30 +941,38 @@ class UnitAssetController extends Controller
     public function printQRCodesPDF(Request $request)
     {
         try {
-            \Log::info('Attempting to print QR codes as PDF');
+            \Log::info('Attempting to print QR codes as PDF', [
+                'request_data' => $request->all()
+            ]);
 
-            // Get QR data from session or generate new data if asset_ids are provided
-            $qrData = session('qr_data', []);
+            // Clear any previous QR data from session to avoid using old data
+            session()->forget('qr_data');
 
-            // If QR data is not in session, check if we have asset_ids in the request
-            if (empty($qrData) && $request->has('asset_ids')) {
-                \Log::info('No QR data in session, generating from asset_ids');
+            // Always use the asset_ids from the current request
+            if (!$request->has('asset_ids')) {
+                return redirect()->back()->with('error', 'No assets selected for QR code printing');
+            }
 
                 // Parse asset IDs
                 $assetIds = $request->input('asset_ids');
                 if (is_string($assetIds)) {
                     // Make sure we're properly parsing the comma-separated list
                     $assetIds = array_map('trim', explode(',', $assetIds));
-                    $assetIds = array_filter($assetIds); // Remove any empty items
+                // Remove any empty items and convert to integers
+                $assetIds = array_map('intval', array_filter($assetIds));
+            }
+
+            if (empty($assetIds)) {
+                return redirect()->back()->with('error', 'No valid asset IDs found for QR code printing');
                 }
 
                 // Ensure we've got an array of IDs (log this for debugging)
-                \Log::info('Asset IDs for QR generation:', ['asset_ids' => $assetIds]);
+            \Log::info('Asset IDs for QR generation:', ['asset_ids' => $assetIds, 'count' => count($assetIds)]);
 
                 $qrSize = $request->input('qr_size', 50);
                 $quantity = $request->input('quantity', 1);
 
-                // Use apiService instead of direct Http facade to properly handle authentication
+            // Use apiService to generate QR codes for the selected assets
                 $result = $this->apiService->request('POST', "/assets/qr/generate-bulk", [
                     'json' => [
                         'asset_ids' => $assetIds,
@@ -915,14 +981,15 @@ class UnitAssetController extends Controller
                     ]
                 ]);
 
-                // Log the complete API request and response for debugging
+            // Log the API request and response for debugging
                 \Log::info('QR generation API request/response:', [
                     'request' => [
                         'asset_ids' => $assetIds,
                         'qr_size' => $qrSize,
                         'quantity' => $quantity
                     ],
-                    'response' => $result
+                'response_success' => $result['success'] ?? false,
+                'response_data_count' => isset($result['data']) ? count($result['data']) : 0
                 ]);
 
                 // Check for auth errors
@@ -934,35 +1001,28 @@ class UnitAssetController extends Controller
                     return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
                 }
 
-                if (isset($result['status']) && $result['status'] === true && isset($result['data'])) {
+                if (isset($result['success']) && $result['success'] === true && isset($result['data'])) {
                     \Log::info('Successfully generated QR codes from API', [
                         'count' => count($result['data']),
                         'asset_ids_in_response' => array_column($result['data'], 'asset_id')
                     ]);
 
                     $qrData = $result['data'];
-                    session(['qr_data' => $qrData]);
-
-                    \Log::info('QR data being stored in session:', [
-                        'qr_data_count' => count($result['data']),
-                        'qr_data_sample' => array_slice($result['data'], 0, min(5, count($result['data'])))
-                    ]);
                 } else {
                     \Log::error('Failed to generate QR codes from API', [
                         'result' => $result
                     ]);
                     return redirect()->back()->with('error', $result['message'] ?? 'Failed to generate QR codes');
-                }
             }
 
             if (empty($qrData)) {
-                return redirect()->back()->with('error', 'No QR code data found for printing');
+                return redirect()->back()->with('error', 'No QR code data returned from the API');
             }
 
             // Log what we have before processing
             \Log::info('Processing QR data for PDF:', [
                 'qr_count' => count($qrData),
-                'first_few_ids' => array_slice(array_column($qrData, 'asset_id'), 0, 5)
+                'first_few_ids' => array_slice(array_column($qrData, 'asset_id'), 0, min(5, count($qrData)))
             ]);
 
             // Fetch and embed QR images as base64
@@ -1059,7 +1119,7 @@ class UnitAssetController extends Controller
 
             // Log API responses for debugging
             \Log::info('API response for assets AJAX list:', [
-                'assets_status' => $assetsResult['status'] ?? null,
+                'assets_success' => $assetsResult['success'] ?? null,
                 'assets_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0
             ]);
 
@@ -1093,6 +1153,39 @@ class UnitAssetController extends Controller
 
                 if (!isset($asset['room']['building'])) {
                     $asset['room']['building'] = ['building_name' => '-'];
+                }
+
+                // Log asset structure to debug
+                \Log::debug('Asset structure:', [
+                    'asset_id' => $asset['asset_id'] ?? 'No ID',
+                    'asset_code' => $asset['asset_code'] ?? 'No Code',
+                    'asset_name' => $asset['asset_name'] ?? 'No Name',
+                    'asset_master' => $asset['asset_master'] ?? null,
+                    'subcategory' => $asset['subcategory'] ?? null
+                ]);
+
+                // If asset_name is not set but asset_master has a name, use it
+                if ((!isset($asset['asset_name']) || empty($asset['asset_name'])) &&
+                    isset($asset['asset_master']) && isset($asset['asset_master']['asset_master_name'])) {
+                    $asset['asset_name'] = $asset['asset_master']['asset_master_name'];
+                }
+
+                // If description is not set but asset_master has a description, use it
+                if ((!isset($asset['description']) || empty($asset['description'])) &&
+                    isset($asset['asset_master']) && isset($asset['asset_master']['description'])) {
+                    $asset['description'] = $asset['asset_master']['description'];
+                }
+
+                // For subcategory, we need to handle cases where it might be nested in asset_master
+                if (!isset($asset['subcategory']) || empty($asset['subcategory'])) {
+                    if (isset($asset['asset_master']) && isset($asset['asset_master']['subcategory'])) {
+                        $asset['subcategory'] = $asset['asset_master']['subcategory'];
+                    } elseif (isset($asset['asset_master']) && isset($asset['asset_master']['subcategory_id'])) {
+                        $subcatId = $asset['asset_master']['subcategory_id'];
+                        if (isset($subcategoryMap[$subcatId])) {
+                            $asset['subcategory'] = $subcategoryMap[$subcatId];
+                        }
+                    }
                 }
             }
 
