@@ -134,8 +134,8 @@
                                     <!-- Front side (Asset image) -->
                                     <div
                                         class="flip-card-front bg-[#D9D9D9] rounded-[20px] shadow-md flex items-center justify-center overflow-hidden relative w-full h-full">
-                                        @if(isset($asset['picture_path']) && $asset['picture_path'])
-                                            <img src="http://localhost:5000/public{{ $asset['picture_path'] }}"
+                                        @if(isset($asset['asset_master']['reference_image_path']) && $asset['asset_master']['reference_image_path'])
+                                            <img src="{{ config('app.backend_url') }}/public{{ $asset['asset_master']['reference_image_path'] }}"
                                                 alt="Asset Image" class="absolute inset-0 w-full h-full object-cover p-0"
                                                 style="object-position: center;"
                                                 onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4'); this.style.position='relative';">
@@ -170,6 +170,14 @@
                                             @if(isset($asset['qr_base64']))
                                                 <img src="{{ $asset['qr_base64'] }}" alt="Asset QR Code"
                                                     class="w-full h-full object-contain">
+                                            @elseif(isset($asset['qr_code']))
+                                                @php
+                                                    $backendUrl = rtrim(config('app.backend_url'), '/');
+                                                    $qrImageUrl = $backendUrl . '/public' . $asset['qr_code'];
+                                                @endphp
+                                                <img src="{{ $qrImageUrl }}" alt="Asset QR Code" 
+                                                    class="w-full h-full object-contain"
+                                                    onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('p-4');">
                                             @else
                                                 <div class="flex flex-col items-center justify-center text-gray-400">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none"
@@ -203,7 +211,7 @@
                             <!-- Asset identification - mobile layout with smaller text -->
                             <div class="flex flex-col items-center mt-4">
                                 <p class="text-sm font-medium text-center mt-1">{{ $asset['asset_code'] ?? '-' }}</p>
-                                <p class="text-sm font-medium text-center mt-2">{{ $asset['asset_name'] ?? '-' }}</p>
+                                <p class="text-sm font-medium text-center mt-2">{{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '-' }}</p>
                                 @php
                                     $statusColor = 'bg-gray-500';
                                     if (isset($asset['current_status'])) {
@@ -255,82 +263,92 @@
 
                         <!-- Asset Information -->
                         <div class="flex-1 mt-4 lg:mt-0">
-                            <h2 class="text-xl font-semibold text-[#203268] mb-4">Informasi Asset</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="mb-8">
+                                <h2 class="text-xl font-semibold text-[#203268] mb-5">Informasi Master Asset</h2>
+                                <div class="grid grid-cols-1 gap-4">
                                 <div class="space-y-4">
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Kategori</span>
-                                        <span>{{ $asset['subcategory']['asset_type'] ?? '-' }}</span>
+                                        <div class="flex items-center">
+                                            <span class="w-[180px] font-semibold">Asset Master Code</span>
+                                            <span>{{ $asset['asset_master']['asset_master_code'] ?? '-' }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Sub Kategori</span>
-                                        <span>{{ $asset['subcategory']['subcategory_name'] ?? '-' }}</span>
+                                        <div class="flex items-center">
+                                            <span class="w-[180px] font-semibold">Kategori</span>
+                                            <span>{{ $asset['asset_master']['asset_type'] ?? '-' }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Ruangan</span>
-                                        <span>{{ $asset['room']['room_name'] ?? '-' }}</span>
+                                        <div class="flex items-center">
+                                            <span class="w-[180px] font-semibold">Sub Kategori</span>
+                                            <span>{{ $asset['asset_master']['subcategory_name'] ?? '-' }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Gedung</span>
-                                        <span>{{ $asset['room']['building']['building_name'] ?? '-' }}</span>
+                                        <div class="flex items-center">
+                                            <span class="w-[180px] font-semibold">Merek</span>
+                                            <span>{{ $asset['asset_master']['brand_name'] ?? '-' }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Merek</span>
-                                        <span>{{ $asset['brand']['brand_name'] ?? '-' }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Tanggal Berakhir Garansi</span>
-                                        <span>{{ $asset['warranty_end_date'] ?? '-' }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Tanggal Hilang</span>
-                                        <span>
-                                            @if($asset['current_status'] === 'lost' && isset($asset['updated_at']))
-                                                                                    @php
-                                                                                        // Convert the timestamp to a more readable format
-                                                                                        $lostDate = \Carbon\Carbon::parse($asset['updated_at'])->format('Y-m-d');
-                                                                                    @endphp
-                                                                                    {{ $lostDate }}
-                                            @else
-                                                -
-                                            @endif
-                                        </span>
                                     </div>
-                                </div>
+                            
+                            <div class="mb-8">
+                                <h2 class="text-xl font-semibold text-[#203268] mb-5">Informasi Asset</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
                                 <div class="space-y-4">
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Nomor Model</span>
-                                        <span>{{ $asset['model_number'] ?? '-' }}</span>
+                                        <div class="flex items-center">
+                                            <span class="w-[180px] font-semibold">Ruangan</span>
+                                            <span>{{ $asset['room_name'] ?? '-' }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Nomor Seri</span>
+                                        <div class="flex items-start">
+                                            <span class="w-[180px] font-semibold pt-0.5">Gedung</span>
+                                            <span>{{ $asset['building_name'] ?? '-' }}</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="w-[180px] font-semibold">Kondisi</span>
+                                            <span>{{ ucfirst($asset['condition'] ?? '-') }}</span>
+                                        </div>
+                                        <div class="flex flex-col sm:flex-row sm:items-center">
+                                            <span class="w-full sm:w-[180px] font-semibold mb-1 sm:mb-0">Tanggal Berakhir Garansi</span>
+                                            <span>{{ $asset['warranty_end_date'] ?? '-' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center">
+                                            <span class="w-[180px] font-semibold">Nomor Seri</span>
                                         <span>{{ $asset['serial_number'] ?? '-' }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Harga Beli</span>
+                                        <div class="flex items-center">
+                                            <span class="w-[180px] font-semibold">Harga Beli</span>
                                         <span>{{ number_format((float) ($asset['purchase_cost'] ?? 0), 2) }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Tanggal Beli</span>
+                                        <div class="flex items-center">
+                                            <span class="w-[180px] font-semibold">Tanggal Beli</span>
                                         <span>{{ $asset['purchase_date'] ?? '-' }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Tanggal Dimusnahkan</span>
+                                        <div class="flex flex-col sm:flex-row sm:items-center">
+                                            <span class="w-full sm:w-[180px] font-semibold mb-1 sm:mb-0">Tanggal Dimusnahkan</span>
                                         <span>{{ $asset['current_status'] === 'disposed' ? ($asset['updated_at'] ?? '-') : '-' }}</span>
                                     </div>
-                                    <div class="flex">
-                                        <span class="w-[140px] font-semibold">Kondisi</span>
-                                        <span>{{ ucfirst($asset['condition'] ?? '-') }}</span>
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- Add Lost Date section if applicable -->
+                            @if($asset['current_status'] === 'lost')
+                            <div class="mb-6">
+                                <div class="flex flex-col sm:flex-row sm:items-center">
+                                    <span class="w-full sm:w-[180px] font-semibold mb-1 sm:mb-0">Tanggal Hilang</span>
+                                    <span>
+                                        @if(isset($asset['updated_at']))
+                                            @php
+                                                // Convert the timestamp to a more readable format
+                                                $lostDate = \Carbon\Carbon::parse($asset['updated_at'])->format('Y-m-d');
+                                            @endphp
+                                            {{ $lostDate }}
+                                        @else
+                                            -
+                                        @endif
+                                    </span>
                         </div>
                     </div>
-
-                    <!-- Description Section -->
-                    <div class="mt-4">
-                        <h2 class="text-xl font-semibold text-black mb-4">Deskripsi</h2>
-                        <p class="text-[#000000]">{{ $asset['description'] ?? '-' }}</p>
+                            @endif
+                        </div>
                     </div>
 
                     <!-- Tabs Section -->
@@ -425,11 +443,10 @@
                     id="editAssetModalContent">
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Ubah Asset</h2>
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT ASSET</h2>
                         <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
@@ -443,213 +460,170 @@
                         <div class="p-6">
                             <div class="space-y-4">
                                 <!-- Asset Information Section -->
-                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Asset</h3>
-
-                                <!-- Image upload -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Gambar Asset</label>
-                                    <div
-                                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
-                                        <div class="text-center">
-                                            <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                            </svg>
-                                            <p class="mt-1 text-sm text-gray-600">Unggah gambar Anda atau <span
-                                                    class="text-blue-600">cari</span></p>
-                                            <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
-                                        </div>
-                                        <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png"
-                                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                        <!-- Preview image in container -->
-                                        <div id="edit_preview-container" class="mt-4 w-full hidden">
-                                            <img id="edit_image_preview" class="max-h-40 mx-auto rounded-lg object-contain"
-                                                alt="Asset Image">
-                                        </div>
-                                    </div>
-                                </div>
+                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Asset Information</h3>
 
                                 <!-- Basic Asset Details -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Nama Asset</label>
-                                        <input type="text" name="asset_name" id="edit_asset_name" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                            placeholder="Nama Asset">
-                                    </div>
+                                    <div class="mb-4">
+                                        <label for="edit_asset_master_search" class="block text-base font-semibold text-[#666666]">Asset Master</label>
+                                        <div class="relative">
+                                            <input type="text" id="edit_asset_master_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Search asset master..." autocomplete="off">
+                                            <input type="hidden" name="asset_master_id" id="edit_selected_asset_master_id">
+                                            <input type="hidden" id="edit_selected_is_depreciable" value="false">
 
-                                    <!-- Subcategory Dropdown -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Sub Kategori</label>
-                                        <select name="subcategory_id" id="edit_subcategory_id" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                            <option value="" disabled selected>Pilih sub kategori</option>
-                                            @if(isset($subcategories))
-                                                @foreach($subcategories as $subcategory)
-                                                    <option value="{{ $subcategory['subcategory_id'] }}">
-                                                        {{ $subcategory['subcategory_name'] }}
-                                                    </option>
-                                                @endforeach
-                                            @endif
-                                        </select>
+                                            <!-- Dropdown -->
+                                            <div id="edit_asset_master_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="edit_asset_master_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                                    <span>Loading asset masters...</span>
+                                        </div>
+                                                <ul id="edit_asset_master_list" class="py-1"></ul>
+                                        </div>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Kondisi</label>
-                                        <select name="condition" id="edit_condition" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                            <option value="baik">Baik</option>
-                                            <option value="sedikit rusak">Sedikit Rusak</option>
-                                            <option value="sangat rusak">Sangat Rusak</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Room Dropdown -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Ruangan</label>
-                                        <select name="room_id" id="edit_room_id" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                            <option value="" disabled selected>Pilih ruangan</option>
-                                            @foreach($rooms as $room)
-                                                <option value="{{ $room['room_id'] }}">
-                                                    {{ $room['room_name'] }} ({{ $room['building']['building_name'] ?? '-' }})
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
-                                    <textarea name="description" id="edit_description"
-                                        class="w-full h-[100px] px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] resize-none"
-                                        placeholder="Deskripsi Asset"></textarea>
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Nomor Model</label>
-                                        <input type="text" name="model_number" id="edit_model_number"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                            placeholder="Nomor Model">
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Nomor Seri</label>
-                                        <input type="text" name="serial_number" id="edit_serial_number"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                            placeholder="Nomor Seri">
+                                    <div class="mb-4">
+                                        <label for="edit_serial_number" class="block text-base font-semibold text-[#666666]">Serial Number</label>
+                                        <input type="text" name="serial_number" id="edit_serial_number" 
+                                            value="{{ $asset['serial_number'] ?? '' }}"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="Serial number">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Tanggal Beli</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Purchase Date</label>
                                         <input type="date" name="purchase_date" id="edit_purchase_date"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
+                                            value="{{ $asset['purchase_date'] ?? '' }}"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                     </div>
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Harga Beli</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Purchase Cost</label>
                                         <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
+                                            value="{{ $asset['purchase_cost'] ?? '0.00' }}"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="0.00">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Tanggal Berakhir
-                                            Garansi</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Warranty End Date</label>
                                         <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
+                                            value="{{ $asset['warranty_end_date'] ?? '' }}"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                     </div>
-                                    <!-- Brand Dropdown -->
+                                    <!-- Room Dropdown -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Merek</label>
-                                        <select name="brand_id" id="edit_brand_id" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                            <option value="" disabled selected>Pilih merek</option>
-                                            @foreach($brands as $brand)
-                                                <option value="{{ $brand['brand_id'] }}">{{ $brand['brand_name'] }}</option>
-                                            @endforeach
+                                        <label class="block text-base font-semibold text-[#666666]">Room</label>
+                                        <div class="relative">
+                                            <input type="text" id="edit_room_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Search for room..." autocomplete="off">
+                                            <input type="hidden" name="room_id" id="edit_selected_room_id" value="{{ $asset['room_id'] ?? '' }}">
+                                            <div id="edit_room_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="edit_room_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Loading rooms...</span>
+                                    </div>
+                                                <ul id="edit_room_list" class="py-1"></ul>
+                                </div>
+                                    </div>
+                                        <div id="edit_selected_room_display" class="hidden">
+                                            <span id="edit_selected_room_name"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Condition</label>
+                                        <select name="condition" id="edit_condition" required
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                            <option value="good" {{ $asset['condition'] == 'good' ? 'selected' : '' }}>Good</option>
+                                            <option value="slightly damage" {{ $asset['condition'] == 'slightly damage' ? 'selected' : '' }}>Slightly Damage</option>
+                                            <option value="high damage" {{ $asset['condition'] == 'high damage' ? 'selected' : '' }}>Highly Damage</option>
                                         </select>
                                     </div>
+                                    <!-- User ID Field -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Karyawan yang Bertanggung Jawab</label>
+                                        <div class="relative">
+                                            <input type="text" id="edit_user_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Cari karyawan (nomor karyawan)..." autocomplete="off">
+                                            <input type="hidden" name="user_id" id="edit_selected_user_id" value="{{ $asset['user_id'] ?? '' }}">
+                                            <div id="edit_user_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="edit_user_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Loading users...</span>
+                                    </div>
+                                                <ul id="edit_user_list" class="py-1"></ul>
+                                </div>
+                                </div>
+                                    </div>
                                 </div>
 
-                                <!-- Depreciation Toggle Switch -->
-                                <div class="flex items-center justify-between border-t pt-4">
-                                    <label for="edit_is_depreciable" class="text-base font-semibold text-[#666666]">Aktifkan
-                                        Penyusutan Asset</label>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="is_depreciable" id="edit_is_depreciable"
-                                            class="sr-only peer depreciation-toggle" value="1">
-                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
-                                            peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
-                                            peer-checked:after:border-white after:content-[''] after:absolute
-                                            after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
-                                            after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                                            peer-checked:bg-[#213268]"></div>
-                                        <span class="ml-2 text-sm font-medium text-gray-900 depreciation-status">No</span>
-                                    </label>
-                                </div>
-
-                                <!-- Depreciation Fields (Hidden by default) -->
-                                <div id="edit_depreciation_fields"
-                                    class="space-y-4 hidden border rounded-lg p-4 border-dashed border-gray-300">
-                                    <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Penyusutan</h3>
+                                <!-- Depreciation Fields Section -->
+                                <div id="edit_depreciation_fields" class="space-y-4 border rounded-lg p-4 border-dashed border-gray-300 {{ $asset['asset_master']['is_depreciable'] ? '' : 'hidden' }}">
+                                    <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Depreciation Information</h3>
 
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Metode
-                                            Penyusutan</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Depreciation Method</label>
                                         <select name="depreciation_method" id="edit_depreciation_method"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                            <option value="Straight Line">Straight Line</option>
-                                            <option value="Double Declining Balance">Double Declining Balance</option>
-                                            <option value="150% Declining Balance">150% Declining Balance</option>
-                                            <option value="Sum of the Year's Digits">Sum of the Year's Digits</option>
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                            <option value="Straight Line" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Straight Line' ? 'selected' : '' }}>Straight Line</option>
+                                            <option value="Double Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Double Declining Balance' ? 'selected' : '' }}>Double Declining Balance</option>
+                                            <option value="150% Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == '150% Declining Balance' ? 'selected' : '' }}>150% Declining Balance</option>
+                                            <option value="Sum of the Year's Digits" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == "Sum of the Year's Digits" ? 'selected' : '' }}>Sum of the Year's Digits</option>
                                         </select>
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Harga
-                                                Perolehan</label>
-                                            <input type="number" step="0.01" name="acquisition_cost"
-                                                id="edit_acquisition_cost"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                                placeholder="0.00">
+                                            <label class="block text-base font-semibold text-[#666666]">Acquisition Cost</label>
+                                            <input type="number" step="0.01" name="acquisition_cost" id="edit_acquisition_cost"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="0.00" value="{{ isset($asset['depreciation']) ? $asset['depreciation']['acquisition_cost'] : '' }}">
                                         </div>
                                         <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Nilai Sisa</label>
+                                            <label class="block text-base font-semibold text-[#666666]">Salvage Value</label>
                                             <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                                placeholder="0.00">
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="0.00" value="{{ isset($asset['depreciation']) ? $asset['depreciation']['salvage_value'] : '' }}">
                                         </div>
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Usia Asset
-                                                (Bulan)</label>
+                                            <label class="block text-base font-semibold text-[#666666]">Asset Life (months)</label>
                                             <input type="number" name="asset_life_months" id="edit_asset_life_months"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                                placeholder="0">
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['asset_life_months'] : '' }}">
                                         </div>
                                         <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Tanggal
-                                                Perolehan</label>
+                                            <label class="block text-base font-semibold text-[#666666]">Date Acquired</label>
                                             <input type="date" name="date_acquired" id="edit_date_acquired"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}">
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Submit Button -->
-                                <button type="submit"
-                                    class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                    Perbarui
+                                <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                    Update
                                 </button>
                             </div>
                         </div>
@@ -718,9 +692,9 @@
                                     <select name="assigned_to" id="assigned_to" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
                                         <option value="" disabled selected>Pilih Karyawan</option>
-                                        @foreach($employees as $employee)
-                                            <option value="{{ $employee['employee_id'] }}">{{ $employee['first_name'] }}
-                                                {{ $employee['last_name'] }}
+                                        @foreach($users as $user)
+                                            <option value="{{ $user['user_id'] }}"> 
+                                                {{ $user['employee_number'] ? '(' . $user['employee_number'] . ')' : '' }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -1017,6 +991,66 @@
         </div>
     </div>
 
+    
+    <!-- Toast Notifications -->
+    @if(session('success'))
+    <div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
+        <div class="flex items-center">
+            <div class="py-1">
+                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold">Success!</p>
+                <p>{{ session('success') }}</p>
+            </div>
+            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            const notification = document.getElementById('successNotification');
+            if (notification) {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(function() {
+                    notification.remove();
+                }, 500);
+            }
+        }, 5000); // Hide after 5 seconds
+    </script>
+    @endif
+
+    @if(session('error'))
+    <div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
+        <div class="flex items-center">
+            <div class="py-1">
+                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold">Error!</p>
+                <p>{{ session('error') }}</p>
+            </div>
+            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            const notification = document.getElementById('errorNotification');
+            if (notification) {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(function() {
+                    notification.remove();
+                }, 500);
+            }
+        }, 5000); // Hide after 5 seconds
+    </script>
+    @endif
+
     <style>
         /* Flip card styling */
         .flip-card-container {
@@ -1044,7 +1078,56 @@
     </style>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create global usersData array
+            window.usersData = @json($users ?? []);
+
+            // Define a debounce function to limit how often a function is called
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+            
+            // Make debounce function available globally
+            window.debounce = debounce;
+
+            // Initialize all search components
+            function initSearchComponents() {
+                // Initialize room search functionality
+                initRoomSearch(
+                    document.getElementById('edit_room_search'),
+                    document.getElementById('edit_room_dropdown'),
+                    document.getElementById('edit_room_list'),
+                    document.getElementById('edit_room_loading'),
+                    document.getElementById('edit_selected_room_id'),
+                    document.getElementById('edit_selected_room_name'),
+                    document.getElementById('edit_selected_room_display')
+                );
+
+                // Initialize user search in edit modal
+                initUserSearch(
+                    document.getElementById('edit_user_search'),
+                    document.getElementById('edit_user_dropdown'),
+                    document.getElementById('edit_user_list'),
+                    document.getElementById('edit_user_loading'),
+                    document.getElementById('edit_selected_user_id')
+                );
+
+                // Initialize asset master search
+                initAssetMasterSearch(
+                    document.getElementById('edit_asset_master_search'),
+                    document.getElementById('edit_asset_master_dropdown'),
+                    document.getElementById('edit_asset_master_list'),
+                    document.getElementById('edit_asset_master_loading'),
+                    document.getElementById('edit_selected_asset_master_id'),
+                    document.getElementById('edit_selected_is_depreciable'),
+                    document.getElementById('edit_depreciation_fields')
+                );
+            }
+
             // Get flip card elements
             const flipCard = document.querySelector('.flip-card');
             const flipBtns = document.querySelectorAll('.flip-btn');
@@ -1055,6 +1138,12 @@
                     flipCard.classList.toggle('flipped');
                 });
             });
+
+            // Initialize asset master dropdown
+            initAssetMasterDropdown();
+            
+            // Initialize responsible employee dropdown
+            initUserDropdown();
 
             // Tab functionality
             const tabButtons = document.querySelectorAll('.tab-btn');
@@ -1090,6 +1179,158 @@
                     if (selectedTab) selectedTab.classList.remove('hidden');
                 });
             });
+
+            // Function to initialize asset master dropdown
+            function initAssetMasterDropdown() {
+                const assetMasterSearch = document.getElementById('edit_asset_master_search');
+                const assetMasterDropdown = document.getElementById('edit_asset_master_dropdown');
+                const assetMasterList = document.getElementById('edit_asset_master_list');
+                const selectedAssetMasterId = document.getElementById('edit_selected_asset_master_id');
+                const assetMasters = @json($assetMasters ?? []);
+                
+                if (!assetMasterSearch || !assetMasterDropdown || !assetMasterList) return;
+                
+                // Show dropdown on focus
+                assetMasterSearch.addEventListener('focus', function() {
+                    assetMasterDropdown.classList.remove('hidden');
+                    populateAssetMasterList(this.value);
+                });
+                
+                // Filter on input
+                assetMasterSearch.addEventListener('input', function() {
+                    populateAssetMasterList(this.value);
+                });
+                
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!assetMasterSearch.contains(e.target) && !assetMasterDropdown.contains(e.target)) {
+                        assetMasterDropdown.classList.add('hidden');
+                    }
+                });
+                
+                // Populate asset master list
+                function populateAssetMasterList(search) {
+                    const filteredAssetMasters = assetMasters.filter(am => {
+                        const name = am.asset_name || am.asset_master_name || '';
+                        return name.toLowerCase().includes(search.toLowerCase());
+                    });
+                    
+                    // Clear list
+                    assetMasterList.innerHTML = '';
+                    
+                    if (filteredAssetMasters.length === 0) {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-2 text-gray-500';
+                        li.textContent = 'No asset masters found';
+                        assetMasterList.appendChild(li);
+                        return;
+                    }
+                    
+                    // Add filtered asset masters
+                    filteredAssetMasters.forEach(am => {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                        const name = am.asset_name || am.asset_master_name || 'Asset Master ID: ' + am.asset_master_id;
+                        li.textContent = name;
+                        
+                        li.addEventListener('click', function() {
+                            selectedAssetMasterId.value = am.asset_master_id;
+                            assetMasterSearch.value = name;
+                            assetMasterDropdown.classList.add('hidden');
+                            
+                            // Set is_depreciable flag
+                            const isDepreciable = am.is_depreciable === true;
+                            document.getElementById('edit_selected_is_depreciable').value = isDepreciable.toString();
+                            
+                            // Toggle depreciation fields
+                            const depreciationFields = document.getElementById('edit_depreciation_fields');
+                            if (depreciationFields) {
+                                toggleDepreciationFields(depreciationFields, isDepreciable);
+                            }
+                        });
+                        
+                        assetMasterList.appendChild(li);
+                    });
+                }
+            }
+            
+            // Function to initialize user/employee dropdown
+            function initUserDropdown() {
+                const userSearch = document.getElementById('edit_user_search');
+                const userDropdown = document.getElementById('edit_user_dropdown');
+                const userList = document.getElementById('edit_user_list');
+                const selectedUserId = document.getElementById('edit_selected_user_id');
+                const users = @json($users ?? []);
+                
+                if (!userSearch || !userDropdown || !userList) return;
+                
+                // Show dropdown on focus
+                userSearch.addEventListener('focus', function() {
+                    userDropdown.classList.remove('hidden');
+                    populateUserList(this.value);
+                });
+                
+                // Filter on input
+                userSearch.addEventListener('input', function() {
+                    populateUserList(this.value);
+                });
+                
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!userSearch.contains(e.target) && !userDropdown.contains(e.target)) {
+                        userDropdown.classList.add('hidden');
+                    }
+                });
+                
+                // Populate user list
+                function populateUserList(search) {
+                    const filteredUsers = users.filter(user => {
+                        const name = user.name || '';
+                        const employeeNumber = user.employee_number || '';
+                        return name.toLowerCase().includes(search.toLowerCase()) || 
+                               employeeNumber.toLowerCase().includes(search.toLowerCase());
+                    });
+                    
+                    // Clear list
+                    userList.innerHTML = '';
+                    
+                    if (filteredUsers.length === 0) {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-2 text-gray-500';
+                        li.textContent = 'No users found';
+                        userList.appendChild(li);
+                        return;
+                    }
+                    
+                    // Add filtered users
+                    filteredUsers.forEach(user => {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                        
+                        let displayText = '';
+                        if (user.employee_number) {
+                            displayText = user.employee_number;
+                            if (user.name) {
+                                displayText += ' - ' + user.name;
+                            }
+                        } else if (user.name) {
+                            displayText = user.name;
+                        } else {
+                            displayText = 'User ID: ' + user.user_id;
+                        }
+                        
+                        li.textContent = displayText;
+                        
+                        li.addEventListener('click', function() {
+                            selectedUserId.value = user.user_id;
+                            userSearch.value = displayText;
+                            userDropdown.classList.add('hidden');
+                        });
+                        
+                        userList.appendChild(li);
+                    });
+                }
+            }
 
             // Asset Edit Modal Functionality
             function openModal(modal, content) {
@@ -1141,17 +1382,17 @@
 
                             if (data.error) {
                                 console.error('Error fetching asset:', data.error);
-                                alert('Failed to load asset data: ' + data.error);
                                 return;
                             }
 
-                            // Populate dropdowns with the fetched data
-                            populateSubcategories(data.subcategories);
-                            populateRooms(data.rooms);
-                            populateBrands(data.brands);
+                            if (!data.success) {
+                                console.error('Failed to fetch asset data:', data.message);
+                                return;
+                            }
 
                             // Set up the edit form with the data
-                            setupEditAssetForm(data.asset);
+                            // The data structure is different from assets.get route (data.data instead of data.asset)
+                            setupWithData(data.data);
 
                             // Open the modal
                             openModal(editModal, editModalContent);
@@ -1160,7 +1401,6 @@
                             // Reset loading state
                             editBtn.classList.remove('opacity-50', 'pointer-events-none');
                             console.error('Error fetching asset:', error);
-                            alert('Failed to load asset data. Please try again.');
                         });
                 });
             }
@@ -1265,7 +1505,7 @@
             }
 
             // Function to set up the edit form with data
-            window.setupEditAssetForm = function (asset) {
+            window.setupWithData = function (asset) {
                 console.log('Setting up edit asset form with data:', asset);
 
                 // Get form element
@@ -1275,16 +1515,13 @@
                     return;
                 }
 
-                // Set form action
-                form.action = `{{ route('asset.update', '') }}/${asset.asset_id}`;
+                // Set form action with the asset ID
+                form.action = "{{ route('asset.update', '') }}/" + asset.asset_id;
 
                 // Reset form first to clear any previous data
                 form.reset();
 
                 // Fill basic text inputs
-                document.getElementById('edit_asset_name').value = asset.asset_name || '';
-                document.getElementById('edit_description').value = asset.description || '';
-                document.getElementById('edit_model_number').value = asset.model_number || '';
                 document.getElementById('edit_serial_number').value = asset.serial_number || '';
                 document.getElementById('edit_purchase_cost').value = asset.purchase_cost || '';
 
@@ -1299,100 +1536,184 @@
                     document.getElementById('edit_warranty_end_date').value = warrantyDate;
                 }
 
-                // Set dropdown values
-                setSelectValue('edit_subcategory_id', asset.subcategory?.subcategory_id);
-                setSelectValue('edit_room_id', asset.room?.room_id);
-                setSelectValue('edit_brand_id', asset.brand?.brand_id);
+                // Set condition dropdown value
                 setSelectValue('edit_condition', asset.condition);
 
-                // Set depreciation toggle
-                const depreciableToggle = document.getElementById('edit_is_depreciable');
-                const depreciationStatus = document.querySelector('.depreciation-status');
-                const depreciationFields = document.getElementById('edit_depreciation_fields');
+                // Set asset master information
+                const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
+                if (assetMasterId) {
+                    document.getElementById('edit_selected_asset_master_id').value = assetMasterId;
 
-                if (depreciableToggle && depreciationFields) {
-                    // Set the toggle state based on asset data
-                    depreciableToggle.checked = asset.is_depreciable == 1;
-
-                    // Update the status text
-                    if (depreciationStatus) {
-                        depreciationStatus.textContent = asset.is_depreciable == 1 ? 'Yes' : 'No';
+                    // Set display name for asset master (trying multiple possible properties)
+                    let assetMasterName = '';
+                    if (asset.asset_master && asset.asset_master.asset_name) {
+                        assetMasterName = asset.asset_master.asset_name;
+                    } else if (asset.asset_master && asset.asset_master.asset_master_name) {
+                        assetMasterName = asset.asset_master.asset_master_name;
+                    } else if (asset.asset_master_name) {
+                        assetMasterName = asset.asset_master_name;
+                    } else {
+                        assetMasterName = 'Asset Master ID: ' + assetMasterId;
                     }
 
-                    // Show/hide depreciation fields based on toggle state
-                    if (asset.is_depreciable == 1) {
-                        depreciationFields.classList.remove('hidden');
+                    document.getElementById('edit_asset_master_search').value = assetMasterName;
+                    
+                    // Hide the loading indicator for asset master
+                    const assetMasterLoading = document.getElementById('edit_asset_master_loading');
+                    if (assetMasterLoading) {
+                        assetMasterLoading.classList.add('hidden');
+                    }
 
-                        // Enable fields
-                        const inputs = depreciationFields.querySelectorAll('input, select');
-                        inputs.forEach(input => {
-                            input.disabled = false;
-                            input.classList.remove('bg-gray-100');
-                        });
+                    // Set is_depreciable flag
+                    const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
+                    document.getElementById('edit_selected_is_depreciable').value = isDepreciable.toString();
 
-                        // Fill depreciation data if available
-                        if (asset.depreciation) {
-                            // Set depreciation method
-                            setSelectValue('edit_depreciation_method', asset.depreciation.depreciation_method);
-
-                            // Fill other depreciation fields
-                            document.getElementById('edit_acquisition_cost').value = asset.depreciation.acquisition_cost || '';
-                            document.getElementById('edit_salvage_value').value = asset.depreciation.salvage_value || '';
-                            document.getElementById('edit_asset_life_months').value = asset.depreciation.asset_life_months || '';
-
-                            // Handle date acquired
-                            if (asset.depreciation.date_acquired) {
-                                const dateAcquired = asset.depreciation.date_acquired.split(' ')[0];
-                                document.getElementById('edit_date_acquired').value = dateAcquired;
-                            }
-                        }
-                    } else {
-                        depreciationFields.classList.add('hidden');
-
-                        // Disable fields
-                        const inputs = depreciationFields.querySelectorAll('input, select');
-                        inputs.forEach(input => {
-                            input.disabled = true;
-                            input.classList.add('bg-gray-100');
-                        });
+                    // Show/hide depreciation fields based on is_depreciable
+                    const editDepreciationFields = document.getElementById('edit_depreciation_fields');
+                    if (editDepreciationFields) {
+                        toggleDepreciationFields(editDepreciationFields, isDepreciable);
                     }
                 }
 
-                // Handle image preview if available
-                if (asset.picture_path) {
-                    const imagePreview = document.getElementById('edit_image_preview');
-                    const previewContainer = document.getElementById('edit_preview-container');
+                // Set room information
+                if (asset.room_id) {
+                    // Set the hidden input value
+                    document.getElementById('edit_selected_room_id').value = asset.room_id;
 
-                    if (imagePreview && previewContainer) {
-                        // Define the base URL - using the confirmed server location
-                        const baseUrl = "http://localhost:5000/public";
-
-                        // Process the image URL
-                        let imageUrl = asset.picture_path;
-
-                        // If URL is not absolute, prepend the base URL
-                        if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('//')) {
-                            // Remove leading slash if present to avoid double slashes
-                            if (imageUrl.startsWith('/')) {
-                                imageUrl = imageUrl.substring(1);
-                            }
-                            imageUrl = `${baseUrl}/${imageUrl}`;
+                    // Set the display name for the room
+                    let roomName = "Room ID: " + asset.room_id;
+                    if (asset.room) {
+                        const buildingName = asset.room.building ? asset.room.building.building_name : 
+                                          (asset.room.building_name ? asset.room.building_name : 'Unknown Building');
+                        roomName = `${asset.room.room_name} (${buildingName})`;
+                    } else if (asset.room_name) {
+                        roomName = `${asset.room_name} (${asset.building_name || 'Unknown Building'})`;
+                    } else {
+                        // Try to find the room in the available rooms data
+                        const rooms = @json($rooms ?? []);
+                        const selectedRoom = rooms.find(room => room.room_id == asset.room_id);
+                        if (selectedRoom) {
+                            const buildingName = selectedRoom.building ? selectedRoom.building.building_name : 
+                                               (selectedRoom.building_name || 'Unknown Building');
+                            roomName = `${selectedRoom.room_name} (${buildingName})`;
                         }
-
-                        // Set the image source and display it
-                        imagePreview.src = imageUrl;
-                        imagePreview.onerror = function () {
-                            this.onerror = null;
-                            this.src = '{{ asset('images/no-image.png') }}';
-                            this.classList.add('object-contain', 'p-4');
-                        };
-                        previewContainer.classList.remove('hidden');
                     }
-                } else {
-                    // Hide the preview if no image
-                    const previewContainer = document.getElementById('edit_preview-container');
-                    if (previewContainer) {
-                        previewContainer.classList.add('hidden');
+
+                    // Update the search input
+                    document.getElementById('edit_room_search').value = roomName;
+                    
+                    // Hide the loading indicator for room
+                    const roomLoading = document.getElementById('edit_room_loading');
+                    if (roomLoading) {
+                        roomLoading.classList.add('hidden');
+                    }
+                }
+
+                // Set user information (responsible employee)
+                if (asset.user_id) {
+                    // Log information for debugging
+                    console.log('Updating user field for user_id:', asset.user_id);
+
+                    // Set the hidden input for user ID
+                    document.getElementById('edit_selected_user_id').value = asset.user_id;
+
+                    // Find user in the global users data by user_id
+                    const users = @json($users ?? []);
+                    console.log('Available users data:', users);
+
+                    // Check if we have asset.user data from the API response
+                    if (asset.user) {
+                        console.log('User data from asset response:', asset.user);
+                        
+                        let userDisplay = '';
+                        
+                        // If we have employee_number, use it as display
+                        if (asset.user.employee_number) {
+                            userDisplay = asset.user.employee_number;
+                            
+                            // If we also have name, append it
+                            if (asset.user.name) {
+                                userDisplay += ` - ${asset.user.name}`;
+                            }
+                        } else if (asset.user.name) {
+                            // Just use name if no employee_number
+                            userDisplay = asset.user.name;
+                        } else {
+                            // Fallback to user ID
+                            userDisplay = `User ID: ${asset.user_id}`;
+                        }
+                        
+                        console.log('Setting user display to:', userDisplay);
+                        document.getElementById('edit_user_search').value = userDisplay;
+                    } else {
+                        // Try to find user in global data
+                        const user = users.find(u => u.user_id == asset.user_id);
+                        console.log('Found user in global data:', user);
+                        
+                        // Fallback to just user ID if no user info found
+                        let userDisplay = `User ID: ${asset.user_id}`;
+                        
+                        if (user) {
+                            if (user.employee_number) {
+                                userDisplay = user.employee_number;
+                                if (user.name) {
+                                    userDisplay += ` - ${user.name}`;
+                                }
+                            } else if (user.name) {
+                                userDisplay = user.name;
+                            }
+                        }
+                        
+                        console.log('Setting fallback user display to:', userDisplay);
+                        document.getElementById('edit_user_search').value = userDisplay;
+                    }
+                    
+                    // Hide the loading indicator for user
+                    const userLoading = document.getElementById('edit_user_loading');
+                    if (userLoading) {
+                        userLoading.classList.add('hidden');
+                    }
+                }
+
+                // Set depreciation data if available
+                if (asset.depreciation || (asset.asset_master && asset.asset_master.is_depreciable)) {
+                    const depreciationFields = document.getElementById('edit_depreciation_fields');
+                    
+                    if (depreciationFields) {
+                        // Show depreciation fields
+                        depreciationFields.classList.remove('hidden');
+                        
+                        // Enable inputs
+                        const inputs = depreciationFields.querySelectorAll('input, select');
+                        inputs.forEach(input => {
+                            input.disabled = false;
+                            input.required = asset.asset_master && asset.asset_master.is_depreciable;
+                        });
+                        
+                        // Fill in depreciation data if available
+                        if (asset.depreciation) {
+                            document.getElementById('edit_depreciation_method').value = asset.depreciation.depreciation_method || 'Straight Line';
+                            document.getElementById('edit_acquisition_cost').value = asset.depreciation.acquisition_cost || asset.purchase_cost || '0';
+                            document.getElementById('edit_salvage_value').value = asset.depreciation.salvage_value || '0';
+                            document.getElementById('edit_asset_life_months').value = asset.depreciation.asset_life_months || '12';
+                            
+                            if (asset.depreciation.date_acquired) {
+                                const dateAcquired = asset.depreciation.date_acquired.split(' ')[0];
+                                document.getElementById('edit_date_acquired').value = dateAcquired;
+                            } else if (asset.purchase_date) {
+                                document.getElementById('edit_date_acquired').value = asset.purchase_date.split(' ')[0];
+                            }
+                        } else {
+                            // If no depreciation data but asset is depreciable, set defaults
+                            document.getElementById('edit_depreciation_method').value = 'Straight Line';
+                            document.getElementById('edit_acquisition_cost').value = asset.purchase_cost || '0';
+                            document.getElementById('edit_salvage_value').value = '0';
+                            document.getElementById('edit_asset_life_months').value = '12';
+                            
+                            if (asset.purchase_date) {
+                                document.getElementById('edit_date_acquired').value = asset.purchase_date.split(' ')[0];
+                            }
+                        }
                     }
                 }
             }
@@ -1413,6 +1734,29 @@
                         select.selectedIndex = i;
                         return;
                     }
+                }
+            }
+
+            // Helper function to toggle depreciation fields
+            function toggleDepreciationFields(depreciationFields, isVisible) {
+                if (isVisible) {
+                    depreciationFields.classList.remove('hidden');
+                    
+                    // Enable all inputs
+                    const inputs = depreciationFields.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        input.disabled = false;
+                        input.required = true;
+                    });
+                } else {
+                    depreciationFields.classList.add('hidden');
+                    
+                    // Disable all inputs
+                    const inputs = depreciationFields.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        input.disabled = true;
+                        input.required = false;
+                    });
                 }
             }
 
@@ -1562,7 +1906,7 @@
                             submitBtn.disabled = false;
                             submitBtn.textContent = 'Checkout';
 
-                            if (data.status === true) {
+                            if (data.success === true) {
                                 // Success - just close the modal and reload without alert
                                 closeModal(checkoutModal, checkoutModalContent);
                                 window.location.reload();
@@ -1645,7 +1989,7 @@
 
                     console.log('Sending check-in request:', requestData);
 
-                    // Send AJAX request
+                    // Send AJAX request for check-in
                     fetch("{{ route('asset.checkin') }}", {
                         method: 'POST',
                         headers: {
@@ -1659,7 +2003,7 @@
                             submitBtn.disabled = false;
                             submitBtn.textContent = 'Check In';
 
-                            if (data.status === true) {
+                            if (data.success === true) {
                                 // Success - just close the modal and reload without alert
                                 closeModal(checkinModal, checkinModalContent);
                                 window.location.reload();
@@ -1673,6 +2017,90 @@
                             submitBtn.textContent = 'Check In';
                             console.error('Error checking in asset:', error);
                             alert('Failed to check in asset. Please try again.');
+                        });
+
+                    // Send AJAX request for lost asset
+                    fetch("{{ route('asset.lost') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(requestData)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Report as Lost';
+
+                            if (data.success === true) {
+                                // Success - close the modal and reload without alert
+                                closeModal(lostModal, lostModalContent);
+                                window.location.reload();
+                            } else {
+                                // Error - keep alert for error messages
+                                alert('Error: ' + (data.message || 'Failed to report asset as lost'));
+                            }
+                        })
+                        .catch(error => {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Report as Lost';
+                            console.error('Error reporting asset as lost:', error);
+                            alert('Failed to report asset as lost. Please try again.');
+                        });
+
+                    // Send AJAX request for found asset
+                    fetch("{{ route('asset.found') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(requestData)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Found';
+
+                            if (data.success === true) {
+                                // Success - close the modal and reload without alert
+                                closeModal(foundAssetModal, foundAssetModalContent);
+                                window.location.reload();
+                            } else {
+                                // Error - keep alert for error messages
+                                alert('Error: ' + (data.message || 'Failed to report asset as found'));
+                            }
+                        });
+
+                    // Send AJAX request for dispose asset
+                    fetch("{{ route('asset.dispose') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(requestData)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Dispose Asset';
+
+                            if (data.success === true) {
+                                // Success - close the modal and reload
+                                closeModal(disposeAssetModal, disposeAssetModalContent);
+                                window.location.reload();
+                            } else {
+                                // Error - keep alert for error messages
+                                alert('Error: ' + (data.message || 'Failed to dispose asset'));
+                            }
+                        })
+                        .catch(error => {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Dispose Asset';
+                            console.error('Error disposing asset:', error);
+                            alert('Failed to dispose asset. Please try again.');
                         });
                 });
             }
@@ -1729,7 +2157,7 @@
                             submitBtn.disabled = false;
                             submitBtn.textContent = 'Report as Lost';
 
-                            if (data.status === true) {
+                            if (data.success === true) {
                                 // Success - close the modal and reload without alert
                                 closeModal(lostModal, lostModalContent);
                                 window.location.reload();
@@ -1796,7 +2224,7 @@
                             submitBtn.disabled = false;
                             submitBtn.textContent = 'Report as Found';
 
-                            if (data.status === true) {
+                            if (data.success === true) {
                                 // Success - close the modal and reload without alert
                                 closeModal(foundModal, foundModalContent);
                                 window.location.reload();
@@ -1874,7 +2302,7 @@
                             submitBtn.disabled = false;
                             submitBtn.textContent = 'Dispose Asset';
 
-                            if (data.status === true) {
+                            if (data.success === true) {
                                 // Success - close the modal and reload without alert
                                 closeModal(disposeModal, disposeModalContent);
                                 window.location.reload();
@@ -1935,7 +2363,534 @@
                     });
                 });
             }
+
+            // Initialize all search components
+            function initSearchComponents() {
+                // Initialize room search functionality
+                initRoomSearch(
+                    document.getElementById('edit_room_search'),
+                    document.getElementById('edit_room_dropdown'),
+                    document.getElementById('edit_room_list'),
+                    document.getElementById('edit_room_loading'),
+                    document.getElementById('edit_selected_room_id'),
+                    document.getElementById('edit_selected_room_name'),
+                    document.getElementById('edit_selected_room_display')
+                );
+
+                // Initialize user search in edit modal
+                initUserSearch(
+                    document.getElementById('edit_user_search'),
+                    document.getElementById('edit_user_dropdown'),
+                    document.getElementById('edit_user_list'),
+                    document.getElementById('edit_user_loading'),
+                    document.getElementById('edit_selected_user_id')
+                );
+
+                // Initialize asset master search
+                initAssetMasterSearch(
+                    document.getElementById('edit_asset_master_search'),
+                    document.getElementById('edit_asset_master_dropdown'),
+                    document.getElementById('edit_asset_master_list'),
+                    document.getElementById('edit_asset_master_loading'),
+                    document.getElementById('edit_selected_asset_master_id'),
+                    document.getElementById('edit_selected_is_depreciable'),
+                    document.getElementById('edit_depreciation_fields')
+                );
+            }
+
+            // Initialize room search functionality
+            function initRoomSearch(
+                searchInput,
+                dropdown,
+                roomList,
+                loadingIndicator,
+                selectedRoomId,
+                selectedRoomName,
+                roomDisplay
+            ) {
+                if (!searchInput || !dropdown || !roomList) return;
+
+                // Toggle dropdown visibility
+                searchInput.addEventListener('focus', function() {
+                    dropdown.classList.remove('hidden');
+                    if (roomList.children.length === 0) {
+                        loadRooms(''); // Initial load on focus
+                    }
+                });
+
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+
+                // Search input handler with debounce
+                const debouncedSearch = debounce(function(e) {
+                    loadRooms(e.target.value);
+                }, 300);
+
+                searchInput.addEventListener('input', debouncedSearch);
+
+                // Function to load rooms
+                async function loadRooms(searchTerm) {
+                    // Show loading indicator
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    roomList.innerHTML = '';
+
+                    try {
+                        // Use existing rooms data from server
+                        const rooms = @json($rooms ?? []);
+                        let filteredRooms = rooms;
+
+                        // Filter rooms if search term is provided
+                        if (searchTerm) {
+                            const search = searchTerm.toLowerCase();
+                            filteredRooms = rooms.filter(room => 
+                                (room.room_name && room.room_name.toLowerCase().includes(search)) || 
+                                (room.room_number && room.room_number.toLowerCase().includes(search)) ||
+                                (room.building && room.building.building_name && 
+                                 room.building.building_name.toLowerCase().includes(search))
+                            );
+                        }
+
+                        // Populate dropdown
+                        roomList.innerHTML = '';
+
+                        if (filteredRooms.length === 0) {
+                            const noResults = document.createElement('li');
+                            noResults.className = 'px-4 py-2 text-gray-500 italic';
+                            noResults.textContent = 'No rooms found';
+                            roomList.appendChild(noResults);
+                        } else {
+                            filteredRooms.forEach(item => {
+                                const li = document.createElement('li');
+                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                                
+                                // Get proper building name
+                                let buildingName = 'Unknown Building';
+                                
+                                if (item.building && item.building.building_name) {
+                                    // If we have the nested building object with name
+                                    buildingName = item.building.building_name;
+                                } else if (item.building_name) {
+                                    // If we have building_name at root level
+                                    buildingName = item.building_name;
+                                }
+
+                                const roomName = `${item.room_name} (${buildingName})`;
+
+                                li.textContent = roomName;
+                                li.setAttribute('data-id', item.room_id);
+                                li.setAttribute('data-name', roomName);
+
+                                li.addEventListener('click', function() {
+                                    // Set the selected room ID
+                                    selectedRoomId.value = this.getAttribute('data-id');
+                                    
+                                    // Update the display name if needed
+                                    if (selectedRoomName) {
+                                        selectedRoomName.value = this.getAttribute('data-name');
+                                    }
+                                    
+                                    // Update the room display if needed
+                                    if (roomDisplay) {
+                                        roomDisplay.textContent = this.getAttribute('data-name');
+                                    }
+
+                                    // Update the search input
+                                    searchInput.value = this.getAttribute('data-name');
+
+                                    // Hide dropdown
+                                    dropdown.classList.add('hidden');
+                                });
+
+                                roomList.appendChild(li);
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error loading rooms:', error);
+                        const errorItem = document.createElement('li');
+                        errorItem.className = 'px-4 py-2 text-red-500';
+                        errorItem.textContent = 'Error loading rooms';
+                        roomList.appendChild(errorItem);
+                    } finally {
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                    }
+                }
+            }
+
+            // Initialize user search functionality
+            function initUserSearch(
+                searchInput,
+                dropdown,
+                userList,
+                loadingIndicator,
+                selectedUserId
+            ) {
+                if (!searchInput || !dropdown || !userList) return;
+
+                // Toggle dropdown visibility
+                searchInput.addEventListener('focus', function() {
+                    dropdown.classList.remove('hidden');
+                    if (userList.children.length === 0) {
+                        loadUsers(''); // Initial load on focus
+                    }
+                });
+
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+
+                // Search input handler with debounce
+                const debouncedSearch = debounce(function(e) {
+                    loadUsers(e.target.value);
+                }, 300);
+
+                searchInput.addEventListener('input', debouncedSearch);
+
+                // Function to load users
+                async function loadUsers(searchTerm) {
+                    // Show loading indicator
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    userList.innerHTML = '';
+
+                    try {
+                        // Use locally available data instead of fetching from server
+                        let users = window.usersData || [];
+                        
+                        // Filter users based on search term
+                        if (searchTerm) {
+                            searchTerm = searchTerm.toLowerCase();
+                            users = users.filter(user => {
+                                return (user.employee_number && user.employee_number.toLowerCase().includes(searchTerm)) ||
+                                       (user.name && user.name.toLowerCase().includes(searchTerm)) ||
+                                       (user.user_id && user.user_id.toString().includes(searchTerm));
+                            });
+                        }
+
+                        // Populate dropdown
+                        userList.innerHTML = '';
+
+                        if (users.length === 0) {
+                            const noResults = document.createElement('li');
+                            noResults.className = 'px-4 py-2 text-gray-500 italic';
+                            noResults.textContent = 'No users found';
+                            userList.appendChild(noResults);
+                        } else {
+                            users.forEach(user => {
+                                const li = document.createElement('li');
+                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                                // Display employee_number with user's name if available
+                                let displayText = '';
+                                if (user.employee_number) {
+                                    displayText = user.employee_number;
+                                    if (user.name) {
+                                        displayText += ` - ${user.name}`;
+                                    }
+                                } else if (user.name) {
+                                    displayText = user.name;
+                                } else {
+                                    displayText = `User ID: ${user.user_id}`;
+                                }
+
+                                li.textContent = displayText;
+                                li.setAttribute('data-id', user.user_id);
+                                li.setAttribute('data-name', displayText);
+
+                                li.addEventListener('click', function() {
+                                    // Set the selected user ID and name
+                                    selectedUserId.value = this.getAttribute('data-id');
+
+                                    // Update the search input
+                                    searchInput.value = this.getAttribute('data-name');
+
+                                    // Hide dropdown
+                                    dropdown.classList.add('hidden');
+                                });
+
+                                userList.appendChild(li);
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error loading users:', error);
+                        const errorItem = document.createElement('li');
+                        errorItem.className = 'px-4 py-2 text-red-500';
+                        errorItem.textContent = 'Error loading users';
+                        userList.appendChild(errorItem);
+                    } finally {
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                    }
+                }
+            }
+
+            // Initialize asset master search functionality
+            function initAssetMasterSearch(
+                searchInput,
+                dropdown,
+                assetMasterList,
+                loadingIndicator,
+                selectedAssetMasterId,
+                selectedIsDepreciable,
+                depreciationFields
+            ) {
+                if (!searchInput || !dropdown || !assetMasterList) return;
+
+                // Toggle dropdown visibility
+                searchInput.addEventListener('focus', function() {
+                    dropdown.classList.remove('hidden');
+                    if (assetMasterList.children.length === 0) {
+                        loadAssetMasters(''); // Initial load on focus
+                    }
+                });
+
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+
+                // Search input handler with debounce
+                const debouncedSearch = debounce(function(e) {
+                    loadAssetMasters(e.target.value);
+                }, 300);
+
+                searchInput.addEventListener('input', debouncedSearch);
+
+                // Function to load asset masters
+                async function loadAssetMasters(searchTerm) {
+                    // Show loading indicator
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    assetMasterList.innerHTML = '';
+
+                    try {
+                        // Fetch asset masters data from the API
+                        const response = await fetch(`{{ route('asset-master.data') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`);
+                                    
+                                    if (!response.ok) {
+                            throw new Error('Failed to fetch asset masters');
+                                    }
+                                    
+                                    const result = await response.json();
+                        let assetMasters = result.masterAssets || [];
+
+                        // Populate dropdown
+                        assetMasterList.innerHTML = '';
+
+                        if (assetMasters.length === 0) {
+                            const noResults = document.createElement('li');
+                            noResults.className = 'px-4 py-2 text-gray-500 italic';
+                            noResults.textContent = 'No asset masters found';
+                            assetMasterList.appendChild(noResults);
+                        } else {
+                            assetMasters.forEach(item => {
+                                const li = document.createElement('li');
+                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                                const assetMasterName = item.asset_name || 'Unknown';
+
+                                li.textContent = assetMasterName;
+                                li.setAttribute('data-id', item.asset_master_id);
+                                li.setAttribute('data-name', assetMasterName);
+
+                                // Get is_depreciable value
+                                const isDepreciable = item.is_depreciable === true;
+
+                                li.setAttribute('data-depreciable', isDepreciable);
+
+                                li.addEventListener('click', function() {
+                                    // Set the selected asset master ID and name
+                                    selectedAssetMasterId.value = this.getAttribute('data-id');
+
+                                    // Update the search input
+                                    searchInput.value = this.getAttribute('data-name');
+
+                                    // Set is_depreciable flag
+                                    const isDepreciable = this.getAttribute('data-depreciable') === 'true';
+                                    selectedIsDepreciable.setAttribute('value', isDepreciable.toString());
+                                    // Trigger change event
+                                    const event = new Event('change');
+                                    selectedIsDepreciable.dispatchEvent(event);
+
+                                    // Show/hide depreciation fields based on is_depreciable
+                                    toggleDepreciationFields(depreciationFields, isDepreciable);
+
+                                    // Hide dropdown
+                                    dropdown.classList.add('hidden');
+                                });
+
+                                assetMasterList.appendChild(li);
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error loading asset masters:', error);
+                        const errorItem = document.createElement('li');
+                        errorItem.className = 'px-4 py-2 text-red-500';
+                        errorItem.textContent = 'Error loading asset masters';
+                        assetMasterList.appendChild(errorItem);
+                    } finally {
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                    }
+                }
+            }
+
+            // Initialize event handlers for the edit modal
+            function initEditModalHandlers() {
+                // Initialize asset master search in edit modal
+                initAssetMasterSearch(
+                    document.getElementById('edit_asset_master_search'),
+                    document.getElementById('edit_asset_master_dropdown'),
+                    document.getElementById('edit_asset_master_list'),
+                    document.getElementById('edit_asset_master_loading'),
+                    document.getElementById('edit_selected_asset_master_id'),
+                    document.getElementById('edit_selected_is_depreciable'),
+                    document.getElementById('edit_depreciation_fields')
+                );
+            
+                // Initialize room search in edit modal
+                initRoomSearch(
+                    document.getElementById('edit_room_search'),
+                    document.getElementById('edit_room_dropdown'),
+                    document.getElementById('edit_room_list'),
+                    document.getElementById('edit_room_loading'),
+                    document.getElementById('edit_selected_room_id'),
+                    document.getElementById('edit_selected_room_name'),
+                    document.getElementById('edit_selected_room_display')
+                );
+
+                // Initialize user search in edit modal
+                initUserSearch(
+                    document.getElementById('edit_user_search'),
+                    document.getElementById('edit_user_dropdown'),
+                    document.getElementById('edit_user_list'),
+                    document.getElementById('edit_user_loading'),
+                    document.getElementById('edit_selected_user_id')
+                );
+
+                // Set up initial values
+                const roomId = document.getElementById('edit_selected_room_id').value;
+                if (roomId) {
+                    const rooms = @json($rooms ?? []);
+                    const selectedRoom = rooms.find(room => room.room_id == roomId);
+                    if (selectedRoom) {
+                        const buildingName = selectedRoom.building ? selectedRoom.building.building_name : 'Unknown Building';
+                        const roomName = `${selectedRoom.room_name} (${buildingName})`;
+                        document.getElementById('edit_room_search').value = roomName;
+                    }
+                }
+
+                const userId = document.getElementById('edit_selected_user_id').value;
+                if (userId) {
+                    const users = window.usersData || [];
+                    const selectedUser = users.find(user => user.user_id == userId);
+                    if (selectedUser) {
+                        let displayText = '';
+                        if (selectedUser.employee_number) {
+                            displayText = selectedUser.employee_number;
+                            if (selectedUser.name) {
+                                displayText += ` - ${selectedUser.name}`;
+                            }
+                        } else if (selectedUser.name) {
+                            displayText = selectedUser.name;
+                        } else {
+                            displayText = `User ID: ${selectedUser.user_id}`;
+                        }
+                        document.getElementById('edit_user_search').value = displayText;
+                    }
+                }
+
+                // Handle image preview
+                const imageFileInput = document.getElementById('edit_image_file');
+                const imagePreview = document.getElementById('edit_image_preview');
+                const previewContainer = document.getElementById('edit_preview-container');
+
+                if (imageFileInput && imagePreview && previewContainer) {
+                    // Show preview if asset has an image
+                    if ('{{ $asset["picture_path"] ?? "" }}') {
+                        imagePreview.src = '{{ config("app.backend_url") . "/public" . ($asset["picture_path"] ?? "") }}';
+                        previewContainer.classList.remove('hidden');
+                    }
+
+                    // Show image preview when new file is selected
+                    imageFileInput.addEventListener('change', function() {
+                        if (this.files && this.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                imagePreview.src = e.target.result;
+                                previewContainer.classList.remove('hidden');
+                            };
+                            reader.readAsDataURL(this.files[0]);
+                        }
+                    });
+                }
+            }
+
+            // Set up depreciation fields toggle based on asset_master data
+            const editDepreciationFields = document.getElementById('edit_depreciation_fields');
+            const isDepreciable = '{{ $asset["asset_master"]["is_depreciable"] ?? false }}' === '1';
+            if (editDepreciationFields) {
+                toggleDepreciationFields(editDepreciationFields, isDepreciable);
+            }
+
+            // Initialize all edit modal handlers
+            initEditModalHandlers();
         });
     </script>
-
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle toast notifications
+        @if(session('success'))
+            showToast("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showToast("{{ session('error') }}", 'error');
+        @endif
+
+        // Function to show toast notifications
+        window.showToast = function(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
+
+            if (type === 'success') {
+                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+            } else {
+                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+            }
+
+            toast.innerHTML = `
+                <div class="py-1">
+                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        ${type === 'success'
+                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                    <p>${message}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Auto-remove the toast after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => {
+                    toast.remove();
+                }, 500);
+            }, 5000);
+        }
+    });
+</script>
+@endpush

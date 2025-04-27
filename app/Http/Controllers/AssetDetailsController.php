@@ -35,7 +35,7 @@ class AssetDetailsController extends Controller
 
             // Log API response for debugging
             \Log::info('API response for asset details:', [
-                'api_response_status' => $result['status'] ?? null,
+                'api_response_status' => $result['success'] ?? null,
                 'api_response_message' => $result['message'] ?? null,
                 'asset_id' => $id
             ]);
@@ -50,12 +50,12 @@ class AssetDetailsController extends Controller
                 return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
-            // Check for API errors based on status flag
-            if (!isset($result['status']) || $result['status'] !== true) {
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
                 $errorMessage = $result['message'] ?? 'Failed to retrieve asset details';
 
                 \Log::warning('Error during asset details retrieval:', [
-                    'status' => $result['status'] ?? false,
+                    'success' => $result['success'] ?? false,
                     'message' => $errorMessage
                 ]);
 
@@ -68,6 +68,11 @@ class AssetDetailsController extends Controller
                 $errorMessage = 'Asset not found or response data is invalid';
                 return redirect()->back()->with('error', $errorMessage);
             }
+
+            // Log the complete asset structure for debugging
+            \Log::info('Complete asset data structure:', [
+                'asset' => $asset
+            ]);
 
             // Generate QR code for the asset using the bulk API endpoint
             if (isset($asset['asset_id'])) {
@@ -83,13 +88,13 @@ class AssetDetailsController extends Controller
                     ]);
 
                     \Log::info('QR code generation API response:', [
-                        'status' => $qrResult['status'] ?? null,
+                        'status' => $qrResult['success'] ?? null,
                         'message' => $qrResult['message'] ?? null,
                         'data_count' => isset($qrResult['data']) ? count($qrResult['data']) : 0
                     ]);
 
                     // If successful response with data, get the QR code for the asset
-                    if (isset($qrResult['status']) && $qrResult['status'] === true &&
+                    if (isset($qrResult['success']) && $qrResult['success'] === true &&
                         isset($qrResult['data']) && is_array($qrResult['data']) && count($qrResult['data']) > 0) {
 
                         // Find the QR data for this asset
@@ -119,6 +124,19 @@ class AssetDetailsController extends Controller
                                 }
                             }
                         }
+                    } else if (isset($asset['qr_code']) && !empty($asset['qr_code'])) {
+                        // If QR code is already provided in the asset data
+                        try {
+                            $backendUrl = rtrim(config('app.backend_url'), '/');
+                            $imageUrl = $backendUrl . "/public" . $asset['qr_code'];
+                            
+                            $imageData = @file_get_contents($imageUrl);
+                            if ($imageData !== false) {
+                                $asset['qr_base64'] = 'data:image/png;base64,' . base64_encode($imageData);
+                            }
+                        } catch (\Exception $qrImageEx) {
+                            \Log::error('Failed to load QR image from asset data: ' . $qrImageEx->getMessage());
+                        }
                     }
                 } catch (\Exception $qrEx) {
                     \Log::error('Exception during QR code generation:', [
@@ -145,9 +163,43 @@ class AssetDetailsController extends Controller
             $brandsResult = $this->apiService->request('GET', '/brands');
             $brands = $brandsResult['data'] ?? [];
 
-            // Fetch employees for employee dropdown
-            $employeesResult = $this->apiService->request('GET', '/employees');
-            $employees = $employeesResult['data'] ?? [];
+            // Fetch users/karyawan for responsible employee dropdown
+            $usersResult = $this->apiService->request('GET', '/users', [
+                'query' => [
+                    'limit' => 1000, // Get a larger set of users
+                    'sort_by' => 'employee_number',
+                    'sort_order' => 'asc'
+                ]
+            ]);
+            $users = $usersResult['data'] ?? [];
+            
+            // If there's a user_id in the asset data, fetch the complete user details
+            if (isset($asset['user_id']) && $asset['user_id']) {
+                try {
+                    $userResult = $this->apiService->request('GET', "/users/{$asset['user_id']}");
+                    if (isset($userResult['success']) && $userResult['success'] === true && isset($userResult['data'])) {
+                        // Add complete user details to the asset
+                        $asset['user'] = $userResult['data'];
+                        \Log::info('Enhanced user data for asset:', [
+                            'asset_id' => $id,
+                            'user_id' => $asset['user_id'],
+                            'employee_number' => $asset['user']['employee_number'] ?? 'not available'
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning("Error fetching user details: {$e->getMessage()}");
+                }
+            }
+            
+            // Fetch asset masters for the asset master dropdown
+            $assetMastersResult = $this->apiService->request('GET', '/asset-masters', [
+                'query' => [
+                    'limit' => 1000,
+                    'sort_by' => 'asset_master_id',
+                    'sort_order' => 'asc'
+                ]
+            ]);
+            $assetMasters = $assetMastersResult['data'] ?? [];
 
             // Return the view with asset details
             return view('Asset.AssetDetail', [
@@ -156,7 +208,8 @@ class AssetDetailsController extends Controller
                 'rooms' => $rooms,
                 'buildings' => $buildings,
                 'brands' => $brands,
-                'employees' => $employees,
+                'users' => $users,
+                'assetMasters' => $assetMasters,
             ]);
 
         } catch (\Exception $e) {
@@ -185,15 +238,15 @@ class AssetDetailsController extends Controller
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $result['message'] ?? 'Authentication failed'
                 ], 401);
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
+            if (!isset($result['success']) || $result['success'] !== true) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $result['message'] ?? 'Failed to retrieve asset details'
                 ], 400);
             }
@@ -209,7 +262,7 @@ class AssetDetailsController extends Controller
             ]);
 
             return response()->json([
-                'status' => false,
+                'success' => false,
                 'message' => 'Failed to retrieve asset details: ' . $e->getMessage()
             ], 500);
         }
@@ -231,30 +284,25 @@ class AssetDetailsController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            // Prepare asset data
+            // Prepare asset data with new format (flat structure)
             $assetData = [
                 'asset_id' => $id,
-                'asset_name' => $request->input('asset_name'),
-                'description' => $request->input('description'),
-                'subcategory_id' => (int)$request->input('subcategory_id'),
-                'model_number' => $request->input('model_number'),
                 'serial_number' => $request->input('serial_number'),
                 'purchase_date' => $request->input('purchase_date'),
-                'purchase_cost' => (float)$request->input('purchase_cost'),
+                'purchase_cost' => (float) $request->input('purchase_cost'),
                 'warranty_end_date' => $request->input('warranty_end_date'),
+                'user_id' => $request->input('user_id') ? (int) $request->input('user_id') : null,
                 'current_status' => $request->input('current_status', 'available'),
                 'condition' => $request->input('condition'),
-                'room_id' => (int)$request->input('room_id'),
-                'brand_id' => (int)$request->input('brand_id'),
-                'is_depreciable' => (bool)($request->input('is_depreciable') === '1')
+                'room_id' => (int) $request->input('room_id')
             ];
 
-            // If asset is depreciable, add depreciation fields directly to root object
-            if ($request->input('is_depreciable') === '1') {
+            // Add depreciation fields directly without checking is_depreciable
+            if ($request->has('depreciation_method')) {
                 $assetData['depreciation_method'] = $request->input('depreciation_method');
-                $assetData['acquisition_cost'] = (float)$request->input('acquisition_cost');
-                $assetData['salvage_value'] = (float)$request->input('salvage_value');
-                $assetData['asset_life_months'] = (int)$request->input('asset_life_months');
+                $assetData['acquisition_cost'] = (float) $request->input('acquisition_cost');
+                $assetData['salvage_value'] = (float) $request->input('salvage_value');
+                $assetData['asset_life_months'] = (int) $request->input('asset_life_months');
                 $assetData['date_acquired'] = $request->input('date_acquired');
             }
 
@@ -269,10 +317,19 @@ class AssetDetailsController extends Controller
 
                 // Send each asset data field individually in multipart
                 foreach ($assetData as $key => $value) {
-                    $multipartData[] = [
-                        'name' => $key,
-                        'contents' => is_array($value) ? json_encode($value) : $value
-                    ];
+                    // Convert values appropriately for multipart
+                    if (is_bool($value)) {
+                        $value = $value ? 'true' : 'false';
+                    } elseif (is_array($value)) {
+                        $value = json_encode($value);
+                    } elseif ($value === null) {
+                        $value = ''; // Convert null to empty string for multipart
+                    }
+
+                        $multipartData[] = [
+                            'name' => $key,
+                        'contents' => $value
+                        ];
                 }
 
                 // Add file upload
@@ -307,12 +364,10 @@ class AssetDetailsController extends Controller
 
             // Check for other API errors or unsuccessful responses
             if (isset($result['error']) ||
-                (isset($result['status']) && $result['status'] === false) ||
                 (isset($result['success']) && $result['success'] === false)) {
 
                 \Log::warning('Error during asset update:', [
                     'error' => $result['error'] ?? null,
-                    'status' => $result['status'] ?? null,
                     'success' => $result['success'] ?? null,
                     'message' => $result['message'] ?? 'Failed to update asset',
                     'errors' => $result['errors'] ?? []
@@ -406,19 +461,19 @@ class AssetDetailsController extends Controller
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $result['message'] ?? 'Authentication failed'
                 ], 401);
             }
 
             // Check for other API errors
             if (isset($result['error']) ||
-                (isset($result['status']) && $result['status'] === false)) {
+                (isset($result['success']) && $result['success'] === false)) {
 
                 $errorMessage = $result['message'] ?? 'Failed to checkout asset';
 
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $errorMessage
                 ], 400);
             }
@@ -433,7 +488,7 @@ class AssetDetailsController extends Controller
             ]);
 
             return response()->json([
-                'status' => false,
+                'success' => false,
                 'message' => 'Failed to checkout asset: ' . $e->getMessage()
             ], 500);
         }
@@ -473,19 +528,19 @@ class AssetDetailsController extends Controller
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $result['message'] ?? 'Authentication failed'
                 ], 401);
             }
 
             // Check for other API errors
             if (isset($result['error']) ||
-                (isset($result['status']) && $result['status'] === false)) {
+                (isset($result['success']) && $result['success'] === false)) {
 
                 $errorMessage = $result['message'] ?? 'Failed to check in asset';
 
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $errorMessage
                 ], 400);
             }
@@ -500,7 +555,7 @@ class AssetDetailsController extends Controller
             ]);
 
             return response()->json([
-                'status' => false,
+                'success' => false,
                 'message' => 'Failed to check in asset: ' . $e->getMessage()
             ], 500);
         }
@@ -539,19 +594,19 @@ class AssetDetailsController extends Controller
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $result['message'] ?? 'Authentication failed'
                 ], 401);
             }
 
             // Check for other API errors
             if (isset($result['error']) ||
-                (isset($result['status']) && $result['status'] === false)) {
+                (isset($result['success']) && $result['success'] === false)) {
 
                 $errorMessage = $result['message'] ?? 'Failed to report asset as lost';
 
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $errorMessage
                 ], 400);
             }
@@ -566,7 +621,7 @@ class AssetDetailsController extends Controller
             ]);
 
             return response()->json([
-                'status' => false,
+                'success' => false,
                 'message' => 'Failed to report asset as lost: ' . $e->getMessage()
             ], 500);
         }
@@ -605,19 +660,19 @@ class AssetDetailsController extends Controller
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $result['message'] ?? 'Authentication failed'
                 ], 401);
             }
 
             // Check for other API errors
             if (isset($result['error']) ||
-                (isset($result['status']) && $result['status'] === false)) {
+                (isset($result['success']) && $result['success'] === false)) {
 
                 $errorMessage = $result['message'] ?? 'Failed to report asset as found';
 
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $errorMessage
                 ], 400);
             }
@@ -632,7 +687,7 @@ class AssetDetailsController extends Controller
             ]);
 
             return response()->json([
-                'status' => false,
+                'success' => false,
                 'message' => 'Failed to report asset as found: ' . $e->getMessage()
             ], 500);
         }
@@ -673,19 +728,19 @@ class AssetDetailsController extends Controller
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $result['message'] ?? 'Authentication failed'
                 ], 401);
             }
 
             // Check for other API errors
             if (isset($result['error']) ||
-                (isset($result['status']) && $result['status'] === false)) {
+                (isset($result['success']) && $result['success'] === false)) {
 
                 $errorMessage = $result['message'] ?? 'Failed to dispose asset';
 
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $errorMessage
                 ], 400);
             }
@@ -700,7 +755,7 @@ class AssetDetailsController extends Controller
             ]);
 
             return response()->json([
-                'status' => false,
+                'success' => false,
                 'message' => 'Failed to dispose asset: ' . $e->getMessage()
             ], 500);
         }
