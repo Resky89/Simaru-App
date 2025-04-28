@@ -122,6 +122,15 @@
                                     <span class="text-sm">Ubah</span>
                                 </a>
                             @endif
+                            <!-- Add this button alongside the other action buttons -->
+                            <a href="{{ route('asset.export-pdf', ['id' => $asset['asset_id'] ?? '']) }}"
+                               class="flex items-center px-3 py-2 bg-[#213268] text-white rounded-lg text-sm hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200"
+                               target="_blank">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                                <span>Export PDF</span>
+                            </a>
                         </div>
                     </div>
 
@@ -672,7 +681,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="checkoutAssetForm" method="POST">
+                    <form id="checkoutAssetForm" method="POST" action="{{ route('asset.checkout') }}">
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">
@@ -709,15 +718,22 @@
                                 <!-- Employee Dropdown (shown when Employee radio is selected) -->
                                 <div id="employeeDropdown" class="space-y-2">
                                     <label class="block text-base font-medium text-[#666666]">Pilih Karyawan</label>
-                                    <select name="assigned_to" id="assigned_to" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                        <option value="" disabled selected>Pilih Karyawan</option>
-                                        @foreach($users as $user)
-                                            <option value="{{ $user['user_id'] }}">
-                                                {{ $user['employee_number'] ? '(' . $user['employee_number'] . ')' : '' }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="relative">
+                                        <input type="text" id="checkout_user_search"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
+                                            placeholder="Cari karyawan (nomor karyawan)..." autocomplete="off">
+                                        <input type="hidden" name="assigned_to" id="checkout_selected_user_id">
+                                        <div id="checkout_user_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                            <div id="checkout_user_loading" class="p-2 text-gray-500 text-center">
+                                                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span>Loading users...</span>
+                                            </div>
+                                            <ul id="checkout_user_list" class="py-1"></ul>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Location Dropdown (hidden by default) -->
@@ -785,7 +801,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="checkinAssetForm" method="POST">
+                    <form id="checkinAssetForm" method="POST" action="{{ route('asset.checkin') }}">
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">
@@ -851,7 +867,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="reportLostForm" method="POST">
+                    <form id="reportLostForm" method="POST" action="{{ route('asset.lost') }}">
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">
@@ -906,7 +922,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="foundAssetForm" method="POST">
+                    <form id="foundAssetForm" method="POST" action="{{ route('asset.found') }}">
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">
@@ -953,7 +969,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="disposeAssetForm" method="POST">
+                    <form id="disposeAssetForm" method="POST" action="{{ route('asset.dispose') }}">
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">
@@ -1042,35 +1058,6 @@
     </script>
     @endif
 
-    @if(session('error'))
-    <div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
-        <div class="flex items-center">
-            <div class="py-1">
-                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2 2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div>
-                <p class="font-bold">Error!</p>
-                <p>{{ session('error') }}</p>
-            </div>
-            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-        </div>
-    </div>
-
-    <script>
-        setTimeout(function() {
-            const notification = document.getElementById('errorNotification');
-            if (notification) {
-                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(function() {
-                    notification.remove();
-                }, 500);
-            }
-        }, 5000); // Hide after 5 seconds
-    </script>
-    @endif
-
     <style>
         /* Flip card styling */
         .flip-card-container {
@@ -1133,7 +1120,7 @@
                     method: method,
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'  // Add this to explicitly request JSON
+                        'Accept': 'application/json'
                     }
                 };
 
@@ -1148,7 +1135,14 @@
                         const contentType = response.headers.get('content-type');
                         if (contentType && contentType.includes('application/json')) {
                             return response.json().then(data => {
+                                // Enhanced success detection
                                 if (data.success === true) {
+                                    successCallback(data);
+                                } else if (data.message &&
+                                          (data.message.toLowerCase().includes('success') ||
+                                           data.message.toLowerCase().includes('successfully'))) {
+                                    // Handle responses that indicate success in the message but have success: false
+                                    data.success = true; // Fix the success flag
                                     successCallback(data);
                                 } else {
                                     errorCallback(data.message || 'Operation failed');
@@ -1249,6 +1243,15 @@
                     document.getElementById('edit_user_list'),
                     document.getElementById('edit_user_loading'),
                     document.getElementById('edit_selected_user_id')
+                );
+
+                // Checkout modal user search
+                initUserSearch(
+                    document.getElementById('checkout_user_search'),
+                    document.getElementById('checkout_user_dropdown'),
+                    document.getElementById('checkout_user_list'),
+                    document.getElementById('checkout_user_loading'),
+                    document.getElementById('checkout_selected_user_id')
                 );
 
                 // Asset master search
@@ -1583,63 +1586,26 @@
 
                     // Set up form submission handlers
                     if (modalObj.form) {
-                        // Ganti dengan kode berikut untuk form edit saja
-                        const formRoute = modalObj.form.getAttribute('action');
-                        modalObj.form.addEventListener('submit', function(e) {
-                            // Hanya lakukan AJAX untuk form yang bukan editAssetForm
-                            if (this.id === 'editAssetForm') {
-                                // Biarkan form di-submit secara normal, tidak perlu e.preventDefault()
-                                return true;
-                            }
+                        // Set the correct action URLs for each form type
+                        if (modalObj.form.id === 'checkoutAssetForm') {
+                            modalObj.form.action = "{{ route('asset.checkout') }}";
+                        } else if (modalObj.form.id === 'checkinAssetForm') {
+                            modalObj.form.action = "{{ route('asset.checkin') }}";
+                        } else if (modalObj.form.id === 'reportLostForm') {
+                            modalObj.form.action = "{{ route('asset.lost') }}";
+                        } else if (modalObj.form.id === 'foundAssetForm') {
+                            modalObj.form.action = "{{ route('asset.found') }}";
+                        } else if (modalObj.form.id === 'disposeAssetForm') {
+                            modalObj.form.action = "{{ route('asset.dispose') }}";
+                        }
 
-                            // AJAX handling untuk form lainnya tetap sama
-                            e.preventDefault();
-
-                            const submitBtn = this.querySelector('[type="submit"]');
-                            if (submitBtn) {
-                                const originalText = submitBtn.textContent;
-                                submitBtn.disabled = true;
-                                submitBtn.textContent = 'Processing...';
-
-                                const formData = new FormData(this);
-                                const requestData = {};
-
-                                for (const [key, value] of formData.entries()) {
-                                    // Handle checkboxes specially
-                                    if (key === 'checkout_to_type') {
-                                        // Special handling for checkout form
-                                        if (value === 'location') {
-                                            requestData.room_id = parseInt(formData.get('location_id') || 0);
-                                        } else {
-                                            requestData.assigned_to = parseInt(formData.get('assigned_to') || 0);
-                                        }
-                                        continue;
-                                    }
-
-                                    // Convert numeric strings to numbers
-                                    if (!isNaN(value) && value !== '' && key !== 'serial_number') {
-                                        requestData[key] = parseInt(value);
-                                    } else {
-                                        requestData[key] = value;
-                                    }
-                                }
-
-                                fetchWithAuth(
-                                    formRoute,
-                                    'POST',
-                                    requestData,
-                                    function(data) {
+                        // Add a close button event handler after form submission
+                        const closeBtn = modalObj.modal.querySelector('.close-modal');
+                        if (closeBtn) {
+                            closeBtn.addEventListener('click', function() {
                                         closeModal(modalObj.modal, modalObj.content);
-                                        window.location.reload();
-                                    },
-                                    function(errorMessage) {
-                                        alert('Error: ' + errorMessage);
-                                        submitBtn.disabled = false;
-                                        submitBtn.textContent = originalText;
-                                    }
-                                );
-                            }
-                        });
+                            });
+                        }
                     }
                 }
             });
@@ -1725,7 +1691,7 @@
                     if (this.checked) {
                         employeeDropdown.classList.remove('hidden');
                         locationDropdown.classList.add('hidden');
-                        document.getElementById('assigned_to').setAttribute('required', '');
+                        document.getElementById('checkout_selected_user_id').setAttribute('required', '');
                         document.getElementById('location_id').removeAttribute('required');
                     }
                 });
@@ -1735,7 +1701,7 @@
                         employeeDropdown.classList.add('hidden');
                         locationDropdown.classList.remove('hidden');
                         document.getElementById('location_id').setAttribute('required', '');
-                        document.getElementById('assigned_to').removeAttribute('required');
+                        document.getElementById('checkout_selected_user_id').removeAttribute('required');
                     }
                 });
             }
@@ -1938,7 +1904,7 @@
                     <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         ${type === 'success'
                             ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2 2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
                     </svg>
                 </div>
                 <div>

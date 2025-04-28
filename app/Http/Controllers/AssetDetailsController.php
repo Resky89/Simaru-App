@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
-use App\Http\Controllers\AssetDocumentController;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AssetDetailsController extends Controller
 {
@@ -200,6 +200,44 @@ class AssetDetailsController extends Controller
                 ]
             ]);
             $assetMasters = $assetMastersResult['data'] ?? [];
+
+            // Convert asset image to base64
+            if (!empty($asset['image_path'])) {
+                try {
+                    $backendUrl = config('app.backend_url', 'http://localhost:5000');
+                    $imageUrl = $backendUrl . '/public/images/' . basename($asset['image_path']);
+                    $imageData = file_get_contents($imageUrl);
+
+                    if ($imageData !== false) {
+                        // Store just the base64 encoded string (without data URL prefix)
+                        // The view will add the data:image/jpeg;base64, prefix
+                        $asset['image_base64'] = base64_encode($imageData);
+                        \Log::info('Successfully encoded image to base64', ['size' => strlen($asset['image_base64'])]);
+                    } else {
+                        \Log::warning('Failed to get image data', ['url' => $imageUrl]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Error loading image: ' . $e->getMessage());
+                }
+            }
+
+            // Convert QR code to base64 if needed
+            if (!empty($asset['qr_code_path'])) {
+                try {
+                    $backendUrl = config('app.backend_url', 'http://localhost:5000');
+                    $qrPath = $backendUrl . '/public/qrcodes/' . basename($asset['qr_code_path']);
+                    $qrData = file_get_contents($qrPath);
+                    if ($qrData !== false) {
+                        $asset['qr_base64'] = base64_encode($qrData);
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to get QR code for PDF:', [
+                        'error' => $e->getMessage(),
+                        'asset_id' => $id,
+                        'qr_path' => $asset['qr_code_path'] ?? 'N/A'
+                    ]);
+                }
+            }
 
             // Return the view with asset details
             return view('Asset.AssetDetail', [
@@ -491,10 +529,7 @@ class AssetDetailsController extends Controller
 
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
             // Check for other API errors
@@ -502,15 +537,12 @@ class AssetDetailsController extends Controller
                 (isset($result['success']) && $result['success'] === false)) {
 
                 $errorMessage = $result['message'] ?? 'Failed to checkout asset';
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 400);
+                return redirect()->back()->with('error', $errorMessage);
             }
 
             // Return successful response
-            return response()->json($result);
+            $successMessage = $result['message'] ?? 'Asset checked out successfully';
+            return redirect()->back()->with('success', $successMessage);
 
         } catch (\Exception $e) {
             \Log::error('Exception during asset checkout:', [
@@ -518,10 +550,7 @@ class AssetDetailsController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to checkout asset: ' . $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'Failed to checkout asset: ' . $e->getMessage());
         }
     }
 
@@ -529,7 +558,7 @@ class AssetDetailsController extends Controller
      * Check in (return) an asset.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function checkinAsset(Request $request)
     {
@@ -558,10 +587,7 @@ class AssetDetailsController extends Controller
 
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
             // Check for other API errors
@@ -569,15 +595,12 @@ class AssetDetailsController extends Controller
                 (isset($result['success']) && $result['success'] === false)) {
 
                 $errorMessage = $result['message'] ?? 'Failed to check in asset';
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 400);
+                return redirect()->back()->with('error', $errorMessage);
             }
 
             // Return successful response
-            return response()->json($result);
+            $successMessage = $result['message'] ?? 'Asset checked in successfully';
+            return redirect()->back()->with('success', $successMessage);
 
         } catch (\Exception $e) {
             \Log::error('Exception during asset check-in:', [
@@ -585,10 +608,7 @@ class AssetDetailsController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to check in asset: ' . $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'Failed to check in asset: ' . $e->getMessage());
         }
     }
 
@@ -596,7 +616,7 @@ class AssetDetailsController extends Controller
      * Report an asset as lost.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function reportAssetLost(Request $request)
     {
@@ -624,10 +644,7 @@ class AssetDetailsController extends Controller
 
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
             // Check for other API errors
@@ -635,15 +652,12 @@ class AssetDetailsController extends Controller
                 (isset($result['success']) && $result['success'] === false)) {
 
                 $errorMessage = $result['message'] ?? 'Failed to report asset as lost';
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 400);
+                return redirect()->back()->with('error', $errorMessage);
             }
 
             // Return successful response
-            return response()->json($result);
+            $successMessage = $result['message'] ?? 'Asset reported as lost successfully';
+            return redirect()->back()->with('success', $successMessage);
 
         } catch (\Exception $e) {
             \Log::error('Exception during reporting asset as lost:', [
@@ -651,10 +665,7 @@ class AssetDetailsController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to report asset as lost: ' . $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'Failed to report asset as lost: ' . $e->getMessage());
         }
     }
 
@@ -662,7 +673,7 @@ class AssetDetailsController extends Controller
      * Report an asset as found.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function reportAssetFound(Request $request)
     {
@@ -690,10 +701,7 @@ class AssetDetailsController extends Controller
 
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
             // Check for other API errors
@@ -701,15 +709,12 @@ class AssetDetailsController extends Controller
                 (isset($result['success']) && $result['success'] === false)) {
 
                 $errorMessage = $result['message'] ?? 'Failed to report asset as found';
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 400);
+                return redirect()->back()->with('error', $errorMessage);
             }
 
             // Return successful response
-            return response()->json($result);
+            $successMessage = $result['message'] ?? 'Asset reported as found successfully';
+            return redirect()->back()->with('success', $successMessage);
 
         } catch (\Exception $e) {
             \Log::error('Exception during reporting asset as found:', [
@@ -717,10 +722,7 @@ class AssetDetailsController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to report asset as found: ' . $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'Failed to report asset as found: ' . $e->getMessage());
         }
     }
 
@@ -728,7 +730,7 @@ class AssetDetailsController extends Controller
      * Dispose an asset.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function disposeAsset(Request $request)
     {
@@ -758,10 +760,7 @@ class AssetDetailsController extends Controller
 
             // Check for auth errors
             if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
             // Check for other API errors
@@ -769,15 +768,12 @@ class AssetDetailsController extends Controller
                 (isset($result['success']) && $result['success'] === false)) {
 
                 $errorMessage = $result['message'] ?? 'Failed to dispose asset';
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 400);
+                return redirect()->back()->with('error', $errorMessage);
             }
 
             // Return successful response
-            return response()->json($result);
+            $successMessage = $result['message'] ?? 'Asset disposed successfully';
+            return redirect()->back()->with('success', $successMessage);
 
         } catch (\Exception $e) {
             \Log::error('Exception during asset disposal:', [
@@ -785,10 +781,80 @@ class AssetDetailsController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to dispose asset: ' . $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'Failed to dispose asset: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export asset detail to PDF
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function exportAssetDetailPDF($id, Request $request)
+    {
+        try {
+            // Fetch asset details
+            $result = $this->apiService->request('GET', "/assets/{$id}");
+
+            if (!isset($result['data'])) {
+                return redirect()->route('assets.index')->with('error', 'Asset not found');
+            }
+
+            $asset = $result['data'];
+
+            // Convert asset image to base64
+            if (!empty($asset['asset_master']['reference_image_path'])) {
+                try {
+                    $imagePath = 'http://localhost:5000/public' . $asset['asset_master']['reference_image_path'];
+                    $imageData = file_get_contents($imagePath);
+                    if ($imageData !== false) {
+                        $asset['image_base64'] = base64_encode($imageData);
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to get asset image for PDF:', [
+                        'error' => $e->getMessage(),
+                        'asset_id' => $id,
+                        'image_path' => $asset['asset_master']['reference_image_path'] ?? 'N/A'
+                    ]);
+                }
+            }
+
+            // Convert QR code to base64
+            if (!empty($asset['qr_code'])) {
+                try {
+                    $qrPath = 'http://localhost:5000/public' . $asset['qr_code'];
+                    $qrData = file_get_contents($qrPath);
+                    if ($qrData !== false) {
+                        $asset['qr_base64'] = base64_encode($qrData);
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to get QR code for PDF:', [
+                        'error' => $e->getMessage(),
+                        'asset_id' => $id,
+                        'qr_path' => $asset['qr_code'] ?? 'N/A'
+                    ]);
+                }
+            }
+
+            // Generate PDF
+            $pdf = Pdf::loadView('Asset.AssetDetailPDF', [
+                'asset' => $asset,
+                'date_generated' => now()->format('d M Y H:i:s')
+            ]);
+
+            // Stream the PDF to browser
+            return $pdf->stream('asset_detail_' . $id . '_' . now()->format('YmdHis') . '.pdf');
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during asset detail PDF export:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'asset_id' => $id
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to export asset detail as PDF: ' . $e->getMessage());
         }
     }
 }

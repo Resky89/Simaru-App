@@ -325,6 +325,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::delete('/complaints/{id}', [ComplainRepairController::class, 'destroyComplaint'])->name('destroy');
         Route::post('/repairs', [ComplainRepairController::class, 'createRepair'])->name('repair.create');
     });
+
+    // Add this route
+    Route::get('/asset/{id}/export-pdf', [AssetDetailsController::class, 'exportAssetDetailPDF'])->name('asset.export-pdf');
 });
 
 // Fallback route for 404 errors
