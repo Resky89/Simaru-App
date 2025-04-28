@@ -26,6 +26,7 @@ use App\Http\Controllers\ComplainRepairController;
 use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\MasterAssetController;
+use App\Http\Controllers\ViewMasterAssetController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -147,6 +148,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::put('/{id}', [MasterAssetController::class, 'updateMasterAsset'])->name('asset-master.update');
         Route::delete('/{id}', [MasterAssetController::class, 'destroyMasterAsset'])->name('asset-master.destroy');
     });
+
+    // View Master Asset with linked assets
+    Route::get('/view-asset-master/{id}', [ViewMasterAssetController::class, 'getMasterAssetById'])->name('view-asset-master');
 
     // Asset direct routes
     Route::get('/asset/{id}', [AssetDetailsController::class, 'show'])->name('asset.details');
@@ -329,6 +333,10 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Add this route
     Route::get('/asset/{id}/export-pdf', [AssetDetailsController::class, 'exportAssetDetailPDF'])->name('asset.export-pdf');
 });
+
+// Edit routes for master assets
+Route::get('/asset-master/{id}/edit', [ViewMasterAssetController::class, 'editMasterAsset']);
+Route::put('/asset-master/{id}', [ViewMasterAssetController::class, 'updateMasterAsset'])->name('asset-master.update');
 
 // Fallback route for 404 errors
 Route::fallback(function () {

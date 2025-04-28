@@ -167,7 +167,7 @@
         </div>
 
         <div class="info-row">
-            <div class="info-label">Kategori:</div>
+            <div class="info-label">Tipe Asset:</div>
             <div class="info-value">{{ $asset['asset_master']['asset_type'] ?? $asset['asset_master']['category']['category_name'] ?? 'N/A' }}</div>
         </div>
 
@@ -179,6 +179,11 @@
         <div class="info-row">
             <div class="info-label">Merek:</div>
             <div class="info-value">{{ $asset['asset_master']['brand_name'] ?? $asset['asset_master']['brand']['brand_name'] ?? $asset['brand_name'] ?? 'N/A' }}</div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-label">Deskripsi:</div>
+            <div class="info-value">{{ $asset['asset_master']['description'] ?? 'Tidak ada deskripsi' }}</div>
         </div>
     </div>
 

@@ -281,7 +281,7 @@
                                             <span>{{ $asset['asset_master']['asset_master_code'] ?? '-' }}</span>
                                     </div>
                                         <div class="flex items-center">
-                                            <span class="w-[180px] font-semibold">Kategori</span>
+                                            <span class="w-[180px] font-semibold">Tipe Asset</span>
                                             <span>{{ $asset['asset_master']['asset_type'] ?? '-' }}</span>
                                     </div>
                                         <div class="flex items-center">
@@ -292,6 +292,10 @@
                                             <span class="w-[180px] font-semibold">Merek</span>
                                             <span>{{ $asset['asset_master']['brand_name'] ?? '-' }}</span>
                                     </div>
+                                        <div class="flex items-start">
+                                            <span class="w-[180px] font-semibold pt-0.5">Deskripsi</span>
+                                            <span class="flex-1">{{ $asset['asset_master']['description'] ?? 'Tidak ada deskripsi' }}</span>
+                                        </div>
                                     </div>
                                     </div>
                                     </div>
