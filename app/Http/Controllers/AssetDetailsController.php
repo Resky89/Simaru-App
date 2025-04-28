@@ -129,7 +129,7 @@ class AssetDetailsController extends Controller
                         try {
                             $backendUrl = rtrim(config('app.backend_url'), '/');
                             $imageUrl = $backendUrl . "/public" . $asset['qr_code'];
-                            
+
                             $imageData = @file_get_contents($imageUrl);
                             if ($imageData !== false) {
                                 $asset['qr_base64'] = 'data:image/png;base64,' . base64_encode($imageData);
@@ -172,7 +172,7 @@ class AssetDetailsController extends Controller
                 ]
             ]);
             $users = $usersResult['data'] ?? [];
-            
+
             // If there's a user_id in the asset data, fetch the complete user details
             if (isset($asset['user_id']) && $asset['user_id']) {
                 try {
@@ -190,7 +190,7 @@ class AssetDetailsController extends Controller
                     \Log::warning("Error fetching user details: {$e->getMessage()}");
                 }
             }
-            
+
             // Fetch asset masters for the asset master dropdown
             $assetMastersResult = $this->apiService->request('GET', '/asset-masters', [
                 'query' => [
@@ -359,6 +359,14 @@ class AssetDetailsController extends Controller
                     'error' => $result['error'],
                     'message' => $result['message'] ?? 'Authentication failed'
                 ]);
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $result['message'] ?? 'Authentication failed'
+                    ], 401);
+                }
+
                 return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
@@ -403,6 +411,13 @@ class AssetDetailsController extends Controller
                     }
                 }
 
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage
+                    ], 400);
+                }
+
                 return redirect()->back()
                     ->withInput()
                     ->with('error', $errorMessage);
@@ -410,6 +425,15 @@ class AssetDetailsController extends Controller
 
             // Successfully updated
             \Log::info('Asset updated successfully', ['asset_id' => $id]);
+
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Asset updated successfully',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
             return redirect()->route('asset.details', ['id' => $id])
                 ->with('success', 'Asset updated successfully');
         } catch (\Exception $e) {
@@ -418,6 +442,13 @@ class AssetDetailsController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'asset_id' => $id
             ]);
+
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to update asset: ' . $e->getMessage()
+                ], 500);
+            }
 
             return redirect()->back()
                 ->withInput()

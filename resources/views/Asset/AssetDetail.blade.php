@@ -175,7 +175,7 @@
                                                     $backendUrl = rtrim(config('app.backend_url'), '/');
                                                     $qrImageUrl = $backendUrl . '/public' . $asset['qr_code'];
                                                 @endphp
-                                                <img src="{{ $qrImageUrl }}" alt="Asset QR Code" 
+                                                <img src="{{ $qrImageUrl }}" alt="Asset QR Code"
                                                     class="w-full h-full object-contain"
                                                     onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('p-4');">
                                             @else
@@ -286,7 +286,7 @@
                                     </div>
                                     </div>
                                     </div>
-                            
+
                             <div class="mb-8">
                                 <h2 class="text-xl font-semibold text-[#203268] mb-5">Informasi Asset</h2>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
@@ -311,24 +311,44 @@
                                     <div class="space-y-4">
                                         <div class="flex items-center">
                                             <span class="w-[180px] font-semibold">Nomor Seri</span>
-                                        <span>{{ $asset['serial_number'] ?? '-' }}</span>
-                                    </div>
+                                            <span>{{ $asset['serial_number'] ?? '-' }}</span>
+                                        </div>
+                                        <!-- Add Employee Number for Responsible User -->
+                                        <div class="flex items-center">
+                                            <span class="w-[180px] font-semibold">Karyawan Penanggung Jawab</span>
+                                            <span>
+                                                @if(isset($asset['user_id']) && $asset['user_id'])
+                                                    @if(isset($asset['user']['employee_number']) && $asset['user']['employee_number'])
+                                                        {{ $asset['user']['employee_number'] }}
+                                                        @if(isset($asset['user']['name']) && $asset['user']['name'])
+                                                            - {{ $asset['user']['name'] }}
+                                                        @endif
+                                                    @elseif(isset($asset['user']['name']) && $asset['user']['name'])
+                                                        {{ $asset['user']['name'] }}
+                                                    @else
+                                                        User ID: {{ $asset['user_id'] }}
+                                                    @endif
+                                                @else
+                                                    -
+                                                @endif
+                                            </span>
+                                        </div>
                                         <div class="flex items-center">
                                             <span class="w-[180px] font-semibold">Harga Beli</span>
-                                        <span>{{ number_format((float) ($asset['purchase_cost'] ?? 0), 2) }}</span>
-                                    </div>
+                                            <span>{{ number_format((float) ($asset['purchase_cost'] ?? 0), 2) }}</span>
+                                        </div>
                                         <div class="flex items-center">
                                             <span class="w-[180px] font-semibold">Tanggal Beli</span>
-                                        <span>{{ $asset['purchase_date'] ?? '-' }}</span>
-                                    </div>
+                                            <span>{{ $asset['purchase_date'] ?? '-' }}</span>
+                                        </div>
                                         <div class="flex flex-col sm:flex-row sm:items-center">
                                             <span class="w-full sm:w-[180px] font-semibold mb-1 sm:mb-0">Tanggal Dimusnahkan</span>
-                                        <span>{{ $asset['current_status'] === 'disposed' ? ($asset['updated_at'] ?? '-') : '-' }}</span>
-                                    </div>
+                                            <span>{{ $asset['current_status'] === 'disposed' ? ($asset['updated_at'] ?? '-') : '-' }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Add Lost Date section if applicable -->
                             @if($asset['current_status'] === 'lost')
                             <div class="mb-6">
@@ -488,7 +508,7 @@
                                     </div>
                                     <div class="mb-4">
                                         <label for="edit_serial_number" class="block text-base font-semibold text-[#666666]">Serial Number</label>
-                                        <input type="text" name="serial_number" id="edit_serial_number" 
+                                        <input type="text" name="serial_number" id="edit_serial_number"
                                             value="{{ $asset['serial_number'] ?? '' }}"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="Serial number">
@@ -693,7 +713,7 @@
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
                                         <option value="" disabled selected>Pilih Karyawan</option>
                                         @foreach($users as $user)
-                                            <option value="{{ $user['user_id'] }}"> 
+                                            <option value="{{ $user['user_id'] }}">
                                                 {{ $user['employee_number'] ? '(' . $user['employee_number'] . ')' : '' }}
                                             </option>
                                         @endforeach
@@ -991,7 +1011,7 @@
         </div>
     </div>
 
-    
+
     <!-- Toast Notifications -->
     @if(session('success'))
     <div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
@@ -1027,7 +1047,7 @@
         <div class="flex items-center">
             <div class="py-1">
                 <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2 2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
             <div>
@@ -1079,10 +1099,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Create global usersData array
+            // Global data and utility functions
             window.usersData = @json($users ?? []);
 
-            // Define a debounce function to limit how often a function is called
+            // Debounce utility function
             function debounce(func, wait) {
                 let timeout;
                 return function(...args) {
@@ -1090,249 +1110,9 @@
                     timeout = setTimeout(() => func.apply(this, args), wait);
                 };
             }
-            
-            // Make debounce function available globally
             window.debounce = debounce;
 
-            // Initialize all search components
-            function initSearchComponents() {
-                // Initialize room search functionality
-                initRoomSearch(
-                    document.getElementById('edit_room_search'),
-                    document.getElementById('edit_room_dropdown'),
-                    document.getElementById('edit_room_list'),
-                    document.getElementById('edit_room_loading'),
-                    document.getElementById('edit_selected_room_id'),
-                    document.getElementById('edit_selected_room_name'),
-                    document.getElementById('edit_selected_room_display')
-                );
-
-                // Initialize user search in edit modal
-                initUserSearch(
-                    document.getElementById('edit_user_search'),
-                    document.getElementById('edit_user_dropdown'),
-                    document.getElementById('edit_user_list'),
-                    document.getElementById('edit_user_loading'),
-                    document.getElementById('edit_selected_user_id')
-                );
-
-                // Initialize asset master search
-                initAssetMasterSearch(
-                    document.getElementById('edit_asset_master_search'),
-                    document.getElementById('edit_asset_master_dropdown'),
-                    document.getElementById('edit_asset_master_list'),
-                    document.getElementById('edit_asset_master_loading'),
-                    document.getElementById('edit_selected_asset_master_id'),
-                    document.getElementById('edit_selected_is_depreciable'),
-                    document.getElementById('edit_depreciation_fields')
-                );
-            }
-
-            // Get flip card elements
-            const flipCard = document.querySelector('.flip-card');
-            const flipBtns = document.querySelectorAll('.flip-btn');
-
-            // Add click event to all flip buttons
-            flipBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    flipCard.classList.toggle('flipped');
-                });
-            });
-
-            // Initialize asset master dropdown
-            initAssetMasterDropdown();
-            
-            // Initialize responsible employee dropdown
-            initUserDropdown();
-
-            // Tab functionality
-            const tabButtons = document.querySelectorAll('.tab-btn');
-            const tabPanes = document.querySelectorAll('.tab-pane');
-
-            // Show the first tab by default
-            if (tabPanes.length > 0) {
-                tabPanes.forEach(pane => pane.classList.add('hidden'));
-                const firstTab = document.getElementById(tabButtons[0].getAttribute('data-tab'));
-                if (firstTab) firstTab.classList.remove('hidden');
-            }
-
-            tabButtons.forEach(btn => {
-                btn.addEventListener('click', function () {
-                    // Remove active class from all buttons
-                    tabButtons.forEach(button => {
-                        button.classList.remove('active', 'text-[#213268]', 'border-b-2', 'border-[#213268]');
-                        button.classList.add('text-gray-500');
-                    });
-
-                    // Add active class to clicked button
-                    this.classList.remove('text-gray-500');
-                    this.classList.add('active', 'text-[#213268]', 'border-b-2', 'border-[#213268]');
-
-                    // Hide all tab content
-                    tabPanes.forEach(pane => {
-                        pane.classList.add('hidden');
-                    });
-
-                    // Show selected tab content
-                    const tabName = this.getAttribute('data-tab');
-                    const selectedTab = document.getElementById(tabName);
-                    if (selectedTab) selectedTab.classList.remove('hidden');
-                });
-            });
-
-            // Function to initialize asset master dropdown
-            function initAssetMasterDropdown() {
-                const assetMasterSearch = document.getElementById('edit_asset_master_search');
-                const assetMasterDropdown = document.getElementById('edit_asset_master_dropdown');
-                const assetMasterList = document.getElementById('edit_asset_master_list');
-                const selectedAssetMasterId = document.getElementById('edit_selected_asset_master_id');
-                const assetMasters = @json($assetMasters ?? []);
-                
-                if (!assetMasterSearch || !assetMasterDropdown || !assetMasterList) return;
-                
-                // Show dropdown on focus
-                assetMasterSearch.addEventListener('focus', function() {
-                    assetMasterDropdown.classList.remove('hidden');
-                    populateAssetMasterList(this.value);
-                });
-                
-                // Filter on input
-                assetMasterSearch.addEventListener('input', function() {
-                    populateAssetMasterList(this.value);
-                });
-                
-                // Hide dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!assetMasterSearch.contains(e.target) && !assetMasterDropdown.contains(e.target)) {
-                        assetMasterDropdown.classList.add('hidden');
-                    }
-                });
-                
-                // Populate asset master list
-                function populateAssetMasterList(search) {
-                    const filteredAssetMasters = assetMasters.filter(am => {
-                        const name = am.asset_name || am.asset_master_name || '';
-                        return name.toLowerCase().includes(search.toLowerCase());
-                    });
-                    
-                    // Clear list
-                    assetMasterList.innerHTML = '';
-                    
-                    if (filteredAssetMasters.length === 0) {
-                        const li = document.createElement('li');
-                        li.className = 'px-4 py-2 text-gray-500';
-                        li.textContent = 'No asset masters found';
-                        assetMasterList.appendChild(li);
-                        return;
-                    }
-                    
-                    // Add filtered asset masters
-                    filteredAssetMasters.forEach(am => {
-                        const li = document.createElement('li');
-                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                        const name = am.asset_name || am.asset_master_name || 'Asset Master ID: ' + am.asset_master_id;
-                        li.textContent = name;
-                        
-                        li.addEventListener('click', function() {
-                            selectedAssetMasterId.value = am.asset_master_id;
-                            assetMasterSearch.value = name;
-                            assetMasterDropdown.classList.add('hidden');
-                            
-                            // Set is_depreciable flag
-                            const isDepreciable = am.is_depreciable === true;
-                            document.getElementById('edit_selected_is_depreciable').value = isDepreciable.toString();
-                            
-                            // Toggle depreciation fields
-                            const depreciationFields = document.getElementById('edit_depreciation_fields');
-                            if (depreciationFields) {
-                                toggleDepreciationFields(depreciationFields, isDepreciable);
-                            }
-                        });
-                        
-                        assetMasterList.appendChild(li);
-                    });
-                }
-            }
-            
-            // Function to initialize user/employee dropdown
-            function initUserDropdown() {
-                const userSearch = document.getElementById('edit_user_search');
-                const userDropdown = document.getElementById('edit_user_dropdown');
-                const userList = document.getElementById('edit_user_list');
-                const selectedUserId = document.getElementById('edit_selected_user_id');
-                const users = @json($users ?? []);
-                
-                if (!userSearch || !userDropdown || !userList) return;
-                
-                // Show dropdown on focus
-                userSearch.addEventListener('focus', function() {
-                    userDropdown.classList.remove('hidden');
-                    populateUserList(this.value);
-                });
-                
-                // Filter on input
-                userSearch.addEventListener('input', function() {
-                    populateUserList(this.value);
-                });
-                
-                // Hide dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!userSearch.contains(e.target) && !userDropdown.contains(e.target)) {
-                        userDropdown.classList.add('hidden');
-                    }
-                });
-                
-                // Populate user list
-                function populateUserList(search) {
-                    const filteredUsers = users.filter(user => {
-                        const name = user.name || '';
-                        const employeeNumber = user.employee_number || '';
-                        return name.toLowerCase().includes(search.toLowerCase()) || 
-                               employeeNumber.toLowerCase().includes(search.toLowerCase());
-                    });
-                    
-                    // Clear list
-                    userList.innerHTML = '';
-                    
-                    if (filteredUsers.length === 0) {
-                        const li = document.createElement('li');
-                        li.className = 'px-4 py-2 text-gray-500';
-                        li.textContent = 'No users found';
-                        userList.appendChild(li);
-                        return;
-                    }
-                    
-                    // Add filtered users
-                    filteredUsers.forEach(user => {
-                        const li = document.createElement('li');
-                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                        
-                        let displayText = '';
-                        if (user.employee_number) {
-                            displayText = user.employee_number;
-                            if (user.name) {
-                                displayText += ' - ' + user.name;
-                            }
-                        } else if (user.name) {
-                            displayText = user.name;
-                        } else {
-                            displayText = 'User ID: ' + user.user_id;
-                        }
-                        
-                        li.textContent = displayText;
-                        
-                        li.addEventListener('click', function() {
-                            selectedUserId.value = user.user_id;
-                            userSearch.value = displayText;
-                            userDropdown.classList.add('hidden');
-                        });
-                        
-                        userList.appendChild(li);
-                    });
-                }
-            }
-
-            // Asset Edit Modal Functionality
+            // Modal functionality
             function openModal(modal, content) {
                 modal.classList.remove('hidden');
                 setTimeout(() => {
@@ -1344,132 +1124,543 @@
             function closeModal(modal, content) {
                 content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
                 content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                }, 300);
+                setTimeout(() => modal.classList.add('hidden'), 300);
             }
 
-            // Setup Edit button
-            const editBtn = document.getElementById('editAssetBtn');
-            const editModal = document.getElementById('editAssetModal');
-            const editModalContent = document.getElementById('editAssetModalContent');
-
-            if (editBtn && editModal && editModalContent) {
-                editBtn.addEventListener('click', function () {
-                    // Get asset ID from current page
-                    const assetId = '{{ $asset["asset_id"] ?? "" }}';
-
-                    if (!assetId) {
-                        console.error('Asset ID not found');
-                        return;
+            // Common fetch handler
+            function fetchWithAuth(url, method, data, successCallback, errorCallback) {
+                const options = {
+                    method: method,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'  // Add this to explicitly request JSON
                     }
+                };
 
-                    // Show loading state
-                    editBtn.classList.add('opacity-50', 'pointer-events-none');
+                if (data) {
+                    options.headers['Content-Type'] = 'application/json';
+                    options.body = JSON.stringify(data);
+                }
 
-                    // Fetch asset data including subcategories, rooms, and brands from server
-                    fetch(`{{ route('assets.get', '') }}/${assetId}`, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
+                fetch(url, options)
+                    .then(response => {
+                        // Check content type before trying to parse as JSON
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            return response.json().then(data => {
+                                if (data.success === true) {
+                                    successCallback(data);
+                                } else {
+                                    errorCallback(data.message || 'Operation failed');
+                                }
+                            });
+                        } else {
+                            // Not JSON, handle as error
+                            return response.text().then(text => {
+                                console.error('Received non-JSON response:', text);
+                                showToast('Terjadi kesalahan pada server', 'error');
+                                errorCallback('Received non-JSON response from server');
+                            });
                         }
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            // Reset loading state
-                            editBtn.classList.remove('opacity-50', 'pointer-events-none');
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Terjadi kesalahan, silakan coba lagi', 'error');
+                        errorCallback('An error occurred. Please try again.');
+                    });
+            }
 
-                            if (data.error) {
-                                console.error('Error fetching asset:', data.error);
-                                return;
-                            }
+            // Toggle depreciation fields
+            function toggleDepreciationFields(depreciationFields, isVisible) {
+                if (!depreciationFields) return;
 
-                            if (!data.success) {
-                                console.error('Failed to fetch asset data:', data.message);
-                                return;
-                            }
+                depreciationFields.classList.toggle('hidden', !isVisible);
 
-                            // Set up the edit form with the data
-                            // The data structure is different from assets.get route (data.data instead of data.asset)
-                            setupWithData(data.data);
-
-                            // Open the modal
-                            openModal(editModal, editModalContent);
-                        })
-                        .catch(error => {
-                            // Reset loading state
-                            editBtn.classList.remove('opacity-50', 'pointer-events-none');
-                            console.error('Error fetching asset:', error);
-                        });
+                const inputs = depreciationFields.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.disabled = !isVisible;
+                    input.required = isVisible;
+                    input.classList.toggle('bg-gray-100', !isVisible);
                 });
             }
 
-            // Setup close buttons
-            const closeButtons = document.querySelectorAll('.close-modal');
-            closeButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const modal = this.closest('[id$="Modal"]');
-                    const content = modal.querySelector('[id$="ModalContent"]');
-                    if (modal && content) {
-                        closeModal(modal, content);
+            // Helper to set dropdown values
+            function setSelectValue(selectId, value) {
+                const select = document.getElementById(selectId);
+                if (!select || value === undefined || value === null) return;
+
+                const valueStr = String(value);
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === valueStr) {
+                        select.selectedIndex = i;
+                        return;
                     }
+                }
+            }
+
+            // Create dropdown item
+            function createDropdownItem(text, className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer') {
+                const li = document.createElement('li');
+                li.className = className;
+                li.textContent = text;
+                return li;
+            }
+
+            // Generic dropdown initialization
+            function initDropdown(searchInput, dropdown, list, onSearch) {
+                if (!searchInput || !dropdown || !list) return;
+
+                // Show dropdown on focus
+                searchInput.addEventListener('focus', function() {
+                    dropdown.classList.remove('hidden');
+                    onSearch(this.value);
+                });
+
+                // Filter on input with debounce
+                searchInput.addEventListener('input', debounce(function(e) {
+                    onSearch(e.target.value);
+                }, 300));
+
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Initialize search components with a unified approach
+            function initSearchComponents() {
+                // Room search
+                initRoomSearch(
+                    document.getElementById('edit_room_search'),
+                    document.getElementById('edit_room_dropdown'),
+                    document.getElementById('edit_room_list'),
+                    document.getElementById('edit_room_loading'),
+                    document.getElementById('edit_selected_room_id'),
+                    document.getElementById('edit_selected_room_name'),
+                    document.getElementById('edit_selected_room_display')
+                );
+
+                // User search
+                initUserSearch(
+                    document.getElementById('edit_user_search'),
+                    document.getElementById('edit_user_dropdown'),
+                    document.getElementById('edit_user_list'),
+                    document.getElementById('edit_user_loading'),
+                    document.getElementById('edit_selected_user_id')
+                );
+
+                // Asset master search
+                initAssetMasterSearch(
+                    document.getElementById('edit_asset_master_search'),
+                    document.getElementById('edit_asset_master_dropdown'),
+                    document.getElementById('edit_asset_master_list'),
+                    document.getElementById('edit_asset_master_loading'),
+                    document.getElementById('edit_selected_asset_master_id'),
+                    document.getElementById('edit_selected_is_depreciable'),
+                    document.getElementById('edit_depreciation_fields')
+                );
+            }
+
+            // Unified dropdown initialization functions
+            function initRoomSearch(searchInput, dropdown, roomList, loadingIndicator, selectedRoomId, selectedRoomName, roomDisplay) {
+                initDropdown(searchInput, dropdown, roomList, function(searchTerm) {
+                    loadRooms(searchTerm, roomList, loadingIndicator, selectedRoomId, selectedRoomName, roomDisplay, searchInput, dropdown);
+                });
+            }
+
+            function initUserSearch(searchInput, dropdown, userList, loadingIndicator, selectedUserId) {
+                initDropdown(searchInput, dropdown, userList, function(searchTerm) {
+                    loadUsers(searchTerm, userList, loadingIndicator, selectedUserId, searchInput, dropdown);
+                });
+            }
+
+            function initAssetMasterSearch(searchInput, dropdown, assetMasterList, loadingIndicator, selectedAssetMasterId, selectedIsDepreciable, depreciationFields) {
+                initDropdown(searchInput, dropdown, assetMasterList, function(searchTerm) {
+                    loadAssetMasters(searchTerm, assetMasterList, loadingIndicator, selectedAssetMasterId, selectedIsDepreciable, depreciationFields, searchInput, dropdown);
+                });
+            }
+
+            // Data loading functions
+            async function loadRooms(searchTerm, roomList, loadingIndicator, selectedRoomId, selectedRoomName, roomDisplay, searchInput, dropdown) {
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                roomList.innerHTML = '';
+
+                try {
+                    const rooms = @json($rooms ?? []);
+                    let filteredRooms = rooms;
+
+                    if (searchTerm) {
+                        const search = searchTerm.toLowerCase();
+                        filteredRooms = rooms.filter(room =>
+                            (room.room_name && room.room_name.toLowerCase().includes(search)) ||
+                            (room.room_number && room.room_number.toLowerCase().includes(search)) ||
+                            (room.building && room.building.building_name && room.building.building_name.toLowerCase().includes(search))
+                        );
+                    }
+
+                    if (filteredRooms.length === 0) {
+                        roomList.appendChild(createDropdownItem('No rooms found', 'px-4 py-2 text-gray-500 italic'));
+                    } else {
+                        filteredRooms.forEach(item => {
+                            let buildingName = 'Unknown Building';
+
+                            if (item.building && item.building.building_name) {
+                                buildingName = item.building.building_name;
+                            } else if (item.building_name) {
+                                buildingName = item.building_name;
+                            }
+
+                            const roomName = `${item.room_name} (${buildingName})`;
+                            const li = createDropdownItem(roomName);
+
+                            li.setAttribute('data-id', item.room_id);
+                            li.setAttribute('data-name', roomName);
+
+                            li.addEventListener('click', function() {
+                                selectedRoomId.value = this.getAttribute('data-id');
+                                if (selectedRoomName) selectedRoomName.value = this.getAttribute('data-name');
+                                if (roomDisplay) roomDisplay.textContent = this.getAttribute('data-name');
+                                searchInput.value = this.getAttribute('data-name');
+                                dropdown.classList.add('hidden');
+                            });
+
+                            roomList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading rooms:', error);
+                    roomList.appendChild(createDropdownItem('Error loading rooms', 'px-4 py-2 text-red-500'));
+                } finally {
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
+
+            async function loadUsers(searchTerm, userList, loadingIndicator, selectedUserId, searchInput, dropdown) {
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                userList.innerHTML = '';
+
+                try {
+                    let users = window.usersData || [];
+
+                    if (searchTerm) {
+                        searchTerm = searchTerm.toLowerCase();
+                        users = users.filter(user =>
+                            (user.employee_number && user.employee_number.toLowerCase().includes(searchTerm)) ||
+                            (user.name && user.name.toLowerCase().includes(searchTerm)) ||
+                            (user.user_id && user.user_id.toString().includes(searchTerm))
+                        );
+                    }
+
+                    if (users.length === 0) {
+                        userList.appendChild(createDropdownItem('No users found', 'px-4 py-2 text-gray-500 italic'));
+                    } else {
+                        users.forEach(user => {
+                            let displayText = '';
+                            if (user.employee_number) {
+                                displayText = user.employee_number;
+                                if (user.name) displayText += ` - ${user.name}`;
+                            } else if (user.name) {
+                                displayText = user.name;
+                            } else {
+                                displayText = `User ID: ${user.user_id}`;
+                            }
+
+                            const li = createDropdownItem(displayText);
+                            li.setAttribute('data-id', user.user_id);
+                            li.setAttribute('data-name', displayText);
+
+                            li.addEventListener('click', function() {
+                                selectedUserId.value = this.getAttribute('data-id');
+                                searchInput.value = this.getAttribute('data-name');
+                                dropdown.classList.add('hidden');
+                            });
+
+                            userList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                    userList.appendChild(createDropdownItem('Error loading users', 'px-4 py-2 text-red-500'));
+                } finally {
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
+
+            async function loadAssetMasters(searchTerm, assetMasterList, loadingIndicator, selectedAssetMasterId, selectedIsDepreciable, depreciationFields, searchInput, dropdown) {
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                assetMasterList.innerHTML = '';
+
+                try {
+                    const response = await fetch(`{{ route('asset-master.data') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`);
+
+                    if (!response.ok) throw new Error('Failed to fetch asset masters');
+
+                    const result = await response.json();
+                    let assetMasters = result.masterAssets || [];
+
+                    if (assetMasters.length === 0) {
+                        assetMasterList.appendChild(createDropdownItem('No asset masters found', 'px-4 py-2 text-gray-500 italic'));
+                    } else {
+                        assetMasters.forEach(item => {
+                            const assetMasterName = item.asset_name || 'Unknown';
+                            const li = createDropdownItem(assetMasterName);
+
+                            const isDepreciable = item.is_depreciable === true;
+                            li.setAttribute('data-id', item.asset_master_id);
+                            li.setAttribute('data-name', assetMasterName);
+                            li.setAttribute('data-depreciable', isDepreciable);
+
+                            li.addEventListener('click', function() {
+                                selectedAssetMasterId.value = this.getAttribute('data-id');
+                                searchInput.value = this.getAttribute('data-name');
+
+                                const isDepreciable = this.getAttribute('data-depreciable') === 'true';
+                                selectedIsDepreciable.setAttribute('value', isDepreciable.toString());
+
+                                const event = new Event('change');
+                                selectedIsDepreciable.dispatchEvent(event);
+
+                                toggleDepreciationFields(depreciationFields, isDepreciable);
+                                dropdown.classList.add('hidden');
+                            });
+
+                            assetMasterList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading asset masters:', error);
+                    assetMasterList.appendChild(createDropdownItem('Error loading asset masters', 'px-4 py-2 text-red-500'));
+                } finally {
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
+
+            // Initialize UI elements and event handlers
+            const flipCard = document.querySelector('.flip-card');
+            const flipBtns = document.querySelectorAll('.flip-btn');
+
+            flipBtns.forEach(btn => {
+                btn.addEventListener('click', () => flipCard.classList.toggle('flipped'));
+            });
+
+            // Initialize tabs
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            if (tabPanes.length > 0) {
+                tabPanes.forEach(pane => pane.classList.add('hidden'));
+                const firstTab = document.getElementById(tabButtons[0].getAttribute('data-tab'));
+                if (firstTab) firstTab.classList.remove('hidden');
+            }
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    tabButtons.forEach(button => {
+                        button.classList.remove('active', 'text-[#213268]', 'border-b-2', 'border-[#213268]');
+                        button.classList.add('text-gray-500');
+                    });
+
+                    this.classList.remove('text-gray-500');
+                    this.classList.add('active', 'text-[#213268]', 'border-b-2', 'border-[#213268]');
+
+                    tabPanes.forEach(pane => pane.classList.add('hidden'));
+
+                    const tabName = this.getAttribute('data-tab');
+                    const selectedTab = document.getElementById(tabName);
+                    if (selectedTab) selectedTab.classList.remove('hidden');
                 });
             });
 
-            // Close on outside click
-            if (editModal) {
-                editModal.addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        closeModal(editModal, editModalContent);
-                    }
+            // Setup modals
+            const modals = {
+                edit: {
+                    btn: document.getElementById('editAssetBtn'),
+                    modal: document.getElementById('editAssetModal'),
+                    content: document.getElementById('editAssetModalContent'),
+                    form: document.getElementById('editAssetForm')
+                },
+                checkout: {
+                    btn: document.getElementById('checkoutAssetBtn'),
+                    modal: document.getElementById('checkoutAssetModal'),
+                    content: document.getElementById('checkoutAssetModalContent'),
+                    form: document.getElementById('checkoutAssetForm')
+                },
+                checkin: {
+                    btn: document.getElementById('checkinAssetBtn'),
+                    modal: document.getElementById('checkinAssetModal'),
+                    content: document.getElementById('checkinAssetModalContent'),
+                    form: document.getElementById('checkinAssetForm')
+                },
+                lost: {
+                    btn: document.getElementById('lostAssetBtn'),
+                    modal: document.getElementById('reportLostModal'),
+                    content: document.getElementById('reportLostModalContent'),
+                    form: document.getElementById('reportLostForm')
+                },
+                found: {
+                    btn: document.getElementById('foundAssetBtn'),
+                    modal: document.getElementById('foundAssetModal'),
+                    content: document.getElementById('foundAssetModalContent'),
+                    form: document.getElementById('foundAssetForm')
+                },
+                dispose: {
+                    btn: document.getElementById('disposeAssetBtn'),
+                    modal: document.getElementById('disposeAssetModal'),
+                    content: document.getElementById('disposeAssetModalContent'),
+                    form: document.getElementById('disposeAssetForm')
+                }
+            };
+
+            // Close modal event handlers
+            const closeButtons = document.querySelectorAll('.close-modal');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const modal = this.closest('[id$="Modal"]');
+                    const content = modal.querySelector('[id$="ModalContent"]');
+                    if (modal && content) closeModal(modal, content);
                 });
-            }
+            });
+
+            // Initialize each modal
+            Object.keys(modals).forEach(key => {
+                const modalObj = modals[key];
+                if (modalObj.btn && modalObj.modal && modalObj.content) {
+                    modalObj.btn.addEventListener('click', function(e) {
+                        if (e.preventDefault) e.preventDefault();
+
+                        if (key === 'edit') {
+                            // Special handling for edit modal - fetch data first
+                            const assetId = '{{ $asset["asset_id"] ?? "" }}';
+                            if (!assetId) {
+                                console.error('Asset ID not found');
+                                return;
+                            }
+
+                            modalObj.btn.classList.add('opacity-50', 'pointer-events-none');
+
+                            fetch(`{{ route('assets.get', '') }}/${assetId}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    modalObj.btn.classList.remove('opacity-50', 'pointer-events-none');
+
+                                    if (data.error) {
+                                        console.error('Error fetching asset:', data.error);
+                                        return;
+                                    }
+
+                                    if (!data.success) {
+                                        console.error('Failed to fetch asset data:', data.message);
+                                        return;
+                                    }
+
+                                    setupWithData(data.data);
+                                    openModal(modalObj.modal, modalObj.content);
+                                })
+                                .catch(error => {
+                                    modalObj.btn.classList.remove('opacity-50', 'pointer-events-none');
+                                    console.error('Error fetching asset:', error);
+                                });
+                        } else {
+                            // Normal modal opening
+                            openModal(modalObj.modal, modalObj.content);
+                        }
+                    });
+
+                    // Close on outside click
+                    modalObj.modal.addEventListener('click', function(e) {
+                        if (e.target === this) {
+                            closeModal(modalObj.modal, modalObj.content);
+                        }
+                    });
+
+                    // Set up form submission handlers
+                    if (modalObj.form) {
+                        // Ganti dengan kode berikut untuk form edit saja
+                        const formRoute = modalObj.form.getAttribute('action');
+                        modalObj.form.addEventListener('submit', function(e) {
+                            // Hanya lakukan AJAX untuk form yang bukan editAssetForm
+                            if (this.id === 'editAssetForm') {
+                                // Biarkan form di-submit secara normal, tidak perlu e.preventDefault()
+                                return true;
+                            }
+
+                            // AJAX handling untuk form lainnya tetap sama
+                            e.preventDefault();
+
+                            const submitBtn = this.querySelector('[type="submit"]');
+                            if (submitBtn) {
+                                const originalText = submitBtn.textContent;
+                                submitBtn.disabled = true;
+                                submitBtn.textContent = 'Processing...';
+
+                                const formData = new FormData(this);
+                                const requestData = {};
+
+                                for (const [key, value] of formData.entries()) {
+                                    // Handle checkboxes specially
+                                    if (key === 'checkout_to_type') {
+                                        // Special handling for checkout form
+                                        if (value === 'location') {
+                                            requestData.room_id = parseInt(formData.get('location_id') || 0);
+                                        } else {
+                                            requestData.assigned_to = parseInt(formData.get('assigned_to') || 0);
+                                        }
+                                        continue;
+                                    }
+
+                                    // Convert numeric strings to numbers
+                                    if (!isNaN(value) && value !== '' && key !== 'serial_number') {
+                                        requestData[key] = parseInt(value);
+                                    } else {
+                                        requestData[key] = value;
+                                    }
+                                }
+
+                                fetchWithAuth(
+                                    formRoute,
+                                    'POST',
+                                    requestData,
+                                    function(data) {
+                                        closeModal(modalObj.modal, modalObj.content);
+                                        window.location.reload();
+                                    },
+                                    function(errorMessage) {
+                                        alert('Error: ' + errorMessage);
+                                        submitBtn.disabled = false;
+                                        submitBtn.textContent = originalText;
+                                    }
+                                );
+                            }
+                        });
+                    }
+                }
+            });
 
             // Handle depreciation toggle
             const depreciableToggle = document.getElementById('edit_is_depreciable');
             const depreciationFields = document.getElementById('edit_depreciation_fields');
 
             if (depreciableToggle && depreciationFields) {
-                depreciableToggle.addEventListener('change', function () {
+                depreciableToggle.addEventListener('change', function() {
                     const isChecked = this.checked;
                     const statusText = document.querySelector('.depreciation-status');
 
-                    if (statusText) {
-                        statusText.textContent = isChecked ? 'Yes' : 'No';
-                    }
+                    if (statusText) statusText.textContent = isChecked ? 'Yes' : 'No';
+                    toggleDepreciationFields(depreciationFields, isChecked);
 
-                    if (isChecked) {
-                        depreciationFields.classList.remove('hidden');
-
-                        // Enable input fields
-                        const inputs = depreciationFields.querySelectorAll('input, select');
-                        inputs.forEach(input => {
-                            input.disabled = false;
-                            input.classList.remove('bg-gray-100');
-                        });
-                    } else {
-                        depreciationFields.classList.add('hidden');
-
-                        // Disable input fields
-                        const inputs = depreciationFields.querySelectorAll('input, select');
-                        inputs.forEach(input => {
-                            input.disabled = true;
-                            input.classList.add('bg-gray-100');
-                        });
-                    }
-                });
-            }
-
-            // Add this event listener to handle automatic acquisition cost update when enabling depreciation
-            if (depreciableToggle) {
-                depreciableToggle.addEventListener('change', function () {
                     // If depreciation is being enabled, set acquisition cost to match purchase cost
-                    if (this.checked) {
+                    if (isChecked) {
                         const purchaseCost = document.getElementById('edit_purchase_cost').value || '0';
                         document.getElementById('edit_acquisition_cost').value = purchaseCost;
 
-                        // Also set date acquired to match purchase date if available
                         const purchaseDate = document.getElementById('edit_purchase_date').value;
                         if (purchaseDate) {
                             document.getElementById('edit_date_acquired').value = purchaseDate;
@@ -1478,65 +1669,116 @@
                 });
             }
 
-            // Also update acquisition cost whenever purchase cost changes
-            document.getElementById('edit_purchase_cost').addEventListener('input', function () {
-                // Only update if depreciation is enabled
-                if (document.getElementById('edit_is_depreciable').checked) {
-                    document.getElementById('edit_acquisition_cost').value = this.value;
-                }
-            });
-
-            // Handle image preview
-            const fileInput = document.getElementById('edit_image_file');
-            const imagePreview = document.getElementById('edit_image_preview');
-            const previewContainer = document.getElementById('edit_preview-container');
-
-            if (fileInput && imagePreview) {
-                fileInput.addEventListener('change', function () {
-                    if (this.files && this.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            imagePreview.src = e.target.result;
-                            previewContainer.classList.remove('hidden');
-                        }
-                        reader.readAsDataURL(this.files[0]);
+            // Update acquisition cost when purchase cost changes
+            const purchaseCostInput = document.getElementById('edit_purchase_cost');
+            if (purchaseCostInput) {
+                purchaseCostInput.addEventListener('input', function() {
+                    if (document.getElementById('edit_is_depreciable').checked) {
+                        document.getElementById('edit_acquisition_cost').value = this.value;
                     }
                 });
             }
 
-            // Function to set up the edit form with data
-            window.setupWithData = function (asset) {
+            // Building selector for room filtering
+            const buildingSelector = document.getElementById('building_selector');
+            if (buildingSelector) {
+                const allRooms = @json($rooms);
+
+                buildingSelector.addEventListener('change', function() {
+                    const selectedBuildingId = parseInt(this.value);
+                    const roomDropdown = document.getElementById('location_id');
+
+                    roomDropdown.innerHTML = '';
+
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.text = 'Select a room';
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    roomDropdown.appendChild(defaultOption);
+
+                    const filteredRooms = allRooms.filter(room =>
+                        room.building_id === selectedBuildingId ||
+                        (room.building && parseInt(room.building.building_id) === selectedBuildingId)
+                    );
+
+                    filteredRooms.forEach(room => {
+                        const option = document.createElement('option');
+                        option.value = room.room_id;
+                        option.text = room.room_name;
+                        roomDropdown.appendChild(option);
+                    });
+                });
+            }
+
+            // Initialize all components
+            initSearchComponents();
+
+            // Employee/location toggle in checkout modal
+            const employeeRadio = document.getElementById('employee');
+            const locationRadio = document.getElementById('location');
+            const employeeDropdown = document.getElementById('employeeDropdown');
+            const locationDropdown = document.getElementById('locationDropdown');
+
+            if (employeeRadio && locationRadio && employeeDropdown && locationDropdown) {
+                employeeRadio.addEventListener('change', function() {
+                    if (this.checked) {
+                        employeeDropdown.classList.remove('hidden');
+                        locationDropdown.classList.add('hidden');
+                        document.getElementById('assigned_to').setAttribute('required', '');
+                        document.getElementById('location_id').removeAttribute('required');
+                    }
+                });
+
+                locationRadio.addEventListener('change', function() {
+                    if (this.checked) {
+                        employeeDropdown.classList.add('hidden');
+                        locationDropdown.classList.remove('hidden');
+                        document.getElementById('location_id').setAttribute('required', '');
+                        document.getElementById('assigned_to').removeAttribute('required');
+                    }
+                });
+            }
+
+            // Set up depreciation fields toggle based on asset_master data
+            const editDepreciationFields = document.getElementById('edit_depreciation_fields');
+            const isDepreciable = '{{ $asset["asset_master"]["is_depreciable"] ?? false }}' === '1';
+            if (editDepreciationFields) {
+                toggleDepreciationFields(editDepreciationFields, isDepreciable);
+            }
+
+            // Set current date for checkout form
+            const checkoutDateInput = document.querySelector('input[name="checkout_date"]');
+            if (checkoutDateInput) {
+                checkoutDateInput.value = new Date().toISOString().split('T')[0];
+            }
+
+            // Global function to setup form with asset data
+            window.setupWithData = function(asset) {
                 console.log('Setting up edit asset form with data:', asset);
 
-                // Get form element
                 const form = document.getElementById('editAssetForm');
                 if (!form) {
                     console.error('Edit asset form not found');
                     return;
                 }
 
-                // Set form action with the asset ID
                 form.action = "{{ route('asset.update', '') }}/" + asset.asset_id;
-
-                // Reset form first to clear any previous data
                 form.reset();
 
-                // Fill basic text inputs
+                // Fill basic inputs
                 document.getElementById('edit_serial_number').value = asset.serial_number || '';
                 document.getElementById('edit_purchase_cost').value = asset.purchase_cost || '';
 
-                // Handle dates (ensure formatting is correct)
+                // Handle dates
                 if (asset.purchase_date) {
-                    const purchaseDate = asset.purchase_date.split(' ')[0]; // Get just the date part
-                    document.getElementById('edit_purchase_date').value = purchaseDate;
+                    document.getElementById('edit_purchase_date').value = asset.purchase_date.split(' ')[0];
                 }
 
                 if (asset.warranty_end_date) {
-                    const warrantyDate = asset.warranty_end_date.split(' ')[0]; // Get just the date part
-                    document.getElementById('edit_warranty_end_date').value = warrantyDate;
+                    document.getElementById('edit_warranty_end_date').value = asset.warranty_end_date.split(' ')[0];
                 }
 
-                // Set condition dropdown value
                 setSelectValue('edit_condition', asset.condition);
 
                 // Set asset master information
@@ -1544,7 +1786,6 @@
                 if (assetMasterId) {
                     document.getElementById('edit_selected_asset_master_id').value = assetMasterId;
 
-                    // Set display name for asset master (trying multiple possible properties)
                     let assetMasterName = '';
                     if (asset.asset_master && asset.asset_master.asset_name) {
                         assetMasterName = asset.asset_master.asset_name;
@@ -1557,18 +1798,13 @@
                     }
 
                     document.getElementById('edit_asset_master_search').value = assetMasterName;
-                    
-                    // Hide the loading indicator for asset master
-                    const assetMasterLoading = document.getElementById('edit_asset_master_loading');
-                    if (assetMasterLoading) {
-                        assetMasterLoading.classList.add('hidden');
-                    }
 
-                    // Set is_depreciable flag
+                    const assetMasterLoading = document.getElementById('edit_asset_master_loading');
+                    if (assetMasterLoading) assetMasterLoading.classList.add('hidden');
+
                     const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
                     document.getElementById('edit_selected_is_depreciable').value = isDepreciable.toString();
 
-                    // Show/hide depreciation fields based on is_depreciable
                     const editDepreciationFields = document.getElementById('edit_depreciation_fields');
                     if (editDepreciationFields) {
                         toggleDepreciationFields(editDepreciationFields, isDepreciable);
@@ -1577,1268 +1813,99 @@
 
                 // Set room information
                 if (asset.room_id) {
-                    // Set the hidden input value
                     document.getElementById('edit_selected_room_id').value = asset.room_id;
 
-                    // Set the display name for the room
                     let roomName = "Room ID: " + asset.room_id;
                     if (asset.room) {
-                        const buildingName = asset.room.building ? asset.room.building.building_name : 
-                                          (asset.room.building_name ? asset.room.building_name : 'Unknown Building');
+                        const buildingName = asset.room.building ? asset.room.building.building_name :
+                                            (asset.room.building_name ? asset.room.building_name : 'Unknown Building');
                         roomName = `${asset.room.room_name} (${buildingName})`;
                     } else if (asset.room_name) {
                         roomName = `${asset.room_name} (${asset.building_name || 'Unknown Building'})`;
                     } else {
-                        // Try to find the room in the available rooms data
                         const rooms = @json($rooms ?? []);
                         const selectedRoom = rooms.find(room => room.room_id == asset.room_id);
                         if (selectedRoom) {
-                            const buildingName = selectedRoom.building ? selectedRoom.building.building_name : 
-                                               (selectedRoom.building_name || 'Unknown Building');
+                            const buildingName = selectedRoom.building ? selectedRoom.building.building_name :
+                                                (selectedRoom.building_name || 'Unknown Building');
                             roomName = `${selectedRoom.room_name} (${buildingName})`;
                         }
                     }
 
-                    // Update the search input
                     document.getElementById('edit_room_search').value = roomName;
-                    
-                    // Hide the loading indicator for room
+
                     const roomLoading = document.getElementById('edit_room_loading');
-                    if (roomLoading) {
-                        roomLoading.classList.add('hidden');
-                    }
+                    if (roomLoading) roomLoading.classList.add('hidden');
                 }
 
-                // Set user information (responsible employee)
+                // Set user information
                 if (asset.user_id) {
-                    // Log information for debugging
-                    console.log('Updating user field for user_id:', asset.user_id);
-
-                    // Set the hidden input for user ID
                     document.getElementById('edit_selected_user_id').value = asset.user_id;
 
-                    // Find user in the global users data by user_id
-                    const users = @json($users ?? []);
-                    console.log('Available users data:', users);
+                    let userDisplay = `User ID: ${asset.user_id}`;
 
-                    // Check if we have asset.user data from the API response
                     if (asset.user) {
-                        console.log('User data from asset response:', asset.user);
-                        
-                        let userDisplay = '';
-                        
-                        // If we have employee_number, use it as display
                         if (asset.user.employee_number) {
                             userDisplay = asset.user.employee_number;
-                            
-                            // If we also have name, append it
-                            if (asset.user.name) {
-                                userDisplay += ` - ${asset.user.name}`;
-                            }
+                            if (asset.user.name) userDisplay += ` - ${asset.user.name}`;
                         } else if (asset.user.name) {
-                            // Just use name if no employee_number
                             userDisplay = asset.user.name;
-                        } else {
-                            // Fallback to user ID
-                            userDisplay = `User ID: ${asset.user_id}`;
                         }
-                        
-                        console.log('Setting user display to:', userDisplay);
-                        document.getElementById('edit_user_search').value = userDisplay;
                     } else {
-                        // Try to find user in global data
-                        const user = users.find(u => u.user_id == asset.user_id);
-                        console.log('Found user in global data:', user);
-                        
-                        // Fallback to just user ID if no user info found
-                        let userDisplay = `User ID: ${asset.user_id}`;
-                        
+                        const user = window.usersData.find(u => u.user_id == asset.user_id);
                         if (user) {
                             if (user.employee_number) {
                                 userDisplay = user.employee_number;
-                                if (user.name) {
-                                    userDisplay += ` - ${user.name}`;
-                                }
+                                if (user.name) userDisplay += ` - ${user.name}`;
                             } else if (user.name) {
                                 userDisplay = user.name;
                             }
                         }
-                        
-                        console.log('Setting fallback user display to:', userDisplay);
-                        document.getElementById('edit_user_search').value = userDisplay;
                     }
-                    
-                    // Hide the loading indicator for user
+
+                    document.getElementById('edit_user_search').value = userDisplay;
+
                     const userLoading = document.getElementById('edit_user_loading');
-                    if (userLoading) {
-                        userLoading.classList.add('hidden');
-                    }
+                    if (userLoading) userLoading.classList.add('hidden');
                 }
 
-                // Set depreciation data if available
+                // Set depreciation data
                 if (asset.depreciation || (asset.asset_master && asset.asset_master.is_depreciable)) {
                     const depreciationFields = document.getElementById('edit_depreciation_fields');
-                    
+
                     if (depreciationFields) {
-                        // Show depreciation fields
                         depreciationFields.classList.remove('hidden');
-                        
-                        // Enable inputs
+
                         const inputs = depreciationFields.querySelectorAll('input, select');
                         inputs.forEach(input => {
                             input.disabled = false;
                             input.required = asset.asset_master && asset.asset_master.is_depreciable;
                         });
-                        
-                        // Fill in depreciation data if available
+
                         if (asset.depreciation) {
                             document.getElementById('edit_depreciation_method').value = asset.depreciation.depreciation_method || 'Straight Line';
                             document.getElementById('edit_acquisition_cost').value = asset.depreciation.acquisition_cost || asset.purchase_cost || '0';
                             document.getElementById('edit_salvage_value').value = asset.depreciation.salvage_value || '0';
                             document.getElementById('edit_asset_life_months').value = asset.depreciation.asset_life_months || '12';
-                            
+
                             if (asset.depreciation.date_acquired) {
-                                const dateAcquired = asset.depreciation.date_acquired.split(' ')[0];
-                                document.getElementById('edit_date_acquired').value = dateAcquired;
+                                document.getElementById('edit_date_acquired').value = asset.depreciation.date_acquired.split(' ')[0];
                             } else if (asset.purchase_date) {
                                 document.getElementById('edit_date_acquired').value = asset.purchase_date.split(' ')[0];
                             }
                         } else {
-                            // If no depreciation data but asset is depreciable, set defaults
                             document.getElementById('edit_depreciation_method').value = 'Straight Line';
                             document.getElementById('edit_acquisition_cost').value = asset.purchase_cost || '0';
                             document.getElementById('edit_salvage_value').value = '0';
                             document.getElementById('edit_asset_life_months').value = '12';
-                            
+
                             if (asset.purchase_date) {
                                 document.getElementById('edit_date_acquired').value = asset.purchase_date.split(' ')[0];
                             }
                         }
                     }
                 }
-            }
-
-            // Helper function to set dropdown values
-            function setSelectValue(selectId, value) {
-                const select = document.getElementById(selectId);
-                if (!select || value === undefined || value === null) {
-                    return;
-                }
-
-                // Convert to string for comparison
-                const valueStr = String(value);
-
-                // Find the matching option
-                for (let i = 0; i < select.options.length; i++) {
-                    if (select.options[i].value === valueStr) {
-                        select.selectedIndex = i;
-                        return;
-                    }
-                }
-            }
-
-            // Helper function to toggle depreciation fields
-            function toggleDepreciationFields(depreciationFields, isVisible) {
-                if (isVisible) {
-                    depreciationFields.classList.remove('hidden');
-                    
-                    // Enable all inputs
-                    const inputs = depreciationFields.querySelectorAll('input, select');
-                    inputs.forEach(input => {
-                        input.disabled = false;
-                        input.required = true;
-                    });
-                } else {
-                    depreciationFields.classList.add('hidden');
-                    
-                    // Disable all inputs
-                    const inputs = depreciationFields.querySelectorAll('input, select');
-                    inputs.forEach(input => {
-                        input.disabled = true;
-                        input.required = false;
-                    });
-                }
-            }
-
-            // Helper functions to populate dropdowns
-            function populateSubcategories(subcategories) {
-                const select = document.getElementById('edit_subcategory_id');
-                if (!select || !subcategories) return;
-
-                // Clear existing options except the first one
-                while (select.options.length > 1) {
-                    select.remove(1);
-                }
-
-                // Add new options
-                subcategories.forEach(subcategory => {
-                    const option = document.createElement('option');
-                    option.value = subcategory.subcategory_id;
-                    option.textContent = subcategory.subcategory_name;
-                    select.appendChild(option);
-                });
-            }
-
-            // Perbaikan fungsi populateRooms di AssetDetail.blade.php
-            function populateRooms(rooms) {
-                const select = document.getElementById('edit_room_id');
-                if (!select || !rooms) return;
-
-                // Clear existing options except the first one
-                while (select.options.length > 1) {
-                    select.remove(1);
-                }
-
-                // Add new options
-                rooms.forEach(room => {
-                    const option = document.createElement('option');
-                    option.value = room.room_id;
-
-                    // Cek berbagai kemungkinan struktur data untuk memastikan nama gedung ditampilkan
-                    let buildingName = '-';
-
-                    if (room.building && room.building.building_name) {
-                        // Format bersarang normal
-                        buildingName = room.building.building_name;
-                    } else if (room.building_name) {
-                        // Format datar (flat) langsung di objek room
-                        buildingName = room.building_name;
-                    } else if (room.building_id) {
-                        // Mencoba mencari gedung berdasarkan building_id dari daftar gedung yang tersedia
-                        const building = findBuildingById(room.building_id);
-                        if (building) {
-                            buildingName = building.building_name;
-                        }
-                    }
-
-                    option.textContent = `${room.room_name} (${buildingName})`;
-                    select.appendChild(option);
-                });
-            }
-
-            // Fungsi helper untuk mencari gedung berdasarkan ID
-            function findBuildingById(buildingId) {
-                // Jika ada variabel global dengan daftar gedung
-                if (typeof buildings !== 'undefined' && Array.isArray(buildings)) {
-                    return buildings.find(b => b.building_id == buildingId);
-                }
-                return null;
-            }
-
-            function populateBrands(brands) {
-                const select = document.getElementById('edit_brand_id');
-                if (!select || !brands) return;
-
-                // Clear existing options except the first one
-                while (select.options.length > 1) {
-                    select.remove(1);
-                }
-
-                // Add new options
-                brands.forEach(brand => {
-                    const option = document.createElement('option');
-                    option.value = brand.brand_id;
-                    option.textContent = brand.brand_name;
-                    select.appendChild(option);
-                });
-            }
-
-            // Checkout Modal Functionality
-            const checkoutBtn = document.getElementById('checkoutAssetBtn');
-            const checkoutModal = document.getElementById('checkoutAssetModal');
-            const checkoutModalContent = document.getElementById('checkoutAssetModalContent');
-            const checkoutForm = document.getElementById('checkoutAssetForm');
-
-            if (checkoutBtn && checkoutModal && checkoutModalContent && checkoutForm) {
-                // Set the current date as default
-                const today = new Date().toISOString().split('T')[0];
-                document.querySelector('input[name="checkout_date"]').value = today;
-
-                // Set the form action
-                checkoutForm.action = "{{ route('asset.checkout') }}";
-
-                // Open checkout modal
-                checkoutBtn.addEventListener('click', function () {
-                    // Open modal
-                    openModal(checkoutModal, checkoutModalContent);
-                });
-
-                // Handle checkout form submission
-                checkoutForm.addEventListener('submit', function (e) {
-                    e.preventDefault();
-
-                    const submitBtn = document.getElementById('submitCheckout');
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Processing...';
-
-                    // Get form data
-                    const formData = new FormData(checkoutForm);
-                    const assetId = formData.get('asset_id');
-                    const checkoutNotes = formData.get('checkout_notes');
-                    const checkoutToType = formData.get('checkout_to_type');
-
-                    // Prepare request data
-                    const requestData = {
-                        asset_id: parseInt(assetId),
-                        checkout_notes: checkoutNotes
-                    };
-
-                    // Add either assigned_to or room_id based on selection - never both
-                    if (checkoutToType === 'location') {
-                        requestData.room_id = parseInt(formData.get('location_id') || 0);
-                    } else {
-                        requestData.assigned_to = parseInt(formData.get('assigned_to') || 0);
-                    }
-
-                    console.log('Sending checkout request:', requestData);
-
-                    // Send AJAX request
-                    fetch("{{ route('asset.checkout') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Checkout';
-
-                            if (data.success === true) {
-                                // Success - just close the modal and reload without alert
-                                closeModal(checkoutModal, checkoutModalContent);
-                                window.location.reload();
-                            } else {
-                                // Error - keep alert for error messages
-                                alert('Error: ' + (data.message || 'Failed to checkout asset'));
-                            }
-                        })
-                        .catch(error => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Checkout';
-                            console.error('Error checking out asset:', error);
-                            alert('Failed to checkout asset. Please try again.');
-                        });
-                });
-
-                // Toggle between employee and location
-                const employeeRadio = document.getElementById('employee');
-                const locationRadio = document.getElementById('location');
-                const employeeDropdown = document.getElementById('employeeDropdown');
-                const locationDropdown = document.getElementById('locationDropdown');
-
-                if (employeeRadio && locationRadio && employeeDropdown && locationDropdown) {
-                    employeeRadio.addEventListener('change', function () {
-                        if (this.checked) {
-                            employeeDropdown.classList.remove('hidden');
-                            locationDropdown.classList.add('hidden');
-                            document.getElementById('assigned_to').setAttribute('required', '');
-                            document.getElementById('location_id').removeAttribute('required');
-                        }
-                    });
-
-                    locationRadio.addEventListener('change', function () {
-                        if (this.checked) {
-                            employeeDropdown.classList.add('hidden');
-                            locationDropdown.classList.remove('hidden');
-                            document.getElementById('location_id').setAttribute('required', '');
-                            document.getElementById('assigned_to').removeAttribute('required');
-                        }
-                    });
-                }
-            }
-
-            // Checkin Modal Functionality
-            const checkinBtn = document.getElementById('checkinAssetBtn');
-            const checkinModal = document.getElementById('checkinAssetModal');
-            const checkinModalContent = document.getElementById('checkinAssetModalContent');
-            const checkinForm = document.getElementById('checkinAssetForm');
-
-            if (checkinBtn && checkinModal && checkinModalContent && checkinForm) {
-                // Set the form action
-                checkinForm.action = "{{ route('asset.checkin') }}";
-
-                // Open checkin modal
-                checkinBtn.addEventListener('click', function () {
-                    // Open modal
-                    openModal(checkinModal, checkinModalContent);
-                });
-
-                // Handle checkin form submission
-                checkinForm.addEventListener('submit', function (e) {
-                    e.preventDefault();
-
-                    const submitBtn = document.getElementById('submitCheckin');
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Processing...';
-
-                    // Get form data
-                    const formData = new FormData(checkinForm);
-                    const assetId = formData.get('asset_id');
-                    const returnNotes = formData.get('return_notes');
-                    const condition = formData.get('condition');
-
-                    // Prepare request data
-                    const requestData = {
-                        asset_id: parseInt(assetId),
-                        return_notes: returnNotes,
-                        condition: condition
-                    };
-
-                    console.log('Sending check-in request:', requestData);
-
-                    // Send AJAX request for check-in
-                    fetch("{{ route('asset.checkin') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Check In';
-
-                            if (data.success === true) {
-                                // Success - just close the modal and reload without alert
-                                closeModal(checkinModal, checkinModalContent);
-                                window.location.reload();
-                            } else {
-                                // Error - keep alert for error messages
-                                alert('Error: ' + (data.message || 'Failed to check in asset'));
-                            }
-                        })
-                        .catch(error => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Check In';
-                            console.error('Error checking in asset:', error);
-                            alert('Failed to check in asset. Please try again.');
-                        });
-
-                    // Send AJAX request for lost asset
-                    fetch("{{ route('asset.lost') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Report as Lost';
-
-                            if (data.success === true) {
-                                // Success - close the modal and reload without alert
-                                closeModal(lostModal, lostModalContent);
-                                window.location.reload();
-                            } else {
-                                // Error - keep alert for error messages
-                                alert('Error: ' + (data.message || 'Failed to report asset as lost'));
-                            }
-                        })
-                        .catch(error => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Report as Lost';
-                            console.error('Error reporting asset as lost:', error);
-                            alert('Failed to report asset as lost. Please try again.');
-                        });
-
-                    // Send AJAX request for found asset
-                    fetch("{{ route('asset.found') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Found';
-
-                            if (data.success === true) {
-                                // Success - close the modal and reload without alert
-                                closeModal(foundAssetModal, foundAssetModalContent);
-                                window.location.reload();
-                            } else {
-                                // Error - keep alert for error messages
-                                alert('Error: ' + (data.message || 'Failed to report asset as found'));
-                            }
-                        });
-
-                    // Send AJAX request for dispose asset
-                    fetch("{{ route('asset.dispose') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Dispose Asset';
-
-                            if (data.success === true) {
-                                // Success - close the modal and reload
-                                closeModal(disposeAssetModal, disposeAssetModalContent);
-                                window.location.reload();
-                            } else {
-                                // Error - keep alert for error messages
-                                alert('Error: ' + (data.message || 'Failed to dispose asset'));
-                            }
-                        })
-                        .catch(error => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Dispose Asset';
-                            console.error('Error disposing asset:', error);
-                            alert('Failed to dispose asset. Please try again.');
-                        });
-                });
-            }
-
-            // Report Lost Modal Functionality
-            const lostBtn = document.getElementById('lostAssetBtn');
-            const lostModal = document.getElementById('reportLostModal');
-            const lostModalContent = document.getElementById('reportLostModalContent');
-            const lostForm = document.getElementById('reportLostForm');
-
-            if (lostBtn && lostModal && lostModalContent && lostForm) {
-                // Set the form action
-                lostForm.action = "{{ route('asset.lost') }}";
-
-                // Open lost modal
-                lostBtn.addEventListener('click', function (e) {
-                    e.preventDefault(); // Prevent the default link behavior
-                    // Open modal
-                    openModal(lostModal, lostModalContent);
-                });
-
-                // Handle lost form submission
-                lostForm.addEventListener('submit', function (e) {
-                    e.preventDefault();
-
-                    const submitBtn = document.getElementById('submitLostReport');
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Processing...';
-
-                    // Get form data
-                    const formData = new FormData(lostForm);
-                    const assetId = formData.get('asset_id');
-                    const lossReason = formData.get('loss_reason');
-
-                    // Prepare request data
-                    const requestData = {
-                        asset_id: parseInt(assetId),
-                        loss_reason: lossReason
-                    };
-
-                    console.log('Sending lost report request:', requestData);
-
-                    // Send AJAX request
-                    fetch("{{ route('asset.lost') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Report as Lost';
-
-                            if (data.success === true) {
-                                // Success - close the modal and reload without alert
-                                closeModal(lostModal, lostModalContent);
-                                window.location.reload();
-                            } else {
-                                // Error - keep alert for error messages
-                                alert('Error: ' + (data.message || 'Failed to report asset as lost'));
-                            }
-                        })
-                        .catch(error => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Report as Lost';
-                            console.error('Error reporting asset as lost:', error);
-                            alert('Failed to report asset as lost. Please try again.');
-                        });
-                });
-            }
-
-            // Found Asset Modal Functionality
-            const foundBtn = document.getElementById('foundAssetBtn');
-            const foundModal = document.getElementById('foundAssetModal');
-            const foundModalContent = document.getElementById('foundAssetModalContent');
-            const foundForm = document.getElementById('foundAssetForm');
-
-            if (foundBtn && foundModal && foundModalContent && foundForm) {
-                // Set the form action
-                foundForm.action = "{{ route('asset.found') }}";
-
-                // Open found modal
-                foundBtn.addEventListener('click', function () {
-                    // Open modal
-                    openModal(foundModal, foundModalContent);
-                });
-
-                // Handle found form submission
-                foundForm.addEventListener('submit', function (e) {
-                    e.preventDefault();
-
-                    const submitBtn = document.getElementById('submitFound');
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Processing...';
-
-                    // Get form data
-                    const formData = new FormData(foundForm);
-                    const assetId = formData.get('asset_id');
-                    const foundNotes = formData.get('found_notes');
-
-                    // Prepare request data
-                    const requestData = {
-                        asset_id: parseInt(assetId),
-                        found_notes: foundNotes
-                    };
-
-                    // Send AJAX request
-                    fetch("{{ route('asset.found') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Report as Found';
-
-                            if (data.success === true) {
-                                // Success - close the modal and reload without alert
-                                closeModal(foundModal, foundModalContent);
-                                window.location.reload();
-                            } else {
-                                // Error
-                                alert('Error: ' + (data.message || 'Failed to report asset as found'));
-                            }
-                        })
-                        .catch(error => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Report as Found';
-                            console.error('Error reporting asset as found:', error);
-                            alert('Failed to report asset as found. Please try again.');
-                        });
-                });
-            }
-
-            // Dispose Asset Modal Functionality
-            const disposeBtn = document.getElementById('disposeAssetBtn');
-            const disposeModal = document.getElementById('disposeAssetModal');
-            const disposeModalContent = document.getElementById('disposeAssetModalContent');
-            const disposeForm = document.getElementById('disposeAssetForm');
-
-            if (disposeBtn && disposeModal && disposeModalContent && disposeForm) {
-                console.log('Dispose elements found');
-                // Set the form action
-                disposeForm.action = "{{ route('asset.dispose') }}";
-                console.log('Form action set to:', disposeForm.action);
-
-                // Open dispose modal
-                disposeBtn.addEventListener('click', function (e) {
-                    e.preventDefault(); // Important - prevent default link behavior
-                    console.log('Dispose button clicked');
-                    openModal(disposeModal, disposeModalContent);
-                });
-
-                // Handle form submission
-                disposeForm.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    console.log('Form submitting to:', this.action);
-
-                    const submitBtn = document.getElementById('submitDispose');
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Processing...';
-
-                    // Get form data
-                    const formData = new FormData(disposeForm);
-                    const assetId = formData.get('asset_id');
-                    const disposalMethod = formData.get('disposal_method');
-                    const disposalReason = formData.get('disposal_reason');
-                    const disposalNotes = formData.get('disposal_notes');
-
-                    // Prepare request data
-                    const requestData = {
-                        asset_id: parseInt(assetId),
-                        transfer_type: 'DISPOSAL',
-                        disposal_method: disposalMethod,
-                        disposal_reason: disposalReason,
-                        disposal_notes: disposalNotes
-                    };
-
-                    console.log('Sending dispose request:', requestData);
-
-                    // Send AJAX request
-                    fetch("{{ route('asset.dispose') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Dispose Asset';
-
-                            if (data.success === true) {
-                                // Success - close the modal and reload without alert
-                                closeModal(disposeModal, disposeModalContent);
-                                window.location.reload();
-                            } else {
-                                // Error - keep alert for error messages
-                                alert('Error: ' + (data.message || 'Failed to dispose asset'));
-                            }
-                        })
-                        .catch(error => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Dispose Asset';
-                            console.error('Error disposing asset:', error);
-                            alert('Failed to dispose asset. Please try again.');
-                        });
-                });
-            } else {
-                console.error('Some dispose elements not found:', {
-                    disposeBtn: !!disposeBtn,
-                    disposeModal: !!disposeModal,
-                    disposeModalContent: !!disposeModalContent,
-                    disposeForm: !!disposeForm
-                });
-            }
-
-            // Handle building selection and filter rooms
-            const buildingSelector = document.getElementById('building_selector');
-            if (buildingSelector) {
-                // Store all rooms from the controller
-                const allRooms = @json($rooms);
-
-                buildingSelector.addEventListener('change', function () {
-                    const selectedBuildingId = parseInt(this.value);
-                    const roomDropdown = document.getElementById('location_id');
-
-                    // Clear existing options
-                    roomDropdown.innerHTML = '';
-
-                    // Add default option
-                    const defaultOption = document.createElement('option');
-                    defaultOption.value = '';
-                    defaultOption.text = 'Select a room';
-                    defaultOption.disabled = true;
-                    defaultOption.selected = true;
-                    roomDropdown.appendChild(defaultOption);
-
-                    // Filter rooms by selected building
-                    const filteredRooms = allRooms.filter(room =>
-                        room.building_id === selectedBuildingId ||
-                        (room.building && parseInt(room.building.building_id) === selectedBuildingId)
-                    );
-
-                    // Add filtered room options
-                    filteredRooms.forEach(room => {
-                        const option = document.createElement('option');
-                        option.value = room.room_id;
-                        option.text = room.room_name;
-                        roomDropdown.appendChild(option);
-                    });
-                });
-            }
-
-            // Initialize all search components
-            function initSearchComponents() {
-                // Initialize room search functionality
-                initRoomSearch(
-                    document.getElementById('edit_room_search'),
-                    document.getElementById('edit_room_dropdown'),
-                    document.getElementById('edit_room_list'),
-                    document.getElementById('edit_room_loading'),
-                    document.getElementById('edit_selected_room_id'),
-                    document.getElementById('edit_selected_room_name'),
-                    document.getElementById('edit_selected_room_display')
-                );
-
-                // Initialize user search in edit modal
-                initUserSearch(
-                    document.getElementById('edit_user_search'),
-                    document.getElementById('edit_user_dropdown'),
-                    document.getElementById('edit_user_list'),
-                    document.getElementById('edit_user_loading'),
-                    document.getElementById('edit_selected_user_id')
-                );
-
-                // Initialize asset master search
-                initAssetMasterSearch(
-                    document.getElementById('edit_asset_master_search'),
-                    document.getElementById('edit_asset_master_dropdown'),
-                    document.getElementById('edit_asset_master_list'),
-                    document.getElementById('edit_asset_master_loading'),
-                    document.getElementById('edit_selected_asset_master_id'),
-                    document.getElementById('edit_selected_is_depreciable'),
-                    document.getElementById('edit_depreciation_fields')
-                );
-            }
-
-            // Initialize room search functionality
-            function initRoomSearch(
-                searchInput,
-                dropdown,
-                roomList,
-                loadingIndicator,
-                selectedRoomId,
-                selectedRoomName,
-                roomDisplay
-            ) {
-                if (!searchInput || !dropdown || !roomList) return;
-
-                // Toggle dropdown visibility
-                searchInput.addEventListener('focus', function() {
-                    dropdown.classList.remove('hidden');
-                    if (roomList.children.length === 0) {
-                        loadRooms(''); // Initial load on focus
-                    }
-                });
-
-                // Hide dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                        dropdown.classList.add('hidden');
-                    }
-                });
-
-                // Search input handler with debounce
-                const debouncedSearch = debounce(function(e) {
-                    loadRooms(e.target.value);
-                }, 300);
-
-                searchInput.addEventListener('input', debouncedSearch);
-
-                // Function to load rooms
-                async function loadRooms(searchTerm) {
-                    // Show loading indicator
-                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                    roomList.innerHTML = '';
-
-                    try {
-                        // Use existing rooms data from server
-                        const rooms = @json($rooms ?? []);
-                        let filteredRooms = rooms;
-
-                        // Filter rooms if search term is provided
-                        if (searchTerm) {
-                            const search = searchTerm.toLowerCase();
-                            filteredRooms = rooms.filter(room => 
-                                (room.room_name && room.room_name.toLowerCase().includes(search)) || 
-                                (room.room_number && room.room_number.toLowerCase().includes(search)) ||
-                                (room.building && room.building.building_name && 
-                                 room.building.building_name.toLowerCase().includes(search))
-                            );
-                        }
-
-                        // Populate dropdown
-                        roomList.innerHTML = '';
-
-                        if (filteredRooms.length === 0) {
-                            const noResults = document.createElement('li');
-                            noResults.className = 'px-4 py-2 text-gray-500 italic';
-                            noResults.textContent = 'No rooms found';
-                            roomList.appendChild(noResults);
-                        } else {
-                            filteredRooms.forEach(item => {
-                                const li = document.createElement('li');
-                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                                
-                                // Get proper building name
-                                let buildingName = 'Unknown Building';
-                                
-                                if (item.building && item.building.building_name) {
-                                    // If we have the nested building object with name
-                                    buildingName = item.building.building_name;
-                                } else if (item.building_name) {
-                                    // If we have building_name at root level
-                                    buildingName = item.building_name;
-                                }
-
-                                const roomName = `${item.room_name} (${buildingName})`;
-
-                                li.textContent = roomName;
-                                li.setAttribute('data-id', item.room_id);
-                                li.setAttribute('data-name', roomName);
-
-                                li.addEventListener('click', function() {
-                                    // Set the selected room ID
-                                    selectedRoomId.value = this.getAttribute('data-id');
-                                    
-                                    // Update the display name if needed
-                                    if (selectedRoomName) {
-                                        selectedRoomName.value = this.getAttribute('data-name');
-                                    }
-                                    
-                                    // Update the room display if needed
-                                    if (roomDisplay) {
-                                        roomDisplay.textContent = this.getAttribute('data-name');
-                                    }
-
-                                    // Update the search input
-                                    searchInput.value = this.getAttribute('data-name');
-
-                                    // Hide dropdown
-                                    dropdown.classList.add('hidden');
-                                });
-
-                                roomList.appendChild(li);
-                            });
-                        }
-                    } catch (error) {
-                        console.error('Error loading rooms:', error);
-                        const errorItem = document.createElement('li');
-                        errorItem.className = 'px-4 py-2 text-red-500';
-                        errorItem.textContent = 'Error loading rooms';
-                        roomList.appendChild(errorItem);
-                    } finally {
-                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                    }
-                }
-            }
-
-            // Initialize user search functionality
-            function initUserSearch(
-                searchInput,
-                dropdown,
-                userList,
-                loadingIndicator,
-                selectedUserId
-            ) {
-                if (!searchInput || !dropdown || !userList) return;
-
-                // Toggle dropdown visibility
-                searchInput.addEventListener('focus', function() {
-                    dropdown.classList.remove('hidden');
-                    if (userList.children.length === 0) {
-                        loadUsers(''); // Initial load on focus
-                    }
-                });
-
-                // Hide dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                        dropdown.classList.add('hidden');
-                    }
-                });
-
-                // Search input handler with debounce
-                const debouncedSearch = debounce(function(e) {
-                    loadUsers(e.target.value);
-                }, 300);
-
-                searchInput.addEventListener('input', debouncedSearch);
-
-                // Function to load users
-                async function loadUsers(searchTerm) {
-                    // Show loading indicator
-                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                    userList.innerHTML = '';
-
-                    try {
-                        // Use locally available data instead of fetching from server
-                        let users = window.usersData || [];
-                        
-                        // Filter users based on search term
-                        if (searchTerm) {
-                            searchTerm = searchTerm.toLowerCase();
-                            users = users.filter(user => {
-                                return (user.employee_number && user.employee_number.toLowerCase().includes(searchTerm)) ||
-                                       (user.name && user.name.toLowerCase().includes(searchTerm)) ||
-                                       (user.user_id && user.user_id.toString().includes(searchTerm));
-                            });
-                        }
-
-                        // Populate dropdown
-                        userList.innerHTML = '';
-
-                        if (users.length === 0) {
-                            const noResults = document.createElement('li');
-                            noResults.className = 'px-4 py-2 text-gray-500 italic';
-                            noResults.textContent = 'No users found';
-                            userList.appendChild(noResults);
-                        } else {
-                            users.forEach(user => {
-                                const li = document.createElement('li');
-                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-
-                                // Display employee_number with user's name if available
-                                let displayText = '';
-                                if (user.employee_number) {
-                                    displayText = user.employee_number;
-                                    if (user.name) {
-                                        displayText += ` - ${user.name}`;
-                                    }
-                                } else if (user.name) {
-                                    displayText = user.name;
-                                } else {
-                                    displayText = `User ID: ${user.user_id}`;
-                                }
-
-                                li.textContent = displayText;
-                                li.setAttribute('data-id', user.user_id);
-                                li.setAttribute('data-name', displayText);
-
-                                li.addEventListener('click', function() {
-                                    // Set the selected user ID and name
-                                    selectedUserId.value = this.getAttribute('data-id');
-
-                                    // Update the search input
-                                    searchInput.value = this.getAttribute('data-name');
-
-                                    // Hide dropdown
-                                    dropdown.classList.add('hidden');
-                                });
-
-                                userList.appendChild(li);
-                            });
-                        }
-                    } catch (error) {
-                        console.error('Error loading users:', error);
-                        const errorItem = document.createElement('li');
-                        errorItem.className = 'px-4 py-2 text-red-500';
-                        errorItem.textContent = 'Error loading users';
-                        userList.appendChild(errorItem);
-                    } finally {
-                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                    }
-                }
-            }
-
-            // Initialize asset master search functionality
-            function initAssetMasterSearch(
-                searchInput,
-                dropdown,
-                assetMasterList,
-                loadingIndicator,
-                selectedAssetMasterId,
-                selectedIsDepreciable,
-                depreciationFields
-            ) {
-                if (!searchInput || !dropdown || !assetMasterList) return;
-
-                // Toggle dropdown visibility
-                searchInput.addEventListener('focus', function() {
-                    dropdown.classList.remove('hidden');
-                    if (assetMasterList.children.length === 0) {
-                        loadAssetMasters(''); // Initial load on focus
-                    }
-                });
-
-                // Hide dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                        dropdown.classList.add('hidden');
-                    }
-                });
-
-                // Search input handler with debounce
-                const debouncedSearch = debounce(function(e) {
-                    loadAssetMasters(e.target.value);
-                }, 300);
-
-                searchInput.addEventListener('input', debouncedSearch);
-
-                // Function to load asset masters
-                async function loadAssetMasters(searchTerm) {
-                    // Show loading indicator
-                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                    assetMasterList.innerHTML = '';
-
-                    try {
-                        // Fetch asset masters data from the API
-                        const response = await fetch(`{{ route('asset-master.data') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`);
-                                    
-                                    if (!response.ok) {
-                            throw new Error('Failed to fetch asset masters');
-                                    }
-                                    
-                                    const result = await response.json();
-                        let assetMasters = result.masterAssets || [];
-
-                        // Populate dropdown
-                        assetMasterList.innerHTML = '';
-
-                        if (assetMasters.length === 0) {
-                            const noResults = document.createElement('li');
-                            noResults.className = 'px-4 py-2 text-gray-500 italic';
-                            noResults.textContent = 'No asset masters found';
-                            assetMasterList.appendChild(noResults);
-                        } else {
-                            assetMasters.forEach(item => {
-                                const li = document.createElement('li');
-                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-
-                                const assetMasterName = item.asset_name || 'Unknown';
-
-                                li.textContent = assetMasterName;
-                                li.setAttribute('data-id', item.asset_master_id);
-                                li.setAttribute('data-name', assetMasterName);
-
-                                // Get is_depreciable value
-                                const isDepreciable = item.is_depreciable === true;
-
-                                li.setAttribute('data-depreciable', isDepreciable);
-
-                                li.addEventListener('click', function() {
-                                    // Set the selected asset master ID and name
-                                    selectedAssetMasterId.value = this.getAttribute('data-id');
-
-                                    // Update the search input
-                                    searchInput.value = this.getAttribute('data-name');
-
-                                    // Set is_depreciable flag
-                                    const isDepreciable = this.getAttribute('data-depreciable') === 'true';
-                                    selectedIsDepreciable.setAttribute('value', isDepreciable.toString());
-                                    // Trigger change event
-                                    const event = new Event('change');
-                                    selectedIsDepreciable.dispatchEvent(event);
-
-                                    // Show/hide depreciation fields based on is_depreciable
-                                    toggleDepreciationFields(depreciationFields, isDepreciable);
-
-                                    // Hide dropdown
-                                    dropdown.classList.add('hidden');
-                                });
-
-                                assetMasterList.appendChild(li);
-                            });
-                        }
-                    } catch (error) {
-                        console.error('Error loading asset masters:', error);
-                        const errorItem = document.createElement('li');
-                        errorItem.className = 'px-4 py-2 text-red-500';
-                        errorItem.textContent = 'Error loading asset masters';
-                        assetMasterList.appendChild(errorItem);
-                    } finally {
-                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                    }
-                }
-            }
-
-            // Initialize event handlers for the edit modal
-            function initEditModalHandlers() {
-                // Initialize asset master search in edit modal
-                initAssetMasterSearch(
-                    document.getElementById('edit_asset_master_search'),
-                    document.getElementById('edit_asset_master_dropdown'),
-                    document.getElementById('edit_asset_master_list'),
-                    document.getElementById('edit_asset_master_loading'),
-                    document.getElementById('edit_selected_asset_master_id'),
-                    document.getElementById('edit_selected_is_depreciable'),
-                    document.getElementById('edit_depreciation_fields')
-                );
-            
-                // Initialize room search in edit modal
-                initRoomSearch(
-                    document.getElementById('edit_room_search'),
-                    document.getElementById('edit_room_dropdown'),
-                    document.getElementById('edit_room_list'),
-                    document.getElementById('edit_room_loading'),
-                    document.getElementById('edit_selected_room_id'),
-                    document.getElementById('edit_selected_room_name'),
-                    document.getElementById('edit_selected_room_display')
-                );
-
-                // Initialize user search in edit modal
-                initUserSearch(
-                    document.getElementById('edit_user_search'),
-                    document.getElementById('edit_user_dropdown'),
-                    document.getElementById('edit_user_list'),
-                    document.getElementById('edit_user_loading'),
-                    document.getElementById('edit_selected_user_id')
-                );
-
-                // Set up initial values
-                const roomId = document.getElementById('edit_selected_room_id').value;
-                if (roomId) {
-                    const rooms = @json($rooms ?? []);
-                    const selectedRoom = rooms.find(room => room.room_id == roomId);
-                    if (selectedRoom) {
-                        const buildingName = selectedRoom.building ? selectedRoom.building.building_name : 'Unknown Building';
-                        const roomName = `${selectedRoom.room_name} (${buildingName})`;
-                        document.getElementById('edit_room_search').value = roomName;
-                    }
-                }
-
-                const userId = document.getElementById('edit_selected_user_id').value;
-                if (userId) {
-                    const users = window.usersData || [];
-                    const selectedUser = users.find(user => user.user_id == userId);
-                    if (selectedUser) {
-                        let displayText = '';
-                        if (selectedUser.employee_number) {
-                            displayText = selectedUser.employee_number;
-                            if (selectedUser.name) {
-                                displayText += ` - ${selectedUser.name}`;
-                            }
-                        } else if (selectedUser.name) {
-                            displayText = selectedUser.name;
-                        } else {
-                            displayText = `User ID: ${selectedUser.user_id}`;
-                        }
-                        document.getElementById('edit_user_search').value = displayText;
-                    }
-                }
-
-                // Handle image preview
-                const imageFileInput = document.getElementById('edit_image_file');
-                const imagePreview = document.getElementById('edit_image_preview');
-                const previewContainer = document.getElementById('edit_preview-container');
-
-                if (imageFileInput && imagePreview && previewContainer) {
-                    // Show preview if asset has an image
-                    if ('{{ $asset["picture_path"] ?? "" }}') {
-                        imagePreview.src = '{{ config("app.backend_url") . "/public" . ($asset["picture_path"] ?? "") }}';
-                        previewContainer.classList.remove('hidden');
-                    }
-
-                    // Show image preview when new file is selected
-                    imageFileInput.addEventListener('change', function() {
-                        if (this.files && this.files[0]) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                imagePreview.src = e.target.result;
-                                previewContainer.classList.remove('hidden');
-                            };
-                            reader.readAsDataURL(this.files[0]);
-                        }
-                    });
-                }
-            }
-
-            // Set up depreciation fields toggle based on asset_master data
-            const editDepreciationFields = document.getElementById('edit_depreciation_fields');
-            const isDepreciable = '{{ $asset["asset_master"]["is_depreciable"] ?? false }}' === '1';
-            if (editDepreciationFields) {
-                toggleDepreciationFields(editDepreciationFields, isDepreciable);
-            }
-
-            // Initialize all edit modal handlers
-            initEditModalHandlers();
+            };
         });
     </script>
 @endsection
