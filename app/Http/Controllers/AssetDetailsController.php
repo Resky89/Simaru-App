@@ -152,15 +152,27 @@ class AssetDetailsController extends Controller
             $subcategories = $subcategoriesResult['data'] ?? [];
 
             // Fetch buildings directly from buildings endpoint
-            $buildingsResult = $this->apiService->request('GET', '/buildings');
+            $buildingsResult = $this->apiService->request('GET', '/buildings', [
+                'query' => [
+                    'limit' => 1000,
+                    'sort_by' => 'building_id',
+                    'sort_order' => 'asc'
+                ]
+            ]);
             $buildings = $buildingsResult['data'] ?? [];
 
             // Fetch rooms from rooms endpoint
-            $roomsResult = $this->apiService->request('GET', '/rooms');
+            $roomsResult = $this->apiService->request('GET', '/rooms', [
+                'query' => [
+                    'limit' => 1000,
+                    'sort_by' => 'room_id',
+                    'sort_order' => 'asc'
+                ]
+            ]);
             $rooms = $roomsResult['data'] ?? [];
 
             // Fetch brands for brand dropdown
-            $brandsResult = $this->apiService->request('GET', '/brands');
+            $brandsResult = $this->apiService->request('GET', '/brands',);
             $brands = $brandsResult['data'] ?? [];
 
             // Fetch users/karyawan for responsible employee dropdown
@@ -209,8 +221,6 @@ class AssetDetailsController extends Controller
                     $imageData = file_get_contents($imageUrl);
 
                     if ($imageData !== false) {
-                        // Store just the base64 encoded string (without data URL prefix)
-                        // The view will add the data:image/jpeg;base64, prefix
                         $asset['image_base64'] = base64_encode($imageData);
                         \Log::info('Successfully encoded image to base64', ['size' => strlen($asset['image_base64'])]);
                     } else {

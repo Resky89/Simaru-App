@@ -232,11 +232,12 @@
                             const checkoutDate = mutation.detail_info?.checkout_date ? this.formatDate(mutation.detail_info.checkout_date) : '';
                             const checkoutNotes = mutation.detail_info?.checkout_notes || '';
 
-                            // Check if checkout was to employee or location
-                            if (mutation.detail_info?.employee) {
-                                const employeeName = mutation.detail_info.employee.name || '';
-                                const department = mutation.detail_info.employee.department_name || '';
-                                const position = mutation.detail_info.employee.position || '';
+                            if (mutation.detail_info?.user) {
+                                const userId = mutation.detail_info.user.user_id || '';
+                                const employeeNumber = mutation.detail_info.user.employee_number || '';
+                                const employeeName = mutation.detail_info.user.name || employeeNumber || 'Unknown';
+                                const department = mutation.detail_info.user.department_name || 'Not specified';
+                                const position = mutation.detail_info.user.position || 'Not specified';
 
                                 html += `
                                     <div class="mb-8 ${bgColorLight} border ${borderColor} border-l-4 rounded-md shadow-md overflow-hidden">
@@ -262,14 +263,8 @@
                                                 </div>
                                                 <div class="${bgColorLight} rounded">
                                                     <div class="px-4 py-2">
-                                                        <div class="text-gray-500 text-sm">Departemen</div>
-                                                        <div class="font-medium text-black">${department}</div>
-                                                    </div>
-                                                </div>
-                                                <div class="${bgColorLight} rounded">
-                                                    <div class="px-4 py-2">
-                                                        <div class="text-gray-500 text-sm">Jabatan</div>
-                                                        <div class="font-medium text-black">${position}</div>
+                                                        <div class="text-gray-500 text-sm">No. Karyawan</div>
+                                                        <div class="font-medium text-black">${employeeNumber}</div>
                                                     </div>
                                                 </div>
                                                 ${checkoutNotes ? `

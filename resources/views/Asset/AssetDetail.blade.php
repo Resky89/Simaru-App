@@ -738,26 +738,46 @@
 
                                 <!-- Location Dropdown (hidden by default) -->
                                 <div id="locationDropdown" class="space-y-4 hidden">
-                                    <!-- Building Dropdown -->
+                                    <!-- Building Search Dropdown -->
                                     <div class="space-y-2">
                                         <label class="block text-base font-medium text-[#666666]">Pilih Gedung</label>
-                                        <select id="building_selector"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                            <option value="" disabled selected>Pilih Gedung</option>
-                                            @foreach($buildings as $building)
-                                                <option value="{{ $building['building_id'] }}">{{ $building['building_name'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <div class="relative">
+                                            <input type="text" id="pinjam_building_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Cari gedung..." autocomplete="off">
+                                            <input type="hidden" name="building_id" id="pinjam_selected_building_id">
+                                            <div id="pinjam_building_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="pinjam_building_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Loading buildings...</span>
+                                                </div>
+                                                <ul id="pinjam_building_list" class="py-1"></ul>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <!-- Room Dropdown -->
+                                    <!-- Room Search Dropdown -->
                                     <div class="space-y-2">
                                         <label class="block text-base font-medium text-[#666666]">Pilih Ruangan</label>
-                                        <select name="location_id" id="location_id"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                            <option value="" disabled selected>Pilih Gedung terlebih dahulu</option>
-                                        </select>
+                                        <div class="relative">
+                                            <input type="text" id="pinjam_room_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled>
+                                            <input type="hidden" name="room_id" id="pinjam_selected_room_id">
+                                            <div id="pinjam_room_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="pinjam_room_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Loading rooms...</span>
+                                                </div>
+                                                <ul id="pinjam_room_list" class="py-1"></ul>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1108,10 +1128,64 @@
                 }, 10);
             }
 
+            // Function to close modal with animation and reset form fields
             function closeModal(modal, content) {
+                if (!modal || !content) return;
+
+                // Reset forms inside the modal
+                const forms = modal.querySelectorAll('form');
+                forms.forEach(form => {
+                    form.reset();
+
+                    // Reset hidden inputs that might not be affected by form.reset()
+                    const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+                    hiddenInputs.forEach(input => {
+                        input.value = '';
+                    });
+
+                    // Reset all text inputs
+                    const textInputs = form.querySelectorAll('input[type="text"], input[type="search"]');
+                    textInputs.forEach(input => {
+                        input.value = '';
+                    });
+
+                    // Reset select elements
+                    const selects = form.querySelectorAll('select');
+                    selects.forEach(select => {
+                        if (select.options.length > 0) {
+                            select.selectedIndex = 0;
+                        }
+                    });
+
+                    // Hide any open dropdowns
+                    const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
+                    dropdowns.forEach(dropdown => {
+                        dropdown.classList.add('hidden');
+                    });
+
+                    // Reset depreciation fields if present
+                    const depreciationFields = form.querySelector('#depreciation_fields') || form.querySelector('#edit_depreciation_fields');
+                    if (depreciationFields) {
+                        depreciationFields.classList.add('hidden');
+                        const depInputs = depreciationFields.querySelectorAll('input, select');
+                        depInputs.forEach(input => {
+                            input.disabled = true;
+                            input.required = false;
+                            if (input.tagName === 'INPUT') {
+                                input.value = '';
+                            } else if (input.tagName === 'SELECT' && input.options.length > 0) {
+                                input.selectedIndex = 0;
+                            }
+                        });
+                    }
+                });
+
+                // Animate closing
                 content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
                 content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                setTimeout(() => modal.classList.add('hidden'), 300);
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
             }
 
             // Common fetch handler
@@ -1872,6 +1946,165 @@
                     }
                 }
             };
+
+            // Initialize building search
+            initDropdown(
+                document.getElementById('pinjam_building_search'),
+                document.getElementById('pinjam_building_dropdown'),
+                document.getElementById('pinjam_building_list'),
+                function(searchTerm) {
+                    loadBuildings(
+                        searchTerm,
+                        document.getElementById('pinjam_building_list'),
+                        document.getElementById('pinjam_building_loading'),
+                        document.getElementById('pinjam_selected_building_id'),
+                        document.getElementById('pinjam_building_search'),
+                        document.getElementById('pinjam_building_dropdown'),
+                        document.getElementById('pinjam_room_search')
+                    );
+                }
+            );
+
+            // Function to load buildings
+            async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput) {
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                buildingList.innerHTML = '';
+
+                try {
+                    const buildings = @json($buildings ?? []);
+                    let filteredBuildings = buildings;
+
+                    if (searchTerm) {
+                        const search = searchTerm.toLowerCase();
+                        filteredBuildings = buildings.filter(building =>
+                            (building.building_name && building.building_name.toLowerCase().includes(search)) ||
+                            (building.address && building.address.toLowerCase().includes(search))
+                        );
+                    }
+
+                    if (filteredBuildings.length === 0) {
+                        const noResults = document.createElement('li');
+                        noResults.className = 'px-4 py-2 text-gray-500 italic';
+                        noResults.textContent = 'No buildings found';
+                        buildingList.appendChild(noResults);
+                    } else {
+                        filteredBuildings.forEach(building => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                            li.textContent = building.building_name;
+                            li.setAttribute('data-id', building.building_id);
+                            li.setAttribute('data-name', building.building_name);
+
+                            li.addEventListener('click', function() {
+                                // Set the selected building ID and name
+                                selectedBuildingId.value = this.getAttribute('data-id');
+                                searchInput.value = this.getAttribute('data-name');
+
+                                // Enable room search and update placeholder
+                                roomSearchInput.disabled = false;
+                                roomSearchInput.placeholder = "Search for room...";
+
+                                // Clear room selection
+                                document.getElementById('pinjam_selected_room_id').value = '';
+                                document.getElementById('pinjam_room_search').value = '';
+
+                                // Hide dropdown
+                                dropdown.classList.add('hidden');
+                            });
+
+                            buildingList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading buildings:', error);
+                    const errorItem = document.createElement('li');
+                    errorItem.className = 'px-4 py-2 text-red-500';
+                    errorItem.textContent = 'Error loading buildings';
+                    buildingList.appendChild(errorItem);
+                } finally {
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
+
+            // Initialize room search
+            initDropdown(
+                document.getElementById('pinjam_room_search'),
+                document.getElementById('pinjam_room_dropdown'),
+                document.getElementById('pinjam_room_list'),
+                function(searchTerm) {
+                    const buildingId = document.getElementById('pinjam_selected_building_id').value;
+                    if (buildingId) {
+                        loadRoomsForBuilding(
+                            searchTerm,
+                            buildingId,
+                            document.getElementById('pinjam_room_list'),
+                            document.getElementById('pinjam_room_loading'),
+                            document.getElementById('pinjam_selected_room_id'),
+                            document.getElementById('pinjam_room_search'),
+                            document.getElementById('pinjam_room_dropdown')
+                        );
+                    }
+                }
+            );
+
+            // Function to load rooms for the selected building
+            async function loadRoomsForBuilding(searchTerm, buildingId, roomList, loadingIndicator, selectedRoomId, searchInput, dropdown) {
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                roomList.innerHTML = '';
+
+                try {
+                    const rooms = @json($rooms ?? []);
+
+                    // Filter rooms by building ID
+                    let filteredRooms = rooms.filter(room =>
+                        (room.building_id && room.building_id == buildingId) ||
+                        (room.building && room.building.building_id == buildingId)
+                    );
+
+                    // Further filter by search term if provided
+                    if (searchTerm) {
+                        const search = searchTerm.toLowerCase();
+                        filteredRooms = filteredRooms.filter(room =>
+                            (room.room_name && room.room_name.toLowerCase().includes(search)) ||
+                            (room.room_number && room.room_number.toLowerCase().includes(search))
+                        );
+                    }
+
+                    if (filteredRooms.length === 0) {
+                        const noResults = document.createElement('li');
+                        noResults.className = 'px-4 py-2 text-gray-500 italic';
+                        noResults.textContent = 'No rooms found in this building';
+                        roomList.appendChild(noResults);
+                    } else {
+                        filteredRooms.forEach(room => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                            li.textContent = room.room_name;
+                            li.setAttribute('data-id', room.room_id);
+                            li.setAttribute('data-name', room.room_name);
+
+                            li.addEventListener('click', function() {
+                                // Set the selected room ID and name
+                                selectedRoomId.value = this.getAttribute('data-id');
+                                searchInput.value = this.getAttribute('data-name');
+
+                                // Hide dropdown
+                                dropdown.classList.add('hidden');
+                            });
+
+                            roomList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading rooms:', error);
+                    const errorItem = document.createElement('li');
+                    errorItem.className = 'px-4 py-2 text-red-500';
+                    errorItem.textContent = 'Error loading rooms';
+                    roomList.appendChild(errorItem);
+                } finally {
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
         });
     </script>
 @endsection
