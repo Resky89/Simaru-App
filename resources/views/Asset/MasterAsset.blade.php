@@ -65,7 +65,7 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">ID</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Master Asset Code</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Subcategory</th>
@@ -79,7 +79,7 @@
                             @if(isset($masterAssets) && count($masterAssets) > 0)
                                 @foreach($masterAssets as $asset)
                                 <tr data-asset-id="{{ $asset['asset_master_id'] ?? '' }}">
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_master_id'] ?? '' }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_master_code'] ?? 'N/A' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['asset_name'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                         @if(isset($asset['asset_type']))
