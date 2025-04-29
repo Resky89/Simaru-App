@@ -797,6 +797,164 @@ class MasterAssetController extends Controller
     }
 
     /**
+     * Export master assets data to PDF
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function exportMasterAssetPDF(Request $request)
+    {
+        try {
+            // Get filter parameters
+            $search = $request->input('search', '');
+            $assetType = $request->input('type', '');
+            $brandId = $request->input('brand', '');
+            $subcategoryId = $request->input('category', '');
+            $sortOrder = $request->input('sort', 'newest');
+
+            // Log request info
+            \Log::info('Exporting master assets to PDF with parameters:', [
+                'search' => $search,
+                'asset_type' => $assetType,
+                'brand_id' => $brandId,
+                'subcategory_id' => $subcategoryId,
+                'sort' => $sortOrder,
+                'request_url' => $request->fullUrl()
+            ]);
+
+            // Build query parameters
+            $queryParams = [
+                'page' => 1,
+                'limit' => 1000  // Get a large number for export
+            ];
+
+            // Set sort parameters based on sortOrder
+            switch ($sortOrder) {
+                case 'oldest':
+                    $queryParams['sort_by'] = 'asset_master_id';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                case 'name_asc':
+                    $queryParams['sort_by'] = 'asset_name';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                case 'name_desc':
+                    $queryParams['sort_by'] = 'asset_name';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
+                case 'newest':
+                default:
+                    $queryParams['sort_by'] = 'asset_master_id';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
+            }
+
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            if (!empty($assetType)) {
+                $queryParams['asset_type'] = $assetType;
+            }
+
+            if (!empty($brandId)) {
+                $queryParams['brand_id'] = $brandId;
+            }
+
+            if (!empty($subcategoryId)) {
+                $queryParams['subcategory_id'] = $subcategoryId;
+            }
+
+            // Fetch master assets for PDF
+            $masterAssetsResult = $this->apiService->request('GET', '/asset-masters', [
+                'query' => $queryParams
+            ]);
+
+            // Check for auth errors
+            if (isset($masterAssetsResult['error']) && in_array($masterAssetsResult['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during master assets export:', [
+                    'error' => $masterAssetsResult['error'],
+                    'message' => $masterAssetsResult['message'] ?? 'Authentication failed'
+                ]);
+                return redirect()->route('login')->with('error', $masterAssetsResult['message'] ?? 'Authentication failed');
+            }
+
+            // Check for API errors based on status flag
+            if (
+                (!isset($masterAssetsResult['status']) && !isset($masterAssetsResult['success'])) ||
+                (isset($masterAssetsResult['status']) && $masterAssetsResult['status'] !== true) ||
+                (isset($masterAssetsResult['success']) && $masterAssetsResult['success'] !== true)
+            ) {
+                $errorMessage = $masterAssetsResult['message'] ?? 'Failed to fetch master assets data';
+                \Log::warning('Error during master assets export:', [
+                    'error' => $errorMessage
+                ]);
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Get master assets data
+            $masterAssets = $masterAssetsResult['data'] ?? [];
+
+            // Fetch brands and subcategories data for reference
+            $brandsResult = $this->apiService->request('GET', '/brands', [
+                'query' => [
+                    'page' => 1,
+                    'limit' => 1000
+                ]
+            ]);
+            $brands = $brandsResult['data'] ?? [];
+
+            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories', [
+                'query' => [
+                    'page' => 1,
+                    'limit' => 1000
+                ]
+            ]);
+            $subcategories = $subcategoriesResult['data'] ?? [];
+
+            // Create lookup arrays for brands and subcategories for easier reference
+            $brandMap = [];
+            foreach ($brands as $brand) {
+                $brandMap[$brand['brand_id']] = $brand;
+            }
+
+            $subcategoryMap = [];
+            foreach ($subcategories as $subcategory) {
+                $subcategoryMap[$subcategory['subcategory_id']] = $subcategory;
+            }
+
+            // Generate PDF
+            $pdf = Pdf::loadView('Asset.MasterAssetPDF', [
+                'masterAssets' => $masterAssets,
+                'brandMap' => $brandMap,
+                'subcategoryMap' => $subcategoryMap,
+                'search' => $search,
+                'assetType' => $assetType,
+                'brandId' => $brandId,
+                'subcategoryId' => $subcategoryId,
+                'sort' => $sortOrder,
+                'date_generated' => now()->format('d M Y H:i:s')
+            ]);
+
+            // Log PDF generation
+            \Log::info('Master assets PDF generated successfully', [
+                'assets_count' => count($masterAssets)
+            ]);
+
+            // Stream the PDF to browser
+            return $pdf->stream('master_assets_report_' . now()->format('YmdHis') . '.pdf');
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during master assets PDF export:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to export Master Assets as PDF: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Import master assets from Excel data.
      */
     public function importMasterAsset(Request $request)

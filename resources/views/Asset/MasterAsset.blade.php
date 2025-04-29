@@ -20,6 +20,12 @@
                             </svg>
                             <span class="text-base">Import Excel</span>
                         </button>
+                        <button id="exportBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            <span class="text-base">Export PDF</span>
+                        </button>
                         <button id="addMasterAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -44,6 +50,7 @@
                     <div class="flex flex-wrap gap-4">
                         <select id="assetTypeFilter"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="" disabled selected>Select Type</option>
                             <option value="">All Types</option>
                             @foreach($assetTypes as $type)
                                 <option value="{{ $type }}">{{ ucfirst(str_replace('_', ' ', $type)) }}</option>
@@ -52,6 +59,7 @@
 
                         <select id="sortOrder"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="" disabled selected>Select Sort Order</option>
                             <option value="newest">Newest First</option>
                             <option value="oldest">Oldest First</option>
                             <option value="name_asc">Name (A-Z)</option>
@@ -1170,6 +1178,19 @@
             if (modal && content) {
                 openModal(modal, content);
             }
+        });
+
+        // Export PDF functionality
+        document.getElementById('exportBtn')?.addEventListener('click', () => {
+            // Get current URL parameters
+            const url = new URL(window.location.href);
+            const searchParams = url.searchParams;
+
+            // Create the PDF export URL with the same parameters
+            const exportUrl = "{{ route('export-asset-master-pdf') }}?" + searchParams.toString();
+
+            // Redirect to the export URL
+            window.open(exportUrl, '_blank');
         });
 
         // Edit asset functionality

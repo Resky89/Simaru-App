@@ -144,6 +144,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::post('/', [MasterAssetController::class, 'storeMasterAsset'])->name('asset-master.store');
         Route::get('/data', [MasterAssetController::class, 'getMasterAssetData'])->name('asset-master.data');
         Route::post('/import', [MasterAssetController::class, 'importMasterAsset'])->name('asset-master.import');
+        Route::get('/export-pdf', [MasterAssetController::class, 'exportMasterAssetPDF'])->name('export-asset-master-pdf');
         Route::get('/{id}', [MasterAssetController::class, 'getMasterAsset'])->name('asset-master.get');
         Route::put('/{id}', [MasterAssetController::class, 'updateMasterAsset'])->name('asset-master.update');
         Route::delete('/{id}', [MasterAssetController::class, 'destroyMasterAsset'])->name('asset-master.destroy');
