@@ -25,14 +25,18 @@ class UnitAssetController extends Controller
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 1000);
             $search = $request->input('search', '');
-            $statusFilter = $request->input('status', '');
+            $statusFilter = $request->input('current_status', '');
+            $typeFilter = $request->input('type', '');
+            $sortOrder = $request->input('sort', '');
 
             // Log request info
             \Log::info('Fetching assets with parameters:', [
                 'page' => $page,
                 'limit' => $limit,
                 'search' => $search,
-                'status' => $statusFilter,
+                'current_status' => $statusFilter,
+                'type' => $typeFilter,
+                'sort' => $sortOrder,
                 'request_url' => $request->fullUrl()
             ]);
 
@@ -40,9 +44,43 @@ class UnitAssetController extends Controller
             $query = [
                 'page' => $page,
                 'limit' => $limit,
-                'sort_by' => 'asset_id',
-                'sort_order' => 'desc'
             ];
+
+            // Set sort parameters based on user selection
+            if (!empty($sortOrder)) {
+                switch ($sortOrder) {
+                    case 'newest':
+                        $query['sort_by'] = 'created_at';
+                        $query['sort_order'] = 'desc';
+                        break;
+                    case 'oldest':
+                        $query['sort_by'] = 'created_at';
+                        $query['sort_order'] = 'asc';
+                        break;
+                    case 'name_asc':
+                        // Try using the frontend sort parameter directly
+                        $query['sort'] = 'name_asc';
+
+                        // Remove standard sort params that might interfere
+                        unset($query['sort_by']);
+                        unset($query['sort_order']);
+                        break;
+                    case 'name_desc':
+                        // Try using the frontend sort parameter directly
+                        $query['sort'] = 'name_desc';
+
+                        // Remove standard sort params that might interfere
+                        unset($query['sort_by']);
+                        unset($query['sort_order']);
+                        break;
+                    default:
+                        $query['sort_by'] = 'asset_id';
+                        $query['sort_order'] = 'desc';
+                }
+            } else {
+                $query['sort_by'] = 'asset_id';
+                $query['sort_order'] = 'desc';
+            }
 
             // Add search filter if provided
             if (!empty($search)) {
@@ -51,13 +89,43 @@ class UnitAssetController extends Controller
 
             // Add status filter if provided
             if (!empty($statusFilter)) {
-                $query['status'] = $statusFilter;
+                $query['current_status'] = $statusFilter;
+            }
+
+            // Add asset type filter if provided
+            if (!empty($typeFilter)) {
+                $query['type'] = $typeFilter;
             }
 
             // Fetch assets
+            \Log::debug('Sending API request to /assets with query parameters:', [
+                'query' => $query,
+                'sort_by' => $query['sort_by'] ?? 'none',
+                'sort_order' => $query['sort_order'] ?? 'none'
+            ]);
+
             $assetsResult = $this->apiService->request('GET', '/assets', [
                 'query' => $query
             ]);
+
+            // Comprehensive debug logging of the API response
+            \Log::debug('Complete API response for assets', [
+                'sortOrder' => $sortOrder,
+                'query_params' => $query,
+                'success' => $assetsResult['success'] ?? false,
+                'error' => $assetsResult['error'] ?? null,
+                'message' => $assetsResult['message'] ?? null,
+                'data_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0,
+                'pagination' => $assetsResult['pagination'] ?? null,
+                'request_url' => $request->fullUrl()
+            ]);
+
+            // If we have data, log a sample for debugging
+            if (!empty($assetsResult['data'])) {
+                \Log::debug('Sample data from response', [
+                    'first_item' => reset($assetsResult['data'])
+                ]);
+            }
 
             // Fetch subcategories which contain asset type information
             $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
@@ -656,28 +724,28 @@ class UnitAssetController extends Controller
                     'limit' => request()->input('limit', 10),
                     'offset' => request()->input('offset', 0)
                 ]);
-                
+
                 // Build query parameters for users API
                 $searchTerm = request()->input('search');
                 $limit = request()->input('limit', 10);
                 $offset = request()->input('offset', 0);
-                
+
                 $queryParams = [
                     'limit' => $limit,
                     'offset' => $offset,
                     'sort_by' => 'employee_number', // Sort by employee number for easier searching
                     'sort_order' => 'asc'
                 ];
-                
+
                 if (!empty($searchTerm)) {
                     $queryParams['search'] = $searchTerm;
                 }
-                
+
                 // Call the API to get users
                 $usersResult = $this->apiService->request('GET', '/users', [
                     'query' => $queryParams
                 ]);
-                
+
                 // Check for errors
                 if (isset($usersResult['error']) || !isset($usersResult['success']) || $usersResult['success'] !== true) {
                     $errorMessage = $usersResult['message'] ?? 'Failed to fetch users';
@@ -685,13 +753,13 @@ class UnitAssetController extends Controller
                         'error' => $usersResult['error'] ?? 'unknown',
                         'message' => $errorMessage
                     ]);
-                    
+
                     return response()->json([
                         'success' => false,
                         'message' => $errorMessage
                     ], 400);
                 }
-                
+
                 // Return the users data
                 return response()->json([
                     'success' => true,
@@ -699,7 +767,7 @@ class UnitAssetController extends Controller
                     'pagination' => $usersResult['pagination'] ?? null
                 ]);
             }
-            
+
             // Regular asset fetch logic continues below
             // Log request info
             \Log::info('Fetching single asset with ID:', [
@@ -1470,6 +1538,133 @@ class UnitAssetController extends Controller
             }
 
             return redirect()->back()->with('error', 'Failed to import assets: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export unit assets data to PDF
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function exportUnitAssetPDF(Request $request)
+    {
+        try {
+            // Get filter parameters
+            $search = $request->input('search', '');
+            $typeFilter = $request->input('type', '');
+            $statusFilter = $request->input('current_status', '');
+            $sortOrder = $request->input('sort', 'newest');
+
+            // Log request info
+            \Log::info('Exporting unit assets to PDF with parameters:', [
+                'search' => $search,
+                'type' => $typeFilter,
+                'current_status' => $statusFilter,
+                'sort' => $sortOrder,
+                'request_url' => $request->fullUrl()
+            ]);
+
+            // Build query parameters
+            $query = [
+                'page' => 1,
+                'limit' => 1000  // Get a large number for export
+            ];
+
+            // Set sort parameters based on user selection
+            if (!empty($sortOrder)) {
+                switch ($sortOrder) {
+                    case 'newest':
+                        $query['sort_by'] = 'created_at';
+                        $query['sort_order'] = 'desc';
+                        break;
+                    case 'oldest':
+                        $query['sort_by'] = 'created_at';
+                        $query['sort_order'] = 'asc';
+                        break;
+                    case 'name_asc':
+                        $query['sort_by'] = 'asset_name';
+                        $query['sort_order'] = 'asc';
+                        break;
+                    case 'name_desc':
+                        $query['sort_by'] = 'asset_name';
+                        $query['sort_order'] = 'desc';
+                        break;
+                    default:
+                        $query['sort_by'] = 'asset_id';
+                        $query['sort_order'] = 'desc';
+                }
+            } else {
+                $query['sort_by'] = 'asset_id';
+                $query['sort_order'] = 'desc';
+            }
+
+            // Add search filter if provided
+            if (!empty($search)) {
+                $query['search'] = $search;
+            }
+
+            // Add status filter if provided
+            if (!empty($statusFilter)) {
+                $query['current_status'] = $statusFilter;
+            }
+
+            // Add asset type filter if provided
+            if (!empty($typeFilter)) {
+                $query['type'] = $typeFilter;
+            }
+
+            // Fetch assets for PDF
+            $assetsResult = $this->apiService->request('GET', '/assets', [
+                'query' => $query
+            ]);
+
+            // Check for auth errors
+            if (isset($assetsResult['error']) && in_array($assetsResult['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during unit assets export:', [
+                    'error' => $assetsResult['error'],
+                    'message' => $assetsResult['message'] ?? 'Authentication failed'
+                ]);
+                return redirect()->route('login')->with('error', $assetsResult['message'] ?? 'Authentication failed');
+            }
+
+            // Check for API errors based on success flag
+            if (!isset($assetsResult['success']) || $assetsResult['success'] !== true) {
+                $errorMessage = $assetsResult['message'] ?? 'Failed to fetch unit assets data';
+                \Log::warning('Error during unit assets export:', [
+                    'error' => $errorMessage
+                ]);
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Get assets data
+            $assets = $assetsResult['data'] ?? [];
+
+            // Generate PDF
+            $pdf = Pdf::loadView('Asset.UnitAssetPDF', [
+                'assets' => $assets,
+                'search' => $search,
+                'typeFilter' => $typeFilter,
+                'statusFilter' => $statusFilter,
+                'sortOrder' => $sortOrder,
+                'date_generated' => now()->format('d M Y H:i:s')
+            ]);
+
+            // Log PDF generation
+            \Log::info('Unit assets PDF generated successfully', [
+                'assets_count' => count($assets)
+            ]);
+
+            // Stream the PDF to browser
+            return $pdf->stream('unit_assets_report_' . now()->format('YmdHis') . '.pdf');
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during unit assets PDF export:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to export Unit Assets as PDF: ' . $e->getMessage());
         }
     }
 }

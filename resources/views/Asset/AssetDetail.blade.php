@@ -237,6 +237,9 @@
                                             case 'dispose':
                                                 $statusColor = 'bg-[#ACC3EF]';
                                                 break;
+                                            case 'under repair':
+                                                $statusColor = 'bg-[#25B1FF]';
+                                                break;
                                         }
                                     }
                                 @endphp
@@ -258,6 +261,9 @@
                                                         break;
                                                     case 'dispose':
                                                         $statusText = 'DIHAPUSKAN';
+                                                        break;
+                                                    case 'under repair':
+                                                        $statusText = 'DALAM PERBAIKAN';
                                                         break;
                                                     default:
                                                         $statusText = strtoupper($asset['current_status']);

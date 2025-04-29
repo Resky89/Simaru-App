@@ -26,9 +26,9 @@
                             </svg>
                             <span class="text-base">Print QR</span>
                         </button>
-                        <button id="downloadPDFBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                        <button id="exportBtn" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             <span class="text-base">Export PDF</span>
                         </button>
@@ -38,6 +38,49 @@
                             </svg>
                             <span class="text-base">Add Asset</span>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="relative flex-grow">
+                        <input type="text" id="searchInput" placeholder="Search by asset name, code, or category..."
+                            class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-4">
+                        <select id="assetTypeFilter"
+                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="" disabled selected>Select Type</option>
+                            <option value="">All Types</option>
+                            <option value="medical">Medical</option>
+                            <option value="non_medical">Non Medical</option>
+                        </select>
+
+                        <select id="statusFilter"
+                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="" disabled selected>Status</option>
+                            <option value="">All Status</option>
+                            <option value="available">Available</option>
+                            <option value="check out">Check Out</option>
+                            <option value="dispose">Dispose</option>
+                            <option value="lost">Lost</option>
+                            <option value="under repair">Under Repair</option>
+                        </select>
+
+                        <select id="sortOrder"
+                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="" disabled selected>Sort Order</option>
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="name_asc">Name (A-Z)</option>
+                            <option value="name_desc">Name (Z-A)</option>
+                        </select>
                     </div>
                 </div>
 
@@ -53,6 +96,7 @@
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Category Name</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Status</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Action</th>
                             </tr>
                         </thead>
@@ -85,6 +129,36 @@
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                         {{ $asset['asset_master']['subcategory_name'] ?? '-' }}
+                                    </td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                        @php
+                                            $statusText = 'UNKNOWN';
+                                            $statusColor = 'bg-gray-500';
+
+                                            if(isset($asset['current_status'])) {
+                                                switch(strtolower($asset['current_status'])) {
+                                                    case 'available':
+                                                        $statusText = 'TERSEDIA';
+                                                        $statusColor = 'bg-[#659B09]';
+                                                        break;
+                                                    case 'check out':
+                                                        $statusText = 'DIPINJAM';
+                                                        $statusColor = 'bg-[#F59E0B]';
+                                                        break;
+                                                    case 'lost':
+                                                        $statusText = 'HILANG';
+                                                        $statusColor = 'bg-[#EF4444]';
+                                                        break;
+                                                    case 'dispose':
+                                                        $statusText = 'DIHAPUSKAN';
+                                                        $statusColor = 'bg-[#ACC3EF]';
+                                                        break;
+                                                    default:
+                                                        $statusText = strtoupper($asset['current_status']);
+                                                }
+                                            }
+                                        @endphp
+                                        <span class="px-2 py-1 rounded-md text-xs text-white {{ $statusColor }}">{{ $statusText }}</span>
                                     </td>
                                     <td class="p-3 border-t border-[#EEF1F4] text-center">
                                         <div class="flex justify-center items-center space-x-2">
@@ -2451,6 +2525,101 @@
                 }
             </style>
         `);
+
+        // Search and filter functionality
+        const searchInput = document.getElementById('searchInput');
+        const assetTypeFilter = document.getElementById('assetTypeFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const sortOrder = document.getElementById('sortOrder');
+
+        // Function to handle search and filtering
+        function applyFilters() {
+            const searchValue = searchInput?.value.trim() || '';
+            const typeValue = assetTypeFilter?.value || '';
+            const statusValue = statusFilter?.value || '';
+            const sortValue = sortOrder?.value || '';
+
+            // Create URL with filter parameters
+            const url = new URL(window.location.href);
+
+            // Clear existing parameters we're going to set
+            ['search', 'type', 'current_status', 'sort', 'page'].forEach(param => {
+                url.searchParams.delete(param);
+            });
+
+            // Add new parameters if they have values
+            if (searchValue) url.searchParams.set('search', searchValue);
+            if (typeValue) url.searchParams.set('type', typeValue);
+            if (statusValue) url.searchParams.set('current_status', statusValue);
+            if (sortValue) url.searchParams.set('sort', sortValue);
+
+            // Reset to page 1 when filters change
+            url.searchParams.set('page', 1);
+
+            // Navigate to the new URL
+            window.location.href = url.toString();
+        }
+
+        // Add event listeners with debounce for search
+        let searchTimeout;
+        searchInput?.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 500);
+        });
+
+        // Add event listeners for select filters
+        assetTypeFilter?.addEventListener('change', applyFilters);
+        statusFilter?.addEventListener('change', applyFilters);
+        sortOrder?.addEventListener('change', applyFilters);
+
+        // Set initial values from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        if (searchInput) searchInput.value = urlParams.get('search') || '';
+        if (assetTypeFilter) {
+            const typeValue = urlParams.get('type');
+            if (typeValue) {
+                assetTypeFilter.value = typeValue;
+            }
+        }
+        if (statusFilter) {
+            const statusValue = urlParams.get('current_status');
+            if (statusValue) {
+                statusFilter.value = statusValue;
+            }
+        }
+        if (sortOrder) {
+            const sortValue = urlParams.get('sort');
+            if (sortValue) {
+                sortOrder.value = sortValue;
+            }
+        }
+
+        // Update pagination functions to preserve filters
+        window.changeAssetPage = function(page) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.location.href = url.toString();
+        };
+
+        window.changeAssetPerPage = function(perPage) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', perPage);
+            url.searchParams.set('page', 1);
+            window.location.href = url.toString();
+        };
+
+        // Export PDF functionality
+        document.getElementById('exportBtn')?.addEventListener('click', () => {
+            // Get current URL parameters
+            const url = new URL(window.location.href);
+            const searchParams = url.searchParams;
+
+            // Create the PDF export URL with the same parameters
+            const exportUrl = "{{ route('assets.export.pdf') }}?" + searchParams.toString();
+
+            // Redirect to the export URL
+            window.open(exportUrl, '_blank');
+        });
     });
 </script>
 

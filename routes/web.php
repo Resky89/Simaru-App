@@ -186,6 +186,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::delete('/assets/{id}', [UnitAssetController::class, 'destroyAsset'])->name('assets.destroy');
     Route::get('assets/barcode/generate/{id}', [UnitAssetController::class, 'generateBarcode'])->name('assets.barcode.generate');
     Route::post('/assets/import', [UnitAssetController::class, 'importAssets'])->name('assets.import');
+    Route::get('/assets/export/pdf', [UnitAssetController::class, 'exportUnitAssetPDF'])->name('assets.export.pdf');
 
     // Asset Documents routes
     Route::get('/asset-documents/asset/{id}', [AssetDocumentController::class, 'getAssetDocuments'])->name('asset-documents.get');
