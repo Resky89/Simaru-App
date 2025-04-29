@@ -10,14 +10,19 @@
             MASTER ASSET: {{ $masterAsset['asset_name'] ?? 'Asset Details' }}
         </h1>
         <div class="flex gap-2">
-            <!-- Add Edit Button -->
-            <button data-master-asset-id="{{ $masterAsset['asset_master_id'] ?? '' }}" class="edit-master-asset-btn flex items-center gap-2 px-4 py-3 bg-[#28356B] rounded-lg text-white">
+            <button data-master-asset-id="{{ $masterAsset['asset_master_id'] ?? '' }}" class="edit-master-asset-btn flex items-center gap-2 px-4 py-3 border-2 border-[#28356B] rounded-lg text-[#28356B] hover:bg-[#28356B] hover:text-white transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
                 Edit
             </button>
-            <a href="{{ route('asset-master') }}" class="flex items-center gap-2 px-4 py-3 bg-gray-600 rounded-lg text-white">
+            <a href="{{ route('export-master-asset-pdf', ['id' => $masterAsset['asset_master_id'] ?? '']) }}" target="_blank" class="flex items-center gap-2 px-4 py-3 border-2 border-[#28356B] rounded-lg text-[#28356B] hover:bg-[#28356B] hover:text-white transition-colors duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Export PDF
+            </a>
+            <a href="{{ route('asset-master') }}" class="flex items-center gap-2 px-4 py-3 border-2 border-[#28356B] rounded-lg text-[#28356B] hover:bg-[#28356B] hover:text-white transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -61,7 +66,7 @@
 
                     <div class="mb-4">
                         <p class="text-sm text-gray-500">Asset Type</p>
-                        <p class="font-medium capitalize">{{ $masterAsset['asset_type'] ?? 'N/A' }}</p>
+                        <p class="font-medium">{{ isset($masterAsset['asset_type']) ? ucwords(str_replace('_', ' ', $masterAsset['asset_type'])) : 'N/A' }}</p>
                     </div>
 
                     <div class="mb-4">
@@ -286,12 +291,6 @@
                                         <select name="asset_type" id="edit_asset_type" required
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]">
                                             <option value="">Select Asset Type</option>
-                                            <option value="electronic">Electronic</option>
-                                            <option value="furniture">Furniture</option>
-                                            <option value="vehicle">Vehicle</option>
-                                            <option value="equipment">Equipment</option>
-                                            <option value="software">Software</option>
-                                            <option value="other">Other</option>
                                             <option value="medical">Medical</option>
                                             <option value="non_medical">Non Medical</option>
                                         </select>
@@ -300,29 +299,40 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label for="edit_brand_id" class="block text-base font-semibold text-[#666666]">Brand</label>
-                                        <select name="brand_id" id="edit_brand_id" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]">
-                                            <option value="">Select Brand</option>
-                                            @foreach($brands as $brand)
-                                                <option value="{{ $brand['brand_id'] }}">
-                                                    {{ $brand['brand_name'] }}
-                                                </option>
+                                        <label for="edit_subcategory_id" class="block text-base font-semibold text-[#666666]">Subcategory</label>
+                                        <div class="custom-select-container relative">
+                                            <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]"
+                                                placeholder="Search subcategory...">
+                                            <input type="hidden" name="subcategory_id" id="edit_subcategory_id" required>
+                                            <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
+                                                <div class="p-2 text-center text-gray-500">Type to search...</div>
+                                                @foreach($subcategories as $subcategory)
+                                                <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
+                                                    data-value="{{ $subcategory['subcategory_id'] }}"
+                                                    data-type="{{ $subcategory['asset_type'] ?? '' }}">
+                                                    {{ $subcategory['subcategory_name'] }}
+                                                </div>
                                             @endforeach
-                                        </select>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="space-y-2">
-                                        <label for="edit_subcategory_id" class="block text-base font-semibold text-[#666666]">Subcategory</label>
-                                        <select name="subcategory_id" id="edit_subcategory_id" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]">
-                                            <option value="">Select Subcategory</option>
-                                            @foreach($subcategories as $subcategory)
-                                                <option value="{{ $subcategory['subcategory_id'] }}" data-asset-type="{{ $subcategory['asset_type'] ?? '' }}">
-                                                    {{ $subcategory['subcategory_name'] }}
-                                                </option>
+                                        <label for="edit_brand_id" class="block text-base font-semibold text-[#666666]">Brand</label>
+                                        <div class="custom-select-container relative">
+                                            <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]"
+                                                placeholder="Search brand...">
+                                            <input type="hidden" name="brand_id" id="edit_brand_id" required>
+                                            <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
+                                                <div class="p-2 text-center text-gray-500">Type to search...</div>
+                                                @foreach($brands as $brand)
+                                                <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
+                                                    data-value="{{ $brand['brand_id'] }}">
+                                                    {{ $brand['brand_name'] }}
+                                                </div>
                                             @endforeach
-                                        </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -366,14 +376,9 @@
                                 </div>
 
                                 <!-- Submit Button -->
-                                <div class="flex justify-end space-x-3 mt-6">
-                                    <button type="button" class="close-modal px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 bg-white hover:bg-gray-50">
-                                        Cancel
+                                <button type="submit" id="edit-submit-btn" class="w-full h-[45px] bg-[#28356B] text-white rounded-lg text-base hover:bg-[#1e2c5a] transform active:scale-[0.98] transition-all duration-200 mt-6">
+                                    Update
                                     </button>
-                                    <button type="submit" id="edit-submit-btn" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm text-white bg-[#28356B] hover:bg-[#1e2c5a]">
-                                        Save Changes
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </form>
@@ -384,12 +389,127 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
-    console.log('Script loaded');
-    console.log('Edit buttons found:', document.querySelectorAll('.edit-master-asset-btn').length);
-
     document.addEventListener('DOMContentLoaded', function() {
+        // Custom select dropdown functionality
+        function initCustomSelects() {
+            document.querySelectorAll('.custom-select-container').forEach(container => {
+                const searchInput = container.querySelector('.search-input');
+                const hiddenInput = container.querySelector('input[type="hidden"]');
+                const optionsContainer = container.querySelector('.options-container');
+                const options = container.querySelectorAll('.option');
+
+                // Show options when input is focused
+                searchInput.addEventListener('focus', () => {
+                    optionsContainer.classList.remove('hidden');
+                });
+
+                // Hide options when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!container.contains(e.target)) {
+                        optionsContainer.classList.add('hidden');
+                    }
+                });
+
+                // Search functionality
+                searchInput.addEventListener('input', function() {
+                    const searchValue = this.value.toLowerCase().trim();
+                    let hasResults = false;
+
+                    // Remove any existing no-results message
+                    const existingNoResults = optionsContainer.querySelector('.no-results');
+                    if (existingNoResults) {
+                        existingNoResults.remove();
+                    }
+
+                    options.forEach(option => {
+                        const text = option.textContent.trim().toLowerCase();
+                        if (text.includes(searchValue)) {
+                            option.style.display = '';
+                            hasResults = true;
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+
+                    // Show no results message if needed
+                    if (!hasResults) {
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = 'no-results p-3 text-center text-gray-500';
+                        msgDiv.textContent = 'No results found';
+                        optionsContainer.appendChild(msgDiv);
+                    }
+                });
+
+                // Set selected option
+                options.forEach(option => {
+                    option.addEventListener('click', () => {
+                        const value = option.dataset.value;
+                        const text = option.textContent.trim();
+
+                        hiddenInput.value = value;
+                        searchInput.value = text;
+                        optionsContainer.classList.add('hidden');
+
+                        // Set asset type from subcategory if available
+                        if (hiddenInput.id === 'edit_subcategory_id' && option.dataset.type) {
+                            const assetTypeSelect = document.getElementById('edit_asset_type');
+                            if (assetTypeSelect) {
+                                assetTypeSelect.value = option.dataset.type;
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        // Function to set select value and display text for custom selects
+        function setSelectValue(selectId, value) {
+            if (!value) return;
+
+            // Get the elements
+            const container = document.querySelector(`input#${selectId}`).closest('.custom-select-container');
+            const searchInput = container.querySelector('.search-input');
+            const hiddenInput = document.getElementById(selectId);
+            const options = container.querySelectorAll('.option');
+
+            // Set the hidden input value
+            hiddenInput.value = value.toString();
+
+            // Find the matching option to display its text
+            let foundOption = null;
+            options.forEach(option => {
+                if (option.dataset.value === value.toString()) {
+                    foundOption = option;
+                }
+            });
+
+            // If option found, set text and ensure it's visible
+            if (foundOption) {
+                searchInput.value = foundOption.textContent.trim();
+            } else {
+                // Try to find name from data if option not found in DOM
+                if (selectId === 'edit_subcategory_id') {
+                    const subcategories = @json($subcategories);
+                    const subcategory = subcategories.find(sc => sc.subcategory_id.toString() === value.toString());
+                    if (subcategory) {
+                        searchInput.value = subcategory.subcategory_name || value.toString();
+                    } else {
+                        searchInput.value = value.toString();
+                    }
+                } else if (selectId === 'edit_brand_id') {
+                    const brands = @json($brands);
+                    const brand = brands.find(b => b.brand_id.toString() === value.toString());
+                    if (brand) {
+                        searchInput.value = brand.brand_name || value.toString();
+                    } else {
+                        searchInput.value = value.toString();
+                    }
+                }
+            }
+        }
+
         // Edit Master Asset Functionality
         const editButtons = document.querySelectorAll('.edit-master-asset-btn');
         const editModal = document.getElementById('editMasterAssetModal');
@@ -462,6 +582,9 @@
                 editForm.action = `/asset-master/${assetId}`;
                 openModal(editModal, editModalContent);
 
+                // Initialize custom selects
+                initCustomSelects();
+
                 // Fetch asset data
                 fetchMasterAssetDetails(assetId);
             });
@@ -510,9 +633,11 @@
             // Basic fields
             document.getElementById('edit_asset_name').value = masterAsset.asset_name || '';
             document.getElementById('edit_asset_type').value = masterAsset.asset_type || '';
-            document.getElementById('edit_brand_id').value = masterAsset.brand_id || '';
-            document.getElementById('edit_subcategory_id').value = masterAsset.subcategory_id || '';
             document.getElementById('edit_description').value = masterAsset.description || '';
+
+            // Set subcategory and brand using the helper function
+            setSelectValue('edit_subcategory_id', masterAsset.subcategory_id);
+            setSelectValue('edit_brand_id', masterAsset.brand_id);
 
             // Checkboxes with toggle switch display
             const isDepreciable = document.getElementById('edit_is_depreciable');
@@ -540,15 +665,46 @@
             }
         }
 
-        // Handle subcategory change to update asset type
-        document.getElementById('edit_subcategory_id').addEventListener('change', function() {
-            const selected = this.options[this.selectedIndex];
-            if (selected && selected.dataset.assetType) {
-                document.getElementById('edit_asset_type').value = selected.dataset.assetType;
+        // Handle asset type change to filter subcategories
+        document.getElementById('edit_asset_type').addEventListener('change', function() {
+            const selectedType = this.value;
+            const container = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
+            const options = container.querySelectorAll('.option');
+            const searchInput = container.querySelector('.search-input');
+            const hiddenInput = document.getElementById('edit_subcategory_id');
+
+            // Reset subcategory selection
+            searchInput.value = '';
+            hiddenInput.value = '';
+
+            // Filter subcategories by asset type
+            let hasVisibleOptions = false;
+            options.forEach(option => {
+                const optionType = option.dataset.type;
+                if (!selectedType || optionType === selectedType) {
+                    option.style.display = '';
+                    hasVisibleOptions = true;
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+
+            // Show a message if no matching subcategories
+            const optionsContainer = container.querySelector('.options-container');
+            const existingNoResults = optionsContainer.querySelector('.no-results');
+            if (existingNoResults) {
+                existingNoResults.remove();
+            }
+
+            if (!hasVisibleOptions) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'no-results p-3 text-center text-gray-500';
+                msgDiv.textContent = 'No subcategories found for this asset type';
+                optionsContainer.appendChild(msgDiv);
             }
         });
 
-        // Handle image change
+        // Image change
         document.getElementById('edit_image_file').addEventListener('change', function() {
             if (this.files && this.files[0]) {
                 const file = this.files[0];
@@ -610,6 +766,9 @@
             backendUrl: '{{ config('app.backend_url') }}'
         };
 
+        // Initialize custom selects on page load
+        initCustomSelects();
+
         // Tambahkan di bagian akhir script
         window.testModal = function() {
             console.log('Testing modal manually');
@@ -621,4 +780,4 @@
         }
     });
 </script>
-@endsection
+@endpush

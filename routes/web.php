@@ -151,6 +151,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // View Master Asset with linked assets
     Route::get('/view-asset-master/{id}', [ViewMasterAssetController::class, 'getMasterAssetById'])->name('view-asset-master');
+    Route::get('/view-asset-master/{id}/edit', [ViewMasterAssetController::class, 'editMasterAsset'])->name('asset-master.edit');
+    Route::get('/view-asset-master/{id}/export-pdf', [ViewMasterAssetController::class, 'exportMasterAssetPDF'])->name('export-master-asset-pdf');
 
     // Asset direct routes
     Route::get('/asset/{id}', [AssetDetailsController::class, 'show'])->name('asset.details');

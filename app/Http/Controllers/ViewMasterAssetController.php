@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ViewMasterAssetController extends Controller
 {
@@ -301,6 +302,63 @@ class ViewMasterAssetController extends Controller
 
             return redirect()->back()
                 ->with('error', 'Failed to update master asset: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export master asset detail to PDF
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function exportMasterAssetPDF($id, Request $request)
+    {
+        try {
+            // Fetch master asset details
+            $result = $this->apiService->request('GET', "/asset-masters/{$id}");
+
+            if (!isset($result['data'])) {
+                return redirect()->route('asset-master')->with('error', 'Master asset not found');
+            }
+
+            $masterAsset = $result['data'];
+
+            // Convert asset image to base64
+            if (!empty($masterAsset['reference_image_path'])) {
+                try {
+                    $backendUrl = config('app.backend_url', 'http://localhost:5000');
+                    $imageUrl = $backendUrl . '/public' . $masterAsset['reference_image_path'];
+                    $imageData = @file_get_contents($imageUrl);
+
+                    if ($imageData !== false) {
+                        $masterAsset['reference_image_base64'] = base64_encode($imageData);
+                        \Log::info('Successfully encoded image to base64', ['size' => strlen($masterAsset['reference_image_base64'])]);
+                    } else {
+                        \Log::warning('Failed to get image data', ['url' => $imageUrl]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Error loading image: ' . $e->getMessage());
+                }
+            }
+
+            // Generate PDF
+            $pdf = Pdf::loadView('Asset.ViewMasterAssetPDF', [
+                'masterAsset' => $masterAsset,
+                'date_generated' => now()->format('d M Y H:i:s')
+            ]);
+
+            // Stream the PDF to browser
+            return $pdf->stream('master_asset_detail_' . $id . '_' . now()->format('YmdHis') . '.pdf');
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during master asset detail PDF export:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'asset_master_id' => $id
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to export master asset detail as PDF: ' . $e->getMessage());
         }
     }
 }
