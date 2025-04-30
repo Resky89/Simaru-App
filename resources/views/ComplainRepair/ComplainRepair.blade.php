@@ -52,6 +52,7 @@
                         <select id="statusFilter"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="" {{ ($status ?? '') == '' ? 'selected' : '' }}>All Status</option>
+                            <option value="new" {{ ($status ?? '') == 'new' ? 'selected' : '' }}>New</option>
                             <option value="pending" {{ ($status ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
                             <option value="approved" {{ ($status ?? '') == 'approved' ? 'selected' : '' }}>Approved</option>
                             <option value="rejected" {{ ($status ?? '') == 'rejected' ? 'selected' : '' }}>Rejected</option>
@@ -100,7 +101,7 @@
 
                                             if ($status == 'approved' || $status == 'completed') {
                                                 $statusClass = 'bg-green-100 text-green-800';
-                                            } elseif ($status == 'pending') {
+                                            } elseif ($status == 'pending' || $status == 'new') {
                                                 $statusClass = 'bg-yellow-100 text-yellow-800';
                                             } elseif ($status == 'rejected') {
                                                 $statusClass = 'bg-red-100 text-red-800';

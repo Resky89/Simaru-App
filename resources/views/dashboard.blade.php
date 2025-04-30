@@ -158,32 +158,36 @@
                 <!-- Divider -->
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
 
-                <!-- Categories Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Categories Grid with scroll -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[240px] overflow-y-auto pr-2 custom-scrollbar"
+                     style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
                     @forelse($dashboardData['assets_by_subcategory'] as $category)
                         @php
                             $totalBySubcategory = array_sum(array_column($dashboardData['assets_by_subcategory'], 'count'));
                             $percentage = $totalBySubcategory ? round(($category['count'] / $totalBySubcategory) * 100) : 0;
                             $rotationDegrees = round(($percentage / 100) * 360);
 
-                            // Fix for 100% display
-                            if ($percentage == 100) {
+                            // Fix for circle display
+                            if ($category['count'] == 0) {
+                                $borderClass = 'border-[rgba(117,117,117,0.31)]';
+                            } else if ($percentage == 100) {
                                 // For 100%, show complete circle
-                                $borderStyle = 'border-[#213268]';
+                                $borderClass = 'border-[#213268]';
                             } elseif ($rotationDegrees <= 180) {
                                 // For 0-50%, adjust visibility of parts of the circle
-                                $borderStyle = 'border-[#213268] border-l-transparent border-t-transparent';
+                                $borderClass = 'border-[#213268] border-l-transparent border-t-transparent';
                             } else {
                                 // For 51-99%, adjust different parts of the circle
-                                $borderStyle = 'border-[#213268] border-r-transparent border-b-transparent';
+                                $borderClass = 'border-[#213268] border-r-transparent border-b-transparent';
                             }
                         @endphp
                         <div class="flex items-center gap-4 animate-fade-in">
-                            <div class="relative w-16 h-16">
+                            <div class="relative min-w-[64px] w-16 h-16 flex-shrink-0">
                                 <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
-                                    <div class="absolute inset-0 rounded-full border-[6px] {{ $borderStyle }} animate-loading-circle"
-                                         style="transform: rotate({{ 45 }}deg);"
-                                         data-rotation="{{ 45 + $rotationDegrees }}"></div>
+                                    <div class="absolute inset-0 rounded-full border-[6px] {{ $borderClass }} animate-loading-circle"
+                                         style="transform: rotate({{ $percentage > 0 ? 45 : 0 }}deg);"
+                                         data-rotation="{{ 45 + $rotationDegrees }}"
+                                         data-percentage="{{ $percentage }}"></div>
                                 </div>
                                 <div class="absolute inset-0 flex items-center justify-center">
                                     <span class="number-value font-['Poppins'] font-medium text-xl text-[#232D42] animate-count-up"
@@ -192,7 +196,7 @@
                                           data-target="{{ $percentage }}">0%</span>
                                 </div>
                             </div>
-                            <div class="font-['Poppins'] font-medium text-lg text-[#232D42]">{{ $category['subcategory_name'] }}</div>
+                            <div class="font-['Poppins'] font-medium text-lg text-[#232D42] truncate">{{ $category['subcategory_name'] }}</div>
                         </div>
                     @empty
                         <div class="col-span-2 text-center py-4 text-gray-500">
@@ -694,7 +698,16 @@ generateCalendar(currentMonth, currentYear);
 const animateCircles = () => {
     document.querySelectorAll('.animate-loading-circle').forEach(circle => {
         const targetRotation = circle.getAttribute('data-rotation');
-        circle.style.transform = `rotate(${targetRotation}deg)`;
+        const percentage = parseInt(circle.getAttribute('data-percentage') || '0');
+
+        // Don't animate if the percentage is 0
+        if (percentage === 0) {
+            circle.style.display = 'none'; // Completely hide the circle
+        } else if (parseInt(targetRotation) <= 45) {
+            circle.style.transform = 'rotate(45deg)';
+        } else {
+            circle.style.transform = `rotate(${targetRotation}deg)`;
+        }
     });
 };
 
@@ -702,7 +715,13 @@ const animateCircles = () => {
 const animateBars = () => {
     document.querySelectorAll('.animate-loading-bar').forEach(bar => {
         const targetWidth = bar.getAttribute('data-width');
-        bar.style.width = `${targetWidth}%`;
+        // Don't animate if width is 0
+        if (parseInt(targetWidth) === 0) {
+            bar.style.width = '0%';
+            bar.classList.remove('animate-loading-bar'); // Remove animation class
+        } else {
+            bar.style.width = `${targetWidth}%`;
+        }
     });
 };
 

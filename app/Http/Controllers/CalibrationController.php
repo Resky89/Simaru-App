@@ -346,12 +346,12 @@ class CalibrationController extends Controller
                 'calibration_result' => 'nullable|string|max:255',
                 'calibration_price' => 'nullable|numeric',
                 'notes' => 'nullable|string',
-                'document_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
+                'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
             ]);
 
             // Log request info
             \Log::info('Updating calibration with ID: ' . $id, [
-                'request_data' => $request->except(['document_file']),
+                'request_data' => $request->except(['file']),
                 'request_url' => $request->fullUrl()
             ]);
 
@@ -374,13 +374,13 @@ class CalibrationController extends Controller
             }
 
             // Handle file upload if present
-            if ($request->hasFile('document_file')) {
-                $file = $request->file('document_file');
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
 
                 // Create a multipart upload instead of base64 encoding
                 $multipart = [
                     [
-                        'name' => 'document_file',
+                        'name' => 'file',
                         'contents' => fopen($file->getPathname(), 'r'),
                         'filename' => $file->getClientOriginalName()
                     ]
