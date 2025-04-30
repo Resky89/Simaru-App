@@ -639,4 +639,78 @@ class CalibrationController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Display calibration details.
+     *
+     * @param int $id
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function showCalibrationDetail($id)
+    {
+        try {
+            // Log request info
+            \Log::info('Fetching calibration details for ID: ' . $id);
+
+            // Fetch calibration from API
+            $result = $this->apiService->request('GET', '/calibrations/' . $id);
+
+            // Log API response for debugging
+            \Log::info('API response for calibration details:', [
+                'api_response_status' => $result['status'] ?? null,
+                'api_response_message' => $result['message'] ?? null
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during calibration details retrieval:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check if the calibration exists
+            if (!isset($result['data']) || empty($result['data'])) {
+                \Log::warning('Calibration not found:', [
+                    'id' => $id,
+                    'message' => $result['message'] ?? 'Calibration not found'
+                ]);
+
+                return redirect()->route('calibration')->with('error', 'Calibration not found');
+            }
+
+            // Get calibration history if available
+            $calibrationData = $result['data'];
+
+            // Try to fetch history if it's not included in the main response
+            if (!isset($calibrationData['history'])) {
+                try {
+                    $historyResult = $this->apiService->request('GET', '/calibrations/' . $id . '/history');
+                    if (isset($historyResult['data']) && !empty($historyResult['data'])) {
+                        $calibrationData['history'] = $historyResult['data'];
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Error fetching calibration history:', [
+                        'error' => $e->getMessage()
+                    ]);
+                    // Continue without history if it fails
+                }
+            }
+
+            // Return the view with calibration data
+            return view('CalibrationDetail', [
+                'calibration' => $calibrationData
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during calibration details retrieval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->route('calibration')->with('error', 'Failed to retrieve calibration details: ' . $e->getMessage());
+        }
+    }
 }

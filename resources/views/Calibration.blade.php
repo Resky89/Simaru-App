@@ -122,24 +122,34 @@
                                                                 </td>
                                                                 <td class="p-3 border-t border-[#EEF1F4]">
                                                                     <div class="flex justify-center gap-2">
-                                                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-calibration-btn"
-                                                                            data-id="{{ $calibration['id'] }}">
+                                                                        <!-- View Details Icon (Eye) -->
+                                                                        <a href="{{ route('calibration.detail', ['id' => $calibration['id']]) }}"
+                                                                           class="text-[#3D3D3D] hover:text-[#213268]"
+                                                                           title="View Details">
                                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                                                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                                             </svg>
-                                                                        </button>
-                                                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-calibration-btn {{ in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']) ? 'hidden' : '' }}"
-                                                                            data-id="{{ $calibration['id'] }}">
+                                                                        </a>
+
+                                                                        <!-- Perform Calibration Icon (Pencil) -->
+                                                                        @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
+                                                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-calibration-btn"
+                                                                            data-id="{{ $calibration['id'] }}"
+                                                                            title="Perform Calibration">
                                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                                                     d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                                                             </svg>
                                                                         </button>
+                                                                        @endif
+
+                                                                        <!-- Delete Icon (Trash) -->
                                                                         <button class="text-[#3D3D3D] hover:text-red-500 delete-calibration-btn"
-                                                                            data-id="{{ $calibration['id'] }}">
+                                                                            data-id="{{ $calibration['id'] }}"
+                                                                            title="Delete Calibration">
                                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -447,9 +457,9 @@
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                             </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                </button>
+                                            </div>
+                                        </div>
                                             </div>
 
                                             <div class="text-center">
@@ -461,706 +471,706 @@
                                                 <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
                                             </div>
                                             <input type="file" id="document_file" name="file" accept=".pdf,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                        </div>
                                     </div>
+                                </div>
 
-                                        <!-- Calibration Notes - Full Width -->
+                                <!-- Calibration Notes - Full Width -->
+                                <div>
+                                    <label for="notes" class="block text-sm font-medium text-gray-700">CALIBRATION
+                                        NOTES</label>
+                                    <textarea id="notes" name="notes" rows="3"
+                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"></textarea>
+                                            </div>
+                                </div>
+
+                                <!-- Status -->
+                                <input type="hidden" id="status_calibration" name="status_calibration" value="completed">
+
+                                <div class="pt-4 flex justify-end gap-4">
+                                    <button type="button"
+                                        class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                                        data-modal="viewCalibrationModal">
+                                        Cancel
+                                    </button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transition-colors duration-200">
+                                        Save Calibration
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteCalibrationModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="deleteCalibrationModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE CALIBRATION</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                data-modal="deleteCalibrationModal">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Form -->
+                        <form id="deleteCalibrationForm" method="POST">
+                            @csrf
+                        <div class="p-6">
+                                <div class="space-y-6 max-w-[400px] mx-auto">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                        <p class="text-base text-gray-600 text-center">Are you sure you want to delete this calibration record? This action cannot be undone.</p>
+                                        <p id="deleteCalibrationName" class="text-base font-semibold text-center mt-2"></p>
+                                    </div>
+                                    <div class="flex gap-3">
+                                        <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
+                                        data-modal="deleteCalibrationModal">
+                                        Cancel
+                                    </button>
+                                        <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Calibration Modal -->
+        <div id="addCalibrationModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[850px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="addCalibrationModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Add New Calibration Schedule</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                data-modal="addCalibrationModal">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Form -->
+                        <div class="p-6">
+                            <form id="addCalibrationForm" class="space-y-6">
+                                @csrf
+                                <!-- Required fields note -->
+                                <div class="text-sm text-gray-600">
+                                    Field marked <span class="text-red-500">*</span> are required to fill or mandatory
+                                </div>
+
+                                <!-- Schedule Date -->
+                                <div class="bg-[#B0DAE5] p-4 rounded-lg">
+                                    <div class="flex items-center gap-4">
+                                        <div class="min-w-[150px]">
+                                            <label class="block text-base font-semibold">
+                                                SCHEDULE START<span class="text-red-500">*</span>
+                                            </label>
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="date" name="planning_calibration_date"
+                                                id="planning_calibration_date"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                required>
+                                        </div>
                                         <div>
-                                            <label for="notes" class="block text-sm font-medium text-gray-700">CALIBRATION
-                                                NOTES</label>
-                                            <textarea id="notes" name="notes" rows="3"
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"></textarea>
-                                            </div>
-                                        </div>
-
-                                        <!-- Status -->
-                                        <input type="hidden" id="status_calibration" name="status_calibration" value="completed">
-
-                                        <div class="pt-4 flex justify-end gap-4">
-                                            <button type="button"
-                                                class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
-                                                data-modal="viewCalibrationModal">
-                                                Cancel
-                                            </button>
-                                            <button type="submit"
-                                                class="px-4 py-2 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transition-colors duration-200">
-                                                Save Calibration
+                                            <button type="button" id="addAssetsBtn"
+                                                class="bg-[#4299e1] hover:bg-[#3182ce] text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
+                                                <span class="text-xl mr-1">+</span>
+                                                Add Assets
                                             </button>
                                         </div>
-                                    </form>
-                        </div>
+                                    </div>
                                 </div>
-                            </div>
+
+                                <!-- Selected Assets Table -->
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead>
+                                            <tr>
+                                                <th
+                                                    class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center w-[40px]">
+                                                    No</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
+                                                    AssetCode</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Asset
+                                                    Name</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
+                                                    Description</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Asset
+                                                    Type</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Category
+                                                    Name</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center">Action
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="selectedAssetsList">
+                                            <tr>
+                                                <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No
+                                                    data available in table</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination for selected assets -->
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-gray-600">Show</span>
+                                    <select id="selectedAssetsPerPage"
+                                        class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
+                                        <option value="15">15</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                    <span class="text-sm text-gray-600">entries</span>
+                                </div>
+
+                                <!-- Button Group -->
+                                <div class="pt-4 flex justify-end gap-4">
+                                    <button type="submit"
+                                        class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                        Save
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    <!-- Delete Confirmation Modal -->
-                    <div id="deleteCalibrationModal" class="fixed inset-0 z-50 hidden">
-                        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-                        <div class="fixed inset-0 z-50 overflow-y-auto">
-                            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                                    id="deleteCalibrationModalContent">
-                                    <!-- Header -->
-                                    <div class="flex justify-between items-center p-6 pb-0">
-                                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE CALIBRATION</h2>
-                                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                            data-modal="deleteCalibrationModal">
-                                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-
-                                    <!-- Form -->
-                                    <form id="deleteCalibrationForm" method="POST">
-                                        @csrf
-                                    <div class="p-6">
-                                            <div class="space-y-6 max-w-[400px] mx-auto">
-                                                <div class="flex flex-col items-center">
-                                                    <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                                    <p class="text-base text-gray-600 text-center">Are you sure you want to delete this calibration record? This action cannot be undone.</p>
-                                                    <p id="deleteCalibrationName" class="text-base font-semibold text-center mt-2"></p>
-                                                </div>
-                                                <div class="flex gap-3">
-                                                    <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
-                                                    data-modal="deleteCalibrationModal">
-                                                    Cancel
-                                                </button>
-                                                    <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    </form>
-                                </div>
-                            </div>
+        <!-- Asset Selection Modal -->
+        <div id="assetSelectionModal" class="fixed inset-0 z-[60] hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[1200px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="assetSelectionModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Select Assets</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                data-modal="assetSelectionModal">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
                         </div>
-                    </div>
 
-                    <!-- Add Calibration Modal -->
-                    <div id="addCalibrationModal" class="fixed inset-0 z-50 hidden">
-                        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-                        <div class="fixed inset-0 z-50 overflow-y-auto">
-                            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[850px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                                    id="addCalibrationModalContent">
-                                    <!-- Header -->
-                                    <div class="flex justify-between items-center p-6 pb-0">
-                                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Add New Calibration Schedule</h2>
-                                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                            data-modal="addCalibrationModal">
-                                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-
-                                    <!-- Form -->
-                                    <div class="p-6">
-                                        <form id="addCalibrationForm" class="space-y-6">
-                                            @csrf
-                                            <!-- Required fields note -->
-                                            <div class="text-sm text-gray-600">
-                                                Field marked <span class="text-red-500">*</span> are required to fill or mandatory
-                                            </div>
-
-                                            <!-- Schedule Date -->
-                                            <div class="bg-[#B0DAE5] p-4 rounded-lg">
-                                                <div class="flex items-center gap-4">
-                                                    <div class="min-w-[150px]">
-                                                        <label class="block text-base font-semibold">
-                                                            SCHEDULE START<span class="text-red-500">*</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="flex-1">
-                                                        <input type="date" name="planning_calibration_date"
-                                                            id="planning_calibration_date"
-                                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                            required>
-                                                    </div>
-                                                    <div>
-                                                        <button type="button" id="addAssetsBtn"
-                                                            class="bg-[#4299e1] hover:bg-[#3182ce] text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
-                                                            <span class="text-xl mr-1">+</span>
-                                                            Add Assets
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Selected Assets Table -->
-                                            <div class="overflow-x-auto">
-                                                <table class="w-full">
-                                                    <thead>
-                                                        <tr>
-                                                            <th
-                                                                class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center w-[40px]">
-                                                                No</th>
-                                                            <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
-                                                                AssetCode</th>
-                                                            <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Asset
-                                                                Name</th>
-                                                            <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
-                                                                Description</th>
-                                                            <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Asset
-                                                                Type</th>
-                                                            <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Category
-                                                                Name</th>
-                                                            <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center">Action
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="selectedAssetsList">
-                                                        <tr>
-                                                            <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No
-                                                                data available in table</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                            <!-- Pagination for selected assets -->
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-sm text-gray-600">Show</span>
-                                                <select id="selectedAssetsPerPage"
-                                                    class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
-                                                    <option value="15">15</option>
-                                                    <option value="25">25</option>
-                                                    <option value="50">50</option>
-                                                </select>
-                                                <span class="text-sm text-gray-600">entries</span>
-                                            </div>
-
-                                            <!-- Button Group -->
-                                            <div class="pt-4 flex justify-end gap-4">
-                                                <button type="submit"
-                                                    class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                                    Save
-                                                </button>
-                                            </div>
-                                        </form>
+                        <!-- Content -->
+                        <div class="p-6">
+                            <!-- Search and Filter -->
+                            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                                <div class="relative flex-grow">
+                                    <input type="text" id="assetSearchInput"
+                                        placeholder="Search by asset name, code, or serial number..."
+                                        class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Asset Selection Modal -->
-                    <div id="assetSelectionModal" class="fixed inset-0 z-[60] hidden">
-                        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-                        <div class="fixed inset-0 z-50 overflow-y-auto">
-                            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[1200px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                                    id="assetSelectionModalContent">
-                                    <!-- Header -->
-                                    <div class="flex justify-between items-center p-6 pb-0">
-                                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Select Assets</h2>
-                                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                            data-modal="assetSelectionModal">
-                                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
+                            <!-- Assets Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
+                                                <input type="checkbox" id="selectAllAssets" class="checkbox checkbox-sm">
+                                            </th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Code
+                                            </th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name
+                                            </th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description
+                                            </th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type
+                                            </th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Category
+                                                Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="assetSelectionList">
+                                        <tr>
+                                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                Loading assets...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
 
-                                    <!-- Content -->
-                                    <div class="p-6">
-                                        <!-- Search and Filter -->
-                                        <div class="flex flex-col md:flex-row gap-4 mb-4">
-                                            <div class="relative flex-grow">
-                                                <input type="text" id="assetSearchInput"
-                                                    placeholder="Search by asset name, code, or serial number..."
-                                                    class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                                <div class="absolute right-3 top-1/2 -translate-y-1/2">
-                                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Assets Table -->
-                                        <div class="overflow-x-auto">
-                                            <table class="w-full">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
-                                                            <input type="checkbox" id="selectAllAssets" class="checkbox checkbox-sm">
-                                                        </th>
-                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Code
-                                                        </th>
-                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name
-                                                        </th>
-                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description
-                                                        </th>
-                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type
-                                                        </th>
-                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Category
-                                                            Name</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="assetSelectionList">
-                                                    <tr>
-                                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                            Loading assets...</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-
-                                        <!-- Pagination -->
-                                        <div class="flex flex-col md:flex-row justify-between items-center mt-4">
-                                            <div class="flex items-center space-x-2" id="assetPaginationControls">
-                                                <!-- Pagination will be inserted here -->
-                                            </div>
-
-                                            <div class="flex items-center gap-2 mt-4 md:mt-0">
-                                                <span class="text-sm text-gray-600" id="assetPaginationInfo">
-                                                    Showing 0 to 0 of 0 entries
-                                                </span>
-                                                <select id="assetPerPageSelect"
-                                                    class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
-                                                    <option value="10">10 per page</option>
-                                                    <option value="25">25 per page</option>
-                                                    <option value="50">50 per page</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- Button Group -->
-                                        <div class="pt-4 flex justify-end gap-4">
-                                            <button type="button"
-                                                class="close-modal px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
-                                                data-modal="assetSelectionModal">
-                                                Cancel
-                                            </button>
-                                            <button type="button" id="selectAssetsBtn"
-                                                class="px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                                Select
-                                            </button>
-                                        </div>
-                                    </div>
+                            <!-- Pagination -->
+                            <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+                                <div class="flex items-center space-x-2" id="assetPaginationControls">
+                                    <!-- Pagination will be inserted here -->
                                 </div>
+
+                                <div class="flex items-center gap-2 mt-4 md:mt-0">
+                                    <span class="text-sm text-gray-600" id="assetPaginationInfo">
+                                        Showing 0 to 0 of 0 entries
+                                    </span>
+                                    <select id="assetPerPageSelect"
+                                        class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
+                                        <option value="10">10 per page</option>
+                                        <option value="25">25 per page</option>
+                                        <option value="50">50 per page</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Button Group -->
+                            <div class="pt-4 flex justify-end gap-4">
+                                <button type="button"
+                                    class="close-modal px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                                    data-modal="assetSelectionModal">
+                                    Cancel
+                                </button>
+                                <button type="button" id="selectAssetsBtn"
+                                    class="px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                    Select
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Success and Error Notifications -->
-                @if(session('success'))
-                    <div id="successNotification"
-                        class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
-                        role="alert">
-                        <div class="flex items-center">
-                            <div class="py-1">
-                                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-bold">Berhasil!</p>
-                                <p>{{ session('success') }}</p>
-                            </div>
-                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+    <!-- Success and Error Notifications -->
+    @if(session('success'))
+        <div id="successNotification"
+            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
+            role="alert">
+            <div class="flex items-center">
+                <div class="py-1">
+                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">Berhasil!</p>
+                    <p>{{ session('success') }}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+            </div>
+        </div>
+
+        <script>
+            setTimeout(function () {
+                const notification = document.getElementById('successNotification');
+                if (notification) {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function () {
+                        notification.remove();
+                    }, 500);
+                }
+            }, 5000); // Hide after 5 seconds
+        </script>
+    @endif
+
+    @if(session('error'))
+        <div id="errorNotification"
+            class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
+            role="alert">
+            <div class="flex items-center">
+                <div class="py-1">
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">Gagal!</p>
+                    <p>{{ session('error') }}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+            </div>
+        </div>
+
+        <script>
+            setTimeout(function () {
+                const notification = document.getElementById('errorNotification');
+                if (notification) {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function () {
+                        notification.remove();
+                    }, 500);
+                }
+            }, 5000); // Hide after 5 seconds
+        </script>
+    @endif
+
+    @push('scripts')
+    <script>
+        // Flash messages from server
+        const flashSuccess = @json(session('success') ?? null);
+        const flashError = @json(session('error') ?? null);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check for flash messages on page load that didn't trigger the toast
+            if (typeof flashSuccess !== 'undefined' && flashSuccess) {
+                showToast(flashSuccess, 'success');
+            }
+            if (typeof flashError !== 'undefined' && flashError) {
+                showToast(flashError, 'error');
+            }
+
+            // Mengatur tanggal minimum untuk input tanggal (tidak bisa memilih tanggal yang sudah lewat)
+            const today = new Date().toISOString().split('T')[0];
+
+            // Set min attribute untuk planning_calibration_date di modal add calibration
+            const planningDateInput = document.getElementById('planning_calibration_date');
+            if (planningDateInput) {
+                planningDateInput.setAttribute('min', today);
+            }
+
+            // Set min attribute untuk next_calibration_date di modal perform calibration
+            const nextCalibrationDateInput = document.getElementById('next_calibration_date');
+            if (nextCalibrationDateInput) {
+                nextCalibrationDateInput.setAttribute('min', today);
+            }
+
+            // Define a showToast function that creates notifications in the same style as the static ones
+            window.showToast = function(message, type = 'success') {
+                console.log('Showing toast:', message, type); // Debug log
+
+                // Remove existing notifications with the same type
+                const existingNotification = document.getElementById(type === 'success' ? 'successNotification' : 'errorNotification');
+                if (existingNotification) {
+                    existingNotification.remove();
+                }
+
+                // Create the notification element
+                const notification = document.createElement('div');
+                notification.id = type === 'success' ? 'successNotification' : 'errorNotification';
+                notification.className = `fixed top-4 right-4 bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md z-50`;
+                notification.setAttribute('role', 'alert');
+
+                // Set inner HTML
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-${type === 'success' ? 'green' : 'red'}-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="${type === 'success' ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'}" />
+                            </svg>
                         </div>
-                    </div>
-
-                    <script>
-                        setTimeout(function () {
-                            const notification = document.getElementById('successNotification');
-                            if (notification) {
-                                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                                setTimeout(function () {
-                                    notification.remove();
-                                }, 500);
-                            }
-                        }, 5000); // Hide after 5 seconds
-                    </script>
-                @endif
-
-                @if(session('error'))
-                    <div id="errorNotification"
-                        class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
-                        role="alert">
-                        <div class="flex items-center">
-                            <div class="py-1">
-                                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-bold">Gagal!</p>
-                                <p>{{ session('error') }}</p>
-                            </div>
-                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                        <div>
+                            <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
+                            <p>${message}</p>
                         </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                     </div>
+                `;
 
-                    <script>
-                        setTimeout(function () {
-                            const notification = document.getElementById('errorNotification');
-                            if (notification) {
-                                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                                setTimeout(function () {
-                                    notification.remove();
-                                }, 500);
+                // Add to document
+                document.body.appendChild(notification);
+
+                // Auto-hide after 5 seconds
+                setTimeout(function() {
+                    if (document.getElementById(notification.id)) {
+                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(function() {
+                            if (document.getElementById(notification.id)) {
+                                notification.remove();
                             }
-                        }, 5000); // Hide after 5 seconds
-                    </script>
-                @endif
+                        }, 500);
+                    }
+                }, 5000);
 
-                @push('scripts')
-                <script>
-                    // Flash messages from server
-                    const flashSuccess = @json(session('success') ?? null);
-                    const flashError = @json(session('error') ?? null);
+                return notification;
+            };
 
-                    document.addEventListener('DOMContentLoaded', function () {
-                        // Check for flash messages on page load that didn't trigger the toast
-                        if (typeof flashSuccess !== 'undefined' && flashSuccess) {
-                            showToast(flashSuccess, 'success');
+            // Show flash messages with the showToast function
+            @if(session('success'))
+            showToast("{{ session('success') }}", 'success');
+            @endif
+
+            @if(session('error'))
+            showToast("{{ session('error') }}", 'error');
+            @endif
+
+            // Handle 'Select All' checkbox for calibrations table
+            const selectAllCalibrations = document.getElementById('selectAllCalibrations');
+            if (selectAllCalibrations) {
+                selectAllCalibrations.addEventListener('change', function() {
+                    const isChecked = this.checked;
+                    document.querySelectorAll('.calibration-checkbox').forEach(checkbox => {
+                        checkbox.checked = isChecked;
+                    });
+                    updateBulkDeleteButtonVisibility();
+                });
+
+                // Update "Select All" checkbox state based on individual checkboxes
+                document.addEventListener('change', function(e) {
+                    if (e.target.classList.contains('calibration-checkbox')) {
+                        const allCheckboxes = document.querySelectorAll('.calibration-checkbox');
+                        const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
+                        selectAllCalibrations.checked = allCheckboxes.length === checkedCheckboxes.length;
+                        selectAllCalibrations.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+                        updateBulkDeleteButtonVisibility();
+                    }
+                });
+            }
+
+            // Handle bulk delete button visibility and functionality
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+            function updateBulkDeleteButtonVisibility() {
+                const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
+                if (checkedCheckboxes.length > 0) {
+                    bulkDeleteBtn.classList.remove('hidden');
+                } else {
+                    bulkDeleteBtn.classList.add('hidden');
+                }
+            }
+
+            // Handle bulk delete action
+            if (bulkDeleteBtn) {
+                bulkDeleteBtn.addEventListener('click', function() {
+                    const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
+                    if (checkedCheckboxes.length === 0) {
+                        showToast('No calibrations selected', 'error');
+                        return;
+                    }
+
+                    // Get the IDs of the selected calibrations
+                    const selectedIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.getAttribute('data-id'));
+
+                    // Open confirmation modal with count information
+                    const deleteCalibrationName = document.getElementById('deleteCalibrationName');
+                    if (deleteCalibrationName) {
+                        deleteCalibrationName.textContent = `${selectedIds.length} selected calibration records`;
+                    }
+
+                    // Set up the form for bulk delete
+                    const calibrationForm = document.getElementById('deleteCalibrationForm');
+                    if (calibrationForm) {
+                        // Set form action to the correct URL using the named route
+                        calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
+
+                        // Store the IDs in a hidden input - we'll use this in the submit handler
+                        let hiddenInput = document.getElementById('delete_calibration_id');
+                        if (!hiddenInput) {
+                            hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.id = 'delete_calibration_id';
+                            calibrationForm.appendChild(hiddenInput);
                         }
-                        if (typeof flashError !== 'undefined' && flashError) {
-                            showToast(flashError, 'error');
-                        }
 
-                        // Mengatur tanggal minimum untuk input tanggal (tidak bisa memilih tanggal yang sudah lewat)
-                        const today = new Date().toISOString().split('T')[0];
+                        // Store as comma-separated string - the submit handler will convert to array
+                        hiddenInput.value = selectedIds.join(',');
 
-                        // Set min attribute untuk planning_calibration_date di modal add calibration
-                        const planningDateInput = document.getElementById('planning_calibration_date');
-                        if (planningDateInput) {
-                            planningDateInput.setAttribute('min', today);
-                        }
+                        console.log('Preparing bulk delete for IDs:', selectedIds);
 
-                        // Set min attribute untuk next_calibration_date di modal perform calibration
-                        const nextCalibrationDateInput = document.getElementById('next_calibration_date');
-                        if (nextCalibrationDateInput) {
-                            nextCalibrationDateInput.setAttribute('min', today);
-                        }
+                        // Open delete confirmation modal
+                        openModal(modals.delete, modalContents.delete);
+                    }
+                });
+            }
 
-                        // Define a showToast function that creates notifications in the same style as the static ones
-                        window.showToast = function(message, type = 'success') {
-                            console.log('Showing toast:', message, type); // Debug log
+            // Function to change items per page
+            window.changePerPage = function (limit) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('limit', limit);
+                window.location.href = url.toString();
+            }
 
-                            // Remove existing notifications with the same type
-                            const existingNotification = document.getElementById(type === 'success' ? 'successNotification' : 'errorNotification');
-                            if (existingNotification) {
-                                existingNotification.remove();
-                            }
+            // Status filter - apply immediately on change
+            document.getElementById('statusFilter').addEventListener('change', function() {
+                applyFilters();
+            });
 
-                            // Create the notification element
-                            const notification = document.createElement('div');
-                            notification.id = type === 'success' ? 'successNotification' : 'errorNotification';
-                            notification.className = `fixed top-4 right-4 bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md z-50`;
-                            notification.setAttribute('role', 'alert');
+            // Sort order - apply immediately on change
+            document.getElementById('sortOrder').addEventListener('change', function() {
+                applyFilters();
+            });
 
-                            // Set inner HTML
-                            notification.innerHTML = `
-                                <div class="flex items-center">
-                                    <div class="py-1">
-                                        <svg class="h-6 w-6 text-${type === 'success' ? 'green' : 'red'}-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="${type === 'success' ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'}" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
-                                        <p>${message}</p>
-                                    </div>
-                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                </div>
-                            `;
+            // Function to apply all filters and sorting
+            function applyFilters() {
+                const searchTerm = document.getElementById('searchInput').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+                const sortOrder = document.getElementById('sortOrder').value;
 
-                            // Add to document
-                            document.body.appendChild(notification);
+                const url = new URL(window.location.href);
 
-                            // Auto-hide after 5 seconds
-                            setTimeout(function() {
-                                if (document.getElementById(notification.id)) {
-                                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                                    setTimeout(function() {
-                                        if (document.getElementById(notification.id)) {
-                                            notification.remove();
-                                        }
-                                    }, 500);
-                                }
-                            }, 5000);
+                // Set search parameter
+                if (searchTerm) url.searchParams.set('search', searchTerm);
+                else url.searchParams.delete('search');
 
-                            return notification;
-                        };
+                // Set status parameter
+                if (statusFilter) url.searchParams.set('status', statusFilter);
+                else url.searchParams.delete('status');
 
-                        // Show flash messages with the showToast function
-                        @if(session('success'))
-                        showToast("{{ session('success') }}", 'success');
-                        @endif
+                // Set sort parameter
+                if (sortOrder) url.searchParams.set('sort', sortOrder);
+                else url.searchParams.delete('sort');
 
-                        @if(session('error'))
-                        showToast("{{ session('error') }}", 'error');
-                        @endif
+                // Reset to first page on filter change
+                url.searchParams.set('page', 1);
 
-                        // Handle 'Select All' checkbox for calibrations table
-                        const selectAllCalibrations = document.getElementById('selectAllCalibrations');
-                        if (selectAllCalibrations) {
-                            selectAllCalibrations.addEventListener('change', function() {
-                                const isChecked = this.checked;
-                                document.querySelectorAll('.calibration-checkbox').forEach(checkbox => {
-                                    checkbox.checked = isChecked;
-                                });
-                                updateBulkDeleteButtonVisibility();
+                // Redirect to new URL with filters
+                window.location.href = url.toString();
+            }
+
+            // Search input - apply filters on debounce
+            document.getElementById('searchInput')?.addEventListener('input', debounce(function() {
+                applyFilters();
+            }, 500));
+
+            // Set existing sort value from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('sort')) {
+                document.getElementById('sortOrder').value = urlParams.get('sort');
+            }
+
+            // Remove the old event listener and filterBtn click handler since we don't need them anymore
+
+            // Modal handling
+            const modals = {
+                view: document.getElementById('viewCalibrationModal'),
+                add: document.getElementById('addCalibrationModal'),
+                asset: document.getElementById('assetSelectionModal'),
+                delete: document.getElementById('deleteCalibrationModal')
+            };
+
+            const modalContents = {
+                view: document.getElementById('viewCalibrationModalContent'),
+                add: document.getElementById('addCalibrationModalContent'),
+                asset: document.getElementById('assetSelectionModalContent'),
+                delete: document.getElementById('deleteCalibrationModalContent')
+            };
+
+            // Function to open modal
+            function openModal(modal, content) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                }, 10);
+            }
+
+            // Function to close modal
+            function closeModal(modal, content) {
+                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+
+            // Close modal buttons
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', () => {
+                    const modalId = button.getAttribute('data-modal');
+                    const modal = document.getElementById(modalId);
+                    const content = modal.querySelector('[id$="ModalContent"]');
+                    closeModal(modal, content);
+                });
+            });
+
+            // Add Calibration Button Click Handler
+            document.getElementById('addCalibrationBtn').addEventListener('click', function() {
+                // Set min date untuk planning_calibration_date setiap kali modal dibuka
+                const today = new Date().toISOString().split('T')[0];
+                const planningDateInput = document.getElementById('planning_calibration_date');
+                if (planningDateInput) {
+                    planningDateInput.setAttribute('min', today);
+                }
+
+                openModal(modals.add, modalContents.add);
+            });
+
+            // Load vendors for dropdown
+            function loadVendors() {
+                console.log('Loading vendors...');
+                fetch('/vendor?json=true', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        console.log('Vendor API response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Vendor data received:', data);
+                        const select = document.getElementById('vendor_id');
+                        select.innerHTML = '<option value="">Select Vendor</option>';
+
+                        if (Array.isArray(data)) {
+                            console.log('Processing vendors as array, length:', data.length);
+                            data.forEach(vendor => {
+                                const option = document.createElement('option');
+                                option.value = vendor.vendor_id;
+                                option.textContent = vendor.vendor_name;
+                                select.appendChild(option);
                             });
-
-                            // Update "Select All" checkbox state based on individual checkboxes
-                            document.addEventListener('change', function(e) {
-                                if (e.target.classList.contains('calibration-checkbox')) {
-                                    const allCheckboxes = document.querySelectorAll('.calibration-checkbox');
-                                    const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
-                                    selectAllCalibrations.checked = allCheckboxes.length === checkedCheckboxes.length;
-                                    selectAllCalibrations.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
-                                    updateBulkDeleteButtonVisibility();
-                                }
+                        } else if (data.vendors && Array.isArray(data.vendors)) {
+                            console.log('Processing vendors as data.vendors array, length:', data.vendors.length);
+                            data.vendors.forEach(vendor => {
+                                const option = document.createElement('option');
+                                option.value = vendor.vendor_id;
+                                option.textContent = vendor.vendor_name;
+                                select.appendChild(option);
                             });
+                        } else {
+                            console.error('Unexpected vendor data format:', data);
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error loading vendors:', error);
+                    });
+            }
 
-                        // Handle bulk delete button visibility and functionality
-                        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            // Edit calibration buttons
+            document.querySelectorAll('.edit-calibration-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const calibrationId = this.getAttribute('data-id');
+                    document.getElementById('calibration_id').value = calibrationId;
 
-                        function updateBulkDeleteButtonVisibility() {
-                            const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
-                            if (checkedCheckboxes.length > 0) {
-                                bulkDeleteBtn.classList.remove('hidden');
-                            } else {
-                                bulkDeleteBtn.classList.add('hidden');
-                            }
+                    // Fetch calibration details
+                    fetch(`/calibrations/${calibrationId}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         }
-
-                        // Handle bulk delete action
-                        if (bulkDeleteBtn) {
-                            bulkDeleteBtn.addEventListener('click', function() {
-                                const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
-                                if (checkedCheckboxes.length === 0) {
-                                    showToast('No calibrations selected', 'error');
-                                    return;
-                                }
-
-                                // Get the IDs of the selected calibrations
-                                const selectedIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.getAttribute('data-id'));
-
-                                // Open confirmation modal with count information
-                                const deleteCalibrationName = document.getElementById('deleteCalibrationName');
-                                if (deleteCalibrationName) {
-                                    deleteCalibrationName.textContent = `${selectedIds.length} selected calibration records`;
-                                }
-
-                                // Set up the form for bulk delete
-                                const calibrationForm = document.getElementById('deleteCalibrationForm');
-                                if (calibrationForm) {
-                                    // Set form action to the correct URL using the named route
-                                    calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
-
-                                    // Store the IDs in a hidden input - we'll use this in the submit handler
-                                    let hiddenInput = document.getElementById('delete_calibration_id');
-                                    if (!hiddenInput) {
-                                        hiddenInput = document.createElement('input');
-                                        hiddenInput.type = 'hidden';
-                                        hiddenInput.id = 'delete_calibration_id';
-                                        calibrationForm.appendChild(hiddenInput);
-                                    }
-
-                                    // Store as comma-separated string - the submit handler will convert to array
-                                    hiddenInput.value = selectedIds.join(',');
-
-                                    console.log('Preparing bulk delete for IDs:', selectedIds);
-
-                                    // Open delete confirmation modal
-                                    openModal(modals.delete, modalContents.delete);
-                                }
-                            });
-                        }
-
-                        // Function to change items per page
-                        window.changePerPage = function (limit) {
-                            const url = new URL(window.location.href);
-                            url.searchParams.set('limit', limit);
-                            window.location.href = url.toString();
-                        }
-
-                        // Status filter - apply immediately on change
-                        document.getElementById('statusFilter').addEventListener('change', function() {
-                            applyFilters();
-                        });
-
-                        // Sort order - apply immediately on change
-                        document.getElementById('sortOrder').addEventListener('change', function() {
-                            applyFilters();
-                        });
-
-                        // Function to apply all filters and sorting
-                        function applyFilters() {
-                            const searchTerm = document.getElementById('searchInput').value;
-                            const statusFilter = document.getElementById('statusFilter').value;
-                            const sortOrder = document.getElementById('sortOrder').value;
-
-                            const url = new URL(window.location.href);
-
-                            // Set search parameter
-                            if (searchTerm) url.searchParams.set('search', searchTerm);
-                            else url.searchParams.delete('search');
-
-                            // Set status parameter
-                            if (statusFilter) url.searchParams.set('status', statusFilter);
-                            else url.searchParams.delete('status');
-
-                            // Set sort parameter
-                            if (sortOrder) url.searchParams.set('sort', sortOrder);
-                            else url.searchParams.delete('sort');
-
-                            // Reset to first page on filter change
-                            url.searchParams.set('page', 1);
-
-                            // Redirect to new URL with filters
-                            window.location.href = url.toString();
-                        }
-
-                        // Search input - apply filters on debounce
-                        document.getElementById('searchInput')?.addEventListener('input', debounce(function() {
-                            applyFilters();
-                        }, 500));
-
-                        // Set existing sort value from URL
-                        const urlParams = new URLSearchParams(window.location.search);
-                        if (urlParams.has('sort')) {
-                            document.getElementById('sortOrder').value = urlParams.get('sort');
-                        }
-
-                        // Remove the old event listener and filterBtn click handler since we don't need them anymore
-
-                        // Modal handling
-                        const modals = {
-                            view: document.getElementById('viewCalibrationModal'),
-                            add: document.getElementById('addCalibrationModal'),
-                            asset: document.getElementById('assetSelectionModal'),
-                            delete: document.getElementById('deleteCalibrationModal')
-                        };
-
-                        const modalContents = {
-                            view: document.getElementById('viewCalibrationModalContent'),
-                            add: document.getElementById('addCalibrationModalContent'),
-                            asset: document.getElementById('assetSelectionModalContent'),
-                            delete: document.getElementById('deleteCalibrationModalContent')
-                        };
-
-                        // Function to open modal
-                        function openModal(modal, content) {
-                            modal.classList.remove('hidden');
-                            setTimeout(() => {
-                                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                            }, 10);
-                        }
-
-                        // Function to close modal
-                        function closeModal(modal, content) {
-                            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                            setTimeout(() => {
-                                modal.classList.add('hidden');
-                            }, 300);
-                        }
-
-                        // Close modal buttons
-                        document.querySelectorAll('.close-modal').forEach(button => {
-                            button.addEventListener('click', () => {
-                                const modalId = button.getAttribute('data-modal');
-                                const modal = document.getElementById(modalId);
-                                const content = modal.querySelector('[id$="ModalContent"]');
-                                closeModal(modal, content);
-                            });
-                        });
-
-                        // Add Calibration Button Click Handler
-                        document.getElementById('addCalibrationBtn').addEventListener('click', function() {
-                            // Set min date untuk planning_calibration_date setiap kali modal dibuka
-                            const today = new Date().toISOString().split('T')[0];
-                            const planningDateInput = document.getElementById('planning_calibration_date');
-                            if (planningDateInput) {
-                                planningDateInput.setAttribute('min', today);
-                            }
-
-                            openModal(modals.add, modalContents.add);
-                        });
-
-                        // Load vendors for dropdown
-                        function loadVendors() {
-                            console.log('Loading vendors...');
-                            fetch('/vendor?json=true', {
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            })
-                                .then(response => {
-                                    console.log('Vendor API response status:', response.status);
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    console.log('Vendor data received:', data);
-                                    const select = document.getElementById('vendor_id');
-                                    select.innerHTML = '<option value="">Select Vendor</option>';
-
-                                    if (Array.isArray(data)) {
-                                        console.log('Processing vendors as array, length:', data.length);
-                                        data.forEach(vendor => {
-                                            const option = document.createElement('option');
-                                            option.value = vendor.vendor_id;
-                                            option.textContent = vendor.vendor_name;
-                                            select.appendChild(option);
-                                        });
-                                    } else if (data.vendors && Array.isArray(data.vendors)) {
-                                        console.log('Processing vendors as data.vendors array, length:', data.vendors.length);
-                                        data.vendors.forEach(vendor => {
-                                            const option = document.createElement('option');
-                                            option.value = vendor.vendor_id;
-                                            option.textContent = vendor.vendor_name;
-                                            select.appendChild(option);
-                                        });
-                                    } else {
-                                        console.error('Unexpected vendor data format:', data);
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error loading vendors:', error);
-                                });
-                        }
-
-                        // Edit calibration buttons
-                        document.querySelectorAll('.edit-calibration-btn').forEach(button => {
-                            button.addEventListener('click', function () {
-                                const calibrationId = this.getAttribute('data-id');
-                                document.getElementById('calibration_id').value = calibrationId;
-
-                                // Fetch calibration details
-                                fetch(`/calibrations/${calibrationId}`, {
-                                    headers: {
-                                        'Accept': 'application/json',
-                                        'X-Requested-With': 'XMLHttpRequest'
-                                    }
-                                })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data.success) {
-                                            const calibration = data.data;
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const calibration = data.data;
 
                                             // Check if status is completed or approved and prevent editing
                                             const status = (calibration.status_calibration || '').toLowerCase();
@@ -1182,26 +1192,26 @@
                                                 nextCalibrationDateInput.setAttribute('min', today);
                                             }
 
-                                            // Set read-only display fields
-                                            document.getElementById('planning_date_display').value = calibration.planning_calibration_date || '';
-                                            document.getElementById('asset_code_display').value = calibration.asset_code || '-';
-                                            document.getElementById('asset_name_display').value = calibration.asset_name || '-';
-                                            document.getElementById('brand_name_display').value = calibration.brand_name || '-';
-                                            document.getElementById('model_number_display').value = calibration.model_number || '-';
-                                            document.getElementById('serial_number_display').value = calibration.serial_number || '-';
+                                // Set read-only display fields
+                                document.getElementById('planning_date_display').value = calibration.planning_calibration_date || '';
+                                document.getElementById('asset_code_display').value = calibration.asset_code || '-';
+                                document.getElementById('asset_name_display').value = calibration.asset_name || '-';
+                                document.getElementById('brand_name_display').value = calibration.brand_name || '-';
+                                document.getElementById('model_number_display').value = calibration.model_number || '-';
+                                document.getElementById('serial_number_display').value = calibration.serial_number || '-';
 
-                                            // Set location display
-                                            let locationText = '-';
-                                            if (calibration.location) {
-                                                const locationParts = [];
-                                                if (calibration.location.room_name) locationParts.push(calibration.location.room_name);
-                                                if (calibration.location.floor_number) locationParts.push(calibration.location.floor_number);
-                                                if (calibration.location.building_name) locationParts.push(calibration.location.building_name);
-                                                if (locationParts.length > 0) {
-                                                    locationText = locationParts.join(' | ');
-                                                }
-                                            }
-                                            document.getElementById('location_display').value = locationText;
+                                // Set location display
+                                let locationText = '-';
+                                if (calibration.location) {
+                                    const locationParts = [];
+                                    if (calibration.location.room_name) locationParts.push(calibration.location.room_name);
+                                    if (calibration.location.floor_number) locationParts.push(calibration.location.floor_number);
+                                    if (calibration.location.building_name) locationParts.push(calibration.location.building_name);
+                                    if (locationParts.length > 0) {
+                                        locationText = locationParts.join(' | ');
+                                    }
+                                }
+                                document.getElementById('location_display').value = locationText;
 
                                             // Set vendor search value if vendor exists
                                             if (calibration.vendor_id) {
@@ -1212,23 +1222,23 @@
                                                 document.getElementById('vendor_search').value = '';
                                             }
 
-                                            // Only set next_calibration_date if it exists in the data
-                                            if (calibration.next_calibration_date) {
-                                                document.getElementById('next_calibration_date').value = calibration.next_calibration_date;
-                                            }
+                                // Only set next_calibration_date if it exists in the data
+                                if (calibration.next_calibration_date) {
+                                    document.getElementById('next_calibration_date').value = calibration.next_calibration_date;
+                                }
 
-                                            document.getElementById('certificate_number').value = calibration.certificate_number || '';
-                                            document.getElementById('calibration_price').value = calibration.calibration_price || '';
-                                            document.getElementById('notes').value = calibration.notes || '';
+                                document.getElementById('certificate_number').value = calibration.certificate_number || '';
+                                document.getElementById('calibration_price').value = calibration.calibration_price || '';
+                                document.getElementById('notes').value = calibration.notes || '';
 
-                                            // Set radio button for result
-                                            if (calibration.calibration_result === 'pass') {
-                                                document.getElementById('result_pass').checked = true;
-                                            } else if (calibration.calibration_result === 'fail') {
-                                                document.getElementById('result_fail').checked = true;
-                                            } else if (calibration.calibration_result === 'unknown') {
-                                                document.getElementById('result_unknown').checked = true;
-                                            }
+                                // Set radio button for result
+                                if (calibration.calibration_result === 'pass') {
+                                    document.getElementById('result_pass').checked = true;
+                                } else if (calibration.calibration_result === 'fail') {
+                                    document.getElementById('result_fail').checked = true;
+                                } else if (calibration.calibration_result === 'unknown') {
+                                    document.getElementById('result_unknown').checked = true;
+                                }
 
                                             // Always hide file previews when opening modal
                                             const filePreview = document.getElementById('file-preview');
@@ -1263,7 +1273,7 @@
                                                             element.classList.add('bg-gray-500');
                                                             element.classList.remove('bg-[#213268]', 'hover:bg-[#152349]');
                                                         }
-                                    } else {
+                                } else {
                                                         element.removeAttribute('disabled');
                                                         if (element.tagName === 'BUTTON' && element.type === 'submit') {
                                                             element.classList.remove('bg-gray-500');
@@ -1300,20 +1310,20 @@
                                                     </div>
                                                 `;
                                                 infoMessageContainer.insertAdjacentElement('afterbegin', infoMessage);
-                                            }
+                                }
 
-                                            // Open modal
-                                            openModal(modals.view, modalContents.view);
-                                        } else {
-                                            showToast('Failed to load calibration details', 'error');
-                                        }
-                                    })
-                                    .catch(error => {
-                                        console.error('Error:', error);
-                                        showToast('An error occurred while fetching calibration details', 'error');
-                                    });
-                            });
+                                // Open modal
+                                openModal(modals.view, modalContents.view);
+                            } else {
+                                showToast('Failed to load calibration details', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('An error occurred while fetching calibration details', 'error');
                         });
+                });
+            });
 
                         // Add file upload functionality
                         document.getElementById('document_file')?.addEventListener('change', function() {
@@ -1366,231 +1376,231 @@
                                 URL.revokeObjectURL(imagePreview.src);
                                 imagePreview.src = '';
                             }
+            });
+
+            // Delete calibration buttons
+            document.querySelectorAll('.delete-calibration-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const calibrationId = this.getAttribute('data-id');
+                    const calibrationForm = document.getElementById('deleteCalibrationForm');
+                    const deleteCalibrationName = document.getElementById('deleteCalibrationName');
+
+                    // Get calibration details to show in the confirmation modal
+                    const assetName = this.closest('tr').querySelector('td:nth-child(3) .font-medium').textContent;
+                    const assetCode = this.closest('tr').querySelector('td:nth-child(3) .text-gray-500').textContent;
+
+                    // Set form action to the correct URL using the named route
+                    calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
+
+                    // Add hidden input for the calibration ID - without setting the name attribute
+                    let hiddenInput = document.getElementById('delete_calibration_id');
+                    if (!hiddenInput) {
+                        hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.id = 'delete_calibration_id';
+                        calibrationForm.appendChild(hiddenInput);
+                    }
+                    hiddenInput.value = calibrationId;
+
+                    // Set calibration name in the modal
+                    deleteCalibrationName.textContent = `${assetName} (${assetCode})`;
+
+                    // Open delete confirmation modal
+                    openModal(modals.delete, modalContents.delete);
+                });
+            });
+
+            // Form submission handler for delete
+            document.getElementById('deleteCalibrationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const form = this;
+                const calibrationIdInput = document.getElementById('delete_calibration_id').value;
+
+                // Check if the value contains a comma, which indicates multiple IDs
+                const isMultiple = calibrationIdInput.includes(',');
+                let ids = [];
+
+                if (isMultiple) {
+                    // For multiple calibrations, split the comma-separated string
+                    ids = calibrationIdInput.split(',').map(id => parseInt(id.trim()));
+                } else {
+                    // For single calibration, create array with one element
+                    ids = [parseInt(calibrationIdInput)];
+                }
+
+                // Log the request data for debugging
+                console.log('Sending delete request with IDs:', ids);
+
+                // Make the DELETE request to the server
+                fetch("{{ route('calibrations.bulk.delete') }}", {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ ids }) // Simple payload with just the IDs array
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            console.error('Server error response:', data);
+                            throw new Error(data.message || `Server responded with status ${response.status}`);
                         });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Close the modal
+                    closeModal(modals.delete, modalContents.delete);
 
-                        // Delete calibration buttons
-                        document.querySelectorAll('.delete-calibration-btn').forEach(button => {
-                            button.addEventListener('click', function () {
-                                const calibrationId = this.getAttribute('data-id');
-                                const calibrationForm = document.getElementById('deleteCalibrationForm');
-                                const deleteCalibrationName = document.getElementById('deleteCalibrationName');
+                    if (data.success) {
+                        // Show toast notification first
+                        showToast(data.message || 'Calibrations deleted successfully', 'success');
 
-                                // Get calibration details to show in the confirmation modal
-                                const assetName = this.closest('tr').querySelector('td:nth-child(3) .font-medium').textContent;
-                                const assetCode = this.closest('tr').querySelector('td:nth-child(3) .text-gray-500').textContent;
+                        // Delay the redirect slightly to allow the toast to be seen
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        showToast(data.message || 'Failed to delete calibration', 'error');
+                        console.error('Delete error:', data.errors);
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete request failed:', error);
+                    closeModal(modals.delete, modalContents.delete);
+                    showToast(error.message || 'An error occurred while deleting the calibration', 'error');
+                });
+            });
 
-                                // Set form action to the correct URL using the named route
-                                calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
+            // Update Calibration Form Submit
+            document.getElementById('updateCalibrationForm').addEventListener('submit', function (e) {
+                e.preventDefault();
 
-                                // Add hidden input for the calibration ID - without setting the name attribute
-                                let hiddenInput = document.getElementById('delete_calibration_id');
-                                if (!hiddenInput) {
-                                    hiddenInput = document.createElement('input');
-                                    hiddenInput.type = 'hidden';
-                                    hiddenInput.id = 'delete_calibration_id';
-                                    calibrationForm.appendChild(hiddenInput);
-                                }
-                                hiddenInput.value = calibrationId;
+                const calibrationId = document.getElementById('calibration_id').value;
+                const formData = new FormData(this);
 
-                                // Set calibration name in the modal
-                                deleteCalibrationName.textContent = `${assetName} (${assetCode})`;
+                // Remove the calibration_id from form data since it's used in the URL
+                formData.delete('calibration_id');
 
-                                // Open delete confirmation modal
-                                openModal(modals.delete, modalContents.delete);
-                            });
-                        });
+                // Add _method field for PUT request
+                formData.append('_method', 'PUT');
 
-                        // Form submission handler for delete
-                        document.getElementById('deleteCalibrationForm').addEventListener('submit', function(e) {
-                            e.preventDefault();
+                fetch(`/calibrations/${calibrationId}`, {
+                    method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Close the modal
+                            closeModal(modals.view, modalContents.view);
 
-                            const form = this;
-                            const calibrationIdInput = document.getElementById('delete_calibration_id').value;
+                            // Show toast notification first
+                            showToast(data.message || 'Calibration updated successfully', 'success');
 
-                            // Check if the value contains a comma, which indicates multiple IDs
-                            const isMultiple = calibrationIdInput.includes(',');
-                            let ids = [];
-
-                            if (isMultiple) {
-                                // For multiple calibrations, split the comma-separated string
-                                ids = calibrationIdInput.split(',').map(id => parseInt(id.trim()));
-                            } else {
-                                // For single calibration, create array with one element
-                                ids = [parseInt(calibrationIdInput)];
-                            }
-
-                            // Log the request data for debugging
-                            console.log('Sending delete request with IDs:', ids);
-
-                            // Make the DELETE request to the server
-                            fetch("{{ route('calibrations.bulk.delete') }}", {
-                                method: 'DELETE',
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify({ ids }) // Simple payload with just the IDs array
-                            })
-                            .then(response => {
-                                if (!response.ok) {
-                                    return response.json().then(data => {
-                                        console.error('Server error response:', data);
-                                        throw new Error(data.message || `Server responded with status ${response.status}`);
-                                    });
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                // Close the modal
-                                closeModal(modals.delete, modalContents.delete);
-
-                                if (data.success) {
-                                    // Show toast notification first
-                                    showToast(data.message || 'Calibrations deleted successfully', 'success');
-
-                                    // Delay the redirect slightly to allow the toast to be seen
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 1000);
-                                } else {
-                                    showToast(data.message || 'Failed to delete calibration', 'error');
-                                    console.error('Delete error:', data.errors);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Delete request failed:', error);
-                                closeModal(modals.delete, modalContents.delete);
-                                showToast(error.message || 'An error occurred while deleting the calibration', 'error');
-                            });
-                        });
-
-                        // Update Calibration Form Submit
-                        document.getElementById('updateCalibrationForm').addEventListener('submit', function (e) {
-                            e.preventDefault();
-
-                            const calibrationId = document.getElementById('calibration_id').value;
-                            const formData = new FormData(this);
-
-                            // Remove the calibration_id from form data since it's used in the URL
-                            formData.delete('calibration_id');
-
-                            // Add _method field for PUT request
-                            formData.append('_method', 'PUT');
-
-                            fetch(`/calibrations/${calibrationId}`, {
-                                method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                    'Accept': 'application/json'
-                                },
-                                body: formData
-                            })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        // Close the modal
-                                        closeModal(modals.view, modalContents.view);
-
-                                        // Show toast notification first
-                                        showToast(data.message || 'Calibration updated successfully', 'success');
-
-                                        // Delay the redirect slightly to allow the toast to be seen
-                                        setTimeout(() => {
-                                            window.location.href = "{{ route('calibration') }}";
-                                        }, 1000);
-                                    } else {
-                                        showToast(data.message || 'Failed to update calibration', 'error');
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    showToast('An error occurred while updating the calibration', 'error');
-                                });
-                        });
-
-                        // Selected Assets Management
-                        let selectedAssets = [];
-
-                        // Add Assets Button
-                        document.getElementById('addAssetsBtn')?.addEventListener('click', function () {
-                            // Open asset selection modal
-                            openModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
-                            // Load assets
-                            loadAssets();
-                        });
-
-                        // Debounce function to limit how often a function can be called
-                        function debounce(func, wait) {
-                            let timeout;
-                            return function () {
-                                const context = this;
-                                const args = arguments;
-                                clearTimeout(timeout);
-                                timeout = setTimeout(() => {
-                                    func.apply(context, args);
-                                }, wait);
-                            };
+                            // Delay the redirect slightly to allow the toast to be seen
+                            setTimeout(() => {
+                                window.location.href = "{{ route('calibration') }}";
+                            }, 1000);
+                        } else {
+                            showToast(data.message || 'Failed to update calibration', 'error');
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while updating the calibration', 'error');
+                    });
+            });
 
-                        // Handle search input with debounce
-                        document.getElementById('assetSearchInput')?.addEventListener('input', debounce(function () {
-                            loadAssets(1);
-                        }, 500));
+            // Selected Assets Management
+            let selectedAssets = [];
 
-                        // Load assets for selection
-                        function loadAssets(page = 1) {
-                            const searchTerm = document.getElementById('assetSearchInput').value;
-                            const limit = document.getElementById('assetPerPageSelect').value;
+            // Add Assets Button
+            document.getElementById('addAssetsBtn')?.addEventListener('click', function () {
+                // Open asset selection modal
+                openModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
+                // Load assets
+                loadAssets();
+            });
 
-                            // Show loading state
-                            document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                                            <tr>
-                                                                                                                                                <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Loading assets...</td>
-                                                                                                                                            </tr>
+            // Debounce function to limit how often a function can be called
+            function debounce(func, wait) {
+                let timeout;
+                return function () {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        func.apply(context, args);
+                    }, wait);
+                };
+            }
+
+            // Handle search input with debounce
+            document.getElementById('assetSearchInput')?.addEventListener('input', debounce(function () {
+                loadAssets(1);
+            }, 500));
+
+            // Load assets for selection
+            function loadAssets(page = 1) {
+                const searchTerm = document.getElementById('assetSearchInput').value;
+                const limit = document.getElementById('assetPerPageSelect').value;
+
+                // Show loading state
+                document.getElementById('assetSelectionList').innerHTML = `
+                                                                                                                                        <tr>
+                                                                                                                                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Loading assets...</td>
+                                                                                                                                        </tr>
                                                                                                                                     `;
 
-                            // Fetch assets from API
-                            fetch(`/assets/data?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`, {
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            })
-                                .then(response => response.json())
-                                .then(data => {
-                                    const assets = data.assets || [];
-                                    // Debug
-                                    console.log("First asset:", assets.length > 0 ? assets[0] : "No assets");
+                // Fetch assets from API
+                fetch(`/assets/data?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const assets = data.assets || [];
+                        // Debug
+                        console.log("First asset:", assets.length > 0 ? assets[0] : "No assets");
 
-                                    if (assets.length === 0) {
-                                        document.getElementById('assetSelectionList').innerHTML = `
+                        if (assets.length === 0) {
+                            document.getElementById('assetSelectionList').innerHTML = `
                                                                                                                         <tr>
                                                                                                                             <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No assets found</td>
                                                                                                                         </tr>
                                                                                                                     `;
-                                        return;
-                                    }
+                            return;
+                        }
 
-                                    // Render assets
-                                    let html = '';
-                                    assets.forEach(asset => {
-                                        const isSelected = selectedAssets.some(selectedAsset => selectedAsset.asset_id === asset.asset_id);
+                        // Render assets
+                        let html = '';
+                        assets.forEach(asset => {
+                            const isSelected = selectedAssets.some(selectedAsset => selectedAsset.asset_id === asset.asset_id);
 
-                                        // Extract subcategory name properly
-                                        let subcategoryName = '-';
-                                        try {
-                                            if (asset.subcategory) {
-                                                subcategoryName = asset.subcategory.subcategory_name || '-';
-                                            }
-                                        } catch (e) {
-                                            console.error("Error getting subcategory name:", e);
-                                        }
+                            // Extract subcategory name properly
+                            let subcategoryName = '-';
+                            try {
+                                if (asset.subcategory) {
+                                    subcategoryName = asset.subcategory.subcategory_name || '-';
+                                }
+                            } catch (e) {
+                                console.error("Error getting subcategory name:", e);
+                            }
 
-                                        // Get asset type
-                                        const assetType = asset.subcategory ? asset.subcategory.asset_type || '-' : '-';
+                            // Get asset type
+                            const assetType = asset.subcategory ? asset.subcategory.asset_type || '-' : '-';
 
-                                        html += `
+                            html += `
                                                                                                                         <tr>
                                                                                                                             <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                                                                                                                 <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}"
@@ -1613,17 +1623,17 @@
                                                                                                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">${subcategoryName}</td>
                                                                                                                         </tr>
                                                                                                                     `;
-                                    });
+                        });
 
-                                    document.getElementById('assetSelectionList').innerHTML = html;
+                        document.getElementById('assetSelectionList').innerHTML = html;
 
-                                    // Setup pagination and event handlers
-                                    setupAssetPagination(data.assets_pagination);
-                                    attachCheckboxHandlers();
-                                })
-                                .catch(error => {
-                                    console.error('Error loading assets:', error);
-                                    document.getElementById('assetSelectionList').innerHTML = `
+                        // Setup pagination and event handlers
+                        setupAssetPagination(data.assets_pagination);
+                        attachCheckboxHandlers();
+                    })
+                    .catch(error => {
+                        console.error('Error loading assets:', error);
+                        document.getElementById('assetSelectionList').innerHTML = `
                                                                                                                     <tr>
                                                                                                                         <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Error loading assets</td>
                                                                                                                     </tr>

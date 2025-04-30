@@ -346,3 +346,6 @@ Route::put('/asset-master/{id}', [ViewMasterAssetController::class, 'updateMaste
 Route::fallback(function () {
     return response()->view('Error.NotFound', [], 404);
 });
+
+// New calibration detail route
+Route::get('/calibration/detail/{id}', [CalibrationController::class, 'showCalibrationDetail'])->name('calibration.detail');
