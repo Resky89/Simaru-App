@@ -706,7 +706,7 @@ const animateCircles = () => {
         } else if (parseInt(targetRotation) <= 45) {
             circle.style.transform = 'rotate(45deg)';
         } else {
-            circle.style.transform = `rotate(${targetRotation}deg)`;
+        circle.style.transform = `rotate(${targetRotation}deg)`;
         }
     });
 };
@@ -720,7 +720,7 @@ const animateBars = () => {
             bar.style.width = '0%';
             bar.classList.remove('animate-loading-bar'); // Remove animation class
         } else {
-            bar.style.width = `${targetWidth}%`;
+        bar.style.width = `${targetWidth}%`;
         }
     });
 };

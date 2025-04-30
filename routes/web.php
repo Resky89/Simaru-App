@@ -304,12 +304,13 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Asset History routes
     Route::get('/asset-histories/{id}', [AssetHistoryController::class, 'getAssetHistory'])->name('asset-histories.get');
 
-    // Calibration route
+    // Calibration routes
     Route::get('/calibrations', [CalibrationController::class, 'index'])->name('calibration');
     Route::post('/calibrations/bulk', [CalibrationController::class, 'createBulkCalibrations'])->name('calibrations.bulk.create');
     Route::get('/calibrations/{id}', [CalibrationController::class, 'getCalibration']);
     Route::put('/calibrations/{id}', [CalibrationController::class, 'update']);
     Route::delete('/calibrations/bulk', [CalibrationController::class, 'destroy'])->name('calibrations.bulk.delete');
+    Route::get('/calibrations/export/pdf', [CalibrationController::class, 'exportCalibrationPDF'])->name('calibrations.export.pdf');
 
     // Asset Finance routes
     Route::get('/asset-transactions/asset/{assetId}', [AssetFinanceController::class, 'getAllTransactions'])->name('asset-transactions.get');

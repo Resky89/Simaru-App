@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CalibrationController extends Controller
 {
@@ -27,14 +28,17 @@ class CalibrationController extends Controller
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
             $status = $request->input('status', '');
-            $sort = $request->input('sort', 'newest');
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'desc');
 
-            // Log request info
+            // Log request info with detailed search info
             \Log::info('Fetching calibrations for view with parameters:', [
                 'page' => $page,
                 'limit' => $limit,
                 'search' => $search,
                 'status' => $status,
+                'sort_by' => $sortBy,
+                'sort_order' => $sortOrder,
                 'request_url' => $request->fullUrl(),
                 'ajax' => $request->ajax()
             ]);
@@ -45,36 +49,31 @@ class CalibrationController extends Controller
                 'limit' => $limit
             ];
 
-            // Add search parameter if provided
+            // Add search parameter if provided - this should search across task_code, asset_name, and asset_code
             if (!empty($search)) {
                 $queryParams['search'] = $search;
+                \Log::debug('Search query added:', ['search' => $search]);
             }
 
             // Add status filter if provided
             if (!empty($status)) {
                 // Only pass valid status values
                 if (in_array($status, ['scheduled', 'in_progress', 'completed', 'overdue', 'cancelled'])) {
-                    $queryParams['status'] = $status; // Pass the status parameter to the API
+                    $queryParams['status_calibration'] = $status; // Pass status_calibration to match API field name
                 }
             }
 
-            // Handle sorting with the already defined $sort variable
-            switch ($sort) {
-                case 'newest':
-                    $queryParams['sort_by'] = 'created_at';
-                    $queryParams['sort_order'] = 'desc';
-                    break;
-                case 'oldest':
-                    $queryParams['sort_by'] = 'created_at';
-                    $queryParams['sort_order'] = 'asc';
-                    break;
-                default:
-                    // Default sort (newest first)
-                    $queryParams['sort_by'] = 'created_at';
-                    $queryParams['sort_order'] = 'desc';
+            // Add sorting parameters
+            if (!empty($sortBy)) {
+                $queryParams['sort_by'] = $sortBy;
             }
 
-            // Fetch calibrations
+            if (!empty($sortOrder)) {
+                $queryParams['sort_order'] = $sortOrder;
+            }
+
+            // Fetch calibrations with detailed logging
+            \Log::debug('Sending API request with query params:', $queryParams);
             $result = $this->apiService->request('GET', '/calibrations', [
                 'query' => $queryParams
             ]);
@@ -122,7 +121,8 @@ class CalibrationController extends Controller
                 'pagination' => $pagination,
                 'search' => $search,
                 'status' => $status,
-                'sort' => $sort
+                'sort_by' => $sortBy,
+                'sort_order' => $sortOrder
             ]);
 
         } catch (\Exception $e) {
@@ -143,7 +143,8 @@ class CalibrationController extends Controller
                 'pagination' => null,
                 'search' => $search,
                 'status' => $status,
-                'sort' => $sort,
+                'sort_by' => $sortBy,
+                'sort_order' => $sortOrder,
                 'error' => 'Failed to retrieve calibrations: ' . $e->getMessage()
             ]);
         }
@@ -337,7 +338,7 @@ class CalibrationController extends Controller
     {
         try {
             // Validate the request
-            $request->validate([
+            $validator = \Validator::make($request->all(), [
                 'actual_calibration_date' => 'nullable|date',
                 'next_calibration_date' => 'nullable|date',
                 'status_calibration' => 'nullable|string|in:scheduled,in_progress,completed,overdue',
@@ -349,11 +350,34 @@ class CalibrationController extends Controller
                 'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
             ]);
 
+            if ($validator->fails()) {
+                \Log::warning('Validation error in calibration update:', [
+                    'errors' => $validator->errors()->toArray()
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
             // Log request info
             \Log::info('Updating calibration with ID: ' . $id, [
                 'request_data' => $request->except(['file']),
                 'request_url' => $request->fullUrl()
             ]);
+
+            // Verify if file exists in request
+            if ($request->hasFile('file')) {
+                \Log::info('File detected in calibration update request', [
+                    'file_name' => $request->file('file')->getClientOriginalName(),
+                    'file_size' => $request->file('file')->getSize(),
+                    'file_type' => $request->file('file')->getMimeType()
+                ]);
+            } else {
+                \Log::info('No file detected in calibration update request');
+            }
 
             $requestData = [];
             $fields = [
@@ -376,6 +400,11 @@ class CalibrationController extends Controller
             // Handle file upload if present
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
+                \Log::info('Processing file for calibration update:', [
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_size' => $file->getSize(),
+                    'file_mime' => $file->getMimeType()
+                ]);
 
                 // Create a multipart upload instead of base64 encoding
                 $multipart = [
@@ -394,15 +423,25 @@ class CalibrationController extends Controller
                     ];
                 }
 
+                \Log::info('Sending multipart request with file to API', [
+                    'multipart_fields' => array_map(function($item) {
+                        return $item['name'];
+                    }, $multipart)
+                ]);
+
                 // Send request to API using multipart form data
                 $result = $this->apiService->request('PUT', '/calibrations/' . $id, [
                     'multipart' => $multipart
                 ]);
             } else {
+                \Log::info('Sending calibration update request without file', [
+                    'request_data_keys' => array_keys($requestData)
+                ]);
+
                 // Send request to API without file
-            $result = $this->apiService->request('PUT', '/calibrations/' . $id, [
-                'json' => $requestData
-            ]);
+                $result = $this->apiService->request('PUT', '/calibrations/' . $id, [
+                    'json' => $requestData
+                ]);
             }
 
             // Log API response for debugging
@@ -711,6 +750,104 @@ class CalibrationController extends Controller
             ]);
 
             return redirect()->route('calibration')->with('error', 'Failed to retrieve calibration details: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export calibrations data to PDF
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function exportCalibrationPDF(Request $request)
+    {
+        try {
+            // Get filter parameters
+            $search = $request->input('search', '');
+            $status = $request->input('status', '');
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'desc');
+
+            // Log request info
+            \Log::info('Exporting calibrations to PDF with parameters:', [
+                'search' => $search,
+                'status' => $status,
+                'sort_by' => $sortBy,
+                'sort_order' => $sortOrder,
+                'request_url' => $request->fullUrl()
+            ]);
+
+            // Build query parameters
+            $queryParams = [
+                'page' => 1,
+                'limit' => 1000  // Get a large number for export
+            ];
+
+            // Add search parameter if provided
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            // Add status filter if provided
+            if (!empty($status)) {
+                // Only pass valid status values
+                if (in_array($status, ['scheduled', 'in_progress', 'completed', 'overdue', 'cancelled'])) {
+                    $queryParams['status_calibration'] = $status;
+                }
+            }
+
+            // Add sorting parameters
+            if (!empty($sortBy)) {
+                $queryParams['sort_by'] = $sortBy;
+            }
+
+            if (!empty($sortOrder)) {
+                $queryParams['sort_order'] = $sortOrder;
+            }
+
+            // Fetch calibrations from API
+            $result = $this->apiService->request('GET', '/calibrations', [
+                'query' => $queryParams
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during calibrations PDF export:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Get calibrations data
+            $calibrations = $result['data'] ?? [];
+
+            // Generate PDF
+            $pdf = Pdf::loadView('CalibrationPDF', [
+                'calibrations' => $calibrations,
+                'search' => $search,
+                'status' => $status,
+                'sort_by' => $sortBy,
+                'sort_order' => $sortOrder,
+                'date_generated' => now()->format('d M Y H:i:s')
+            ]);
+
+            // Log PDF generation
+            \Log::info('Calibrations PDF generated successfully', [
+                'calibrations_count' => count($calibrations)
+            ]);
+
+            // Stream the PDF to browser
+            return $pdf->stream('calibration_report_' . now()->format('YmdHis') . '.pdf');
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during calibrations PDF export:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to export Calibrations as PDF: ' . $e->getMessage());
         }
     }
 }

@@ -12,23 +12,31 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">CALIBRATION</h1>
 
-                        <!-- Button Add Calibration -->
-                        <button id="addCalibrationBtn"
-                            class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
-                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6"
-                                    stroke-linecap="round" />
-                                <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
-                                    stroke-linecap="round" />
-                            </svg>
-                            <span class="text-base">Add Calibration</span>
-                        </button>
+                        <div class="flex gap-4">
+                            <button id="exportBtn" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                <span class="text-base">Export PDF</span>
+                            </button>
+
+                            <button id="addCalibrationBtn"
+                                class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                                <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6"
+                                        stroke-linecap="round" />
+                                    <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
+                                        stroke-linecap="round" />
+                                </svg>
+                                <span class="text-base">Add Calibration</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Search and Filter -->
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="relative flex-grow">
-                            <input type="text" id="searchInput" placeholder="Search by asset name or code..."
+                            <input type="text" id="searchInput" placeholder="Search by task code, asset name, or asset code..."
                                 class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,14 +48,17 @@
                         <div class="flex gap-4">
                             <select id="statusFilter"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" disabled selected>Status</option>
                                 <option value="">All Status</option>
-                                <option value="scheduled">scheduled</option>
-                                <option value="in_progress">in_progress</option>
-                                <option value="completed">completed</option>
-                                <option value="cancelled">cancelled</option>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="overdue">Overdue</option>
+                                <option value="cancelled">Cancelled</option>
                             </select>
                             <select id="sortOrder"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" disabled selected>Sort Order</option>
                                 <option value="newest">Newest First</option>
                                 <option value="oldest">Oldest First</option>
                             </select>
@@ -69,6 +80,11 @@
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Location</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Planned Date</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Actual Date</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Next Date</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Certificate</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Result</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Cost</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Status</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action
                                     </th>
@@ -100,6 +116,21 @@
                                                                 </td>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                                                     {{ $calibration['planning_calibration_date'] ? date('d M Y', strtotime($calibration['planning_calibration_date'])) : '-' }}
+                                                                </td>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                    {{ isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'] ? date('d M Y', strtotime($calibration['actual_calibration_date'])) : '-' }}
+                                                                </td>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                    {{ isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'] ? date('d M Y', strtotime($calibration['next_calibration_date'])) : '-' }}
+                                                                </td>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                    {{ $calibration['certificate_number'] ?? '-' }}
+                                                                </td>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                    {{ $calibration['calibration_result'] ?? '-' }}
+                                                                </td>
+                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                    {{ isset($calibration['calibration_price']) && $calibration['calibration_price'] ? number_format((float)$calibration['calibration_price'], 0, ',', '.') : '-' }}
                                                                 </td>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                                                     @php
@@ -160,7 +191,7 @@
                                                             </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No
+                                        <td colspan="12" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No
                                             calibrations found</td>
                                     </tr>
                                 @endforelse
@@ -845,6 +876,22 @@
                 showToast(flashError, 'error');
             }
 
+            // Debounce utility function to limit how often a function can be called
+            function debounce(func, wait, immediate) {
+                let timeout;
+                return function() {
+                    const context = this, args = arguments;
+                    const later = function() {
+                        timeout = null;
+                        if (!immediate) func.apply(context, args);
+                    };
+                    const callNow = immediate && !timeout;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                    if (callNow) func.apply(context, args);
+                };
+            }
+
             // Mengatur tanggal minimum untuk input tanggal (tidak bisa memilih tanggal yang sudah lewat)
             const today = new Date().toISOString().split('T')[0];
 
@@ -1007,14 +1054,20 @@
             }
 
             // Status filter - apply immediately on change
-            document.getElementById('statusFilter').addEventListener('change', function() {
-                applyFilters();
-            });
+            const statusFilterSelect = document.getElementById('statusFilter');
+            if (statusFilterSelect) {
+                statusFilterSelect.addEventListener('change', function() {
+                    applyFilters();
+                });
+            }
 
             // Sort order - apply immediately on change
-            document.getElementById('sortOrder').addEventListener('change', function() {
-                applyFilters();
-            });
+            const sortOrderSelect = document.getElementById('sortOrder');
+            if (sortOrderSelect) {
+                sortOrderSelect.addEventListener('change', function() {
+                    applyFilters();
+                });
+            }
 
             // Function to apply all filters and sorting
             function applyFilters() {
@@ -1032,9 +1085,35 @@
                 if (statusFilter) url.searchParams.set('status', statusFilter);
                 else url.searchParams.delete('status');
 
-                // Set sort parameter
-                if (sortOrder) url.searchParams.set('sort', sortOrder);
-                else url.searchParams.delete('sort');
+                // Set sort parameter based on selected option
+                if (sortOrder) {
+                    // Map front-end sort values to backend expected values
+                    let sortBy, sortDirection;
+
+                    switch(sortOrder) {
+                        case 'newest':
+                            sortBy = 'created_at';
+                            sortDirection = 'desc';
+                            break;
+                        case 'oldest':
+                            sortBy = 'created_at';
+                            sortDirection = 'asc';
+                            break;
+                        default:
+                            sortBy = 'created_at';
+                            sortDirection = 'desc';
+                    }
+
+                    url.searchParams.set('sort_by', sortBy);
+                    url.searchParams.set('sort_order', sortDirection);
+
+                    // Keep the frontend sort value for the select element
+                    url.searchParams.set('sort', sortOrder);
+                } else {
+                    url.searchParams.delete('sort_by');
+                    url.searchParams.delete('sort_order');
+                    url.searchParams.delete('sort');
+                }
 
                 // Reset to first page on filter change
                 url.searchParams.set('page', 1);
@@ -1044,17 +1123,85 @@
             }
 
             // Search input - apply filters on debounce
-            document.getElementById('searchInput')?.addEventListener('input', debounce(function() {
-                applyFilters();
-            }, 500));
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                // Fill the search input with the value from URL if it exists
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('search')) {
+                    searchInput.value = urlParams.get('search');
+                }
 
-            // Set existing sort value from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('sort')) {
-                document.getElementById('sortOrder').value = urlParams.get('sort');
+                // Add debounced event listener for input
+                searchInput.addEventListener('input', debounce(function() {
+                    applyFilters();
+                }, 500));
+
+                // Also handle Enter key press
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyFilters();
+                    }
+                });
             }
 
-            // Remove the old event listener and filterBtn click handler since we don't need them anymore
+            // Set existing values from URL for filters
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Set sort value
+            const sortSelect = document.getElementById('sortOrder');
+            if (sortSelect) {
+                // Remove disabled and selected from all options first
+                Array.from(sortSelect.options).forEach(option => {
+                    option.removeAttribute('selected');
+                });
+
+                // Get the sort value from URL
+                if (urlParams.has('sort') && urlParams.get('sort')) {
+                    sortSelect.value = urlParams.get('sort');
+
+                    // If no matching option found, set to first non-placeholder option
+                    if (sortSelect.selectedIndex === -1) {
+                        sortSelect.selectedIndex = 1; // Index 1 is "Newest First"
+                    }
+                } else {
+                    // If there's no sort value but there is sort_by/sort_order, try to map back
+                    const sortBy = urlParams.get('sort_by');
+                    const sortOrder = urlParams.get('sort_order');
+
+                    if (sortBy && sortOrder) {
+                        if (sortBy === 'created_at' && sortOrder === 'desc') {
+                            sortSelect.value = 'newest';
+                        } else if (sortBy === 'created_at' && sortOrder === 'asc') {
+                            sortSelect.value = 'oldest';
+                        }
+                    } else {
+                        // Default to "Newest First" if no sort specified
+                        sortSelect.selectedIndex = 1;
+                    }
+                }
+            }
+
+            // Set status filter value
+            const statusSelect = document.getElementById('statusFilter');
+            if (statusSelect) {
+                // Remove selected from all options first
+                Array.from(statusSelect.options).forEach(option => {
+                    option.removeAttribute('selected');
+                });
+
+                if (urlParams.has('status') && urlParams.get('status')) {
+                    statusSelect.value = urlParams.get('status');
+
+                    // If no matching option found, set to first non-placeholder option
+                    if (statusSelect.selectedIndex === -1) {
+                        statusSelect.selectedIndex = 1; // Index 1 is "All Status"
+                    }
+                } else {
+                    // Default to "All Status" if no status specified
+                    statusSelect.selectedIndex = 1;
+                }
+            }
 
             // Modal handling
             const modals = {
@@ -1555,10 +1702,10 @@
 
                 // Show loading state
                 document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                                        <tr>
-                                                                                                                                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Loading assets...</td>
-                                                                                                                                        </tr>
-                                                                                                                                    `;
+                    <tr>
+                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Loading assets...</td>
+                    </tr>
+                `;
 
                 // Fetch assets from API
                 fetch(`/assets/data?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`, {
@@ -1567,78 +1714,89 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        const assets = data.assets || [];
-                        // Debug
-                        console.log("First asset:", assets.length > 0 ? assets[0] : "No assets");
+                .then(response => response.json())
+                .then(data => {
+                    const assets = data.assets || [];
+                    // Debug
+                    console.log("First asset:", assets.length > 0 ? assets[0] : "No assets");
 
-                        if (assets.length === 0) {
-                            document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                        <tr>
-                                                                                                                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No assets found</td>
-                                                                                                                        </tr>
-                                                                                                                    `;
-                            return;
+                    if (assets.length === 0) {
+                        document.getElementById('assetSelectionList').innerHTML = `
+                            <tr>
+                                <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No assets found</td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    // Render assets
+                    let html = '';
+                    assets.forEach(asset => {
+                        const isSelected = selectedAssets.some(selectedAsset => selectedAsset.asset_id === asset.asset_id);
+
+                        // Get asset name - check both direct property and nested structure
+                        const assetName = asset.asset_master_name ||
+                                         (asset.asset_master && asset.asset_master.asset_name) ||
+                                         '-';
+
+                        // Get asset code
+                        const assetCode = asset.asset_code || '-';
+
+                        // Get asset type based on asset_master_code pattern
+                        let assetType = 'Non Medical';
+                        if (asset.asset_master && asset.asset_master.asset_master_code) {
+                            const code = asset.asset_master.asset_master_code;
+                            if (code.startsWith('MED-')) {
+                                assetType = 'Medical';
+                            }
                         }
 
-                        // Render assets
-                        let html = '';
-                        assets.forEach(asset => {
-                            const isSelected = selectedAssets.some(selectedAsset => selectedAsset.asset_id === asset.asset_id);
+                        // Get category name from asset_master if it exists
+                        const categoryName = asset.asset_master && asset.asset_master.subcategory_name ?
+                                            asset.asset_master.subcategory_name : '-';
 
-                            // Extract subcategory name properly
-                            let subcategoryName = '-';
-                            try {
-                                if (asset.subcategory) {
-                                    subcategoryName = asset.subcategory.subcategory_name || '-';
-                                }
-                            } catch (e) {
-                                console.error("Error getting subcategory name:", e);
-                            }
+                        // Get description
+                        const description = asset.description || '-';
 
-                            // Get asset type
-                            const assetType = asset.subcategory ? asset.subcategory.asset_type || '-' : '-';
-
-                            html += `
-                                                                                                                        <tr>
-                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                                                <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}"
-                                                                                                                                    data-asset-id="${asset.asset_id}"
-                                                                                                                                    data-asset-name="${asset.asset_name || ''}"
-                                                                                                                                    data-asset-code="${asset.asset_code || ''}"
-                                                                                                                                    data-asset-description="${asset.description || ''}"
-                                                                                                                                    data-asset-type="${assetType}"
-                                                                                                                                    data-category-name="${subcategoryName}"
-                                                                                                                                    ${isSelected ? 'checked' : ''}>
-                                                                                                                            </td>
-                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
-                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                                                                                <div class="flex flex-col">
-                                                                                                                                    <span class="font-medium">${asset.asset_name || '-'}</span>
-                                                                                                                                </div>
-                                                                                                                            </td>
-                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
-                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetType}</td>
-                                                                                                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${subcategoryName}</td>
-                                                                                                                        </tr>
-                                                                                                                    `;
-                        });
-
-                        document.getElementById('assetSelectionList').innerHTML = html;
-
-                        // Setup pagination and event handlers
-                        setupAssetPagination(data.assets_pagination);
-                        attachCheckboxHandlers();
-                    })
-                    .catch(error => {
-                        console.error('Error loading assets:', error);
-                        document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                    <tr>
-                                                                                                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Error loading assets</td>
-                                                                                                                    </tr>
-                                                                                                                `;
+                        html += `
+                            <tr>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                    <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}"
+                                        data-asset-id="${asset.asset_id}"
+                                        data-asset-name="${assetName}"
+                                        data-asset-code="${assetCode}"
+                                        data-asset-description="${description}"
+                                        data-asset-type="${assetType}"
+                                        data-category-name="${categoryName}"
+                                        ${isSelected ? 'checked' : ''}>
+                                </td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetCode}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">${assetName}</span>
+                                    </div>
+                                </td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${description}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetType}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
+                            </tr>
+                        `;
                     });
+
+                    document.getElementById('assetSelectionList').innerHTML = html;
+
+                    // Setup pagination and event handlers
+                    setupAssetPagination(data.assets_pagination);
+                    attachCheckboxHandlers();
+                })
+                .catch(error => {
+                    console.error('Error loading assets:', error);
+                    document.getElementById('assetSelectionList').innerHTML = `
+                        <tr>
+                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Error loading assets</td>
+                        </tr>
+                    `;
+                });
             }
 
             // Handle this separate function to handle checkbox events
@@ -1673,11 +1831,18 @@
                                 asset_code: assetCode,
                                 description: description,
                                 asset_type: assetType,
-                                subcategory_name: categoryName
+                                category_name: categoryName,
+                                // Add asset_master structure for compatibility with UnitAsset.blade.php
+                                asset_master: {
+                                    asset_name: assetName,
+                                    asset_master_code: assetType === 'Medical' ? 'MED-' : 'NMED-',
+                                    subcategory_name: categoryName
+                                }
                             });
                         }
 
                         console.log("Updated selectedAssets:", selectedAssets.length, "items");
+                        updateSelectedAssetsTable();
                     };
                 });
 
@@ -1818,36 +1983,46 @@
             function updateSelectedAssetsTable() {
                 if (selectedAssets.length === 0) {
                     document.getElementById('selectedAssetsList').innerHTML = `
-                                                                                                                    <tr>
-                                                                                                                        <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No data available in table</td>
-                                                                                                                    </tr>
-                                                                                                                `;
+                        <tr>
+                            <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No data available in table</td>
+                        </tr>
+                    `;
                     return;
                 }
 
                 let html = '';
                 selectedAssets.forEach((asset, index) => {
+                    // Get asset name - using either the direct property or the one in asset_master
+                    const assetName = asset.asset_name ||
+                                     (asset.asset_master && asset.asset_master.asset_name) ||
+                                     '-';
+
+                    // Get category name - check both properties
+                    const categoryName = asset.category_name ||
+                                        (asset.asset_master && asset.asset_master.subcategory_name) ||
+                                        '-';
+
                     html += `
-                                                                                                                    <tr>
-                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
-                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
-                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                                                                            <div class="flex flex-col">
-                                                                                                                                <span class="font-medium">${asset.asset_name || '-'}</span>
-                                                                                                                            </div>
-                                                                                                                        </td>
-                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
-                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
-                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.subcategory_name || '-'}</td>
-                                                                                                                        <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                                            <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.asset_id})">
-                                                                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                                                                                </svg>
-                                                                                                                            </button>
-                                                                                                                        </td>
-                                                                                                                    </tr>
-                                                                                                                `;
+                        <tr>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                <div class="flex flex-col">
+                                    <span class="font-medium">${assetName}</span>
+                                </div>
+                            </td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.asset_id})">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
                 });
 
                 document.getElementById('selectedAssetsList').innerHTML = html;
@@ -2178,6 +2353,18 @@
                     vendorResults.appendChild(countDiv);
                 }
             }
+            // Export PDF functionality
+            document.getElementById('exportBtn')?.addEventListener('click', () => {
+                // Get current URL parameters
+                const url = new URL(window.location.href);
+                const searchParams = url.searchParams;
+
+                // Create the PDF export URL with the same parameters
+                const exportUrl = "{{ route('calibrations.export.pdf') }}?" + searchParams.toString();
+
+                // Redirect to the export URL
+                window.open(exportUrl, '_blank');
+            });
         });
     </script>
     @endpush
