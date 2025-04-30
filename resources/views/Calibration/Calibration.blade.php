@@ -56,6 +56,14 @@
                                 <option value="overdue">Overdue</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>
+                            <select id="resultFilter"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" disabled selected>Result</option>
+                                <option value="">All Results</option>
+                                <option value="pass">Lulus</option>
+                                <option value="fail">Gagal</option>
+                                <option value="unknown">Tidak Ditemukan</option>
+                            </select>
                             <select id="sortOrder"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" disabled selected>Sort Order</option>
@@ -127,7 +135,28 @@
                                                                     {{ $calibration['certificate_number'] ?? '-' }}
                                                                 </td>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    {{ $calibration['calibration_result'] ?? '-' }}
+                                                                    @php
+                                                                        $resultClass = '';
+                                                                        $resultText = $calibration['calibration_result'] ?? '-';
+
+                                                                        if (strtolower($resultText) == 'pass') {
+                                                                            $resultClass = 'bg-green-100 text-green-800';
+                                                                            $resultText = 'Lulus';
+                                                                        } elseif (strtolower($resultText) == 'fail') {
+                                                                            $resultClass = 'bg-red-100 text-red-800';
+                                                                            $resultText = 'Gagal';
+                                                                        } elseif (strtolower($resultText) == 'unknown') {
+                                                                            $resultClass = 'bg-yellow-100 text-yellow-800';
+                                                                            $resultText = 'Tidak Ditemukan';
+                                                                        }
+                                                                    @endphp
+                                                                    @if($resultText != '-')
+                                                                        <span class="px-2 py-1 rounded text-xs {{ $resultClass }}">
+                                                                            {{ $resultText }}
+                                                                        </span>
+                                                                    @else
+                                                                        {{ $resultText }}
+                                                                    @endif
                                                                 </td>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                                                     {{ isset($calibration['calibration_price']) && $calibration['calibration_price'] ? number_format((float)$calibration['calibration_price'], 0, ',', '.') : '-' }}
@@ -144,6 +173,8 @@
                                                                         } elseif ($status == 'completed') {
                                                                             $statusClass = 'bg-green-100 text-green-800';
                                                                         } elseif ($status == 'overdue') {
+                                                                            $statusClass = 'bg-red-100 text-red-800';
+                                                                        } elseif ($status == 'cancelled') {
                                                                             $statusClass = 'bg-red-100 text-red-800';
                                                                         }
                                                                     @endphp
@@ -1061,6 +1092,14 @@
                 });
             }
 
+            // Result filter - apply immediately on change
+            const resultFilterSelect = document.getElementById('resultFilter');
+            if (resultFilterSelect) {
+                resultFilterSelect.addEventListener('change', function() {
+                    applyFilters();
+                });
+            }
+
             // Sort order - apply immediately on change
             const sortOrderSelect = document.getElementById('sortOrder');
             if (sortOrderSelect) {
@@ -1073,6 +1112,7 @@
             function applyFilters() {
                 const searchTerm = document.getElementById('searchInput').value;
                 const statusFilter = document.getElementById('statusFilter').value;
+                const resultFilter = document.getElementById('resultFilter').value;
                 const sortOrder = document.getElementById('sortOrder').value;
 
                 const url = new URL(window.location.href);
@@ -1084,6 +1124,10 @@
                 // Set status parameter
                 if (statusFilter) url.searchParams.set('status', statusFilter);
                 else url.searchParams.delete('status');
+
+                // Set result parameter
+                if (resultFilter) url.searchParams.set('result', resultFilter);
+                else url.searchParams.delete('result');
 
                 // Set sort parameter based on selected option
                 if (sortOrder) {
@@ -1200,6 +1244,27 @@
                 } else {
                     // Default to "All Status" if no status specified
                     statusSelect.selectedIndex = 1;
+                }
+            }
+
+            // Set result filter value
+            const resultSelect = document.getElementById('resultFilter');
+            if (resultSelect) {
+                // Remove selected from all options first
+                Array.from(resultSelect.options).forEach(option => {
+                    option.removeAttribute('selected');
+                });
+
+                if (urlParams.has('result') && urlParams.get('result')) {
+                    resultSelect.value = urlParams.get('result');
+
+                    // If no matching option found, set to first non-placeholder option
+                    if (resultSelect.selectedIndex === -1) {
+                        resultSelect.selectedIndex = 1; // Index 1 is "All Results"
+                    }
+                } else {
+                    // Default to "All Results" if no result specified
+                    resultSelect.selectedIndex = 1;
                 }
             }
 

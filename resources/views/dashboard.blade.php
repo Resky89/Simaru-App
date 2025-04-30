@@ -220,7 +220,7 @@
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
 
                 <!-- Calibration Items Container -->
-                <div class="space-y-4">
+                <div class="space-y-4 max-h-[336px] overflow-y-auto pr-2 custom-scrollbar" style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
                     <!-- Item 1 -->
                     <div class="flex justify-between items-center">
                         <div class="flex gap-4">
@@ -314,7 +314,7 @@
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
 
                 <!-- Location List -->
-                <div class="space-y-[18px]" id="location-container">
+                <div class="space-y-[18px] max-h-[336px] overflow-y-auto pr-2 custom-scrollbar" id="location-container" style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
                     @forelse($dashboardData['assets_by_location'] as $location)
                         @php
                             $totalByLocation = array_sum(array_column($dashboardData['assets_by_location'], 'count'));
@@ -520,6 +520,25 @@ function formatCompactCurrency($number) {
 .animate-loading-bar {
     animation: growWidth 1s ease-out forwards;
 }
+
+/* Custom scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #213268;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #152349;
+}
 </style>
 
 <script>
@@ -540,7 +559,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ],
                 backgroundColor: [
                     '#7CB60C',  // Available - Green
-                    ' #25B1FF',  // Maintenance - Grey
+                    '#25B1FF',  // Maintenance - Grey
                     '#DAAE0F',  // Check Out - yellow
                     '#ACC3EF',  // Dispose - Blue
                     '#FF4A2B'   // Lost - Red

@@ -28,6 +28,7 @@ class CalibrationController extends Controller
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
             $status = $request->input('status', '');
+            $result = $request->input('result', '');
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'desc');
 
@@ -37,6 +38,7 @@ class CalibrationController extends Controller
                 'limit' => $limit,
                 'search' => $search,
                 'status' => $status,
+                'result' => $result,
                 'sort_by' => $sortBy,
                 'sort_order' => $sortOrder,
                 'request_url' => $request->fullUrl(),
@@ -60,6 +62,14 @@ class CalibrationController extends Controller
                 // Only pass valid status values
                 if (in_array($status, ['scheduled', 'in_progress', 'completed', 'overdue', 'cancelled'])) {
                     $queryParams['status_calibration'] = $status; // Pass status_calibration to match API field name
+                }
+            }
+
+            // Add result filter if provided
+            if (!empty($result)) {
+                // Only pass valid result values
+                if (in_array($result, ['pass', 'fail', 'unknown'])) {
+                    $queryParams['calibration_result'] = $result;
                 }
             }
 
@@ -116,11 +126,12 @@ class CalibrationController extends Controller
             }
 
             // Return the view with data for regular requests
-            return view('Calibration', [
+            return view('Calibration.Calibration', [
                 'calibrations' => $calibrations,
                 'pagination' => $pagination,
                 'search' => $search,
                 'status' => $status,
+                'result' => $result,
                 'sort_by' => $sortBy,
                 'sort_order' => $sortOrder
             ]);
@@ -138,11 +149,12 @@ class CalibrationController extends Controller
                 ], 500);
             }
 
-            return view('Calibration', [
+            return view('Calibration.Calibration', [
                 'calibrations' => [],
                 'pagination' => null,
                 'search' => $search,
                 'status' => $status,
+                'result' => $result,
                 'sort_by' => $sortBy,
                 'sort_order' => $sortOrder,
                 'error' => 'Failed to retrieve calibrations: ' . $e->getMessage()
@@ -739,7 +751,7 @@ class CalibrationController extends Controller
             }
 
             // Return the view with calibration data
-            return view('CalibrationDetail', [
+            return view('Calibration.CalibrationDetail', [
                 'calibration' => $calibrationData
             ]);
 
@@ -765,6 +777,7 @@ class CalibrationController extends Controller
             // Get filter parameters
             $search = $request->input('search', '');
             $status = $request->input('status', '');
+            $result = $request->input('result', '');
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'desc');
 
@@ -772,6 +785,7 @@ class CalibrationController extends Controller
             \Log::info('Exporting calibrations to PDF with parameters:', [
                 'search' => $search,
                 'status' => $status,
+                'result' => $result,
                 'sort_by' => $sortBy,
                 'sort_order' => $sortOrder,
                 'request_url' => $request->fullUrl()
@@ -793,6 +807,14 @@ class CalibrationController extends Controller
                 // Only pass valid status values
                 if (in_array($status, ['scheduled', 'in_progress', 'completed', 'overdue', 'cancelled'])) {
                     $queryParams['status_calibration'] = $status;
+                }
+            }
+
+            // Add result filter if provided
+            if (!empty($result)) {
+                // Only pass valid result values
+                if (in_array($result, ['pass', 'fail', 'unknown'])) {
+                    $queryParams['calibration_result'] = $result;
                 }
             }
 
@@ -824,10 +846,11 @@ class CalibrationController extends Controller
             $calibrations = $result['data'] ?? [];
 
             // Generate PDF
-            $pdf = Pdf::loadView('CalibrationPDF', [
+            $pdf = Pdf::loadView('Calibration.CalibrationPDF', [
                 'calibrations' => $calibrations,
                 'search' => $search,
                 'status' => $status,
+                'result' => $result,
                 'sort_by' => $sortBy,
                 'sort_order' => $sortOrder,
                 'date_generated' => now()->format('d M Y H:i:s')

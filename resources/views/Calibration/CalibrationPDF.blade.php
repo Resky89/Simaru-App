@@ -73,6 +73,26 @@
             background-color: #e2e3e5;
             color: #383d41;
         }
+        /* Result Badge Styles */
+        .result-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: normal;
+        }
+        .result-pass {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .result-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .result-unknown {
+            background-color: #fff3cd;
+            color: #856404;
+        }
         .footer {
             margin-top: 20px;
             text-align: center;
@@ -164,7 +184,31 @@
                         {{ isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'] ? date('d M Y', strtotime($calibration['next_calibration_date'])) : '-' }}
                     </td>
                     <td>{{ $calibration['certificate_number'] ?? '-' }}</td>
-                    <td>{{ $calibration['calibration_result'] ?? '-' }}</td>
+                    <td>
+                        @php
+                            $resultClass = '';
+                            $result = $calibration['calibration_result'] ?? '';
+                            $resultText = '-';
+
+                            if ($result == 'pass') {
+                                $resultClass = 'result-pass';
+                                $resultText = 'Lulus';
+                            } elseif ($result == 'fail') {
+                                $resultClass = 'result-fail';
+                                $resultText = 'Gagal';
+                            } elseif ($result == 'unknown') {
+                                $resultClass = 'result-unknown';
+                                $resultText = 'Tidak Ditemukan';
+                            }
+                        @endphp
+                        @if($resultText != '-')
+                        <span class="result-badge {{ $resultClass }}">
+                            {{ $resultText }}
+                        </span>
+                        @else
+                            {{ $resultText }}
+                        @endif
+                    </td>
                     <td>{{ isset($calibration['calibration_price']) ? number_format($calibration['calibration_price'], 0, ',', '.') : '-' }}</td>
                 </tr>
             @empty
