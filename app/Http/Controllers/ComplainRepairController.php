@@ -80,15 +80,47 @@ class ComplainRepairController extends Controller
             ]);
 
             // Fetch assets for dropdown (limited number for initial load)
+            \Log::info('Fetching assets for dropdown');
+            try {
             $assetsResult = $this->apiService->request('GET', '/assets', [
+                    'query' => [
+                        'limit' => 1000
+                    ]
+                ]);
+
+                // Log API response for assets debugging
+                \Log::info('API response for assets:', [
+                    'api_response_success' => $assetsResult['success'] ?? null,
+                    'api_response_message' => $assetsResult['message'] ?? null,
+                    'data_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0,
+                    'raw_data_sample' => isset($assetsResult['data']) && !empty($assetsResult['data']) ? json_encode($assetsResult['data'][0]) : 'No data'
+                ]);
+
+                // If no assets found, try alternate endpoint as a fallback
+                if (empty($assetsResult['data'] ?? [])) {
+                    \Log::info('No assets found, trying singular endpoint /asset as fallback');
+                    $assetsResult = $this->apiService->request('GET', '/asset', [
                 'query' => [
-                    'limit' => 100,
-                    'sort_by' => 'asset_name',
+                    'limit' => 1000,
+                    'sort_by' => 'asset_master_name',
                     'sort_order' => 'asc'
                 ]
             ]);
 
-            // Log API response for debugging
+                    \Log::info('Fallback endpoint response:', [
+                        'success' => $assetsResult['success'] ?? null,
+                        'data_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Exception while fetching assets:', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                $assetsResult = ['data' => []];
+            }
+
+            // Log API response for complaints debugging
             \Log::info('API response for complaints:', [
                 'api_response_status' => $result['status'] ?? null,
                 'api_response_message' => $result['message'] ?? null,
@@ -116,8 +148,46 @@ class ComplainRepairController extends Controller
             $complaints = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
 
-            // Get assets data
-            $assets = $assetsResult['data'] ?? [];
+            // Get assets data and map to the format needed for the dropdown
+            $rawAssets = $assetsResult['data'] ?? [];
+            $assets = [];
+
+            // Check for auth errors in assets API response
+            if (isset($assetsResult['error']) && in_array($assetsResult['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during assets retrieval:', [
+                    'error' => $assetsResult['error'],
+                    'message' => $assetsResult['message'] ?? 'Authentication failed'
+                ]);
+
+                // We'll continue with an empty assets array as it's not critical
+                \Log::info('Continuing with empty assets array');
+            }
+            // Check if API returned an error status
+            elseif (isset($assetsResult['success']) && $assetsResult['success'] !== true) {
+                \Log::warning('API error during assets retrieval:', [
+                    'message' => $assetsResult['message'] ?? 'Unknown error',
+                    'success' => $assetsResult['success'] ?? null
+                ]);
+            }
+
+            foreach ($rawAssets as $asset) {
+                // Create the asset data with the new structure matching the API response
+                $assetData = [
+                    'asset_id' => $asset['asset_id'],
+                    'asset_code' => $asset['asset_code'],
+                    'asset_name' => isset($asset['asset_master']) && isset($asset['asset_master']['asset_name'])
+                        ? $asset['asset_master']['asset_name']
+                        : ($asset['asset_master_name'] ?? 'Unknown Asset'),
+                    'asset_master_name' => $asset['asset_master_name'] ?? 'Unknown Asset',
+                    'serial_number' => $asset['serial_number'] ?? null,
+                    'description' => isset($asset['asset_master']) && isset($asset['asset_master']['description'])
+                        ? $asset['asset_master']['description']
+                        : null,
+                    'room_name' => $asset['room_name'] ?? null
+                ];
+
+                $assets[] = $assetData;
+            }
 
             // For AJAX or JSON requests, return JSON response
             if ($request->ajax() || $request->wantsJson()) {

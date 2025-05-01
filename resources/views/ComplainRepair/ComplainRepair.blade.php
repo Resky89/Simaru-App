@@ -53,9 +53,7 @@
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="" {{ ($status ?? '') == '' ? 'selected' : '' }}>All Status</option>
                             <option value="new" {{ ($status ?? '') == 'new' ? 'selected' : '' }}>New</option>
-                            <option value="pending" {{ ($status ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
                             <option value="approved" {{ ($status ?? '') == 'approved' ? 'selected' : '' }}>Approved</option>
-                            <option value="rejected" {{ ($status ?? '') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                             <option value="in_progress" {{ ($status ?? '') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
                             <option value="completed" {{ ($status ?? '') == 'completed' ? 'selected' : '' }}>Completed</option>
                         </select>
@@ -128,28 +126,28 @@
                                         <div class="flex space-x-2">
                                             <button
                                                 onclick="viewComplaintDetails({{ $complaint['id'] }})"
-                                                class="p-1 text-[#213268] hover:bg-gray-100 rounded-full transition-all duration-200"
+                                                class="text-[#3D3D3D] hover:text-[#213268]"
                                                 title="View Details">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                             </button>
                                             <button
-                                                class="p-1 text-[#213268] hover:bg-green-100 hover:text-green-700 rounded-full transition-all duration-200 repair-complaint-btn"
+                                                class="text-[#3D3D3D] hover:text-[#213268] repair-complaint-btn"
                                                 data-id="{{ $complaint['id'] }}"
                                                 data-asset="{{ $complaint['asset_name'] ?? 'Unknown' }}"
-                                                title="Repair Complaint">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                                title="Perform Repair">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                                                 </svg>
                                             </button>
                                             <button
-                                                class="p-1 text-[#213268] hover:text-red-500 hover:bg-gray-100 rounded-full transition-all duration-200 delete-complaint-btn"
+                                                class="text-[#3D3D3D] hover:text-red-500 delete-complaint-btn"
                                                 data-id="{{ $complaint['id'] }}"
                                                 data-name="{{ $complaint['asset_name'] ?? 'Unknown' }}"
                                                 title="Delete Complaint">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
@@ -352,26 +350,28 @@
                             <!-- Image Upload -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">Image*</label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-blue-600">browse</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png (Max file size: 5MB)</p>
-                                    </div>
-                                    <input id="imageFile" name="image_file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" required />
-                                    <!-- Preview image container -->
-                                    <div id="imagePreview" class="mt-4 w-full hidden">
-                                        <div class="relative">
-                                            <img id="previewImg" src="#" alt="Preview" class="max-h-40 mx-auto rounded-lg">
-                                            <button type="button" id="removeImage" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                                <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                    <!-- Image preview -->
+                                    <div id="imagePreview" class="mt-2 mb-4 w-full hidden">
+                                        <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                            <img id="previewImg" src="#" alt="Preview" class="w-full h-auto max-h-64 object-contain mx-auto rounded">
+                                            <button type="button" id="removeImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                             </button>
                                         </div>
                                     </div>
+
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-[#213268] font-semibold">browse files</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: jpg, jpeg, png (Max file size: 5MB)</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                    </div>
+                                    <input id="imageFile" name="image_file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" required />
                                 </div>
                             </div>
 
@@ -447,7 +447,7 @@
                 id="repairComplaintModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">REPAIR COMPLAINT</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">PERFORM REPAIR</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -513,26 +513,28 @@
                             <!-- Image Upload -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">Repair Image*</label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative flex flex-col items-center justify-center">
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-blue-600">browse</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png (Max file size: 5MB)</p>
-                                    </div>
-                                    <input id="repairImageFile" name="file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" required />
-                                    <!-- Preview image container -->
-                                    <div id="repairImagePreview" class="mt-4 w-full hidden">
-                                        <div class="relative">
-                                            <img id="repairPreviewImg" src="#" alt="Preview" class="max-h-40 mx-auto rounded-lg">
-                                            <button type="button" id="removeRepairImage" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                                <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                    <!-- Image preview -->
+                                    <div id="repairImagePreview" class="mt-2 mb-4 w-full hidden">
+                                        <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                            <img id="repairPreviewImg" src="#" alt="Preview" class="w-full h-auto max-h-64 object-contain mx-auto rounded">
+                                            <button type="button" id="removeRepairImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                             </button>
                                         </div>
                                     </div>
+
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-[#213268] font-semibold">browse files</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: jpg, jpeg, png (Max file size: 5MB)</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                    </div>
+                                    <input id="repairImageFile" name="file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" required />
                                 </div>
                             </div>
 
@@ -787,8 +789,8 @@
             // Create the PDF export URL with the same parameters
             const exportUrl = "{{ route('complaint.export.pdf') }}?" + searchParams.toString();
 
-            // Redirect to the export URL
-            window.open(exportUrl, '_blank');
+            // Open in a new window/tab, not replacing the current one
+            window.open(exportUrl, '_blank', 'noopener,noreferrer');
         });
 
         // Function to change items per page
@@ -802,6 +804,12 @@
         const assets = @json($assets ?? []);
         let assetSearchTimeout;
 
+        // Log available assets data to console for debugging
+        console.log('Assets loaded:', assets.length);
+        if (assets.length > 0) {
+            console.log('First asset sample:', assets[0]);
+        }
+
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (assetSearch && assetDropdown && !assetSearch.contains(e.target) && !assetDropdown.contains(e.target)) {
@@ -813,8 +821,15 @@
         assetSearch?.addEventListener('focus', function() {
             // Only show dropdown if we haven't selected an asset yet
             if (!assetId.value) {
-                displayFilteredAssets(assets, '');
-                assetDropdown.classList.remove('hidden');
+                // Make sure we have assets data before showing dropdown
+                if (assets && assets.length > 0) {
+                    displayFilteredAssets(assets, '');
+                    assetDropdown.classList.remove('hidden');
+                } else {
+                    // No assets available
+                    assetNoResults.classList.remove('hidden');
+                    assetDropdown.classList.remove('hidden');
+                }
             }
         });
 
@@ -852,6 +867,7 @@
             if (searchTerm) {
                 filteredAssets = assets.filter(asset =>
                     (asset.asset_name && asset.asset_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (asset.asset_master_name && asset.asset_master_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
                     (asset.asset_code && asset.asset_code.toLowerCase().includes(searchTerm.toLowerCase())) ||
                     (asset.asset_id && asset.asset_id.toString().includes(searchTerm))
                 );
@@ -870,6 +886,7 @@
             }
 
             assetNoResults.classList.add('hidden');
+            assetLoadingIndicator.classList.add('hidden');
 
             // Limit to first 100 results for performance
             const assetsToShow = filteredAssets.slice(0, 100);
@@ -878,7 +895,7 @@
                 const div = document.createElement('div');
                 div.className = 'p-2 hover:bg-gray-100 cursor-pointer rounded transition-colors';
                 div.innerHTML = `
-                    <div class="font-medium">${asset.asset_name}</div>
+                    <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Unknown Asset'}</div>
                     <div class="text-xs text-gray-500">Code: ${asset.asset_code || 'N/A'}</div>
                 `;
 
@@ -893,11 +910,11 @@
         // Function to select an asset
         function selectAsset(asset) {
             assetId.value = asset.asset_id;
-            assetSearch.value = asset.asset_name;
+            assetSearch.value = asset.asset_master_name || asset.asset_name;
             assetDropdown.classList.add('hidden');
 
             // Show selected asset info
-            selectedAssetName.textContent = asset.asset_name;
+            selectedAssetName.textContent = asset.asset_master_name || asset.asset_name;
             selectedAssetId.textContent = `Code: ${asset.asset_code || 'N/A'}`;
             selectedAssetInfo.classList.remove('hidden');
         }

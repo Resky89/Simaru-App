@@ -23,7 +23,7 @@ class UnitAssetController extends Controller
     {
         try {
             $page = $request->input('page', 1);
-            $limit = $request->input('limit', 1000);
+            $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
             $statusFilter = $request->input('current_status', '');
             $typeFilter = $request->input('type', '');
@@ -137,7 +137,7 @@ class UnitAssetController extends Controller
             $brandsResult = $this->apiService->request('GET', '/brands', [
                 'query' => [
                     'page' => $request->input('brand_page', 1),
-                    'limit' => $request->input('brand_limit', 10),
+                    'limit' => $request->input('brand_limit', 1000),
                     'sort_by' => 'brand_id',
                     'sort_order' => 'asc'
                 ]

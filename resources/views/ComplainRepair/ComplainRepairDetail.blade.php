@@ -4,31 +4,28 @@
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
-    <!-- Header with back button -->
-    <div class="flex items-center mb-2">
-        <a href="{{ route('complaint.index') }}" class="text-[#213268] hover:text-blue-700 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span>Back to Complaints</span>
-        </a>
-    </div>
-
     <!-- Complaint Detail Section -->
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body p-4 md:p-7">
             <div class="flex flex-col gap-6">
-                <!-- Header -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">COMPLAINT DETAIL</h1>
+                <!-- Header with back button -->
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center">
+                        <a href="{{ route('complaint.index') }}" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">COMPLAINT DETAIL</h1>
+                    </div>
 
                     <!-- Export Button -->
                     <a href="{{ route('complaint.detail.export.pdf', ['id' => $complaint['id']]) }}" target="_blank"
-                       class="bg-[#213268] hover:bg-[#152451] text-white py-2 px-4 rounded-lg flex items-center text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                       class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        Export to PDF
+                        Export PDF
                     </a>
                 </div>
 

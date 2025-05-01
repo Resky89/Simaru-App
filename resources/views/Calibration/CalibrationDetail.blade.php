@@ -12,15 +12,16 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
-            <h1 class="text-2xl font-bold text-[#213268]">Calibration Details</h1>
+            <h1 class="text-2xl font-bold text-[#213268]">CALIBRATION DETAILS</h1>
         </div>
         <div>
-            <button onclick="window.print()" class="px-4 py-2 bg-[#213268] text-white rounded hover:bg-[#152349] transition-colors flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            <a href="{{ route('calibration.detail.export.pdf', ['id' => $calibration['id'] ?? 0]) }}" target="_blank"
+               class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Print
-            </button>
+                Export PDF
+            </a>
         </div>
     </div>
 
@@ -29,6 +30,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Left column -->
             <div class="space-y-4">
+                <div class="flex flex-col space-y-1">
+                    <span class="text-sm text-gray-500">Asset</span>
+                    <span class="font-medium">{{ $calibration['asset_name'] ?? 'N/A' }}</span>
+                    <span class="text-sm text-gray-600">{{ $calibration['asset_code'] ?? 'N/A' }}</span>
+                </div>
+
                 <div class="flex flex-col space-y-1">
                     <span class="text-sm text-gray-500">Status</span>
                     <div class="flex items-center">
@@ -53,19 +60,8 @@
                 </div>
 
                 <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Asset</span>
-                    <span class="font-medium">{{ $calibration['asset_name'] ?? 'N/A' }}</span>
-                    <span class="text-sm text-gray-600">{{ $calibration['asset_code'] ?? 'N/A' }}</span>
-                </div>
-
-                <div class="flex flex-col space-y-1">
                     <span class="text-sm text-gray-500">Brand</span>
                     <span class="font-medium">{{ $calibration['brand_name'] ?? 'N/A' }}</span>
-                </div>
-
-                <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Model</span>
-                    <span class="font-medium">{{ $calibration['model_number'] ?? 'N/A' }}</span>
                 </div>
 
                 <div class="flex flex-col space-y-1">
@@ -174,7 +170,7 @@
     @if(!empty($calibration['certificate_file_path']))
     <div class="mb-8">
         <h2 class="text-lg font-semibold mb-2 text-[#213268]">Certificate File</h2>
-        <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div class="flex flex-col p-4 bg-gray-50 rounded-lg border border-gray-200">
             @php
                 $fileName = basename($calibration['certificate_file_path']);
                 $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
@@ -182,53 +178,28 @@
             @endphp
 
             @if($isImage)
-                <div class="mb-4">
-                    <img src="{{ asset('storage/' . $calibration['certificate_file_path']) }}"
+                <div class="mb-4 w-full flex justify-center">
+                    <img src="http://localhost:5000/public/images/{{ $fileName }}"
                          alt="Certificate"
-                         class="max-w-md mx-auto h-auto rounded-lg shadow-md">
+                         class="max-w-md w-full object-contain rounded-lg shadow-md"
+                         style="max-height: 350px;"
+                         onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('p-4');">
                 </div>
             @else
-                <svg class="w-8 h-8 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <div>
-                    <p class="font-medium">{{ $fileName }}</p>
-                    <a href="{{ asset('storage/' . $calibration['certificate_file_path']) }}"
-                        target="_blank"
-                        class="text-blue-600 hover:underline text-sm">
-                        View Document
-                    </a>
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <div>
+                        <p class="font-medium">{{ $fileName }}</p>
+                        <a href="http://localhost:5000/public/documents/{{ $fileName }}"
+                            target="_blank"
+                            class="text-blue-600 hover:underline text-sm">
+                            View Document
+                        </a>
+                    </div>
                 </div>
             @endif
-        </div>
-    </div>
-    @endif
-
-    <!-- History section (if applicable) -->
-    @if(!empty($calibration['history']) && count($calibration['history']) > 0)
-    <div>
-        <h2 class="text-lg font-semibold mb-2 text-[#213268]">History</h2>
-        <div class="relative overflow-x-auto rounded-lg border border-gray-200">
-            <table class="w-full text-sm text-left">
-                <thead class="text-xs text-white uppercase bg-[#213268]">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">Date</th>
-                        <th scope="col" class="px-6 py-3">Action</th>
-                        <th scope="col" class="px-6 py-3">User</th>
-                        <th scope="col" class="px-6 py-3">Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($calibration['history'] as $entry)
-                    <tr class="bg-white border-b hover:bg-gray-50">
-                        <td class="px-6 py-4">{{ date('d M Y H:i', strtotime($entry['created_at'])) }}</td>
-                        <td class="px-6 py-4">{{ $entry['action'] }}</td>
-                        <td class="px-6 py-4">{{ $entry['user_name'] }}</td>
-                        <td class="px-6 py-4">{{ $entry['details'] }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
         </div>
     </div>
     @endif

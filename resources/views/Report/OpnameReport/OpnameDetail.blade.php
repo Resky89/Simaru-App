@@ -29,10 +29,10 @@
             <div class="flex flex-col gap-6">
                 <!-- Header with Back Button and Title -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div class="flex items-center gap-4">
-                        <a href="{{ route('report.opname') }}" class="flex items-center justify-center h-10 w-10 rounded-md border border-[#EEF1F4] hover:bg-[#F8F9FA] text-[#213268] transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <div class="flex items-center">
+                        <a href="{{ route('report.opname') }}" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
                         <div>
@@ -45,18 +45,19 @@
 
                     <!-- Export Buttons -->
                     <div class="flex gap-2">
-                        <a href="{{ route('opnames.export.pdf', ['id' => $opnameId]) }}" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-white border border-[#D8DAE5] rounded-md text-[#213268] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <a href="{{ route('opnames.export.pdf', ['id' => $opnameId]) }}" target="_blank"
+                           class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             Export PDF
                         </a>
-                        <button class="flex items-center gap-2 px-4 py-2 bg-white border border-[#D8DAE5] rounded-md text-[#213268] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <a class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             Export Excel
-                        </button>
+                        </a>
                     </div>
                 </div>
 

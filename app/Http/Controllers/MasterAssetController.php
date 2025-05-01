@@ -22,7 +22,7 @@ class MasterAssetController extends Controller
     {
         try {
             $page = $request->input('page', 1);
-            $limit = $request->input('limit', 100);
+            $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
             $assetType = $request->input('type', '');
             $brandId = $request->input('brand', '');

@@ -6,9 +6,16 @@
 <div class="p-4 md:p-6">
     <!-- Header with title and back button -->
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl md:text-[32px] font-semibold text-[#28356B]">
-            MASTER ASSET: {{ $masterAsset['asset_name'] ?? 'Asset Details' }}
-        </h1>
+        <div class="flex items-center">
+            <a href="{{ route('asset-master') }}" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1 class="text-2xl md:text-[32px] font-semibold text-[#28356B]">
+                MASTER ASSET: {{ $masterAsset['asset_name'] ?? 'Asset Details' }}
+            </h1>
+        </div>
         <div class="flex gap-2">
             <button data-master-asset-id="{{ $masterAsset['asset_master_id'] ?? '' }}" class="edit-master-asset-btn flex items-center gap-2 px-4 py-3 border-2 border-[#28356B] rounded-lg text-[#28356B] hover:bg-[#28356B] hover:text-white transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -21,12 +28,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Export PDF
-            </a>
-            <a href="{{ route('asset-master') }}" class="flex items-center gap-2 px-4 py-3 border-2 border-[#28356B] rounded-lg text-[#28356B] hover:bg-[#28356B] hover:text-white transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to List
             </a>
         </div>
     </div>

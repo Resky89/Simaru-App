@@ -873,4 +873,113 @@ class CalibrationController extends Controller
             return redirect()->back()->with('error', 'Failed to export Calibrations as PDF: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Export a single calibration detail to PDF
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function exportCalibrationDetailPDF($id)
+    {
+        try {
+            // Log request info
+            \Log::info('Exporting calibration detail to PDF for ID: ' . $id);
+
+            // Fetch calibration from API
+            $result = $this->apiService->request('GET', '/calibrations/' . $id);
+
+            // Log API response for debugging
+            \Log::info('API response for calibration detail PDF export:', [
+                'api_response_status' => $result['status'] ?? null,
+                'api_response_message' => $result['message'] ?? null
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during calibration detail PDF export:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check if the calibration exists
+            if (!isset($result['data']) || empty($result['data'])) {
+                \Log::warning('Calibration not found for PDF export:', [
+                    'id' => $id,
+                    'message' => $result['message'] ?? 'Calibration not found'
+                ]);
+
+                return redirect()->route('calibration')->with('error', 'Calibration not found');
+            }
+
+            // Get calibration data
+            $calibrationData = $result['data'];
+
+            // Try to fetch history if it's not included in the main response
+            if (!isset($calibrationData['history'])) {
+                try {
+                    $historyResult = $this->apiService->request('GET', '/calibrations/' . $id . '/history');
+                    if (isset($historyResult['data']) && !empty($historyResult['data'])) {
+                        $calibrationData['history'] = $historyResult['data'];
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Error fetching calibration history for PDF:', [
+                        'error' => $e->getMessage()
+                    ]);
+                    // Continue without history if it fails
+                }
+            }
+
+            // Convert certificate file to base64 if it exists and is an image
+            if (!empty($calibrationData['certificate_file_path'])) {
+                try {
+                    $fileName = basename($calibrationData['certificate_file_path']);
+                    $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+                    $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif']);
+
+                    if ($isImage) {
+                        $imagePath = 'http://localhost:5000/public/images/' . $fileName;
+                        $imageData = file_get_contents($imagePath);
+                        if ($imageData !== false) {
+                            $calibrationData['certificate_file_base64'] = base64_encode($imageData);
+                        }
+                    } else {
+                        // For documents, store the URL
+                        $calibrationData['certificate_file_url'] = 'http://localhost:5000/public/documents/' . $fileName;
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to process certificate file for PDF:', [
+                        'error' => $e->getMessage(),
+                        'calibration_id' => $id,
+                        'file_path' => $calibrationData['certificate_file_path'] ?? 'N/A'
+                    ]);
+                }
+            }
+
+            // Generate PDF using the same view as the detail page
+            $pdf = PDF::loadView('Calibration.CalibrationDetailPDF', [
+                'calibration' => $calibrationData,
+                'date_generated' => now()->format('d M Y H:i:s')
+            ]);
+
+            // Log PDF generation
+            \Log::info('Calibration detail PDF generated successfully', [
+                'calibration_id' => $id
+            ]);
+
+            // Stream the PDF to browser
+            return $pdf->stream('calibration_detail_' . $id . '_' . now()->format('YmdHis') . '.pdf');
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during calibration detail PDF export:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to export Calibration detail as PDF: ' . $e->getMessage());
+        }
+    }
 }

@@ -350,3 +350,4 @@ Route::fallback(function () {
 
 // New calibration detail route
 Route::get('/calibration/detail/{id}', [CalibrationController::class, 'showCalibrationDetail'])->name('calibration.detail');
+Route::get('/calibration/detail/{id}/export-pdf', [CalibrationController::class, 'exportCalibrationDetailPDF'])->name('calibration.detail.export.pdf');
