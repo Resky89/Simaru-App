@@ -122,6 +122,12 @@
                             <span class="{{ $submenuTextClass }}">Unit Asset</span>
                         </div>
                     </a>
+                    <a href="{{ route('asset-documents') }}" class="block">
+                        <div
+                            class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-documents') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Asset Documents</span>
+                        </div>
+                    </a>
                 </div>
             </div>
 

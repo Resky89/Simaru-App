@@ -27,6 +27,7 @@ use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\MasterAssetController;
 use App\Http\Controllers\ViewMasterAssetController;
+use App\Http\Controllers\AssetDocumentsController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -189,9 +190,14 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::get('/assets/export/pdf', [UnitAssetController::class, 'exportUnitAssetPDF'])->name('assets.export.pdf');
 
     // Asset Documents routes
-    Route::get('/asset-documents/asset/{id}', [AssetDocumentController::class, 'getAssetDocuments'])->name('asset-documents.get');
-    Route::post('/asset-documents', [AssetDocumentController::class, 'store'])->name('asset-documents.store');
-    Route::delete('/asset-documents/{id}', [AssetDocumentController::class, 'destroy'])->name('asset-documents.destroy');
+    Route::get('/asset-documents/asset/{id}', [App\Http\Controllers\AssetDocumentsController::class, 'getAssetDocuments'])->name('asset-documents.get');
+    Route::get('/asset-documents/{id}', [App\Http\Controllers\AssetDocumentsController::class, 'getDocument'])->name('document.view');
+    Route::post('/asset-documents', [App\Http\Controllers\AssetDocumentsController::class, 'store'])->name('asset-documents.store');
+    Route::put('/asset-documents/{id}', [App\Http\Controllers\AssetDocumentsController::class, 'update'])->name('asset-documents.update');
+    Route::delete('/asset-documents/{id}', [App\Http\Controllers\AssetDocumentsController::class, 'destroy'])->name('asset-documents.destroy');
+    Route::get('/asset-documents', [App\Http\Controllers\AssetDocumentsController::class, 'index'])->name('asset-documents');
+    Route::post('/asset-documents/{id}/assign', [App\Http\Controllers\AssetDocumentsController::class, 'assignToAssets'])->name('asset-documents.assign');
+    Route::delete('/asset-documents/asset/{assetId}/documents/{documentId}', [App\Http\Controllers\AssetDocumentsController::class, 'unlinkFromAsset'])->name('asset-documents.unlink');
 
     // Asset Depreciation route
     Route::get('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'getAssetDepreciation'])

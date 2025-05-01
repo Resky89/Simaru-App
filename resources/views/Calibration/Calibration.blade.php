@@ -548,14 +548,9 @@
                                 <!-- Status -->
                                 <input type="hidden" id="status_calibration" name="status_calibration" value="completed">
 
-                                <div class="pt-4 flex justify-end gap-4">
-                                    <button type="button"
-                                        class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
-                                        data-modal="viewCalibrationModal">
-                                        Cancel
-                                    </button>
+                                <div class="pt-4">
                                     <button type="submit"
-                                        class="px-4 py-2 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transition-colors duration-200">
+                                        class="w-full py-3 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transition-colors duration-200">
                                         Save Calibration
                                     </button>
                                 </div>
@@ -940,8 +935,6 @@
 
             // Define a showToast function that creates notifications in the same style as the static ones
             window.showToast = function(message, type = 'success') {
-                console.log('Showing toast:', message, type); // Debug log
-
                 // Remove existing notifications with the same type
                 const existingNotification = document.getElementById(type === 'success' ? 'successNotification' : 'errorNotification');
                 if (existingNotification) {
@@ -1068,8 +1061,6 @@
 
                         // Store as comma-separated string - the submit handler will convert to array
                         hiddenInput.value = selectedIds.join(',');
-
-                        console.log('Preparing bulk delete for IDs:', selectedIds);
 
                         // Open delete confirmation modal
                         openModal(modals.delete, modalContents.delete);
@@ -1325,7 +1316,6 @@
 
             // Load vendors for dropdown
             function loadVendors() {
-                console.log('Loading vendors...');
                 fetch('/vendor?json=true', {
                     headers: {
                         'Accept': 'application/json',
@@ -1333,16 +1323,13 @@
                     }
                 })
                     .then(response => {
-                        console.log('Vendor API response status:', response.status);
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Vendor data received:', data);
                         const select = document.getElementById('vendor_id');
                         select.innerHTML = '<option value="">Select Vendor</option>';
 
                         if (Array.isArray(data)) {
-                            console.log('Processing vendors as array, length:', data.length);
                             data.forEach(vendor => {
                                 const option = document.createElement('option');
                                 option.value = vendor.vendor_id;
@@ -1350,7 +1337,6 @@
                                 select.appendChild(option);
                             });
                         } else if (data.vendors && Array.isArray(data.vendors)) {
-                            console.log('Processing vendors as data.vendors array, length:', data.vendors.length);
                             data.vendors.forEach(vendor => {
                                 const option = document.createElement('option');
                                 option.value = vendor.vendor_id;
@@ -1641,9 +1627,6 @@
                     ids = [parseInt(calibrationIdInput)];
                 }
 
-                // Log the request data for debugging
-                console.log('Sending delete request with IDs:', ids);
-
                 // Make the DELETE request to the server
                 fetch("{{ route('calibrations.bulk.delete') }}", {
                     method: 'DELETE',
@@ -1782,9 +1765,6 @@
                 .then(response => response.json())
                 .then(data => {
                     const assets = data.assets || [];
-                    // Debug
-                    console.log("First asset:", assets.length > 0 ? assets[0] : "No assets");
-
                     if (assets.length === 0) {
                         document.getElementById('assetSelectionList').innerHTML = `
                             <tr>
@@ -1906,7 +1886,6 @@
                             });
                         }
 
-                        console.log("Updated selectedAssets:", selectedAssets.length, "items");
                         updateSelectedAssetsTable();
                     };
                 });
@@ -2017,7 +1996,6 @@
                 // Check for duplicate assets and deduplicate the array
                 const uniqueAssetIds = [...new Set(selectedAssets.map(asset => asset.asset_id))];
                 if (uniqueAssetIds.length < selectedAssets.length) {
-                    console.log("Deduplicating selectedAssets array");
 
                     const uniqueAssets = [];
                     const seenIds = new Set();
@@ -2036,9 +2014,6 @@
 
                 // Close the asset selection modal
                 closeModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
-
-                // Log the selected assets before updating the table
-                console.log("Selected assets before updating table:", JSON.stringify(selectedAssets));
 
                 // Update the selected assets table
                 updateSelectedAssetsTable();
@@ -2117,12 +2092,9 @@
 
                 // Clear console and log what we're sending
                 console.clear();
-                console.log("Submitting these assets:", JSON.stringify(selectedAssets));
 
                 // Ensure we have no duplicates in our selectedAssets array
                 const uniqueAssetIds = [...new Set(selectedAssets.map(asset => asset.asset_id))];
-                console.log("Original asset IDs count:", selectedAssets.length);
-                console.log("Unique asset IDs count:", uniqueAssetIds.length);
 
                 // If we detected duplicates, deduplicate the selectedAssets array
                 if (uniqueAssetIds.length < selectedAssets.length) {
@@ -2241,7 +2213,6 @@
                 if (cachedVendors) {
                     try {
                         allVendors = JSON.parse(cachedVendors);
-                        console.log(`Loaded ${allVendors.length} vendors from cache`);
 
                         // Still load fresh data in the background
                         fetchAllVendors();
@@ -2306,9 +2277,6 @@
                             // Fetch next page
                             fetchPage(page + 1);
                         } else {
-                            // We've got all vendors
-                            console.log(`Loaded ${allVendors.length} vendors from API`);
-
                             // Cache for future use
                             try {
                                 localStorage.setItem('allVendors', JSON.stringify(allVendors));
