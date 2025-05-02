@@ -198,9 +198,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::get('/asset-documents', [App\Http\Controllers\AssetDocumentsController::class, 'index'])->name('asset-documents');
     Route::post('/asset-documents/{id}/assign', [App\Http\Controllers\AssetDocumentsController::class, 'assignToAssets'])->name('asset-documents.assign');
     Route::delete('/asset-documents/asset/{assetId}/documents/{documentId}', [App\Http\Controllers\AssetDocumentsController::class, 'unlinkFromAsset'])->name('asset-documents.unlink');
-
-    // Register new route to get all asset documents
     Route::get('/asset-documents/asset/{assetId}/all-documents', [App\Http\Controllers\AssetDocumentsController::class, 'getAssetDocuments'])->name('asset-documents.getAssetDocuments');
+    Route::post('/asset-documents/asset/{assetId}/documents', [App\Http\Controllers\AssetDocumentsController::class, 'createAssetDocument'])->name('asset-documents.createAssetDocument');
 
     // Asset Depreciation route
     Route::get('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'getAssetDepreciation'])

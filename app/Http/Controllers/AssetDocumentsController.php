@@ -886,4 +886,133 @@ class AssetDocumentsController extends Controller
             return redirect()->back()->with('error', $errorMessage);
         }
     }
+
+    /**
+     * Create a document directly associated with a specific asset.
+     */
+    public function createAssetDocument(Request $request, $assetId)
+    {
+        try {
+            // Validate the request
+            $request->validate([
+                'document_title' => 'required|string|max:255',
+                'notes' => 'nullable|string',
+                'document' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
+            ]);
+
+            // Log request info
+            \Log::info('Creating new document for asset:', [
+                'asset_id' => $assetId,
+                'document_title' => $request->input('document_title'),
+                'has_file' => $request->hasFile('document') ? 'Yes' : 'No',
+                'request_url' => $request->fullUrl()
+            ]);
+
+            // Prepare data for API request
+            $data = [
+                'document_title' => $request->input('document_title'),
+                'notes' => $request->input('notes') ?? '',
+            ];
+
+            // Create multipart request for file upload
+            $multipart = [];
+            foreach ($data as $key => $value) {
+                $multipart[] = [
+                    'name' => $key,
+                    'contents' => $value
+                ];
+            }
+
+            // Add file (required for this endpoint)
+            if ($request->hasFile('document')) {
+                $file = $request->file('document');
+                $multipart[] = [
+                    'name' => 'file',
+                    'contents' => fopen($file->getPathname(), 'r'),
+                    'filename' => $file->getClientOriginalName()
+                ];
+            }
+
+            // Make API request to create document directly associated with the asset
+            $result = $this->apiService->request('POST', "/asset-documents/asset/{$assetId}/documents", [
+                'multipart' => $multipart
+            ]);
+
+            // Log API response for debugging
+            \Log::info('API response for asset document creation:', [
+                'api_response_success' => $result['success'] ?? null,
+                'api_response_message' => $result['message'] ?? null,
+                'asset_id' => $assetId
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during asset document creation:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
+                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                }
+
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorMessage = $result['message'] ?? 'Failed to create document for asset';
+
+                \Log::warning('Error during asset document creation:', [
+                    'success' => $result['success'] ?? false,
+                    'message' => $errorMessage
+                ]);
+
+                if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage
+                    ], 400);
+                }
+
+                return redirect()->back()->with('error', $errorMessage)->withInput();
+            }
+
+            // For AJAX requests, return JSON response
+            if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Document created and assigned to asset successfully',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            // Check if we have a redirect URL in the query parameters
+            $redirectUrl = $request->query('redirect');
+            if ($redirectUrl) {
+                return redirect($redirectUrl)->with('success', 'Document created and assigned to asset successfully');
+            }
+
+            // Redirect with success message
+            return redirect()->back()->with('success', 'Document created and assigned to asset successfully');
+        } catch (\Exception $e) {
+            $errorMessage = 'Failed to create document for asset: ' . $e->getMessage();
+
+            \Log::error('Exception during asset document creation:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'asset_id' => $assetId
+            ]);
+
+            if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                    'data' => null
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', $errorMessage)->withInput();
+        }
+    }
 }

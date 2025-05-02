@@ -52,36 +52,36 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Document ID</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Document Title</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Upload Date</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Uploaded By</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Notes</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Actions</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Document ID</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Document Title</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Upload Date</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Uploaded By</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Notes</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if(isset($documents) && count($documents) > 0)
                                 @foreach($documents as $document)
                                 <tr data-document-id="{{ $document['document_id'] ?? '' }}">
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $document['document_id'] ?? 'N/A' }}</td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $document['document_title'] ?? '-' }}</td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                    <td class="p-3 text-sm border-t border-[#EEF1F4]">{{ $document['document_id'] ?? 'N/A' }}</td>
+                                    <td class="p-3 text-sm border-t border-[#EEF1F4]">{{ $document['document_title'] ?? '-' }}</td>
+                                    <td class="p-3 text-sm border-t border-[#EEF1F4]">
                                         @if(isset($document['upload_date']))
                                             {{ \Carbon\Carbon::parse($document['upload_date'])->format('d M Y, H:i') }}
                                         @else
                                             -
                                         @endif
                                     </td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                    <td class="p-3 text-sm border-t border-[#EEF1F4]">
                                         @if(isset($document['uploader']) && isset($document['uploader']['employee_number']))
                                             {{ $document['uploader']['employee_number'] }}
                                         @else
                                             -
                                         @endif
                                     </td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        <div class="max-w-[250px] truncate" title="{{ $document['notes'] ?? '' }}">
+                                    <td class="p-3 text-sm border-t border-[#EEF1F4]">
+                                        <div class="whitespace-normal break-words" title="{{ $document['notes'] ?? '' }}">
                                             {{ $document['notes'] ?? '-' }}
                                         </div>
                                     </td>
@@ -109,7 +109,7 @@
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No documents found</td>
+                                    <td colspan="6" class="p-3 text-sm border-t border-[#EEF1F4] text-center">No documents found</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -190,7 +190,7 @@
                 id="addDocumentModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">ADD NEW DOCUMENT</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">TAMBAH DOKUMEN BARU</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -205,7 +205,7 @@
                         <div class="space-y-4">
                             <!-- Document Title -->
                             <div>
-                                <label for="document_title" class="block text-sm font-medium text-gray-700 mb-1">Document Title <span class="text-red-500">*</span></label>
+                                <label for="document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
                                 <input type="text" id="document_title" name="document_title"
                                     class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"
                                     required>
@@ -248,9 +248,9 @@
                                         <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                         </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your file or <span class="text-[#213268] font-semibold">browse files</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
-                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                        <p class="mt-1 text-sm text-gray-600">Seret file Anda atau <span class="text-[#213268] font-semibold">pilih file</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih file</p>
                                     </div>
                                     <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 </div>
@@ -258,7 +258,7 @@
 
                             <!-- Notes -->
                             <div>
-                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
                                 <textarea id="notes" name="notes" rows="3"
                                     class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"></textarea>
                             </div>
@@ -275,12 +275,21 @@
                             <div class="flex justify-end space-x-3 mt-6">
                                 <button type="submit" class="w-full h-[45px] bg-[#28356B] text-white rounded-lg text-base hover:bg-[#1d2754]">
                                     <span class="flex items-center justify-center">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                        </svg>
-                                        Create Document
+                                        Simpan
                                     </span>
                                 </button>
+                            </div>
+
+                            <!-- Upload Progress Indicator (initially hidden) -->
+                            <div id="uploadProgressContainer" class="hidden mt-4">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-sm font-medium text-[#213268]">Mengupload dokumen...</span>
+                                    <span id="uploadProgressText" class="text-sm font-medium text-[#213268]">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div id="uploadProgressBar" class="bg-green-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                                <div id="uploadStatusMessage" class="mt-2 text-sm text-gray-600">Upload berhasil!</div>
                             </div>
                         </div>
                     </form>
@@ -345,7 +354,7 @@
                 id="editDocumentModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">EDIT DOCUMENT</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">UBAH DOKUMEN</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -362,7 +371,7 @@
                         <div class="space-y-4">
                             <!-- Document Title -->
                             <div>
-                                <label for="edit_document_title" class="block text-sm font-medium text-gray-700 mb-1">Document Title <span class="text-red-500">*</span></label>
+                                <label for="edit_document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
                                 <input type="text" id="edit_document_title" name="document_title"
                                     class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"
                                     required>
@@ -370,7 +379,7 @@
 
                             <!-- File Upload -->
                             <div>
-                                <label for="edit_file" class="block text-sm font-medium text-gray-700 mb-1">Replace File (Optional)</label>
+                                <label for="edit_file" class="block text-sm font-medium text-gray-700 mb-1">Ganti File (Opsional)</label>
                                 <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                     <!-- Current File Info (if any) -->
                                     <div id="edit_current_file" class="mb-4 w-full">
@@ -436,9 +445,9 @@
                                         <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                         </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your file or <span class="text-[#213268] font-semibold">browse files</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
-                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                        <p class="mt-1 text-sm text-gray-600">Seret file Anda atau <span class="text-[#213268] font-semibold">pilih file</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih file</p>
                                     </div>
                                     <input type="file" id="edit_file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 </div>
@@ -446,7 +455,7 @@
 
                             <!-- Notes -->
                             <div>
-                                <label for="edit_notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                                <label for="edit_notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
                                 <textarea id="edit_notes" name="notes" rows="3"
                                     class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"></textarea>
                             </div>
@@ -463,12 +472,21 @@
                             <div class="flex justify-end mt-6">
                                 <button type="submit" class="w-full h-[45px] bg-[#28356B] text-white rounded-lg text-base hover:bg-[#1d2754]">
                                     <span class="flex items-center justify-center">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                        </svg>
-                                        Update Document
+                                        Simpan
                                     </span>
                                 </button>
+                            </div>
+
+                            <!-- Upload Progress Indicator (initially hidden) -->
+                            <div id="editUploadProgressContainer" class="hidden mt-4">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-sm font-medium text-[#213268]">Mengupload dokumen...</span>
+                                    <span id="editUploadProgressText" class="text-sm font-medium text-[#213268]">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div id="editUploadProgressBar" class="bg-green-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                                <div id="editUploadStatusMessage" class="mt-2 text-sm text-gray-600">Upload berhasil!</div>
                             </div>
                         </div>
                     </form>
@@ -517,6 +535,55 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            // Create toast container if it doesn't exist
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+                document.body.appendChild(toastContainer);
+            }
+
+            // Create the toast element
+            const toast = document.createElement('div');
+
+            // Set classes based on type
+            if (type === 'success') {
+                toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center';
+            } else {
+                toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center';
+            }
+
+            // Add content
+            toast.innerHTML = `
+                <div class="py-1">
+                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        ${type === 'success'
+                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Error!'}</p>
+                    <p>${message}</p>
+                </div>
+                <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
+            `;
+
+            // Add to container
+            toastContainer.appendChild(toast);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => {
+                    toast.remove();
+                }, 500);
+            }, 5000);
+        }
+
         // Modal functionality
         const openModal = function(modal, content) {
             modal.classList.remove('hidden');
@@ -868,6 +935,9 @@
             document.getElementById('edit_file_preview').classList.add('hidden');
             document.getElementById('edit_image_preview').classList.add('hidden');
 
+            // Hide progress bar
+            document.getElementById('editUploadProgressContainer').classList.add('hidden');
+
             // Open the modal
             const modal = document.getElementById('editDocumentModal');
             const content = document.getElementById('editDocumentModalContent');
@@ -971,6 +1041,360 @@
 
         setupRemoveCurrentFile('edit_remove_current_file');
         setupRemoveCurrentFile('edit_remove_current_file_icon');
+
+        // Add document form with progress bar
+        const addDocumentForm = document.getElementById('addDocumentForm');
+        if (addDocumentForm) {
+            addDocumentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Form validation
+                const titleInput = this.querySelector('#document_title');
+                const fileInput = this.querySelector('#file');
+
+                if (!titleInput.value.trim()) {
+                    alert('Judul dokumen harus diisi');
+                    titleInput.focus();
+                    return;
+                }
+
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    alert('Silakan pilih file untuk diunggah');
+                    return;
+                }
+
+                // Get elements
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const progressContainer = document.getElementById('uploadProgressContainer');
+                const progressBar = document.getElementById('uploadProgressBar');
+                const progressText = document.getElementById('uploadProgressText');
+                const statusMessage = document.getElementById('uploadStatusMessage');
+
+                // Reset progress status
+                progressBar.style.width = '0%';
+                progressText.textContent = '0%';
+                statusMessage.textContent = 'Memulai upload...';
+                progressBar.classList.remove('bg-red-500');
+                progressBar.classList.add('bg-green-500');
+
+                // Show progress container
+                progressContainer.classList.remove('hidden');
+
+                // Disable submit button
+                submitBtn.disabled = true;
+
+                // Create form data
+                const formData = new FormData(this);
+
+                // Create XHR request to handle upload with progress
+                const xhr = new XMLHttpRequest();
+
+                // Track upload progress
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = percentComplete + '%';
+                        progressText.textContent = percentComplete + '%';
+
+                        if (percentComplete < 100) {
+                            statusMessage.textContent = 'Mengupload dokumen...';
+                        } else {
+                            statusMessage.textContent = 'Memproses dokumen...';
+                        }
+                    }
+                });
+
+                // Handle response
+                xhr.addEventListener('load', function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            // Success
+                            progressBar.style.width = '100%';
+                            progressText.textContent = '100%';
+                            statusMessage.textContent = 'Upload berhasil!';
+
+                            // Show toast notification
+                            showToast('Dokumen berhasil ditambahkan!', 'success');
+
+                            // Close modal and reload after success
+                            setTimeout(function() {
+                                // Reset form
+                                addDocumentForm.reset();
+
+                                // Hide previews
+                                document.getElementById('image-preview').classList.add('hidden');
+                                document.getElementById('file-name').classList.add('hidden');
+
+                                // Close modal
+                                const modal = document.getElementById('addDocumentModal');
+                                const content = document.getElementById('addDocumentModalContent');
+                                closeModal(modal, content);
+
+                                // Reload page to show updated documents
+                                location.reload();
+                            }, 1000);
+                        } catch (error) {
+                            console.error('Error parsing response:', error);
+                            showToast('Terjadi kesalahan saat memproses respons server', 'error');
+                            progressBar.classList.remove('bg-green-500');
+                            progressBar.classList.add('bg-red-500');
+                            statusMessage.textContent = 'Error: Format respons tidak valid';
+                            submitBtn.disabled = false;
+                        }
+                    } else {
+                        // Error
+                        let errorMessage = 'Gagal mengupload dokumen';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.message) {
+                                errorMessage = response.message;
+                            }
+                        } catch (e) {
+                            // If response is not valid JSON
+                            console.error('Error parsing error response:', e);
+                        }
+
+                        progressBar.classList.remove('bg-green-500');
+                        progressBar.classList.add('bg-red-500');
+                        statusMessage.textContent = 'Error: ' + errorMessage;
+
+                        // Show toast notification for error
+                        showToast(errorMessage, 'error');
+
+                        // Re-enable submit button
+                        submitBtn.disabled = false;
+                    }
+                });
+
+                // Handle network errors
+                xhr.addEventListener('error', function() {
+                    progressBar.classList.remove('bg-green-500');
+                    progressBar.classList.add('bg-red-500');
+                    progressBar.style.width = '100%';
+                    statusMessage.textContent = 'Error jaringan! Silakan coba lagi.';
+
+                    // Show toast notification for network error
+                    showToast('Error jaringan! Silakan coba lagi.', 'error');
+
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                });
+
+                // Set up and send the request
+                xhr.open('POST', addDocumentForm.action);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]')?.content || '');
+                xhr.setRequestHeader('Accept', 'application/json');
+                xhr.send(formData);
+            });
+        }
+
+        // Edit document form with progress bar
+        const editDocumentForm = document.getElementById('editDocumentForm');
+        if (editDocumentForm) {
+            editDocumentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Form validation
+                const titleInput = this.querySelector('#edit_document_title');
+
+                if (!titleInput.value.trim()) {
+                    alert('Judul dokumen harus diisi');
+                    titleInput.focus();
+                    return;
+                }
+
+                // Get elements
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const progressContainer = document.getElementById('editUploadProgressContainer');
+                const progressBar = document.getElementById('editUploadProgressBar');
+                const progressText = document.getElementById('editUploadProgressText');
+                const statusMessage = document.getElementById('editUploadStatusMessage');
+
+                // Reset progress status
+                progressBar.style.width = '0%';
+                progressText.textContent = '0%';
+                statusMessage.textContent = 'Memulai pembaruan...';
+                progressBar.classList.remove('bg-red-500');
+                progressBar.classList.add('bg-green-500');
+
+                // Show progress container
+                progressContainer.classList.remove('hidden');
+
+                // Disable submit button
+                submitBtn.disabled = true;
+
+                // Create form data
+                const formData = new FormData(this);
+
+                // Create XHR request to handle upload with progress
+                const xhr = new XMLHttpRequest();
+
+                // Track upload progress
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = percentComplete + '%';
+                        progressText.textContent = percentComplete + '%';
+
+                        if (percentComplete < 100) {
+                            statusMessage.textContent = 'Mengupload pembaruan...';
+                        } else {
+                            statusMessage.textContent = 'Memproses pembaruan...';
+                        }
+                    }
+                });
+
+                // Handle response
+                xhr.addEventListener('load', function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            // Success
+                            progressBar.style.width = '100%';
+                            progressText.textContent = '100%';
+                            statusMessage.textContent = 'Pembaruan berhasil!';
+
+                            // Show toast notification
+                            showToast('Dokumen berhasil diperbarui!', 'success');
+
+                            // Close modal and reload after success
+                            setTimeout(function() {
+                                // Reset form
+                                editDocumentForm.reset();
+
+                                // Close modal
+                                const modal = document.getElementById('editDocumentModal');
+                                const content = document.getElementById('editDocumentModalContent');
+                                closeModal(modal, content);
+
+                                // Reload page to show updated documents
+                                location.reload();
+                            }, 1000);
+                        } catch (error) {
+                            console.error('Error parsing response:', error);
+                            showToast('Terjadi kesalahan saat memproses respons server', 'error');
+                            progressBar.classList.remove('bg-green-500');
+                            progressBar.classList.add('bg-red-500');
+                            statusMessage.textContent = 'Error: Format respons tidak valid';
+                            submitBtn.disabled = false;
+                        }
+                    } else {
+                        // Error
+                        let errorMessage = 'Gagal memperbarui dokumen';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.message) {
+                                errorMessage = response.message;
+                            }
+                        } catch (e) {
+                            // If response is not valid JSON
+                            console.error('Error parsing error response:', e);
+                        }
+
+                        progressBar.classList.remove('bg-green-500');
+                        progressBar.classList.add('bg-red-500');
+                        statusMessage.textContent = 'Error: ' + errorMessage;
+
+                        // Show toast notification for error
+                        showToast(errorMessage, 'error');
+
+                        // Re-enable submit button
+                        submitBtn.disabled = false;
+                    }
+                });
+
+                // Handle network errors
+                xhr.addEventListener('error', function() {
+                    progressBar.classList.remove('bg-green-500');
+                    progressBar.classList.add('bg-red-500');
+                    progressBar.style.width = '100%';
+                    statusMessage.textContent = 'Error jaringan! Silakan coba lagi.';
+
+                    // Show toast notification for network error
+                    showToast('Error jaringan! Silakan coba lagi.', 'error');
+
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                });
+
+                // Set up and send the request
+                xhr.open('POST', editDocumentForm.action);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]')?.content || '');
+                xhr.setRequestHeader('Accept', 'application/json');
+                xhr.send(formData);
+            });
+        }
+
+        // Also handle delete functionality with notifications
+        const deleteForm = document.getElementById('delete-form');
+        if (deleteForm) {
+            deleteForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+                // Create and send the request
+                fetch(this.action, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Close the modal
+                    const modal = document.getElementById('deleteModal');
+                    const content = document.getElementById('deleteModalContent');
+                    closeModal(modal, content);
+
+                    if (data.success) {
+                        // Show success notification
+                        showToast('Dokumen berhasil dihapus', 'success');
+
+                        // Reload page after short delay
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        // Show error notification
+                        showToast(data.message || 'Gagal menghapus dokumen', 'error');
+
+                        // Reset button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+
+                    // Close the modal
+                    const modal = document.getElementById('deleteModal');
+                    const content = document.getElementById('deleteModalContent');
+                    closeModal(modal, content);
+
+                    // Show error notification
+                    showToast('Terjadi kesalahan, silakan coba lagi', 'error');
+
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                });
+            });
+        }
     });
 </script>
+
+<!-- Toast Container -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 @endpush

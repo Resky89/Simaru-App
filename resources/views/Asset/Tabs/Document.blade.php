@@ -43,11 +43,11 @@
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
         <div class="fixed inset-0 z-50 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                     id="addDocumentModalContent">
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH DOKUMEN BARU</h2>
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">TAMBAH DOKUMEN BARU</h2>
                         <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" data-modal="addDocumentModal">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -56,53 +56,44 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="addDocumentForm" action="{{ route('asset-documents.store') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="asset_id" value="{{ $asset['asset_id'] ?? '' }}">
                         <div class="p-6">
+                        <form id="addDocumentForm" action="{{ route('asset-documents.createAssetDocument', ['assetId' => $asset['asset_id'] ?? '']) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
                             <div class="space-y-4">
-                                <!-- Title Input -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Judul</label>
-                                    <input type="text" name="document_title" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        placeholder="Judul Dokumen">
-                                </div>
-
-                                <!-- Notes Input -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Catatan</label>
-                                    <textarea name="notes" rows="3"
-                                        class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        placeholder="Catatan Dokumen"></textarea>
+                                <!-- Document Title -->
+                                <div>
+                                    <label for="document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
+                                    <input type="text" id="document_title" name="document_title"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"
+                                        required>
                                 </div>
 
                                 <!-- File Upload -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Masukkan File Anda</label>
-                                    <p class="text-sm text-gray-500">Ukuran file maksimal: 10 MB</p>
-                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 relative">
-                                        <input type="file" id="document_file" name="document" required
-                                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                        <div class="text-center">
-                                            <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                <div>
+                                    <label for="file" class="block text-sm font-medium text-gray-700 mb-1">Upload File</label>
+                                    <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                        <!-- Image preview -->
+                                        <div id="image-preview" class="mt-2 mb-4 w-full hidden">
+                                            <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                                <img id="preview-img" src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Selected Image">
+                                                <button type="button" id="remove-image" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
-                                            <p class="mt-1 text-sm text-gray-600">Seret atau <span class="text-blue-600">browse</span></p>
-                                            <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png, docx, doc, pdf atau csv</p>
+                                                </button>
                                         </div>
                                     </div>
-                                    <div id="document-preview-container" class="mt-2 hidden">
-                                        <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                                            <div class="flex items-center flex-grow overflow-hidden">
-                                                <div id="document-preview-icon" class="flex-shrink-0 mr-3"></div>
-                                                <div class="overflow-hidden">
-                                                    <p id="document-preview-name" class="text-sm font-medium truncate"></p>
-                                                    <p id="document-preview-size" class="text-xs text-gray-500"></p>
+
+                                        <!-- File preview (non-image) -->
+                                        <div id="file-name" class="mt-2 mb-4 w-full hidden">
+                                            <div class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                                <div class="flex items-center">
+                                                    <div id="file-icon-container">
+                                                        <!-- Icon akan diisi oleh JavaScript -->
                                                 </div>
-                                            </div>
-                                            <button type="button" id="document-clear-btn" class="ml-2 p-1 text-gray-500 hover:text-red-500 transition-colors rounded-full hover:bg-gray-100">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <span id="file-name-text" class="text-sm text-gray-700 truncate"></span>
+                                                    <button type="button" id="remove-file" class="ml-auto text-red-500 hover:text-red-700">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                             </button>
@@ -110,12 +101,36 @@
                                     </div>
                                 </div>
 
-                                <!-- Save Button -->
-                                <div class="pt-4">
-                                    <button type="submit" id="addDocumentSubmitBtn"
-                                            class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Simpan
+                                        <div class="text-center">
+                                            <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <p class="mt-1 text-sm text-gray-600">Seret file Anda atau <span class="text-[#213268] font-semibold">pilih file</span></p>
+                                            <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
+                                            <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih file</p>
+                                        </div>
+                                        <input type="file" id="file" name="document" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
+                                    </div>
+                                                </div>
+
+                                <!-- Notes -->
+                                <div>
+                                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                                    <textarea id="notes" name="notes" rows="3"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"></textarea>
+                                            </div>
+
+                                <!-- Form Actions -->
+                                <div class="flex justify-end space-x-3 mt-6">
+                                    <button type="submit" class="w-full h-[45px] bg-[#28356B] text-white rounded-lg text-base hover:bg-[#1d2754]">
+                                        <span class="flex items-center justify-center">
+                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                            Tambah Dokumen
+                                        </span>
                                     </button>
+                                </div>
 
                                     <!-- Upload Progress Indicator (initially hidden) -->
                                     <div id="uploadProgressContainer" class="hidden mt-4">
@@ -127,108 +142,10 @@
                                             <div id="uploadProgressBar" class="bg-[#213268] h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                                         </div>
                                         <div id="uploadStatusMessage" class="mt-2 text-sm text-gray-600"></div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Document Preview Modal -->
-    <div id="previewDocumentModal" class="fixed inset-0 z-50 hidden">
-        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-        <div class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[800px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                    id="previewDocumentModalContent">
-                    <!-- Header -->
-                    <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]" id="previewDocumentTitle">DOCUMENT PREVIEW</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" data-modal="previewDocumentModal">
-                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
                     </div>
-
-                    <!-- Preview Content -->
-                    <div class="p-6 space-y-4">
-                        <div id="document-preview-content" class="flex flex-col items-center justify-center min-h-[300px] p-4 border border-gray-200 rounded-lg">
-                            <!-- Preview will be loaded here -->
-                            <div class="text-center" id="preview-placeholder">
-                                <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <p class="mt-2 text-sm text-gray-600">Memuat pratinjau dokumen...</p>
-                            </div>
-                            <!-- Image Preview -->
-                            <img id="preview-image" class="max-w-full max-h-[500px] object-contain hidden" alt="Document Preview">
-                            <!-- PDF Preview -->
-                            <iframe id="preview-pdf" class="w-full h-[500px] hidden" src="" title="PDF Preview"></iframe>
-                            <!-- File Icon for non-previewable documents -->
-                            <div id="preview-file-icon" class="text-center hidden">
-                                <div id="file-type-icon" class="mx-auto h-32 w-32 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 mb-4">
-                                    <!-- File type icon will be placed here -->
-                                </div>
-                                <p id="preview-filename" class="text-lg font-medium"></p>
-                                <p class="mt-2 text-sm text-gray-500">Tipe file ini tidak dapat dipreview</p>
-                                <a id="download-link" href="#" target="_blank" class="mt-4 inline-flex items-center px-4 py-2 bg-[#213268] rounded-md text-white hover:bg-[#152349]">
-                                    <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                    </svg>
-                                    Unduh File
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Document Modal -->
-    <div id="deleteDocumentModal" class="fixed inset-0 z-50 hidden">
-        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-        <div class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                    id="deleteDocumentModalContent">
-                    <!-- Header -->
-                    <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS DOKUMEN</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" data-modal="deleteDocumentModal">
-                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Content -->
-                    <form id="deleteDocumentForm" action="" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <div class="p-6">
-                            <div class="space-y-6 max-w-[400px] mx-auto">
-                                <div class="flex flex-col items-center">
-                                    <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus dokumen ini? Aksi ini tidak dapat dibatalkan.</p>
-                                </div>
-                                <div class="flex gap-3">
-                                    <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200" data-modal="deleteDocumentModal">
-                                        Batal
-                                    </button>
-                                    <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                        Hapus
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
@@ -296,7 +213,38 @@ document.addEventListener('DOMContentLoaded', function() {
     window.openDocumentModal = function() {
         const modal = document.getElementById('addDocumentModal');
         const modalContent = document.getElementById('addDocumentModalContent');
+        const documentForm = document.getElementById('addDocumentForm');
+        const imagePreview = document.getElementById('image-preview');
+        const fileNamePreview = document.getElementById('file-name');
+
         if (modal && modalContent) {
+            // Reset form and previews
+            if (documentForm) {
+                documentForm.reset();
+            }
+
+            // Hide all preview elements
+            if (imagePreview) {
+                imagePreview.classList.add('hidden');
+            }
+
+            if (fileNamePreview) {
+                fileNamePreview.classList.add('hidden');
+            }
+
+            // Reset progress bar if visible
+            const progressContainer = document.getElementById('uploadProgressContainer');
+            const progressBar = document.getElementById('uploadProgressBar');
+            if (progressContainer) {
+                progressContainer.classList.add('hidden');
+            }
+            if (progressBar) {
+                progressBar.style.width = '0%';
+                progressBar.classList.remove('bg-red-500', 'bg-green-500');
+                progressBar.classList.add('bg-[#213268]');
+            }
+
+            // Open modal
             modal.classList.remove('hidden');
             setTimeout(function() {
                 modalContent.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
@@ -304,6 +252,74 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 10);
         }
     };
+
+    // File upload preview functionality
+    const fileInput = document.getElementById('file');
+    const imagePreview = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+    const fileNamePreview = document.getElementById('file-name');
+    const fileNameText = document.getElementById('file-name-text');
+    const fileIconContainer = document.getElementById('file-icon-container');
+    const removeFileBtn = document.getElementById('remove-file');
+    const removeImageBtn = document.getElementById('remove-image');
+
+    // Check if a file is an image
+    function isImageFile(file) {
+        return file && file.type.match(/^image\/(jpeg|jpg|png|gif|webp)$/i);
+    }
+
+    // Handle file selection
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const fileName = file.name;
+                const fileSize = (file.size / 1024).toFixed(1) + ' KB';
+                const fileExt = fileName.split('.').pop().toLowerCase();
+
+                // Check if it's an image file
+                if (isImageFile(file)) {
+                    // Show image preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        imagePreview.classList.remove('hidden');
+                        fileNamePreview.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // Show file icon based on extension
+                    fileNameText.textContent = fileName;
+
+                    // Get the appropriate icon based on file type
+                    fileIconContainer.innerHTML = DocumentSystem.getFileIconByType(fileExt);
+
+                    // Show file preview
+                    fileNamePreview.classList.remove('hidden');
+                    imagePreview.classList.add('hidden');
+                }
+            } else {
+                // No file selected, hide previews
+                imagePreview.classList.add('hidden');
+                fileNamePreview.classList.add('hidden');
+            }
+        });
+    }
+
+    // Remove file buttons
+    if (removeFileBtn) {
+        removeFileBtn.addEventListener('click', function() {
+            fileInput.value = '';
+            fileNamePreview.classList.add('hidden');
+        });
+    }
+
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', function() {
+            fileInput.value = '';
+            imagePreview.classList.add('hidden');
+        });
+    }
 
     // Set up the document form handler
     const documentForm = document.getElementById('addDocumentForm');
@@ -362,24 +378,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 let result;
                 try {
                     result = JSON.parse(xhr.responseText);
-                    if (!(xhr.status >= 200 && xhr.status < 300 && result.status)) {
-                        console.error('Upload error:', result);
-                    }
 
-                    if (xhr.status >= 200 && xhr.status < 300 && result.status) {
-                        // Success
+                    // Check if there's a message property in the response
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        // Successful API call
+                        if (result.success === true || result.status === true) {
+                            // Success response
                         progressBar.classList.remove('bg-[#213268]', 'bg-red-500');
                         progressBar.classList.add('bg-green-500');
                         statusMessage.textContent = 'Upload berhasil!';
-                        showToast('Dokumen berhasil diupload!', 'success');
+                            showToast(result.message || 'Dokumen berhasil diupload!', 'success');
 
                         // Close modal and reload after success
                         setTimeout(() => {
                             const modal = document.getElementById('addDocumentModal');
-                            if (modal) modal.classList.add('hidden');
+                                if (modal) {
+                                    const modalContent = document.getElementById('addDocumentModalContent');
+                                    closeModal(modal, modalContent);
+                                }
 
                             // Reset form
-                            form.reset();
+                                documentForm.reset();
 
                             // Reload documents
                             if (typeof DocumentSystem !== 'undefined' &&
@@ -390,12 +409,20 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         }, 1000);
                     } else {
-                        // Server returned error
+                            // API returned error status
                         progressBar.classList.remove('bg-[#213268]');
                         progressBar.classList.add('bg-red-500');
                         statusMessage.textContent = 'Error: ' + (result.message || 'Server error');
                         statusMessage.classList.add('text-red-600');
                         showToast(result.message || 'Gagal mengupload dokumen', 'error');
+                        }
+                    } else {
+                        // HTTP error
+                        progressBar.classList.remove('bg-[#213268]');
+                        progressBar.classList.add('bg-red-500');
+                        statusMessage.textContent = 'Error: ' + (result.message || 'Server error');
+                        statusMessage.classList.add('text-red-600');
+                        showToast(result.message || 'Error server: ' + xhr.status, 'error');
                     }
                 } catch (e) {
                     // Response parse error
@@ -457,9 +484,9 @@ document.addEventListener('DOMContentLoaded', function() {
             addModal: '#addDocumentModal',
             addModalContent: '#addDocumentModalContent',
             tableBody: '#documentTableBody',
-            fileInput: '#document_file',
-            previewContainer: '#document-preview-container',
-            previewImage: '#document-preview-image',
+            fileInput: '#file',
+            previewContainer: '#image-preview',
+            previewImage: '#preview-img',
             submitBtn: '#addDocumentSubmitBtn'
         },
 
@@ -500,13 +527,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Ensure we don't duplicate click handlers
                 addBtn.onclick = null;
                 addBtn.addEventListener('click', () => {
-                    const modal = document.querySelector(this.selectors.addModal);
-                    const content = document.querySelector(this.selectors.addModalContent);
-                    if (modal && content) {
-                        document.querySelector(this.selectors.addForm).reset();
-                        document.querySelector(this.selectors.previewContainer).classList.add('hidden');
-                        openModal(modal, content);
-                    }
+                    window.openDocumentModal();
                 });
             }
 
@@ -516,33 +537,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     const modalId = button.getAttribute('data-modal') || button.closest('[id$="Modal"]').id;
                     const modal = document.getElementById(modalId);
                     const content = document.getElementById(modalId + 'Content');
+
+                    // Reset form if it's the document modal
+                    if (modalId === 'addDocumentModal') {
+                        const form = document.getElementById('addDocumentForm');
+                        if (form) form.reset();
+
+                        // Hide previews
+                        const imagePreview = document.getElementById('image-preview');
+                        const fileNamePreview = document.getElementById('file-name');
+                        if (imagePreview) imagePreview.classList.add('hidden');
+                        if (fileNamePreview) fileNamePreview.classList.add('hidden');
+
+                        // Reset progress elements
+                        const progressContainer = document.getElementById('uploadProgressContainer');
+                        if (progressContainer) progressContainer.classList.add('hidden');
+                    }
+
                     if (modal && content) {
                         closeModal(modal, content);
                     }
                 });
-            });
-
-            // Event delegation for preview and delete buttons
-            document.addEventListener('click', (e) => {
-                // Delete button handling
-                if (e.target.closest('.delete-document-btn')) {
-                    e.preventDefault();
-                    const deleteBtn = e.target.closest('.delete-document-btn');
-                    const documentId = deleteBtn.getAttribute('data-id');
-                    this.deleteDocument(documentId);
-                }
-
-                // Preview button handling
-                if (e.target.closest('.preview-document-btn')) {
-                    e.preventDefault();
-                    const previewBtn = e.target.closest('.preview-document-btn');
-                    const docId = previewBtn.getAttribute('data-id');
-                    const docTitle = previewBtn.getAttribute('data-title');
-                    const filePath = previewBtn.getAttribute('data-path');
-                    const fileName = previewBtn.getAttribute('data-filename');
-                    const fileType = previewBtn.getAttribute('data-type');
-                    this.previewDocument(docId, docTitle, filePath, fileName, fileType);
-                }
             });
         },
 
@@ -586,7 +601,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Set appropriate icon based on file type
                 const fileExt = file.name.split('.').pop().toLowerCase();
-                previewIcon.innerHTML = DocumentSystem.getFileIconByType(fileExt);
+                previewIcon.innerHTML = this.getFileIconByType(fileExt);
 
                 // Show preview container
                 previewContainer.classList.remove('hidden');
@@ -594,24 +609,53 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         getFileIconByType(fileExt) {
-            // Helper to generate appropriate icon based on file type
+            // Get appropriate icon based on file extension
             if (['pdf'].includes(fileExt)) {
-                return `<svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                </svg>`;
+                return this.getPdfIcon();
             } else if (['doc', 'docx'].includes(fileExt)) {
-                return `<svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                </svg>`;
+                return this.getWordIcon();
             } else if (['xls', 'xlsx', 'csv'].includes(fileExt)) {
-                return `<svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                </svg>`;
+                return this.getExcelIcon();
+            } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExt)) {
+                return this.getImageIcon();
             } else {
-                return `<svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                </svg>`;
+                return this.getDocumentIcon();
             }
+        },
+
+        // Document icon SVG templates
+        getDocumentIcon() {
+            return `<svg class="w-8 h-8 text-gray-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>`;
+        },
+
+        getPdfIcon() {
+            return `<svg class="w-8 h-8 text-red-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                <text x="12" y="16" font-family="Arial" font-size="6" fill="currentColor" text-anchor="middle">PDF</text>
+            </svg>`;
+        },
+
+        getWordIcon() {
+            return `<svg class="w-8 h-8 text-blue-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                <text x="12" y="16" font-family="Arial" font-size="5" fill="currentColor" text-anchor="middle">DOC</text>
+            </svg>`;
+        },
+
+        getExcelIcon() {
+            return `<svg class="w-8 h-8 text-green-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                <text x="12" y="16" font-family="Arial" font-size="5" fill="currentColor" text-anchor="middle">XLS</text>
+            </svg>`;
+        },
+
+        getImageIcon() {
+            return `<svg class="w-8 h-8 text-purple-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <text x="12" y="16" font-family="Arial" font-size="5" fill="currentColor" text-anchor="middle">IMG</text>
+            </svg>`;
         },
 
         loadDocuments() {
@@ -621,8 +665,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Display loading indicator
             this.showLoadingIndicator(tableBody);
 
-            // Fetch documents
-            fetch(`/asset-documents/asset/${this.assetId}`, {
+            // Fetch documents using the new endpoint
+            fetch(`/asset-documents/asset/${this.assetId}/all-documents`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -631,18 +675,30 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(result => {
-                if (!result.status) {
+                if (!result.success) {
                     console.error('Document API error:', result);
+                    this.showErrorMessage(tableBody, result.message || 'Error loading documents');
+                    return;
                 }
 
-                const documents = result.data || [];
+                // Get all document types from the response
+                const regularDocuments = result.data.documents || [];
+                const calibrationDocuments = result.data.calibrationDocuments || [];
+                const maintenanceDocuments = result.data.maintenanceDocuments || [];
 
-                if (documents.length === 0) {
+                // Combine all document types with a source identifier
+                const allDocuments = [
+                    ...regularDocuments.map(doc => ({...doc, source: 'regular'})),
+                    ...calibrationDocuments.map(doc => ({...doc, source: 'calibration'})),
+                    ...maintenanceDocuments.map(doc => ({...doc, source: 'maintenance'}))
+                ];
+
+                if (allDocuments.length === 0) {
                     this.showEmptyMessage(tableBody);
                     return;
                 }
 
-                this.renderDocuments(tableBody, documents);
+                this.renderDocuments(tableBody, allDocuments);
             })
             .catch(error => {
                 console.error('Error fetching documents:', error);
@@ -692,45 +748,59 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fileName = doc.file_path ? doc.file_path.split('/').pop() : 'Unknown file';
                 const uploadDate = doc.upload_date ? new Date(doc.upload_date).toLocaleDateString() : '-';
                 const fileExt = fileName.split('.').pop().toLowerCase();
-                const fileIcon = this.getSmallFileIconByType(fileExt);
-                // Update the preview URL format
-                const previewUrl = `http://localhost:5000/public/documents/${fileName}`;
+
+                // Determine the proper URL based on file type and source
+                let previewUrl;
+                if (doc.full_path) {
+                    // Use full path if provided
+                    previewUrl = doc.full_path;
+                } else {
+                    // Otherwise construct URL based on file type
+                    if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
+                        // Use image URL format with standard naming pattern
+                        previewUrl = `http://localhost:5000/public/images/${fileName}`;
+                        // If the filename doesn't contain proper image identifier pattern, use the example format
+                        if (!fileName.includes('image-')) {
+                            previewUrl = `http://localhost:5000/public/images/image-${Date.now()}-${doc.id || 'default'}.${fileExt}`;
+                        }
+                    } else {
+                        // Use document URL format with standard naming pattern
+                        previewUrl = `http://localhost:5000/public/documents/${fileName}`;
+                        // If the filename doesn't contain proper document identifier pattern, use the example format
+                        if (!fileName.includes('asset-doc-')) {
+                            previewUrl = `http://localhost:5000/public/documents/asset-doc-${Date.now()}-${doc.id || 'default'}.${fileExt}`;
+                        }
+                    }
+                }
+
+                // Add badge for document type
+                let badgeHtml = '';
+                if (doc.source === 'calibration') {
+                    badgeHtml = '<span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Kalibrasi</span>';
+                } else if (doc.source === 'maintenance') {
+                    badgeHtml = '<span class="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Maintenance</span>';
+                }
 
                 html += `
-                    <tr data-document-id="${doc.id}">
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${doc.document_title || '-'}</td>
+                    <tr data-document-id="${doc.id}" data-document-source="${doc.source}">
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                             <div class="flex items-center">
-                                ${fileIcon}
-                                <span class="break-all">${fileName}</span>
+                                <span>${doc.document_title || '-'}</span>
+                                ${badgeHtml}
                             </div>
+                        </td>
+                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                            <span class="break-all">${fileName}</span>
                         </td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${doc.notes || '-'}</td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${uploadDate}</td>
                         <td class="p-3 border-t border-[#EEF1F4] text-center">
                             <div class="flex justify-center items-center space-x-2">
-                                <button class="text-[#3D3D3D] hover:text-[#213268] preview-document-btn"
-                                        data-id="${doc.id}"
-                                        data-title="${doc.document_title || 'Document Preview'}"
-                                        data-path="${previewUrl}"
-                                        data-filename="${fileName}"
-                                        data-type="${fileExt}"
-                                        title="Preview">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
-                                <a href="${previewUrl}" target="_blank" class="text-[#3D3D3D] hover:text-[#213268]" title="Download">
+                                <a href="${previewUrl}" target="_blank" class="text-[#3D3D3D] bg-gray-100 hover:bg-[#213268] hover:text-white p-1.5 rounded-md transition-colors flex items-center" title="Unduh File">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
                                 </a>
-                                <button class="text-[#3D3D3D] hover:text-red-500 delete-document-btn" data-id="${doc.id}" title="Delete">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
                             </div>
                         </td>
                     </tr>
@@ -739,180 +809,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             tableBody.innerHTML = html;
         },
-
-        getSmallFileIconByType(fileExt) {
-            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
-                return `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>`;
-            } else if (fileExt === 'pdf') {
-                return `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                </svg>`;
-            } else if (['doc', 'docx'].includes(fileExt)) {
-                return `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>`;
-            } else if (['xls', 'xlsx', 'csv'].includes(fileExt)) {
-                return `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>`;
-            } else {
-                return `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>`;
-            }
-        },
-
-        deleteDocument(docId) {
-            const modal = document.getElementById('deleteDocumentModal');
-            const content = document.getElementById('deleteDocumentModalContent');
-            const form = document.getElementById('deleteDocumentForm');
-
-            // Set the form action
-            form.action = `/asset-documents/${docId}`;
-
-            // Reset form event handlers
-            const newForm = form.cloneNode(true);
-            form.parentNode.replaceChild(newForm, form);
-
-            // Add submit handler
-            newForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-
-                // Show loading state
-                const submitBtn = newForm.querySelector('button[type="submit"]');
-                const originalBtnText = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `
-                    <svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                `;
-
-                // Send delete request
-                fetch(`/asset-documents/${docId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    // Close modal
-                    closeModal(modal, content);
-
-                    if (result.status) {
-                        // Reload documents on success
-                        this.loadDocuments();
-                        showToast('Dokumen berhasil dihapus', 'success');
-                    } else {
-                        showToast('Error: ' + (result.message || 'Gagal menghapus dokumen'), 'error');
-                    }
-                })
-                .catch(error => {
-                    closeModal(modal, content);
-                    console.error('Error deleting document:', error);
-                    showToast('Error menghapus dokumen. Silakan coba lagi.', 'error');
-                })
-                .finally(() => {
-                    // Reset button state
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                });
-            });
-
-            // Open delete confirmation modal
-            openModal(modal, content);
-        },
-
-        previewDocument(docId, docTitle, filePath, fileName, fileType) {
-            const modal = document.getElementById('previewDocumentModal');
-            const content = document.getElementById('previewDocumentModalContent');
-            const titleEl = document.getElementById('previewDocumentTitle');
-            const previewImage = document.getElementById('preview-image');
-            const previewPdf = document.getElementById('preview-pdf');
-            const previewFileIcon = document.getElementById('preview-file-icon');
-            const placeholder = document.getElementById('preview-placeholder');
-            const fileTypeIcon = document.getElementById('file-type-icon');
-            const previewFilename = document.getElementById('preview-filename');
-            const downloadLink = document.getElementById('download-link');
-
-            if (!modal || !content) return;
-
-            // Reset preview elements
-            previewImage.classList.add('hidden');
-            previewPdf.classList.add('hidden');
-            previewFileIcon.classList.add('hidden');
-            placeholder.classList.remove('hidden');
-
-            // Set document title and download link
-            titleEl.textContent = docTitle || 'Document Preview';
-            // Use the direct URL for preview and download
-            const fileUrl = filePath; // filePath now contains the complete URL
-            downloadLink.href = fileUrl;
-
-            // Open modal
-            openModal(modal, content);
-
-            // Set preview based on file type
-            fileType = fileType.toLowerCase();
-
-            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
-                // Handle image preview
-                const img = new Image();
-                img.onload = () => {
-                    previewImage.src = fileUrl;
-                    previewImage.classList.remove('hidden');
-                    placeholder.classList.add('hidden');
-                };
-                img.onerror = () => this.showFileIconPreview(fileType, fileName, fileTypeIcon, previewFilename, previewFileIcon, placeholder);
-                img.src = fileUrl;
-            } else if (fileType === 'pdf') {
-                // Handle PDF preview
-                previewPdf.src = fileUrl;
-                previewPdf.classList.remove('hidden');
-                placeholder.classList.add('hidden');
-                previewPdf.onerror = () => this.showFileIconPreview(fileType, fileName, fileTypeIcon, previewFilename, previewFileIcon, placeholder);
-            } else {
-                // Handle other file types
-                this.showFileIconPreview(fileType, fileName, fileTypeIcon, previewFilename, previewFileIcon, placeholder);
-            }
-        },
-
-        showFileIconPreview(fileType, fileName, iconContainer, filenameEl, iconWrapper, placeholder) {
-            let iconHtml = '';
-
-            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
-                iconHtml = `<svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>`;
-            } else if (fileType === 'pdf') {
-                iconHtml = `<svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                </svg>`;
-            } else if (['doc', 'docx'].includes(fileType)) {
-                iconHtml = `<svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>`;
-            } else if (['xls', 'xlsx', 'csv'].includes(fileType)) {
-                iconHtml = `<svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>`;
-            } else {
-                iconHtml = `<svg class="h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>`;
-            }
-
-            iconContainer.innerHTML = iconHtml;
-            filenameEl.textContent = fileName;
-            iconWrapper.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-        }
     };
 
     // Initialize the Document System
