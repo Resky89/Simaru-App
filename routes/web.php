@@ -204,6 +204,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Asset Depreciation route
     Route::get('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'getAssetDepreciation'])
         ->name('asset.depreciation.get');
+    Route::put('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'updateAssetDepreciation'])
+        ->name('asset-depreciation.update');
 
     // Asset Mutation routes
     Route::get('/asset-mutations/asset/{id}', [AssetMutationController::class, 'getAssetMutationHistory'])->name('asset-mutations.get');
