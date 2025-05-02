@@ -19,18 +19,11 @@
 
         <!-- Action Buttons -->
         <div class="flex gap-3">
-            <button id="editDocumentBtn" class="flex items-center justify-center gap-2 px-3 py-2 bg-[#213268] rounded-lg text-white">
+            <button id="editDocumentBtn" class="flex items-center justify-center gap-2 px-3 py-2 border border-[#213268] text-[#213268] rounded-lg hover:bg-[#213268] hover:text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
                 <span class="text-sm md:text-base">Edit</span>
-            </button>
-            <button id="link-document-btn" class="flex items-center justify-center gap-2 px-3 py-2 bg-[#213268] rounded-lg text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.172 13.828a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101" />
-                </svg>
-                <span class="text-sm md:text-base">Link Document</span>
             </button>
         </div>
     </div>
@@ -181,7 +174,7 @@
                     <a href="{{ config('app.backend_url') }}/public{{ $filePath }}" class="ml-auto bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors" target="_blank" download>
                         <span class="flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 8m4-4v12" />
                             </svg>
                             Download
                         </span>
@@ -195,8 +188,15 @@
 
     <!-- Associated Assets Section -->
     <div class="mb-6">
-        <div class="bg-[#213268] rounded-t-lg p-4">
+        <div class="bg-[#213268] rounded-t-lg p-4 flex justify-between items-center">
             <h2 class="text-white font-semibold">Associated Assets</h2>
+            <button id="link-document-btn" class="flex items-center justify-center gap-2 px-3 py-1.5 bg-white text-[#213268] rounded-lg hover:bg-gray-100 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.172 13.828a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101" />
+                </svg>
+                <span class="text-sm">Link Asset</span>
+            </button>
         </div>
         <div class="bg-white p-6 rounded-b-lg border border-t-0 border-gray-200">
             @if(isset($document['assets']) && count($document['assets']) > 0)
@@ -226,7 +226,7 @@
                                         <form action="{{ url('asset-documents/asset/' . $asset['asset_id'] . '/documents/' . $document['document_id']) }}?redirect={{ url()->current() }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="bg-red-100 text-red-700 px-3 py-1 rounded-md hover:bg-red-200 transition-colors" onclick="return confirm('Are you sure you want to unlink this asset?')">
+                                            <button type="submit" class="bg-red-100 text-red-700 px-3 py-1 rounded-md hover:bg-red-200 transition-colors">
                                                 <span class="flex items-center">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -530,10 +530,7 @@
 
                     <!-- Button Group -->
                     <div class="pt-4 flex justify-end gap-4">
-                        <button type="button" class="close-modal px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200">
-                            Cancel
-                        </button>
-                        <button type="button" id="link-selected-assets" class="px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200" disabled>
+                        <button type="button" id="link-selected-assets" class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200" disabled>
                             Link Selected
                         </button>
                     </div>
@@ -948,14 +945,38 @@
         // Link selected assets button
         document.getElementById('link-selected-assets')?.addEventListener('click', function() {
             if (selectedAssets.length === 0) {
-                alert('Please select at least one asset');
+                // Create a toast error message instead of alert
+                const errorToast = document.createElement('div');
+                errorToast.id = 'errorNotification';
+                errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                errorToast.role = 'alert';
+                errorToast.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Error!</p>
+                            <p>Please select at least one asset</p>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+                document.body.appendChild(errorToast);
+
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => errorToast.remove(), 500);
+                }, 5000);
+
                 return;
             }
 
-            // Confirm before linking
-            if (confirm(`Are you sure you want to link ${selectedAssets.length} asset(s) to this document?`)) {
-                linkAssets();
-            }
+            // Call linkAssets directly (no confirmation)
+            linkAssets();
         });
 
         // Function to load assets
@@ -1271,7 +1292,33 @@
             const assetsToLink = selectedAssets.filter(assetId => !linkedAssetIds.includes(assetId));
 
             if (assetsToLink.length === 0) {
-                alert('All selected assets are already linked to this document.');
+                // Create a toast error message instead of alert
+                const errorToast = document.createElement('div');
+                errorToast.id = 'errorNotification';
+                errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                errorToast.role = 'alert';
+                errorToast.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Error!</p>
+                            <p>All selected assets are already linked to this document.</p>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+                document.body.appendChild(errorToast);
+
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => errorToast.remove(), 500);
+                }, 5000);
+
                 return;
             }
 

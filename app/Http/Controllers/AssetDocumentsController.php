@@ -649,7 +649,7 @@ class AssetDocumentsController extends Controller
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
                 }
 
                 return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
@@ -665,8 +665,8 @@ class AssetDocumentsController extends Controller
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json(['error' => $errorMessage], 400);
-                }
+                return response()->json(['error' => $errorMessage], 400);
+            }
 
                 return redirect()->back()->with('error', $errorMessage);
             }
@@ -676,11 +676,11 @@ class AssetDocumentsController extends Controller
 
             // For AJAX/JSON requests
             if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Document assigned to assets successfully',
-                    'data' => $result['data'] ?? []
-                ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Document assigned to assets successfully',
+                'data' => $result['data'] ?? []
+            ]);
             }
 
             // For non-AJAX requests, redirect with success message
@@ -699,11 +699,11 @@ class AssetDocumentsController extends Controller
             ]);
 
             if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage,
-                    'data' => null
-                ], 500);
+            return response()->json([
+                'success' => false,
+                'message' => $errorMessage,
+                'data' => null
+            ], 500);
             }
 
             return redirect()->back()->with('error', $errorMessage);
@@ -742,7 +742,7 @@ class AssetDocumentsController extends Controller
                 ]);
 
                 if (request()->ajax()) {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
                 }
 
                 return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
@@ -758,8 +758,8 @@ class AssetDocumentsController extends Controller
                 ]);
 
                 if (request()->ajax()) {
-                    return response()->json(['error' => $errorMessage], 400);
-                }
+                return response()->json(['error' => $errorMessage], 400);
+            }
 
                 return redirect()->back()->with('error', $errorMessage);
             }
@@ -769,11 +769,11 @@ class AssetDocumentsController extends Controller
 
             // Return JSON response for AJAX requests
             if (request()->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Document removed from asset successfully',
-                    'data' => $result['data'] ?? []
-                ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Document removed from asset successfully',
+                'data' => $result['data'] ?? []
+            ]);
             }
 
             // For non-AJAX requests, redirect with success message
@@ -793,6 +793,89 @@ class AssetDocumentsController extends Controller
             ]);
 
             if (request()->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => $errorMessage,
+                'data' => null
+            ], 500);
+            }
+
+            return redirect()->back()->with('error', $errorMessage);
+        }
+    }
+
+    /**
+     * Get all documents related to a specific asset.
+     */
+    public function getAssetDocuments($assetId)
+    {
+        try {
+            // Log request info
+            \Log::info('Fetching all documents for asset:', [
+                'asset_id' => $assetId,
+                'request_url' => request()->fullUrl()
+            ]);
+
+            // Make API request to get all documents for the asset
+            $result = $this->apiService->request('GET', "/asset-documents/asset/{$assetId}/all-documents");
+
+            // Log API response for debugging
+            \Log::info('API response for asset documents retrieval:', [
+                'api_response_success' => $result['success'] ?? null,
+                'api_response_message' => $result['message'] ?? null,
+                'asset_id' => $assetId
+            ]);
+
+            // Check for auth errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during asset documents retrieval:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                }
+
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorMessage = $result['message'] ?? 'Failed to retrieve asset documents';
+
+                \Log::warning('Error during asset documents retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'message' => $errorMessage
+                ]);
+
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json(['error' => $errorMessage], 400);
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Return JSON response with all document types
+            return response()->json([
+                'success' => true,
+                'message' => 'All related documents retrieved successfully',
+                'data' => [
+                    'documents' => $result['data']['documents'] ?? [],
+                    'calibrationDocuments' => $result['data']['calibrationDocuments'] ?? [],
+                    'maintenanceDocuments' => $result['data']['maintenanceDocuments'] ?? []
+                ]
+            ]);
+        } catch (\Exception $e) {
+            $errorMessage = 'Failed to retrieve asset documents: ' . $e->getMessage();
+
+            \Log::error('Exception during asset documents retrieval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'asset_id' => $assetId
+            ]);
+
+            if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => $errorMessage,
