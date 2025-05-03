@@ -1724,103 +1724,74 @@
             });
         }, 5000);
 
-        // Function to apply filters and sorting
+        // Function to handle search and filtering
         function applyFilters() {
-            const searchTerm = document.getElementById('searchInput').value;
-            const assetTypeFilter = document.getElementById('assetTypeFilter').value;
-            const sortOrder = document.getElementById('sortOrder').value;
+            const searchValue = document.getElementById('searchInput')?.value.trim() || '';
+            const typeValue = document.getElementById('assetTypeFilter')?.value || '';
+            const sortValue = document.getElementById('sortOrder')?.value || '';
 
-            console.log('Applying filters:', {
-                search: searchTerm,
-                assetType: assetTypeFilter,
-                sort: sortOrder
-            });
-
+            // Create URL with filter parameters
             const url = new URL(window.location.href);
 
-            // Set search parameter
-            if (searchTerm) url.searchParams.set('search', searchTerm);
-            else url.searchParams.delete('search');
+            // Clear existing parameters we're going to set
+            ['search', 'type', 'sort', 'page'].forEach(param => {
+                url.searchParams.delete(param);
+            });
 
-            // Set asset type parameter
-            if (assetTypeFilter) url.searchParams.set('type', assetTypeFilter);
-            else url.searchParams.delete('type');
+            // Add new parameters if they have values
+            if (searchValue) url.searchParams.set('search', searchValue);
+            if (typeValue) url.searchParams.set('type', typeValue);
+            if (sortValue) url.searchParams.set('sort', sortValue);
 
-            // Set sort parameter
-            if (sortOrder) url.searchParams.set('sort', sortOrder);
-            else url.searchParams.delete('sort');
-
-            // Reset to first page on filter change
+            // Reset to page 1 when filters change
             url.searchParams.set('page', 1);
 
-            console.log('Filter URL:', url.toString());
-
-            // Redirect to new URL with filters
+            // Navigate to the new URL
             window.location.href = url.toString();
         }
 
-        // Apply debounce to search input
-        document.getElementById('searchInput')?.addEventListener('input', debounce(function() {
-            applyFilters();
-        }, 500));
-
-        // Asset type filter - apply immediately on change
-        document.getElementById('assetTypeFilter')?.addEventListener('change', function() {
-            console.log('Asset Type Changed:', this.value);
-            applyFilters();
+        // Add event listeners with debounce for search
+        let searchTimeout;
+        document.getElementById('searchInput')?.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 500);
         });
 
-        // Sort order - apply immediately on change
-        document.getElementById('sortOrder')?.addEventListener('change', function() {
-            applyFilters();
-        });
+        // Add event listeners for select filters
+        document.getElementById('assetTypeFilter')?.addEventListener('change', applyFilters);
+        document.getElementById('sortOrder')?.addEventListener('change', applyFilters);
 
-        // Set existing values from URL
-        function setFilterValuesFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-
-            // Set search input value
-            if (urlParams.has('search')) {
-                document.getElementById('searchInput').value = urlParams.get('search');
+        // Set initial values from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        if (document.getElementById('searchInput')) {
+            document.getElementById('searchInput').value = urlParams.get('search') || '';
+        }
+        if (document.getElementById('assetTypeFilter')) {
+            const typeValue = urlParams.get('type');
+            if (typeValue) {
+                document.getElementById('assetTypeFilter').value = typeValue;
             }
-
-            // Set asset type filter value
-            if (urlParams.has('type')) {
-                const assetType = urlParams.get('type');
-                console.log('Setting asset type from URL:', assetType);
-                const assetTypeFilter = document.getElementById('assetTypeFilter');
-                if (assetTypeFilter) {
-                    // First check if the value exists in the options
-                    let found = false;
-                    for (let i = 0; i < assetTypeFilter.options.length; i++) {
-                        if (assetTypeFilter.options[i].value === assetType) {
-                            assetTypeFilter.selectedIndex = i;
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    // If not found, add it and select
-                    if (!found && assetType) {
-                        const option = new Option(assetType, assetType);
-                        assetTypeFilter.add(option);
-                        assetTypeFilter.value = assetType;
-                    }
-
-                    console.log('Asset type filter value after set:', assetTypeFilter.value);
-                }
-            }
-
-            // Set sort order value
-            if (urlParams.has('sort')) {
-                document.getElementById('sortOrder').value = urlParams.get('sort');
+        }
+        if (document.getElementById('sortOrder')) {
+            const sortValue = urlParams.get('sort');
+            if (sortValue) {
+                document.getElementById('sortOrder').value = sortValue;
             }
         }
 
-        // Initialize filter values from URL on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            setFilterValuesFromUrl();
-        });
+        // Update pagination functions to preserve filters
+        window.changePage = function(page) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.location.href = url.toString();
+        };
+
+        window.changePerPage = function(perPage) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', perPage);
+            url.searchParams.set('page', 1);
+            window.location.href = url.toString();
+        };
 
         // Import master asset button
         document.getElementById('importMasterAssetBtn')?.addEventListener('click', function() {

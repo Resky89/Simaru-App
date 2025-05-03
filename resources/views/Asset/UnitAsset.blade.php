@@ -2302,7 +2302,7 @@
 
                 // Add data cells
                 const fields = ['asset_master_id', 'serial_number', 'room_id', 'purchase_date', 'purchase_cost',
-                                'warranty_end_date', 'condition', 'user_id', 'current_status', 'depreciation_method',
+                                'warranty_end_date', 'user_id', 'current_status', 'condition', 'depreciation_method',
                                 'acquisition_cost', 'salvage_value', 'asset_life_months', 'date_acquired'];
 
                 fields.forEach(field => {

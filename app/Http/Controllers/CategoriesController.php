@@ -25,6 +25,8 @@ class CategoriesController extends Controller
             $page = $request->query('page', 1);
             $limit = $request->query('limit', 10);
             $assetType = $request->query('asset_type', '');
+            $search = $request->query('search', '');
+            $sort = $request->query('sort', '');
 
             // Build query parameters
             $queryParams = [
@@ -34,8 +36,36 @@ class CategoriesController extends Controller
                 'sort_order' => 'asc'
             ];
 
+            // Asset type filter
             if (!empty($assetType)) {
                 $queryParams['asset_type'] = $assetType;
+            }
+
+            // Search parameter
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            // Custom sorting
+            if (!empty($sort)) {
+                switch ($sort) {
+                    case 'name_asc':
+                        $queryParams['sort_by'] = 'subcategory_name';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'name_desc':
+                        $queryParams['sort_by'] = 'subcategory_name';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    case 'id_asc':
+                        $queryParams['sort_by'] = 'subcategory_id';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'id_desc':
+                        $queryParams['sort_by'] = 'subcategory_id';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                }
             }
 
             // Get subcategories from API
@@ -56,28 +86,55 @@ class CategoriesController extends Controller
 
             // Format data for the view
             $subcategories = $result['data'] ?? [];
-            $pagination = $result['pagination'] ?? [
-                'current_page' => 1,
-                'last_page' => 1,
-                'per_page' => $limit,
-                'total' => count($subcategories)
-            ];
 
-            return view('Asset.AssetCategories', compact('subcategories', 'assetTypes', 'pagination'));
+            // Format pagination similar to UserController
+            $pagination = null;
+            if (isset($result['pagination'])) {
+                $paginationData = $result['pagination'];
+                $pagination = [
+                    'current_page' => $paginationData['current_page'] ?? 1,
+                    'last_page' => ceil(($paginationData['total_items'] ?? 0) / ($paginationData['limit'] ?? 10)),
+                    'from' => (($paginationData['current_page'] ?? 1) - 1) * ($paginationData['limit'] ?? 10) + 1,
+                    'to' => min(($paginationData['current_page'] ?? 1) * ($paginationData['limit'] ?? 10), $paginationData['total_items'] ?? 0),
+                    'total' => $paginationData['total_items'] ?? 0,
+                    'per_page' => $paginationData['limit'] ?? 10,
+                    'next_page_url' => isset($paginationData['has_next']) && $paginationData['has_next'] ?
+                        request()->fullUrlWithQuery(['page' => ($paginationData['current_page'] + 1)]) : null,
+                    'prev_page_url' => isset($paginationData['has_prev']) && $paginationData['has_prev'] ?
+                        request()->fullUrlWithQuery(['page' => ($paginationData['current_page'] - 1)]) : null,
+                ];
+            } else {
+                $pagination = [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $limit,
+                    'total' => count($subcategories),
+                    'from' => 1,
+                    'to' => count($subcategories),
+                    'next_page_url' => null,
+                    'prev_page_url' => null
+                ];
+            }
+
+            return view('Categories', compact('subcategories', 'assetTypes', 'pagination'));
         } catch (\Exception $e) {
             Log::error('Failed to fetch asset subcategories:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return view('Asset.AssetCategories', [
+            return view('Categories', [
                 'subcategories' => [],
                 'assetTypes' => [],
                 'pagination' => [
                     'current_page' => 1,
                     'last_page' => 1,
                     'per_page' => $limit,
-                    'total' => 0
+                    'total' => 0,
+                    'from' => 0,
+                    'to' => 0,
+                    'next_page_url' => null,
+                    'prev_page_url' => null
                 ],
                 'error' => 'Failed to load asset subcategories: ' . $e->getMessage()
             ]);
@@ -260,6 +317,114 @@ class CategoriesController extends Controller
                 'status' => false,
                 'message' => 'An error occurred while fetching subcategories: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Import asset subcategories.
+     */
+    public function import(Request $request)
+    {
+        try {
+            // Validate the request
+            $validated = $request->validate([
+                'excel_file' => 'required|file|mimes:xlsx,xls,csv',
+            ]);
+
+            // Log the import attempt
+            Log::info('Attempting to import subcategories', [
+                'file_name' => $request->file('excel_file')->getClientOriginalName(),
+                'file_size' => $request->file('excel_file')->getSize()
+            ]);
+
+            // Create multipart form data for the API request
+            $multipart = [
+                [
+                    'name' => 'excel_file',
+                    'contents' => fopen($request->file('excel_file')->getPathname(), 'r'),
+                    'filename' => $request->file('excel_file')->getClientOriginalName()
+                ]
+            ];
+
+            // Send the import request to the API
+            $result = $this->apiService->request('POST', '/asset-subcategories/import', [
+                'multipart' => $multipart
+            ]);
+
+            // Log the API response
+            Log::info('API response for subcategory import:', [
+                'api_response' => $result
+            ]);
+
+            // Check for authentication errors
+            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                Log::warning('Authentication error during subcategory import:', [
+                    'error' => $result['error'],
+                    'message' => $result['message'] ?? 'Authentication failed'
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $result['message'] ?? 'Authentication failed'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            }
+
+            // Check for other API errors
+            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+                $errorMessage = $result['message'] ?? 'Failed to import subcategories';
+                Log::warning('Error during subcategory import:', [
+                    'error' => $result['error'] ?? null,
+                    'success' => $result['success'] ?? null,
+                    'message' => $errorMessage
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? [],
+                        'data' => $result['data'] ?? null
+                    ], 400);
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Successfully imported
+            $successMessage = $result['message'] ?? 'Subcategories imported successfully';
+            Log::info('Subcategories imported successfully', [
+                'total' => $result['data']['total'] ?? 0,
+                'success' => $result['data']['success'] ?? 0,
+                'failed' => $result['data']['failed'] ?? 0
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('categories')->with('success', $successMessage);
+        } catch (\Exception $e) {
+            Log::error('Exception during subcategory import:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to import subcategories: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to import subcategories: ' . $e->getMessage());
         }
     }
 }
