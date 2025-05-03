@@ -2429,9 +2429,17 @@
 
                     // Check for detailed error information in the API response
                     if (data.data && data.data.errors && Array.isArray(data.data.errors)) {
-                        const detailedErrors = data.data.errors.map(error =>
-                            `Row ${error.row}: ${error.reason || 'Unknown error'}`
-                        );
+                        const detailedErrors = data.data.errors.map(error => {
+                            if (error.row && error.reason) {
+                                return `Row ${error.row}: ${error.asset_master_code ? error.asset_master_code + ' - ' : ''}${error.reason || 'Unknown error'}`;
+                            } else if (typeof error === 'string') {
+                                return error;
+                            } else if (error.message) {
+                                return error.message;
+                            }
+                            return 'Unknown error';
+                        });
+
                         if (detailedErrors.length > 0) {
                             errorMessage += '<ul class="mt-2 ml-4 list-disc">';
                             detailedErrors.forEach(err => {
@@ -2440,10 +2448,34 @@
                             errorMessage += '</ul>';
                         }
                     } else if (data.errors) {
-                        const errorList = Object.values(data.errors);
-                        if (errorList.length > 0) {
-                            errorMessage += ': ' + errorList.join(', ');
+                        errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+
+                        // Handle different error formats
+                        if (Array.isArray(data.errors)) {
+                            // Array of error messages
+                            data.errors.forEach(error => {
+                                if (typeof error === 'string') {
+                                    errorMessage += `<li>${error}</li>`;
+                                } else if (error.message) {
+                                    errorMessage += `<li>${error.message}</li>`;
+                                } else if (error.reason) {
+                                    errorMessage += `<li>${error.reason}</li>`;
+                                }
+                            });
+                        } else {
+                            // Object with field names as keys
+                            Object.entries(data.errors).forEach(([field, errors]) => {
+                                if (Array.isArray(errors)) {
+                                    errors.forEach(error => {
+                                        errorMessage += `<li>${error}</li>`;
+                                    });
+                                } else if (typeof errors === 'string') {
+                                    errorMessage += `<li>${errors}</li>`;
+                                }
+                            });
                         }
+
+                        errorMessage += '</ul>';
                     }
 
                     showNotification('error', errorMessage);
@@ -2469,6 +2501,9 @@
             notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
             notification.role = 'alert';
 
+            // Check if message contains HTML
+            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+
             if (type === 'success') {
                 notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                 notification.innerHTML = `
@@ -2486,21 +2521,57 @@
                     </div>
                 `;
             } else {
-                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
-                notification.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div class="flex-grow">
-                            <p class="font-bold">Error!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
+                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                // Structure for the notification
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-start';
+
+                // Icon container
+                const iconContainer = document.createElement('div');
+                iconContainer.className = 'py-1 flex-shrink-0';
+                iconContainer.innerHTML = `
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 `;
+
+                // Content container
+                const contentContainer = document.createElement('div');
+                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                // Title
+                const title = document.createElement('p');
+                title.className = 'font-bold';
+                title.textContent = 'Error!';
+                contentContainer.appendChild(title);
+
+                // Message container
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'error-message';
+
+                // Handle HTML content
+                if (hasHTML) {
+                    messageContainer.innerHTML = message;
+                } else {
+                    messageContainer.textContent = message;
+                }
+
+                contentContainer.appendChild(messageContainer);
+
+                // Close button
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = function() {
+                    notification.remove();
+                };
+
+                // Assemble the notification
+                wrapper.appendChild(iconContainer);
+                wrapper.appendChild(contentContainer);
+                wrapper.appendChild(closeBtn);
+                notification.appendChild(wrapper);
             }
 
             // Add to document
@@ -2513,7 +2584,7 @@
             }, 5000);
         }
 
-        // Add slide-in animation to CSS
+        // Add slide-in animation and styling for error messages to CSS
         document.head.insertAdjacentHTML('beforeend', `
             <style>
                 @keyframes slideInRight {
@@ -2522,6 +2593,18 @@
                 }
                 .animate-slide-in-right {
                     animation: slideInRight 0.3s ease-out forwards;
+                }
+
+                /* Styling for error messages with HTML content */
+                .error-message ul {
+                    margin-top: 0.5rem;
+                    padding-left: 1.5rem;
+                }
+                .error-message ul li {
+                    margin-bottom: 0.25rem;
+                }
+                .error-message ul li:last-child {
+                    margin-bottom: 0;
                 }
             </style>
         `);

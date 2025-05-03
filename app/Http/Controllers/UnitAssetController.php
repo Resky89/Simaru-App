@@ -1466,8 +1466,20 @@ class UnitAssetController extends Controller
                     $errorDetails = [];
 
                     foreach ($result['data']['errors'] as $error) {
-                        if (isset($error['row']) && isset($error['asset_name']) && isset($error['reason'])) {
-                            $errorDetails[] = "Row {$error['row']}: {$error['asset_name']} - {$error['reason']}";
+                        if (isset($error['row']) && isset($error['reason'])) {
+                            $errorDetailMsg = "Row {$error['row']}: ";
+
+                            // Include asset_master_code if available
+                            if (isset($error['asset_master_code'])) {
+                                $errorDetailMsg .= "{$error['asset_master_code']} - ";
+                            }
+                            // Include asset_name if available
+                            elseif (isset($error['asset_name'])) {
+                                $errorDetailMsg .= "{$error['asset_name']} - ";
+                            }
+
+                            $errorDetailMsg .= $error['reason'];
+                            $errorDetails[] = $errorDetailMsg;
                         } elseif (is_string($error)) {
                             $errorDetails[] = $error;
                         } elseif (is_array($error) && isset($error['message'])) {
