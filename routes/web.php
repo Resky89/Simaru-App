@@ -28,6 +28,7 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\MasterAssetController;
 use App\Http\Controllers\ViewMasterAssetController;
 use App\Http\Controllers\AssetDocumentsController;
+use App\Http\Controllers\MaintenanceController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -314,6 +315,16 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Asset History routes
     Route::get('/asset-histories/{id}', [AssetHistoryController::class, 'getAssetHistory'])->name('asset-histories.get');
 
+    // Maintenance routes
+    Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
+    Route::get('/maintenance/{id}', [MaintenanceController::class, 'getMaintenance']);
+    Route::get('/maintenance/detail/{id}', [MaintenanceController::class, 'showMaintenanceDetail'])->name('maintenance.detail');
+    Route::post('/maintenance', [MaintenanceController::class, 'createMaintenance'])->name('maintenance.create');
+    Route::put('/maintenance/{id}', [MaintenanceController::class, 'update']);
+    Route::delete('/maintenance/{id}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
+    Route::get('/maintenance/export/pdf', [MaintenanceController::class, 'exportMaintenancePDF'])->name('maintenance.export.pdf');
+    Route::get('/maintenance/export/pdf/{id}', [MaintenanceController::class, 'exportMaintenanceDetailPDF'])->name('maintenance.export.detail.pdf');
+    Route::post('/maintenance-reports', [MaintenanceController::class, 'createMaintenanceReport'])->name('maintenance.reports.create');
     // Calibration routes
     Route::get('/calibrations', [CalibrationController::class, 'index'])->name('calibration');
     Route::post('/calibrations/bulk', [CalibrationController::class, 'createBulkCalibrations'])->name('calibrations.bulk.create');
