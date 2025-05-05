@@ -16,7 +16,6 @@ use App\Http\Middleware\AuthMiddleware;
 use App\Http\Controllers\BrandController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ProcurementRequestController;
-use App\Http\Controllers\ProcurementDetailRequestController;
 use App\Http\Controllers\AssetFinanceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CalibrationController;
@@ -133,9 +132,6 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Asset Management Routes
     Route::prefix('asset')->name('asset-')->group(function () {
-        Route::get('/categories', function () {
-            return redirect()->route('categories');
-        })->name('categories');
         Route::get('/unit', [UnitAssetController::class, 'index'])->name('unit');
         Route::get('/detail/{id?}', [AssetDetailsController::class, 'show'])->name('details');
     });
@@ -178,6 +174,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::post('/', [BrandController::class, 'store'])->name('brands.store');
         Route::put('/{id}', [BrandController::class, 'update'])->name('brands.update');
         Route::delete('/{id}', [BrandController::class, 'destroy'])->name('brands.destroy');
+        Route::post('/import', [BrandController::class, 'import'])->name('brands.import');
     });
 
     // Asset routes
@@ -223,7 +220,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/form-request', function () {
             return view('Procurement.Request.FormRequest');
         })->name('form-request');
-        Route::get('/detail-request/{id}', [ProcurementDetailRequestController::class, 'show'])->name('detail-request');
+         Route::get('/detail-request/{id}', [ProcurementRequestController::class, 'show'])->name('detail-request');
 
         // Price Comparison
         Route::get('/price-comparison', function () {

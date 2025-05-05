@@ -416,8 +416,8 @@ class BrandController extends Controller
     public function import(Request $request)
     {
         try {
-            // Validate the uploaded file
-            $request->validate([
+            // Validate the request
+            $validated = $request->validate([
                 'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
             ]);
 
@@ -428,40 +428,19 @@ class BrandController extends Controller
                 'file_type' => $request->file('excel_file')->getMimeType()
             ]);
 
-            // Get the uploaded file
-            $file = $request->file('excel_file');
-
-            // If excel data is provided directly (e.g., from AJAX processing)
-            $excelData = $request->input('excel_data');
-
-            // Create form data for API request
-            $formData = [];
-
-            if ($excelData) {
-                // Use the pre-processed Excel data
-                $formData = [
-                    'multipart' => [
-                        [
-                            'name' => 'brands',
-                            'contents' => $excelData
-                        ]
-                    ]
-                ];
-            } else {
-                // Use the file upload approach
-                $formData = [
-                    'multipart' => [
-                        [
-                            'name' => 'excel_file',
-                            'contents' => fopen($file->getPathname(), 'r'),
-                            'filename' => $file->getClientOriginalName()
-                        ]
-                    ]
-                ];
-            }
+            // Create multipart form data for the API request
+            $multipart = [
+                [
+                    'name' => 'excel_file',
+                    'contents' => fopen($request->file('excel_file')->getPathname(), 'r'),
+                    'filename' => $request->file('excel_file')->getClientOriginalName()
+                ]
+            ];
 
             // Send the import request to the API
-            $result = $this->apiService->request('POST', '/brands/import', $formData);
+            $result = $this->apiService->request('POST', '/brands/import', [
+                'multipart' => $multipart
+            ]);
 
             // Log the API response
             \Log::info('API response for brand import:', [
@@ -492,24 +471,101 @@ class BrandController extends Controller
             if (!isset($result['success']) || $result['success'] === false) {
                 $errorData = $result['errors'] ?? 'Failed to import brands';
 
+                \Log::warning('Error during brand import:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'data' => $result['data'] ?? null
+                ]);
+
                 if ($request->ajax()) {
+                    // Format detailed error response for AJAX requests
+                    $formattedErrors = $errorData;
+                    $errorDetails = [];
+
+                    // Extract error details from array structure
+                    if (is_array($errorData)) {
+                        foreach ($errorData as $field => $messages) {
+                            if (is_array($messages)) {
+                                foreach ($messages as $msg) {
+                                    $errorDetails[] = $msg;
+                                }
+                            } else {
+                                $errorDetails[] = $messages;
+                            }
+                        }
+                    } else {
+                        $errorDetails[] = $errorData;
+                    }
+
+                    // Check if there are detailed errors in the data section
+                    if (isset($result['data']) && isset($result['data']['errors']) && !empty($result['data']['errors'])) {
+                        $dataErrors = $result['data']['errors'];
+                        if (is_array($dataErrors)) {
+                            foreach ($dataErrors as $error) {
+                                if (is_array($error)) {
+                                    // Format each error object into a readable message
+                                    if (isset($error['brand_name']) && isset($error['reason'])) {
+                                        $rowInfo = isset($error['row']) ? "Row {$error['row']}: " : '';
+                                        $errorDetails[] = "{$rowInfo}\"{$error['brand_name']}\" - {$error['reason']}";
+                                    } else if (isset($error['reason'])) {
+                                        $rowInfo = isset($error['row']) ? "Row {$error['row']}: " : '';
+                                        $errorDetails[] = "{$rowInfo}{$error['reason']}";
+                                    } else if (isset($error['message'])) {
+                                        $errorDetails[] = $error['message'];
+                                    }
+                                } else if (is_string($error)) {
+                                    $errorDetails[] = $error;
+                                }
+                            }
+                        }
+                    }
+
                     return response()->json([
                         'success' => false,
-                        'errors' => $errorData,
+                        'errors' => $formattedErrors,
+                        'errorDetails' => $errorDetails,
                         'data' => $result['data'] ?? null
                     ], status: 400);
                 }
 
-                // Format error message
+                // Format error message for redirect response
                 $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
+
+                // First check if we have structured errors in the data
+                if (isset($result['data']) && isset($result['data']['errors']) && !empty($result['data']['errors'])) {
+                    $errorList = '<ul class="mt-2 ml-4 list-disc">';
+                    foreach ($result['data']['errors'] as $error) {
+                        if (is_array($error)) {
+                            if (isset($error['brand_name']) && isset($error['reason'])) {
+                                $rowInfo = isset($error['row']) ? "Baris {$error['row']}: " : '';
+                                $errorList .= "<li>{$rowInfo}\"{$error['brand_name']}\" - {$error['reason']}</li>";
+                            } else if (isset($error['reason'])) {
+                                $rowInfo = isset($error['row']) ? "Baris {$error['row']}: " : '';
+                                $errorList .= "<li>{$rowInfo}{$error['reason']}</li>";
+                            } else if (isset($error['message'])) {
+                                $errorList .= "<li>{$error['message']}</li>";
+                            }
+                        } else if (is_string($error)) {
+                            $errorList .= "<li>{$error}</li>";
                         }
                     }
+                    $errorList .= '</ul>';
+                    $errorMessage = 'Failed to import brands: ' . $errorList;
+                }
+                // If no structured errors in data, format the general errors
+                else if (is_array($errorData)) {
+                    $errorList = '<ul class="mt-2 ml-4 list-disc">';
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            foreach ($messages as $msg) {
+                                $errorList .= "<li>{$msg}</li>";
+                            }
+                        } else {
+                            $errorList .= "<li>{$messages}</li>";
+                        }
+                    }
+                    $errorList .= '</ul>';
+                    $errorMessage = 'Failed to import brands: ' . $errorList;
                 } else {
                     $errorMessage = $errorData;
                 }
@@ -553,7 +609,7 @@ class BrandController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to import brands: ' . $e->getMessage()
+                    'errors' => 'Failed to import brands: ' . $e->getMessage()
                 ], status: 500);
             }
 

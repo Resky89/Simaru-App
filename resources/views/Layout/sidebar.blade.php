@@ -48,7 +48,7 @@
                                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Master Data</span>
+                        <span class="{{ $menuTextClass }}">Data Master</span>
                         <svg xmlns="http://www.w3.org/2000/svg"
                             class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
                             fill="none" viewBox="0 0 24 24" stroke="#757575">
@@ -59,25 +59,25 @@
                 <!-- Sub Menu -->
                 <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="masterdata"
                     style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
-                    <a href="{{ route('asset-categories') }}" class="block">
+                    <a href="{{ route('categories') }}" class="block">
                         <div
-                            class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-categories') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Sub Categories</span>
+                            class="{{ $submenuLinkClass }} {{ Request::routeIs('categories') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Sub Kategori</span>
                         </div>
                     </a>
                     <a href="{{ route('brands') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('brands') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Brands</span>
+                            <span class="{{ $submenuTextClass }}">Merk</span>
                         </div>
                     </a>
                     <a href="{{ route('buildings') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('buildings') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Buildings</span>
+                            <span class="{{ $submenuTextClass }}">Gedung</span>
                         </div>
                     </a>
                     <a href="{{ route('rooms') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('rooms') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Rooms</span>
+                            <span class="{{ $submenuTextClass }}">Ruangan</span>
                         </div>
                     </a>
                     <a href="{{ route('vendor') }}" class="block">
@@ -99,7 +99,7 @@
                                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Asset</span>
+                        <span class="{{ $menuTextClass }}">Data Aset</span>
                         <svg xmlns="http://www.w3.org/2000/svg"
                             class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
                             fill="none" viewBox="0 0 24 24" stroke="#757575">
@@ -113,19 +113,19 @@
                     <a href="{{ route('asset-master') }}" class="block">
                         <div
                             class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-master') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Master Asset</span>
+                            <span class="{{ $submenuTextClass }}">Master Aset</span>
                         </div>
                     </a>
                     <a href="{{ route('asset-unit') }}" class="block">
                         <div
                             class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-unit') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Unit Asset</span>
+                            <span class="{{ $submenuTextClass }}">Unit Aset</span>
                         </div>
                     </a>
                     <a href="{{ route('asset-documents') }}" class="block">
                         <div
                             class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-documents') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Asset Documents</span>
+                            <span class="{{ $submenuTextClass }}">Dokumen Aset</span>
                         </div>
                     </a>
                 </div>
@@ -142,7 +142,7 @@
                                     d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Calibration</span>
+                        <span class="{{ $menuTextClass }}">Kalibrasi</span>
                     </div>
                 </a>
             </div>
@@ -160,7 +160,7 @@
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Maintenance</span>
+                        <span class="{{ $menuTextClass }}">Perawatan</span>
                     </div>
                 </a>
             </div>
@@ -176,7 +176,7 @@
                                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Complaint & Repair</span>
+                        <span class="{{ $menuTextClass }}">Pengaduan & Perbaikan</span>
                     </div>
                 </a>
             </div>
@@ -192,7 +192,7 @@
                                     d="M20 16l-4-4m0 0l4-4m-4 4h10M7 16v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Procurement</span>
+                        <span class="{{ $menuTextClass }}">Pengadaan</span>
                         <svg xmlns="http://www.w3.org/2000/svg"
                             class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
                             fill="none" viewBox="0 0 24 24" stroke="#757575">
@@ -234,7 +234,7 @@
                                     d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Report</span>
+                        <span class="{{ $menuTextClass }}">Laporan</span>
                         <svg xmlns="http://www.w3.org/2000/svg"
                             class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
                             fill="none" viewBox="0 0 24 24" stroke="#757575">
@@ -275,7 +275,7 @@
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Account</span>
+                        <span class="{{ $menuTextClass }}">Akun</span>
                         <svg xmlns="http://www.w3.org/2000/svg"
                             class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
                             fill="none" viewBox="0 0 24 24" stroke="#757575">
@@ -288,12 +288,12 @@
                     style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     <a href="{{ route('user') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('user') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">User</span>
+                            <span class="{{ $submenuTextClass }}">Pengguna</span>
                         </div>
                     </a>
                     <a href="{{ route('roles') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('roles') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Role</span>
+                            <span class="{{ $submenuTextClass }}">Peran</span>
                         </div>
                     </a>
                 </div>
@@ -315,7 +315,7 @@
                                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Log Out</span>
+                        <span class="{{ $menuTextClass }}">Keluar</span>
                     </div>
                 </button>
             </form>

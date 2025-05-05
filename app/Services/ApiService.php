@@ -26,8 +26,13 @@ class ApiService
 
     /**
      * Make an authenticated API request with automatic token refresh
+     *
+     * @param string $method HTTP method (GET, POST, PUT, DELETE)
+     * @param string $endpoint API endpoint
+     * @param array $options Request options
+     * @return array Response data
      */
-    public function request($method, $endpoint, $options = [])
+    public function request(string $method, string $endpoint, array $options = []): array
     {
         // Proactively check and refresh token if needed before making any request
         $this->proactiveTokenRefresh();
