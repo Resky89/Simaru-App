@@ -77,19 +77,41 @@ class AssetDocumentsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($documentsResult['error']) && in_array($documentsResult['error'], ['auth_failed', 'session_expired'])) {
-                $errorMessage = $documentsResult['message'] ?? 'Authentication failed';
-                return redirect()->route('login')->with('error', $errorMessage);
+            if (isset($documentsResult['errors']) && (is_array($documentsResult['errors']) &&
+                (isset($documentsResult['errors']['auth_failed']) || isset($documentsResult['errors']['session_expired'])) ||
+                in_array($documentsResult['errors'], ['auth_failed', 'session_expired']))) {
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($documentsResult['success']) || $documentsResult['success'] !== true) {
-                $errorMessage = $documentsResult['message'] ?? 'Failed to fetch documents';
+                $errors = $documentsResult['errors'] ?? 'Failed to fetch documents';
 
                 \Log::warning('Error during documents retrieval:', [
                     'success' => $documentsResult['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errors
                 ]);
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errors)) {
+                    foreach ($errors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errors;
+                }
+
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['exception' => $errorMessage]
+                    ], status: 500);
+                }
 
                 return view('AssetDocument.AssetDocument', [
                     'documents' => [],
@@ -120,8 +142,11 @@ class AssetDocumentsController extends Controller
             // Check if this is an AJAX request
             if ($request->ajax()) {
                 return response()->json([
+                    'success' => true,
+                    'data' => [
                     'documents' => $documents,
                     'documents_pagination' => $documentsPagination
+                    ]
                 ]);
             }
 
@@ -130,6 +155,8 @@ class AssetDocumentsController extends Controller
                 'documents_pagination' => $documentsPagination
             ]);
         } catch (\Exception $e) {
+            $errorMessage = 'Failed to fetch documents: ' . $e->getMessage();
+
             \Log::error('Exception during documents retrieval:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -137,14 +164,15 @@ class AssetDocumentsController extends Controller
 
             if ($request->ajax()) {
                 return response()->json([
-                    'error' => 'Failed to fetch documents: ' . $e->getMessage()
-                ], 500);
+                    'success' => false,
+                    'errors' => ['exception' => $errorMessage]
+                ], status: 500);
             }
 
             return view('AssetDocument.AssetDocument', [
                 'documents' => [],
                 'documents_pagination' => null,
-                'error' => 'Failed to fetch documents: ' . $e->getMessage()
+                'error' => $errorMessage
             ]);
         }
     }
@@ -176,30 +204,58 @@ class AssetDocumentsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during document retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest') {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve document';
+                $errors = $result['errors'] ?? 'Failed to retrieve document';
 
                 \Log::warning('Error during document retrieval:', [
                     'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errors
                 ]);
 
                 if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest') {
-                    return response()->json(['error' => $errorMessage], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errors
+                    ], status: 400);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errors)) {
+                    foreach ($errors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errors;
+                }
+
+                if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest') {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['exception' => $errorMessage]
+                    ], status: 500);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -211,7 +267,10 @@ class AssetDocumentsController extends Controller
                 $errorMessage = 'Document not found or response data is invalid';
 
                 if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest') {
-                    return response()->json(['error' => $errorMessage], 404);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['general' => $errorMessage]
+                    ], 404);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -221,7 +280,6 @@ class AssetDocumentsController extends Controller
             if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest' || request()->header('Accept') == 'application/json') {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Document retrieved successfully',
                     'data' => $document
                 ]);
             }
@@ -240,9 +298,8 @@ class AssetDocumentsController extends Controller
             if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest') {
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage,
-                    'data' => null
-                ], 500);
+                    'errors' => ['exception' => $errorMessage]
+                ], status: 500);
             }
 
             return redirect()->back()->with('error', $errorMessage);
@@ -322,30 +379,58 @@ class AssetDocumentsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during document creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to create document';
+                $errors = $result['errors'] ?? 'Failed to create document';
 
                 \Log::warning('Error during document creation:', [
                     'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errors
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json(['error' => $errorMessage], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errors
+                    ], status: 400);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errors)) {
+                    foreach ($errors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errors;
+                }
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['exception' => $errorMessage]
+                    ], status: 500);
                 }
 
                 return redirect()->back()->with('error', $errorMessage)->withInput();
@@ -357,7 +442,6 @@ class AssetDocumentsController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Document created successfully',
                     'data' => $document
                 ]);
             }
@@ -375,9 +459,8 @@ class AssetDocumentsController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage,
-                    'data' => null
-                ], 500);
+                    'errors' => ['exception' => $errorMessage]
+                ], status: 500);
             }
 
             return redirect()->back()->with('error', $errorMessage)->withInput();
@@ -408,30 +491,58 @@ class AssetDocumentsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during document deletion:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to delete document';
+                $errors = $result['errors'] ?? 'Failed to delete document';
 
                 \Log::warning('Error during document deletion:', [
                     'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errors
                 ]);
 
                 if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json(['error' => $errorMessage], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errors
+                    ], status: 400);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errors)) {
+                    foreach ($errors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errors;
+                }
+
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['exception' => $errorMessage]
+                    ], status: 500);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -441,7 +552,7 @@ class AssetDocumentsController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Document deleted successfully'
+                    'data' => null
                 ]);
             }
 
@@ -459,8 +570,8 @@ class AssetDocumentsController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage
-                ], 500);
+                    'errors' => ['exception' => $errorMessage]
+                ], status: 500);
             }
 
             return redirect()->back()->with('error', $errorMessage);
@@ -542,30 +653,58 @@ class AssetDocumentsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during document update:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to update document';
+                $errors = $result['errors'] ?? 'Failed to update document';
 
                 \Log::warning('Error during document update:', [
                     'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errors
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json(['error' => $errorMessage], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errors
+                    ], status: 400);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errors)) {
+                    foreach ($errors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errors;
+                }
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errors
+                    ], status: 400);
                 }
 
                 return redirect()->back()->with('error', $errorMessage)->withInput();
@@ -577,7 +716,6 @@ class AssetDocumentsController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Document updated successfully',
                     'data' => $document
                 ]);
             }
@@ -596,9 +734,8 @@ class AssetDocumentsController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage,
-                    'data' => null
-                ], 500);
+                    'errors' => ['exception' => $errorMessage]
+                ], status: 500);
             }
 
             return redirect()->back()->with('error', $errorMessage)->withInput();
@@ -642,30 +779,51 @@ class AssetDocumentsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during document assignment:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to assign document to assets';
+                $errors = $result['errors'] ?? 'Failed to assign document to assets';
 
                 \Log::warning('Error during document assignment:', [
                     'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errors
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['error' => $errorMessage], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errors
+                    ], status: 400);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errors)) {
+                    foreach ($errors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errors;
             }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -678,7 +836,6 @@ class AssetDocumentsController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Document assigned to assets successfully',
                 'data' => $result['data'] ?? []
             ]);
             }
@@ -701,9 +858,8 @@ class AssetDocumentsController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => $errorMessage,
-                'data' => null
-            ], 500);
+                    'errors' => ['exception' => $errorMessage]
+            ], status: 500);
             }
 
             return redirect()->back()->with('error', $errorMessage);
@@ -735,30 +891,51 @@ class AssetDocumentsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during document unlinking:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 if (request()->ajax()) {
-                return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to remove document from asset';
+                $errors = $result['errors'] ?? 'Failed to remove document from asset';
 
                 \Log::warning('Error during document unlinking:', [
                     'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errors
                 ]);
 
                 if (request()->ajax()) {
-                return response()->json(['error' => $errorMessage], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errors
+                    ], status: 400);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errors)) {
+                    foreach ($errors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errors;
             }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -771,7 +948,6 @@ class AssetDocumentsController extends Controller
             if (request()->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Document removed from asset successfully',
                 'data' => $result['data'] ?? []
             ]);
             }
@@ -795,9 +971,8 @@ class AssetDocumentsController extends Controller
             if (request()->ajax()) {
             return response()->json([
                 'success' => false,
-                'message' => $errorMessage,
-                'data' => null
-            ], 500);
+                    'errors' => ['exception' => $errorMessage]
+            ], status: 500);
             }
 
             return redirect()->back()->with('error', $errorMessage);
@@ -827,30 +1002,51 @@ class AssetDocumentsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during asset documents retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve asset documents';
+                $errors = $result['errors'] ?? 'Failed to retrieve asset documents';
 
                 \Log::warning('Error during asset documents retrieval:', [
                     'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errors
                 ]);
 
                 if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json(['error' => $errorMessage], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errors
+                    ], status: 400);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errors)) {
+                    foreach ($errors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errors;
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -878,8 +1074,7 @@ class AssetDocumentsController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage,
-                    'data' => null
+                    'errors' => ['exception' => $errorMessage]
                 ], 500);
             }
 
@@ -946,33 +1141,51 @@ class AssetDocumentsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during asset document creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ]);
-
-                if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
-                }
-
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
-            }
-
-            // Check for API errors based on success flag
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to create document for asset';
-
-                \Log::warning('Error during asset document creation:', [
-                    'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $result['errors']
                 ]);
 
                 if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $errorMessage
-                    ], 400);
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', 'Authentication failed');
+            }
+
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errors = $result['errors'] ?? 'Failed to create document for asset';
+
+                \Log::warning('Error during asset document creation:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errors
+                ]);
+
+                if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errors
+                    ], status: 400);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errors)) {
+                    foreach ($errors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errors;
                 }
 
                 return redirect()->back()->with('error', $errorMessage)->withInput();
@@ -982,7 +1195,6 @@ class AssetDocumentsController extends Controller
             if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Document created and assigned to asset successfully',
                     'data' => $result['data'] ?? null
                 ]);
             }
@@ -1007,8 +1219,7 @@ class AssetDocumentsController extends Controller
             if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage,
-                    'data' => null
+                    'errors' => ['exception' => $errorMessage]
                 ], 500);
             }
 

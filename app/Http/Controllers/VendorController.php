@@ -35,12 +35,47 @@ class VendorController extends Controller
             ]);
 
             // Check if we got an error response from the ApiService
-            if (isset($result['error'])) {
-                if (strpos($result['error'], 'login') !== false) {
-                    return redirect()->route('login')->with('error', $result['error']);
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during vendors retrieval:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to fetch vendors';
+
+                \Log::warning('Error during vendors retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                // Return JSON response if requested
+                if ($request->has('json') && $request->input('json') == 'true') {
+                    \Log::info('Returning empty vendors as JSON due to API error');
+                    return response()->json([]);
                 }
 
-                throw new \Exception($result['error']);
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return view('Vendor', [
+                    'vendors' => [],
+                    'error' => $errorMessage
+                ]);
             }
 
             // Return JSON response if requested
@@ -101,24 +136,40 @@ class VendorController extends Controller
             ]);
 
             // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during vendor creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to create vendor';
+
                 \Log::warning('Error during vendor creation:', [
-                    'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to create vendor'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to create vendor');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully created
@@ -157,15 +208,40 @@ class VendorController extends Controller
             ]);
 
             // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during vendor update:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to update vendor';
+
+                \Log::warning('Error during vendor update:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to update vendor');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully updated
@@ -193,14 +269,39 @@ class VendorController extends Controller
             $result = $this->apiService->request('DELETE', "/vendors/{$id}");
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during vendor deletion:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to delete vendor';
+
+                \Log::warning('Error during vendor deletion:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
-                    ->with('error', $result['message'] ?? 'Failed to delete vendor');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully deleted

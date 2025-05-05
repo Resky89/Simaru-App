@@ -47,14 +47,55 @@ class UserController extends Controller
             ]);
 
             // Check if we got an error response from the ApiService
-            if (isset($roleResult['error']) || isset($userResult['error'])) {
-                $error = isset($roleResult['error']) ? $roleResult['error'] : $userResult['error'];
+            if (
+                (isset($roleResult['errors']) && is_string($roleResult['errors']) &&
+                in_array($roleResult['errors'], ['auth_failed', 'session_expired'])) ||
+                (isset($userResult['errors']) && is_string($userResult['errors']) &&
+                in_array($userResult['errors'], ['auth_failed', 'session_expired']))
+            ) {
+                $errorMessage = $roleResult['errors'] ?? $userResult['errors'] ?? 'Authentication failed';
+                \Log::warning('Authentication error during roles and users retrieval:', [
+                    'errors' => $errorMessage
+                ]);
+                return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Authentication failed');
+            }
 
-                if (strpos($error, 'login') !== false) {
-                    return redirect()->route('login')->with('error', $error);
+            // Check for API errors based on success flag
+            if (
+                (!isset($roleResult['success']) || $roleResult['success'] !== true) ||
+                (!isset($userResult['success']) || $userResult['success'] !== true)
+            ) {
+                $errorData = $roleResult['errors'] ?? $userResult['errors'] ?? 'Failed to fetch data';
+
+                \Log::warning('Error during user data retrieval:', [
+                    'role_success' => $roleResult['success'] ?? false,
+                    'user_success' => $userResult['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
-                throw new \Exception($error);
+                return view('Account.User', [
+                    'roles' => [
+                        'data' => [],
+                        'pagination' => null
+                    ],
+                    'users' => [],
+                    'user_pagination' => null,
+                    'error' => $errorMessage
+                ]);
             }
 
             $roles = $roleResult['data'] ?? [];
@@ -137,12 +178,41 @@ class UserController extends Controller
             ]);
 
             // Check if we got an error response from the ApiService
-            if (isset($result['error'])) {
-                if (strpos($result['error'], 'login') !== false) {
-                    return redirect()->route('login')->with('error', $result['error']);
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during users retrieval:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to fetch users';
+
+                \Log::warning('Error during users retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
-                throw new \Exception($result['error']);
+                return view('Account.User', [
+                    'users' => [],
+                    'error' => $errorMessage
+                ]);
             }
 
             return view('Account.User', [
@@ -182,29 +252,46 @@ class UserController extends Controller
                 ]
             ]);
 
-            // Log the API response
+            // Log the API response (sensitive data redacted)
             \Log::info('API response for user creation:', [
-                'api_response' => isset($result['error']) ? $result : 'Success response (redacted)'
+                'api_response_success' => $result['success'] ?? false
             ]);
 
             // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during user creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
-            // Check for API errors based on status flag
-            if (!isset($result['status']) || $result['status'] !== true) {
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to create user';
+
                 \Log::warning('Error during user creation:', [
-                    'status' => $result['status'] ?? false,
-                    'message' => $result['message'] ?? 'Failed to create user'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
                     ->withInput($request->except('password'))
-                    ->with('error', $result['message'] ?? 'Failed to create user');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully created
@@ -252,29 +339,46 @@ class UserController extends Controller
                 'json' => $jsonPayload
             ]);
 
-            // Log the API response
+            // Log the API response (sensitive data redacted)
             \Log::info('API response for user update:', [
-                'api_response' => isset($result['error']) ? $result : 'Success response (redacted)'
+                'api_response_success' => $result['success'] ?? false
             ]);
 
             // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during user update:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
-            // Check for API errors based on status flag
-            if (!isset($result['status']) || $result['status'] !== true) {
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to update user';
+
                 \Log::warning('Error during user update:', [
-                    'status' => $result['status'] ?? false,
-                    'message' => $result['message'] ?? 'Failed to update user'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
                     ->withInput($request->except('password'))
-                    ->with('error', $result['message'] ?? 'Failed to update user');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully updated
@@ -308,28 +412,39 @@ class UserController extends Controller
 
             $result = $this->apiService->request('DELETE', "/users/{$id}");
 
-            // Log the API response
-            \Log::info('API response for user deletion:', [
-                'api_response' => $result
-            ]);
-
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during user deletion:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
-            // Check for API errors based on status flag
-            if (!isset($result['status']) || $result['status'] !== true) {
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to delete user';
+
                 \Log::warning('Error during user deletion:', [
-                    'status' => $result['status'] ?? false,
-                    'message' => $result['message'] ?? 'Failed to delete user'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
-                return redirect()->back()
-                    ->with('error', $result['message'] ?? 'Failed to delete user');
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
             }
 
             // Successfully deleted

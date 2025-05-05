@@ -118,29 +118,25 @@ class MasterAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (
-                (isset($brandsResult['error']) && in_array($brandsResult['error'], ['auth_failed', 'session_expired'])) ||
-                (isset($masterAssetsResult['error']) && in_array($masterAssetsResult['error'], ['auth_failed', 'session_expired']))
-            ) {
-                $errorMessage = $brandsResult['message'] ?? $masterAssetsResult['message'] ?? 'Authentication failed';
-                return redirect()->route('login')->with('error', $errorMessage);
+            if (isset($brandsResult['errors']) && is_string($brandsResult['errors']) &&
+                in_array($brandsResult['errors'], ['auth_failed', 'session_expired']) ||
+                isset($masterAssetsResult['errors']) && is_string($masterAssetsResult['errors']) &&
+                in_array($masterAssetsResult['errors'], ['auth_failed', 'session_expired'])) {
+                $errorMessage = $brandsResult['errors'] ?? $masterAssetsResult['errors'] ?? 'Authentication failed';
+                return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Authentication failed');
             }
 
             // Check for API errors based on status flag
             if (
-                (!isset($masterAssetsResult['status']) && !isset($masterAssetsResult['success'])) ||
-                (isset($masterAssetsResult['status']) && $masterAssetsResult['status'] !== true) ||
                 (isset($masterAssetsResult['success']) && $masterAssetsResult['success'] !== true) ||
-                (!isset($brandsResult['status']) && !isset($brandsResult['success'])) ||
-                (isset($brandsResult['status']) && $brandsResult['status'] !== true) ||
                 (isset($brandsResult['success']) && $brandsResult['success'] !== true)
             ) {
-                $errorMessage = $masterAssetsResult['message'] ?? $brandsResult['message'] ?? 'Failed to fetch data';
+                $errorData = $masterAssetsResult['errors'] ?? $brandsResult['errors'] ?? 'Failed to fetch data';
 
                 \Log::warning('Error during data retrieval:', [
-                    'assets_status' => $masterAssetsResult['status'] ?? $masterAssetsResult['success'] ?? false,
-                    'brands_status' => $brandsResult['status'] ?? $brandsResult['success'] ?? false,
-                    'message' => $errorMessage
+                    'assets_status' => $masterAssetsResult['success'] ?? false,
+                    'brands_status' => $brandsResult['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 return view('Asset.MasterAsset', [
@@ -150,7 +146,7 @@ class MasterAssetController extends Controller
                     'brands_pagination' => null,
                     'subcategories' => [],
                     'assetTypes' => [],
-                    'error' => $errorMessage
+                    'error' => is_array($errorData) ? implode(', ', (array)$errorData) : $errorData
                 ]);
             }
 
@@ -295,35 +291,29 @@ class MasterAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during master asset creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Authentication failed') ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (
-                isset($result['error']) ||
-                (isset($result['status']) && $result['status'] === false) ||
-                (isset($result['success']) && $result['success'] === false)
-            ) {
+            if (!isset($result['success']) || $result['success'] === false) {
                 \Log::warning('Error during master asset creation:', [
-                    'error' => $result['error'] ?? null,
-                    'status' => $result['status'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? $result['errors'] ?? 'Failed to create master asset'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $result['errors'] ?? 'Failed to create master asset'
                 ]);
 
                 // Format error message properly before passing to session
                 $errorMessage = 'Failed to create master asset';
 
-                if (isset($result['message'])) {
-                    if (is_array($result['message'])) {
+                if (isset($result['errors'])) {
+                    if (is_array($result['errors'])) {
                         // Handle array of error messages
                         $errorMessage = '';
-                        foreach ($result['message'] as $error) {
+                        foreach ($result['errors'] as $key => $error) {
                             if (is_array($error) && isset($error['message'])) {
                                 $errorMessage .= $error['message'] . '. ';
                             } else if (is_string($error)) {
@@ -332,17 +322,7 @@ class MasterAssetController extends Controller
                         }
                     } else {
                         // Handle string error message
-                        $errorMessage = $result['message'];
-                    }
-                } else if (isset($result['errors']) && is_array($result['errors'])) {
-                    // Handle errors array
-                    $errorMessage = '';
-                    foreach ($result['errors'] as $error) {
-                        if (is_array($error) && isset($error['message'])) {
-                            $errorMessage .= $error['message'] . '. ';
-                        } else if (is_string($error)) {
-                            $errorMessage .= $error . '. ';
-                        }
+                        $errorMessage = $result['errors'];
                     }
                 }
 
@@ -449,36 +429,29 @@ class MasterAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during master asset update:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Authentication failed') ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (
-                isset($result['error']) ||
-                (isset($result['status']) && $result['status'] === false) ||
-                (isset($result['success']) && $result['success'] === false)
-            ) {
+            if (!isset($result['success']) || $result['success'] === false) {
                 \Log::warning('Error during master asset update:', [
-                    'error' => $result['error'] ?? null,
-                    'status' => $result['status'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to update master asset',
-                    'errors' => $result['errors'] ?? []
+                    'success' => $result['success'] ?? false,
+                    'errors' => $result['errors'] ?? 'Failed to update master asset'
                 ]);
 
                 // Format error message properly before passing to session
                 $errorMessage = 'Failed to update master asset';
 
-                if (isset($result['message'])) {
-                    if (is_array($result['message'])) {
+                if (isset($result['errors'])) {
+                    if (is_array($result['errors'])) {
                         // Handle array of error messages
                         $errorMessage = '';
-                        foreach ($result['message'] as $error) {
+                        foreach ($result['errors'] as $key => $error) {
                             if (is_array($error) && isset($error['message'])) {
                                 $errorMessage .= $error['message'] . '. ';
                             } else if (is_string($error)) {
@@ -487,17 +460,7 @@ class MasterAssetController extends Controller
                         }
                     } else {
                         // Handle string error message
-                        $errorMessage = $result['message'];
-                    }
-                } else if (isset($result['errors']) && is_array($result['errors'])) {
-                    // Handle errors array
-                    $errorMessage = '';
-                    foreach ($result['errors'] as $error) {
-                        if (is_array($error) && isset($error['message'])) {
-                            $errorMessage .= $error['message'] . '. ';
-                        } else if (is_string($error)) {
-                            $errorMessage .= $error . '. ';
-                        }
+                        $errorMessage = $result['errors'];
                     }
                 }
 
@@ -543,28 +506,22 @@ class MasterAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during master asset deletion:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Authentication failed') ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (
-                isset($result['error']) ||
-                (isset($result['status']) && $result['status'] === false) ||
-                (isset($result['success']) && $result['success'] === false)
-            ) {
+            if (!isset($result['success']) || $result['success'] === false) {
                 \Log::warning('Error during master asset deletion:', [
-                    'error' => $result['error'] ?? null,
-                    'status' => $result['status'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to delete master asset'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $result['errors'] ?? 'Failed to delete master asset'
                 ]);
                 return redirect()->back()
-                    ->with('error', $result['message'] ?? 'Failed to delete master asset');
+                    ->with('error', is_array($result['errors'] ?? 'Failed to delete master asset') ? implode(', ', (array)$result['errors']) : ($result['errors'] ?? 'Failed to delete master asset'));
             }
 
             // Successfully deleted
@@ -607,37 +564,39 @@ class MasterAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during master asset retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if (request()->ajax()) {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Authentication failed') ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for API errors based on status flag
-            if (
-                (!isset($result['status']) && !isset($result['success'])) ||
-                (isset($result['status']) && $result['status'] !== true) ||
-                (isset($result['success']) && $result['success'] !== true)
-            ) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve master asset';
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve master asset';
 
                 \Log::warning('Error during master asset retrieval:', [
-                    'status' => $result['status'] ?? $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 if (request()->ajax()) {
-                    return response()->json(['error' => $errorMessage], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    ], 400);
                 }
 
-                return redirect()->back()->with('error', $errorMessage);
+                return redirect()->back()->with('error', is_array($errorData) ? implode(', ', (array)$errorData) : $errorData);
             }
 
             $masterAsset = $result['data'] ?? null;
@@ -739,9 +698,11 @@ class MasterAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($masterAssetsResult['error']) && in_array($masterAssetsResult['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($masterAssetsResult['errors']) && is_string($masterAssetsResult['errors']) &&
+                in_array($masterAssetsResult['errors'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
-                    'error' => $masterAssetsResult['message'] ?? 'Authentication failed'
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
                 ], 401);
             }
 
@@ -871,25 +832,21 @@ class MasterAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($masterAssetsResult['error']) && in_array($masterAssetsResult['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($masterAssetsResult['errors']) && is_string($masterAssetsResult['errors']) &&
+                in_array($masterAssetsResult['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during master assets export:', [
-                    'error' => $masterAssetsResult['error'],
-                    'message' => $masterAssetsResult['message'] ?? 'Authentication failed'
+                    'errors' => $masterAssetsResult['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $masterAssetsResult['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($masterAssetsResult['errors'] ?? 'Authentication failed') ? $masterAssetsResult['errors'] : 'Authentication failed');
             }
 
             // Check for API errors based on status flag
-            if (
-                (!isset($masterAssetsResult['status']) && !isset($masterAssetsResult['success'])) ||
-                (isset($masterAssetsResult['status']) && $masterAssetsResult['status'] !== true) ||
-                (isset($masterAssetsResult['success']) && $masterAssetsResult['success'] !== true)
-            ) {
-                $errorMessage = $masterAssetsResult['message'] ?? 'Failed to fetch master assets data';
+            if (!isset($masterAssetsResult['success']) || $masterAssetsResult['success'] !== true) {
+                $errorData = $masterAssetsResult['errors'] ?? 'Failed to fetch master assets data';
                 \Log::warning('Error during master assets export:', [
-                    'error' => $errorMessage
+                    'errors' => $errorData
                 ]);
-                return redirect()->back()->with('error', $errorMessage);
+                return redirect()->back()->with('error', is_array($errorData) ? implode(', ', (array)$errorData) : $errorData);
             }
 
             // Get master assets data
@@ -988,7 +945,7 @@ class MasterAssetController extends Controller
 
                 if (empty($excelData)) {
                     if ($request->ajax()) {
-                        return response()->json(['success' => false, 'message' => 'No valid data found for import'], 400);
+                        return response()->json(['success' => false, 'errors' => ['import' => 'No valid data found for import']], 400);
                     }
                     return redirect()->back()->with('error', 'No valid data found for import');
                 }
@@ -998,7 +955,7 @@ class MasterAssetController extends Controller
 
                 if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsedData) || empty($parsedData)) {
                     if ($request->ajax()) {
-                        return response()->json(['success' => false, 'message' => 'Invalid data format for import'], 400);
+                        return response()->json(['success' => false, 'errors' => ['import' => 'Invalid data format for import']], 400);
                     }
                     return redirect()->back()->with('error', 'Invalid data format for import');
                 }
@@ -1015,7 +972,7 @@ class MasterAssetController extends Controller
                 ]);
             } else {
                 if ($request->ajax()) {
-                    return response()->json(['success' => false, 'message' => 'No Excel file or data provided'], 400);
+                    return response()->json(['success' => false, 'errors' => ['import' => 'No Excel file or data provided']], 400);
                 }
                 return redirect()->back()->with('error', 'No Excel file or data provided');
             }
@@ -1026,63 +983,58 @@ class MasterAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during master asset import:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if ($request->ajax()) {
-                    return response()->json(['success' => false, 'message' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], 401);
                 }
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Authentication failed') ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (
-                isset($result['error']) ||
-                (isset($result['success']) && $result['success'] === false)
-            ) {
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to import master assets';
+
                 \Log::warning('Error during master asset import:', [
-                    'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to import master assets'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 // Format error message including detailed errors from the response
-                $errorMessage = $result['message'] ?? 'Failed to import master assets';
-
-                // Extract and format detailed error information if available
-                if (isset($result['data']['errors']) && is_array($result['data']['errors']) && count($result['data']['errors']) > 0) {
-                    $errorDetails = [];
-
-                    foreach ($result['data']['errors'] as $error) {
-                        if (isset($error['row']) && isset($error['asset_name']) && isset($error['reason'])) {
-                            $errorDetails[] = "Row {$error['row']}: {$error['asset_name']} - {$error['reason']}";
-                        } elseif (is_string($error)) {
-                            $errorDetails[] = $error;
-                        } elseif (is_array($error) && isset($error['message'])) {
-                            $errorDetails[] = $error['message'];
-                        }
-                    }
-
+                if (is_array($errorData)) {
                     if ($request->ajax()) {
                         return response()->json([
                             'success' => false,
-                            'message' => $errorMessage,
-                            'errors' => $errorDetails
+                            'errors' => $errorData
                         ], 400);
                     }
 
                     // For non-AJAX, format as HTML
+                    $errorMessage = 'Failed to import master assets: ';
                     $errorMessage .= "<ul class='list-disc pl-4 mt-2'>";
-                    foreach ($errorDetails as $detail) {
-                        $errorMessage .= "<li>{$detail}</li>";
+                    foreach ($errorData as $key => $detail) {
+                        if (is_array($detail)) {
+                            $errorMessage .= "<li>" . implode(', ', $detail) . "</li>";
+                        } else {
+                            $errorMessage .= "<li>{$detail}</li>";
+                        }
                     }
                     $errorMessage .= "</ul>";
                 } else {
+                    $errorMessage = $errorData;
+
                     if ($request->ajax()) {
-                        return response()->json(['success' => false, 'message' => $errorMessage], 400);
+                        return response()->json([
+                            'success' => false,
+                            'errors' => ['general' => $errorMessage]
+                        ], 400);
                     }
                 }
 
@@ -1124,7 +1076,7 @@ class MasterAssetController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to import master assets: ' . $e->getMessage()
+                    'errors' => ['exception' => 'Failed to import master assets: ' . $e->getMessage()]
                 ], 500);
             }
 

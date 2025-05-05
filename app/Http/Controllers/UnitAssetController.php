@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\ApiService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Http;
+
 
 class UnitAssetController extends Controller
 {
@@ -162,11 +162,16 @@ class UnitAssetController extends Controller
 
             // Check for auth errors
             if (
-                (isset($brandsResult['error']) && in_array($brandsResult['error'], ['auth_failed', 'session_expired'])) ||
-                (isset($assetsResult['error']) && in_array($assetsResult['error'], ['auth_failed', 'session_expired']))
+                (isset($brandsResult['errors']) && is_string($brandsResult['errors']) &&
+                 in_array($brandsResult['errors'], ['auth_failed', 'session_expired'])) ||
+                (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
+                 in_array($assetsResult['errors'], ['auth_failed', 'session_expired']))
             ) {
-                $errorMessage = $brandsResult['message'] ?? $assetsResult['message'] ?? 'Authentication failed';
-                return redirect()->route('login')->with('error', $errorMessage);
+                $errorMessage = $brandsResult['errors'] ?? $assetsResult['errors'] ?? 'Authentication failed';
+                \Log::warning('Authentication error during assets index retrieval:', [
+                    'errors' => $errorMessage
+                ]);
+                return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Authentication failed');
             }
 
             // Check for API errors based on success flag
@@ -174,13 +179,27 @@ class UnitAssetController extends Controller
                 (!isset($assetsResult['success']) || $assetsResult['success'] !== true) ||
                 (!isset($brandsResult['success']) || $brandsResult['success'] !== true)
             ) {
-                $errorMessage = $assetsResult['message'] ?? $brandsResult['message'] ?? 'Failed to fetch data';
+                $errorData = $assetsResult['errors'] ?? $brandsResult['errors'] ?? 'Failed to fetch data';
 
                 \Log::warning('Error during data retrieval:', [
                     'assets_success' => $assetsResult['success'] ?? false,
                     'brands_success' => $brandsResult['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errorData
                 ]);
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
 
                 return view('Asset.UnitAsset', [
                     'assets' => [],
@@ -431,50 +450,35 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during asset creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to create asset';
+
                 \Log::warning('Error during asset creation:', [
-                    'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? $result['errors'] ?? 'Failed to create asset'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 // Format error message properly before passing to session
-                $errorMessage = 'Failed to create asset';
-
-                if (isset($result['message'])) {
-                    if (is_array($result['message'])) {
-                        // Handle array of error messages
-                        $errorMessage = '';
-                        foreach ($result['message'] as $error) {
-                            if (is_array($error) && isset($error['message'])) {
-                                $errorMessage .= $error['message'] . '. ';
-                            } else if (is_string($error)) {
-                                $errorMessage .= $error . '. ';
-                            }
-                        }
-                    } else {
-                        // Handle string error message
-                        $errorMessage = $result['message'];
-                    }
-                } else if (isset($result['errors']) && is_array($result['errors'])) {
-                    // Handle errors array
-                    $errorMessage = '';
-                    foreach ($result['errors'] as $error) {
-                        if (is_array($error) && isset($error['message'])) {
-                            $errorMessage .= $error['message'] . '. ';
-                        } else if (is_string($error)) {
-                            $errorMessage .= $error . '. ';
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
                         }
                     }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
                 return redirect()->back()
@@ -583,55 +587,35 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during asset update:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (
-                isset($result['error']) ||
-                (isset($result['success']) && $result['success'] === false)
-            ) {
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to update asset';
 
                 \Log::warning('Error during asset update:', [
-                    'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to update asset',
-                    'errors' => $result['errors'] ?? []
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 // Format error message properly before passing to session
-                $errorMessage = 'Failed to update asset';
-
-                if (isset($result['message'])) {
-                    if (is_array($result['message'])) {
-                        // Handle array of error messages
-                        $errorMessage = '';
-                        foreach ($result['message'] as $error) {
-                            if (is_array($error) && isset($error['message'])) {
-                                $errorMessage .= $error['message'] . '. ';
-                            } else if (is_string($error)) {
-                                $errorMessage .= $error . '. ';
-                            }
-                        }
-                    } else {
-                        // Handle string error message
-                        $errorMessage = $result['message'];
-                    }
-                } else if (isset($result['errors']) && is_array($result['errors'])) {
-                    // Handle errors array
-                    $errorMessage = '';
-                    foreach ($result['errors'] as $error) {
-                        if (is_array($error) && isset($error['message'])) {
-                            $errorMessage .= $error['message'] . '. ';
-                        } else if (is_string($error)) {
-                            $errorMessage .= $error . '. ';
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
                         }
                     }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
                 return redirect()->back()
@@ -676,23 +660,39 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during asset deletion:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to delete asset';
+
                 \Log::warning('Error during asset deletion:', [
-                    'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to delete asset'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
-                    ->with('error', $result['message'] ?? 'Failed to delete asset');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully deleted
@@ -747,17 +747,17 @@ class UnitAssetController extends Controller
                 ]);
 
                 // Check for errors
-                if (isset($usersResult['error']) || !isset($usersResult['success']) || $usersResult['success'] !== true) {
-                    $errorMessage = $usersResult['message'] ?? 'Failed to fetch users';
+                if (isset($usersResult['errors']) || !isset($usersResult['success']) || $usersResult['success'] !== true) {
+                    $errorMessage = $usersResult['errors'] ?? 'Failed to fetch users';
                     \Log::warning('Error fetching users:', [
-                        'error' => $usersResult['error'] ?? 'unknown',
+                        'error' => $usersResult['errors'] ?? 'unknown',
                         'message' => $errorMessage
                     ]);
 
                     return response()->json([
                         'success' => false,
-                        'message' => $errorMessage
-                    ], 400);
+                        'errors' => ['auth' => $errorMessage]
+                    ], 401);
                 }
 
                 // Return the users data
@@ -787,30 +787,50 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during asset retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if (request()->ajax()) {
-                    return response()->json(['success' => false, 'message' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve asset';
+                $errorData = $result['errors'] ?? 'Failed to retrieve asset';
 
                 \Log::warning('Error during asset retrieval:', [
                     'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errorData
                 ]);
 
                 if (request()->ajax()) {
-                    return response()->json(['success' => false, 'message' => $errorMessage], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    ], 500);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -822,7 +842,7 @@ class UnitAssetController extends Controller
                 $errorMessage = 'Asset not found or response data is invalid';
 
                 if (request()->ajax()) {
-                    return response()->json(['success' => false, 'message' => $errorMessage], 404);
+                    return response()->json(['success' => false, 'errors' => ['general' => $errorMessage]], 404);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -898,7 +918,7 @@ class UnitAssetController extends Controller
             ]);
 
             if (request()->ajax()) {
-                return response()->json(['success' => false, 'message' => $errorMessage], 500);
+                return response()->json(['success' => false, 'errors' => ['exception' => $errorMessage]], 500);
             }
 
             return redirect()->back()->with('error', $errorMessage);
@@ -926,37 +946,50 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during barcode generation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if (request()->ajax()) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
-                $errorMessage = $result['message'] ?? 'Failed to generate barcode';
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to generate barcode';
 
                 \Log::warning('Error during barcode generation:', [
-                    'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $errorMessage
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 if (request()->ajax()) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $errorMessage
+                        'success' => false,
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
                     ], 400);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -982,7 +1015,7 @@ class UnitAssetController extends Controller
             if (request()->ajax()) {
                 return response()->json([
                     'status' => false,
-                    'message' => $errorMessage
+                    'errors' => ['exception' => $errorMessage]
                 ], 500);
             }
 
@@ -1036,20 +1069,38 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during QR generation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for other API errors
             if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to generate QR codes';
+
                 \Log::error('API error in bulk QR generation:', [
-                    'result' => $result
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
-                return redirect()->back()->with('error', $result['message'] ?? 'Failed to generate QR codes');
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
             }
 
             // Store QR data in session for PDF generation
@@ -1131,12 +1182,12 @@ class UnitAssetController extends Controller
                 ]);
 
                 // Check for auth errors
-                if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+                if (isset($result['errors']) && is_string($result['errors']) &&
+                    in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                     \Log::warning('Authentication error during QR generation:', [
-                        'error' => $result['error'],
-                        'message' => $result['message'] ?? 'Authentication failed'
+                        'errors' => $result['errors'] ?? 'Authentication failed'
                     ]);
-                    return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
                 }
 
                 if (isset($result['success']) && $result['success'] === true && isset($result['data'])) {
@@ -1147,11 +1198,29 @@ class UnitAssetController extends Controller
 
                     $qrData = $result['data'];
                 } else {
+                    $errorData = $result['errors'] ?? 'Failed to generate QR codes';
+
                     \Log::error('Failed to generate QR codes from API', [
-                        'result' => $result
+                        'success' => $result['success'] ?? false,
+                        'errors' => $errorData
                     ]);
-                    return redirect()->back()->with('error', $result['message'] ?? 'Failed to generate QR codes');
-            }
+
+                    // Format error message for redirect
+                    $errorMessage = '';
+                    if (is_array($errorData)) {
+                        foreach ($errorData as $field => $messages) {
+                            if (is_array($messages)) {
+                                $errorMessage .= implode(', ', $messages) . '; ';
+                            } else {
+                                $errorMessage .= $messages . '; ';
+                            }
+                        }
+                    } else {
+                        $errorMessage = $errorData;
+                    }
+
+                    return redirect()->back()->with('error', $errorMessage);
+                }
 
             if (empty($qrData)) {
                 return redirect()->back()->with('error', 'No QR code data returned from the API');
@@ -1262,9 +1331,10 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($assetsResult['error']) && in_array($assetsResult['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
+                in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
-                    'error' => $assetsResult['message'] ?? 'Authentication failed'
+                    'error' => $assetsResult['errors'] ?? 'Authentication failed'
                 ], 401);
             }
 
@@ -1355,7 +1425,8 @@ class UnitAssetController extends Controller
             ]);
 
             return response()->json([
-                'error' => 'Failed to fetch assets: ' . $e->getMessage()
+                'success' => false,
+                'errors' => ['exception' => 'Failed to fetch assets: ' . $e->getMessage()]
             ], 500);
         }
     }
@@ -1397,7 +1468,7 @@ class UnitAssetController extends Controller
 
                 if (empty($excelData)) {
                     if ($request->ajax()) {
-                        return response()->json(['success' => false, 'message' => 'No valid data found for import'], 400);
+                        return response()->json(['success' => false, 'errors' => ['import' => 'No valid data found for import']], 400);
                     }
                     return redirect()->back()->with('error', 'No valid data found for import');
                 }
@@ -1407,7 +1478,7 @@ class UnitAssetController extends Controller
 
                 if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsedData) || empty($parsedData)) {
                     if ($request->ajax()) {
-                        return response()->json(['success' => false, 'message' => 'Invalid data format for import'], 400);
+                        return response()->json(['success' => false, 'errors' => ['import' => 'Invalid data format for import']], 400);
                     }
                     return redirect()->back()->with('error', 'Invalid data format for import');
                 }
@@ -1424,7 +1495,7 @@ class UnitAssetController extends Controller
                 ]);
             } else {
                 if ($request->ajax()) {
-                    return response()->json(['success' => false, 'message' => 'No Excel file or data provided'], 400);
+                    return response()->json(['success' => false, 'errors' => ['import' => 'No Excel file or data provided']], 400);
                 }
                 return redirect()->back()->with('error', 'No Excel file or data provided');
             }
@@ -1435,31 +1506,31 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during asset import:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if ($request->ajax()) {
-                    return response()->json(['success' => false, 'message' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json(['success' => false, 'errors' => ['auth' => $result['message'] ?? 'Authentication failed']], 401);
                 }
                 return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
             if (
-                isset($result['error']) ||
+                isset($result['errors']) ||
                 (isset($result['success']) && $result['success'] === false)
             ) {
                 \Log::warning('Error during asset import:', [
-                    'error' => $result['error'] ?? null,
+                    'error' => $result['errors'] ?? null,
                     'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to import assets'
+                    'message' => $result['errors'] ?? 'Failed to import assets'
                 ]);
 
                 // Format error message including detailed errors from the response
-                $errorMessage = $result['message'] ?? 'Failed to import assets';
+                $errorMessage = $result['errors'] ?? 'Failed to import assets';
 
                 // Extract and format detailed error information if available
                 if (isset($result['data']['errors']) && is_array($result['data']['errors']) && count($result['data']['errors']) > 0) {
@@ -1490,8 +1561,7 @@ class UnitAssetController extends Controller
                     if ($request->ajax()) {
                         return response()->json([
                             'success' => false,
-                            'message' => $errorMessage,
-                            'errors' => $errorDetails
+                            'errors' => ['import' => $errorMessage, 'details' => $errorDetails]
                         ], 400);
                     }
 
@@ -1503,7 +1573,7 @@ class UnitAssetController extends Controller
                     $errorMessage .= "</ul>";
                 } else {
                     if ($request->ajax()) {
-                        return response()->json(['success' => false, 'message' => $errorMessage], 400);
+                        return response()->json(['success' => false, 'errors' => ['import' => $errorMessage]], 400);
                     }
                 }
 
@@ -1545,7 +1615,7 @@ class UnitAssetController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to import assets: ' . $e->getMessage()
+                    'errors' => ['exception' => 'Failed to import assets: ' . $e->getMessage()]
                 ], 500);
             }
 
@@ -1632,20 +1702,37 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($assetsResult['error']) && in_array($assetsResult['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
+                in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during unit assets export:', [
-                    'error' => $assetsResult['error'],
-                    'message' => $assetsResult['message'] ?? 'Authentication failed'
+                    'errors' => $assetsResult['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $assetsResult['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($assetsResult['errors']) ? $assetsResult['errors'] : 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($assetsResult['success']) || $assetsResult['success'] !== true) {
-                $errorMessage = $assetsResult['message'] ?? 'Failed to fetch unit assets data';
+                $errorData = $assetsResult['errors'] ?? 'Failed to fetch unit assets data';
+
                 \Log::warning('Error during unit assets export:', [
-                    'error' => $errorMessage
+                    'success' => $assetsResult['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()->with('error', $errorMessage);
             }
 

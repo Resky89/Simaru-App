@@ -122,26 +122,67 @@ class ComplainRepairController extends Controller
 
             // Log API response for complaints debugging
             \Log::info('API response for complaints:', [
-                'api_response_status' => $result['status'] ?? null,
+                'api_response_success' => $result['success'] ?? null,
                 'api_response_message' => $result['message'] ?? null,
                 'data_count' => isset($result['data']) ? count($result['data']) : 0
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during complaints retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve complaints';
+
+                \Log::warning('Error during complaints retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], status: 400);
+                }
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return view('ComplainRepair.ComplainRepair', [
+                    'complaints' => [],
+                    'pagination' => null,
+                    'search' => $search,
+                    'sort' => $sort,
+                    'status' => $status,
+                    'assets' => [],
+                    'error' => $errorMessage
+                ]);
             }
 
             // Get complaints and pagination data
@@ -153,10 +194,10 @@ class ComplainRepairController extends Controller
             $assets = [];
 
             // Check for auth errors in assets API response
-            if (isset($assetsResult['error']) && in_array($assetsResult['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
+                in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during assets retrieval:', [
-                    'error' => $assetsResult['error'],
-                    'message' => $assetsResult['message'] ?? 'Authentication failed'
+                    'errors' => $assetsResult['errors'] ?? 'Authentication failed'
                 ]);
 
                 // We'll continue with an empty assets array as it's not critical
@@ -165,7 +206,7 @@ class ComplainRepairController extends Controller
             // Check if API returned an error status
             elseif (isset($assetsResult['success']) && $assetsResult['success'] !== true) {
                 \Log::warning('API error during assets retrieval:', [
-                    'message' => $assetsResult['message'] ?? 'Unknown error',
+                    'errors' => $assetsResult['errors'] ?? 'Unknown error',
                     'success' => $assetsResult['success'] ?? null
                 ]);
             }
@@ -192,7 +233,7 @@ class ComplainRepairController extends Controller
             // For AJAX or JSON requests, return JSON response
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'status' => true,
+                    'success' => true,
                     'message' => 'Complaints retrieved successfully',
                     'data' => $complaints,
                     'pagination' => $pagination
@@ -217,9 +258,9 @@ class ComplainRepairController extends Controller
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Failed to retrieve complaints: ' . $e->getMessage()
-                ], 500);
+                    'success' => false,
+                    'errors' => ['exception' => 'Failed to retrieve complaints: ' . $e->getMessage()]
+                ], status: 500);
             }
 
             return view('ComplainRepair.ComplainRepair', [
@@ -256,27 +297,27 @@ class ComplainRepairController extends Controller
 
             // Log API response for debugging
             \Log::info('API response for complaint detail:', [
-                'api_response_status' => $result['status'] ?? null,
+                'api_response_success' => $result['success'] ?? null,
                 'api_response_message' => $result['message'] ?? null,
                 'has_data' => isset($result['data'])
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during complaint detail retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed',
+                    'errors' => $result['errors'] ?? 'Authentication failed',
                     'complaint_id' => $id
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check if complaint exists
@@ -285,9 +326,9 @@ class ComplainRepairController extends Controller
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $errorMessage
-                    ], 404);
+                        'success' => false,
+                        'errors' => ['not_found' => $errorMessage]
+                    ], status: 404);
                 }
 
                 return redirect()->route('complaint.index')->with('error', $errorMessage);
@@ -299,7 +340,7 @@ class ComplainRepairController extends Controller
             // For AJAX or JSON requests, return JSON response
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'status' => true,
+                    'success' => true,
                     'message' => 'Complaint retrieved successfully',
                     'data' => $complaint
                 ]);
@@ -319,9 +360,9 @@ class ComplainRepairController extends Controller
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => 'Failed to retrieve complaint detail: ' . $e->getMessage()
-                ], 500);
+                ], status: 500);
             }
 
             return redirect()->route('complaint.index')->with('error', 'Failed to retrieve complaint detail: ' . $e->getMessage());
@@ -388,13 +429,13 @@ class ComplainRepairController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during complaints export:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Get complaints data
@@ -453,10 +494,9 @@ class ComplainRepairController extends Controller
 
                 if ($isAjax) {
                     return response()->json([
-                        'status' => false,
-                        'message' => 'Validation failed',
+                        'success' => false,
                         'errors' => $validator->errors()
-                    ], 422);
+                    ], status: 422);
                 }
 
                 return redirect()->back()
@@ -498,49 +538,58 @@ class ComplainRepairController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during complaint creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if ($isAjax) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
 
                 return redirect()->route('login')
-                    ->with('error', $result['message'] ?? 'Authentication failed');
+                    ->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to create complaint';
+
                 \Log::error('API error during complaint creation:', [
-                    'api_response' => $result
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
 
                 // Return appropriate response based on request type
                 if ($isAjax) {
                     // For AJAX requests, return JSON
-                    if (isset($result['errors'])) {
-                        return response()->json([
-                            'status' => false,
-                            'message' => $result['message'] ?? 'Failed to create complaint',
-                            'errors' => $result['errors']
-                        ], 422);
-                    } else {
-                        return response()->json([
-                            'status' => false,
-                            'message' => $result['message'] ?? 'Failed to create complaint'
-                        ], 500);
-                    }
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], status: 422);
                 } else {
                     // For regular requests, redirect back with error
                     return redirect()->back()
                         ->withInput()
-                        ->with('error', $result['message'] ?? 'Failed to create complaint');
+                        ->with('error', $errorMessage);
                 }
             }
 
@@ -552,7 +601,7 @@ class ComplainRepairController extends Controller
             if ($isAjax) {
                 // For AJAX requests, return JSON success
                 return response()->json([
-                    'status' => true,
+                    'success' => true,
                     'message' => 'Complaint created successfully',
                     'data' => $result['data'] ?? null
                 ]);
@@ -570,9 +619,9 @@ class ComplainRepairController extends Controller
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => 'Failed to create complaint: ' . $e->getMessage()
-                ], 500);
+                ], status: 500);
             }
 
             return redirect()->back()
@@ -611,40 +660,57 @@ class ComplainRepairController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during complaint deletion:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed',
+                    'errors' => $result['errors'] ?? 'Authentication failed',
                     'complaint_id' => $id
                 ]);
 
                 if ($isAjax) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
 
                 return redirect()->route('login')
-                    ->with('error', $result['message'] ?? 'Authentication failed');
+                    ->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to delete complaint';
+
                 \Log::error('API error during complaint deletion:', [
                     'complaint_id' => $id,
-                    'api_response' => $result
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
 
                 // Return appropriate response based on request type
                 if ($isAjax) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $result['message'] ?? 'Failed to delete complaint'
-                    ], 500);
+                        'success' => false,
+                        'errors' => $errorData
+                    ], status: 400);
                 } else {
                     return redirect()->back()
-                        ->with('error', $result['message'] ?? 'Failed to delete complaint');
+                        ->with('error', $errorMessage);
                 }
             }
 
@@ -656,7 +722,7 @@ class ComplainRepairController extends Controller
             if ($isAjax) {
                 // For AJAX requests, return JSON success
                 return response()->json([
-                    'status' => true,
+                    'success' => true,
                     'message' => 'Complaint deleted successfully',
                     'data' => $result['data'] ?? null
                 ]);
@@ -675,9 +741,9 @@ class ComplainRepairController extends Controller
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => 'Failed to delete complaint: ' . $e->getMessage()
-                ], 500);
+                ], status: 500);
             }
 
             return redirect()->back()
@@ -714,10 +780,10 @@ class ComplainRepairController extends Controller
 
                 if ($isAjax) {
                     return response()->json([
-                        'status' => false,
+                        'success' => false,
                         'message' => 'Validation failed',
                         'errors' => $validator->errors()
-                    ], 422);
+                    ], status: 422);
                 }
 
                 return redirect()->back()
@@ -771,49 +837,58 @@ class ComplainRepairController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during repair creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if ($isAjax) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
 
                 return redirect()->route('login')
-                    ->with('error', $result['message'] ?? 'Authentication failed');
+                    ->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to create repair';
+
                 \Log::error('API error during repair creation:', [
-                    'api_response' => $result
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
 
                 // Return appropriate response based on request type
                 if ($isAjax) {
                     // For AJAX requests, return JSON
-                    if (isset($result['errors'])) {
-                        return response()->json([
-                            'status' => false,
-                            'message' => $result['message'] ?? 'Failed to create repair',
-                            'errors' => $result['errors']
-                        ], 422);
-                    } else {
-                        return response()->json([
-                            'status' => false,
-                            'message' => $result['message'] ?? 'Failed to create repair'
-                        ], 500);
-                    }
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], status: 422);
                 } else {
                     // For regular requests, redirect back with error
                     return redirect()->back()
                         ->withInput()
-                        ->with('error', $result['message'] ?? 'Failed to create repair');
+                        ->with('error', $errorMessage);
                 }
             }
 
@@ -825,7 +900,7 @@ class ComplainRepairController extends Controller
             if ($isAjax) {
                 // For AJAX requests, return JSON success
                 return response()->json([
-                    'status' => true,
+                    'success' => true,
                     'message' => 'Repair created successfully',
                     'data' => $result['data'] ?? null
                 ]);
@@ -843,9 +918,9 @@ class ComplainRepairController extends Controller
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => 'Failed to create repair: ' . $e->getMessage()
-                ], 500);
+                ], status: 500);
             }
 
             return redirect()->back()
@@ -874,14 +949,14 @@ class ComplainRepairController extends Controller
             $result = $this->apiService->request('GET', "/complaints/{$id}");
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during complaint detail PDF export:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed',
+                    'errors' => $result['errors'] ?? 'Authentication failed',
                     'complaint_id' => $id
                 ]);
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check if complaint exists

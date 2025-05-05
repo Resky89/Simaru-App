@@ -34,14 +34,50 @@ class BuildingController extends Controller
             ]);
 
             // Check if we got an error response from the ApiService
-            if (isset($buildingResult['error'])) {
-                $error = $buildingResult['error'];
+            if (!isset($buildingResult['success']) || $buildingResult['success'] !== true) {
+                $errorData = $buildingResult['errors'] ?? 'Failed to fetch data';
 
-                if (strpos($error, 'login') !== false) {
-                    return redirect()->route('login')->with('error', $error);
+                // Check for authentication errors
+                if (is_string($errorData) && in_array($errorData, ['auth_failed', 'session_expired'])) {
+                    if ($request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'errors' => ['authentication' => 'Authentication failed']
+                        ], status: 401);
+                    }
+                    return redirect()->route('login')->with('error', 'Authentication failed');
                 }
 
-                throw new \Exception($error);
+                \Log::warning('Error during data retrieval:', [
+                    'success' => $buildingResult['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], status: 400);
+                }
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return view('Building', [
+                    'buildings' => [],
+                    'error' => $errorMessage
+                ]);
             }
 
             $buildings = $buildingResult['data'] ?? [];
@@ -62,6 +98,15 @@ class BuildingController extends Controller
                 ];
             }
 
+            // Check if this is an AJAX request
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'buildings' => $buildings,
+                    'buildingPagination' => $buildingPagination
+                ]);
+            }
+
             return view('Building', [
                 'buildings' => $buildingResult['data'] ?? [],
                 'buildingPagination' => $buildingPagination
@@ -70,6 +115,13 @@ class BuildingController extends Controller
             \Log::error('Gagal mengambil data gedung', [
                 'error' => $e->getMessage()
             ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengambil data gedung: ' . $e->getMessage()
+                ], status: 500);
+            }
 
             return view('Building', [
                 'buildings' => [],
@@ -102,28 +154,68 @@ class BuildingController extends Controller
             ]);
 
             // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during building creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'error' => $result['errors']
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
+                }
+
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['errors']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal membuat gedung';
+
                 \Log::warning('Error during building creation:', [
-                    'error' => $result['errors'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to create building'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], status: 400);
+                }
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Gagal membuat gedung');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully created
             \Log::info('Building created successfully');
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Gedung berhasil dibuat',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
             return redirect()->route('buildings')
                 ->with('success', 'Gedung berhasil dibuat');
         } catch (\Exception $e) {
@@ -132,6 +224,13 @@ class BuildingController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'building_data' => $request->except('_token')
             ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal membuat gedung: ' . $e->getMessage()
+                ], status: 500);
+            }
 
             return redirect()->back()
                 ->withInput()
@@ -154,18 +253,57 @@ class BuildingController extends Controller
             ]);
 
             // Check if we got an auth error response
-            if (isset($result['errors']) && in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('errors', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
+                }
+
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['errors']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal mengubah gedung';
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], status: 400);
+                }
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Gagal mengubah gedung');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully updated
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Gedung berhasil diubah',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
             return redirect()->route('buildings')
                 ->with('success', 'Gedung berhasil diubah');
         } catch (\Exception $e) {
@@ -174,6 +312,13 @@ class BuildingController extends Controller
                 'building_id' => $id,
                 'building_data' => $request->except(['_token', '_method'])
             ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengubah gedung: ' . $e->getMessage()
+                ], status: 500);
+            }
 
             return redirect()->back()
                 ->withInput()
@@ -190,17 +335,55 @@ class BuildingController extends Controller
             $result = $this->apiService->request('DELETE', "/buildings/{$id}");
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
+                }
+
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus gedung';
+
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], status: 400);
+                }
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
-                    ->with('error', $result['message'] ?? 'Gagal menghapus gedung');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully deleted
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Gedung berhasil dihapus'
+                ]);
+            }
+
             return redirect()->route('buildings')
                 ->with('success', 'Gedung berhasil dihapus');
         } catch (\Exception $e) {
@@ -208,6 +391,13 @@ class BuildingController extends Controller
                 'error' => $e->getMessage(),
                 'building_id' => $id
             ]);
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus gedung: ' . $e->getMessage()
+                ], status: 500);
+            }
 
             return redirect()->back()
                 ->with('error', 'Gagal menghapus gedung: ' . $e->getMessage());

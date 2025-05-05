@@ -76,20 +76,63 @@ class MaintenanceController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during maintenance schedules retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve maintenance schedules';
+
+                \Log::warning('Error during maintenance schedules retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], status: 400);
+                }
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return view('Maintenance.Maintenance', [
+                    'maintenances' => [],
+                    'pagination' => null,
+                    'search' => $search,
+                    'status' => $status,
+                    'sort_by' => $sortBy,
+                    'sort_order' => $sortOrder,
+                    'users' => [],
+                    'vendors' => [],
+                    'error' => $errorMessage
+                ]);
             }
 
             // Log API response for debugging
@@ -155,8 +198,8 @@ class MaintenanceController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to retrieve maintenance schedules: ' . $e->getMessage()
-                ], 500);
+                    'errors' => ['general' => 'Failed to retrieve maintenance schedules: ' . $e->getMessage()]
+                ], status: 500);
             }
 
             return view('Maintenance.Maintenance', [
@@ -225,16 +268,31 @@ class MaintenanceController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during maintenance schedules retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve maintenance schedules';
+
+                \Log::warning('Error during maintenance schedules retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $errorData
+                ], status: 400);
             }
 
             // Return the response
@@ -260,8 +318,8 @@ class MaintenanceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve maintenance schedules: ' . $e->getMessage()
-            ], 500);
+                'errors' => ['general' => 'Failed to retrieve maintenance schedules: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -287,16 +345,16 @@ class MaintenanceController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during maintenance retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
             }
 
             // Check if the maintenance exists
@@ -308,8 +366,8 @@ class MaintenanceController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Maintenance not found'
-                ], 404);
+                    'errors' => ['maintenance' => 'Maintenance not found']
+                ], status: 404);
             }
 
             // Return the API response
@@ -327,8 +385,8 @@ class MaintenanceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve maintenance: ' . $e->getMessage()
-            ], 500);
+                'errors' => ['general' => 'Failed to retrieve maintenance: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -354,13 +412,13 @@ class MaintenanceController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during maintenance details retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check if the maintenance exists
@@ -474,30 +532,31 @@ class MaintenanceController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during bulk maintenance creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
             }
 
             // Check if the request was successful
             if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to create maintenance schedules';
+
                 \Log::warning('Error during bulk maintenance creation:', [
-                    'message' => $result['message'] ?? 'Failed to create maintenance schedules',
-                    'api_response' => $result
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Failed to create maintenance schedules',
-                    'errors' => $result['errors'] ?? null
-                ], 400);
+                    'errors' => $errorData
+                ], status: 400);
             }
 
             // For AJAX requests
@@ -520,8 +579,8 @@ class MaintenanceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create maintenance schedules: ' . $e->getMessage()
-            ], 500);
+                'errors' => ['general' => 'Failed to create maintenance schedules: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -548,7 +607,6 @@ class MaintenanceController extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation failed',
                     'errors' => $validator->errors()
                 ], 422);
             }
@@ -594,24 +652,23 @@ class MaintenanceController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during maintenance creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
             }
 
             // Return the response from API
             return response()->json([
                 'success' => isset($result['success']) && $result['success'] === true,
-                'message' => $result['message'] ?? 'Jadwal pemeliharaan berhasil dibuat',
                 'data' => $result['data'] ?? [],
-                'error' => isset($result['success']) && $result['success'] !== true ? ($result['message'] ?? 'Failed to create maintenance') : null
+                'errors' => isset($result['success']) && $result['success'] !== true ? ($result['errors'] ?? ['general' => 'Failed to create maintenance']) : null
             ]);
 
         } catch (\Exception $e) {
@@ -622,8 +679,8 @@ class MaintenanceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create maintenance schedules: ' . $e->getMessage()
-            ], 500);
+                'errors' => ['general' => 'Failed to create maintenance schedules: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -656,7 +713,6 @@ class MaintenanceController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation failed',
                     'errors' => $validator->errors()
                 ], 422);
             }
@@ -732,29 +788,31 @@ class MaintenanceController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during maintenance update:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
             }
 
             // Check if the request was successful
             if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to update maintenance';
+
                 \Log::warning('Error during maintenance update:', [
-                    'message' => $result['message'] ?? 'Failed to update maintenance',
-                    'response' => $result
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Failed to update maintenance'
-                ], 400);
+                    'errors' => $errorData
+                ], status: 400);
             }
 
             // For AJAX requests
@@ -777,8 +835,8 @@ class MaintenanceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update maintenance: ' . $e->getMessage()
-            ], 500);
+                'errors' => ['general' => 'Failed to update maintenance: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -798,43 +856,59 @@ class MaintenanceController extends Controller
 
             // Log the API response for debugging
             \Log::info('API response for maintenance deletion:', [
-                'api_response_status' => $result['status'] ?? null,
+                'api_response_success' => $result['success'] ?? null,
                 'api_response_message' => $result['message'] ?? null
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during maintenance deletion:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check if the request was successful
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to delete maintenance record';
+                $errorData = $result['errors'] ?? 'Failed to delete maintenance record';
 
                 \Log::warning('Error during maintenance deletion:', [
-                    'message' => $errorMessage
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                        'message' => $errorMessage
-                ], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], status: 400);
                 }
 
-                return redirect()->route('maintenance')->with('error', $errorMessage);
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->route('maintenance')
+                    ->with('error', $errorMessage);
             }
 
             // For AJAX requests
@@ -855,10 +929,10 @@ class MaintenanceController extends Controller
             ]);
 
             if (request()->ajax() || request()->wantsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete maintenance record: ' . $e->getMessage()
-            ], 500);
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['general' => 'Failed to delete maintenance record: ' . $e->getMessage()]
+                ], status: 500);
             }
 
             return redirect()->route('maintenance')->with('error', 'Failed to delete maintenance record: ' . $e->getMessage());
@@ -920,13 +994,13 @@ class MaintenanceController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during maintenance PDF export:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Get maintenance data
@@ -976,13 +1050,13 @@ class MaintenanceController extends Controller
             $result = $this->apiService->request('GET', '/maintenance/' . $id);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during maintenance PDF export:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check if the maintenance exists
@@ -1001,7 +1075,9 @@ class MaintenanceController extends Controller
             // Convert maintenance report attachment to base64 if exists
             if (isset($maintenance['maintenance_report']) && !empty($maintenance['maintenance_report']['attachment_path'])) {
                 try {
-                    $imagePath = 'http://localhost:5000/public/images/' . basename($maintenance['maintenance_report']['attachment_path']);
+                    // Use config service instead of directly accessing protected property
+                    $baseUrl = rtrim(config('services.api.base_url', 'http://localhost:5000'), '/');
+                    $imagePath = $baseUrl . '/public/images/' . basename($maintenance['maintenance_report']['attachment_path']);
                     \Log::info('Attempting to load image for base64 conversion:', [
                         'image_path' => $imagePath
                     ]);
@@ -1052,7 +1128,7 @@ class MaintenanceController extends Controller
      * Create a maintenance report with optional attachment.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function createMaintenanceReport(Request $request)
     {
@@ -1078,7 +1154,6 @@ class MaintenanceController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation failed',
                     'errors' => $validator->errors()
                 ], 422);
             }
@@ -1155,21 +1230,48 @@ class MaintenanceController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during maintenance report creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to create maintenance report';
+
+                \Log::warning('Error during maintenance report creation:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->back()
+                    ->with('error', $errorMessage);
             }
 
             // Return response in the expected format
             return response()->json([
-                'success' => $result['status'] ?? $result['success'] ?? true,
+                'success' =>  $result['success'] ?? true,
                 'message' => $result['message'] ?? 'Maintenance report created successfully',
                 'data' => $result['data'] ?? null
             ]);
@@ -1182,8 +1284,8 @@ class MaintenanceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create maintenance report: ' . $e->getMessage()
-            ], 500);
+                'errors' => ['general' => 'Failed to create maintenance report: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 }

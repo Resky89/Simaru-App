@@ -41,23 +41,47 @@ class AssetDetailsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during asset details retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve asset details';
+                // Properly format errors based on response structure
+                $formattedErrors = ['general' => 'Failed to retrieve asset details'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
 
                 \Log::warning('Error during asset details retrieval:', [
                     'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $formattedErrors
                 ]);
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($formattedErrors)) {
+                    foreach ($formattedErrors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $formattedErrors;
+                }
 
                 return redirect()->back()->with('error', $errorMessage);
             }
@@ -284,19 +308,32 @@ class AssetDetailsController extends Controller
             $result = $this->apiService->request('GET', "/assets/{$id}");
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                    'errors' => ['auth' => 'Authentication failed']
+                ], status: 401);
             }
 
             // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
+                // Properly format errors based on response structure
+                $formattedErrors = ['general' => 'Failed to retrieve asset details'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
+
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Failed to retrieve asset details'
-                ], 400);
+                    'errors' => $formattedErrors
+                ], status: 400);
             }
 
             // Return the asset data as JSON
@@ -311,8 +348,8 @@ class AssetDetailsController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve asset details: ' . $e->getMessage()
-            ], 500);
+                'errors' => ['exception' => 'Failed to retrieve asset details: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -402,68 +439,64 @@ class AssetDetailsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during asset update:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 if ($request->ajax() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) ||
+            if (isset($result['errors']) ||
                 (isset($result['success']) && $result['success'] === false)) {
 
+                // Properly format errors based on response structure
+                $formattedErrors = ['general' => 'Failed to update asset'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
+
                 \Log::warning('Error during asset update:', [
-                    'error' => $result['error'] ?? null,
                     'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to update asset',
-                    'errors' => $result['errors'] ?? []
+                    'errors' => $formattedErrors
                 ]);
 
-                // Format error message properly before passing to session
-                $errorMessage = 'Failed to update asset';
-
-                if (isset($result['message'])) {
-                    if (is_array($result['message'])) {
-                        // Handle array of error messages
+                // Format error message for redirect/display
                         $errorMessage = '';
-                        foreach ($result['message'] as $error) {
-                            if (is_array($error) && isset($error['message'])) {
-                                $errorMessage .= $error['message'] . '. ';
-                            } else if (is_string($error)) {
-                                $errorMessage .= $error . '. ';
-                            }
+                if (is_array($formattedErrors)) {
+                    foreach ($formattedErrors as $field => $messages) {
+                        if (is_array($messages)) {
+                            foreach ($messages as $message) {
+                                $errorMessage .= $message . '. ';
                         }
                     } else {
-                        // Handle string error message
-                        $errorMessage = $result['message'];
-                    }
-                } else if (isset($result['errors']) && is_array($result['errors'])) {
-                    // Handle errors array
-                    $errorMessage = '';
-                    foreach ($result['errors'] as $error) {
-                        if (is_array($error) && isset($error['message'])) {
-                            $errorMessage .= $error['message'] . '. ';
-                        } else if (is_string($error)) {
-                            $errorMessage .= $error . '. ';
+                            $errorMessage .= $messages . '. ';
                         }
                     }
+                } else {
+                    $errorMessage = $formattedErrors;
                 }
 
                 if ($request->ajax() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $errorMessage
-                    ], 400);
+                        'errors' => $formattedErrors
+                    ], status: 400);
                 }
 
                 return redirect()->back()
@@ -494,8 +527,8 @@ class AssetDetailsController extends Controller
             if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to update asset: ' . $e->getMessage()
-                ], 500);
+                    'errors' => ['exception' => 'Failed to update asset: ' . $e->getMessage()]
+                ], status: 500);
             }
 
             return redirect()->back()
@@ -538,15 +571,48 @@ class AssetDetailsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors
-            if (isset($result['error']) ||
+            if (isset($result['errors']) ||
                 (isset($result['success']) && $result['success'] === false)) {
 
-                $errorMessage = $result['message'] ?? 'Failed to checkout asset';
+                // Properly format errors based on response structure
+                $formattedErrors = ['general' => 'Failed to checkout asset'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($formattedErrors)) {
+                    foreach ($formattedErrors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $formattedErrors;
+                }
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $formattedErrors
+                    ], status: 400);
+                }
+
                 return redirect()->back()->with('error', $errorMessage);
             }
 
@@ -559,6 +625,13 @@ class AssetDetailsController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Failed to checkout asset: ' . $e->getMessage()]
+                ], status: 500);
+            }
 
             return redirect()->back()->with('error', 'Failed to checkout asset: ' . $e->getMessage());
         }
@@ -596,15 +669,48 @@ class AssetDetailsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors
-            if (isset($result['error']) ||
+            if (isset($result['errors']) ||
                 (isset($result['success']) && $result['success'] === false)) {
 
-                $errorMessage = $result['message'] ?? 'Failed to check in asset';
+                // Properly format errors based on response structure
+                $formattedErrors = ['general' => 'Failed to check in asset'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($formattedErrors)) {
+                    foreach ($formattedErrors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $formattedErrors;
+                }
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $formattedErrors
+                    ], status: 400);
+                }
+
                 return redirect()->back()->with('error', $errorMessage);
             }
 
@@ -617,6 +723,13 @@ class AssetDetailsController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Failed to check in asset: ' . $e->getMessage()]
+                ], status: 500);
+            }
 
             return redirect()->back()->with('error', 'Failed to check in asset: ' . $e->getMessage());
         }
@@ -653,15 +766,48 @@ class AssetDetailsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors
-            if (isset($result['error']) ||
+            if (isset($result['errors']) ||
                 (isset($result['success']) && $result['success'] === false)) {
 
-                $errorMessage = $result['message'] ?? 'Failed to report asset as lost';
+                // Properly format errors based on response structure
+                $formattedErrors = ['general' => 'Failed to report asset as lost'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($formattedErrors)) {
+                    foreach ($formattedErrors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $formattedErrors;
+                }
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $formattedErrors
+                    ], status: 400);
+                }
+
                 return redirect()->back()->with('error', $errorMessage);
             }
 
@@ -674,6 +820,13 @@ class AssetDetailsController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Failed to report asset as lost: ' . $e->getMessage()]
+                ], status: 500);
+            }
 
             return redirect()->back()->with('error', 'Failed to report asset as lost: ' . $e->getMessage());
         }
@@ -710,15 +863,48 @@ class AssetDetailsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors
-            if (isset($result['error']) ||
+            if (isset($result['errors']) ||
                 (isset($result['success']) && $result['success'] === false)) {
 
-                $errorMessage = $result['message'] ?? 'Failed to report asset as found';
+                // Properly format errors based on response structure
+                $formattedErrors = ['general' => 'Failed to report asset as found'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($formattedErrors)) {
+                    foreach ($formattedErrors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $formattedErrors;
+                }
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $formattedErrors
+                    ], status: 400);
+                }
+
                 return redirect()->back()->with('error', $errorMessage);
             }
 
@@ -731,6 +917,13 @@ class AssetDetailsController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Failed to report asset as found: ' . $e->getMessage()]
+                ], status: 500);
+            }
 
             return redirect()->back()->with('error', 'Failed to report asset as found: ' . $e->getMessage());
         }
@@ -769,15 +962,48 @@ class AssetDetailsController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors
-            if (isset($result['error']) ||
+            if (isset($result['errors']) ||
                 (isset($result['success']) && $result['success'] === false)) {
 
-                $errorMessage = $result['message'] ?? 'Failed to dispose asset';
+                // Properly format errors based on response structure
+                $formattedErrors = ['general' => 'Failed to dispose asset'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($formattedErrors)) {
+                    foreach ($formattedErrors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $formattedErrors;
+                }
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $formattedErrors
+                    ], status: 400);
+                }
+
                 return redirect()->back()->with('error', $errorMessage);
             }
 
@@ -790,6 +1016,13 @@ class AssetDetailsController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Failed to dispose asset: ' . $e->getMessage()]
+                ], status: 500);
+            }
 
             return redirect()->back()->with('error', 'Failed to dispose asset: ' . $e->getMessage());
         }

@@ -16,6 +16,9 @@ class ProcurementRequestController extends Controller
 
     /**
      * Display the procurements page with pagination.
+     *
+     * @param Request $request
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function index(Request $request)
     {
@@ -33,25 +36,90 @@ class ProcurementRequestController extends Controller
                 ]
             ]);
 
-            // Check if we got an error response from the ApiService
-            if (isset($result['error'])) {
-                if (strpos($result['error'], 'login') !== false) {
-                    return redirect()->route('login')->with('error', $result['error']);
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurements index retrieval:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
-                throw new \Exception($result['error']);
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve procurements';
+
+                \Log::warning('Error during procurements index retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    ], status: 400);
+                }
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                // Return view with empty procurements data and error message
+                return view('Procurement.Request.Request', [
+                    'procurements' => [],
+                    'pagination' => null,
+                    'error' => $errorMessage
+                ]);
             }
 
             // Make sure procurements is always defined
             $procurements = $result['data'] ?? [];
+            $pagination = $result['pagination'] ?? null;
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Procurements retrieved successfully',
+                    'procurements' => $procurements,
+                    'pagination' => $pagination
+                ]);
+            }
 
             return view('Procurement.Request.Request', [
                 'procurements' => $procurements,
-                'pagination' => $result['pagination'] ?? null
+                'pagination' => $pagination
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to fetch procurements', [
-                'error' => $e->getMessage()
+            \Log::error('Exception during procurements index retrieval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Failed to fetch procurements: ' . $e->getMessage()]
+                ], status: 500);
+            }
 
             // Always pass an empty array for procurements in case of error
             return view('Procurement.Request.Request', [
@@ -81,13 +149,36 @@ class ProcurementRequestController extends Controller
                 ]
             ]);
 
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurements retrieval:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
+            }
+
             // Check if we got an error response from the ApiService
-            if (isset($result['error'])) {
-                throw new \Exception($result['error']);
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve procurements';
+
+                \Log::warning('Error during procurements retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                ], status: 400);
             }
 
             return response()->json([
-                'status' => true,
+                'success' => true,
                 'message' => 'Procurements retrieved successfully',
                 'data' => $result['data'] ?? [],
                 'pagination' => $result['pagination'] ?? [
@@ -98,12 +189,17 @@ class ProcurementRequestController extends Controller
                     'has_next' => false,
                     'has_prev' => false
                 ]
-            ], 200);
+            ]);
         } catch (\Exception $e) {
+            \Log::error('Exception during procurements retrieval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
-                'status' => false,
-                'message' => 'Failed to retrieve procurements: ' . $e->getMessage()
-            ], 500);
+                'success' => false,
+                'errors' => ['exception' => 'Failed to retrieve procurements: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -131,21 +227,54 @@ class ProcurementRequestController extends Controller
                 'json' => $validated
             ]);
 
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurement creation:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
+            }
+
             // Check if we got an error response
-            if (isset($result['error'])) {
-                throw new \Exception($result['error']);
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to create procurement';
+
+                \Log::warning('Error during procurement creation:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                ], status: 400);
             }
 
             return response()->json([
-                'status' => true,
+                'success' => true,
                 'message' => 'Procurement created successfully',
                 'data' => $result['data'] ?? []
-            ], 201);
-        } catch (\Exception $e) {
+            ], status: 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-                'status' => false,
-                'message' => 'Failed to create procurement: ' . $e->getMessage()
-            ], 500);
+                'success' => false,
+                'errors' => $e->errors()
+            ], status: 422);
+        } catch (\Exception $e) {
+            \Log::error('Exception during procurement creation:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'errors' => ['exception' => 'Failed to create procurement: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -173,35 +302,57 @@ class ProcurementRequestController extends Controller
                 'json' => $validated
             ]);
 
-            // Check if we got an error response
-            if (isset($result['error'])) {
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurement update:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed',
+                    'procurement_id' => $id
+                ]);
+
                 return response()->json([
-                    'status' => false,
-                    'message' => $result['error']
-                ], 400);
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
+            }
+
+            // Check if we got an error response
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to update procurement';
+
+                \Log::warning('Error during procurement update:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                ], status: 400);
             }
 
             return response()->json([
-                'status' => true,
+                'success' => true,
                 'message' => 'Procurement updated successfully',
                 'data' => $result['data'] ?? []
-            ], 200);
+            ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-                'status' => false,
-                'message' => 'Validation failed',
+                'success' => false,
                 'errors' => $e->errors()
-            ], 422);
+            ], status: 422);
         } catch (\Exception $e) {
-            \Log::error('Failed to update procurement', [
+            \Log::error('Exception during procurement update:', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'procurement_id' => $id
             ]);
 
             return response()->json([
-                'status' => false,
-                'message' => 'Failed to update procurement: ' . $e->getMessage()
-            ], 500);
+                'success' => false,
+                'errors' => ['exception' => 'Failed to update procurement: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -213,21 +364,52 @@ class ProcurementRequestController extends Controller
         try {
             $result = $this->apiService->request('GET', "/procurements/{$id}");
 
-            // Check if we got an error response from the ApiService
-            if (isset($result['error'])) {
-                throw new \Exception($result['error']);
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurement retrieval:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed',
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
+            }
+
+            // Check if we got an error response
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve procurement';
+
+                \Log::warning('Error during procurement retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                ], status: 400);
             }
 
             return response()->json([
-                'status' => true,
+                'success' => true,
                 'message' => 'Procurement retrieved successfully',
                 'data' => $result['data'] ?? null
-            ], 200);
+            ]);
         } catch (\Exception $e) {
+            \Log::error('Exception during procurement retrieval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'procurement_id' => $id
+            ]);
+
             return response()->json([
-                'status' => false,
-                'message' => 'Failed to retrieve procurement: ' . $e->getMessage()
-            ], 500);
+                'success' => false,
+                'errors' => ['exception' => 'Failed to retrieve procurement: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -239,20 +421,155 @@ class ProcurementRequestController extends Controller
         try {
             $result = $this->apiService->request('DELETE', "/procurements/{$id}");
 
-            // Check if we got an error response from the ApiService
-            if (isset($result['error'])) {
-                throw new \Exception($result['error']);
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurement deletion:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed',
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
+            }
+
+            // Check if we got an error response
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to delete procurement';
+
+                \Log::warning('Error during procurement deletion:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                ], status: 400);
             }
 
             return response()->json([
-                'status' => true,
+                'success' => true,
                 'message' => 'Procurement deleted successfully'
-            ], 200);
+            ]);
         } catch (\Exception $e) {
+            \Log::error('Exception during procurement deletion:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'procurement_id' => $id
+            ]);
+
             return response()->json([
-                'status' => false,
-                'message' => 'Failed to delete procurement: ' . $e->getMessage()
-            ], 500);
+                'success' => false,
+                'errors' => ['exception' => 'Failed to delete procurement: ' . $e->getMessage()]
+            ], status: 500);
+        }
+    }
+
+    /**
+     * Display the procurement detail page.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function show(Request $request, $id)
+    {
+        try {
+            \Log::info('Fetching procurement details for ID: ' . $id);
+
+            $result = $this->apiService->request('GET', "/procurements/{$id}");
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurement detail retrieval:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed',
+                    'procurement_id' => $id
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve procurement details';
+
+                \Log::warning('Error during procurement detail retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'procurement_id' => $id
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    ], status: 400);
+                }
+
+                return redirect()->route('procurement.request')
+                    ->with('error', is_string($errorData) ? $errorData : 'Failed to retrieve procurement details');
+            }
+
+            // Make sure procurement data exists
+            if (!isset($result['data'])) {
+                $errorMessage = 'Procurement data not found';
+
+                \Log::warning('Empty data returned for procurement detail:', [
+                    'procurement_id' => $id,
+                    'result_keys' => array_keys($result)
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['general' => $errorMessage]
+                    ], status: 404);
+                }
+
+                return redirect()->route('procurement.request')
+                    ->with('error', $errorMessage);
+            }
+
+            // Load view with procurement data
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $result['data'],
+                    'message' => 'Procurement details retrieved successfully'
+                ]);
+            }
+
+            return view('Procurement.Request.DetailRequest', [
+                'procurement' => $result['data']
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Exception during procurement detail retrieval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'procurement_id' => $id
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Failed to fetch procurement details: ' . $e->getMessage()]
+                ], status: 500);
+            }
+
+            return redirect()->route('procurement.request')
+                ->with('error', 'Failed to fetch procurement details: ' . $e->getMessage());
         }
     }
 }

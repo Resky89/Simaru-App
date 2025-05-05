@@ -23,12 +23,14 @@ class BrandController extends Controller
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
+            $sort = $request->input('sort', '');
 
             // Log request info
             \Log::info('Fetching brands with parameters:', [
                 'page' => $page,
                 'limit' => $limit,
                 'search' => $search,
+                'sort' => $sort,
                 'request_url' => $request->fullUrl()
             ]);
 
@@ -44,6 +46,28 @@ class BrandController extends Controller
                 $queryParams['search'] = $search;
             }
 
+            // Custom sorting
+            if (!empty($sort)) {
+                switch ($sort) {
+                    case 'name_asc':
+                        $queryParams['sort_by'] = 'brand_name';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'name_desc':
+                        $queryParams['sort_by'] = 'brand_name';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    case 'id_asc':
+                        $queryParams['sort_by'] = 'brand_id';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'id_desc':
+                        $queryParams['sort_by'] = 'brand_id';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                }
+            }
+
             // Fetch brands
             $brandsResult = $this->apiService->request('GET', '/brands', [
                 'query' => $queryParams
@@ -51,24 +75,38 @@ class BrandController extends Controller
 
             // Log API responses for debugging
             \Log::info('API response for brands list:', [
-                'brands_status' => $brandsResult['status'] ?? null,
+                'brands_success' => $brandsResult['success'] ?? null,
                 'brands_count' => isset($brandsResult['data']) ? count($brandsResult['data']) : 0
             ]);
 
             // Check for auth errors
-            if (isset($brandsResult['error']) && in_array($brandsResult['error'], ['auth_failed', 'session_expired'])) {
-                $errorMessage = $brandsResult['message'] ?? 'Authentication failed';
-                return redirect()->route('login')->with('error', $errorMessage);
+            if (isset($brandsResult['errors']) && is_string($brandsResult['errors']) &&
+                in_array($brandsResult['errors'], ['auth_failed', 'session_expired'])) {
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
-            // Check for API errors based on status flag
-            if (!isset($brandsResult['status']) || $brandsResult['status'] !== true) {
-                $errorMessage = $brandsResult['message'] ?? 'Failed to fetch data';
+            // Check for API errors based on success flag
+            if (!isset($brandsResult['success']) || $brandsResult['success'] !== true) {
+                $errorData = $brandsResult['errors'] ?? 'Failed to fetch data';
 
                 \Log::warning('Error during data retrieval:', [
-                    'brands_status' => $brandsResult['status'] ?? false,
-                    'message' => $errorMessage
+                    'brands_success' => $brandsResult['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
 
                 return view('Brand.Brand', [
                     'brands' => [],
@@ -85,13 +123,13 @@ class BrandController extends Controller
                 $pagination = $brandsResult['pagination'];
                 $brandsPagination = [
                     'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
+                    'last_page' => $pagination['total_pages'] ?? 1,
                     'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
                     'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
                     'total' => $pagination['total_items'] ?? 0,
                     'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => ($pagination['has_next'] ?? false) ? url()->current() . '?page=' . ($pagination['current_page'] + 1) : null,
-                    'prev_page_url' => ($pagination['has_prev'] ?? false) ? url()->current() . '?page=' . ($pagination['current_page'] - 1) : null,
+                    'next_page_url' => ($pagination['has_next'] ?? false) ? url()->current() . '?page=' . (($pagination['current_page'] ?? 1) + 1) : null,
+                    'prev_page_url' => ($pagination['has_prev'] ?? false) ? url()->current() . '?page=' . (($pagination['current_page'] ?? 1) - 1) : null,
                 ];
             }
 
@@ -136,24 +174,40 @@ class BrandController extends Controller
             ]);
 
             // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during brand creation:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'error' => $result['errors']
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to create brand';
+
                 \Log::warning('Error during brand creation:', [
-                    'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['message'] ?? 'Failed to create brand'
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to create brand');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully created
@@ -187,15 +241,32 @@ class BrandController extends Controller
             ]);
 
             // Check if we got an auth error response
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to update brand';
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', $result['message'] ?? 'Failed to update brand');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully updated
@@ -223,14 +294,31 @@ class BrandController extends Controller
             $result = $this->apiService->request('DELETE', "/brands/{$id}");
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for other API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to delete brand';
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()
-                    ->with('error', $result['message'] ?? 'Failed to delete brand');
+                    ->with('error', $errorMessage);
             }
 
             // Successfully deleted
@@ -257,20 +345,42 @@ class BrandController extends Controller
             $result = $this->apiService->request('GET', "/brands/{$id}");
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 if (request()->ajax()) {
-                    return response()->json(['error' => $result['message'] ?? 'Authentication failed'], 401);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], 401);
                 }
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve brand';
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve brand';
 
                 if (request()->ajax()) {
-                    return response()->json(['error' => $errorMessage], 400);
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], 400);
                 }
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()->with('error', $errorMessage);
             }
 
@@ -297,6 +407,157 @@ class BrandController extends Controller
                 return response()->json(['error' => $errorMessage], 500);
             }
             return redirect()->back()->with('error', $errorMessage);
+        }
+    }
+
+    /**
+     * Import brands from Excel/CSV file.
+     */
+    public function import(Request $request)
+    {
+        try {
+            // Validate the uploaded file
+            $request->validate([
+                'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+            ]);
+
+            // Log the import attempt
+            \Log::info('Brand import requested', [
+                'file_name' => $request->file('excel_file')->getClientOriginalName(),
+                'file_size' => $request->file('excel_file')->getSize(),
+                'file_type' => $request->file('excel_file')->getMimeType()
+            ]);
+
+            // Get the uploaded file
+            $file = $request->file('excel_file');
+
+            // If excel data is provided directly (e.g., from AJAX processing)
+            $excelData = $request->input('excel_data');
+
+            // Create form data for API request
+            $formData = [];
+
+            if ($excelData) {
+                // Use the pre-processed Excel data
+                $formData = [
+                    'multipart' => [
+                        [
+                            'name' => 'brands',
+                            'contents' => $excelData
+                        ]
+                    ]
+                ];
+            } else {
+                // Use the file upload approach
+                $formData = [
+                    'multipart' => [
+                        [
+                            'name' => 'excel_file',
+                            'contents' => fopen($file->getPathname(), 'r'),
+                            'filename' => $file->getClientOriginalName()
+                        ]
+                    ]
+                ];
+            }
+
+            // Send the import request to the API
+            $result = $this->apiService->request('POST', '/brands/import', $formData);
+
+            // Log the API response
+            \Log::info('API response for brand import:', [
+                'success' => $result['success'] ?? false,
+                'message' => $result['message'] ?? 'No message',
+                'data_summary' => isset($result['data']) ? [
+                    'total' => $result['data']['total'] ?? 0,
+                    'success' => $result['data']['success'] ?? 0,
+                    'failed' => $result['data']['failed'] ?? 0,
+                    'error_count' => isset($result['data']['errors']) ? count($result['data']['errors']) : 0
+                ] : 'No data'
+            ]);
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
+                }
+
+                return redirect()->route('login')->with('error', 'Authentication failed');
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to import brands';
+
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData,
+                        'data' => $result['data'] ?? null
+                    ], status: 400);
+                }
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Successfully imported
+            $successMessage = $result['message'] ?? 'Brands imported successfully';
+            $importData = $result['data'] ?? null;
+
+            // Format the success message with import counts if available
+            if ($importData && isset($importData['total'])) {
+                $successMessage = sprintf(
+                    'Successfully imported %d of %d brands',
+                    $importData['success'] ?? 0,
+                    $importData['total'] ?? 0
+                );
+
+                // Add info about failed imports if any
+                if (isset($importData['failed']) && $importData['failed'] > 0) {
+                    $successMessage .= sprintf(', %d failed', $importData['failed']);
+                }
+            }
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => $importData
+                ]);
+            }
+
+            return redirect()->route('brands')->with('success', $successMessage);
+        } catch (\Exception $e) {
+            \Log::error('Exception during brand import:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to import brands: ' . $e->getMessage()
+                ], status: 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to import brands: ' . $e->getMessage());
         }
     }
 }

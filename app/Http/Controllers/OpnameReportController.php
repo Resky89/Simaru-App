@@ -36,20 +36,58 @@ class OpnameReportController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during opname reports retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve opname reports';
+
+                \Log::warning('Error during opname reports retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    ], status: 400);
+                }
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return view('Report.OpnameReport.OpnameReport', [
+                    'opnames' => [],
+                    'pagination' => null,
+                    'search' => $search,
+                    'error' => $errorMessage
+                ]);
             }
 
             $opnames = $result['data'] ?? [];
@@ -122,16 +160,31 @@ class OpnameReportController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during opnames retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve asset opnames';
+
+                \Log::warning('Error during opnames retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                ], status: 400);
             }
 
             // Return the response
@@ -158,7 +211,7 @@ class OpnameReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve opnames: ' . $e->getMessage()
-            ], 500);
+            ], status: 500);
         }
     }
 
@@ -183,21 +236,63 @@ class OpnameReportController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during opname detail page retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed',
+                    'errors' => $result['errors'] ?? 'Authentication failed',
                     'opname_id' => $id
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve opname details';
+
+                \Log::warning('Error during opname detail retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'opname_id' => $id
+                ]);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    ], status: 400);
+                }
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return view('Report.OpnameReport.OpnameDetail', [
+                    'opnameId' => $id,
+                    'opnameCode' => null,
+                    'details' => [],
+                    'pagination' => null,
+                    'summary' => null,
+                    'roomInfo' => null,
+                    'error' => $errorMessage
+                ]);
             }
 
             // Extract data from API response
@@ -208,14 +303,7 @@ class OpnameReportController extends Controller
             $summary = $opnameData['summary'] ?? null;
             $roomInfo = $opnameData['room_info'] ?? null;
 
-            // Log response data for debugging
-            \Log::debug('Opname detail API response structure:', [
-                'has_data' => isset($opnameData['data']),
-                'details_count' => count($details),
-                'has_pagination' => isset($opnameData['pagination']),
-                'has_summary' => isset($opnameData['summary']),
-                'has_room_info' => isset($opnameData['room_info'])
-            ]);
+
 
             return view('Report.OpnameReport.OpnameDetail', [
                 'opnameId' => $id,
@@ -266,13 +354,40 @@ class OpnameReportController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during opname detail PDF export', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed',
+                    'errors' => $result['errors'] ?? 'Authentication failed',
                     'opname_id' => $id
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve opname details for PDF export';
+
+                \Log::warning('Error during opname detail PDF export:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'opname_id' => $id
+                ]);
+
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->back()
+                    ->with('error', $errorMessage);
             }
 
             // Extract data exactly like in showOpnameDetail method - using data directly from server

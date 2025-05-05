@@ -34,42 +34,65 @@ class AssetMutationController extends Controller
 
             // Log API response for debugging
             \Log::info('API response for asset mutation history:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
+                'api_response_success' => $result['success'] ?? null,
+                'api_response_errors' => $result['errors'] ?? null,
                 'asset_id' => $id
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during asset mutation history retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 if (request()->wantsJson()) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'success' => false,
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve asset mutation history';
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $formattedErrors = ['general' => 'Failed to retrieve asset mutation history'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
 
                 \Log::warning('Error during asset mutation history retrieval:', [
-                    'status' => $result['status'] ?? false,
-                    'message' => $errorMessage
+                    'success' => $result['success'] ?? false,
+                    'errors' => $formattedErrors
                 ]);
 
                 if (request()->wantsJson()) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $errorMessage
-                    ], 400);
+                        'success' => false,
+                        'errors' => $formattedErrors
+                    ], status: 400);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($formattedErrors)) {
+                    foreach ($formattedErrors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $formattedErrors;
                 }
 
                 return back()->with('error', $errorMessage);
@@ -96,9 +119,9 @@ class AssetMutationController extends Controller
 
             if (request()->wantsJson()) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Failed to retrieve asset mutation history: ' . $e->getMessage()
-                ], 500);
+                    'success' => false,
+                    'errors' => ['exception' => 'Failed to retrieve asset mutation history: ' . $e->getMessage()]
+                ], status: 500);
             }
 
             return back()->with('error', 'Failed to retrieve asset mutation history: ' . $e->getMessage());
@@ -125,8 +148,24 @@ class AssetMutationController extends Controller
             // If it's a JSON response, we need to extract the data
             $responseData = json_decode($response->getContent(), true);
 
-            if (!isset($responseData['status']) || $responseData['status'] !== true) {
-                return back()->with('error', $responseData['message'] ?? 'Failed to retrieve asset mutation history');
+            if (!isset($responseData['success']) || $responseData['success'] !== true) {
+                // Format error message if needed
+                $formattedErrors = $responseData['errors'] ?? ['general' => 'Failed to retrieve asset mutation history'];
+
+                $errorMessage = '';
+                if (is_array($formattedErrors)) {
+                    foreach ($formattedErrors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $formattedErrors;
+                }
+
+                return back()->with('error', $errorMessage);
             }
 
             return view('asset.mutation-history', [

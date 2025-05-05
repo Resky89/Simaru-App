@@ -37,36 +37,47 @@ class AssetDepreciationController extends Controller
             // Log API response for debugging
             Log::info('API response for depreciation data:', [
                 'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
+                'api_response_success' => $result['success'] ?? null,
+                'api_response_errors' => $result['errors'] ?? null,
                 'asset_id' => $assetId
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 Log::warning('Authentication error during depreciation data retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 return response()->json([
-                    'status' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                    'success' => false,
+                    'errors' => ['auth' => 'Authentication failed']
+                ], status: 401);
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve depreciation data';
+            if (!isset($result['success']) || $result['success'] !== true) {
+                // Properly format errors based on response structure
+                $formattedErrors = ['general' => 'Failed to retrieve depreciation data'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
 
                 Log::warning('Error during depreciation data retrieval:', [
-                    'status' => $result['status'] ?? false,
-                    'message' => $errorMessage
+                    'success' => $result['success'] ?? false,
+                    'errors' => $formattedErrors
                 ]);
 
                 return response()->json([
-                    'status' => false,
-                    'message' => $errorMessage
-                ], 400);
+                    'success' => false,
+                    'errors' => $formattedErrors
+                ], status: 400);
             }
 
             // Return the depreciation data as JSON
@@ -80,9 +91,9 @@ class AssetDepreciationController extends Controller
             ]);
 
             return response()->json([
-                'status' => false,
-                'message' => 'Failed to retrieve depreciation data: ' . $e->getMessage()
-            ], 500);
+                'success' => false,
+                'errors' => ['server' => 'Failed to retrieve depreciation data: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 
@@ -118,41 +129,66 @@ class AssetDepreciationController extends Controller
             // Log API response for debugging
             \Log::info('API response for depreciation update:', [
                 'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
+                'api_response_success' => $result['success'] ?? null,
+                'api_response_errors' => $result['errors'] ?? null,
                 'asset_id' => $assetId
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during depreciation update:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 if ($request->expectsJson()) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'success' => false,
+                        'errors' => ['auth' => 'Authentication failed']
+                    ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to update depreciation data';
+            if (!isset($result['success']) || $result['success'] !== true) {
+                // Properly format errors based on response structure
+                $formattedErrors = ['general' => 'Failed to update depreciation data'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
 
                 \Log::warning('Error during depreciation update:', [
-                    'status' => $result['status'] ?? false,
-                    'message' => $errorMessage
+                    'success' => $result['success'] ?? false,
+                    'errors' => $formattedErrors
                 ]);
 
                 if ($request->expectsJson()) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $errorMessage
-                    ], 400);
+                        'success' => false,
+                        'errors' => $formattedErrors
+                    ], status: 400);
+                }
+
+                // For redirect responses, format errors as string if needed
+                $errorMessage = '';
+                if (is_array($formattedErrors)) {
+                    foreach ($formattedErrors as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $formattedErrors;
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -161,8 +197,7 @@ class AssetDepreciationController extends Controller
             // Return success response
             if ($request->expectsJson()) {
                 return response()->json([
-                    'status' => true,
-                    'message' => 'Asset depreciation updated successfully',
+                    'success' => true,
                     'data' => [
                         'asset_id' => (int) $assetId
                     ]
@@ -179,10 +214,9 @@ class AssetDepreciationController extends Controller
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Validation error',
+                    'success' => false,
                     'errors' => $e->errors()
-                ], 422);
+                ], status: 422);
             }
 
             return redirect()->back()->withErrors($e->errors())->withInput();
@@ -196,9 +230,9 @@ class AssetDepreciationController extends Controller
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Failed to update depreciation data: ' . $e->getMessage()
-                ], 500);
+                    'success' => false,
+                    'errors' => ['server' => 'Failed to update depreciation data: ' . $e->getMessage()]
+                ], status: 500);
             }
 
             return redirect()->back()->with('error', 'Failed to update depreciation data: ' . $e->getMessage());

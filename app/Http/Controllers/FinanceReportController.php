@@ -74,43 +74,56 @@ class FinanceReportController extends Controller
 
             // Log API response for debugging
             \Log::info('API response for asset transactions:', [
-                'api_response_status' => $result['status'] ?? null,
+                'api_response_success' => $result['success'] ?? null,
                 'api_response_message' => $result['message'] ?? null,
                 'data_count' => isset($result['data']) ? count($result['data']) : 0
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during asset transactions retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
-                    ], 401);
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for API errors or unsuccessful responses
-            if (isset($result['error']) || (isset($result['success']) && $result['success'] === false)) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve asset transactions';
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve asset transactions';
 
                 \Log::warning('Error during asset transactions retrieval:', [
-                    'error' => $result['error'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $errorMessage
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $errorMessage
-                    ], 400);
+                        'errors' => $errorData
+                    ], status: 400);
+                }
+
+                // Format error message for view
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
                 return view('Report.FinanceReport.FinanceReport', [
@@ -153,8 +166,8 @@ class FinanceReportController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to retrieve asset transactions: ' . $e->getMessage()
-                ], 500);
+                    'errors' => ['exception' => 'Failed to retrieve asset transactions: ' . $e->getMessage()]
+                ], status: 500);
             }
 
             return view('Report.FinanceReport.FinanceReport', [
@@ -215,12 +228,39 @@ class FinanceReportController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during finance report PDF export', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve finance report data';
+
+                \Log::warning('Error during finance report data retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->back()
+                    ->with('error', $errorMessage);
             }
 
             // Get transactions data

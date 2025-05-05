@@ -34,22 +34,46 @@ class AssetHistoryController extends Controller
 
             // Log API response for debugging
             \Log::info('API response for asset history:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
+                'api_response_success' => $result['success'] ?? null,
+                'api_response_errors' => $result['errors'] ?? null,
                 'asset_id' => $id
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && (is_array($result['errors']) &&
+                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
+                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
                 \Log::warning('Authentication error during asset history retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors']
                 ]);
 
                 return response()->json([
-                    'status' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
-                ], 401);
+                    'success' => false,
+                    'errors' => ['auth' => 'Authentication failed']
+                ], status: 401);
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $formattedErrors = ['general' => 'Failed to retrieve asset history'];
+
+                if (isset($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $formattedErrors = ['general' => $result['errors']];
+                    } elseif (is_array($result['errors'])) {
+                        $formattedErrors = $result['errors'];
+                    }
+                }
+
+                \Log::warning('Error during asset history retrieval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $formattedErrors
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $formattedErrors
+                ], status: 400);
             }
 
             // Return the response as is
@@ -63,9 +87,9 @@ class AssetHistoryController extends Controller
             ]);
 
             return response()->json([
-                'status' => false,
-                'message' => 'Failed to retrieve asset history: ' . $e->getMessage()
-            ], 500);
+                'success' => false,
+                'errors' => ['exception' => 'Failed to retrieve asset history: ' . $e->getMessage()]
+            ], status: 500);
         }
     }
 }

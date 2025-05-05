@@ -24,14 +24,14 @@ class DashboardController extends Controller
             $result = $this->apiService->request('GET', '/dashboard/summary');
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during dashboard data retrieval', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return redirect()->route('login')
-                    ->with('error', $result['message'] ?? 'Authentication failed. Please login again.');
+                    ->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed. Please login again.');
             }
 
             // Fetch depreciation data from API
@@ -76,7 +76,7 @@ class DashboardController extends Controller
             }
 
             // Merge depreciation data if available
-            if ($depreciationResult['status'] === true && isset($depreciationResult['data'])) {
+            if (isset($depreciationResult['success']) && $depreciationResult['success'] === true && isset($depreciationResult['data'])) {
                 $dashboardData['total_acquisition_cost'] = $depreciationResult['data']['total_acquisition_cost'] ?? 0;
                 $dashboardData['total_book_value'] = $depreciationResult['data']['total_book_value'] ?? 0;
                 $dashboardData['total_depreciation'] = $depreciationResult['data']['total_depreciation'] ?? 0;
@@ -144,30 +144,30 @@ class DashboardController extends Controller
             $result = $this->apiService->request('GET', '/depreciations/total-value');
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during depreciation data retrieval', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return [
-                    'status' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'success' => false,
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ];
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve depreciation data';
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve depreciation data';
 
                 \Log::warning('Error during depreciation data retrieval', [
-                    'status' => $result['status'] ?? false,
-                    'message' => $errorMessage
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 return [
-                    'status' => false,
-                    'message' => $errorMessage
+                    'success' => false,
+                    'errors' => $errorData
                 ];
             }
 
@@ -180,8 +180,8 @@ class DashboardController extends Controller
             ]);
 
             return [
-                'status' => false,
-                'message' => 'Failed to retrieve depreciation data: ' . $e->getMessage()
+                'success' => false,
+                'errors' => 'Failed to retrieve depreciation data: ' . $e->getMessage()
             ];
         }
     }
@@ -201,30 +201,30 @@ class DashboardController extends Controller
             $result = $this->apiService->request('GET', '/dashboard/summary');
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during dashboard summary retrieval', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return response()->json([
-                    'status' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
                 ], 401);
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve dashboard summary';
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve dashboard summary';
 
                 \Log::warning('Error during dashboard summary retrieval', [
-                    'status' => $result['status'] ?? false,
-                    'message' => $errorMessage
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 return response()->json([
-                    'status' => false,
-                    'message' => $errorMessage
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
                 ], 400);
             }
 
@@ -232,7 +232,7 @@ class DashboardController extends Controller
             $depreciationResult = $this->getDepreciationData();
 
             // Merge depreciation data with summary data if available
-            if ($depreciationResult['status'] === true && isset($depreciationResult['data'])) {
+            if (isset($depreciationResult['success']) && $depreciationResult['success'] === true && isset($depreciationResult['data'])) {
                 $result['data']['total_acquisition_cost'] = $depreciationResult['data']['total_acquisition_cost'] ?? 0;
                 $result['data']['total_book_value'] = $depreciationResult['data']['total_book_value'] ?? 0;
                 $result['data']['total_depreciation'] = $depreciationResult['data']['total_depreciation'] ?? 0;
@@ -241,8 +241,7 @@ class DashboardController extends Controller
 
             // Return the summary data
             return response()->json([
-                'status' => true,
-                'message' => 'Dashboard summary retrieved successfully',
+                'success' => true,
                 'data' => $result['data'] ?? [
                     'total_users' => 0,
                     'total_assets' => 0,
@@ -283,8 +282,8 @@ class DashboardController extends Controller
             ]);
 
             return response()->json([
-                'status' => false,
-                'message' => 'Failed to retrieve dashboard summary: ' . $e->getMessage()
+                'success' => false,
+                'errors' => 'Failed to retrieve dashboard summary: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -304,34 +303,37 @@ class DashboardController extends Controller
             $result = $this->apiService->request('GET', '/depreciations/total-value');
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during depreciation data retrieval', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 return response()->json([
-                    'status' => false,
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
                 ], 401);
             }
 
             // Check for API errors
-            if (!isset($result['status']) || $result['status'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve depreciation data';
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve depreciation data';
 
                 \Log::warning('Error during depreciation data retrieval', [
-                    'status' => $result['status'] ?? false,
-                    'message' => $errorMessage
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
                 return response()->json([
-                    'status' => false,
-                    'message' => $errorMessage
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
                 ], 400);
             }
 
-            // Return the depreciation data
+            // Return the depreciation data with consistent success key
+            $result['success'] = $result['success'] ?? $result['status'] ?? true;
+            unset($result['status']);
+
             return response()->json($result);
 
         } catch (\Exception $e) {
@@ -341,8 +343,8 @@ class DashboardController extends Controller
             ]);
 
             return response()->json([
-                'status' => false,
-                'message' => 'Failed to retrieve depreciation data: ' . $e->getMessage()
+                'success' => false,
+                'errors' => 'Failed to retrieve depreciation data: ' . $e->getMessage()
             ], 500);
         }
     }

@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use GuzzleHttp\Client;
@@ -24,11 +21,19 @@ class AuthController extends Controller
             $apiService = app(ApiService::class);
             session(['refresh_token' => $request->cookie('refresh_token')]);
 
-            if ($apiService->refreshToken()) {
-                \Log::info('Auto-login successful via refresh token from login page');
-                return redirect()->route('dashboard');
-            } else {
-                // If refresh token is invalid, forget the cookie
+            try {
+                if ($apiService->refreshToken()) {
+                    \Log::info('Auto-login successful via refresh token from login page');
+                    return redirect()->route('dashboard');
+                } else {
+                    \Log::warning('Auto-login failed - invalid refresh token');
+                    // If refresh token is invalid, forget the cookie
+                    cookie()->queue(cookie()->forget('refresh_token'));
+                }
+            } catch (\Exception $e) {
+                \Log::error('Auto-login error:', [
+                    'error' => $e->getMessage()
+                ]);
                 cookie()->queue(cookie()->forget('refresh_token'));
             }
         }
@@ -47,11 +52,19 @@ class AuthController extends Controller
                 $apiService = app(ApiService::class);
                 session(['refresh_token' => $request->cookie('refresh_token')]);
 
-                if ($apiService->refreshToken()) {
-                    \Log::info('Auto-login successful via refresh token');
-                    return redirect()->route('dashboard');
-                } else {
-                    // If refresh token is invalid, forget the cookie
+                try {
+                    if ($apiService->refreshToken()) {
+                        \Log::info('Auto-login successful via refresh token');
+                        return redirect()->route('dashboard');
+                    } else {
+                        \Log::warning('Auto-login failed - invalid refresh token during login attempt');
+                        // If refresh token is invalid, forget the cookie
+                        cookie()->queue(cookie()->forget('refresh_token'));
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Auto-login error during login attempt:', [
+                        'error' => $e->getMessage()
+                    ]);
                     cookie()->queue(cookie()->forget('refresh_token'));
                 }
             }
@@ -85,9 +98,12 @@ class AuthController extends Controller
             ]);
 
             $result = json_decode($response->getBody()->getContents(), true);
-            \Log::info('Login API response', ['status' => $result['status']]);
+            \Log::info('Login API response', [
+                'success' => $result['success'],
+                'errors' => $result['errors'] ?? null
+            ]);
 
-            if ($result['status']) {
+            if ($result['success']) {
                 // Store tokens in both session and cookies
                 $request->session()->put('access_token', $result['data']['accessToken']);
                 $request->session()->put('refresh_token', $result['data']['refreshToken']);
@@ -121,7 +137,33 @@ class AuthController extends Controller
                 return redirect()->route('dashboard');
             }
 
-            \Log::warning('Login failed - invalid credentials', ['employee_number' => $request->employee_number]);
+            \Log::warning('Login failed - invalid credentials', [
+                'employee_number' => $request->employee_number,
+                'errors' => $result['errors'] ?? null
+            ]);
+
+            // Check if there are specific error messages from the API
+            if (isset($result['errors'])) {
+                $errors = [];
+
+                // Handle different error formats (string or array)
+                if (is_array($result['errors'])) {
+                    foreach ($result['errors'] as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errors[$field] = $messages;
+                        } else {
+                            $errors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    // If errors is a string, assign it to a general field
+                    $errors['error'] = [$result['errors']];
+                }
+
+                throw ValidationException::withMessages($errors);
+            }
+
+            // Default error message if no specific errors are provided
             throw ValidationException::withMessages([
                 'employee_number' => ['The provided credentials are incorrect.'],
             ]);
@@ -168,7 +210,13 @@ class AuthController extends Controller
                 ]);
 
                 $statusCode = $response->getStatusCode();
-                \Log::info('Logout API response status: ' . $statusCode);
+                $responseData = json_decode($response->getBody()->getContents(), true);
+
+                \Log::info('Logout API response:', [
+                    'status' => $statusCode,
+                    'success' => $responseData['success'] ?? false,
+                    'errors' => $responseData['errors'] ?? null
+                ]);
 
                 // If token expired, try refreshing it and retry logout
                 if ($statusCode === 401 || $statusCode === 403) {
@@ -188,12 +236,22 @@ class AuthController extends Controller
                             'http_errors' => false
                         ]);
 
-                        \Log::info('Logout retry API response status: ' . $retryResponse->getStatusCode());
+                        $retryStatusCode = $retryResponse->getStatusCode();
+                        $retryData = json_decode($retryResponse->getBody()->getContents(), true);
+
+                        \Log::info('Logout retry API response:', [
+                            'status' => $retryStatusCode,
+                            'success' => $retryData['success'] ?? false,
+                            'errors' => $retryData['errors'] ?? null
+                        ]);
                     } else {
                         \Log::warning('Token refresh failed during logout');
                     }
                 } else if ($statusCode !== 200) {
-                    \Log::warning('Logout API returned non-200 status code: ' . $statusCode);
+                    \Log::warning('Logout API returned non-200 status code:', [
+                        'status_code' => $statusCode,
+                        'response' => $responseData
+                    ]);
                 }
             } else {
                 \Log::warning('Logout attempted without access token in session');

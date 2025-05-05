@@ -188,7 +188,7 @@ class ApiService
             ]);
 
             if ($response->getStatusCode() !== 200) {
-                Log::warning('Token validation failed with status code: ' . $response->getStatusCode());
+                Log::warning('Token validation failed with success code: ' . $response->getStatusCode());
 
                 // Try to refresh the token if validation fails
                 return $this->refreshToken();
@@ -196,13 +196,13 @@ class ApiService
 
             $result = json_decode($response->getBody()->getContents(), true);
 
-            if (isset($result['status']) && $result['status']) {
+            if (isset($result['success']) && $result['success']) {
                 // Token is valid, update validation timestamp
                 session(['token_validated_at' => now()->timestamp]);
                 return true;
             }
 
-            // If result status is false, try to refresh token
+            // If result success is false, try to refresh token
             return $this->refreshToken();
         } catch (\Exception $e) {
             Log::error('Token validation exception', ['error' => $e->getMessage()]);
@@ -241,12 +241,12 @@ class ApiService
                 'http_errors' => false
             ]);
 
-            $statusCode = $response->getStatusCode();
-            Log::info('Refresh token response status in ApiService: ' . $statusCode);
+            $successCode = $response->getStatusCode();
+            Log::info('Refresh token response success in ApiService: ' . $successCode);
 
-            if ($statusCode !== 200) {
+            if ($successCode !== 200) {
                 // Refresh token is invalid or expired
-                Log::warning('Refresh token failed with status: ' . $statusCode);
+                Log::warning('Refresh token failed with success: ' . $successCode);
                 $this->clearTokens();
                 return false;
             }
@@ -254,7 +254,7 @@ class ApiService
             $result = json_decode($response->getBody()->getContents(), true);
             Log::info('Refresh token API response in ApiService', ['result' => $result]);
 
-            if (isset($result['status']) && $result['status']) {
+            if (isset($result['success']) && $result['success']) {
                 // Handle different API response formats - try both camelCase and snake_case
                 $accessToken = $result['data']['accessToken'] ??
                                $result['data']['access_token'] ??

@@ -41,36 +41,50 @@ class ViewMasterAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['error']) && in_array($result['error'], ['auth_failed', 'session_expired'])) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during master asset retrieval:', [
-                    'error' => $result['error'],
-                    'message' => $result['message'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
                 if (request()->ajax() || request()->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $result['message'] ?? 'Authentication failed'
+                        'errors' => ['authentication' => 'Authentication failed']
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorMessage = $result['message'] ?? 'Failed to retrieve master asset';
+                $errorData = $result['errors'] ?? 'Failed to retrieve master asset';
 
                 \Log::warning('Error during master asset retrieval:', [
                     'success' => $result['success'] ?? false,
-                    'message' => $errorMessage
+                    'errors' => $errorData
                 ]);
 
                 if (request()->ajax() || request()->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $errorMessage
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
                     ], 404);
+                }
+
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -157,10 +171,20 @@ class ViewMasterAssetController extends Controller
             $result = $this->apiService->request('GET', "/asset-masters/{$id}");
 
             // Check for errors
-            if (!isset($result['success']) || $result['success'] !== true) {
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message'] ?? 'Failed to retrieve master asset'
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], 401);
+            }
+
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve master asset';
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
                 ], 400);
             }
 
@@ -278,12 +302,28 @@ class ViewMasterAssetController extends Controller
 
             // Handle API response
             if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to update master asset';
+
                 \Log::warning('Error updating master asset:', [
                     'asset_master_id' => $id,
-                    'api_response' => $result
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
                 ]);
 
-                $errorMessage = $result['message'] ?? 'Failed to update master asset';
+                // Format error message for redirect
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
                 return redirect()->back()->with('error', $errorMessage);
             }
 
@@ -319,7 +359,29 @@ class ViewMasterAssetController extends Controller
             $result = $this->apiService->request('GET', "/asset-masters/{$id}");
 
             if (!isset($result['data'])) {
-                return redirect()->route('asset-master')->with('error', 'Master asset not found');
+                $errorData = $result['errors'] ?? 'Master asset not found';
+
+                \Log::warning('Error retrieving master asset for PDF export:', [
+                    'asset_master_id' => $id,
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->route('asset-master')->with('error', $errorMessage);
             }
 
             $masterAsset = $result['data'];
