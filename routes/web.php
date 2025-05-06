@@ -92,6 +92,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::post('/store', [BuildingController::class, 'store'])->name('buildings.store');
         Route::put('/update/{id}', [BuildingController::class, 'update'])->name('buildings.update');
         Route::delete('/delete/{id}', [BuildingController::class, 'destroy'])->name('buildings.destroy');
+        Route::post('/import', [BuildingController::class, 'import'])->name('buildings.import');
     });
 
     // Room Management
@@ -101,6 +102,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::post('/store', [RoomController::class, 'store'])->name('rooms.store');
         Route::put('/update/{id}', [RoomController::class, 'update'])->name('rooms.update');
         Route::delete('/delete/{id}', [RoomController::class, 'destroy'])->name('rooms.destroy');
+        Route::post('/import', [RoomController::class, 'import'])->name('rooms.import');
     });
 
     // Vendor Management
@@ -354,6 +356,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Add this route
     Route::get('/asset/{id}/export-pdf', [AssetDetailsController::class, 'exportAssetDetailPDF'])->name('asset.export-pdf');
+
+    // Add this route in the authenticated routes group
+    Route::get('/rooms/{id}', [RoomController::class, 'getById'])->name('rooms.getById');
 });
 
 // Edit routes for master assets

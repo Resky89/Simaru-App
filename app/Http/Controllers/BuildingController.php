@@ -467,4 +467,145 @@ class BuildingController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Import buildings from Excel file.
+     */
+    public function import(Request $request)
+    {
+        try {
+            // Validate request has file
+            if (!$request->hasFile('excel_file')) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['excel_file' => 'File Excel tidak ditemukan']
+                    ], 400);
+                }
+
+                return redirect()->back()
+                    ->with('error', 'File Excel tidak ditemukan');
+            }
+
+            // Get the file from the request
+            $file = $request->file('excel_file');
+
+            // Log import attempt
+            \Log::info('Attempting to import buildings from Excel file', [
+                'filename' => $file->getClientOriginalName(),
+                'size' => $file->getSize()
+            ]);
+
+            // Send request to API with file
+            $result = $this->apiService->request('POST', '/buildings/import', [
+                'multipart' => [
+                    [
+                        'name' => 'excel_file',
+                        'contents' => fopen($file->getRealPath(), 'r'),
+                        'filename' => $file->getClientOriginalName()
+                    ]
+                ]
+            ]);
+
+            // Log the API response
+            \Log::info('API response for building import:', [
+                'api_response' => $result
+            ]);
+
+            // Check if we got an auth error response
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during building import:', [
+                    'error' => $result['errors']
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', 'Authentication failed');
+            }
+
+            // Check for other API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal mengimpor data gedung';
+
+                \Log::warning('Error during building import:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData,
+                        'data' => isset($result['data']) ? $result['data'] : [
+                            'errors' => is_array($errorData) ? array_values($errorData) : [$errorData]
+                        ]
+                    ], 400);
+                }
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->back()
+                    ->with('error', $errorMessage);
+            }
+
+            // Successfully imported
+            $successMessage = $result['message'] ?? 'Data gedung berhasil diimpor';
+            \Log::info('Buildings imported successfully', [
+                'total' => $result['data']['total'] ?? 0,
+                'success' => $result['data']['success'] ?? 0,
+                'failed' => $result['data']['failed'] ?? 0
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('buildings')
+                ->with('success', 'Data gedung berhasil diimpor: ' .
+                    ($result['data']['success'] ?? 0) . ' sukses, ' .
+                    ($result['data']['failed'] ?? 0) . ' gagal');
+        } catch (\Exception $e) {
+            \Log::error('Exception during building import:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Gagal mengimpor data gedung: ' . $e->getMessage()],
+                    'data' => [
+                        'errors' => [
+                            'Gagal mengimpor data gedung: ' . $e->getMessage()
+                        ]
+                    ]
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->with('error', 'Gagal mengimpor data gedung: ' . $e->getMessage());
+        }
+    }
 }

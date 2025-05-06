@@ -32,14 +32,50 @@ class RoomController extends Controller
             // Fetch rooms
             $roomPage = $request->input('room_page', 1);
             $roomLimit = $request->input('room_limit', 10);
+            $search = $request->input('search', '');
+            $sortOrder = $request->input('sort', '');
+
+            // Build query parameters
+            $queryParams = [
+                'page' => $roomPage,
+                'limit' => $roomLimit
+            ];
+
+            // Add search parameter if provided
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            // Add sorting parameters
+            if (!empty($sortOrder)) {
+                switch ($sortOrder) {
+                    case 'name_asc':
+                        $queryParams['sort_by'] = 'room_name';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'name_desc':
+                        $queryParams['sort_by'] = 'room_name';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    case 'id_asc':
+                        $queryParams['sort_by'] = 'room_id';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'id_desc':
+                        $queryParams['sort_by'] = 'room_id';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    default:
+                        $queryParams['sort_by'] = 'room_id';
+                        $queryParams['sort_order'] = 'asc';
+                }
+            } else {
+                $queryParams['sort_by'] = 'room_id';
+                $queryParams['sort_order'] = 'asc';
+            }
 
             $roomResult = $this->apiService->request('GET', '/rooms', [
-                'query' => [
-                    'page' => $roomPage,
-                    'limit' => $roomLimit,
-                    'sort_by' => 'room_id',
-                    'sort_order' => 'asc'
-                ]
+                'query' => $queryParams
             ]);
 
             // Check for auth errors in any of the results
@@ -56,7 +92,7 @@ class RoomController extends Controller
                     return response()->json([
                         'success' => false,
                         'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                    ], 401);
                 }
 
                 return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Authentication failed');
@@ -75,7 +111,7 @@ class RoomController extends Controller
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                    ], 400);
                 }
 
                 // Format error message for view
@@ -151,7 +187,7 @@ class RoomController extends Controller
                 return response()->json([
                     'success' => false,
                     'errors' => ['exception' => 'Gagal mengambil data ruangan: ' . $e->getMessage()]
-                ], status: 500);
+                ], 500);
             }
 
             return view('Room', [
@@ -207,7 +243,7 @@ class RoomController extends Controller
                     return response()->json([
                         'success' => false,
                         'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                    ], 401);
                 }
 
                 return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
@@ -226,7 +262,7 @@ class RoomController extends Controller
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                    ], 400);
                 }
 
                 // Format error message for redirect
@@ -272,7 +308,7 @@ class RoomController extends Controller
                 return response()->json([
                     'success' => false,
                     'errors' => ['exception' => 'Gagal membuat ruangan: ' . $e->getMessage()]
-                ], status: 500);
+                ], 500);
             }
 
             return redirect()->back()
@@ -328,7 +364,7 @@ class RoomController extends Controller
                     return response()->json([
                         'success' => false,
                         'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                    ], 401);
                 }
 
                 return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
@@ -347,7 +383,7 @@ class RoomController extends Controller
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                    ], 400);
                 }
 
                 // Format error message for redirect
@@ -392,7 +428,7 @@ class RoomController extends Controller
                 return response()->json([
                     'success' => false,
                     'errors' => ['exception' => 'Gagal mengubah ruangan: ' . $e->getMessage()]
-                ], status: 500);
+                ], 500);
             }
 
             return redirect()->back()
@@ -426,7 +462,7 @@ class RoomController extends Controller
                     return response()->json([
                         'success' => false,
                         'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                    ], 401);
                 }
 
                 return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
@@ -445,7 +481,7 @@ class RoomController extends Controller
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                    ], 400);
                 }
 
                 // Format error message for redirect
@@ -487,7 +523,7 @@ class RoomController extends Controller
                 return response()->json([
                     'success' => false,
                     'errors' => ['exception' => 'Gagal menghapus ruangan: ' . $e->getMessage()]
-                ], status: 500);
+                ], 500);
             }
 
             return redirect()->back()
@@ -562,6 +598,209 @@ class RoomController extends Controller
                 'success' => false,
                 'message' => 'Failed to fetch rooms: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Get a specific room by ID.
+     */
+    public function getById(Request $request, $id)
+    {
+        try {
+            // Fetch room by ID
+            $result = $this->apiService->request('GET', "/rooms/{$id}");
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authentication failed'
+                ], 401);
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to fetch room data';
+                return response()->json([
+                    'success' => false,
+                    'message' => is_array($errorData) ? implode(', ', $errorData) : $errorData
+                ], 400);
+            }
+
+            // Return success response
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? []
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during room data retrieval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch room data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Import room data from Excel file.
+     */
+    public function import(Request $request)
+    {
+        try {
+            // Validate request has file
+            if (!$request->hasFile('excel_file')) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['excel_file' => 'File Excel tidak ditemukan'],
+                        'data' => [
+                            'errors' => ['File Excel tidak ditemukan']
+                        ]
+                    ], 400);
+                }
+
+                return redirect()->back()
+                    ->with('error', 'File Excel tidak ditemukan');
+            }
+
+            // Get the file from the request
+            $file = $request->file('excel_file');
+
+            // Log import attempt
+            \Log::info('Attempting to import rooms from Excel file', [
+                'filename' => $file->getClientOriginalName(),
+                'size' => $file->getSize()
+            ]);
+
+            // Send request to API with file
+            $result = $this->apiService->request('POST', '/rooms/import', [
+                'multipart' => [
+                    [
+                        'name' => 'excel_file',
+                        'contents' => fopen($file->getRealPath(), 'r'),
+                        'filename' => $file->getClientOriginalName()
+                    ]
+                ]
+            ]);
+
+            // Log the API response
+            \Log::info('API response for room import:', [
+                'api_response' => $result,
+                'status_code' => $result['status_code'] ?? 'unknown'
+            ]);
+
+            // Get status code from response
+            $statusCode = $result['status_code'] ?? 500;
+
+            // Check response based on status code
+            if ($statusCode >= 200 && $statusCode < 300) {
+                // Success response (2xx status codes)
+                $successMessage = $result['message'] ?? 'Data ruangan berhasil diimpor';
+                $totalImported = $result['data']['total'] ?? 0;
+                $successCount = $result['data']['success'] ?? 0;
+                $failedCount = $result['data']['failed'] ?? 0;
+
+                \Log::info('Rooms imported successfully', [
+                    'total' => $totalImported,
+                    'success' => $successCount,
+                    'failed' => $failedCount
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $successMessage,
+                        'data' => $result['data'] ?? null
+                    ], 200);
+                }
+
+                return redirect()->route('rooms')
+                    ->with('success', 'Data ruangan berhasil diimpor: ' .
+                        $successCount . ' sukses, ' .
+                        $failedCount . ' gagal');
+            } else if ($statusCode == 401 || $statusCode == 403) {
+                // Authentication/Authorization errors
+                \Log::warning('Authentication error during room import:', [
+                    'status_code' => $statusCode
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed'],
+                        'data' => [
+                            'errors' => ['Authentication failed']
+                        ]
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', 'Authentication failed');
+            } else {
+                // Other error responses (4xx or 5xx)
+                $errorData = $result['errors'] ?? ($result['message'] ?? 'Gagal mengimpor data ruangan');
+
+                \Log::warning('Error during room import:', [
+                    'status_code' => $statusCode,
+                    'errors' => $errorData
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData,
+                        'data' => isset($result['data']) ? $result['data'] : [
+                            'errors' => is_array($errorData) ? array_values($errorData) : [$errorData]
+                ]
+                    ], $statusCode >= 400 && $statusCode < 500 ? $statusCode : 400);
+                }
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+            }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->back()
+                    ->with('error', $errorMessage);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Exception during room import:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Gagal mengimpor data ruangan: ' . $e->getMessage()],
+                    'data' => [
+                        'total' => 0,
+                        'success' => 0,
+                        'failed' => 0,
+                        'errors' => [
+                            'Gagal mengimpor data ruangan: ' . $e->getMessage()
+                        ],
+                        'created' => []
+                    ]
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->with('error', 'Gagal mengimpor data ruangan: ' . $e->getMessage());
         }
     }
 }

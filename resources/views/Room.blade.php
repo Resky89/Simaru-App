@@ -13,16 +13,50 @@
                         <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">Ruangan</h1>
 
                         <!-- Button Add Room -->
-                        <button id="addRoomBtn"
-                            class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
-                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6"
-                                    stroke-linecap="round" />
-                                <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
-                                    stroke-linecap="round" />
-                            </svg>
-                            <span class="text-base">Tambah Ruangan</span>
-                        </button>
+                        <div class="flex flex-wrap gap-3">
+                            <button id="importRoomBtn"
+                                class="flex items-center justify-center gap-2 px-3 py-3 bg-green-600 rounded-lg text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v8" />
+                                </svg>
+                                <span class="text-base">Impor Excel</span>
+                            </button>
+                            <button id="addRoomBtn"
+                                class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                                <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6"
+                                        stroke-linecap="round" />
+                                    <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
+                                        stroke-linecap="round" />
+                                </svg>
+                                <span class="text-base">Tambah Ruangan</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="relative flex-grow">
+                            <input type="text" id="searchInput" placeholder="Cari ruangan atau gedung..."
+                                class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                value="{{ request()->input('search', '') }}">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-4">
+                            <select id="sortOrder"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" {{ request()->input('sort') == '' ? 'selected' : '' }}>Urutan Default</option>
+                                <option value="id_asc" {{ request()->input('sort') == 'id_asc' ? 'selected' : '' }}>Terlama</option>
+                                <option value="id_desc" {{ request()->input('sort') == 'id_desc' ? 'selected' : '' }}>Terbaru</option>
+                                <option value="name_asc" {{ request()->input('sort') == 'name_asc' ? 'selected' : '' }}>Nama (A-Z)</option>
+                                <option value="name_desc" {{ request()->input('sort') == 'name_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Room Table -->
@@ -49,22 +83,17 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['floor_number'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['description'] ?? '-' }}</td>
                                         <td class="p-3 border-t border-[#EEF1F4]">
-                                            <div class="flex justify-center gap-2">
-                                                <button class="text-[#3D3D3D] hover:text-[#213268] edit-room-btn"
-                                                    data-id="{{ $room['room_id'] }}" data-name="{{ $room['room_name'] }}"
-                                                    data-building-id="{{ $room['building_id'] }}"
-                                                    data-floor-number="{{ $room['floor_number'] }}"
-                                                    data-description="{{ $room['description'] ?? '' }}">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            <div class="flex items-center space-x-2 justify-center">
+                                                <button class="edit-room-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
+                                                    data-id="{{ $room['room_id'] }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
-                                                <button class="text-[#3D3D3D] hover:text-red-500 delete-room-btn"
+                                                <button class="delete-room-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                                                     data-id="{{ $room['room_id'] }}">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
                                             </div>
@@ -83,7 +112,7 @@
                     <!-- Pagination for Rooms -->
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ $roomPagination['prev_page_url'] ?? '#' }}"
+                            <a href="{{ ($roomPagination['current_page'] ?? 1) <= 1 ? '#' : request()->fullUrlWithQuery(['room_page' => ($roomPagination['current_page'] ?? 1) - 1]) }}"
                                 class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($roomPagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -136,7 +165,7 @@
                                     </a>
                                 @endif
                             </div>
-                            <a href="{{ $roomPagination['next_page_url'] ?? '#' }}"
+                            <a href="{{ ($roomPagination['current_page'] ?? 1) >= ($roomPagination['last_page'] ?? 1) ? '#' : request()->fullUrlWithQuery(['room_page' => ($roomPagination['current_page'] ?? 1) + 1]) }}"
                                 class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($roomPagination['current_page'] ?? 1) >= ($roomPagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -195,37 +224,53 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="addRoomForm" action="{{ route('rooms.store') }}" method="POST">
+                            <form id="addRoomForm" action="{{ route('rooms.store') }}" method="POST" novalidate>
                                 @csrf
                                 <div class="space-y-4 max-w-[400px] mx-auto">
                                     <!-- Room Name Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Nama Ruangan</label>
-                                        <input type="text" name="room_name"
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Nama Ruangan <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="room_name" id="add_room_name"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik nama ruangan" required>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nama Ruangan harus diisi</div>
                                     </div>
 
                                     <!-- Building Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Gedung</label>
-                                        <select name="building_id"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                            required>
-                                            <option value="" disabled selected>Pilih gedung</option>
-                                            @foreach($buildings as $building)
-                                                <option value="{{ $building['building_id'] }}">{{ $building['building_name'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Gedung <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" id="add_building_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                                placeholder="Cari gedung" autocomplete="off" required>
+                                            <input type="hidden" name="building_id" id="add_building_id">
+
+                                            <!-- Building Dropdown -->
+                                            <div id="add_building_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base overflow-auto focus:outline-none hidden">
+                                                <!-- Loading indicator -->
+                                                <div id="add_building_loading" class="flex justify-center py-2">
+                                                    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]"></div>
+                                                    <span class="ml-2 text-gray-600">Memuat gedung...</span>
+                                                </div>
+                                                <ul id="add_building_list" class="max-h-56 overflow-y-auto"></ul>
+                                            </div>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Gedung harus dipilih</div>
+                                        </div>
                                     </div>
 
                                     <!-- Floor Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Lantai</label>
-                                        <input type="text" name="floor_number"
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Lantai <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" id="add_floor_number" name="floor_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik lantai ruangan" required>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Lantai harus diisi</div>
                                     </div>
 
                                     <!-- Description Input -->
@@ -270,59 +315,77 @@
                         </div>
 
                         <!-- Form -->
-                        <div class="p-6">
-                            <form id="editRoomForm" action="" method="POST">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" id="editRoomId" name="room_id">
-                                <div class="space-y-4 max-w-[400px] mx-auto">
-                                    <!-- Room Name Input -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Nama Ruangan</label>
-                                        <input type="text" id="editRoomName" name="room_name"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Ketik nama ruangan" required>
-                                    </div>
+                        <div class="p-6 relative">
+                            <div id="editRoomFormContent" class="relative">
+                                <form id="editRoomForm" action="" method="POST" novalidate>
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" id="editRoomId" name="room_id">
+                                    <div class="space-y-4 max-w-[400px] mx-auto">
+                                        <!-- Room Name Input -->
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666]">
+                                                Nama Ruangan <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" id="editRoomName" name="room_name"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                                placeholder="Ketik nama ruangan" required>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Nama Ruangan harus diisi</div>
+                                        </div>
 
-                                    <!-- Building Input -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Gedung</label>
-                                        <select id="editRoomBuilding" name="building_id"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                            required>
-                                            <option value="" disabled>Pilih gedung</option>
-                                            @foreach($buildings as $building)
-                                                <option value="{{ $building['building_id'] }}">{{ $building['building_name'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                        <!-- Building Input -->
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666]">
+                                                Gedung <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <input type="text" id="edit_building_search"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                                    placeholder="Cari gedung" autocomplete="off" required>
+                                                <input type="hidden" name="building_id" id="editRoomBuilding">
 
-                                    <!-- Floor Input -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Lantai</label>
-                                        <input type="text" id="editRoomFloor" name="floor_number"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Ketik lantai ruangan" required>
-                                    </div>
+                                                <!-- Building Dropdown -->
+                                                <div id="edit_building_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base overflow-auto focus:outline-none hidden">
+                                                    <!-- Loading indicator -->
+                                                    <div id="edit_building_loading" class="flex justify-center py-2">
+                                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]"></div>
+                                                        <span class="ml-2 text-gray-600">Memuat gedung...</span>
+                                                    </div>
+                                                    <ul id="edit_building_list" class="max-h-56 overflow-y-auto"></ul>
+                                                </div>
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Gedung harus dipilih</div>
+                                            </div>
+                                        </div>
 
-                                    <!-- Description Input -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
-                                        <textarea id="editRoomDescription" name="description"
-                                            class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 resize-none"
-                                            placeholder="Ketik deskripsi ruangan"></textarea>
-                                    </div>
+                                        <!-- Floor Input -->
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666]">
+                                                Lantai <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" id="editRoomFloor" name="floor_number"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                                placeholder="Ketik lantai ruangan" required>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Lantai harus diisi</div>
+                                        </div>
 
-                                    <!-- Button Group -->
-                                    <div class="pt-4">
-                                        <button type="submit"
-                                            class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                            Simpan
-                                        </button>
+                                        <!-- Description Input -->
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
+                                            <textarea id="editRoomDescription" name="description"
+                                                class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 resize-none"
+                                                placeholder="Ketik deskripsi ruangan"></textarea>
+                                        </div>
+
+                                        <!-- Button Group -->
+                                        <div class="pt-4">
+                                            <button type="submit"
+                                                class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                                Simpan
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -446,6 +509,178 @@
                 }, 5000); // Hide after 5 seconds
             </script>
         @endif
+
+        <!-- Import Room Modal -->
+        <div id="importRoomModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="importRoomModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">IMPOR RUANGAN</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Step 1: File Selection -->
+                        <div id="import-room-step-1" class="block">
+                            <div class="p-6">
+                                <div class="space-y-6">
+                                    <!-- Import Instructions -->
+                                    <div class="text-gray-600 text-sm bg-blue-50 p-4 rounded-lg">
+                                        <p class="font-medium text-blue-600 mb-2">Petunjuk Impor:</p>
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li>Gunakan format template Excel untuk mengimpor</li>
+                                            <li>Kolom yang diperlukan: Nama Ruangan, Gedung, Lantai</li>
+                                            <li>Maksimal 100 data per impor</li>
+                                            <li>Format file yang didukung: .xlsx, .xls, .csv</li>
+                                        </ul>
+                                        <div class="mt-3 flex justify-end">
+                                            <a href="{{ asset('docs/ImportRuanganTemplate.xlsx') }}" download class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-[#213268] rounded-md hover:bg-[#152451] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                                </svg>
+                                                Unduh Template
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- File Upload -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#213268]">File Excel</label>
+                                        <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                            <!-- File preview -->
+                                            <div id="room-excel-file-name" class="mt-2 mb-4 w-full hidden">
+                                                <div class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                                    <div class="flex items-center">
+                                                        <svg class="w-6 h-6 text-green-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                        </svg>
+                                                        <span id="room-file-name-text" class="text-sm text-gray-700 truncate"></span>
+                                                        <button type="button" id="remove-room-excel" class="ml-auto text-red-500 hover:text-red-700">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="text-center">
+                                                <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
+                                                <p class="mt-1 text-sm text-gray-600">Seret file Excel Anda atau <span class="text-[#213268] font-semibold">telusuri file</span></p>
+                                                <p class="mt-1 text-xs text-gray-500">Format yang diterima: xlsx, xls, csv</p>
+                                                <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih file</p>
+                                            </div>
+                                            <input type="file" id="room_excel_file" name="excel_file" accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                        </div>
+                                    </div>
+
+                                    <!-- Error Message -->
+                                    <div id="room-excel-error" class="hidden text-red-500 text-sm"></div>
+
+                                    <!-- Loading Indicator -->
+                                    <div id="room-excel-loading" class="hidden text-center py-2">
+                                        <div class="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                        <p class="mt-2 text-sm text-gray-600">Memproses data Excel...</p>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="flex gap-3">
+                                        <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                            Batal
+                                        </button>
+                                        <button type="button" id="room-preview-btn" disabled class="w-1/2 h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                            Pratinjau Data
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Import Progress -->
+                        <div id="import-room-step-2" class="hidden">
+                            <div class="p-6">
+                                <div class="space-y-6">
+                                    <!-- Preview Header -->
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-lg font-semibold text-[#213268]">Pratinjau Data</h3>
+                                        <span class="text-sm text-gray-500" id="room-preview-count">0 item ditemukan</span>
+                                    </div>
+
+                                    <!-- Preview Table -->
+                                    <div class="overflow-x-auto max-h-[400px] border border-gray-200 rounded-lg">
+                                        <table class="w-full">
+                                            <thead class="sticky top-0 bg-[#213268] text-white">
+                                                <tr>
+                                                    <th class="p-3 text-left text-xs font-semibold">No</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Nama Ruangan</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Gedung</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Lantai</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Deskripsi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="room-preview-table-body">
+                                                <!-- Preview data will be inserted here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Warning/Error Messages -->
+                                    <div id="room-preview-warnings" class="hidden text-yellow-600 text-sm bg-yellow-50 p-4 rounded-lg">
+                                        <p class="font-medium mb-2">Peringatan:</p>
+                                        <ul class="list-disc pl-5" id="room-warning-list">
+                                            <!-- Warning messages will be inserted here -->
+                                        </ul>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="flex gap-3">
+                                        <button type="button" id="room-back-to-upload-btn" class="w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                            Kembali
+                                        </button>
+                                        <form action="{{ route('rooms.import') }}" method="POST" id="room-import-form" class="w-2/3" enctype="multipart/form-data">
+                                            @csrf
+                                            <input type="hidden" name="excel_data" id="room_excel_data">
+                                            <button type="submit" id="room-import-btn" class="w-full h-[45px] bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200">
+                                                Impor Data
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Import Result -->
+                        <div id="import-room-step-3" class="hidden">
+                            <div class="p-6">
+                                <div class="space-y-6">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="mb-4 w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <p class="text-lg font-semibold text-[#213268]">Impor Berhasil!</p>
+                                        <p class="mt-2 text-sm text-gray-600">Ruangan Anda telah berhasil diimpor.</p>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="button" class="close-modal px-6 py-2 bg-[#213268] text-white rounded-lg hover:bg-[#152451] transition-colors duration-200">
+                                            Tutup
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @push('scripts')
@@ -455,8 +690,55 @@
                 window.changeRoomPerPage = function (limit) {
                     const url = new URL(window.location.href);
                     url.searchParams.set('room_limit', limit);
+
+                    // Reset to page 1 when changing items per page
+                    url.searchParams.set('room_page', 1);
+
+                    // Keep search and filter parameters
                     window.location.href = url.toString();
                 }
+
+                // Search and filter functionality
+                const searchInput = document.getElementById('searchInput');
+                const sortOrder = document.getElementById('sortOrder');
+
+                // Function to handle search and filtering
+                function applyFilters() {
+                    const searchValue = searchInput?.value.trim() || '';
+                    const sortValue = sortOrder?.value || '';
+
+                    // Create URL with filter parameters
+                    const url = new URL(window.location.href);
+
+                    // Clear existing parameters we're going to set
+                    ['search', 'sort', 'room_page'].forEach(param => {
+                        url.searchParams.delete(param);
+                    });
+
+                    // Add new parameters if they have values
+                    if (searchValue) url.searchParams.set('search', searchValue);
+                    if (sortValue) url.searchParams.set('sort', sortValue);
+
+                    // Reset to page 1 when filters change
+                    url.searchParams.set('room_page', 1);
+
+                    // Navigate to the new URL
+                    window.location.href = url.toString();
+                }
+
+                // Add event listeners with debounce for search
+                let searchTimeout;
+                searchInput?.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(applyFilters, 500);
+                });
+
+                // Add event listeners for select filters
+                sortOrder?.addEventListener('change', applyFilters);
+
+                // Set initial values from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                if (searchInput) searchInput.value = urlParams.get('search') || '';
 
                 // Toast container
                 const toastContainer = document.createElement('div');
@@ -467,6 +749,7 @@
                 const addRoomModal = document.getElementById('addRoomModal');
                 const editRoomModal = document.getElementById('editRoomModal');
                 const deleteRoomModal = document.getElementById('deleteRoomModal');
+                const importRoomModal = document.getElementById('importRoomModal');
                 const closeButtons = document.querySelectorAll('.close-modal');
 
                 // Function to open modal
@@ -487,6 +770,162 @@
                     }, 300);
                 }
 
+                // Function to load building data for dropdowns
+                async function loadBuildings(searchTerm, dropdownId, listId, loadingId) {
+                    const buildingList = document.getElementById(listId);
+                    const loadingIndicator = document.getElementById(loadingId);
+
+                    if (!buildingList) return;
+
+                    // Show loading indicator
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    buildingList.innerHTML = '';
+
+                    try {
+                        // Use the API endpoint to fetch buildings
+                        const response = await fetch(`{{ route('buildings.data') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch buildings');
+                        }
+
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            throw new Error('Server returned non-JSON response');
+                        }
+
+                        const result = await response.json();
+                        const buildings = result.data || [];
+
+                        // Populate dropdown
+                        buildingList.innerHTML = '';
+
+                        if (buildings.length === 0) {
+                            const noResults = document.createElement('li');
+                            noResults.className = 'px-4 py-2 text-gray-500 italic';
+                            noResults.textContent = 'Tidak ada gedung ditemukan';
+                            buildingList.appendChild(noResults);
+                        } else {
+                            buildings.forEach(item => {
+                                const li = document.createElement('li');
+                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                                const buildingName = item.building_name || 'Unknown';
+
+                                li.textContent = buildingName;
+                                li.setAttribute('data-id', item.building_id);
+                                li.setAttribute('data-name', buildingName);
+
+                                li.addEventListener('click', function() {
+                                    const modalId = dropdownId.includes('add') ? 'add' : 'edit';
+                                    const searchInput = document.getElementById(`${modalId}_building_search`);
+                                    const hiddenInput = document.getElementById(modalId === 'add' ? 'add_building_id' : 'editRoomBuilding');
+                                    const dropdown = document.getElementById(dropdownId);
+
+                                    if (searchInput && hiddenInput) {
+                                        searchInput.value = this.getAttribute('data-name');
+                                        hiddenInput.value = this.getAttribute('data-id');
+
+                                        // Clear validation error if any
+                                        searchInput.classList.remove('border-red-500');
+                                        const errorElement = searchInput.closest('.space-y-2').querySelector('.error-message');
+                                        if (errorElement) errorElement.classList.add('hidden');
+                                    }
+
+                                    // Hide dropdown
+                                    if (dropdown) dropdown.classList.add('hidden');
+                                });
+
+                                buildingList.appendChild(li);
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error loading buildings:', error);
+                        const errorItem = document.createElement('li');
+                        errorItem.className = 'px-4 py-2 text-red-500';
+                        errorItem.textContent = 'Error loading buildings: ' + error.message;
+                        buildingList.innerHTML = '';
+                        buildingList.appendChild(errorItem);
+                    } finally {
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                    }
+                }
+
+                // Initialize building dropdowns
+                function initBuildingDropdowns() {
+                    // For Add Room Modal
+                    const addBuildingSearch = document.getElementById('add_building_search');
+                    const addBuildingDropdown = document.getElementById('add_building_dropdown');
+                    const addBuildingList = document.getElementById('add_building_list');
+
+                    // For Edit Room Modal
+                    const editBuildingSearch = document.getElementById('edit_building_search');
+                    const editBuildingDropdown = document.getElementById('edit_building_dropdown');
+                    const editBuildingList = document.getElementById('edit_building_list');
+
+                    // Set up Add Room Building Dropdown
+                    if (addBuildingSearch && addBuildingDropdown) {
+                        // Toggle dropdown visibility
+                        addBuildingSearch.addEventListener('focus', function() {
+                            addBuildingDropdown.classList.remove('hidden');
+                            if (addBuildingList.children.length === 0) {
+                                loadBuildings('', 'add_building_dropdown', 'add_building_list', 'add_building_loading');
+                            }
+                        });
+
+                        // Search input handler with debounce
+                        let addBuildingTimeout;
+                        addBuildingSearch.addEventListener('input', function() {
+                            clearTimeout(addBuildingTimeout);
+                            addBuildingTimeout = setTimeout(() => {
+                                loadBuildings(this.value, 'add_building_dropdown', 'add_building_list', 'add_building_loading');
+                            }, 300);
+                        });
+                    }
+
+                    // Set up Edit Room Building Dropdown
+                    if (editBuildingSearch && editBuildingDropdown) {
+                        // Toggle dropdown visibility
+                        editBuildingSearch.addEventListener('focus', function() {
+                            editBuildingDropdown.classList.remove('hidden');
+                            if (editBuildingList.children.length === 0) {
+                                loadBuildings('', 'edit_building_dropdown', 'edit_building_list', 'edit_building_loading');
+                            }
+                        });
+
+                        // Search input handler with debounce
+                        let editBuildingTimeout;
+                        editBuildingSearch.addEventListener('input', function() {
+                            clearTimeout(editBuildingTimeout);
+                            editBuildingTimeout = setTimeout(() => {
+                                loadBuildings(this.value, 'edit_building_dropdown', 'edit_building_list', 'edit_building_loading');
+                            }, 300);
+                        });
+                    }
+
+                    // Hide dropdowns when clicking outside
+                    document.addEventListener('click', function(e) {
+                        // For Add Room Modal
+                        if (addBuildingSearch && addBuildingDropdown &&
+                            !addBuildingSearch.contains(e.target) &&
+                            !addBuildingDropdown.contains(e.target)) {
+                            addBuildingDropdown.classList.add('hidden');
+                        }
+
+                        // For Edit Room Modal
+                        if (editBuildingSearch && editBuildingDropdown &&
+                            !editBuildingSearch.contains(e.target) &&
+                            !editBuildingDropdown.contains(e.target)) {
+                            editBuildingDropdown.classList.add('hidden');
+                        }
+                    });
+                }
+
                 // Add Room Modal
                 document.getElementById('addRoomBtn').addEventListener('click', () => {
                     openModal(addRoomModal, addRoomModal.querySelector('[id$="ModalContent"]'));
@@ -498,12 +937,132 @@
                         const roomId = button.getAttribute('data-id');
                         document.getElementById('editRoomForm').action = `{{ url('rooms/update') }}/${roomId}`;
                         document.getElementById('editRoomId').value = roomId;
-                        document.getElementById('editRoomName').value = button.getAttribute('data-name');
-                        document.getElementById('editRoomBuilding').value = button.getAttribute('data-building-id');
-                        document.getElementById('editRoomFloor').value = button.getAttribute('data-floor-number');
-                        document.getElementById('editRoomDescription').value = button.getAttribute('data-description') || '';
 
+                        // Show loading state
+                        document.getElementById('editRoomName').value = '';
+                        document.getElementById('edit_building_search').value = '';
+                        document.getElementById('editRoomBuilding').value = '';
+                        document.getElementById('editRoomFloor').value = '';
+                        document.getElementById('editRoomDescription').value = '';
+
+                        // Add loading overlay
+                        const formContent = document.getElementById('editRoomFormContent');
+                        if (formContent) {
+                            formContent.classList.add('opacity-50');
+                            const loader = document.createElement('div');
+                            loader.id = 'editFormLoader';
+                            loader.className = 'absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10';
+                            loader.innerHTML = `
+                                <div class="flex flex-col items-center">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#213268] mb-4"></div>
+                                    <p class="text-gray-600">Memuat data ruangan...</p>
+                                </div>
+                            `;
+                            formContent.parentNode.appendChild(loader);
+                        }
+
+                        // Open modal first to show loading state
                         openModal(editRoomModal, editRoomModal.querySelector('[id$="ModalContent"]'));
+
+                        // Log the request URL for debugging
+                        const requestUrl = `{{ url('/rooms') }}/${roomId}`;
+                        console.log('Fetching room data from:', requestUrl);
+
+                        // Fetch room data from API using the room ID
+                        fetch(requestUrl, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            if (!response.ok) {
+                                throw new Error(`Failed to fetch room data: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Room data received:', data);
+
+                            // Remove loader
+                            const loader = document.getElementById('editFormLoader');
+                            if (loader) loader.remove();
+
+                            if (formContent) formContent.classList.remove('opacity-50');
+
+                            if (!data.success) {
+                                throw new Error(data.message || 'Failed to fetch room data');
+                            }
+
+                            if (!data.data || typeof data.data !== 'object') {
+                                throw new Error('Invalid room data received from server');
+                            }
+
+                            const room = data.data;
+
+                            try {
+                                // Check for required fields
+                                if (!room.room_name) console.warn('Room name is missing in fetched data');
+                                if (!room.building_id) console.warn('Building ID is missing in fetched data');
+                                if (!room.floor_number) console.warn('Floor number is missing in fetched data');
+
+                                // Fill form with fetched data
+                                document.getElementById('editRoomName').value = room.room_name || '';
+                                document.getElementById('editRoomBuilding').value = room.building_id || '';
+                                document.getElementById('editRoomFloor').value = room.floor_number || '';
+                                document.getElementById('editRoomDescription').value = room.description || '';
+
+                                console.log('Form populated successfully with room data');
+
+                                // Look up building name from building_id
+                                fetch(`{{ route('buildings.data') }}`, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Failed to fetch building data');
+                                    }
+                                    return response.json();
+                                })
+                                .then(buildingData => {
+                                    if (!buildingData.success) {
+                                        console.warn('Building data fetch was not successful:', buildingData.message || 'Unknown error');
+                                        return;
+                                    }
+
+                                    if (buildingData.success && buildingData.data) {
+                                        const building = buildingData.data.find(b => b.building_id == room.building_id);
+                                        if (building) {
+                                            document.getElementById('edit_building_search').value = building.building_name || '';
+                                        }
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching building details:', error);
+                                    // Continue with the form even if building fetch fails
+                                });
+                            } catch (error) {
+                                console.error('Error populating form with room data:', error);
+                                // Show error but don't close modal, leave the form for manual editing
+                                showToast('Warning: Some room data could not be loaded properly.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching room:', error);
+                            showToast('Error fetching room data: ' + error.message, 'error');
+
+                            // Remove loader
+                            const loader = document.getElementById('editFormLoader');
+                            if (loader) loader.remove();
+                            if (formContent) formContent.classList.remove('opacity-50');
+
+                            // Close the modal on error
+                            closeModal(editRoomModal, editRoomModal.querySelector('[id$="ModalContent"]'));
+                        });
                     });
                 });
 
@@ -518,6 +1077,14 @@
                     });
                 });
 
+                // Import Room Modal
+                const importRoomBtn = document.getElementById('importRoomBtn');
+                if (importRoomBtn) {
+                    importRoomBtn.addEventListener('click', () => {
+                        openModal(importRoomModal, importRoomModal.querySelector('[id$="ModalContent"]'));
+                    });
+                }
+
                 // Modal close handlers
                 closeButtons.forEach(button => {
                     button.addEventListener('click', () => {
@@ -528,7 +1095,7 @@
                 });
 
                 // Close on outside click
-                [addRoomModal, editRoomModal, deleteRoomModal].forEach(modal => {
+                [addRoomModal, editRoomModal, deleteRoomModal, importRoomModal].forEach(modal => {
                     modal.addEventListener('click', function (e) {
                         if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
                             e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
@@ -541,7 +1108,7 @@
                 // Close on Escape key
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {
-                        [addRoomModal, editRoomModal, deleteRoomModal].forEach(modal => {
+                        [addRoomModal, editRoomModal, deleteRoomModal, importRoomModal].forEach(modal => {
                             if (!modal.classList.contains('hidden')) {
                                 const content = modal.querySelector('[id$="ModalContent"]');
                                 closeModal(modal, content);
@@ -549,7 +1116,538 @@
                         });
                     }
                 });
+
+                // Initialize building dropdowns
+                initBuildingDropdowns();
+
+                // Form validation for Add Room
+                document.getElementById('addRoomForm').addEventListener('submit', function(event) {
+                    event.preventDefault(); // Always prevent default first, then check validation
+
+                    const roomNameInput = document.getElementById('add_room_name');
+                    const buildingInput = document.getElementById('add_building_id');
+                    const buildingSearchInput = document.getElementById('add_building_search');
+                    const floorInput = document.getElementById('add_floor_number');
+
+                    const isRoomNameValid = validateField(roomNameInput);
+                    const isBuildingValid = validateBuildingField(buildingInput, buildingSearchInput);
+                    const isFloorValid = validateField(floorInput);
+
+                    if (!isRoomNameValid || !isBuildingValid || !isFloorValid) {
+                        // Show error toast for required fields
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                        return false; // Stop here and don't submit the form
+                    }
+
+                    // If validation passes, submit the form
+                    this.submit();
+                });
+
+                // Form validation for Edit Room
+                document.getElementById('editRoomForm').addEventListener('submit', function(event) {
+                    event.preventDefault(); // Always prevent default first, then check validation
+
+                    const roomNameInput = document.getElementById('editRoomName');
+                    const buildingInput = document.getElementById('editRoomBuilding');
+                    const buildingSearchInput = document.getElementById('edit_building_search');
+                    const floorInput = document.getElementById('editRoomFloor');
+
+                    const isRoomNameValid = validateField(roomNameInput);
+                    const isBuildingValid = validateBuildingField(buildingInput, buildingSearchInput);
+                    const isFloorValid = validateField(floorInput);
+
+                    if (!isRoomNameValid || !isBuildingValid || !isFloorValid) {
+                        // Show error toast for required fields
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                        return false; // Stop here and don't submit the form
+                    }
+
+                    // If validation passes, submit the form
+                    this.submit();
+                });
+
+                // Function to validate building field with search input
+                function validateBuildingField(hiddenInput, searchInput) {
+                    let errorElement = searchInput.closest('.space-y-2').querySelector('.error-message');
+
+                    if (!hiddenInput.value) {
+                        searchInput.classList.add('border-red-500');
+                        if (errorElement) {
+                            errorElement.textContent = 'Gedung harus dipilih';
+                            errorElement.classList.remove('hidden');
+                        }
+                        return false;
+                    } else {
+                        searchInput.classList.remove('border-red-500');
+                        if (errorElement) errorElement.classList.add('hidden');
+                        return true;
+                    }
+                }
+
+                // Function to validate regular field
+                function validateField(field) {
+                    let errorElement = field.closest('.space-y-2').querySelector('.error-message');
+                    let fieldName = field.getAttribute('placeholder').replace('Ketik ', '').replace('ruangan', '').trim();
+
+                    if (field.tagName.toLowerCase() === 'select') {
+                        if (!field.value) {
+                            field.classList.add('border-red-500');
+                            if (errorElement) {
+                                errorElement.textContent = fieldName + ' harus dipilih';
+                                errorElement.classList.remove('hidden');
+                            }
+                            return false;
+                        } else {
+                            field.classList.remove('border-red-500');
+                            if (errorElement) errorElement.classList.add('hidden');
+                            return true;
+                        }
+                    } else {
+                        if (!field.value.trim()) {
+                            field.classList.add('border-red-500');
+                            if (errorElement) {
+                                errorElement.textContent = fieldName + ' harus diisi';
+                                errorElement.classList.remove('hidden');
+                            }
+                            return false;
+                        } else {
+                            field.classList.remove('border-red-500');
+                            if (errorElement) errorElement.classList.add('hidden');
+                            return true;
+                        }
+                    }
+                }
+
+                // Add real-time validation for Add Room form
+                const addRoomFields = [
+                    document.getElementById('add_room_name'),
+                    document.getElementById('add_floor_number')
+                ];
+
+                addRoomFields.forEach(field => {
+                    if (field) {
+                        field.addEventListener('blur', function() {
+                            validateField(this);
+                        });
+
+                        field.addEventListener('input', function() {
+                            if (this.classList.contains('border-red-500')) {
+                                validateField(this);
+                            }
+                        });
+                    }
+                });
+
+                // Add real-time validation for building field in Add Room form
+                const addBuildingSearch = document.getElementById('add_building_search');
+                const addBuildingId = document.getElementById('add_building_id');
+
+                if (addBuildingSearch && addBuildingId) {
+                    addBuildingSearch.addEventListener('blur', function() {
+                        validateBuildingField(addBuildingId, this);
+                    });
+                }
+
+                // Add real-time validation for Edit Room form
+                const editRoomFields = [
+                    document.getElementById('editRoomName'),
+                    document.getElementById('editRoomFloor')
+                ];
+
+                editRoomFields.forEach(field => {
+                    if (field) {
+                        field.addEventListener('blur', function() {
+                            validateField(this);
+                        });
+
+                        field.addEventListener('input', function() {
+                            if (this.classList.contains('border-red-500')) {
+                                validateField(this);
+                            }
+                        });
+                    }
+                });
+
+                // Add real-time validation for building field in Edit Room form
+                const editBuildingSearch = document.getElementById('edit_building_search');
+                const editBuildingId = document.getElementById('editRoomBuilding');
+
+                if (editBuildingSearch && editBuildingId) {
+                    editBuildingSearch.addEventListener('blur', function() {
+                        validateBuildingField(editBuildingId, this);
+                    });
+                }
+
+                // Function to show toast notifications
+                window.showToast = function (message, type = 'info') {
+                    // Create the notification element
+                    const notification = document.createElement('div');
+                    notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+                    notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+                    notification.role = 'alert';
+
+                    // Check if message contains HTML
+                    const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+
+                    if (type === 'success') {
+                        notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                        notification.innerHTML = `
+                            <div class="flex items-start">
+                            <div class="py-1">
+                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            </div>
+                            <div>
+                                    <p class="font-bold">Berhasil!</p>
+                                    <div>${message}</div>
+                            </div>
+                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                        </div>
+                    `;
+                    } else {
+                        notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                        // Structure for the notification
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'flex items-start';
+
+                        // Icon container
+                        const iconContainer = document.createElement('div');
+                        iconContainer.className = 'py-1 flex-shrink-0';
+                        iconContainer.innerHTML = `
+                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        `;
+
+                        // Content container
+                        const contentContainer = document.createElement('div');
+                        contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                        // Title
+                        const title = document.createElement('p');
+                        title.className = 'font-bold';
+                        title.textContent = 'Error!';
+                        contentContainer.appendChild(title);
+
+                        // Message container
+                        const messageContainer = document.createElement('div');
+                        messageContainer.className = 'error-message';
+
+                        // Handle HTML content
+                        if (hasHTML) {
+                            messageContainer.innerHTML = message;
+                        } else {
+                            messageContainer.textContent = message;
+                        }
+
+                        contentContainer.appendChild(messageContainer);
+
+                        // Close button
+                        const closeBtn = document.createElement('span');
+                        closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                        closeBtn.textContent = '×';
+                        closeBtn.onclick = function() {
+                            notification.remove();
+                        };
+
+                        // Assemble the notification
+                        wrapper.appendChild(iconContainer);
+                        wrapper.appendChild(contentContainer);
+                        wrapper.appendChild(closeBtn);
+                        notification.appendChild(wrapper);
+                    }
+
+                    // Add to document
+                    document.body.appendChild(notification);
+
+                    // Auto-remove notification after 5 seconds
+                    setTimeout(() => {
+                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(() => notification.remove(), 500);
+                    }, 5000);
+                }
+
+                // Add AJAX handling for add room form
+                const addRoomForm = document.getElementById('addRoomForm');
+                if (addRoomForm) {
+                    addRoomForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        // First perform client-side validation
+                        const roomNameInput = document.getElementById('add_room_name');
+                        const buildingInput = document.getElementById('add_building_id');
+                        const buildingSearchInput = document.getElementById('add_building_search');
+                        const floorInput = document.getElementById('add_floor_number');
+
+                        const isRoomNameValid = validateField(roomNameInput);
+                        const isBuildingValid = validateBuildingField(buildingInput, buildingSearchInput);
+                        const isFloorValid = validateField(floorInput);
+
+                        if (!isRoomNameValid || !isBuildingValid || !isFloorValid) {
+                            showToast('Silakan isi semua field yang diperlukan', 'error');
+                            return false;
+                        }
+
+                        const formData = new FormData(this);
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        const originalBtnText = submitBtn.innerHTML;
+
+                        // Show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => {
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                return response.json().then(data => {
+                                    data.status = response.status;
+                                    return data;
+                                });
+                            } else {
+                                throw new Error('Invalid response format');
+                            }
+                        })
+                        .then(data => {
+                            // Reset button state
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+
+                            if (data.status >= 200 && data.status < 300) {
+                                // Success response
+                                const modal = document.getElementById('addRoomModal');
+                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                showToast(data.message || 'Ruangan berhasil ditambahkan!', 'success');
+
+                                // Reload the page to show updated data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error response
+                                let errorMessage = data.message || 'Terjadi kesalahan saat menambahkan ruangan.';
+                                let errorDetails = [];
+
+                                // Add validation errors if present
+                                if (data.errors) {
+                                    // Clear previous validation errors
+                                    document.querySelectorAll('.error-message').forEach(el => {
+                                        el.classList.add('hidden');
+                                    });
+
+                                    // Handle different error formats
+                                    if (typeof data.errors === 'object') {
+                                        Object.keys(data.errors).forEach(key => {
+                                            // Find the corresponding field
+                                            let field;
+                                            let errorElement;
+
+                                            if (key === 'room_name') {
+                                                field = document.getElementById('add_room_name');
+                                            } else if (key === 'building_id') {
+                                                field = document.getElementById('add_building_search');
+                                            } else if (key === 'floor_number') {
+                                                field = document.getElementById('add_floor_number');
+                                            }
+
+                                            if (field) {
+                                                field.classList.add('border-red-500');
+                                                errorElement = field.closest('.space-y-2').querySelector('.error-message');
+
+                                                if (errorElement) {
+                                                    // Show the error message from the server
+                                                    const errorMsg = Array.isArray(data.errors[key]) ?
+                                                        data.errors[key][0] : data.errors[key];
+
+                                                    errorElement.textContent = errorMsg;
+                                                    errorElement.classList.remove('hidden');
+                                                }
+                                            }
+
+                                            // Also collect for the toast
+                                            errorDetails.push(Array.isArray(data.errors[key]) ?
+                                                data.errors[key][0] : data.errors[key]);
+                                        });
+                                    }
+                                }
+
+                                // Create HTML content for the error message toast
+                                if (errorDetails.length > 0) {
+                                    errorMessage = `${errorMessage}<ul class="mt-2 ml-4 list-disc">`;
+                                    errorDetails.forEach(detail => {
+                                        errorMessage += `<li>${detail}</li>`;
+                                    });
+                                    errorMessage += '</ul>';
+                                }
+
+                                showToast(errorMessage, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            // Reset button state
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+
+                            showToast('Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.', 'error');
+                        });
+                    });
+                }
+
+                // Edit Room form AJAX handling
+                const editRoomForm = document.getElementById('editRoomForm');
+                if (editRoomForm) {
+                    editRoomForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        // First perform client-side validation
+                        const roomNameInput = document.getElementById('editRoomName');
+                        const buildingInput = document.getElementById('editRoomBuilding');
+                        const buildingSearchInput = document.getElementById('edit_building_search');
+                        const floorInput = document.getElementById('editRoomFloor');
+
+                        const isRoomNameValid = validateField(roomNameInput);
+                        const isBuildingValid = validateBuildingField(buildingInput, buildingSearchInput);
+                        const isFloorValid = validateField(floorInput);
+
+                        if (!isRoomNameValid || !isBuildingValid || !isFloorValid) {
+                            showToast('Silakan isi semua field yang diperlukan', 'error');
+                            return false;
+                        }
+
+                        const formData = new FormData(this);
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        const originalBtnText = submitBtn.innerHTML;
+
+                        // Show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => {
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                return response.json().then(data => {
+                                    data.status = response.status;
+                                    return data;
+                                });
+                            } else {
+                                throw new Error('Invalid response format');
+                            }
+                        })
+                        .then(data => {
+                            // Reset button state
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+
+                            if (data.status >= 200 && data.status < 300) {
+                                // Success response
+                                const modal = document.getElementById('editRoomModal');
+                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                showToast(data.message || 'Ruangan berhasil diperbarui!', 'success');
+
+                                // Reload the page to show updated data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error response
+                                let errorMessage = data.message || 'Terjadi kesalahan saat memperbarui ruangan.';
+                                let errorDetails = [];
+
+                                // Add validation errors if present
+                                if (data.errors) {
+                                    // Clear previous validation errors
+                                    document.querySelectorAll('.error-message').forEach(el => {
+                                        el.classList.add('hidden');
+                                    });
+
+                                    // Handle different error formats
+                                    if (typeof data.errors === 'object') {
+                                        Object.keys(data.errors).forEach(key => {
+                                            // Find the corresponding field
+                                            let field;
+                                            let errorElement;
+
+                                            if (key === 'room_name') {
+                                                field = document.getElementById('editRoomName');
+                                            } else if (key === 'building_id') {
+                                                field = document.getElementById('edit_building_search');
+                                            } else if (key === 'floor_number') {
+                                                field = document.getElementById('editRoomFloor');
+                                            }
+
+                                            if (field) {
+                                                field.classList.add('border-red-500');
+                                                errorElement = field.closest('.space-y-2').querySelector('.error-message');
+
+                                                if (errorElement) {
+                                                    // Show the error message from the server
+                                                    const errorMsg = Array.isArray(data.errors[key]) ?
+                                                        data.errors[key][0] : data.errors[key];
+
+                                                    errorElement.textContent = errorMsg;
+                                                    errorElement.classList.remove('hidden');
+                                                }
+                                            }
+
+                                            // Also collect for the toast
+                                            errorDetails.push(Array.isArray(data.errors[key]) ?
+                                                data.errors[key][0] : data.errors[key]);
+                                        });
+                                    }
+                                }
+
+                                // Create HTML content for the error message
+                                if (errorDetails.length > 0) {
+                                    errorMessage = `${errorMessage}<ul class="mt-2 ml-4 list-disc">`;
+                                    errorDetails.forEach(detail => {
+                                        errorMessage += `<li>${detail}</li>`;
+                                    });
+                                    errorMessage += '</ul>';
+                                }
+
+                                showToast(errorMessage, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            // Reset button state
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+
+                            showToast('Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.', 'error');
+                        });
+                    });
+                }
             });
         </script>
     @endpush
+
+    <!-- Include XLSX.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 @endsection

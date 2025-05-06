@@ -1137,9 +1137,6 @@
                 importBtn.innerHTML = originalBtnText;
 
                 if (data.success === true || (data.status >= 200 && data.status < 300)) {
-                    // Success response
-                    console.log('Import successful:', data);
-
                     // Close the modal
                     const modal = document.getElementById('importBrandModal');
                     closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
@@ -1155,56 +1152,40 @@
                     // Error response
                     console.error('Import error:', data);
 
-                    // Format the error message with HTML for toast notification
-                    let errorMessage = 'Gagal mengimpor merk';
+                    // Try to get more detailed error if available
+                    let errorMessage = data.message || 'Terjadi kesalahan selama pengimporan.';
+                    let errorDetails = [];
 
-                    // Try to extract detailed error information
-                    if (data.errorDetails && Array.isArray(data.errorDetails) && data.errorDetails.length > 0) {
-                        // Use the detailed error list if available
-                        errorMessage = 'Gagal mengimpor merk:<ul class="mt-2 ml-4 list-disc">';
-                        data.errorDetails.forEach(error => {
-                            errorMessage += `<li>${error}</li>`;
-                        });
-                        errorMessage += '</ul>';
-                    } else if (data.data && data.data.errors && Array.isArray(data.data.errors)) {
-                        // Format errors from the data.errors array
-                        errorMessage = 'Gagal mengimpor merk:<ul class="mt-2 ml-4 list-disc">';
-                        data.data.errors.forEach(error => {
-                            if (typeof error === 'string') {
-                                errorMessage += `<li>${error}</li>`;
-                            } else if (typeof error === 'object') {
-                                // Extract message from error object
-                                const errorText = error.message || error.reason || JSON.stringify(error);
-                                errorMessage += `<li>${errorText}</li>`;
-                            }
-                        });
-                        errorMessage += '</ul>';
-                    } else if (data.errors) {
-                        // Handle different error formats
-                    if (typeof data.errors === 'string') {
-                        errorMessage = data.errors;
-                        } else if (Array.isArray(data.errors)) {
-                            errorMessage = 'Gagal mengimpor merk:<ul class="mt-2 ml-4 list-disc">';
-                            data.errors.forEach(error => {
-                                errorMessage += `<li>${error}</li>`;
-                            });
-                            errorMessage += '</ul>';
-                        } else if (typeof data.errors === 'object') {
-                            errorMessage = 'Gagal mengimpor merk:<ul class="mt-2 ml-4 list-disc">';
-                            Object.entries(data.errors).forEach(([field, errorList]) => {
-                                if (Array.isArray(errorList)) {
-                                    errorList.forEach(error => {
-                                        errorMessage += `<li>${error}</li>`;
-                                    });
-                                } else if (typeof errorList === 'string') {
-                                    errorMessage += `<li>${field}: ${errorList}</li>`;
+                    // Add validation errors if present
+                    if (data.data && data.data.errors) {
+                        console.log('Server returned detailed errors:', data.data.errors);
+
+                        if (Array.isArray(data.data.errors)) {
+                            data.data.errors.forEach(error => {
+                                if (typeof error === 'string') {
+                                    errorDetails.push(error);
+                                } else if (error.message) {
+                                    errorDetails.push(error.message);
+                                } else if (error.brand_name && error.reason) {
+                                    errorDetails.push(`"${error.brand_name}" - ${error.reason}`);
+                                } else if (error.row && error.reason) {
+                                    errorDetails.push(`${error.reason}`);
+                                } else if (error.reason) {
+                                    errorDetails.push(error.reason);
                                 }
                             });
-                            errorMessage += '</ul>';
                         }
                     }
 
-                    // Display the formatted error message
+                    // Create HTML content for the error message
+                    if (errorDetails.length > 0) {
+                        errorMessage = `${errorMessage}<ul class="mt-2 ml-4 list-disc">`;
+                        errorDetails.forEach(detail => {
+                            errorMessage += `<li>${detail}</li>`;
+                        });
+                        errorMessage += '</ul>';
+                    }
+
                     showToast(errorMessage, 'error');
                 }
             })

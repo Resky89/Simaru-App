@@ -1366,29 +1366,6 @@
                     let errorMessage = data.message || 'Terjadi kesalahan selama pengimporan.';
                     let errorDetails = [];
 
-                    // Extract error details from different possible formats
-                    if (data.errors) {
-                        if (Array.isArray(data.errors)) {
-                            data.errors.forEach(error => {
-                                if (typeof error === 'string') {
-                                    errorDetails.push(error);
-                                } else if (error.message) {
-                                    errorDetails.push(error.message);
-                                } else if (error.reason) {
-                                    errorDetails.push(error.reason);
-                                }
-                            });
-                        } else if (typeof data.errors === 'object') {
-                            Object.entries(data.errors).forEach(([field, errors]) => {
-                                if (Array.isArray(errors)) {
-                                    errors.forEach(error => errorDetails.push(error));
-                                } else if (typeof errors === 'string') {
-                                    errorDetails.push(errors);
-                                }
-                            });
-                        }
-                    }
-
                     // Add validation errors if present - Based on the actual server response structure in the logs
                     if (data.data && data.data.errors) {
                         console.log('Server returned detailed errors:', data.data.errors);
@@ -1400,9 +1377,7 @@
                                 } else if (error.message) {
                                     errorDetails.push(error.message);
                                 } else if (error.subcategory_name && error.reason) {
-                                    // Format using both subcategory name and reason
-                                    const rowInfo = error.row ? `Baris ${error.row}: ` : '';
-                                    errorDetails.push(`${rowInfo}"${error.subcategory_name}" - ${error.reason}`);
+                                    errorDetails.push(`"${error.subcategory_name}" - ${error.reason}`);
                                 } else if (error.row && error.reason) {
                                     errorDetails.push(`Baris ${error.row}: ${error.reason}`);
                                 } else if (error.reason) {
