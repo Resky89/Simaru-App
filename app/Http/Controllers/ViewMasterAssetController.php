@@ -164,7 +164,7 @@ class ViewMasterAssetController extends Controller
 
             // Only continue if this is an AJAX request
             if (!request()->ajax()) {
-                return redirect()->route('asset-master.view', ['id' => $id]);
+                return redirect()->route('view-asset-master', ['id' => $id]);
             }
 
             // Fetch the master asset data
@@ -332,7 +332,7 @@ class ViewMasterAssetController extends Controller
                 'asset_master_id' => $id
             ]);
 
-            return redirect()->route('asset-master.view', ['id' => $id])
+            return redirect()->route('asset-master', ['id' => $id])
                 ->with('success', 'Master asset updated successfully');
         } catch (\Exception $e) {
             \Log::error('Exception during master asset update:', [

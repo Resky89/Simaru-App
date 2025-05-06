@@ -376,6 +376,7 @@ class CategoriesController extends Controller
     {
         try {
             $assetType = $request->query('asset_type');
+            $search = $request->query('search');
 
             if (empty($assetType)) {
                 return response()->json([
@@ -384,9 +385,17 @@ class CategoriesController extends Controller
                 ], status: 400);
             }
 
-            $result = $this->apiService->request('GET', 'asset-subcategories', ['query' => [
-                'asset_type' => $assetType
-            ]]);
+            $queryParams = [
+                'asset_type' => $assetType,
+                'limit' => 100  // Increase limit to load more subcategories
+            ];
+
+            // Add search parameter if provided
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            $result = $this->apiService->request('GET', '/asset-subcategories', ['query' => $queryParams]);
 
             // Check for auth errors in JSON context
             if (isset($result['errors']) && is_string($result['errors']) &&
@@ -411,7 +420,8 @@ class CategoriesController extends Controller
         } catch (\Exception $e) {
             Log::error('Error fetching subcategories by asset type:', [
                 'error' => $e->getMessage(),
-                'asset_type' => $assetType
+                'asset_type' => $assetType ?? 'not_provided',
+                'search' => $search ?? 'not_provided'
             ]);
 
             return response()->json([

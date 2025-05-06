@@ -28,6 +28,7 @@ use App\Http\Controllers\MasterAssetController;
 use App\Http\Controllers\ViewMasterAssetController;
 use App\Http\Controllers\AssetDocumentsController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\DepreciationReportController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -87,6 +88,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Building Management
     Route::prefix('buildings')->group(function () {
         Route::get('/', [BuildingController::class, 'index'])->name('buildings');
+        Route::get('/data', [BuildingController::class, 'getData'])->name('buildings.data');
         Route::post('/store', [BuildingController::class, 'store'])->name('buildings.store');
         Route::put('/update/{id}', [BuildingController::class, 'update'])->name('buildings.update');
         Route::delete('/delete/{id}', [BuildingController::class, 'destroy'])->name('buildings.destroy');
@@ -95,6 +97,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Room Management
     Route::prefix('rooms')->group(function () {
         Route::get('/', [RoomController::class, 'index'])->name('rooms');
+        Route::get('/data', [RoomController::class, 'getData'])->name('rooms.data');
         Route::post('/store', [RoomController::class, 'store'])->name('rooms.store');
         Route::put('/update/{id}', [RoomController::class, 'update'])->name('rooms.update');
         Route::delete('/delete/{id}', [RoomController::class, 'destroy'])->name('rooms.destroy');
@@ -273,21 +276,16 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::prefix('report')->name('report.')->group(function () {
         Route::get('/complain', [ComplainRepairController::class, 'getAllComplaints'])->name('complain');
         Route::get('/complain/export-pdf', [ComplainRepairController::class, 'exportComplaintPDF'])->name('complain.export.pdf');
-        Route::get('/depreciation', function () {
-            return view('Report.DepreciationReport');
-        })->name('depreciation');
-        Route::get('/calibration', function () {
-            return view('Report.CalibrationReport');
-        })->name('calibration');
         Route::get('/maintenance', function () {
             return view('Report.MaintenanceReport');
         })->name('maintenance');
         Route::get('/finance', [FinanceReportController::class, 'getAllTransactions'])->name('finance');
         Route::get('/finance/export-pdf', [FinanceReportController::class, 'exportFinanceReportPDF'])->name('finance.export.pdf');
-        Route::get('/inspection', function () {
-            return view('Report.InspectionReport');
-        })->name('inspection');
         Route::get('/opname', [OpnameReportController::class, 'index'])->name('opname');
+
+        // Add the depreciation report routes inside this group
+        Route::get('/depreciation', [DepreciationReportController::class, 'getDepreciationReport'])->name('depreciation');
+        Route::get('/depreciation/export-pdf', [DepreciationReportController::class, 'exportDepreciationReportPDF'])->name('depreciation.export-pdf');
     });
 
     // Asset QR routes

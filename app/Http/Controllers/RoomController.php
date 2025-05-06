@@ -494,4 +494,74 @@ class RoomController extends Controller
                 ->with('error', 'Gagal menghapus ruangan: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Get room data for dropdown, filtered by building ID if provided.
+     * Returns JSON data suitable for AJAX requests.
+     */
+    public function getData(Request $request)
+    {
+        try {
+            // Extract parameters
+            $search = $request->input('search', '');
+            $buildingId = $request->input('building_id');
+
+            // Build query parameters
+            $queryParams = [
+                'limit' => 50, // Limit for dropdown
+                'sort_by' => 'room_name',
+                'sort_order' => 'asc'
+            ];
+
+            // Add search parameter if provided
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            // Add building_id filter if provided
+            if (!empty($buildingId)) {
+                $queryParams['building_id'] = $buildingId;
+            }
+
+            // Fetch rooms from API
+            $result = $this->apiService->request('GET', '/rooms', [
+                'query' => $queryParams
+            ]);
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authentication failed'
+                ], 401);
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to fetch rooms';
+                return response()->json([
+                    'success' => false,
+                    'message' => is_array($errorData) ? implode(', ', $errorData) : $errorData
+                ], 400);
+            }
+
+            // Return success response
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? []
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during rooms data retrieval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch rooms: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

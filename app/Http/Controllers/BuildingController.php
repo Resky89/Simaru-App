@@ -228,7 +228,7 @@ class BuildingController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal membuat gedung: ' . $e->getMessage()
+                    'errors' => ['exception' => 'Gagal membuat gedung: ' . $e->getMessage()]
                 ], status: 500);
             }
 
@@ -316,7 +316,7 @@ class BuildingController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal mengubah gedung: ' . $e->getMessage()
+                    'errors' => ['exception' => 'Gagal mengubah gedung: ' . $e->getMessage()]
                 ], status: 500);
             }
 
@@ -395,12 +395,76 @@ class BuildingController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal menghapus gedung: ' . $e->getMessage()
+                    'errors' => ['exception' => 'Gagal menghapus gedung: ' . $e->getMessage()]
                 ], status: 500);
             }
 
             return redirect()->back()
                 ->with('error', 'Gagal menghapus gedung: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get building data for dropdown.
+     * Returns JSON data suitable for AJAX requests.
+     */
+    public function getData(Request $request)
+    {
+        try {
+            // Extract search parameter
+            $search = $request->input('search', '');
+
+            // Build query parameters
+            $queryParams = [
+                'limit' => 50, // Limit for dropdown
+                'sort_by' => 'building_name',
+                'sort_order' => 'asc'
+            ];
+
+            // Add search parameter if provided
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            // Fetch buildings from API
+            $result = $this->apiService->request('GET', '/buildings', [
+                'query' => $queryParams
+            ]);
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], 401);
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Failed to fetch buildings';
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? implode(', ', $errorData) : $errorData
+                ], 400);
+            }
+
+            // Return success response
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? []
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during buildings data retrieval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'errors' => ['exception' => 'Failed to fetch buildings: ' . $e->getMessage()]
+            ], 500);
         }
     }
 }
