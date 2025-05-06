@@ -11,10 +11,9 @@
     </div>
 
     <!-- Loading indicator -->
-    <div id="loadingIndicator" class="hidden">
-        <div class="flex justify-center items-center py-4">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213268]"></div>
-        </div>
+    <div id="depreciationLoadingIndicator" class="flex justify-center items-center py-6">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213268]"></div>
+        <span class="ml-2 text-gray-600">Memuat data penyusutan...</span>
     </div>
 
     <!-- Error message container -->
@@ -99,7 +98,7 @@
                     id="updateDepreciationModalContent">
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">Pengaturan Penyusutan</h2>
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Pengaturan Penyusutan</h2>
                         <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200" data-modal="updateDepreciationModal">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -117,12 +116,12 @@
                                 <div>
                                     <label for="depreciation_method" class="block text-sm font-medium text-gray-700 mb-1">Metode Penyusutan <span class="text-red-500">*</span></label>
                                     <select id="depreciation_method" name="depreciation_method"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" required>
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" required>
                                         <option value="Straight Line">Garis Lurus (Straight Line)</option>
                                         <option value="Declining Balance">Saldo Menurun (Declining Balance)</option>
                                         <option value="Double Declining Balance">Saldo Menurun Ganda (Double Declining Balance)</option>
-                                        <option value="Sum of the Year's Digits">Jumlah Digit Tahun (Sum of Year's Digits)</option>
-                                        <option value="Units of Production">Unit Produksi (Units of Production)</option>
+                                        <option value="150% Declining Balance">Saldo Menurun 150% (150% Declining Balance)</option>
+                                        <option value="Sum of the Years Digits">Jumlah Digit Tahun (Sum of Year's Digits)</option>
                                     </select>
                                 </div>
 
@@ -131,12 +130,12 @@
                                     <div>
                                         <label for="acquisition_cost" class="block text-sm font-medium text-gray-700 mb-1">Biaya Pengadaan <span class="text-red-500">*</span></label>
                                         <input type="text" id="acquisition_cost" name="acquisition_cost" placeholder="0"
-                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" required>
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" required>
                                     </div>
                                     <div>
                                         <label for="salvage_value" class="block text-sm font-medium text-gray-700 mb-1">Nilai Sisa <span class="text-red-500">*</span></label>
                                         <input type="text" id="salvage_value" name="salvage_value" placeholder="0"
-                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" required>
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" required>
                                     </div>
                                 </div>
 
@@ -145,12 +144,12 @@
                                     <div>
                                         <label for="asset_life_months" class="block text-sm font-medium text-gray-700 mb-1">Usia Asset (bulan) <span class="text-red-500">*</span></label>
                                         <input type="number" id="asset_life_months" name="asset_life_months" min="1" max="360"
-                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" required>
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" required>
                                     </div>
                                     <div>
                                         <label for="date_acquired" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pengadaan <span class="text-red-500">*</span></label>
                                         <input type="date" id="date_acquired" name="date_acquired"
-                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" required>
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" required>
                                     </div>
                                 </div>
 
@@ -159,7 +158,7 @@
 
                                 <!-- Form Actions -->
                                 <div class="flex justify-end">
-                                    <button type="button" id="updateDepreciationSubmitBtn" class="w-full h-[45px] bg-[#28356B] text-white rounded-lg text-base hover:bg-[#1d2754]">
+                                    <button type="button" id="updateDepreciationSubmitBtn" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#162249]">
                                         <span class="flex items-center justify-center">
                                             Perbarui Penyusutan
                                         </span>
@@ -293,7 +292,13 @@
 
             // Populate form with current values if available
             if (this.currentDepreciation) {
-                document.getElementById('depreciation_method').value = this.currentDepreciation.depreciation_method || '';
+                // Handle special case for Sum of the Year's Digits
+                let depMethod = this.currentDepreciation.depreciation_method || '';
+                if (depMethod === "Sum of the Year's Digits") {
+                    depMethod = "Sum of the Years Digits";
+                }
+
+                document.getElementById('depreciation_method').value = depMethod;
 
                 const acquisitionCost = document.getElementById('acquisition_cost');
                 if (acquisitionCost && this.currentDepreciation.total_cost) {
@@ -334,7 +339,7 @@
             }
 
             // Get form values
-            const depreciationMethod = document.getElementById('depreciation_method').value;
+            let depreciationMethod = document.getElementById('depreciation_method').value;
             let acquisitionCost = document.getElementById('acquisition_cost').value;
             let salvageValue = document.getElementById('salvage_value').value;
             const assetLifeMonths = document.getElementById('asset_life_months').value;
@@ -344,6 +349,11 @@
             if (!depreciationMethod || !acquisitionCost || !salvageValue || !assetLifeMonths || !dateAcquired) {
                 this.showToast('Semua field harus diisi', 'error');
                 return;
+            }
+
+            // Handle special case for Sum of the Years Digits
+            if (depreciationMethod === "Sum of the Years Digits") {
+                depreciationMethod = "Sum of the Year's Digits";
             }
 
             // Convert formatted currency to numbers
@@ -434,13 +444,13 @@
         },
 
         showLoading() {
-            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('depreciationLoadingIndicator').classList.remove('hidden');
             document.getElementById('contentSections').classList.add('hidden');
             document.getElementById('errorMessage').classList.add('hidden');
         },
 
         hideLoading() {
-            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('depreciationLoadingIndicator').classList.add('hidden');
             document.getElementById('contentSections').classList.remove('hidden');
         },
 
@@ -449,7 +459,7 @@
             errorDiv.textContent = message;
             errorDiv.classList.remove('hidden');
             document.getElementById('contentSections').classList.add('hidden');
-            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('depreciationLoadingIndicator').classList.add('hidden');
         },
 
         showToast(message, type = 'success') {
@@ -545,20 +555,19 @@
             .then(data => {
                 console.log('Menerima data penyusutan:', data);
 
-                if (!data.status) {
-                    throw new Error(data.message || 'Struktur data tidak valid');
+                if (data.success === false) {
+                    throw new Error( data.errors || 'Gagal memuat data');
                 }
 
                 // Check if depreciation data exists
-                if (!data.data || !data.data.depreciation ||
-                    Object.keys(data.data.depreciation).length === 0 ||
-                    !data.data.depreciation.total_cost) {
+                const depreciation = data.data?.depreciation || data?.depreciation;
+
+                if (!depreciation || Object.keys(depreciation).length === 0 || !depreciation.total_cost) {
                     // Asset has no depreciation data
                     this.showNoDepreciationData();
                     return;
                 }
 
-                const depreciation = data.data.depreciation;
                 // Store current depreciation data for form population
                 this.currentDepreciation = depreciation;
                 this.updateDepreciationData(depreciation);
@@ -594,7 +603,7 @@
                     <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.formatCurrency(depreciation.total_cost)}</td>
                     <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.formatCurrency(depreciation.salvage_value)}</td>
                     <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.asset_life_months || '-'}</td>
-                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.depreciation_method || '-'}</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.getDepreciationMethodText(depreciation.depreciation_method)}</td>
                 </tr>
             `;
 
@@ -616,6 +625,20 @@
             if (depreciation.chart_data) {
                 this.updateChart(depreciation.chart_data);
             }
+        },
+
+        getDepreciationMethodText(method) {
+            if (!method) return '-';
+
+            const methodMap = {
+                'Straight Line': 'Garis Lurus (Straight Line)',
+                'Declining Balance': 'Saldo Menurun (Declining Balance)',
+                'Double Declining Balance': 'Saldo Menurun Ganda (Double Declining Balance)',
+                '150% Declining Balance': 'Saldo Menurun 150% (150% Declining Balance)',
+                'Sum of the Year\'s Digits': 'Jumlah Digit Tahun (Sum of Year\'s Digits)'
+            };
+
+            return methodMap[method] || method;
         },
 
         updateChart(chartData) {

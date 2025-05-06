@@ -9,6 +9,12 @@
         </button>
     </div>
 
+    <!-- Loading indicator -->
+    <div id="documentLoadingIndicator" class="flex justify-center items-center py-6 hidden">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213268]"></div>
+        <span class="ml-2 text-gray-600">Memuat data dokumen...</span>
+    </div>
+
     <!-- Document Table -->
     <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-md">
         <table class="w-full min-w-[500px] border-collapse">
@@ -22,17 +28,6 @@
                 </tr>
             </thead>
             <tbody id="documentTableBody">
-                <tr class="document-loading-row">
-                    <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                        <div class="flex justify-center items-center">
-                            <svg class="animate-spin h-5 w-5 text-[#213268] mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Memuat dokumen...
-                        </div>
-                    </td>
-                </tr>
                 <!-- Document rows will be loaded here dynamically -->
             </tbody>
         </table>
@@ -382,47 +377,79 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Check if there's a message property in the response
                     if (xhr.status >= 200 && xhr.status < 300) {
                         // Successful API call
-                        if (result.success === true || result.status === true) {
+                        if (result.success === true) {
                             // Success response
-                        progressBar.classList.remove('bg-[#213268]', 'bg-red-500');
-                        progressBar.classList.add('bg-green-500');
-                        statusMessage.textContent = 'Upload berhasil!';
+                            progressBar.classList.remove('bg-[#213268]', 'bg-red-500');
+                            progressBar.classList.add('bg-green-500');
+                            statusMessage.textContent = 'Upload berhasil!';
                             showToast(result.message || 'Dokumen berhasil diupload!', 'success');
 
-                        // Close modal and reload after success
-                        setTimeout(() => {
-                            const modal = document.getElementById('addDocumentModal');
+                            // Close modal and reload after success
+                            setTimeout(() => {
+                                const modal = document.getElementById('addDocumentModal');
                                 if (modal) {
                                     const modalContent = document.getElementById('addDocumentModalContent');
                                     closeModal(modal, modalContent);
                                 }
 
-                            // Reset form
+                                // Reset form
                                 documentForm.reset();
 
-                            // Reload documents
-                            if (typeof DocumentSystem !== 'undefined' &&
-                                typeof DocumentSystem.loadDocuments === 'function') {
-                                DocumentSystem.loadDocuments();
-                            } else {
-                                location.reload();
-                            }
-                        }, 1000);
-                    } else {
+                                // Reload documents
+                                if (typeof DocumentSystem !== 'undefined' &&
+                                    typeof DocumentSystem.loadDocuments === 'function') {
+                                    DocumentSystem.loadDocuments();
+                                } else {
+                                    location.reload();
+                                }
+                            }, 1000);
+                        } else {
                             // API returned error status
-                        progressBar.classList.remove('bg-[#213268]');
-                        progressBar.classList.add('bg-red-500');
-                        statusMessage.textContent = 'Error: ' + (result.message || 'Server error');
-                        statusMessage.classList.add('text-red-600');
-                        showToast(result.message || 'Gagal mengupload dokumen', 'error');
+                            progressBar.classList.remove('bg-[#213268]');
+                            progressBar.classList.add('bg-red-500');
+
+                            // Extract error message - handle both errors object and string
+                            let errorMessage = 'Server error';
+                            if (result.errors) {
+                                if (typeof result.errors === 'string') {
+                                    errorMessage = result.errors;
+                                } else if (typeof result.errors === 'object') {
+                                    // Get first error message from the object
+                                    const firstErrorKey = Object.keys(result.errors)[0];
+                                    if (firstErrorKey) {
+                                        const firstError = result.errors[firstErrorKey];
+                                        errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                                    }
+                                }
+                            }
+
+                            statusMessage.textContent = 'Error: ' + errorMessage;
+                            statusMessage.classList.add('text-red-600');
+                            showToast(errorMessage || 'Gagal mengupload dokumen', 'error');
                         }
                     } else {
                         // HTTP error
                         progressBar.classList.remove('bg-[#213268]');
                         progressBar.classList.add('bg-red-500');
-                        statusMessage.textContent = 'Error: ' + (result.message || 'Server error');
+
+                        // Try to get error message from response if available
+                        let errorMessage = 'Server error: ' + xhr.status;
+                        if (result.errors) {
+                            if (typeof result.errors === 'string') {
+                                errorMessage = result.errors;
+                            } else if (typeof result.errors === 'object') {
+                                // Get first error message from the object
+                                const firstErrorKey = Object.keys(result.errors)[0];
+                                if (firstErrorKey) {
+                                    const firstError = result.errors[firstErrorKey];
+                                    errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                                }
+                            }
+                        }
+
+                        statusMessage.textContent = 'Error: ' + errorMessage;
                         statusMessage.classList.add('text-red-600');
-                        showToast(result.message || 'Error server: ' + xhr.status, 'error');
+                        showToast(errorMessage, 'error');
                     }
                 } catch (e) {
                     // Response parse error
@@ -496,6 +523,13 @@ document.addEventListener('DOMContentLoaded', function() {
             this.setupModalHelpers();
             this.setupEventListeners();
             this.setupFilePreview();
+
+            // Initialize the main loading indicator as hidden on start
+            const loadingIndicator = document.getElementById('documentLoadingIndicator');
+            if (loadingIndicator) {
+                loadingIndicator.classList.add('hidden');
+            }
+
             this.loadDocuments();
 
             this.initialized = true;
@@ -675,9 +709,27 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(result => {
+                console.log('Document API response:', result);
+
                 if (!result.success) {
                     console.error('Document API error:', result);
-                    this.showErrorMessage(tableBody, result.message || 'Error loading documents');
+
+                    // Extract error message from the response
+                    let errorMessage = 'Error loading documents';
+                    if (result.errors) {
+                        if (typeof result.errors === 'string') {
+                            errorMessage = result.errors;
+                        } else if (typeof result.errors === 'object') {
+                            // Get first error message from the object
+                            const firstErrorKey = Object.keys(result.errors)[0];
+                            if (firstErrorKey) {
+                                const firstError = result.errors[firstErrorKey];
+                                errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                            }
+                        }
+                    }
+
+                    this.showErrorMessage(tableBody, errorMessage);
                     return;
                 }
 
@@ -707,22 +759,20 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         showLoadingIndicator(tableBody) {
-            tableBody.innerHTML = `
-                <tr class="document-loading-row">
-                    <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                        <div class="flex justify-center items-center">
-                            <svg class="animate-spin h-5 w-5 text-[#213268] mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Memuat dokumen...
-                        </div>
-                    </td>
-                </tr>
-            `;
+            // Show the main loading indicator
+            document.getElementById('documentLoadingIndicator').classList.remove('hidden');
+
+            // Clear the table body content
+            tableBody.innerHTML = '';
+        },
+
+        hideLoadingIndicator() {
+            document.getElementById('documentLoadingIndicator').classList.add('hidden');
         },
 
         showErrorMessage(tableBody, message) {
+            document.getElementById('documentLoadingIndicator').classList.add('hidden');
+
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
@@ -733,6 +783,8 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         showEmptyMessage(tableBody) {
+            document.getElementById('documentLoadingIndicator').classList.add('hidden');
+
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
@@ -743,6 +795,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         renderDocuments(tableBody, documents) {
+            this.hideLoadingIndicator();
             let html = '';
             documents.forEach(doc => {
                 const fileName = doc.file_path ? doc.file_path.split('/').pop() : 'Unknown file';
@@ -844,11 +897,11 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(result => {
-                if (!result.status) {
+                if (!result.success) {
                     console.error('Form submission error:', result);
                 }
 
-                if (result.status) {
+                if (result.success) {
                     // Success
                     showToast('Dokumen berhasil diupload!', 'success');
 
@@ -869,7 +922,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 1000);
                 } else {
                     // Error from server
-                    showToast(result.message || 'Gagal mengupload dokumen', 'error');
+                    let errorMessage = 'Gagal mengupload dokumen';
+                    if (result.errors) {
+                        if (typeof result.errors === 'string') {
+                            errorMessage = result.errors;
+                        } else if (typeof result.errors === 'object') {
+                            // Get first error message from the object
+                            const firstErrorKey = Object.keys(result.errors)[0];
+                            if (firstErrorKey) {
+                                const firstError = result.errors[firstErrorKey];
+                                errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                            }
+                        }
+                    }
+                    showToast(errorMessage, 'error');
                 }
             })
             .catch(error => {

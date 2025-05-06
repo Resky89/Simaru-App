@@ -11,6 +11,12 @@
         </button>
     </div>
 
+    <!-- Loading indicator -->
+    <div id="financeLoadingIndicator" class="flex justify-center items-center py-6 hidden">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213268]"></div>
+        <span class="ml-2 text-gray-600">Memuat data transaksi...</span>
+    </div>
+
     <!-- Transaction Filter/Sort -->
     <div class="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-md">
         <div class="text-sm font-medium text-gray-700" id="transaction-count">Total Transaksi: 0</div>
@@ -44,21 +50,7 @@
                 </tr>
             </thead>
             <tbody id="transaction-items">
-                <tr class="transaction-loading-row">
-                    <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                        <div class="flex justify-center items-center">
-                            <svg class="animate-spin h-5 w-5 text-[#213268] mr-2" xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                            Memuat transaksi...
-                        </div>
-                    </td>
-                </tr>
+                <!-- Transaction items will be loaded here -->
             </tbody>
         </table>
     </div>
@@ -624,19 +616,8 @@
         // Load transactions function
         function loadTransactions() {
             // Show loading state
-            transactionItems.innerHTML = `
-            <tr class="transaction-loading-row">
-                <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                    <div class="flex justify-center items-center">
-                        <svg class="animate-spin h-5 w-5 text-[#213268] mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Memuat transaksi...
-                    </div>
-                </td>
-            </tr>
-        `;
+            document.getElementById('financeLoadingIndicator').classList.remove('hidden');
+            transactionItems.innerHTML = '';
 
             // Get filter and sort values
             const filterValue = filterType?.value || 'all';
@@ -702,6 +683,9 @@
                     });
                 })
                 .then(data => {
+                    // Hide loading indicator
+                    document.getElementById('financeLoadingIndicator').classList.add('hidden');
+
                     // AssetFinanceController returns 'success', not 'status'
                     if (data.success) {
                         displayTransactions(data.data.transactions);
@@ -711,16 +695,35 @@
                         }
                     } else {
                         console.error('Error loading transactions:', data);
+
+                        // Extract error message from the response
+                        let errorMessage = 'Terjadi kesalahan saat memuat data';
+                        if (data.errors) {
+                            if (typeof data.errors === 'string') {
+                                errorMessage = data.errors;
+                            } else if (typeof data.errors === 'object') {
+                                // Get first error message from the object
+                                const firstErrorKey = Object.keys(data.errors)[0];
+                                if (firstErrorKey) {
+                                    const firstError = data.errors[firstErrorKey];
+                                    errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                                }
+                            }
+                        }
+
                         transactionItems.innerHTML = `
                         <tr>
                             <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
-                                Gagal memuat transaksi: ${data.message || 'Terjadi kesalahan saat memuat data'}
+                                Gagal memuat transaksi: ${errorMessage}
                             </td>
                         </tr>
                     `;
                     }
                 })
                 .catch(error => {
+                    // Hide loading indicator
+                    document.getElementById('financeLoadingIndicator').classList.add('hidden');
+
                     console.error('Network error loading transactions:', error);
                     transactionItems.innerHTML = `
                     <tr>
@@ -864,7 +867,22 @@
                         const content = document.getElementById('editTransactionModalContent');
                         openModal(modal, content);
                     } else {
-                        showToast(data.message || 'Failed to load transaction details', 'error');
+                        // Extract error message from the response
+                        let errorMessage = 'Gagal memuat detail transaksi';
+                        if (data.errors) {
+                            if (typeof data.errors === 'string') {
+                                errorMessage = data.errors;
+                            } else if (typeof data.errors === 'object') {
+                                // Get first error message from the object
+                                const firstErrorKey = Object.keys(data.errors)[0];
+                                if (firstErrorKey) {
+                                    const firstError = data.errors[firstErrorKey];
+                                    errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                                }
+                            }
+                        }
+
+                        showToast(errorMessage, 'error');
                     }
                 })
                 .catch(error => {
@@ -987,7 +1005,22 @@
                                 // Reload transactions
                                 loadTransactions();
                             } else {
-                                financeShowToast(result.message || 'Gagal memperbarui transaksi', 'error');
+                                // Extract error message from the response
+                                let errorMessage = 'Gagal memperbarui transaksi';
+                                if (result.errors) {
+                                    if (typeof result.errors === 'string') {
+                                        errorMessage = result.errors;
+                                    } else if (typeof result.errors === 'object') {
+                                        // Get first error message from the object
+                                        const firstErrorKey = Object.keys(result.errors)[0];
+                                        if (firstErrorKey) {
+                                            const firstError = result.errors[firstErrorKey];
+                                            errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                                        }
+                                    }
+                                }
+
+                                financeShowToast(errorMessage, 'error');
                             }
                         })
                         .catch(error => {
@@ -1059,8 +1092,23 @@
                                 financeShowToast('Transaksi berhasil dihapus', 'success');
                                 loadTransactions();
                             } else {
+                                // Extract error message from the response
+                                let errorMessage = 'Gagal menghapus transaksi';
+                                if (result.errors) {
+                                    if (typeof result.errors === 'string') {
+                                        errorMessage = result.errors;
+                                    } else if (typeof result.errors === 'object') {
+                                        // Get first error message from the object
+                                        const firstErrorKey = Object.keys(result.errors)[0];
+                                        if (firstErrorKey) {
+                                            const firstError = result.errors[firstErrorKey];
+                                            errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                                        }
+                                    }
+                                }
+
                                 // Gunakan fungsi yang didefinisikan di atas
-                                financeShowToast(result.message || 'Gagal menghapus transaksi', 'error');
+                                financeShowToast(errorMessage, 'error');
                             }
                         })
                         .catch(error => {
@@ -1179,7 +1227,22 @@
                         // Reload transactions
                         loadTransactions();
                     } else {
-                        financeShowToast(data.message || 'Gagal menambahkan transaksi', 'error');
+                        // Extract error message from the response
+                        let errorMessage = 'Gagal menambahkan transaksi';
+                        if (data.errors) {
+                            if (typeof data.errors === 'string') {
+                                errorMessage = data.errors;
+                            } else if (typeof data.errors === 'object') {
+                                // Get first error message from the object
+                                const firstErrorKey = Object.keys(data.errors)[0];
+                                if (firstErrorKey) {
+                                    const firstError = data.errors[firstErrorKey];
+                                    errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                                }
+                            }
+                        }
+
+                        financeShowToast(errorMessage, 'error');
                     }
                 })
                 .catch(error => {

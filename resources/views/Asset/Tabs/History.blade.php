@@ -1,24 +1,30 @@
-<div class="p-0" id="assetHistoryContainer">
-    <div class="flex justify-center items-center p-6" id="historyLoading">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#203268]"></div>
-        <span class="ml-2 text-gray-600">Memuat data riwayat...</span>
+<div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-[#213268]">RIWAYAT</h2>
     </div>
 
-    <div id="historyContent" class="hidden">
-        <!-- History content will be loaded here -->
-    </div>
+    <div id="assetHistoryContainer">
+        <div class="flex justify-center items-center py-6" id="historyLoading">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213268]"></div>
+            <span class="ml-2 text-gray-600">Memuat data riwayat...</span>
+        </div>
 
-    <div id="historyError" class="hidden p-6 text-center">
-        <div class="text-red-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-2" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p id="errorMessage">Gagal memuat data riwayat.</p>
-            <button class="mt-2 px-4 py-2 bg-[#203268] text-white rounded-lg" onclick="loadAssetHistory()">
-                Coba Lagi
-            </button>
+        <div id="historyContent" class="hidden">
+            <!-- History content will be loaded here -->
+        </div>
+
+        <div id="historyError" class="hidden p-6 text-center">
+            <div class="text-red-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-2" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p id="errorMessage">Gagal memuat data riwayat.</p>
+                <button class="mt-2 px-4 py-2 bg-[#203268] text-white rounded-lg" onclick="loadAssetHistory()">
+                    Coba Lagi
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -60,8 +66,23 @@
                 return response.json();
             })
             .then(data => {
-                if (!data.status) {
-                    throw new Error(data.message || 'Gagal memuat data riwayat');
+                if (!data.success) {
+                    // Extract error message from the response
+                    let errorMessage = 'Gagal memuat data riwayat';
+                    if (data.errors) {
+                        if (typeof data.errors === 'string') {
+                            errorMessage = data.errors;
+                        } else if (typeof data.errors === 'object') {
+                            // Get first error message from the object
+                            const firstErrorKey = Object.keys(data.errors)[0];
+                            if (firstErrorKey) {
+                                const firstError = data.errors[firstErrorKey];
+                                errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                            }
+                        }
+                    }
+
+                    throw new Error(errorMessage);
                 }
 
                 renderHistoryData(data.data);

@@ -1,7 +1,12 @@
-<div class="p-6">
+<div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-[#213268]">MUTASI</h2>
+    </div>
+
     <!-- Loading indicator -->
-    <div id="mutationLoadingIndicator" class="flex justify-center items-center py-4">
+    <div id="mutationLoadingIndicator" class="flex justify-center items-center py-6">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213268]"></div>
+        <span class="ml-2 text-gray-600">Memuat data mutasi...</span>
     </div>
 
     <!-- Error message container -->
@@ -105,8 +110,23 @@
                         .then(data => {
                             console.log(`[${this.systemId}] Received mutation data:`, data);
 
-                            if (!data.status) {
-                                throw new Error(data.message || 'Failed to fetch mutation data');
+                            if (!data.success) {
+                                // Extract error message from the response
+                                let errorMessage = 'Failed to fetch mutation data';
+                                if (data.errors) {
+                                    if (typeof data.errors === 'string') {
+                                        errorMessage = data.errors;
+                                    } else if (typeof data.errors === 'object') {
+                                        // Get first error message from the object
+                                        const firstErrorKey = Object.keys(data.errors)[0];
+                                        if (firstErrorKey) {
+                                            const firstError = data.errors[firstErrorKey];
+                                            errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                                        }
+                                    }
+                                }
+
+                                throw new Error(errorMessage);
                             }
 
                             const mutations = data.data.histories || [];
