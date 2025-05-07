@@ -205,10 +205,10 @@
                     style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     @php
                         $procurementSubmenuItems = [
-                            ['route' => 'procurement.request', 'name' => 'Request'],
-                            ['route' => 'procurement.price-comparison', 'name' => 'Price Comparison'],
-                            ['route' => 'procurement.purchase-order', 'name' => 'Purchase Order'],
-                            ['route' => 'procurement.receipt', 'name' => 'Receipt'],
+                            ['route' => 'procurement.request', 'name' => 'Pengajuan Pengadaan'],
+                            ['route' => 'procurement.price-comparison', 'name' => 'Perbandingan Harga'],
+                            ['route' => 'procurement.purchase-order', 'name' => 'Pemesanan'],
+                            ['route' => 'procurement.receipt', 'name' => 'Penerimaan'],
                         ];
                     @endphp
 
@@ -247,9 +247,9 @@
                     style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     @php
                         $reportSubmenuItems = [
-                            ['route' => 'report.opname', 'name' => 'Opname Report'],
-                            ['route' => 'report.finance', 'name' => 'Finance Report'],
-                            ['route' => 'report.depreciation', 'name' => 'Depreciation Report'],
+                            ['route' => 'report.opname', 'name' => 'Laporan Opname'],
+                            ['route' => 'report.finance', 'name' => 'Laporan Keuangan'],
+                            ['route' => 'report.depreciation', 'name' => 'Laporan Penyusutan'],
                         ];
                     @endphp
 

@@ -17,7 +17,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
-                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DETAIL REQUEST</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DETAIL REQUEST</h1>
                     </div>
                 </div>
 
@@ -85,7 +85,7 @@
                 <!-- Item List -->
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-[#666666]">Asset List</h2>
+                    <h2 class="text-lg font-semibold text-[#666666]">Asset List</h2>
 
                         <!-- Action Buttons - Repositioned -->
                         <div class="flex flex-wrap gap-3">
@@ -150,21 +150,20 @@
                         </table>
                     </div>
                 </div>
-                @if($procurement['status'] == 'Submitted')
+                @if($procurement['status'] == 'Approved')
                 <!-- Comparison Title -->
                 <div class="space-y-2">
                     <label class="block text-base font-semibold text-[#666666]">Make Price Comparison</label>
-                    <input type="text"
+                    <input type="text" id="comparison_title"
                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                         placeholder="Enter comparison title">
                 </div>
 
                 <!-- Form Buttons -->
                 <div class="flex gap-4 mt-8">
-
-                    <a href="{{ route('procurement.form-comparison', ['id' => $procurement['procurement_id']]) }}" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                    <button id="createComparisonBtn" type="button" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
                         CREATE PRICE COMPARISON
-                    </a>
+                    </button>
                 </div>
                 @endif
             </div>
@@ -631,6 +630,98 @@
                 showToast('Terjadi kesalahan saat memproses permintaan Anda', 'error');
             });
         });
+
+        // Create Price Comparison
+        const createComparisonBtn = document.getElementById('createComparisonBtn');
+        const comparisonTitleInput = document.getElementById('comparison_title');
+
+        if (createComparisonBtn) {
+            createComparisonBtn.addEventListener('click', function() {
+                // Validate input
+                if (!comparisonTitleInput.value.trim()) {
+                    showToast('Silakan masukkan judul perbandingan harga', 'error');
+                    comparisonTitleInput.classList.add('border-red-500');
+                    return;
+                }
+
+                // Reset validation styling
+                comparisonTitleInput.classList.remove('border-red-500');
+
+                // Show loading state
+                const originalBtnText = createComparisonBtn.innerHTML;
+                createComparisonBtn.disabled = true;
+                createComparisonBtn.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span>Memproses...</span>
+                    </div>
+                `;
+
+                // Make the API call
+                const createUrl = "{{ route('procurement.create-price-comparison-from-detail') }}";
+
+                fetch(createUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        procurement_id: procurementId,
+                        title: comparisonTitleInput.value.trim()
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            try {
+                                return JSON.parse(text);
+                            } catch (e) {
+                                console.error('Server response was not JSON:', text);
+                                throw new Error('Invalid response format');
+                            }
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Reset button state
+                    createComparisonBtn.disabled = false;
+                    createComparisonBtn.innerHTML = originalBtnText;
+
+                    if (data.success) {
+                        showToast(data.message || 'Perbandingan harga berhasil dibuat', 'success');
+
+                        // If there's a redirect URL, navigate to it
+                        if (data.redirect_url) {
+                            window.location.href = data.redirect_url;
+                        } else {
+                            // Otherwise just reload the page
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        }
+                    } else {
+                        const errorMsg = data.errors ? Object.values(data.errors).flat().join('\n') : 'Gagal membuat perbandingan harga';
+                        showToast(errorMsg, 'error');
+                    }
+                })
+                .catch(error => {
+                    // Reset button state
+                    createComparisonBtn.disabled = false;
+                    createComparisonBtn.innerHTML = originalBtnText;
+
+                    console.error('Error:', error);
+                    showToast('Terjadi kesalahan saat memproses permintaan Anda', 'error');
+                });
+            });
+
+            // Add input event listener to clear error styling when typing
+            comparisonTitleInput.addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+            });
+        }
     });
 </script>
 @endpush

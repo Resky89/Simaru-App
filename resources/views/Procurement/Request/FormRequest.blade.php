@@ -215,15 +215,43 @@
         // Array to store asset master data
         let assetMasters = [];
 
+        // Track selected asset master IDs
+        let selectedAssetMasterIds = new Set();
+
+        // Preload asset masters when page loads
+        fetchAssetMasters().then(() => {
+            console.log('Asset masters preloaded');
+        });
+
+        // Initialize asset type selectors
+        addAssetTypeSelectorListeners();
+
+        // Function to get currently selected asset master IDs
+        function updateSelectedAssetMasterIds() {
+            selectedAssetMasterIds.clear();
+            document.querySelectorAll('.asset-master-id').forEach(input => {
+                if (input.value) {
+                    selectedAssetMasterIds.add(parseInt(input.value));
+                }
+            });
+            console.log('Selected asset master IDs:', Array.from(selectedAssetMasterIds));
+        }
+
         // Fetch asset masters for dropdowns
         function fetchAssetMasters() {
+            // If we already have asset masters, no need to fetch again
+            if (assetMasters.length > 0) {
+                updateAssetMasterDropdowns();
+                return Promise.resolve(assetMasters);
+            }
+
             // Show loading indicator in all dropdowns
             document.querySelectorAll('.asset-master-loading').forEach(loading => {
                 loading.style.display = 'block';
             });
 
             // Use the route that's working in UnitAsset.blade.php
-            fetch('{{ route("asset-master.data") }}')
+            return fetch('{{ route("asset-master.data") }}')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -235,6 +263,9 @@
                     assetMasters = data.masterAssets || [];
                     console.log('Loaded', assetMasters.length, 'asset masters');
 
+                    // Update selected asset master IDs
+                    updateSelectedAssetMasterIds();
+
                     // Update all asset master dropdowns
                     updateAssetMasterDropdowns();
 
@@ -242,6 +273,8 @@
                     document.querySelectorAll('.asset-master-loading').forEach(loading => {
                         loading.style.display = 'none';
                     });
+
+                    return assetMasters;
                 })
                 .catch(error => {
                     console.error('Error fetching asset masters:', error);
@@ -258,17 +291,35 @@
                         errorItem.textContent = 'Failed to load asset masters';
                         list.appendChild(errorItem);
                     });
+
+                    return [];
                 });
         }
 
         // Update all asset master dropdowns with options
         function updateAssetMasterDropdowns() {
+            // First, update the list of selected asset master IDs
+            updateSelectedAssetMasterIds();
+
+            // Process each dropdown
             document.querySelectorAll('.asset-master-list').forEach(listElement => {
+                // Get the current entry's asset master ID
+                const currentContainer = listElement.closest('.asset-master-container');
+                const currentHiddenInput = currentContainer.querySelector('.asset-master-id');
+                const currentAssetMasterId = currentHiddenInput.value ? parseInt(currentHiddenInput.value) : null;
+
                 // Clear previous items
                 listElement.innerHTML = '';
 
-                // Add options for each asset master
-                assetMasters.forEach(asset => {
+                // Filter assets to exclude selected ones except the current selection
+                const availableAssets = assetMasters.filter(asset => {
+                    const assetId = parseInt(asset.asset_master_id);
+                    // Include if not selected or if it's the current selection
+                    return !selectedAssetMasterIds.has(assetId) || (currentAssetMasterId === assetId);
+                });
+
+                // Add options for each available asset master
+                availableAssets.forEach(asset => {
                     const li = document.createElement('li');
                     li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
                     li.textContent = asset.asset_name || 'Unknown asset';
@@ -288,16 +339,20 @@
 
                         // Hide dropdown
                         dropdown.classList.add('hidden');
+
+                        // Update selected asset master IDs and refresh all dropdowns
+                        updateSelectedAssetMasterIds();
+                        updateAssetMasterDropdowns();
                     });
 
                     listElement.appendChild(li);
                 });
 
                 // Show "No results" if empty
-                if (assetMasters.length === 0) {
+                if (availableAssets.length === 0) {
                     const noResults = document.createElement('li');
                     noResults.className = 'px-4 py-2 text-gray-500 italic';
-                    noResults.textContent = 'No asset masters found';
+                    noResults.textContent = 'No available asset masters found';
                     listElement.appendChild(noResults);
                 }
             });
@@ -308,22 +363,35 @@
             const searchInput = container.querySelector('.asset-master-search');
             const dropdown = container.querySelector('.asset-master-dropdown');
             const list = container.querySelector('.asset-master-list');
+            const loadingIndicator = container.querySelector('.asset-master-loading');
+            const hiddenInput = container.querySelector('.asset-master-id');
 
             if (searchInput && dropdown && list) {
+                // When input is cleared, clear the hidden value too
+                searchInput.addEventListener('input', function() {
+                    if (!this.value.trim()) {
+                        hiddenInput.value = '';
+                        // Update available options for all dropdowns
+                        updateSelectedAssetMasterIds();
+                        updateAssetMasterDropdowns();
+                    }
+                });
+
                 // Show dropdown on focus
                 searchInput.addEventListener('focus', function() {
-                    // Only initialize if not already populated
-                    if (list.children.length === 0) {
-                        // If we have asset masters already, populate dropdown
-                        if (assetMasters.length > 0) {
-                            updateAssetMasterDropdowns();
-                        } else {
-                            // Otherwise fetch them first
-                            fetchAssetMasters();
-                        }
-                    }
-
                     dropdown.classList.remove('hidden');
+
+                    // If we already have asset masters, populate the dropdown without showing loading
+                    if (assetMasters.length > 0) {
+                        loadingIndicator.style.display = 'none';
+                        updateAssetMasterDropdowns();
+                    } else {
+                        // Otherwise fetch asset masters
+                        loadingIndicator.style.display = 'block';
+                        fetchAssetMasters().then(() => {
+                            loadingIndicator.style.display = 'none';
+                        });
+                    }
                 });
 
                 // Filter items on input
@@ -393,6 +461,17 @@
                 assetMasterInput.disabled = true;
                 assetNameInput.required = true;
                 assetMasterInput.required = false;
+
+                // Clear asset master selection
+                assetMasterInput.value = '';
+                const assetMasterSearch = assetMasterContainer.querySelector('.asset-master-search');
+                if (assetMasterSearch) {
+                    assetMasterSearch.value = '';
+                }
+
+                // Update dropdown availabilities
+                updateSelectedAssetMasterIds();
+                updateAssetMasterDropdowns();
             } else {
                 assetNameContainer.classList.add('hidden');
                 assetMasterContainer.classList.remove('hidden');
@@ -403,6 +482,9 @@
 
                 // Initialize the asset master search if not already done
                 setupAssetMasterSearch(assetMasterContainer);
+
+                // Update dropdown to show available options
+                updateAssetMasterDropdowns();
             }
         }
 
@@ -418,9 +500,6 @@
                 }
             });
         }
-
-        // Initialize asset type selectors
-        addAssetTypeSelectorListeners();
 
         // Function to load existing procurement data
         function loadProcurementData(id) {
@@ -493,6 +572,10 @@
                         // Trigger change event to update UI
                         handleAssetTypeChange(selector, entry);
                     });
+
+                    // Update selected asset master IDs and refresh dropdowns
+                    updateSelectedAssetMasterIds();
+                    updateAssetMasterDropdowns();
                 } else {
                     showError('Failed to load procurement data');
                 }
@@ -558,7 +641,7 @@
 
                             <!-- Dropdown -->
                             <div class="asset-master-dropdown absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
-                                <div class="asset-master-loading p-2 text-gray-500 text-center">
+                                <div class="asset-master-loading p-2 text-gray-500 text-center" style="display: none;">
                                     <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -614,6 +697,9 @@
                 updateDeleteButtons();
                 // Update input names
                 updateInputNames();
+                // Update selected asset master IDs and refresh dropdowns
+                updateSelectedAssetMasterIds();
+                updateAssetMasterDropdowns();
             });
 
             // Add event listener to the new asset type selector
@@ -650,6 +736,9 @@
                     }
                 }
             }
+
+            // Update selected asset master IDs after adding a new item
+            updateSelectedAssetMasterIds();
         }
 
         // Add new item when clicking the add button
@@ -660,8 +749,11 @@
             updateDeleteButtons();
             // Add listeners to new asset type selector
             addAssetTypeSelectorListeners();
-            // Update asset master dropdowns
-            updateAssetMasterDropdowns();
+
+            // Populate the asset master dropdowns with already loaded data
+            if (assetMasters.length > 0) {
+                updateAssetMasterDropdowns();
+            }
         });
 
         // Function to update input names after removing items

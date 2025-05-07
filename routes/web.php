@@ -229,9 +229,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
          Route::get('/detail-request/{id}', [ProcurementRequestController::class, 'show'])->name('detail-request');
 
         // Price Comparison
-        Route::get('/price-comparison', function () {
-            return view('Procurement.Comparison.PriceComparison');
-        })->name('price-comparison');
+        Route::get('/price-comparison', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'index'])->name('price-comparison');
         Route::get('/form-comparison/{id?}', function ($id = null) {
             return view('Procurement.Comparison.FormComparison', ['id' => $id]);
         })->name('form-comparison');
@@ -241,6 +239,11 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/detail-comparison/{id?}', function ($id = null) {
             return view('Procurement.Comparison.DetailComparison', ['id' => $id]);
         })->name('detail-comparison');
+
+        // Price Comparison API
+        Route::post('/price-comparison', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'store'])->name('store-price-comparison');
+        Route::get('/price-comparison/data', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'index'])->name('price-comparison-data');
+        Route::post('/price-comparison/create-from-detail', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'createFromDetail'])->name('create-price-comparison-from-detail');
 
         // Purchase Order
         Route::get('/purchase-order', function () {

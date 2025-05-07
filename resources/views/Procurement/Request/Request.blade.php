@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Request Asset')
+@section('title', 'Permintaan Aset')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -10,7 +10,7 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">REQUEST ASSET</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PERMINTAAN ASET</h1>
 
                     <!-- Button Request -->
                     <a href="{{ route('procurement.form-request') }}" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
@@ -18,14 +18,14 @@
                             <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                             <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                         </svg>
-                        <span class="text-base">Request</span>
+                        <span class="text-base">Buat Permintaan</span>
                     </a>
                 </div>
 
                 <!-- Search and Filter -->
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
-                        <input type="text" id="searchInput" placeholder="Search by title, request ID, or justification..."
+                        <input type="text" id="searchInput" placeholder="Cari berdasarkan judul, ID permintaan, atau justifikasi..."
                             class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         <div class="absolute right-3 top-1/2 -translate-y-1/2">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,19 +38,19 @@
                         <select id="statusFilter"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="" disabled selected>Status</option>
-                            <option value="">All Status</option>
-                            <option value="Submitted">Submitted</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Rejected">Rejected</option>
+                            <option value="">Semua Status</option>
+                            <option value="Submitted">Diajukan</option>
+                            <option value="Approved">Disetujui</option>
+                            <option value="Rejected">Ditolak</option>
                         </select>
 
                         <select id="sortOrder"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" disabled selected>Sort Order</option>
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="title_asc">Title (A-Z)</option>
-                            <option value="title_desc">Title (Z-A)</option>
+                            <option value="" disabled selected>Urutan</option>
+                            <option value="newest">Terbaru</option>
+                            <option value="oldest">Terlama</option>
+                            <option value="title_asc">Judul (A-Z)</option>
+                            <option value="title_desc">Judul (Z-A)</option>
                         </select>
                     </div>
                 </div>
@@ -60,13 +60,13 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Request ID</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Title</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Justification</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Qty</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Requester</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">ID Permintaan</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Judul</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Justifikasi</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Jumlah</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Pemohon</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Status</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,7 +87,15 @@
                                         @elseif($procurement['status'] == 'Approved') bg-green-100 text-green-800
                                         @elseif($procurement['status'] == 'Rejected') bg-red-100 text-red-800
                                         @else bg-gray-100 text-gray-800 @endif">
-                                        {{ $procurement['status'] }}
+                                        @if($procurement['status'] == 'Submitted')
+                                            Diajukan
+                                        @elseif($procurement['status'] == 'Approved')
+                                            Disetujui
+                                        @elseif($procurement['status'] == 'Rejected')
+                                            Ditolak
+                                        @else
+                                            {{ $procurement['status'] }}
+                                        @endif
                                     </span>
                                 </td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
@@ -124,7 +132,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="p-3 text-center text-gray-500">No procurement requests found</td>
+                                <td colspan="7" class="p-3 text-center text-gray-500">Tidak ada permintaan pengadaan ditemukan</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -141,7 +149,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
-                            Prev
+                            Sebelumnya
                         </button>
 
                             <div class="flex gap-1">
@@ -163,7 +171,7 @@
                             <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
                                    onclick="changePage({{ ($pagination['current_page'] ?? 1) + 1 }})"
                                    {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
-                            Next
+                            Berikutnya
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
@@ -174,11 +182,11 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
-                                Prev
+                                Sebelumnya
                     </button>
                             <button class="w-8 h-8 bg-[#213268] text-white rounded text-sm">1</button>
                             <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
-                                Next
+                                Berikutnya
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
@@ -196,15 +204,15 @@
                                     $from = ($currentPage - 1) * $perPage + 1;
                                     $to = min($currentPage * $perPage, $total);
                                 @endphp
-                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                                Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} entri
                             @else
-                                Showing 1 to {{ count($procurements) }} of {{ count($procurements) }} entries
+                                Menampilkan 1 sampai {{ count($procurements) }} dari {{ count($procurements) }} entri
                             @endif
                         </span>
                         <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
-                            <option value="10" {{ isset($pagination['limit']) && $pagination['limit'] == 10 ? 'selected' : '' }}>10 per page</option>
-                            <option value="25" {{ isset($pagination['limit']) && $pagination['limit'] == 25 ? 'selected' : '' }}>25 per page</option>
-                            <option value="50" {{ isset($pagination['limit']) && $pagination['limit'] == 50 ? 'selected' : '' }}>50 per page</option>
+                            <option value="10" {{ isset($pagination['limit']) && $pagination['limit'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ isset($pagination['limit']) && $pagination['limit'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ isset($pagination['limit']) && $pagination['limit'] == 50 ? 'selected' : '' }}>50 per halaman</option>
                         </select>
                     </div>
                 </div>
@@ -223,7 +231,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Success!</p>
+            <p class="font-bold">Berhasil!</p>
             <p>{{ session('success') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -252,7 +260,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Error!</p>
+            <p class="font-bold">Kesalahan!</p>
             <p>{{ session('error') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -281,7 +289,7 @@
                 id="deleteProcurementModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE PROCUREMENT REQUEST</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS PERMINTAAN PENGADAAN</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -299,15 +307,15 @@
                                 <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this procurement request? This action cannot be undone.</p>
+                                <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus permintaan pengadaan ini? Tindakan ini tidak dapat dibatalkan.</p>
                                 <p id="deleteProcurementTitle" class="text-base font-semibold text-center mt-2"></p>
                             </div>
                             <div class="flex gap-3">
                                 <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                    Cancel
+                                    Batal
                                 </button>
                                 <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         </div>
@@ -365,7 +373,7 @@
                         ${icon}
                     </div>
                     <div>
-                        <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}!</p>
+                        <p class="font-bold">${type === 'success' ? 'Berhasil!' : type === 'error' ? 'Kesalahan!' : 'Informasi!'}</p>
                         <p>${message}</p>
                     </div>
                     <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -530,7 +538,7 @@
                 .then(data => {
                     if (data.status) {
                         // Store message in localStorage
-                        localStorage.setItem('procurement_message', data.message || 'Procurement deleted successfully');
+                        localStorage.setItem('procurement_message', data.message || 'Permintaan pengadaan berhasil dihapus');
                         localStorage.setItem('procurement_action', 'success');
 
                         // Close the modal
@@ -544,7 +552,7 @@
                         window.location.reload();
                     } else {
                         // Store error message in localStorage
-                        localStorage.setItem('procurement_message', data.message || 'Failed to delete procurement');
+                        localStorage.setItem('procurement_message', data.message || 'Gagal menghapus permintaan pengadaan');
                         localStorage.setItem('procurement_action', 'error');
 
                         // Reload the page - toast will show after reload
@@ -554,7 +562,7 @@
                 .catch(error => {
                     console.error('Error:', error);
                     // Store error message in localStorage
-                    localStorage.setItem('procurement_message', 'An error occurred while deleting the procurement');
+                    localStorage.setItem('procurement_message', 'Terjadi kesalahan saat menghapus permintaan pengadaan');
                     localStorage.setItem('procurement_action', 'error');
 
                     // Reload the page - toast will show after reload
