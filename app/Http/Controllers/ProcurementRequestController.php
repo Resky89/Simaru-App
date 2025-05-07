@@ -27,13 +27,58 @@ class ProcurementRequestController extends Controller
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
 
+            // Get search and filter parameters
+            $search = $request->input('search');
+            $status = $request->input('status');
+            $sort = $request->input('sort');
+
+            // Build query parameters
+            $queryParams = [
+                'page' => $page,
+                'limit' => $limit,
+            ];
+
+            // Add search parameter if provided
+            if ($search) {
+                $queryParams['search'] = $search;
+            }
+
+            // Add status filter if provided
+            if ($status) {
+                $queryParams['status'] = $status;
+            }
+
+            // Set sort parameters based on selection
+            if ($sort) {
+                switch ($sort) {
+                    case 'newest':
+                        $queryParams['sort_by'] = 'created_at';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    case 'oldest':
+                        $queryParams['sort_by'] = 'created_at';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'title_asc':
+                        $queryParams['sort_by'] = 'title';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'title_desc':
+                        $queryParams['sort_by'] = 'title';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    default:
+                        $queryParams['sort_by'] = 'created_at';
+                        $queryParams['sort_order'] = 'desc';
+                }
+            } else {
+                // Default sorting if not specified
+                $queryParams['sort_by'] = 'created_at';
+                $queryParams['sort_order'] = 'desc';
+            }
+
             $result = $this->apiService->request('GET', '/procurements', [
-                'query' => [
-                    'page' => $page,
-                    'limit' => $limit,
-                    'sort_by' => 'created_at',
-                    'sort_order' => 'desc'
-                ]
+                'query' => $queryParams
             ]);
 
             // Check for auth errors
@@ -98,8 +143,8 @@ class ProcurementRequestController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Procurements retrieved successfully',
-                    'procurements' => $procurements,
+                    'message' => $result['message'] ?? 'Daftar pengadaan berhasil diambil',
+                    'data' => $procurements,
                     'pagination' => $pagination
                 ]);
             }
@@ -140,13 +185,58 @@ class ProcurementRequestController extends Controller
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
 
+            // Get search and filter parameters
+            $search = $request->input('search');
+            $status = $request->input('status');
+            $sort = $request->input('sort');
+
+            // Build query parameters
+            $queryParams = [
+                'page' => $page,
+                'limit' => $limit,
+            ];
+
+            // Add search parameter if provided
+            if ($search) {
+                $queryParams['search'] = $search;
+            }
+
+            // Add status filter if provided
+            if ($status) {
+                $queryParams['status'] = $status;
+            }
+
+            // Set sort parameters based on selection
+            if ($sort) {
+                switch ($sort) {
+                    case 'newest':
+                        $queryParams['sort_by'] = 'created_at';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    case 'oldest':
+                        $queryParams['sort_by'] = 'created_at';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'title_asc':
+                        $queryParams['sort_by'] = 'title';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'title_desc':
+                        $queryParams['sort_by'] = 'title';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    default:
+                        $queryParams['sort_by'] = 'created_at';
+                        $queryParams['sort_order'] = 'desc';
+                }
+            } else {
+                // Default sorting if not specified
+                $queryParams['sort_by'] = 'created_at';
+                $queryParams['sort_order'] = 'desc';
+            }
+
             $result = $this->apiService->request('GET', '/procurements', [
-                'query' => [
-                    'page' => $page,
-                    'limit' => $limit,
-                    'sort_by' => 'created_at',
-                    'sort_order' => 'desc'
-                ]
+                'query' => $queryParams
             ]);
 
             // Check for auth errors
@@ -179,7 +269,7 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Procurements retrieved successfully',
+                'message' => 'Daftar pengadaan berhasil diambil',
                 'data' => $result['data'] ?? [],
                 'pagination' => $result['pagination'] ?? [
                     'total_items' => 0,
@@ -215,11 +305,12 @@ class ProcurementRequestController extends Controller
                 'priority' => 'required|string|in:Low,Medium,High',
                 'justification' => 'required|string',
                 'details' => 'required|array|min:1',
-                'details.*.asset_name' => 'required|string|max:255',
+                'details.*.asset_name' => 'required_without:details.*.asset_master_id|string|max:255',
+                'details.*.asset_master_id' => 'required_without:details.*.asset_name|integer|exists:asset_masters,id',
                 'details.*.quantity' => 'required|integer|min:1',
                 'details.*.estimated_unit_price' => 'required|numeric|min:0',
                 'details.*.specifications' => 'nullable|string',
-                'details.*.justification' => 'nullable|string',
+                'details.*.notes' => 'nullable|string',
             ]);
 
             // Call the API to create the procurement
@@ -257,7 +348,7 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Procurement created successfully',
+                'message' => 'Pengadaan berhasil dibuat',
                 'data' => $result['data'] ?? []
             ], status: 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -284,17 +375,37 @@ class ProcurementRequestController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            // First, get the procurement details to check the status
+            $procurementData = $this->apiService->request('GET', "/procurements/{$id}");
+
+            if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['general' => 'Failed to fetch procurement details']
+                ], 400);
+            }
+
+            // Check if the procurement status allows updates
+            $status = $procurementData['data']['status'] ?? null;
+            if ($status !== 'Submitted') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Procurement with status other than "Submitted" cannot be updated',
+                ], 403);
+            }
+
             // Validate request data
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
                 'priority' => 'required|string|in:Low,Medium,High',
                 'justification' => 'required|string',
                 'details' => 'required|array|min:1',
-                'details.*.asset_name' => 'required|string|max:255',
+                'details.*.asset_name' => 'required_without:details.*.asset_master_id|string|max:255',
+                'details.*.asset_master_id' => 'required_without:details.*.asset_name|integer|exists:asset_masters,id',
                 'details.*.quantity' => 'required|integer|min:1',
                 'details.*.estimated_unit_price' => 'required|numeric|min:0',
                 'details.*.specifications' => 'nullable|string',
-                'details.*.justification' => 'nullable|string',
+                'details.*.notes' => 'nullable|string',
             ]);
 
             // Call the API to update the procurement
@@ -334,7 +445,7 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Procurement updated successfully',
+                'message' => 'Pengadaan berhasil diperbarui',
                 'data' => $result['data'] ?? []
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -396,7 +507,7 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Procurement retrieved successfully',
+                'message' => 'Pengadaan berhasil ditemukan',
                 'data' => $result['data'] ?? null
             ]);
         } catch (\Exception $e) {
@@ -419,6 +530,25 @@ class ProcurementRequestController extends Controller
     public function destroy($id)
     {
         try {
+            // First, get the procurement details to check the status
+            $procurementData = $this->apiService->request('GET', "/procurements/{$id}");
+
+            if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['general' => 'Failed to fetch procurement details']
+                ], 400);
+            }
+
+            // Check if the procurement status allows deletion
+            $status = $procurementData['data']['status'] ?? null;
+            if ($status !== 'Submitted') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Procurement with status other than "Submitted" cannot be deleted',
+                ], 403);
+            }
+
             $result = $this->apiService->request('DELETE', "/procurements/{$id}");
 
             // Check for auth errors
@@ -453,7 +583,7 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Procurement deleted successfully'
+                'message' => 'Pengadaan berhasil dihapus'
             ]);
         } catch (\Exception $e) {
             \Log::error('Exception during procurement deletion:', [
@@ -546,8 +676,8 @@ class ProcurementRequestController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'data' => $result['data'],
-                    'message' => 'Procurement details retrieved successfully'
+                    'message' => 'Pengadaan berhasil ditemukan',
+                    'data' => $result['data']
                 ]);
             }
 
@@ -570,6 +700,233 @@ class ProcurementRequestController extends Controller
 
             return redirect()->route('procurement.request')
                 ->with('error', 'Failed to fetch procurement details: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Process manager approval for a procurement request
+     *
+     * @param int $id Procurement ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function managerApproval($id)
+    {
+        try {
+            // First, get the procurement details to check the grand total
+            $procurementData = $this->apiService->request('GET', "/procurements/{$id}");
+
+            if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['general' => 'Failed to fetch procurement details']
+                ], 400);
+            }
+
+            // Manager approval
+            $result = $this->apiService->request('POST', "/procurements/{$id}/manager-approval");
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurement manager approval:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed',
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], 401);
+            }
+
+            // Check if we got an error response
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to approve procurement';
+
+                \Log::warning('Error during procurement manager approval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                ], 400);
+            }
+
+            // Check if grand total is less than or equal to 50 million
+            $grandTotal = $procurementData['data']['estimated_grand_total'] ?? 0;
+            if ($grandTotal <= 50000000) {
+                // Automatically approve as director as well
+                $directorResult = $this->apiService->request('POST', "/procurements/{$id}/director-approval");
+
+                if (isset($directorResult['success']) && $directorResult['success'] === true) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Procurement has been fully approved (manager + auto-director approval for amount ≤ 50M)',
+                        'data' => $directorResult['data'] ?? null
+                    ]);
+                }
+
+                // Even if director approval fails, manager approval succeeded
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Procurement has been approved by manager (auto-director approval failed)',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengadaan berhasil disetujui oleh manajer',
+                'data' => $result['data'] ?? null
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Exception during procurement manager approval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'procurement_id' => $id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'errors' => ['exception' => 'Failed to approve procurement: ' . $e->getMessage()]
+            ], 500);
+        }
+    }
+
+    /**
+     * Process director approval for a procurement request
+     *
+     * @param int $id Procurement ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function directorApproval($id)
+    {
+        try {
+            $result = $this->apiService->request('POST', "/procurements/{$id}/director-approval");
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurement director approval:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed',
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], 401);
+            }
+
+            // Check if we got an error response
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to approve procurement';
+
+                \Log::warning('Error during procurement director approval:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                ], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengadaan berhasil disetujui oleh direktur',
+                'data' => $result['data'] ?? null
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Exception during procurement director approval:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'procurement_id' => $id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'errors' => ['exception' => 'Failed to approve procurement: ' . $e->getMessage()]
+            ], 500);
+        }
+    }
+
+    /**
+     * Process rejection of a procurement request
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id Procurement ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function rejectProcurement(Request $request, $id)
+    {
+        try {
+            // Validate the request
+            $validated = $request->validate([
+                'rejected_reason' => 'required|string|max:500',
+            ]);
+
+            // Call the API to reject the procurement
+            $result = $this->apiService->request('POST', "/procurements/{$id}/reject", [
+                'json' => $validated
+            ]);
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurement rejection:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed',
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], 401);
+            }
+
+            // Check if we got an error response
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to reject procurement';
+
+                \Log::warning('Error during procurement rejection:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'procurement_id' => $id
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                ], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengadaan berhasil ditolak',
+                'data' => $result['data'] ?? null
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Exception during procurement rejection:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'procurement_id' => $id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'errors' => ['exception' => 'Failed to reject procurement: ' . $e->getMessage()]
+            ], 500);
         }
     }
 }

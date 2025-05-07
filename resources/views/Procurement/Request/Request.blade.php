@@ -22,14 +22,44 @@
                     </a>
                 </div>
 
+                <!-- Search and Filter -->
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="relative flex-grow">
+                        <input type="text" id="searchInput" placeholder="Search by title, request ID, or justification..."
+                            class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-4">
+                        <select id="statusFilter"
+                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="" disabled selected>Status</option>
+                            <option value="">All Status</option>
+                            <option value="Submitted">Submitted</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+
+                        <select id="sortOrder"
+                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="" disabled selected>Sort Order</option>
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="title_asc">Title (A-Z)</option>
+                            <option value="title_desc">Title (Z-A)</option>
+                        </select>
+                    </div>
+                </div>
+
                 <!-- Request Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
-                                    <input type="checkbox" class="checkbox checkbox-sm" />
-                                </th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Request ID</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Title</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Justification</th>
@@ -42,9 +72,6 @@
                         <tbody>
                             @forelse($procurements as $procurement)
                             <tr>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                    <input type="checkbox" class="checkbox checkbox-sm" />
-                                </td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $procurement['procurement_code'] }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $procurement['title'] }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $procurement['justification'] }}</td>
@@ -52,7 +79,7 @@
                                     {{ count($procurement['details'] ?? []) }}
                                 </td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                    {{ $procurement['requester']['first_name'] ?? '' }} {{ $procurement['requester']['last_name'] ?? '' }}
+                                    {{ $procurement['requester']['employee_number'] ?? '' }}
                                 </td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                     <span class="px-2 py-1 rounded-full text-xs
@@ -65,23 +92,31 @@
                                 </td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center gap-2">
-                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-request-btn"
+                                        @if($procurement['status'] == 'Submitted')
+                                        <button class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-request-btn"
                                                 data-id="{{ $procurement['procurement_id'] }}">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
-                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-request-btn"
+                                        @else
+                                        <span class="w-5 h-5 inline-block"></span>
+                                        @endif
+                                        @if($procurement['status'] == 'Submitted')
+                                        <button class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-request-btn"
                                                 data-id="{{ $procurement['procurement_id'] }}"
                                                 data-title="{{ $procurement['title'] }}">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </button>
-                                        <a href="{{ route('procurement.detail-request', ['id' => $procurement['procurement_id']]) }}" class="text-[#3D3D3D] hover:text-[#213268]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        @else
+                                        <span class="w-5 h-5 inline-block"></span>
+                                        @endif
+                                        <a href="{{ route('procurement.detail-request', ['id' => $procurement['procurement_id']]) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12s3-6 10-6 10 6 10 6-3 6-10 6-10-6-10-6z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
                                     </div>
@@ -89,7 +124,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="p-3 text-center text-gray-500">No procurement requests found</td>
+                                <td colspan="7" class="p-3 text-center text-gray-500">No procurement requests found</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -356,6 +391,64 @@
                     }
                 }, 300);
             }, 5000);
+        }
+
+        // Search and filter functionality
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const sortOrder = document.getElementById('sortOrder');
+
+        // Function to handle search and filtering
+        function applyFilters() {
+            const searchValue = searchInput?.value.trim() || '';
+            const statusValue = statusFilter?.value || '';
+            const sortValue = sortOrder?.value || '';
+
+            // Create URL with filter parameters
+            const url = new URL(window.location.href);
+
+            // Clear existing parameters we're going to set
+            ['search', 'status', 'sort', 'page'].forEach(param => {
+                url.searchParams.delete(param);
+            });
+
+            // Add new parameters if they have values
+            if (searchValue) url.searchParams.set('search', searchValue);
+            if (statusValue) url.searchParams.set('status', statusValue);
+            if (sortValue) url.searchParams.set('sort', sortValue);
+
+            // Reset to page 1 when filters change
+            url.searchParams.set('page', 1);
+
+            // Navigate to the new URL
+            window.location.href = url.toString();
+        }
+
+        // Add event listeners with debounce for search
+        let searchTimeout;
+        searchInput?.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 500);
+        });
+
+        // Add event listeners for select filters
+        statusFilter?.addEventListener('change', applyFilters);
+        sortOrder?.addEventListener('change', applyFilters);
+
+        // Set initial values from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        if (searchInput) searchInput.value = urlParams.get('search') || '';
+        if (statusFilter) {
+            const statusValue = urlParams.get('status');
+            if (statusValue) {
+                statusFilter.value = statusValue;
+            }
+        }
+        if (sortOrder) {
+            const sortValue = urlParams.get('sort');
+            if (sortValue) {
+                sortOrder.value = sortValue;
+            }
         }
 
         // Pagination functions

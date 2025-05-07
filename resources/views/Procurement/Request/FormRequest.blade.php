@@ -61,12 +61,43 @@
                                 </button>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <!-- Item Name -->
+                                    <!-- Asset Selection Type -->
                                     <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-[#666666]">Asset Type</label>
+                                        <select class="asset-type-selector w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                            <option value="new">New Asset</option>
+                                            <option value="existing">Existing Asset</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Item Name (for new assets) -->
+                                    <div class="space-y-2 asset-name-container">
                                         <label class="block text-sm font-medium text-[#666666]">Asset Name</label>
                                         <input type="text" name="details[0][asset_name]"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
                                             placeholder="Asset Name" required>
+                                    </div>
+
+                                    <!-- Asset Master Selection (for existing assets) - initially hidden -->
+                                    <div class="space-y-2 asset-master-container hidden">
+                                        <label class="block text-sm font-medium text-[#666666]">Select Existing Asset</label>
+                                        <div class="relative">
+                                            <input type="text" class="asset-master-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                placeholder="Search asset master..." autocomplete="off">
+                                            <input type="hidden" name="details[0][asset_master_id]" class="asset-master-id">
+
+                                            <!-- Dropdown -->
+                                            <div class="asset-master-dropdown absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div class="asset-master-loading p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Loading asset masters...</span>
+                                                </div>
+                                                <ul class="asset-master-list py-1"></ul>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <!-- Quantity -->
@@ -92,6 +123,14 @@
                                     <textarea name="details[0][specifications]"
                                         class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 specifications"
                                         placeholder="Specifications" rows="2"></textarea>
+                                </div>
+
+                                <!-- Notes -->
+                                <div class="space-y-2 mt-4">
+                                    <label class="block text-sm font-medium text-[#666666]">Notes</label>
+                                    <textarea name="details[0][notes]"
+                                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 notes"
+                                        placeholder="Notes (optional)" rows="2"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -173,6 +212,159 @@
         const successMessage = document.getElementById('successMessage');
         const errorMessage = document.getElementById('errorMessage');
 
+        // Array to store asset master data
+        let assetMasters = [];
+
+        // Fetch asset masters for dropdowns
+        function fetchAssetMasters() {
+            // Show loading indicator in all dropdowns
+            document.querySelectorAll('.asset-master-loading').forEach(loading => {
+                loading.style.display = 'block';
+            });
+
+            // Use the route that's working in UnitAsset.blade.php
+            fetch('{{ route("asset-master.data") }}')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // This format matches what's in UnitAsset.blade.php
+                    assetMasters = data.masterAssets || [];
+                    console.log('Loaded', assetMasters.length, 'asset masters');
+
+                    // Update all asset master dropdowns
+                    updateAssetMasterDropdowns();
+
+                    // Hide all loading indicators
+                    document.querySelectorAll('.asset-master-loading').forEach(loading => {
+                        loading.style.display = 'none';
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching asset masters:', error);
+
+                    // Hide all loading indicators on error
+                    document.querySelectorAll('.asset-master-loading').forEach(loading => {
+                        loading.style.display = 'none';
+                    });
+
+                    // Show error in the dropdown
+                    document.querySelectorAll('.asset-master-list').forEach(list => {
+                        const errorItem = document.createElement('li');
+                        errorItem.className = 'px-4 py-2 text-red-500';
+                        errorItem.textContent = 'Failed to load asset masters';
+                        list.appendChild(errorItem);
+                    });
+                });
+        }
+
+        // Update all asset master dropdowns with options
+        function updateAssetMasterDropdowns() {
+            document.querySelectorAll('.asset-master-list').forEach(listElement => {
+                // Clear previous items
+                listElement.innerHTML = '';
+
+                // Add options for each asset master
+                assetMasters.forEach(asset => {
+                    const li = document.createElement('li');
+                    li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                    li.textContent = asset.asset_name || 'Unknown asset';
+                    li.setAttribute('data-id', asset.asset_master_id);
+                    li.setAttribute('data-name', asset.asset_name || 'Unknown asset');
+
+                    // Add click handler
+                    li.addEventListener('click', function() {
+                        const container = this.closest('.asset-master-container');
+                        const searchInput = container.querySelector('.asset-master-search');
+                        const hiddenInput = container.querySelector('.asset-master-id');
+                        const dropdown = container.querySelector('.asset-master-dropdown');
+
+                        // Set values
+                        searchInput.value = this.getAttribute('data-name');
+                        hiddenInput.value = this.getAttribute('data-id');
+
+                        // Hide dropdown
+                        dropdown.classList.add('hidden');
+                    });
+
+                    listElement.appendChild(li);
+                });
+
+                // Show "No results" if empty
+                if (assetMasters.length === 0) {
+                    const noResults = document.createElement('li');
+                    noResults.className = 'px-4 py-2 text-gray-500 italic';
+                    noResults.textContent = 'No asset masters found';
+                    listElement.appendChild(noResults);
+                }
+            });
+        }
+
+        // Setup asset master search functionality for a specific container
+        function setupAssetMasterSearch(container) {
+            const searchInput = container.querySelector('.asset-master-search');
+            const dropdown = container.querySelector('.asset-master-dropdown');
+            const list = container.querySelector('.asset-master-list');
+
+            if (searchInput && dropdown && list) {
+                // Show dropdown on focus
+                searchInput.addEventListener('focus', function() {
+                    // Only initialize if not already populated
+                    if (list.children.length === 0) {
+                        // If we have asset masters already, populate dropdown
+                        if (assetMasters.length > 0) {
+                            updateAssetMasterDropdowns();
+                        } else {
+                            // Otherwise fetch them first
+                            fetchAssetMasters();
+                        }
+                    }
+
+                    dropdown.classList.remove('hidden');
+                });
+
+                // Filter items on input
+                searchInput.addEventListener('input', function() {
+                    const value = this.value.toLowerCase();
+                    const items = list.querySelectorAll('li');
+
+                    let hasVisibleItems = false;
+
+                    items.forEach(item => {
+                        if (item.classList.contains('no-results-item')) {
+                            item.remove();
+                        } else {
+                            const text = item.textContent.toLowerCase();
+                            if (text.includes(value)) {
+                                item.style.display = '';
+                                hasVisibleItems = true;
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        }
+                    });
+
+                    // Show "No results" message if needed
+                    if (!hasVisibleItems) {
+                        const noResults = document.createElement('li');
+                        noResults.className = 'px-4 py-2 text-gray-500 italic no-results-item';
+                        noResults.textContent = 'No matching asset masters';
+                        list.appendChild(noResults);
+                    }
+                });
+
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
         // Get procurement ID from URL if present (for edit mode)
         const urlParams = new URLSearchParams(window.location.search);
         const procurementId = urlParams.get('id');
@@ -186,9 +378,53 @@
             loadProcurementData(procurementId);
         }
 
+        // Function to handle asset type selection change
+        function handleAssetTypeChange(selector, itemEntry) {
+            const assetType = selector.value;
+            const assetNameContainer = itemEntry.querySelector('.asset-name-container');
+            const assetMasterContainer = itemEntry.querySelector('.asset-master-container');
+            const assetNameInput = itemEntry.querySelector('.asset-name');
+            const assetMasterInput = itemEntry.querySelector('.asset-master-id');
+
+            if (assetType === 'new') {
+                assetNameContainer.classList.remove('hidden');
+                assetMasterContainer.classList.add('hidden');
+                assetNameInput.disabled = false;
+                assetMasterInput.disabled = true;
+                assetNameInput.required = true;
+                assetMasterInput.required = false;
+            } else {
+                assetNameContainer.classList.add('hidden');
+                assetMasterContainer.classList.remove('hidden');
+                assetNameInput.disabled = true;
+                assetMasterInput.disabled = false;
+                assetNameInput.required = false;
+                assetMasterInput.required = true;
+
+                // Initialize the asset master search if not already done
+                setupAssetMasterSearch(assetMasterContainer);
+            }
+        }
+
+        // Add event listeners to all asset type selectors
+        function addAssetTypeSelectorListeners() {
+            document.querySelectorAll('.asset-type-selector').forEach(selector => {
+                if (!selector.hasEventListener) {
+                    selector.hasEventListener = true;
+                    selector.addEventListener('change', function() {
+                        const itemEntry = this.closest('.item-entry');
+                        handleAssetTypeChange(this, itemEntry);
+                    });
+                }
+            });
+        }
+
+        // Initialize asset type selectors
+        addAssetTypeSelectorListeners();
+
         // Function to load existing procurement data
         function loadProcurementData(id) {
-            fetch(`/procurement/procurements/${id}`, {
+            fetch(`/procurement/request/${id}`, {
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
@@ -200,7 +436,7 @@
                 return response.json();
             })
             .then(data => {
-                if (data.status && data.data) {
+                if (data.success && data.data) {
                     const procurement = data.data;
 
                     // Fill in basic info
@@ -218,6 +454,45 @@
 
                     // Update delete buttons visibility
                     updateDeleteButtons();
+
+                    // Initialize asset type selectors for loaded entries
+                    addAssetTypeSelectorListeners();
+
+                    // Set the correct asset type based on data
+                    document.querySelectorAll('.item-entry').forEach((entry, index) => {
+                        const detail = procurement.details[index];
+                        const selector = entry.querySelector('.asset-type-selector');
+
+                        if (detail.asset_master_id) {
+                            selector.value = 'existing';
+
+                            // Set the selected asset master
+                            const assetMasterContainer = entry.querySelector('.asset-master-container');
+                            const assetMasterSearch = assetMasterContainer.querySelector('.asset-master-search');
+                            const assetMasterId = assetMasterContainer.querySelector('.asset-master-id');
+
+                            if (assetMasterSearch && assetMasterId) {
+                                assetMasterId.value = detail.asset_master_id;
+
+                                // Try to find the asset name in our loaded asset masters
+                                const asset = assetMasters.find(a => a.asset_master_id == detail.asset_master_id);
+                                if (asset) {
+                                    assetMasterSearch.value = asset.asset_name;
+                                } else {
+                                    // Fallback to the detail's asset name
+                                    assetMasterSearch.value = detail.asset_name || 'Asset #' + detail.asset_master_id;
+                                }
+
+                                // Initialize the asset master search
+                                setupAssetMasterSearch(assetMasterContainer);
+                            }
+                        } else {
+                            selector.value = 'new';
+                        }
+
+                        // Trigger change event to update UI
+                        handleAssetTypeChange(selector, entry);
+                    });
                 } else {
                     showError('Failed to load procurement data');
                 }
@@ -256,12 +531,43 @@
                 </button>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <!-- Item Name -->
+                    <!-- Asset Selection Type -->
                     <div class="space-y-2">
+                        <label class="block text-sm font-medium text-[#666666]">Asset Type</label>
+                        <select class="asset-type-selector w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="new">New Asset</option>
+                            <option value="existing">Existing Asset</option>
+                        </select>
+                    </div>
+
+                    <!-- Item Name (for new assets) -->
+                    <div class="space-y-2 asset-name-container">
                         <label class="block text-sm font-medium text-[#666666]">Asset Name</label>
                         <input type="text" name="details[${index}][asset_name]"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
-                            placeholder="Asset name" required value="${data ? data.asset_name : ''}">
+                            placeholder="Asset Name" required value="${data && data.asset_name ? data.asset_name : ''}">
+                    </div>
+
+                    <!-- Asset Master Selection (for existing assets) - initially hidden -->
+                    <div class="space-y-2 asset-master-container hidden">
+                        <label class="block text-sm font-medium text-[#666666]">Select Existing Asset</label>
+                        <div class="relative">
+                            <input type="text" class="asset-master-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                placeholder="Search asset master..." autocomplete="off">
+                            <input type="hidden" name="details[${index}][asset_master_id]" class="asset-master-id">
+
+                            <!-- Dropdown -->
+                            <div class="asset-master-dropdown absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                <div class="asset-master-loading p-2 text-gray-500 text-center">
+                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Loading asset masters...</span>
+                                </div>
+                                <ul class="asset-master-list py-1"></ul>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Quantity -->
@@ -288,6 +594,14 @@
                         class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 specifications"
                         placeholder="Specifications" rows="2">${data ? data.specifications || '' : ''}</textarea>
                 </div>
+
+                <!-- Notes -->
+                <div class="space-y-2 mt-4">
+                    <label class="block text-sm font-medium text-[#666666]">Notes</label>
+                    <textarea name="details[${index}][notes]"
+                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 notes"
+                        placeholder="Notes (optional)" rows="2">${data ? data.notes || '' : ''}</textarea>
+                </div>
             `;
 
             itemContainer.appendChild(newItem);
@@ -301,6 +615,41 @@
                 // Update input names
                 updateInputNames();
             });
+
+            // Add event listener to the new asset type selector
+            const assetTypeSelector = newItem.querySelector('.asset-type-selector');
+            assetTypeSelector.addEventListener('change', function() {
+                handleAssetTypeChange(this, newItem);
+            });
+
+            // Setup asset master search for the new item
+            const assetMasterContainer = newItem.querySelector('.asset-master-container');
+            setupAssetMasterSearch(assetMasterContainer);
+
+            // If data has asset_master_id, set to existing asset mode
+            if (data && data.asset_master_id) {
+                assetTypeSelector.value = 'existing';
+                handleAssetTypeChange(assetTypeSelector, newItem);
+
+                // Set the asset master ID
+                const assetMasterId = newItem.querySelector('.asset-master-id');
+                if (assetMasterId) {
+                    assetMasterId.value = data.asset_master_id;
+                }
+
+                // Set the asset master search display value
+                const assetMasterSearch = newItem.querySelector('.asset-master-search');
+                if (assetMasterSearch) {
+                    // Find the asset name in our loaded asset masters
+                    const asset = assetMasters.find(a => a.asset_master_id == data.asset_master_id);
+                    if (asset) {
+                        assetMasterSearch.value = asset.asset_name;
+                    } else {
+                        // Fallback to the asset name in the data
+                        assetMasterSearch.value = data.asset_name || 'Asset #' + data.asset_master_id;
+                    }
+                }
+            }
         }
 
         // Add new item when clicking the add button
@@ -309,6 +658,10 @@
             addItemEntry(itemCount);
             // Update delete buttons after adding a new item
             updateDeleteButtons();
+            // Add listeners to new asset type selector
+            addAssetTypeSelectorListeners();
+            // Update asset master dropdowns
+            updateAssetMasterDropdowns();
         });
 
         // Function to update input names after removing items
@@ -316,16 +669,18 @@
             const items = itemContainer.querySelectorAll('.item-entry');
             items.forEach((item, index) => {
                 const assetName = item.querySelector('.asset-name');
+                const assetMasterId = item.querySelector('.asset-master-id');
                 const quantity = item.querySelector('.quantity');
                 const unitPrice = item.querySelector('.unit-price');
                 const specifications = item.querySelector('.specifications');
-                const assetJustification = item.querySelector('.asset-justification');
+                const notes = item.querySelector('.notes');
 
                 assetName.name = `details[${index}][asset_name]`;
+                assetMasterId.name = `details[${index}][asset_master_id]`;
                 quantity.name = `details[${index}][quantity]`;
                 unitPrice.name = `details[${index}][estimated_unit_price]`;
                 specifications.name = `details[${index}][specifications]`;
-                assetJustification.name = `details[${index}][justification]`;
+                notes.name = `details[${index}][notes]`;
             });
         }
 
@@ -361,54 +716,54 @@
 
             // Collect form data
             const formData = new FormData(requestForm);
-            const data = {};
+            const data = {
+                details: []
+            };
 
-            // Convert FormData to object
-            for (const [key, value] of formData.entries()) {
-                // Handle nested objects (for details array)
-                if (key.includes('[')) {
-                    const mainKey = key.substring(0, key.indexOf('['));
-                    const subKey = key.substring(key.indexOf('[') + 1, key.indexOf(']'));
-                    const subSubKey = key.includes('][') ? key.substring(key.lastIndexOf('[') + 1, key.lastIndexOf(']')) : null;
+            // Simple fields
+            data.title = formData.get('title');
+            data.priority = formData.get('priority');
+            data.justification = formData.get('justification');
 
-                    if (!data[mainKey]) {
-                        data[mainKey] = [];
-                    }
+            // Process all item entries to create proper details array
+            const items = itemContainer.querySelectorAll('.item-entry');
+            items.forEach((item, index) => {
+                const detailObj = {};
+                const assetTypeSelector = item.querySelector('.asset-type-selector');
 
-                    if (!data[mainKey][subKey]) {
-                        data[mainKey][subKey] = {};
-                    }
-
-                    // Convert numeric fields to numbers
-                    let processedValue = value;
-                    if (subSubKey === 'quantity' || subSubKey === 'estimated_unit_price') {
-                        processedValue = Number(value);
-                    }
-
-                    if (subSubKey) {
-                        data[mainKey][subKey][subSubKey] = processedValue;
-                    } else {
-                        data[mainKey][subKey] = processedValue;
-                    }
+                // Handle asset type (new or existing)
+                if (assetTypeSelector.value === 'new') {
+                    detailObj.asset_name = item.querySelector('.asset-name').value;
                 } else {
-                    data[key] = value;
+                    const assetMasterId = Number(item.querySelector('.asset-master-id').value);
+                    if (assetMasterId) {
+                        detailObj.asset_master_id = assetMasterId;
+                    } else {
+                        // Skip invalid entries
+                        return;
+                    }
                 }
-            }
 
-            // Convert details object to array
-            if (data.details) {
-                const detailsArray = [];
-                Object.keys(data.details).forEach(key => {
-                    detailsArray.push(data.details[key]);
-                });
-                data.details = detailsArray;
-            }
+                // Add other required fields
+                detailObj.quantity = Number(item.querySelector('.quantity').value);
+                detailObj.estimated_unit_price = Number(item.querySelector('.unit-price').value);
+
+                // Add optional fields if they have value
+                const specs = item.querySelector('.specifications').value;
+                if (specs) detailObj.specifications = specs;
+
+                const notes = item.querySelector('.notes').value;
+                if (notes) detailObj.notes = notes;
+
+                // Add to details array
+                data.details.push(detailObj);
+            });
 
             // Determine if this is a create or update operation
             const isUpdate = procurementId ? true : false;
             const url = isUpdate
-                ? `/procurement/procurements/${procurementId}`
-                : '/procurement/procurements';
+                ? `/procurement/request/${procurementId}`
+                : '/procurement/request';
             const method = isUpdate ? 'PUT' : 'POST';
 
             // Get CSRF token
@@ -419,29 +774,26 @@
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-HTTP-Method-Override': isUpdate ? 'PUT' : 'POST'
+                    'X-CSRF-TOKEN': csrfToken
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error(err.message || 'An error occurred');
-                    });
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(result => {
-                if (result.status) {
-                    showSuccess(isUpdate ? 'Procurement updated successfully' : 'Procurement created successfully');
+                if (result.success) {
+                    showSuccess(isUpdate
+                        ? 'Pengadaan berhasil diperbarui'
+                        : 'Pengadaan berhasil dibuat');
                 } else {
-                    showError(result.message || 'An error occurred');
+                    const errorMsg = result.errors
+                        ? Object.values(result.errors).flat().join('\n')
+                        : 'Terjadi kesalahan saat memproses permintaan Anda';
+                    showError(errorMsg);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showError(error.message || 'An error occurred while processing your request');
+                showError('Terjadi kesalahan saat memproses permintaan Anda');
             });
         });
     });

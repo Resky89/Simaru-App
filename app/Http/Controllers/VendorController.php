@@ -22,16 +22,49 @@ class VendorController extends Controller
     public function index(Request $request)
     {
         try {
+            // Get pagination parameters
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
 
+            // Get search parameter
+            $search = $request->input('search', '');
+
+            // Get sort parameter
+            $sort = $request->input('sort', '');
+
+            // Define sort_by and sort_order based on sort parameter
+            $sortBy = 'vendor_id';
+            $sortOrder = 'asc';
+
+            if ($sort === 'id_asc') {
+                $sortBy = 'vendor_id';
+                $sortOrder = 'asc';
+            } elseif ($sort === 'id_desc') {
+                $sortBy = 'vendor_id';
+                $sortOrder = 'desc';
+            } elseif ($sort === 'name_asc') {
+                $sortBy = 'vendor_name';
+                $sortOrder = 'asc';
+            } elseif ($sort === 'name_desc') {
+                $sortBy = 'vendor_name';
+                $sortOrder = 'desc';
+            }
+
+            // Build query parameters
+            $queryParams = [
+                'page' => $page,
+                'limit' => $limit,
+                'sort_by' => $sortBy,
+                'sort_order' => $sortOrder
+            ];
+
+            // Add search parameter if provided
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
             $result = $this->apiService->request('GET', '/vendors', [
-                'query' => [
-                    'page' => $page,
-                    'limit' => $limit,
-                    'sort_by' => 'vendor_id',
-                    'sort_order' => 'asc'  // Use 'asc' for oldest first
-                ]
+                'query' => $queryParams
             ]);
 
             // Check if we got an error response from the ApiService
@@ -87,9 +120,43 @@ class VendorController extends Controller
                 return response()->json($result['data'] ?? []);
             }
 
+            // Format pagination data
+            $pagination = null;
+            if (isset($result['pagination'])) {
+                $paginationData = $result['pagination'];
+
+                // Preserve existing query parameters
+                $queryParams = $request->query();
+
+                // Build next and previous page URLs with all query parameters
+                $nextPageUrl = null;
+                $prevPageUrl = null;
+
+                if ($paginationData['has_next']) {
+                    $nextPageParams = array_merge($queryParams, ['page' => ($paginationData['current_page'] + 1)]);
+                    $nextPageUrl = url()->current() . '?' . http_build_query($nextPageParams);
+                }
+
+                if ($paginationData['has_prev']) {
+                    $prevPageParams = array_merge($queryParams, ['page' => ($paginationData['current_page'] - 1)]);
+                    $prevPageUrl = url()->current() . '?' . http_build_query($prevPageParams);
+                }
+
+                $pagination = [
+                    'current_page' => $paginationData['current_page'] ?? 1,
+                    'last_page' => ceil(($paginationData['total_items'] ?? 0) / ($paginationData['limit'] ?? 10)),
+                    'from' => (($paginationData['current_page'] ?? 1) - 1) * ($paginationData['limit'] ?? 10) + 1,
+                    'to' => min(($paginationData['current_page'] ?? 1) * ($paginationData['limit'] ?? 10), $paginationData['total_items'] ?? 0),
+                    'total' => $paginationData['total_items'] ?? 0,
+                    'per_page' => $paginationData['limit'] ?? 10,
+                    'next_page_url' => $nextPageUrl,
+                    'prev_page_url' => $prevPageUrl,
+                ];
+            }
+
             return view('Vendor', [
                 'vendors' => $result['data'] ?? [],
-                'pagination' => $result['pagination'] ?? null
+                'pagination' => $pagination
             ]);
         } catch (\Exception $e) {
             \Log::error('Failed to fetch vendors', [
@@ -315,6 +382,127 @@ class VendorController extends Controller
 
             return redirect()->back()
                 ->with('error', 'Failed to delete vendor: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Import vendors from Excel file.
+     */
+    public function import(Request $request)
+    {
+        try {
+            // Validate the request
+            $validated = $request->validate([
+                'excel_file' => 'required|file|mimes:xlsx,xls,csv',
+            ]);
+
+            // Log the import attempt
+            \Log::info('Attempting to import vendors', [
+                'file_name' => $request->file('excel_file')->getClientOriginalName(),
+                'file_size' => $request->file('excel_file')->getSize()
+            ]);
+
+            // Create multipart form data for the API request
+            $multipart = [
+                [
+                    'name' => 'excel_file',
+                    'contents' => fopen($request->file('excel_file')->getPathname(), 'r'),
+                    'filename' => $request->file('excel_file')->getClientOriginalName()
+                ]
+            ];
+
+            // Send the import request to the API
+            $result = $this->apiService->request('POST', '/vendors/import', [
+                'multipart' => $multipart
+            ]);
+
+            // Log the API response
+            \Log::info('API response for vendor import:', [
+                'api_response' => $result
+            ]);
+
+            // Check for authentication errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during vendor import:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], status: 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for other API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to import vendors';
+
+                \Log::warning('Error during vendor import:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData,
+                        'data' => $result['data'] ?? null
+                    ], status: 400);
+                }
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Successfully imported
+            $successMessage = $result['message'] ?? 'Vendors imported successfully';
+            \Log::info('Vendors imported successfully', [
+                'total' => $result['data']['total'] ?? 0,
+                'success' => $result['data']['success'] ?? 0,
+                'failed' => $result['data']['failed'] ?? 0
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('vendor')->with('success', $successMessage);
+        } catch (\Exception $e) {
+            \Log::error('Exception during vendor import:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Failed to import vendors: ' . $e->getMessage()]
+                ], status: 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to import vendors: ' . $e->getMessage());
         }
     }
 }

@@ -111,6 +111,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::post('/store', [VendorController::class, 'store'])->name('vendor.store');
         Route::put('/update/{id}', [VendorController::class, 'update'])->name('vendor.update');
         Route::delete('/delete/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
+        Route::post('/import', [VendorController::class, 'import'])->name('vendor.import');
     });
 
     // User Management
@@ -264,10 +265,13 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         })->name('detail-receipt');
 
         // Inside the procurement route group
-        Route::post('/procurements', [ProcurementRequestController::class, 'store'])->name('store');
-        Route::put('/procurements/{id}', [ProcurementRequestController::class, 'update'])->name('update');
-        Route::get('/procurements/{id}', [ProcurementRequestController::class, 'getOne'])->name('getOne');
-        Route::delete('/procurements/{id}', [ProcurementRequestController::class, 'destroy'])->name('destroy');
+        Route::post('/request', [ProcurementRequestController::class, 'store'])->name('store');
+        Route::put('/request/{id}', [ProcurementRequestController::class, 'update'])->name('update');
+        Route::get('/request/{id}', [ProcurementRequestController::class, 'getOne'])->name('getOne');
+        Route::delete('/request/{id}', [ProcurementRequestController::class, 'destroy'])->name('destroy');
+        Route::post('/request/{id}/manager-approval', [ProcurementRequestController::class, 'managerApproval'])->name('manager-approval');
+        Route::post('/request/{id}/director-approval', [ProcurementRequestController::class, 'directorApproval'])->name('director-approval');
+        Route::post('/request/{id}/reject', [ProcurementRequestController::class, 'rejectProcurement'])->name('reject');
     });
 
     //-------------------------------------------------------------------------
