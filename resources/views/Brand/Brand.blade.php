@@ -754,7 +754,7 @@
                 document.getElementById('delete_brand_name').textContent = brandName;
 
                 // Update form action with the correct route and log it
-                const formAction = "{{ route('brands.destroy', '') }}/" + brandId;
+                const formAction = "{{ url('brands/destroy') }}/" + brandId;
                 document.getElementById('deleteBrandForm').action = formAction;
                 console.log('Delete form action set to:', formAction);
 

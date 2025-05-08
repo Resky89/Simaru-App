@@ -106,12 +106,32 @@
                                             <div class="flex items-center justify-between">
                                                 <span>{{ $vendor['vendor_name'] }}</span>
                                                 <div class="flex gap-2">
-                                                    <button class="text-white hover:text-gray-200">
+                                                    @php
+                                                    // Find vendor_offer_id for this vendor
+                                                    $vendorOfferId = null;
+                                                    if(isset($comparison['items']) && is_array($comparison['items'])) {
+                                                        foreach($comparison['items'] as $item) {
+                                                            if(isset($item['vendor_offers']) && is_array($item['vendor_offers'])) {
+                                                                foreach($item['vendor_offers'] as $offer) {
+                                                                    if(isset($offer['vendor']) && $offer['vendor']['vendor_id'] === $vendor['vendor_id'] && isset($offer['vendor_offer_id'])) {
+                                                                        $vendorOfferId = $offer['vendor_offer_id'];
+                                                                        break 2; // Exit both loops once found
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    @endphp
+                                                    <a href="{{ route('procurement.form-vendor-comparison', ['id' => $comparison['comparison_id'], 'offer_id' => $vendorOfferId]) }}"
+                                                       class="text-white hover:text-gray-200">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                         </svg>
-                                                    </button>
-                                                    <button class="text-white hover:text-gray-200">
+                                                    </a>
+                                                    <button class="text-white hover:text-gray-200 delete-vendor-btn"
+                                                            data-vendor-offer-id="{{ $vendorOfferId }}"
+                                                            data-vendor-name="{{ $vendor['vendor_name'] }}"
+                                                            data-comparison-id="{{ $comparison['comparison_id'] }}">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
@@ -267,6 +287,84 @@
                 }
             });
         }
+
+        // Handle vendor deletion
+        const deleteButtons = document.querySelectorAll('.delete-vendor-btn');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const vendorOfferId = this.getAttribute('data-vendor-offer-id');
+                const vendorName = this.getAttribute('data-vendor-name');
+                const comparisonId = this.getAttribute('data-comparison-id');
+
+                if (!vendorOfferId) {
+                    alert('Error: Could not find vendor offer ID');
+                    return;
+                }
+
+                if (confirm(`Are you sure you want to delete the vendor offer from ${vendorName}? This action cannot be undone.`)) {
+                    // Show loading indicator
+                    this.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>';
+                    this.disabled = true;
+
+                    // Get CSRF token
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+                    // Send delete request
+                    fetch(`/procurement/price-comparison/vendor-offer/${vendorOfferId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            comparison_id: comparisonId
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            if (successMessage) {
+                                successMessage.textContent = data.message || 'Vendor offer deleted successfully';
+                                successMessage.classList.remove('hidden');
+
+                                // Hide success message after 5 seconds
+                                setTimeout(function() {
+                                    successMessage.classList.add('hidden');
+                                }, 5000);
+                            } else {
+                                alert(data.message || 'Vendor offer deleted successfully');
+                            }
+
+                            // Reload the page to refresh the data
+                            window.location.reload();
+                        } else {
+                            // Show error message
+                            alert(data.errors?.general || 'Failed to delete vendor offer');
+
+                            // Reset button
+                            this.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
+                            this.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while deleting the vendor offer');
+
+                        // Reset button
+                        this.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
+                        this.disabled = false;
+                    });
+                }
+            });
+        });
     });
 </script>
 @endpush

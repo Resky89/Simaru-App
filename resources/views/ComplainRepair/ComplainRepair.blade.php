@@ -1065,7 +1065,7 @@
         document.querySelectorAll('.delete-complaint-btn').forEach(button => {
             button.addEventListener('click', () => {
                 const complaintId = button.getAttribute('data-id');
-                deleteComplaintForm.action = `{{ route('complaint.destroy', '') }}/${complaintId}`;
+                deleteComplaintForm.action = `{{ url('complaint/destroy') }}/${complaintId}`;
                 deleteComplaintId.value = complaintId;
 
                 // Open delete modal
@@ -1115,7 +1115,7 @@
     // Function to view complaint details - defined globally
     function viewComplaintDetails(id) {
         // Redirect to the complaint detail page
-        window.location.href = "{{ route('complaint.detail', '') }}/" + id;
+        window.location.href = "{{ url('complaint/detail') }}/" + id;
     }
 </script>
 @endsection

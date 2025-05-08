@@ -609,7 +609,13 @@
 
         // Submit button click event
         if (submitBtn) {
+            let isSubmitting = false; // Flag to track submission status
             submitBtn.addEventListener('click', function() {
+                // Prevent multiple submissions
+                if (isSubmitting) {
+                    return;
+                }
+
                 // Validate inputs
                 if (!comparisonTitle.value.trim()) {
                     showToast('Please enter a quotation title', 'error');
@@ -625,6 +631,9 @@
                 const formData = new FormData();
                 formData.append('title', comparisonTitle.value);
                 formData.append('procurement_id', parseInt(selectedRequestId.value, 10));
+
+                // Set submitting flag and disable button
+                isSubmitting = true;
 
                 // Disable submit button during submission
                 submitBtn.disabled = true;
@@ -653,7 +662,13 @@
                     if (data.success) {
                         showToast('Price comparison has been created successfully!', 'success');
                 window.location.href = "{{ route('procurement.price-comparison') }}";
+                        // Don't reset button state or submitting flag on success as we're redirecting
                     } else {
+                        // Reset flag and button on error
+                        isSubmitting = false;
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'SUBMIT';
+
                         if (data.errors) {
                             showToast(data.errors, 'error');
                         } else {
@@ -664,16 +679,16 @@
                 .catch(error => {
                     console.error('Error creating price comparison:', error);
 
+                    // Reset flag and button on error
+                    isSubmitting = false;
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'SUBMIT';
+
                     if (error.errors) {
                         showToast(error.errors, 'error');
                     } else {
                         showToast(error.message || 'An error occurred while creating the price comparison', 'error');
                     }
-                })
-                .finally(() => {
-                    // Re-enable button
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'SUBMIT';
                 });
             });
         }

@@ -643,7 +643,7 @@
                 const description = button.getAttribute('data-description');
 
                 // Update form action with the correct route and log it
-                const formAction = "{{ route('categories.update', '') }}/" + subcategoryId;
+                const formAction = "{{ url('categories/update') }}/" + subcategoryId;
                 document.getElementById('editSubCategoryForm').action = formAction;
                 console.log('Edit form action set to:', formAction);
 
@@ -662,7 +662,7 @@
                 const subcategoryId = button.getAttribute('data-subcategory-id');
 
                 // Update form action with the correct route and log it
-                const formAction = "{{ route('categories.destroy', '') }}/" + subcategoryId;
+                const formAction = "{{ url('categories/delete') }}/" + subcategoryId;
                 document.getElementById('deleteSubCategoryForm').action = formAction;
                 console.log('Delete form action set to:', formAction);
 

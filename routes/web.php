@@ -234,7 +234,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
             return view('Procurement.Comparison.FormComparison', ['id' => $id]);
         })->name('form-comparison');
         Route::get('/form-vendor-comparison/{id?}', function ($id = null) {
-            return view('Procurement.Comparison.FormComparisonVendor', ['id' => $id]);
+            return view('Procurement.Comparison.FormComparisonVendor', ['comparison_id' => $id]);
         })->name('form-vendor-comparison');
         Route::get('/detail-comparison/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'show'])->name('detail-comparison');
 

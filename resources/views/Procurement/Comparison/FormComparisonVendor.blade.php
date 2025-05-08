@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Add Vendor Quotation')
+@section('title', isset($vendorOffer) || request()->has('offer_id') ? 'Edit Vendor Quotation' : 'Add Vendor Quotation')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -11,7 +11,7 @@
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
-                        {{ isset($vendorOffer) ? 'EDIT VENDOR QUOTATION' : 'ADD VENDOR QUOTATION' }}
+                        {{ isset($vendorOffer) || request()->has('offer_id') ? 'EDIT VENDOR QUOTATION' : 'ADD VENDOR QUOTATION' }}
                     </h1>
                 </div>
 
@@ -100,7 +100,7 @@
                             CANCEL
                         </a>
                         <button type="submit" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
-                            {{ isset($vendorOffer) ? 'UPDATE' : 'SUBMIT' }}
+                            {{ isset($vendorOffer) || request()->has('offer_id') ? 'UPDATE' : 'SUBMIT' }}
                         </button>
                     </div>
                 </form>
@@ -109,11 +109,44 @@
     </div>
 </div>
 
-<!-- Toast Notification -->
-<div id="toast" class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg transform transition-transform duration-300 scale-0 z-50">
-    <div class="flex items-center">
-        <div id="toast_icon" class="mr-2"></div>
-        <div id="toast_message" class="text-sm font-medium"></div>
+<!-- Toast Container -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+<!-- Success Modal -->
+<div id="successModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="fixed inset-0 bg-black opacity-50"></div>
+    <div class="bg-white p-6 rounded-lg shadow-xl z-10 w-full max-w-md">
+        <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">Success!</h3>
+            <p class="mt-2 text-sm text-gray-500" id="successMessage">Your vendor quotation has been successfully saved.</p>
+            <div class="mt-4">
+                <button id="successModalClose" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451]">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div id="errorModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="fixed inset-0 bg-black opacity-50"></div>
+    <div class="bg-white p-6 rounded-lg shadow-xl z-10 w-full max-w-md">
+        <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">Error!</h3>
+            <p class="mt-2 text-sm text-gray-500" id="errorMessage">An error occurred. Please try again.</p>
+            <div class="mt-4">
+                <button id="errorModalClose" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                    Close
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -132,9 +165,26 @@
         const toastMessage = document.getElementById('toast_message');
         const toastIcon = document.getElementById('toast_icon');
 
-        // If we have a vendor_offer_id, load the vendor offer data
-        if (vendorOfferId) {
-            loadVendorOfferData(vendorOfferId);
+        // Get URL parameters for offer_id if it exists
+        const urlParams = new URLSearchParams(window.location.search);
+        const offerIdFromUrl = urlParams.get('offer_id');
+
+        // If we have a vendor offer ID from URL, load the vendor offer data
+        if (offerIdFromUrl) {
+            // Set the vendor_offer_id input
+            if (!vendorOfferId) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'vendor_offer_id';
+                hiddenInput.id = 'vendor_offer_id';
+                hiddenInput.value = offerIdFromUrl;
+                form.appendChild(hiddenInput);
+            } else {
+                document.getElementById('vendor_offer_id').value = offerIdFromUrl;
+            }
+
+            // Load vendor offer data
+            loadVendorOfferData(offerIdFromUrl);
         } else {
             // If we don't have a vendor_offer_id, load comparison data directly
             loadComparisonData();
@@ -159,6 +209,7 @@
                 }
 
                 const vendorOffer = data.data;
+                console.log('Loaded vendor offer data:', vendorOffer);
 
                 // Fill vendor data
                 if (vendorOffer.vendor) {
@@ -174,45 +225,153 @@
                 document.getElementById('delivery_terms').value = vendorOffer.delivery_terms || '';
                 document.getElementById('notes').value = vendorOffer.notes || '';
 
+                // Store vendor offer items for later use
+                const vendorOfferItems = [];
+
+                // Parse vendor offer items from the response
+                if (vendorOffer.items && Array.isArray(vendorOffer.items) && vendorOffer.items.length > 0) {
+                    // Process direct items array (if available)
+                    vendorOfferItems.push(...vendorOffer.items);
+                    console.log('Found items in vendor offer:', vendorOffer.items);
+                }
+
+                if (vendorOffer.vendor_offer_items && Array.isArray(vendorOffer.vendor_offer_items) && vendorOffer.vendor_offer_items.length > 0) {
+                    // Process vendor_offer_items array (if available)
+                    vendorOfferItems.push(...vendorOffer.vendor_offer_items);
+                    console.log('Found vendor_offer_items in vendor offer:', vendorOffer.vendor_offer_items);
+                }
+
                 // After loading the vendor data, load the comparison data
-                loadComparisonData();
+                loadComparisonData(vendorOfferItems, vendorOffer);
             })
             .catch(error => {
                 console.error('Error loading vendor offer data:', error);
                 showToast('Failed to load vendor offer data: ' + error.message, 'error');
 
                 // Still try to load comparison data even if vendor offer data failed
-                loadComparisonData();
+                loadComparisonData([], null);
             });
         }
 
+        // Show toast notification
         function showToast(message, type = 'success') {
-            // Set message
-            toastMessage.textContent = message;
-
-            // Set icon and color based on type
-            if (type === 'success') {
-                toast.classList.add('bg-green-100', 'text-green-700');
-                toastIcon.innerHTML = '<svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>';
-            } else {
-                toast.classList.add('bg-red-100', 'text-red-700');
-                toastIcon.innerHTML = '<svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>';
+            // Create toast container if it doesn't exist
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+                document.body.appendChild(toastContainer);
             }
 
-            // Show toast
-            toast.classList.remove('scale-0');
-            toast.classList.add('scale-100');
+            // Check if message contains HTML
+            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
 
-            // Hide after 3 seconds
+            // Create notification element
+            const toast = document.createElement('div');
+            toast.className = 'p-4 rounded shadow-md animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+
+            if (type === 'success') {
+                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+
+                // Set content for success toast
+                toast.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Success!</p>
+                            <div>${message}</div>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            } else {
+                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+
+                // Structure for error notification
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-start';
+
+                // Icon container
+                const iconContainer = document.createElement('div');
+                iconContainer.className = 'py-1 flex-shrink-0';
+                iconContainer.innerHTML = `
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                `;
+
+                // Content container
+                const contentContainer = document.createElement('div');
+                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                // Title
+                const title = document.createElement('p');
+                title.className = 'font-bold';
+                title.textContent = 'Error!';
+                contentContainer.appendChild(title);
+
+                // Message container
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'error-message';
+
+                // Handle HTML content
+                if (hasHTML) {
+                    messageContainer.innerHTML = message;
+                } else {
+                    messageContainer.textContent = message;
+                }
+
+                contentContainer.appendChild(messageContainer);
+
+                // Close button
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = function() {
+                    toast.remove();
+                };
+
+                // Assemble the notification
+                wrapper.appendChild(iconContainer);
+                wrapper.appendChild(contentContainer);
+                wrapper.appendChild(closeBtn);
+                toast.appendChild(wrapper);
+            }
+
+            // Add to container
+            toastContainer.appendChild(toast);
+
+            // Auto-remove notification after 5 seconds
             setTimeout(() => {
-                toast.classList.remove('scale-100');
-                toast.classList.add('scale-0');
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
+        }
 
-                // Clean up classes after animation
-                setTimeout(() => {
-                    toast.classList.remove('bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
-                }, 300);
-            }, 3000);
+        // Function to validate a form field
+        function validateField(field) {
+            if (field.tagName.toLowerCase() === 'select') {
+                if (!field.value) {
+                    field.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                    return true;
+                }
+            } else {
+                if (!field.value.trim()) {
+                    field.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                    return true;
+                }
+            }
         }
 
         // Reset validation errors
@@ -292,7 +451,7 @@
         }, 300));
 
         // Load comparison data to populate items
-        function loadComparisonData() {
+        function loadComparisonData(vendorOfferItems = [], vendorOfferData = null) {
             const itemsContainer = document.getElementById('items_container');
             itemsContainer.innerHTML = '<tr class="border-t border-[#EEF1F4]"><td colspan="3" class="p-3 text-center text-gray-500">Loading items...</td></tr>';
 
@@ -314,6 +473,7 @@
                 }
 
                 comparisonItems = data.data.items || [];
+                console.log('Loaded comparison items:', comparisonItems);
 
                 // Clear container
                 itemsContainer.innerHTML = '';
@@ -323,11 +483,45 @@
                     return;
                 }
 
-                // Add items to the table
-                comparisonItems.forEach((item, index) => {
-                    const vendorOffer = isEditMode && item.vendor_offers ?
-                        item.vendor_offers.find(offer => offer.vendor?.vendor_id == vendorIdInput.value) : null;
+                // Get selected vendor id
+                const selectedVendorId = document.getElementById('selected_vendor_id').value;
 
+                // Create a map of price comparison item IDs to their prices for quick lookup
+                const priceMap = new Map();
+
+                // First populate from direct vendor offer items (highest priority)
+                if (vendorOfferItems && vendorOfferItems.length > 0) {
+                    vendorOfferItems.forEach(item => {
+                        if (item.price_comparison_item_id && item.unit_price !== undefined) {
+                            priceMap.set(
+                                parseInt(item.price_comparison_item_id),
+                                {
+                                    price: item.unit_price,
+                                    vendorOfferId: item.vendor_offer_id || item.vendor_offer_item_id
+                                }
+                            );
+                        }
+                    });
+                }
+
+                // If we have a complete vendor offer, also look for prices in other structures
+                if (vendorOfferData && vendorOfferData.price_data) {
+                    // Some APIs return a price_data object with item IDs as keys
+                    Object.entries(vendorOfferData.price_data).forEach(([itemId, priceData]) => {
+                        if (!priceMap.has(parseInt(itemId)) && priceData.unit_price !== undefined) {
+                            priceMap.set(
+                                parseInt(itemId),
+                                {
+                                    price: priceData.unit_price,
+                                    vendorOfferId: priceData.vendor_offer_id || vendorOfferData.vendor_offer_id
+                                }
+                            );
+                        }
+                    });
+                }
+
+                // Add items to the table
+                comparisonItems.forEach(item => {
                     const tr = document.createElement('tr');
                     tr.className = 'border-t border-[#EEF1F4]';
 
@@ -347,17 +541,31 @@
                     priceInput.className = 'w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200';
                     priceInput.placeholder = 'Unit Price';
 
-                    if (isEditMode) {
-                        if (vendorOffer) {
-                            // For update, use vendor_offer_id
+                    // Check if we have a price for this item in our price map
+                    const itemId = parseInt(item.price_comparison_item_id);
+                    const priceData = priceMap.get(itemId);
+
+                    if (priceData) {
+                        // We found a price in our map - use the vendor_offer_id and set the price
+                        priceInput.setAttribute('data-vendor-offer-id', priceData.vendorOfferId);
+                        priceInput.value = Number(priceData.price).toLocaleString('id-ID');
+                        console.log(`Setting price for item ${itemId} from price map:`, priceData.price);
+                    } else if (isEditMode && item.vendor_offers && item.vendor_offers.length > 0 && selectedVendorId) {
+                        // Legacy path - look in vendor_offers array if not found in our map
+                        const vendorOffer = item.vendor_offers.find(
+                            offer => offer.vendor && parseInt(offer.vendor.vendor_id) === parseInt(selectedVendorId)
+                        );
+
+                        if (vendorOffer && vendorOffer.unit_price !== undefined) {
                             priceInput.setAttribute('data-vendor-offer-id', vendorOffer.vendor_offer_id);
-                            priceInput.value = vendorOffer.unit_price;
+                            priceInput.value = Number(vendorOffer.unit_price).toLocaleString('id-ID');
+                            console.log(`Setting price for item ${itemId} from vendor_offers array:`, vendorOffer.unit_price);
                         } else {
-                            // For items without an offer yet, use price_comparison_item_id
+                            // No price found - use price_comparison_item_id for new offers
                             priceInput.setAttribute('data-price-comparison-item-id', item.price_comparison_item_id);
                         }
                     } else {
-                        // For create, use price_comparison_item_id
+                        // For items without a price - use price_comparison_item_id
                         priceInput.setAttribute('data-price-comparison-item-id', item.price_comparison_item_id);
                     }
 
@@ -579,26 +787,51 @@
 
         // Form submission handler
         if (form) {
+            let isSubmitting = false; // Flag to track submission status
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+
+                // Prevent multiple submissions
+                if (isSubmitting) {
+                    return;
+                }
+
+                // Reset validation errors
+                const allFields = form.querySelectorAll('input, select, textarea');
+                allFields.forEach(field => {
+                    field.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                });
+                document.querySelectorAll('[id$="_error"]').forEach(el => {
+                    el.textContent = '';
+                    el.classList.add('hidden');
+                });
 
                 // Validate vendor selection
                 const vendorId = document.getElementById('selected_vendor_id').value;
                 if (!vendorId) {
-                    alert('Please select a vendor before submitting.');
+                    document.getElementById('vendor_search').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                    document.getElementById('vendor_error').textContent = 'Please select a vendor';
+                    document.getElementById('vendor_error').classList.remove('hidden');
+                    showToast('Please select a vendor before submitting.', 'error');
                     return;
                 }
 
                 // Collect payment and delivery terms
-                const paymentTerms = document.querySelector('textarea[placeholder="Payment Terms"]').value.trim();
+                const paymentTerms = document.getElementById('payment_terms').value.trim();
                 if (!paymentTerms) {
-                    alert('Please enter payment terms.');
+                    document.getElementById('payment_terms').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                    document.getElementById('payment_terms_error').textContent = 'Please enter payment terms';
+                    document.getElementById('payment_terms_error').classList.remove('hidden');
+                    showToast('Please enter payment terms.', 'error');
                     return;
                 }
 
-                const deliveryTerms = document.querySelector('textarea[placeholder="Delivery Terms"]').value.trim();
+                const deliveryTerms = document.getElementById('delivery_terms').value.trim();
                 if (!deliveryTerms) {
-                    alert('Please enter delivery terms.');
+                    document.getElementById('delivery_terms').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                    document.getElementById('delivery_terms_error').textContent = 'Please enter delivery terms';
+                    document.getElementById('delivery_terms_error').classList.remove('hidden');
+                    showToast('Please enter delivery terms.', 'error');
                     return;
                 }
 
@@ -606,11 +839,14 @@
                 const itemPrices = [];
                 const priceInputs = document.querySelectorAll('table tbody tr input');
                 let hasEmptyPrice = false;
+                let hasErroredItem = false;
 
                 priceInputs.forEach((input) => {
                     const value = input.value.trim().replace(/[^\d]/g, '');
                     if (!value) {
+                        input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
                         hasEmptyPrice = true;
+                        hasErroredItem = true;
                         return;
                     }
 
@@ -630,7 +866,8 @@
                         };
                     } else {
                         console.error('Item input is missing required data attributes', input);
-                        alert('Error: Some items are missing required data. Please reload the page and try again.');
+                        hasErroredItem = true;
+                        showToast('Error: Some items are missing required data. Please reload the page and try again.', 'error');
                         return;
                     }
 
@@ -638,16 +875,20 @@
                 });
 
                 if (hasEmptyPrice) {
-                    alert('Please enter prices for all items.');
+                    showToast('Please enter prices for all items.', 'error');
                     return;
                 }
 
-                // Get comparison ID from the hidden input field - FIX THE ISSUE HERE
+                if (hasErroredItem) {
+                    return;
+                }
+
+                // Get comparison ID from the hidden input field
                 const comparisonId = document.getElementById('comparison_id').value;
                 console.log('Using comparison ID:', comparisonId);
 
                 if (!comparisonId) {
-                    alert('Error: Comparison ID is missing. Please try again or contact support.');
+                    showToast('Comparison ID is missing. Please try again or contact support.', 'error');
                     console.error('Comparison ID is missing or invalid');
                     return;
                 }
@@ -667,15 +908,24 @@
                 // Get CSRF token
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
+                // Set submitting flag and disable button
+                isSubmitting = true;
+
                 // Show loading state or disable button
                 const submitBtn = form.querySelector('button[type="submit"]');
                 const originalBtnText = submitBtn.textContent;
-                submitBtn.textContent = 'Processing...';
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    PROCESSING...
+                `;
                 submitBtn.disabled = true;
 
                 // Determine if we're creating or updating
-                const isUpdate = window.location.pathname.includes('edit-vendor-offer');
-                const vendorOfferId = isUpdate ? urlParams.get('offer_id') : null;
+                const vendorOfferId = document.getElementById('vendor_offer_id')?.value;
+                const isUpdate = !!vendorOfferId;
 
                 // API endpoint
                 const endpoint = isUpdate
@@ -694,38 +944,112 @@
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`Server responded with ${response.status}`);
+                        return response.json().then(data => {
+                            throw { status: response.status, data: data };
+                        });
                     }
                     return response.json();
                 })
                 .then(data => {
-                    // Reset button state
-                    submitBtn.textContent = originalBtnText;
-                    submitBtn.disabled = false;
-
                     if (data.success) {
-                        // Show success message
-                        alert(data.message || 'Vendor quotation saved successfully!');
+                        // Show success toast - don't reset button or submitting flag since we're redirecting
+                        showToast(data.message || 'Vendor quotation saved successfully!');
 
-                        // Redirect to the comparison detail page
-                        window.location.href = data.redirect_url ||
-                            `{{ route('procurement.detail-comparison', ['id' => '_ID_']) }}`.replace('_ID_', comparisonId);
+                        // Redirect after success
+                        setTimeout(() => {
+                            window.location.href = data.redirect_url ||
+                                `{{ route('procurement.detail-comparison', ['id' => '_ID_']) }}`.replace('_ID_', comparisonId);
+                        }, 1500);
                     } else {
-                        // Show error message
-                        const errorMsg = data.errors?.general || 'Failed to save vendor quotation.';
-                        alert(errorMsg);
+                        // Reset submission flag and button on error
+                        isSubmitting = false;
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+
+                        // Show error toast
+                        showToast(data.errors?.general || 'Failed to save vendor quotation.', 'error');
+
+                        // Handle validation errors
+                        if (data.errors && typeof data.errors === 'object') {
+                            Object.entries(data.errors).forEach(([field, messages]) => {
+                                const fieldElement = document.getElementById(field);
+                                if (fieldElement) {
+                                    fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                                }
+
+                                // Display field error messages
+                                const errorElement = document.getElementById(`${field}_error`);
+                                if (errorElement) {
+                                    errorElement.textContent = Array.isArray(messages) ? messages[0] : messages;
+                                    errorElement.classList.remove('hidden');
+                                }
+                            });
+                        }
                     }
                 })
                 .catch(error => {
-                    // Reset button state
-                    submitBtn.textContent = originalBtnText;
+                    console.error('Error:', error);
+
+                    // Reset flag and button state on error
+                    isSubmitting = false;
+                    submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
 
-                    console.error('Error saving vendor quotation:', error);
-                    alert('An error occurred while saving the vendor quotation.');
+                    // Check if this is a structured error response
+                    if (error.data && error.data.errors) {
+                        const errorData = error.data.errors;
+                        let errorMessage = 'Validation errors occurred:';
+
+                        if (typeof errorData === 'object') {
+                            errorMessage += '<ul>';
+                            Object.entries(errorData).forEach(([field, messages]) => {
+                                const message = Array.isArray(messages) ? messages.join(', ') : messages;
+                                errorMessage += `<li><strong>${field}</strong>: ${message}</li>`;
+
+                                // Highlight the form field if it exists
+                                const fieldElement = document.getElementById(field);
+                                if (fieldElement) {
+                                    fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                                }
+                            });
+                            errorMessage += '</ul>';
+                        } else {
+                            errorMessage = typeof errorData === 'string' ? errorData : 'An error occurred while saving the vendor quotation.';
+                        }
+
+                        showToast(errorMessage, 'error');
+                    } else {
+                        // Generic error message
+                        showToast('An error occurred while saving the vendor quotation. Please try again.', 'error');
+                    }
                 });
             });
         }
+
+        // Add styling for animations
+        document.head.insertAdjacentHTML('beforeend', `
+            <style>
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+                .animate-slide-in-right {
+                    animation: slideInRight 0.3s ease-out forwards;
+                }
+
+                /* Styling for error messages with HTML content */
+                .error-message ul {
+                    margin-top: 0.5rem;
+                    padding-left: 1.5rem;
+                }
+                .error-message ul li {
+                    margin-bottom: 0.25rem;
+                }
+                .error-message ul li:last-child {
+                    margin-bottom: 0;
+                }
+            </style>
+        `);
     });
 </script>
 
@@ -743,11 +1067,6 @@
 
     .fade-in {
         animation: fadeIn 0.3s ease-in-out forwards;
-    }
-
-    /* Toast animation */
-    #toast {
-        transition: transform 0.3s ease-in-out;
     }
 </style>
 @endpush
