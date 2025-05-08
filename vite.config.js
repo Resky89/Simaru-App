@@ -8,4 +8,15 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    optimizeDeps: {
+        include: ['tailwindcss', 'autoprefixer']
+    },
+    build: {
+        commonjsOptions: {
+            transformMixedEsModules: true
+        }
+    },
+    css: {
+        postcss: './postcss.config.cjs',
+    }
 });
