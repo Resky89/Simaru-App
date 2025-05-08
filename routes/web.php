@@ -236,14 +236,21 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/form-vendor-comparison/{id?}', function ($id = null) {
             return view('Procurement.Comparison.FormComparisonVendor', ['id' => $id]);
         })->name('form-vendor-comparison');
-        Route::get('/detail-comparison/{id?}', function ($id = null) {
-            return view('Procurement.Comparison.DetailComparison', ['id' => $id]);
-        })->name('detail-comparison');
+        Route::get('/detail-comparison/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'show'])->name('detail-comparison');
 
         // Price Comparison API
         Route::post('/price-comparison', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'store'])->name('store-price-comparison');
         Route::get('/price-comparison/data', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'index'])->name('price-comparison-data');
+        Route::get('/price-comparison/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'show'])->name('show-price-comparison');
+        Route::get('/procurement/request', [ProcurementRequestController::class, 'search'])->name('search');
         Route::post('/price-comparison/create-from-detail', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'createFromDetail'])->name('create-price-comparison-from-detail');
+
+        // Vendor Offer API
+        Route::get('/price-comparison/vendor-offer/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'getVendorOffer'])->name('get-vendor-offer');
+        Route::post('/price-comparison/vendor-offer', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'createVendorOffer'])->name('create-vendor-offer');
+        Route::put('/price-comparison/vendor-offer/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'updateVendorOffer'])->name('update-vendor-offer');
+        Route::delete('/price-comparison/vendor-offer/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'deleteVendorOffer'])->name('delete-vendor-offer');
+
 
         // Purchase Order
         Route::get('/purchase-order', function () {

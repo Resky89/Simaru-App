@@ -260,7 +260,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Kesalahan!</p>
+            <p class="font-bold">Gagal!</p>
             <p>{{ session('error') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -373,7 +373,7 @@
                         ${icon}
                     </div>
                     <div>
-                        <p class="font-bold">${type === 'success' ? 'Berhasil!' : type === 'error' ? 'Kesalahan!' : 'Informasi!'}</p>
+                        <p class="font-bold">${type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi!'}</p>
                         <p>${message}</p>
                     </div>
                     <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -514,7 +514,7 @@
             const deleteTitleEl = document.getElementById('deleteProcurementTitle');
 
             if (deleteModal && deleteContent && deleteForm && deleteTitleEl) {
-                deleteForm.action = '{{ route("procurement.destroy", "") }}/' + procurementId;
+                deleteForm.action = '{{ route("procurement.destroy", ["id" => ":id"]) }}'.replace(':id', procurementId);
                 deleteTitleEl.textContent = procurementTitle;
                 openModal(deleteModal, deleteContent);
             }
@@ -536,7 +536,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.status) {
+                    if (data.success) {
                         // Store message in localStorage
                         localStorage.setItem('procurement_message', data.message || 'Permintaan pengadaan berhasil dihapus');
                         localStorage.setItem('procurement_action', 'success');
@@ -600,7 +600,14 @@
         const action = localStorage.getItem('procurement_action');
 
         if (message && action) {
-            showToast(message, action);
+            // If the message contains "berhasil" but the action is "error",
+            // correct the action to "success" to match the message
+            if (message.toLowerCase().includes('berhasil') && action === 'error') {
+                showToast(message, 'success');
+            } else {
+                showToast(message, action);
+            }
+
             // Clear the message after showing
             localStorage.removeItem('procurement_message');
             localStorage.removeItem('procurement_action');

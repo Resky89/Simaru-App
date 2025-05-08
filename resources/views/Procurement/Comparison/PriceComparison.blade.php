@@ -77,35 +77,13 @@
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['created_at'] ? date('d M Y', strtotime($comparison['created_at'])) : 'N/A' }}</td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center gap-2">
-                                        @if($comparison['status'] ?? '' == 'Submitted')
-                                        <button class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-comparison-btn"
-                                                data-id="{{ $comparison['comparison_id'] ?? '' }}">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                        </button>
-                                        @else
-                                        <span class="w-5 h-5 inline-block"></span>
-                                        @endif
-
-                                        @if($comparison['status'] ?? '' == 'Submitted')
-                                        <button class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-comparison-btn"
-                                                data-id="{{ $comparison['comparison_id'] ?? '' }}"
-                                                data-title="{{ $comparison['title'] ?? '' }}">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                        @else
-                                        <span class="w-5 h-5 inline-block"></span>
-                                        @endif
-
                                         <a href="{{ route('procurement.detail-comparison', ['id' => $comparison['comparison_id'] ?? '']) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
+                                        <span class="w-5 h-5 inline-block"></span>
                                     </div>
                                 </td>
                             </tr>
@@ -333,17 +311,6 @@
             urlParams.set('page', 1); // Reset to first page when changing limit
             window.location.href = '{{ route("procurement.price-comparison") }}?' + urlParams.toString();
         };
-
-        // Add click events for Edit buttons
-        const editBtns = document.querySelectorAll('.edit-comparison-btn');
-        editBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const comparisonId = btn.getAttribute('data-id');
-                if (comparisonId) {
-                    window.location.href = '{{ route("procurement.form-comparison") }}?id=' + comparisonId;
-                }
-            });
-        });
 
         // Add click events for Delete buttons
         const deleteBtns = document.querySelectorAll('.delete-comparison-btn');

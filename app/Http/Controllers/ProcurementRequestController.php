@@ -91,8 +91,8 @@ class ProcurementRequestController extends Controller
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => ['authentication' => ['Authentication failed']],
+                    ], 401);
                 }
 
                 return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
@@ -108,10 +108,24 @@ class ProcurementRequestController extends Controller
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
+                    // Format error message for better display in toast notifications
+                    $formattedErrors = [];
+                    if (is_array($errorData)) {
+                        foreach ($errorData as $field => $messages) {
+                            if (is_array($messages)) {
+                                $formattedErrors[$field] = $messages;
+                            } else {
+                                $formattedErrors[$field] = [$messages];
+                            }
+                        }
+                    } else {
+                        $formattedErrors['general'] = [$errorData];
+                    }
+
                     return response()->json([
                         'success' => false,
-                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                        'errors' => $formattedErrors,
+                    ], 400);
                 }
 
                 // Format error message for view
@@ -162,8 +176,8 @@ class ProcurementRequestController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to fetch procurements: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => ['exception' => ['Failed to fetch procurements: ' . $e->getMessage()]],
+                ], 500);
             }
 
             // Always pass an empty array for procurements in case of error
@@ -248,8 +262,9 @@ class ProcurementRequestController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => ['Authentication failed']],
+                    'message' => 'Authentication failed'
+                ], 401);
             }
 
             // Check if we got an error response from the ApiService
@@ -261,15 +276,29 @@ class ProcurementRequestController extends Controller
                     'errors' => $errorData
                 ]);
 
+                // Format error message for better display in toast notifications
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                ], status: 400);
+                    'errors' => $formattedErrors,
+                ], 400);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Daftar pengadaan berhasil diambil',
+                'message' => $result['message'] ?? 'Daftar pengadaan berhasil diambil',
                 'data' => $result['data'] ?? [],
                 'pagination' => $result['pagination'] ?? [
                     'total_items' => 0,
@@ -288,8 +317,8 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to retrieve procurements: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['exception' => ['Failed to retrieve procurements: ' . $e->getMessage()]],
+            ], 500);
         }
     }
 
@@ -306,12 +335,25 @@ class ProcurementRequestController extends Controller
                 'justification' => 'required|string',
                 'details' => 'required|array|min:1',
                 'details.*.asset_name' => 'required_without:details.*.asset_master_id|string|max:255',
-                'details.*.asset_master_id' => 'required_without:details.*.asset_name|integer|exists:asset_masters,id',
+                'details.*.asset_master_id' => 'required_without:details.*.asset_name|integer',
                 'details.*.quantity' => 'required|integer|min:1',
                 'details.*.estimated_unit_price' => 'required|numeric|min:0',
-                'details.*.specifications' => 'nullable|string',
-                'details.*.notes' => 'nullable|string',
             ]);
+
+            // Process details to ensure proper types
+            if (isset($validated['details']) && is_array($validated['details'])) {
+                foreach ($validated['details'] as $key => $detail) {
+                    if (isset($detail['quantity'])) {
+                        $validated['details'][$key]['quantity'] = (int)$detail['quantity'];
+                    }
+                    if (isset($detail['estimated_unit_price'])) {
+                        $validated['details'][$key]['estimated_unit_price'] = (float)$detail['estimated_unit_price'];
+                    }
+                    if (isset($detail['asset_master_id'])) {
+                        $validated['details'][$key]['asset_master_id'] = (int)$detail['asset_master_id'];
+                    }
+                }
+            }
 
             // Call the API to create the procurement
             $result = $this->apiService->request('POST', '/procurements', [
@@ -327,8 +369,8 @@ class ProcurementRequestController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => ['Authentication failed']],
+                ], 401);
             }
 
             // Check if we got an error response
@@ -340,22 +382,42 @@ class ProcurementRequestController extends Controller
                     'errors' => $errorData
                 ]);
 
+                // Format error message for better display in toast notifications
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                ], status: 400);
+                    'errors' => $formattedErrors,
+                ], 400);
             }
 
+            // Return successful response
             return response()->json([
                 'success' => true,
-                'message' => 'Pengadaan berhasil dibuat',
-                'data' => $result['data'] ?? []
-            ], status: 201);
+                'message' => $result['message'] ?? 'Pengadaan berhasil dibuat',
+                'data' => $result['data'] ?? null,
+                'redirect_url' => route('procurement.request')
+            ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning('Validation error during procurement creation:', [
+                'errors' => $e->errors()
+            ]);
+
             return response()->json([
                 'success' => false,
-                'errors' => $e->errors()
-            ], status: 422);
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             \Log::error('Exception during procurement creation:', [
                 'error' => $e->getMessage(),
@@ -364,8 +426,8 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to create procurement: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['exception' => ['Failed to create procurement: ' . $e->getMessage()]],
+            ], 500);
         }
     }
 
@@ -381,16 +443,21 @@ class ProcurementRequestController extends Controller
             if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['general' => 'Failed to fetch procurement details']
+                    'errors' => ['general' => ['Failed to fetch procurement details']],
                 ], 400);
             }
 
             // Check if the procurement status allows updates
             $status = $procurementData['data']['status'] ?? null;
             if ($status !== 'Submitted') {
+                \Log::warning('Attempted to update procurement with non-Submitted status:', [
+                    'procurement_id' => $id,
+                    'current_status' => $status
+                ]);
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Procurement with status other than "Submitted" cannot be updated',
+                    'errors' => ['status' => ['Procurement with status other than "Submitted" cannot be updated']],
                 ], 403);
             }
 
@@ -401,12 +468,27 @@ class ProcurementRequestController extends Controller
                 'justification' => 'required|string',
                 'details' => 'required|array|min:1',
                 'details.*.asset_name' => 'required_without:details.*.asset_master_id|string|max:255',
-                'details.*.asset_master_id' => 'required_without:details.*.asset_name|integer|exists:asset_masters,id',
+                'details.*.asset_master_id' => 'required_without:details.*.asset_name|integer',
                 'details.*.quantity' => 'required|integer|min:1',
                 'details.*.estimated_unit_price' => 'required|numeric|min:0',
                 'details.*.specifications' => 'nullable|string',
                 'details.*.notes' => 'nullable|string',
             ]);
+
+            // Process details to ensure proper types
+            if (isset($validated['details']) && is_array($validated['details'])) {
+                foreach ($validated['details'] as $key => $detail) {
+                    if (isset($detail['quantity'])) {
+                        $validated['details'][$key]['quantity'] = (int)$detail['quantity'];
+                    }
+                    if (isset($detail['estimated_unit_price'])) {
+                        $validated['details'][$key]['estimated_unit_price'] = (float)$detail['estimated_unit_price'];
+                    }
+                    if (isset($detail['asset_master_id'])) {
+                        $validated['details'][$key]['asset_master_id'] = (int)$detail['asset_master_id'];
+                    }
+                }
+            }
 
             // Call the API to update the procurement
             $result = $this->apiService->request('PUT', "/procurements/{$id}", [
@@ -423,8 +505,8 @@ class ProcurementRequestController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => ['Authentication failed']],
+                ], 401);
             }
 
             // Check if we got an error response
@@ -437,22 +519,43 @@ class ProcurementRequestController extends Controller
                     'procurement_id' => $id
                 ]);
 
+                // Format error message for better display in toast notifications
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                ], status: 400);
+                    'errors' => $formattedErrors,
+                ], 400);
             }
 
+            // Return successful response
             return response()->json([
                 'success' => true,
-                'message' => 'Pengadaan berhasil diperbarui',
-                'data' => $result['data'] ?? []
+                'message' => $result['message'] ?? 'Pengadaan berhasil diperbarui',
+                'data' => $result['data'] ?? null,
+                'redirect_url' => route('procurement.request')
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning('Validation error during procurement update:', [
+                'errors' => $e->errors(),
+                'procurement_id' => $id
+            ]);
+
             return response()->json([
                 'success' => false,
-                'errors' => $e->errors()
-            ], status: 422);
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             \Log::error('Exception during procurement update:', [
                 'error' => $e->getMessage(),
@@ -462,8 +565,8 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to update procurement: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['exception' => ['Failed to update procurement: ' . $e->getMessage()]],
+            ], 500);
         }
     }
 
@@ -485,8 +588,8 @@ class ProcurementRequestController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => ['Authentication failed']],
+                ], 401);
             }
 
             // Check if we got an error response
@@ -499,15 +602,30 @@ class ProcurementRequestController extends Controller
                     'procurement_id' => $id
                 ]);
 
+                // Format error message for better display in toast notifications
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                ], status: 400);
+                    'errors' => $formattedErrors,
+                ], 404);
             }
 
+            // Return successful response
             return response()->json([
                 'success' => true,
-                'message' => 'Pengadaan berhasil ditemukan',
+                'message' => $result['message'] ?? 'Pengadaan berhasil ditemukan',
                 'data' => $result['data'] ?? null
             ]);
         } catch (\Exception $e) {
@@ -519,8 +637,8 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to retrieve procurement: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['exception' => ['Failed to retrieve procurement: ' . $e->getMessage()]],
+            ], 500);
         }
     }
 
@@ -534,18 +652,44 @@ class ProcurementRequestController extends Controller
             $procurementData = $this->apiService->request('GET', "/procurements/{$id}");
 
             if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
+                \Log::warning('Failed to fetch procurement details for deletion:', [
+                    'procurement_id' => $id,
+                    'response' => $procurementData
+                ]);
+
+                // Format error message for toast notifications
+                $errorData = $procurementData['errors'] ?? 'Failed to fetch procurement details';
+                $formattedErrors = [];
+
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => ['general' => 'Failed to fetch procurement details']
+                    'errors' => $formattedErrors,
                 ], 400);
             }
 
             // Check if the procurement status allows deletion
             $status = $procurementData['data']['status'] ?? null;
             if ($status !== 'Submitted') {
+                \Log::warning('Attempted to delete procurement with non-Submitted status:', [
+                    'procurement_id' => $id,
+                    'current_status' => $status
+                ]);
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Procurement with status other than "Submitted" cannot be deleted',
+                    'errors' => ['status' => ['Procurement with status other than "Submitted" cannot be deleted']],
                 ], 403);
             }
 
@@ -561,8 +705,8 @@ class ProcurementRequestController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => ['Authentication failed']],
+                ], 401);
             }
 
             // Check if we got an error response
@@ -575,15 +719,30 @@ class ProcurementRequestController extends Controller
                     'procurement_id' => $id
                 ]);
 
+                // Format error message for better display in toast notifications
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                ], status: 400);
+                    'errors' => $formattedErrors,
+                ], 400);
             }
 
+            // Return successful response
             return response()->json([
                 'success' => true,
-                'message' => 'Pengadaan berhasil dihapus'
+                'message' => $result['message'] ?? 'Pengadaan berhasil dihapus'
             ]);
         } catch (\Exception $e) {
             \Log::error('Exception during procurement deletion:', [
@@ -594,8 +753,8 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to delete procurement: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['exception' => ['Failed to delete procurement: ' . $e->getMessage()]],
+            ], 500);
         }
     }
 
@@ -624,8 +783,8 @@ class ProcurementRequestController extends Controller
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => ['authentication' => ['Authentication failed']],
+                    ], 401);
                 }
 
                 return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
@@ -642,10 +801,24 @@ class ProcurementRequestController extends Controller
                 ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
+                    // Format error message for better display in toast notifications
+                    $formattedErrors = [];
+                    if (is_array($errorData)) {
+                        foreach ($errorData as $field => $messages) {
+                            if (is_array($messages)) {
+                                $formattedErrors[$field] = $messages;
+                            } else {
+                                $formattedErrors[$field] = [$messages];
+                            }
+                        }
+                    } else {
+                        $formattedErrors['general'] = [$errorData];
+                    }
+
                     return response()->json([
                         'success' => false,
-                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                        'errors' => $formattedErrors,
+                    ], 400);
                 }
 
                 return redirect()->route('procurement.request')
@@ -664,8 +837,8 @@ class ProcurementRequestController extends Controller
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['general' => $errorMessage]
-                    ], status: 404);
+                        'errors' => ['general' => [$errorMessage]],
+                    ], 404);
                 }
 
                 return redirect()->route('procurement.request')
@@ -676,7 +849,7 @@ class ProcurementRequestController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Pengadaan berhasil ditemukan',
+                    'message' => $result['message'] ?? 'Pengadaan berhasil ditemukan',
                     'data' => $result['data']
                 ]);
             }
@@ -694,8 +867,8 @@ class ProcurementRequestController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to fetch procurement details: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => ['exception' => ['Failed to fetch procurement details: ' . $e->getMessage()]],
+                ], 500);
             }
 
             return redirect()->route('procurement.request')
@@ -716,9 +889,30 @@ class ProcurementRequestController extends Controller
             $procurementData = $this->apiService->request('GET', "/procurements/{$id}");
 
             if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
+                \Log::warning('Failed to fetch procurement details for manager approval:', [
+                    'procurement_id' => $id,
+                    'response' => $procurementData
+                ]);
+
+                // Format error message for toast notifications
+                $errorData = $procurementData['errors'] ?? 'Failed to fetch procurement details';
+                $formattedErrors = [];
+
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => ['general' => 'Failed to fetch procurement details']
+                    'errors' => $formattedErrors,
                 ], 400);
             }
 
@@ -735,7 +929,7 @@ class ProcurementRequestController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
+                    'errors' => ['authentication' => ['Authentication failed']],
                 ], 401);
             }
 
@@ -749,9 +943,23 @@ class ProcurementRequestController extends Controller
                     'procurement_id' => $id
                 ]);
 
+                // Format error message for better display in toast notifications
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    'errors' => $formattedErrors,
                 ], 400);
             }
 
@@ -779,7 +987,7 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pengadaan berhasil disetujui oleh manajer',
+                'message' => $result['message'] ?? 'Pengadaan berhasil disetujui oleh manajer',
                 'data' => $result['data'] ?? null
             ]);
         } catch (\Exception $e) {
@@ -791,7 +999,7 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to approve procurement: ' . $e->getMessage()]
+                'errors' => ['exception' => ['Failed to approve procurement: ' . $e->getMessage()]],
             ], 500);
         }
     }
@@ -817,7 +1025,7 @@ class ProcurementRequestController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
+                    'errors' => ['authentication' => ['Authentication failed']],
                 ], 401);
             }
 
@@ -831,15 +1039,29 @@ class ProcurementRequestController extends Controller
                     'procurement_id' => $id
                 ]);
 
+                // Format error message for better display in toast notifications
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    'errors' => $formattedErrors,
                 ], 400);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pengadaan berhasil disetujui oleh direktur',
+                'message' => $result['message'] ?? 'Pengadaan berhasil disetujui oleh direktur',
                 'data' => $result['data'] ?? null
             ]);
         } catch (\Exception $e) {
@@ -851,7 +1073,7 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to approve procurement: ' . $e->getMessage()]
+                'errors' => ['exception' => ['Failed to approve procurement: ' . $e->getMessage()]],
             ], 500);
         }
     }
@@ -886,7 +1108,7 @@ class ProcurementRequestController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
+                    'errors' => ['authentication' => ['Authentication failed']],
                 ], 401);
             }
 
@@ -900,21 +1122,40 @@ class ProcurementRequestController extends Controller
                     'procurement_id' => $id
                 ]);
 
+                // Format error message for better display in toast notifications
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    'errors' => $formattedErrors,
                 ], 400);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pengadaan berhasil ditolak',
+                'message' => $result['message'] ?? 'Pengadaan berhasil ditolak',
                 'data' => $result['data'] ?? null
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning('Validation error during procurement rejection:', [
+                'errors' => $e->errors(),
+                'procurement_id' => $id
+            ]);
+
             return response()->json([
                 'success' => false,
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             \Log::error('Exception during procurement rejection:', [
@@ -925,7 +1166,96 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to reject procurement: ' . $e->getMessage()]
+                'errors' => ['exception' => ['Failed to reject procurement: ' . $e->getMessage()]],
+            ], 500);
+        }
+    }
+
+    /**
+     * Search for procurement requests
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request)
+    {
+        try {
+            // Get search parameter
+            $search = $request->input('search', '');
+
+            // Build query parameters
+            $queryParams = [
+                'search' => $search,
+                'limit' => 10,  // Return a reasonable number of results
+            ];
+
+            // Check if status parameter is provided
+            if ($request->has('status')) {
+                $queryParams['status'] = $request->input('status');
+            }
+
+            // Send request to API service
+            $result = $this->apiService->request('GET', '/procurements', [
+                'query' => $queryParams
+            ]);
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during procurement search:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => ['Authentication failed']],
+                ], 401);
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to search procurement requests';
+
+                \Log::warning('Error during procurement search:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                // Format error message for better display in toast notifications
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $formattedErrors,
+                ], 400);
+            }
+
+            // Return successful response
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'] ?? 'Procurement requests retrieved successfully',
+                'data' => $result['data'] ?? []
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Exception during procurement search:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'errors' => ['exception' => ['Failed to search procurement requests: ' . $e->getMessage()]],
             ], 500);
         }
     }
