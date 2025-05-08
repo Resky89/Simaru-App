@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', isset($vendorOffer) || request()->has('offer_id') ? 'Edit Vendor Quotation' : 'Add Vendor Quotation')
+@section('title', isset($vendorOffer) || request()->has('agreement_id') ? 'Edit Vendor Quotation' : 'Add Vendor Quotation')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -11,7 +11,7 @@
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
-                        {{ isset($vendorOffer) || request()->has('offer_id') ? 'EDIT VENDOR QUOTATION' : 'ADD VENDOR QUOTATION' }}
+                        {{ isset($vendorOffer) || request()->has('agreement_id') ? 'EDIT VENDOR QUOTATION' : 'ADD VENDOR QUOTATION' }}
                     </h1>
                 </div>
 
@@ -20,8 +20,9 @@
                     @csrf
                     <!-- Hidden Fields -->
                     <input type="hidden" name="comparison_id" id="comparison_id" value="{{ $comparison_id ?? request()->route('id') }}">
-                    @if(isset($vendorOffer))
-                    <input type="hidden" name="vendor_offer_id" id="vendor_offer_id" value="{{ $vendorOffer->vendor_offer_id }}">
+                    <!-- Add a hidden field for agreement_id if it exists -->
+                    @if(isset($vendorOffer) && isset($vendorOffer->agreement_id))
+                    <input type="hidden" name="agreement_id" id="agreement_id" value="{{ $vendorOffer->agreement_id }}">
                     @endif
 
                     <!-- Vendor -->
@@ -165,33 +166,43 @@
         const toastMessage = document.getElementById('toast_message');
         const toastIcon = document.getElementById('toast_icon');
 
-        // Get URL parameters for offer_id if it exists
+        // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const offerIdFromUrl = urlParams.get('offer_id');
+        const agreementIdFromUrl = urlParams.get('agreement_id');
 
-        // If we have a vendor offer ID from URL, load the vendor offer data
-        if (offerIdFromUrl) {
-            // Set the vendor_offer_id input
-            if (!vendorOfferId) {
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'vendor_offer_id';
-                hiddenInput.id = 'vendor_offer_id';
-                hiddenInput.value = offerIdFromUrl;
-                form.appendChild(hiddenInput);
-            } else {
-                document.getElementById('vendor_offer_id').value = offerIdFromUrl;
+        // Extract vendor_offer_ids from URL params (format: vo_{price_comparison_item_id}={vendor_offer_id})
+        let vendorOfferIdsMap = new Map();
+        for (const [key, value] of urlParams.entries()) {
+            if (key.startsWith('vo_')) {
+                const itemId = parseInt(key.substring(3), 10); // Remove 'vo_' prefix
+                if (!isNaN(itemId)) {
+                    vendorOfferIdsMap.set(itemId, parseInt(value, 10));
+                    console.log(`Found vendor_offer_id ${value} for item ${itemId} in URL params`);
+                }
             }
+        }
 
-            // Load vendor offer data
-            loadVendorOfferData(offerIdFromUrl);
+        console.log(`Extracted ${vendorOfferIdsMap.size} vendor offer IDs from URL params`);
+
+        // If we have an agreement ID from URL, load the vendor offer data
+        if (agreementIdFromUrl) {
+            // Set the agreement_id input
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'agreement_id';
+            hiddenInput.id = 'agreement_id';
+            hiddenInput.value = agreementIdFromUrl;
+            form.appendChild(hiddenInput);
+
+            // Load vendor offer data using agreement ID
+            loadVendorOfferData(agreementIdFromUrl, vendorOfferIdsMap);
         } else {
-            // If we don't have a vendor_offer_id, load comparison data directly
+            // If we don't have an agreement_id, load comparison data directly
             loadComparisonData();
         }
 
-        function loadVendorOfferData(vendorOfferId) {
-            fetch(`/procurement/price-comparison/vendor-offer/${vendorOfferId}`, {
+        function loadVendorOfferData(agreementId, vendorOfferIdsMap) {
+            fetch(`/procurement/price-comparison/vendor-offer/${agreementId}?use_agreement_id=true&detailed=true`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
@@ -209,15 +220,11 @@
                 }
 
                 const vendorOffer = data.data;
-                console.log('Loaded vendor offer data:', vendorOffer);
 
                 // Fill vendor data
                 if (vendorOffer.vendor) {
                     document.getElementById('vendor_search').value = vendorOffer.vendor.vendor_name;
                     document.getElementById('selected_vendor_id').value = vendorOffer.vendor.vendor_id;
-
-                    // Disable vendor selection in edit mode
-                    document.getElementById('vendor_search').readOnly = true;
                 }
 
                 // Fill form fields
@@ -225,31 +232,48 @@
                 document.getElementById('delivery_terms').value = vendorOffer.delivery_terms || '';
                 document.getElementById('notes').value = vendorOffer.notes || '';
 
-                // Store vendor offer items for later use
-                const vendorOfferItems = [];
+                // Create a map of price comparison item IDs to their unit prices and vendor_offer_id
+                const itemPrices = new Map();
 
-                // Parse vendor offer items from the response
+                // Log the structure of the response
+                console.log('Vendor offer response structure:', Object.keys(vendorOffer));
+
+                // Process items directly from the response
                 if (vendorOffer.items && Array.isArray(vendorOffer.items) && vendorOffer.items.length > 0) {
-                    // Process direct items array (if available)
-                    vendorOfferItems.push(...vendorOffer.items);
-                    console.log('Found items in vendor offer:', vendorOffer.items);
-                }
+                    vendorOffer.items.forEach(item => {
+                        if (item.price_comparison_item_id && item.unit_price !== undefined) {
+                            // Get vendor_offer_id from the URL params if available
+                            const itemId = parseInt(item.price_comparison_item_id, 10);
+                            const vendorOfferId = vendorOfferIdsMap.has(itemId)
+                                ? vendorOfferIdsMap.get(itemId)
+                                : (item.vendor_offer_id || null);
 
-                if (vendorOffer.vendor_offer_items && Array.isArray(vendorOffer.vendor_offer_items) && vendorOffer.vendor_offer_items.length > 0) {
-                    // Process vendor_offer_items array (if available)
-                    vendorOfferItems.push(...vendorOffer.vendor_offer_items);
-                    console.log('Found vendor_offer_items in vendor offer:', vendorOffer.vendor_offer_items);
+                            if (vendorOfferId) {
+                                console.log(`Using vendor_offer_id ${vendorOfferId} for item ${itemId}`);
+                            } else {
+                                console.warn(`No vendor_offer_id found for item ${itemId}`);
+                            }
+
+                            itemPrices.set(
+                                itemId,
+                                {
+                                    price: item.unit_price,
+                                    price_comparison_item_id: item.price_comparison_item_id,
+                                    vendor_offer_id: vendorOfferId
+                                }
+                            );
+                        }
+                    });
                 }
 
                 // After loading the vendor data, load the comparison data
-                loadComparisonData(vendorOfferItems, vendorOffer);
+                loadComparisonData(itemPrices, vendorOffer, parseInt(agreementId, 10));
             })
             .catch(error => {
-                console.error('Error loading vendor offer data:', error);
                 showToast('Failed to load vendor offer data: ' + error.message, 'error');
 
                 // Still try to load comparison data even if vendor offer data failed
-                loadComparisonData([], null);
+                loadComparisonData(vendorOfferIdsMap);
             });
         }
 
@@ -451,9 +475,12 @@
         }, 300));
 
         // Load comparison data to populate items
-        function loadComparisonData(vendorOfferItems = [], vendorOfferData = null) {
+        function loadComparisonData(itemPrices = new Map(), vendorOfferData = null, agreementId = null) {
             const itemsContainer = document.getElementById('items_container');
             itemsContainer.innerHTML = '<tr class="border-t border-[#EEF1F4]"><td colspan="3" class="p-3 text-center text-gray-500">Loading items...</td></tr>';
+
+            // Set edit mode flag based on agreementId
+            const isEditMode = !!agreementId;
 
             fetch(`/procurement/price-comparison/${comparisonId}`, {
                 headers: {
@@ -486,42 +513,8 @@
                 // Get selected vendor id
                 const selectedVendorId = document.getElementById('selected_vendor_id').value;
 
-                // Create a map of price comparison item IDs to their prices for quick lookup
-                const priceMap = new Map();
-
-                // First populate from direct vendor offer items (highest priority)
-                if (vendorOfferItems && vendorOfferItems.length > 0) {
-                    vendorOfferItems.forEach(item => {
-                        if (item.price_comparison_item_id && item.unit_price !== undefined) {
-                            priceMap.set(
-                                parseInt(item.price_comparison_item_id),
-                                {
-                                    price: item.unit_price,
-                                    vendorOfferId: item.vendor_offer_id || item.vendor_offer_item_id
-                                }
-                            );
-                        }
-                    });
-                }
-
-                // If we have a complete vendor offer, also look for prices in other structures
-                if (vendorOfferData && vendorOfferData.price_data) {
-                    // Some APIs return a price_data object with item IDs as keys
-                    Object.entries(vendorOfferData.price_data).forEach(([itemId, priceData]) => {
-                        if (!priceMap.has(parseInt(itemId)) && priceData.unit_price !== undefined) {
-                            priceMap.set(
-                                parseInt(itemId),
-                                {
-                                    price: priceData.unit_price,
-                                    vendorOfferId: priceData.vendor_offer_id || vendorOfferData.vendor_offer_id
-                                }
-                            );
-                        }
-                    });
-                }
-
                 // Add items to the table
-                comparisonItems.forEach(item => {
+                comparisonItems.forEach((item, index) => {
                     const tr = document.createElement('tr');
                     tr.className = 'border-t border-[#EEF1F4]';
 
@@ -541,32 +534,52 @@
                     priceInput.className = 'w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200';
                     priceInput.placeholder = 'Unit Price';
 
-                    // Check if we have a price for this item in our price map
+                    // Always set the price_comparison_item_id attribute
                     const itemId = parseInt(item.price_comparison_item_id);
-                    const priceData = priceMap.get(itemId);
+                    priceInput.setAttribute('data-price-comparison-item-id', itemId);
 
-                    if (priceData) {
-                        // We found a price in our map - use the vendor_offer_id and set the price
-                        priceInput.setAttribute('data-vendor-offer-id', priceData.vendorOfferId);
+                    // Check if we have a price for this item in our price map
+                    const priceData = itemPrices.get(itemId);
+
+                    // First try to get data from itemPrices map
+                    if (priceData && priceData.price !== undefined) {
+                        // We found a price in our map - set the price
                         priceInput.value = Number(priceData.price).toLocaleString('id-ID');
-                        console.log(`Setting price for item ${itemId} from price map:`, priceData.price);
-                    } else if (isEditMode && item.vendor_offers && item.vendor_offers.length > 0 && selectedVendorId) {
-                        // Legacy path - look in vendor_offers array if not found in our map
+
+                        // Store the vendor_offer_id if it exists
+                        if (priceData.vendor_offer_id) {
+                            priceInput.setAttribute('data-vendor-offer-id', priceData.vendor_offer_id);
+                            console.log(`Set vendor_offer_id ${priceData.vendor_offer_id} for item ${itemId} from price map`);
+                        }
+                        // If itemPrices is a Map of vendor_offer_ids directly (from URL)
+                        else if (itemPrices instanceof Map && itemPrices.has(itemId) && typeof itemPrices.get(itemId) === 'number') {
+                            const voId = itemPrices.get(itemId);
+                            priceInput.setAttribute('data-vendor-offer-id', voId);
+                            console.log(`Set vendor_offer_id ${voId} for item ${itemId} directly from URL params`);
+                        }
+                    }
+                    // Then try to find in vendor_offers
+                    else if (item.vendor_offers && item.vendor_offers.length > 0 && selectedVendorId) {
+                        // Check for existing vendor offer
                         const vendorOffer = item.vendor_offers.find(
                             offer => offer.vendor && parseInt(offer.vendor.vendor_id) === parseInt(selectedVendorId)
                         );
 
                         if (vendorOffer && vendorOffer.unit_price !== undefined) {
-                            priceInput.setAttribute('data-vendor-offer-id', vendorOffer.vendor_offer_id);
                             priceInput.value = Number(vendorOffer.unit_price).toLocaleString('id-ID');
-                            console.log(`Setting price for item ${itemId} from vendor_offers array:`, vendorOffer.unit_price);
-                        } else {
-                            // No price found - use price_comparison_item_id for new offers
-                            priceInput.setAttribute('data-price-comparison-item-id', item.price_comparison_item_id);
+
+                            // Store the vendor_offer_id for this item
+                            if (vendorOffer.vendor_offer_id) {
+                                priceInput.setAttribute('data-vendor-offer-id', vendorOffer.vendor_offer_id);
+                                console.log(`Set vendor_offer_id ${vendorOffer.vendor_offer_id} for item ${itemId} from vendor offers`);
+                            }
                         }
-                    } else {
-                        // For items without a price - use price_comparison_item_id
-                        priceInput.setAttribute('data-price-comparison-item-id', item.price_comparison_item_id);
+                    }
+                    // Lastly, check if itemPrices is a Map with vendor_offer_ids only (no prices)
+                    else if (itemPrices instanceof Map && itemPrices.has(itemId) && typeof itemPrices.get(itemId) === 'number') {
+                        const voId = itemPrices.get(itemId);
+                        priceInput.setAttribute('data-vendor-offer-id', voId);
+                        console.log(`Set vendor_offer_id ${voId} for item ${itemId} from URL params map`);
                     }
 
                     // Add input mask for currency
@@ -588,9 +601,30 @@
 
                     itemsContainer.appendChild(tr);
                 });
+
+                // If we're in edit mode, let's verify all items have vendor_offer_ids
+                if (isEditMode) {
+                    const inputs = document.querySelectorAll('input[data-price-comparison-item-id]');
+                    const missingIds = [];
+
+                    inputs.forEach(input => {
+                        const priceComparisonItemId = input.getAttribute('data-price-comparison-item-id');
+                        const vendorOfferId = input.getAttribute('data-vendor-offer-id');
+
+                        if (!vendorOfferId) {
+                            missingIds.push(priceComparisonItemId);
+                        }
+                    });
+
+                    if (missingIds.length > 0) {
+                        console.warn(`Warning: ${missingIds.length} items are missing vendor_offer_id:`, missingIds);
+                        showToast(`Warning: ${missingIds.length} items are missing vendor_offer_id. This may cause problems when saving.`, 'error');
+                    } else {
+                        console.log('All items have vendor_offer_id set correctly');
+                    }
+                }
             })
             .catch(error => {
-                console.error('Error loading comparison data:', error);
                 itemsContainer.innerHTML = `<tr class="border-t border-[#EEF1F4]"><td colspan="3" class="p-3 text-center text-red-500">Failed to load items: ${error.message}</td></tr>`;
                 showToast('Failed to load comparison data', 'error');
             });
@@ -841,7 +875,11 @@
                 let hasEmptyPrice = false;
                 let hasErroredItem = false;
 
-                priceInputs.forEach((input) => {
+                // Determine if we're creating or updating
+                const agreementId = document.getElementById('agreement_id')?.value;
+                const isUpdate = !!agreementId;
+
+                priceInputs.forEach((input, index) => {
                     const value = input.value.trim().replace(/[^\d]/g, '');
                     if (!value) {
                         input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
@@ -850,25 +888,32 @@
                         return;
                     }
 
-                    // Get the item ID from data attributes
-                    let itemData = {};
-                    if (input.hasAttribute('data-price-comparison-item-id')) {
-                        // For new offers
-                        itemData = {
-                            price_comparison_item_id: parseInt(input.getAttribute('data-price-comparison-item-id'), 10),
-                            unit_price: parseInt(value, 10)
-                        };
-                    } else if (input.hasAttribute('data-vendor-offer-id')) {
-                        // For updating existing offers
-                        itemData = {
-                            vendor_offer_id: parseInt(input.getAttribute('data-vendor-offer-id'), 10),
-                            unit_price: parseInt(value, 10)
-                        };
-                    } else {
-                        console.error('Item input is missing required data attributes', input);
+                    // Always get the price_comparison_item_id from data attribute
+                    const priceComparisonItemId = input.getAttribute('data-price-comparison-item-id');
+                    if (!priceComparisonItemId) {
                         hasErroredItem = true;
-                        showToast('Error: Some items are missing required data. Please reload the page and try again.', 'error');
                         return;
+                    }
+
+                    // Get the unit price, making sure to remove formatting
+                    const unitPrice = parseInt(value.replace(/[^\d]/g, ''), 10);
+
+                    // Create item data object - include vendor_offer_id if it exists
+                    const itemData = {
+                        price_comparison_item_id: parseInt(priceComparisonItemId, 10),
+                        unit_price: unitPrice
+                    };
+
+                    // Add vendor_offer_id if available
+                    const vendorOfferId = input.getAttribute('data-vendor-offer-id');
+                    if (vendorOfferId) {
+                        itemData.vendor_offer_id = parseInt(vendorOfferId, 10);
+                        console.log(`Including vendor_offer_id ${vendorOfferId} for item ${priceComparisonItemId} in request`);
+                    } else if (isUpdate) {
+                        // For update operations, vendor_offer_id is required
+                        console.error(`Missing vendor_offer_id for item ${priceComparisonItemId} during update`);
+                        input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                        hasErroredItem = true;
                     }
 
                     itemPrices.push(itemData);
@@ -880,16 +925,19 @@
                 }
 
                 if (hasErroredItem) {
+                    if (isUpdate) {
+                        showToast('Some items are missing vendor_offer_id. This is required for updates. Please refresh and try again.', 'error');
+                    } else {
+                        showToast('Some items are missing required data. Please try again.', 'error');
+                    }
                     return;
                 }
 
                 // Get comparison ID from the hidden input field
                 const comparisonId = document.getElementById('comparison_id').value;
-                console.log('Using comparison ID:', comparisonId);
 
                 if (!comparisonId) {
                     showToast('Comparison ID is missing. Please try again or contact support.', 'error');
-                    console.error('Comparison ID is missing or invalid');
                     return;
                 }
 
@@ -899,11 +947,9 @@
                     vendor_id: parseInt(vendorId, 10),
                     payment_terms: paymentTerms,
                     delivery_terms: deliveryTerms,
-                    notes: document.getElementById('notes')?.value.trim() || "Added via vendor quotation form",
+                    notes: document.getElementById('notes')?.value.trim(),
                     items: itemPrices
                 };
-
-                console.log('Submitting vendor offer with data:', requestData);
 
                 // Get CSRF token
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -923,18 +969,19 @@
                 `;
                 submitBtn.disabled = true;
 
-                // Determine if we're creating or updating
-                const vendorOfferId = document.getElementById('vendor_offer_id')?.value;
-                const isUpdate = !!vendorOfferId;
-
                 // API endpoint
-                const endpoint = isUpdate
-                    ? `/procurement/price-comparison/vendor-offer/${vendorOfferId}`
-                    : '/procurement/price-comparison/vendor-offer';
+                let endpoint = '/procurement/price-comparison/vendor-offer';
+                let method = 'POST';
+
+                // Use agreement ID for updates if available
+                if (agreementId) {
+                    endpoint = `/procurement/price-comparison/vendor-offer/${agreementId}`;
+                    method = 'PUT';
+                }
 
                 // Make the API call
                 fetch(endpoint, {
-                    method: isUpdate ? 'PUT' : 'POST',
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
@@ -955,6 +1002,9 @@
                         // Show success toast - don't reset button or submitting flag since we're redirecting
                         showToast(data.message || 'Vendor quotation saved successfully!');
 
+                        // Set a flag to indicate we're intentionally navigating away
+                        const isNavigatingAway = true;
+
                         // Redirect after success
                         setTimeout(() => {
                             window.location.href = data.redirect_url ||
@@ -967,7 +1017,7 @@
                         submitBtn.disabled = false;
 
                         // Show error toast
-                        showToast(data.errors?.general || 'Failed to save vendor quotation.', 'error');
+                        showToast(data.errors?.general || data.message || 'Failed to save vendor quotation.', 'error');
 
                         // Handle validation errors
                         if (data.errors && typeof data.errors === 'object') {
@@ -988,8 +1038,6 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-
                     // Reset flag and button state on error
                     isSubmitting = false;
                     submitBtn.innerHTML = originalBtnText;
@@ -1018,6 +1066,9 @@
                         }
 
                         showToast(errorMessage, 'error');
+                    } else if (error.message) {
+                        // If we have a plain error message
+                        showToast(`Error: ${error.message}`, 'error');
                     } else {
                         // Generic error message
                         showToast('An error occurred while saving the vendor quotation. Please try again.', 'error');

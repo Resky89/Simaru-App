@@ -601,7 +601,7 @@ class ProcurementPriceComparisonController extends Controller
         try {
             // Log the incoming request
             \Log::info('Received vendor offer update request data:', [
-                'vendor_offer_id' => $id,
+                'agreement_id' => $id,
                 'all_data' => $request->all()
             ]);
 
@@ -613,13 +613,15 @@ class ProcurementPriceComparisonController extends Controller
                 'delivery_terms' => 'required|string',
                 'notes' => 'nullable|string',
                 'items' => 'required|array|min:1',
-                'items.*.vendor_offer_id' => 'required|integer',
+                'items.*.price_comparison_item_id' => 'required|integer',
                 'items.*.unit_price' => 'required|numeric|min:0',
+                'items.*.vendor_offer_id' => 'required|integer',
             ]);
 
             // Ensure numeric values are properly formatted
             foreach ($validated['items'] as $key => $item) {
                 $validated['items'][$key]['unit_price'] = (float) $item['unit_price'];
+                $validated['items'][$key]['price_comparison_item_id'] = (int) $item['price_comparison_item_id'];
                 $validated['items'][$key]['vendor_offer_id'] = (int) $item['vendor_offer_id'];
             }
 
@@ -648,7 +650,7 @@ class ProcurementPriceComparisonController extends Controller
                 \Log::warning('Error during vendor offer update:', [
                     'success' => $result['success'] ?? false,
                     'errors' => $errorData,
-                    'vendor_offer_id' => $id
+                    'agreement_id' => $id
                 ]);
 
                 // Format error message for better display in toast notifications
@@ -681,7 +683,7 @@ class ProcurementPriceComparisonController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::warning('Validation error during vendor offer update:', [
                 'errors' => $e->errors(),
-                'vendor_offer_id' => $id
+                'agreement_id' => $id
             ]);
 
             return response()->json([
@@ -692,7 +694,7 @@ class ProcurementPriceComparisonController extends Controller
             \Log::error('Exception during vendor offer update:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'vendor_offer_id' => $id
+                'agreement_id' => $id
             ]);
 
             return response()->json([
@@ -914,6 +916,93 @@ class ProcurementPriceComparisonController extends Controller
             // For web requests, redirect with error
             return redirect()->route('procurement.price-comparison')
                 ->with('error', 'Terjadi kesalahan saat memuat data penawaran vendor: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Complete a price comparison
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function completeComparison($id, Request $request)
+    {
+        try {
+            // Log the request
+            \Log::info('Completing price comparison:', [
+                'comparison_id' => $id,
+                'all_data' => $request->all()
+            ]);
+
+            // Send request to API service
+            $result = $this->apiService->request('POST', "/price-comparison/{$id}/complete");
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during price comparison completion:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['authentication' => 'Authentication failed']
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to complete price comparison';
+
+                \Log::warning('Error during price comparison completion:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'comparison_id' => $id
+                ]);
+
+                // Format error message for better display
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $formattedErrors,
+                ], 400);
+            }
+
+            // Return successful response
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'] ?? 'Perbandingan harga berhasil diselesaikan',
+                'data' => $result['data'] ?? null,
+                'redirect_url' => route('procurement.detail-comparison', ['id' => $id])
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Exception during price comparison completion:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'comparison_id' => $id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'errors' => ['exception' => ['Failed to complete price comparison: ' . $e->getMessage()]],
+            ], 500);
         }
     }
 }

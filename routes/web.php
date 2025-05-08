@@ -251,6 +251,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::put('/price-comparison/vendor-offer/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'updateVendorOffer'])->name('update-vendor-offer');
         Route::delete('/price-comparison/vendor-offer/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'deleteVendorOffer'])->name('delete-vendor-offer');
 
+        // Complete Price Comparison
+        Route::post('/price-comparison/{id}/complete', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'completeComparison'])->name('complete-price-comparison');
 
         // Purchase Order
         Route::get('/purchase-order', function () {
