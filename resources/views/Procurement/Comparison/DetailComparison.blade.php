@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Detail Comparison')
+@section('title', 'Detail Perbandingan')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -16,49 +16,50 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
-                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">VENDOR PRICE LIST</h1>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DAFTAR HARGA VENDOR</h1>
                     </div>
 
                     <!-- Add Vendor Button -->
-                    @if(!isset($comparison['status']) || $comparison['status'] !== 'Completed')
+                    @if(isset($comparison) && !empty($comparison) && (!isset($comparison['status']) || $comparison['status'] !== 'Completed'))
                     <a href="{{ route('procurement.form-vendor-comparison', ['id' => $comparison['comparison_id'] ?? $id]) }}"
                        class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
-                        <span>Add Vendor</span>
+                        <span>Tambah Vendor</span>
                     </a>
                     @endif
                 </div>
 
                 <!-- Success Message (hidden by default) -->
                 <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md hidden" id="successMessage">
-                    <p>Success! Data has been saved successfully.</p>
+                    <p>Berhasil! Data telah disimpan.</p>
                 </div>
 
+                @if(isset($comparison) && !empty($comparison))
                 <!-- Request Details -->
                 <div class="grid grid-cols-1 gap-5">
                     <!-- Request Number -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Quotation ID</p>
+                        <p class="w-32 text-[#666666] font-medium">ID Penawaran</p>
                         <p class="text-[#666666]">: <span id="requestNumber">{{ $comparison['comparison_code'] ?? 'N/A' }}</span></p>
                     </div>
 
                     <!-- Request Name -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Request Title</p>
+                        <p class="w-32 text-[#666666] font-medium">Judul Permintaan</p>
                         <p class="text-[#666666]">: <span id="requestName">{{ $comparison['title'] ?? 'N/A' }}</span></p>
                     </div>
 
                     <!-- User Input -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Quotation by</p>
+                        <p class="w-32 text-[#666666] font-medium">Dibuat oleh</p>
                         <p class="text-[#666666]">: <span id="userInput">{{ isset($comparison['creator']) ? $comparison['creator']['employee_number'] : 'N/A' }}</span></p>
                     </div>
 
                     <!-- Input Date -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Quotation Date</p>
+                        <p class="w-32 text-[#666666] font-medium">Tanggal Penawaran</p>
                         <p class="text-[#666666]">: <span id="inputDate">{{ isset($comparison['created_at']) ? \Carbon\Carbon::parse($comparison['created_at'])->format('Y-m-d H:i:s') : 'N/A' }}</span></p>
                     </div>
 
@@ -71,15 +72,15 @@
 
                 <!-- Item List -->
                 <div class="space-y-4">
-                    <h2 class="text-lg font-semibold text-[#666666]">Price Comparison</h2>
+                    <h2 class="text-lg font-semibold text-[#666666]">Perbandingan Harga</h2>
 
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Qty</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Estimated Price</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Jumlah</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Perkiraan Harga</th>
 
                                     @php
                                     $uniqueVendors = [];
@@ -197,7 +198,7 @@
                                                     <div class="text-sm font-medium">Rp {{ number_format(floatval($vendorOffer['unit_price']) * intval($item['quantity']), 0, ',', '.') }}</div>
                                                     <span class="text-xs text-gray-500">@Rp {{ number_format(floatval($vendorOffer['unit_price']), 0, ',', '.') }}</span>
                                                     @else
-                                                    <div class="text-sm font-medium text-gray-400">Not Available</div>
+                                                    <div class="text-sm font-medium text-gray-400">Tidak Tersedia</div>
                                                     @endif
                                                 </td>
                                             @endforeach
@@ -206,14 +207,14 @@
                                     @endforeach
                                 @else
                                 <tr class="border-t border-[#EEF1F4]">
-                                    <td colspan="{{ $hasVendors ? (3 + count($uniqueVendors)) : 3 }}" class="p-3 text-center text-[#666666]">No items available</td>
+                                    <td colspan="{{ $hasVendors ? (3 + count($uniqueVendors)) : 3 }}" class="p-3 text-center text-[#666666]">Tidak ada item tersedia</td>
                                 </tr>
                                 @endif
 
                                 <!-- Payment Terms Row -->
                                 @if($hasVendors)
                                 <tr class="border-t border-[#EEF1F4] bg-[#E9ECF6]">
-                                    <td class="p-3 text-xs font-medium text-left text-[#213268]">Payment Terms</td>
+                                    <td class="p-3 text-xs font-medium text-left text-[#213268]">Syarat Pembayaran</td>
                                     <td colspan="2" class="p-3 text-xs text-[#666666]"></td>
                                     @foreach($uniqueVendors as $vendor)
                                     @php
@@ -248,7 +249,7 @@
 
                                 <!-- Delivery Terms Row -->
                                 <tr class="border-t border-[#EEF1F4] bg-[#E9ECF6]">
-                                    <td class="p-3 text-xs font-medium text-left text-[#213268]">Delivery Terms</td>
+                                    <td class="p-3 text-xs font-medium text-left text-[#213268]">Syarat Pengiriman</td>
                                     <td colspan="2" class="p-3 text-xs text-[#666666]"></td>
                                     @foreach($uniqueVendors as $vendor)
                                     @php
@@ -287,16 +288,26 @@
                 </div>
 
                 <!-- Navigation Buttons -->
+                @if(!isset($comparison['status']) || $comparison['status'] !== 'Completed')
                 <div class="flex flex-wrap gap-4 mt-8">
-                    @if(!isset($comparison['status']) || $comparison['status'] !== 'Completed')
                         <!-- Complete button only shown when not yet completed -->
                         <button id="completeBtn" type="button"
                                 class="px-6 py-3 bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200 uppercase"
                                 data-comparison-id="{{ $comparison['comparison_id'] ?? $id }}">
-                            COMPLETE
+                        SELESAI
                         </button>
-                    @endif
                 </div>
+                @endif
+                @else
+                <!-- Not Found State -->
+                <div class="flex flex-col items-center justify-center py-8">
+                    <svg class="w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">Perbandingan Harga Tidak Ditemukan</h2>
+                    <p class="text-gray-600 mb-8">{{ $error ?? 'Data perbandingan harga yang diminta tidak dapat ditemukan atau telah dihapus.' }}</p>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -381,7 +392,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-bold">Success!</p>
+                            <p class="font-bold">Berhasil!</p>
                             <div>${message}</div>
                         </div>
                         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -441,7 +452,7 @@
                 const comparisonId = this.getAttribute('data-comparison-id');
 
                 if (!agreementId) {
-                    showToast('Error: Could not find agreement ID. Please contact administrator.', 'error');
+                    showToast('Error: ID Perjanjian tidak ditemukan. Silakan hubungi administrator.', 'error');
                     return;
                 }
 
@@ -555,7 +566,7 @@
                     return;
                 }
 
-                if (!confirm('Are you sure you want to complete this price comparison? This action cannot be undone.')) {
+                if (!confirm('Apakah Anda yakin ingin menyelesaikan perbandingan harga ini? Tindakan ini tidak dapat dibatalkan.')) {
                     return;
                 }
 
@@ -568,7 +579,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    COMPLETING...
+                    MENYELESAIKAN...
                 `;
 
                 // Get CSRF token
@@ -587,7 +598,7 @@
                 .then(data => {
                     if (data.success) {
                         // Show success message
-                        showToast(data.message || 'Price comparison has been completed successfully!', 'success');
+                        showToast(data.message || 'Perbandingan harga telah berhasil diselesaikan!', 'success');
 
                         // Reload the page after a short delay to show the updated status
                         setTimeout(() => {
@@ -599,7 +610,7 @@
                         completeBtn.disabled = false;
                         completeBtn.innerHTML = originalText;
 
-                        showToast(data.errors?.general || 'Failed to complete price comparison', 'error');
+                        showToast(data.errors?.general || 'Gagal menyelesaikan perbandingan harga', 'error');
                     }
                 })
                 .catch(error => {
@@ -610,7 +621,7 @@
                     completeBtn.disabled = false;
                     completeBtn.innerHTML = originalText;
 
-                    showToast('An error occurred while completing the price comparison', 'error');
+                    showToast('Terjadi kesalahan saat menyelesaikan perbandingan harga', 'error');
                 });
             });
         }

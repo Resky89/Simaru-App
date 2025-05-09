@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', isset($vendorOffer) || request()->has('agreement_id') ? 'Edit Vendor Quotation' : 'Add Vendor Quotation')
+@section('title', isset($vendorOffer) || request()->has('agreement_id') ? 'Edit Penawaran Vendor' : 'Tambah Penawaran Vendor')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -17,7 +17,7 @@
                             </svg>
                         </a>
                         <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
-                            {{ isset($vendorOffer) || request()->has('agreement_id') ? 'EDIT VENDOR QUOTATION' : 'ADD VENDOR QUOTATION' }}
+                            {{ isset($vendorOffer) || request()->has('agreement_id') ? 'EDIT PENAWARAN VENDOR' : 'TAMBAH PENAWARAN VENDOR' }}
                         </h1>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
 
                     <!-- Payment Terms -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Payment Terms</label>
+                        <label class="block text-base font-semibold text-[#666666]">Syarat Pembayaran</label>
                         <textarea
                             name="payment_terms"
                             id="payment_terms"
@@ -59,7 +59,7 @@
 
                     <!-- Delivery Terms -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Delivery Terms</label>
+                        <label class="block text-base font-semibold text-[#666666]">Syarat Pengiriman</label>
                         <textarea
                             name="delivery_terms"
                             id="delivery_terms"
@@ -70,7 +70,7 @@
 
                     <!-- Notes -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Notes</label>
+                        <label class="block text-base font-semibold text-[#666666]">Catatan</label>
                         <textarea
                             name="notes"
                             id="notes"
@@ -80,21 +80,21 @@
 
                     <!-- Item List -->
                     <div class="space-y-4">
-                        <label class="block text-base font-semibold text-[#666666]">Asset List</label>
+                        <label class="block text-base font-semibold text-[#666666]">Daftar Aset</label>
 
                         <div class="overflow-x-auto">
                             <table class="w-full" id="itemsTable">
                                 <thead>
                                     <tr>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Qty</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Unit Price</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Jml</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Harga Satuan</th>
                                     </tr>
                                 </thead>
                                 <tbody id="items_container">
                                     <!-- Items will be loaded dynamically -->
                                     <tr class="border-t border-[#EEF1F4]">
-                                        <td colspan="3" class="p-3 text-center text-gray-500">Loading items...</td>
+                                        <td colspan="3" class="p-3 text-center text-gray-500">Memuat item...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -105,7 +105,7 @@
                     <!-- Form Buttons -->
                     <div class="flex gap-4 mt-8">
                         <button type="submit" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
-                            {{ isset($vendorOffer) || request()->has('offer_id') ? 'UPDATE' : 'SUBMIT' }}
+                            {{ isset($vendorOffer) || request()->has('offer_id') ? 'PERBARUI' : 'KIRIM' }}
                         </button>
                     </div>
                 </form>
@@ -125,8 +125,8 @@
             <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">Success!</h3>
-            <p class="mt-2 text-sm text-gray-500" id="successMessage">Your vendor quotation has been successfully saved.</p>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">Berhasil!</h3>
+            <p class="mt-2 text-sm text-gray-500" id="successMessage">Penawaran vendor Anda telah berhasil disimpan.</p>
             <div class="mt-4">
                 <button id="successModalClose" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451]">
                     OK
@@ -145,10 +145,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
             </svg>
             <h3 class="mt-4 text-lg font-medium text-gray-900">Error!</h3>
-            <p class="mt-2 text-sm text-gray-500" id="errorMessage">An error occurred. Please try again.</p>
+            <p class="mt-2 text-sm text-gray-500" id="errorMessage">Terjadi kesalahan. Silakan coba lagi.</p>
             <div class="mt-4">
                 <button id="errorModalClose" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                    Close
+                    Tutup
                 </button>
             </div>
         </div>
@@ -178,7 +178,7 @@
         let vendorOfferIdsMap = new Map();
         for (const [key, value] of urlParams.entries()) {
             if (key.startsWith('vo_')) {
-                const itemId = parseInt(key.substring(3), 10); // Remove 'vo_' prefix
+                const itemId = parseInt(key.substring(3), 10);
                 if (!isNaN(itemId)) {
                     vendorOfferIdsMap.set(itemId, parseInt(value, 10));
                     console.log(`Found vendor_offer_id ${value} for item ${itemId} in URL params`);
@@ -220,7 +220,7 @@
             })
             .then(data => {
                 if (!data.success) {
-                    throw new Error(data.errors?.general || 'Failed to load vendor offer data');
+                    throw new Error(data.errors?.general || 'Gagal memuat data penawaran vendor');
                 }
 
                 const vendorOffer = data.data;
@@ -239,8 +239,6 @@
                 // Create a map of price comparison item IDs to their unit prices and vendor_offer_id
                 const itemPrices = new Map();
 
-                // Log the structure of the response
-                console.log('Vendor offer response structure:', Object.keys(vendorOffer));
 
                 // Process items directly from the response
                 if (vendorOffer.items && Array.isArray(vendorOffer.items) && vendorOffer.items.length > 0) {
@@ -253,9 +251,9 @@
                                 : (item.vendor_offer_id || null);
 
                             if (vendorOfferId) {
-                                console.log(`Using vendor_offer_id ${vendorOfferId} for item ${itemId}`);
+                                console.log(`Menggunakan vendor_offer_id ${vendorOfferId} untuk item ${itemId}`);
                             } else {
-                                console.warn(`No vendor_offer_id found for item ${itemId}`);
+                                console.warn(`Tidak ada vendor_offer_id ditemukan untuk item ${itemId}`);
                             }
 
                             itemPrices.set(
@@ -274,7 +272,7 @@
                 loadComparisonData(itemPrices, vendorOffer, parseInt(agreementId, 10));
             })
             .catch(error => {
-                showToast('Failed to load vendor offer data: ' + error.message, 'error');
+                showToast('Gagal memuat data penawaran vendor: ' + error.message, 'error');
 
                 // Still try to load comparison data even if vendor offer data failed
                 loadComparisonData(vendorOfferIdsMap);
@@ -311,7 +309,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-bold">Success!</p>
+                            <p class="font-bold">Berhasil!</p>
                             <div>${message}</div>
                         </div>
                         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -340,7 +338,7 @@
                 // Title
                 const title = document.createElement('p');
                 title.className = 'font-bold';
-                title.textContent = 'Error!';
+                title.textContent = 'GAGAL!';
                 contentContainer.appendChild(title);
 
                 // Message container
@@ -481,7 +479,7 @@
         // Load comparison data to populate items
         function loadComparisonData(itemPrices = new Map(), vendorOfferData = null, agreementId = null) {
             const itemsContainer = document.getElementById('items_container');
-            itemsContainer.innerHTML = '<tr class="border-t border-[#EEF1F4]"><td colspan="3" class="p-3 text-center text-gray-500">Loading items...</td></tr>';
+            itemsContainer.innerHTML = '<tr class="border-t border-[#EEF1F4]"><td colspan="3" class="p-3 text-center text-gray-500">Memuat item...</td></tr>';
 
             // Set edit mode flag based on agreementId
             const isEditMode = !!agreementId;
@@ -500,7 +498,7 @@
             })
             .then(data => {
                 if (!data.success) {
-                    throw new Error(data.errors?.general || 'Failed to load comparison data');
+                    throw new Error(data.errors?.general || 'Gagal memuat data perbandingan');
                 }
 
                 comparisonItems = data.data.items || [];
@@ -510,7 +508,7 @@
                 itemsContainer.innerHTML = '';
 
                 if (comparisonItems.length === 0) {
-                    itemsContainer.innerHTML = '<tr class="border-t border-[#EEF1F4]"><td colspan="3" class="p-3 text-center text-gray-500">No items found</td></tr>';
+                    itemsContainer.innerHTML = '<tr class="border-t border-[#EEF1F4]"><td colspan="3" class="p-3 text-center text-gray-500">Tidak ada item yang ditemukan</td></tr>';
                     return;
                 }
 
@@ -621,22 +619,22 @@
                     });
 
                     if (missingIds.length > 0) {
-                        console.warn(`Warning: ${missingIds.length} items are missing vendor_offer_id:`, missingIds);
-                        showToast(`Warning: ${missingIds.length} items are missing vendor_offer_id. This may cause problems when saving.`, 'error');
+                        console.warn(`Peringatan: ${missingIds.length} item tidak memiliki vendor_offer_id:`, missingIds);
+                        showToast(`Peringatan: ${missingIds.length} item tidak memiliki vendor_offer_id. Hal ini dapat menyebabkan masalah saat menyimpan.`, 'error');
                     } else {
-                        console.log('All items have vendor_offer_id set correctly');
+                        console.log('Semua item memiliki vendor_offer_id yang ditetapkan dengan benar');
                     }
                 }
             })
             .catch(error => {
-                itemsContainer.innerHTML = `<tr class="border-t border-[#EEF1F4]"><td colspan="3" class="p-3 text-center text-red-500">Failed to load items: ${error.message}</td></tr>`;
-                showToast('Failed to load comparison data', 'error');
+                itemsContainer.innerHTML = `<tr class="border-t border-[#EEF1F4]"><td colspan="3" class="p-3 text-center text-red-500">Gagal memuat item: ${error.message}</td></tr>`;
+                showToast('Gagal memuat data perbandingan', 'error');
             });
         }
 
         // Load all vendors
         function loadAllVendors() {
-            vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+            vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
             vendorResults.style.display = 'block';
 
             // First try to get from localStorage to avoid delay
@@ -665,10 +663,10 @@
 
             function fetchPage(page) {
                 if (page === 1) {
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
                 } else {
                     // Update loading message for subsequent pages
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors (page ' + page + ')...</div>';
+                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor (halaman ' + page + ')...</div>';
                 }
 
                 fetch(`/vendor?json=true&page=${page}&limit=100`, {
@@ -725,7 +723,7 @@
                 })
                 .catch(error => {
                     console.error(`Error fetching vendors page ${page}:`, error);
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Error loading vendors</div>';
+                    vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
 
                     // If we got some vendors, still show them
                     if (allVendors.length > 0) {
@@ -745,12 +743,12 @@
 
             // Show loading message during search
             if (searchTerm && searchTerm.length > 0) {
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Searching vendors...</div>';
+                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Mencari vendor...</div>';
             }
 
             // If we have no vendors yet
             if (allVendors.length === 0) {
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
                 return;
             }
 
@@ -788,7 +786,7 @@
             vendorResults.innerHTML = '';
 
             if (displayVendors.length === 0) {
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">No vendors found</div>';
+                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada vendor yang ditemukan</div>';
                 return;
             }
 
@@ -818,7 +816,7 @@
             if (filteredVendors.length > 20) {
                 const countDiv = document.createElement('div');
                 countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
-                countDiv.textContent = `Showing 20 of ${filteredVendors.length} vendors`;
+                countDiv.textContent = `Menampilkan 20 dari ${filteredVendors.length} vendor`;
                 vendorResults.appendChild(countDiv);
             }
         }
@@ -848,9 +846,9 @@
                 const vendorId = document.getElementById('selected_vendor_id').value;
                 if (!vendorId) {
                     document.getElementById('vendor_search').classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                    document.getElementById('vendor_error').textContent = 'Please select a vendor';
+                    document.getElementById('vendor_error').textContent = 'Silakan pilih vendor';
                     document.getElementById('vendor_error').classList.remove('hidden');
-                    showToast('Please select a vendor before submitting.', 'error');
+                    showToast('Silakan pilih vendor sebelum mengirim.', 'error');
                     return;
                 }
 
@@ -858,18 +856,18 @@
                 const paymentTerms = document.getElementById('payment_terms').value.trim();
                 if (!paymentTerms) {
                     document.getElementById('payment_terms').classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                    document.getElementById('payment_terms_error').textContent = 'Please enter payment terms';
+                    document.getElementById('payment_terms_error').textContent = 'Silakan masukkan syarat pembayaran';
                     document.getElementById('payment_terms_error').classList.remove('hidden');
-                    showToast('Please enter payment terms.', 'error');
+                    showToast('Silakan masukkan syarat pembayaran.', 'error');
                     return;
                 }
 
                 const deliveryTerms = document.getElementById('delivery_terms').value.trim();
                 if (!deliveryTerms) {
                     document.getElementById('delivery_terms').classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                    document.getElementById('delivery_terms_error').textContent = 'Please enter delivery terms';
+                    document.getElementById('delivery_terms_error').textContent = 'Silakan masukkan syarat pengiriman';
                     document.getElementById('delivery_terms_error').classList.remove('hidden');
-                    showToast('Please enter delivery terms.', 'error');
+                    showToast('Silakan masukkan syarat pengiriman.', 'error');
                     return;
                 }
 
@@ -924,15 +922,15 @@
                 });
 
                 if (hasEmptyPrice) {
-                    showToast('Please enter prices for all items.', 'error');
+                    showToast('Silakan masukkan harga untuk semua item.', 'error');
                     return;
                 }
 
                 if (hasErroredItem) {
                     if (isUpdate) {
-                        showToast('Some items are missing vendor_offer_id. This is required for updates. Please refresh and try again.', 'error');
+                        showToast('Beberapa item tidak memiliki vendor_offer_id. Hal ini diperlukan untuk operasi update. Silakan refresh dan coba lagi.', 'error');
                     } else {
-                        showToast('Some items are missing required data. Please try again.', 'error');
+                        showToast('Beberapa item tidak memiliki data yang diperlukan. Silakan coba lagi.', 'error');
                     }
                     return;
                 }
@@ -941,7 +939,7 @@
                 const comparisonId = document.getElementById('comparison_id').value;
 
                 if (!comparisonId) {
-                    showToast('Comparison ID is missing. Please try again or contact support.', 'error');
+                    showToast('ID perbandingan tidak ditemukan. Silakan coba lagi atau hubungi dukungan.', 'error');
                     return;
                 }
 
@@ -1004,7 +1002,7 @@
                 .then(data => {
                     if (data.success) {
                         // Show success toast - don't reset button or submitting flag since we're redirecting
-                        showToast(data.message || 'Vendor quotation saved successfully!');
+                        showToast(data.message || 'Penawaran vendor berhasil disimpan!');
 
                         // Set a flag to indicate we're intentionally navigating away
                         const isNavigatingAway = true;
@@ -1021,7 +1019,7 @@
                         submitBtn.disabled = false;
 
                         // Show error toast
-                        showToast(data.errors?.general || data.message || 'Failed to save vendor quotation.', 'error');
+                        showToast(data.errors?.general || data.message || 'Gagal menyimpan penawaran vendor.', 'error');
 
                         // Handle validation errors
                         if (data.errors && typeof data.errors === 'object') {
@@ -1066,16 +1064,16 @@
                             });
                             errorMessage += '</ul>';
                         } else {
-                            errorMessage = typeof errorData === 'string' ? errorData : 'An error occurred while saving the vendor quotation.';
+                            errorMessage = typeof errorData === 'string' ? errorData : 'Terjadi kesalahan saat menyimpan penawaran vendor.';
                         }
 
                         showToast(errorMessage, 'error');
                     } else if (error.message) {
                         // If we have a plain error message
-                        showToast(`Error: ${error.message}`, 'error');
+                        showToast(`Terjadi kesalahan: ${error.message}`, 'error');
                     } else {
                         // Generic error message
-                        showToast('An error occurred while saving the vendor quotation. Please try again.', 'error');
+                        showToast('Terjadi kesalahan saat menyimpan penawaran vendor. Silakan coba lagi.', 'error');
                     }
                 });
             });

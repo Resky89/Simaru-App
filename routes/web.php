@@ -29,6 +29,8 @@ use App\Http\Controllers\ViewMasterAssetController;
 use App\Http\Controllers\AssetDocumentsController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\DepreciationReportController;
+use App\Http\Controllers\ProcurementPriceComparisonController;
+use App\Http\Controllers\ProcurementPurchaseOrderController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -195,16 +197,16 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::get('/assets/export/pdf', [UnitAssetController::class, 'exportUnitAssetPDF'])->name('assets.export.pdf');
 
     // Asset Documents routes
-    Route::get('/asset-documents/asset/{id}', [App\Http\Controllers\AssetDocumentsController::class, 'getAssetDocuments'])->name('asset-documents.get');
-    Route::get('/asset-documents/{id}', [App\Http\Controllers\AssetDocumentsController::class, 'getDocument'])->name('document.view');
-    Route::post('/asset-documents', [App\Http\Controllers\AssetDocumentsController::class, 'store'])->name('asset-documents.store');
-    Route::put('/asset-documents/{id}', [App\Http\Controllers\AssetDocumentsController::class, 'update'])->name('asset-documents.update');
-    Route::delete('/asset-documents/{id}', [App\Http\Controllers\AssetDocumentsController::class, 'destroy'])->name('asset-documents.destroy');
-    Route::get('/asset-documents', [App\Http\Controllers\AssetDocumentsController::class, 'index'])->name('asset-documents');
-    Route::post('/asset-documents/{id}/assign', [App\Http\Controllers\AssetDocumentsController::class, 'assignToAssets'])->name('asset-documents.assign');
-    Route::delete('/asset-documents/asset/{assetId}/documents/{documentId}', [App\Http\Controllers\AssetDocumentsController::class, 'unlinkFromAsset'])->name('asset-documents.unlink');
-    Route::get('/asset-documents/asset/{assetId}/all-documents', [App\Http\Controllers\AssetDocumentsController::class, 'getAssetDocuments'])->name('asset-documents.getAssetDocuments');
-    Route::post('/asset-documents/asset/{assetId}/documents', [App\Http\Controllers\AssetDocumentsController::class, 'createAssetDocument'])->name('asset-documents.createAssetDocument');
+    Route::get('/asset-documents/asset/{id}', [AssetDocumentsController::class, 'getAssetDocuments'])->name('asset-documents.get');
+    Route::get('/asset-documents/{id}', [AssetDocumentsController::class, 'getDocument'])->name('document.view');
+    Route::post('/asset-documents', [AssetDocumentsController::class, 'store'])->name('asset-documents.store');
+    Route::put('/asset-documents/{id}', [AssetDocumentsController::class, 'update'])->name('asset-documents.update');
+    Route::delete('/asset-documents/{id}', [AssetDocumentsController::class, 'destroy'])->name('asset-documents.destroy');
+    Route::get('/asset-documents', [AssetDocumentsController::class, 'index'])->name('asset-documents');
+    Route::post('/asset-documents/{id}/assign', [AssetDocumentsController::class, 'assignToAssets'])->name('asset-documents.assign');
+    Route::delete('/asset-documents/asset/{assetId}/documents/{documentId}', [AssetDocumentsController::class, 'unlinkFromAsset'])->name('asset-documents.unlink');
+    Route::get('/asset-documents/asset/{assetId}/all-documents', [AssetDocumentsController::class, 'getAssetDocuments'])->name('asset-documents.getAssetDocuments');
+    Route::post('/asset-documents/asset/{assetId}/documents', [AssetDocumentsController::class, 'createAssetDocument'])->name('asset-documents.createAssetDocument');
 
     // Asset Depreciation route
     Route::get('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'getAssetDepreciation'])
@@ -229,41 +231,39 @@ Route::middleware([AuthMiddleware::class])->group(function () {
          Route::get('/detail-request/{id}', [ProcurementRequestController::class, 'show'])->name('detail-request');
 
         // Price Comparison
-        Route::get('/price-comparison', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'index'])->name('price-comparison');
+        Route::get('/price-comparison', [ProcurementPriceComparisonController::class, 'index'])->name('price-comparison');
         Route::get('/form-comparison/{id?}', function ($id = null) {
             return view('Procurement.Comparison.FormComparison', ['id' => $id]);
         })->name('form-comparison');
         Route::get('/form-vendor-comparison/{id?}', function ($id = null) {
             return view('Procurement.Comparison.FormComparisonVendor', ['comparison_id' => $id]);
         })->name('form-vendor-comparison');
-        Route::get('/detail-comparison/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'show'])->name('detail-comparison');
+        Route::get('/detail-comparison/{id}', [ProcurementPriceComparisonController::class, 'show'])->name('detail-comparison');
 
         // Price Comparison API
-        Route::post('/price-comparison', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'store'])->name('store-price-comparison');
-        Route::get('/price-comparison/data', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'index'])->name('price-comparison-data');
-        Route::get('/price-comparison/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'show'])->name('show-price-comparison');
+        Route::post('/price-comparison', [ProcurementPriceComparisonController::class, 'store'])->name('store-price-comparison');
+        Route::get('/price-comparison/data', [ProcurementPriceComparisonController::class, 'index'])->name('price-comparison-data');
+        Route::get('/price-comparison/{id}', [ProcurementPriceComparisonController::class, 'show'])->name('show-price-comparison');
         Route::get('/procurement/request', [ProcurementRequestController::class, 'search'])->name('search');
-        Route::post('/price-comparison/create-from-detail', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'createFromDetail'])->name('create-price-comparison-from-detail');
+        Route::post('/price-comparison/create-from-detail', [ProcurementPriceComparisonController::class, 'createFromDetail'])->name('create-price-comparison-from-detail');
 
         // Vendor Offer API
-        Route::get('/price-comparison/vendor-offer/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'getVendorOffer'])->name('get-vendor-offer');
-        Route::post('/price-comparison/vendor-offer', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'createVendorOffer'])->name('create-vendor-offer');
-        Route::put('/price-comparison/vendor-offer/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'updateVendorOffer'])->name('update-vendor-offer');
-        Route::delete('/price-comparison/vendor-offer/{id}', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'deleteVendorOffer'])->name('delete-vendor-offer');
+        Route::get('/price-comparison/vendor-offer/{id}', [ProcurementPriceComparisonController::class, 'getVendorOffer'])->name('get-vendor-offer');
+        Route::post('/price-comparison/vendor-offer', [ProcurementPriceComparisonController::class, 'createVendorOffer'])->name('create-vendor-offer');
+        Route::put('/price-comparison/vendor-offer/{id}', [ProcurementPriceComparisonController::class, 'updateVendorOffer'])->name('update-vendor-offer');
+        Route::delete('/price-comparison/vendor-offer/{id}', [ProcurementPriceComparisonController::class, 'deleteVendorOffer'])->name('delete-vendor-offer');
 
         // Complete Price Comparison
-        Route::post('/price-comparison/{id}/complete', [App\Http\Controllers\ProcurementPriceComparisonController::class, 'completeComparison'])->name('complete-price-comparison');
+        Route::post('/price-comparison/{id}/complete', [ProcurementPriceComparisonController::class, 'completeComparison'])->name('complete-price-comparison');
 
         // Purchase Order
-        Route::get('/purchase-order', function () {
-            return view('Procurement.PurchaseOrder.PurchaseOrder');
-        })->name('purchase-order');
+        Route::get('/purchase-order', [ProcurementPurchaseOrderController::class, 'index'])->name('purchase-order');
         Route::get('/form-purchase-order/{id?}', function ($id = null) {
             return view('Procurement.PurchaseOrder.FormPurchaseOrder', ['id' => $id]);
         })->name('form-purchase-order');
-        Route::get('/detail-purchase-order/{id?}', function ($id = null) {
-            return view('Procurement.PurchaseOrder.DetailPurchaseOrder', ['id' => $id]);
-        })->name('detail-purchase-order');
+        Route::get('/detail-purchase-order/{id}', [ProcurementPurchaseOrderController::class, 'show'])->name('detail-purchase-order');
+        Route::post('/purchase-order/vendor-offers', [ProcurementPurchaseOrderController::class, 'createFromVendorOffers'])->name('purchase-order.create-from-vendor-offers');
+        Route::get('/purchase-order/detail/{id}/export-pdf', [ProcurementPurchaseOrderController::class, 'exportPurchaseOrderDetailPDF'])->name('purchase-order.detail.export-pdf');
 
         // Receipt
         Route::get('/receipt', function () {
