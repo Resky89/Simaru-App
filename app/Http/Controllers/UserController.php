@@ -36,14 +36,22 @@ class UserController extends Controller
             // Fetch users with the new response format
             $userPage = $request->input('user_page', 1);
             $userLimit = $request->input('user_limit', 10);
+            $searchQuery = $request->input('query', '');
+
+            $userQueryParams = [
+                'page' => $userPage,
+                'limit' => $userLimit,
+                'sort_by' => 'user_id',
+                'sort_order' => 'asc' // Sort from lowest ID (oldest) to highest ID (newest)
+            ];
+
+            // Add search parameter if provided
+            if (!empty($searchQuery)) {
+                $userQueryParams['search'] = $searchQuery;
+            }
 
             $userResult = $this->apiService->request('GET', '/users', [
-                'query' => [
-                    'page' => $userPage,
-                    'limit' => $userLimit,
-                    'sort_by' => 'user_id',
-                    'sort_order' => 'asc' // Sort from lowest ID (oldest) to highest ID (newest)
-                ]
+                'query' => $userQueryParams
             ]);
 
             // Check if we got an error response from the ApiService
@@ -57,6 +65,15 @@ class UserController extends Controller
                 \Log::warning('Authentication error during roles and users retrieval:', [
                     'errors' => $errorMessage
                 ]);
+
+                // Return JSON if requested
+                if ($request->expectsJson() || $request->is('api/*') || $request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => is_string($errorMessage) ? $errorMessage : 'Authentication failed'
+                    ], 401);
+                }
+
                 return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Authentication failed');
             }
 
@@ -85,6 +102,15 @@ class UserController extends Controller
                     }
                 } else {
                     $errorMessage = $errorData;
+                }
+
+                // Return JSON if requested
+                if ($request->expectsJson() || $request->is('api/*') || $request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $errorData
+                    ], 400);
                 }
 
                 return view('Account.User', [
@@ -133,6 +159,15 @@ class UserController extends Controller
                 ];
             }
 
+            // Return JSON if requested
+            if ($request->expectsJson() || $request->is('api/*') || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $users,
+                    'pagination' => $userPagination
+                ]);
+            }
+
             return view('Account.User', [
                 'roles' => [
                     'data' => $roles,
@@ -146,6 +181,14 @@ class UserController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            // Return JSON if requested
+            if ($request->expectsJson() || $request->is('api/*') || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to fetch data: ' . $e->getMessage()
+                ], 500);
+            }
 
             return view('Account.User', [
                 'roles' => [

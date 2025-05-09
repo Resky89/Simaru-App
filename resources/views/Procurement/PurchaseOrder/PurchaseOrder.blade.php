@@ -101,23 +101,13 @@
                                     </span>
                                 </td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
-                                    <div class="flex justify-center gap-2">
+                                    <div class="flex justify-center">
                                         <a href="{{ route('procurement.detail-purchase-order', ['id' => $po['purchase_order_id']]) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
-                                        <a href="{{ route('procurement.form-purchase-order') }}" class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                        </a>
-                                        <button class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-po-btn" data-id="{{ $po['purchase_order_id'] }}">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -217,18 +207,6 @@
                 </div>
                 @endif
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div id="deleteConfirmationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Konfirmasi Hapus</h3>
-        <p class="text-sm text-gray-500 mb-4">Apakah Anda yakin ingin menghapus purchase order ini? Tindakan ini tidak dapat dibatalkan.</p>
-        <div class="flex gap-4 justify-end">
-            <button id="cancelDelete" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Batal</button>
-            <button id="confirmDelete" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Hapus</button>
         </div>
     </div>
 </div>
@@ -366,57 +344,6 @@
             urlParams.set('page', 1); // Reset to first page when changing limit
             window.location.href = '{{ route("procurement.purchase-order") }}?' + urlParams.toString();
         };
-
-        // Delete PO functionality
-        const deleteButtons = document.querySelectorAll('.delete-po-btn');
-        const deleteModal = document.getElementById('deleteConfirmationModal');
-        const cancelDelete = document.getElementById('cancelDelete');
-        const confirmDelete = document.getElementById('confirmDelete');
-        let poToDelete = null;
-
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                poToDelete = this.getAttribute('data-id');
-                deleteModal.classList.remove('hidden');
-            });
-        });
-
-        if(cancelDelete) {
-            cancelDelete.addEventListener('click', function() {
-                deleteModal.classList.add('hidden');
-                poToDelete = null;
-            });
-        }
-
-        if(confirmDelete) {
-            confirmDelete.addEventListener('click', function() {
-                if(poToDelete) {
-                    // Call delete API endpoint
-                    fetch(`/procurement/purchase-order/${poToDelete}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.success) {
-                            location.reload();
-                        } else {
-                            alert('Error: ' + (data.errors?.general || 'Failed to delete purchase order'));
-                        }
-                    })
-                    .catch(error => {
-                        alert('Error: ' + error.message);
-                    })
-                    .finally(() => {
-                        deleteModal.classList.add('hidden');
-                        poToDelete = null;
-                    });
-                }
-            });
-        }
     });
 </script>
 @endpush

@@ -17,7 +17,7 @@
                             </svg>
                         </a>
                         <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DETAIL PEMESANAN</h1>
-                    </div>
+                </div>
 
                     @if(isset($purchaseOrder) && !empty($purchaseOrder))
                     <a href="{{ route('procurement.purchase-order.detail.export-pdf', ['id' => $purchaseOrder['purchase_order_id']]) }}"

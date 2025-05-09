@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Receipt Detail')
+@section('title', 'Detail Penerimaan')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -10,116 +10,122 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">RECEIPT DETAIL</h1>
+                    <div class="flex items-center">
+                        <a href="{{ route('procurement.receipt') }}" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DETAIL PENERIMAAN</h1>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="flex gap-2">
-                    <a href="{{ route('procurement.receipt') }}" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451] transition-all duration-200 uppercase text-sm font-medium">
-                        Back
-                    </a>
+                    @if(isset($receipt))
+                    <button id="exportPdfBtn" class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Cetak PDF
+                    </button>
+                    @endif
                 </div>
 
+                @if(isset($receipt))
                 <!-- Receipt Details -->
                 <div class="grid grid-cols-1 gap-5">
                     <!-- Receipt Number -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Receipt Number</p>
-                        <p class="text-[#666666]">: <span>RN2406001</span></p>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor Penerimaan</p>
+                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['receipt_code'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- Receipt Date -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Receipt Date</p>
-                        <p class="text-[#666666]">: <span>2024-06-30</span></p>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Penerimaan</p>
+                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['receipt_date'] ? date('d M Y', strtotime($receipt['receipt_date'])) : 'N/A' }}</p>
                     </div>
 
                     <!-- Order Number -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">PO Number</p>
-                        <p class="text-[#666666]">: <span>PB2406001</span></p>
-                    </div>
-
-                    <!-- Vendor -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Vendor</p>
-                        <p class="text-[#666666]">: <span>PT Setiawan Tbk</span></p>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor PO</p>
+                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['purchase_order_id'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- Delivered by -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Delivered by</p>
-                        <p class="text-[#666666]">: <span>John Doe</span></p>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Dikirim Oleh</p>
+                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['delivered_by'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- Received by -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Received by</p>
-                        <p class="text-[#666666]">: <span>Finance</span></p>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Diterima Oleh</p>
+                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['receiver_name'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- User Input -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">User Input</p>
-                        <p class="text-[#666666]">: <span>Staff Finance</span></p>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Diinput Oleh</p>
+                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['creator_name'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- Input Date -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Quotation Date</p>
-                        <p class="text-[#666666]">: <span>2024-06-30 07:06:25</span></p>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Input</p>
+                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['created_at'] ? date('d M Y H:i', strtotime($receipt['created_at'])) : 'N/A' }}</p>
                     </div>
                 </div>
 
                 <!-- Item List -->
                 <div class="space-y-4">
-                    <h2 class="text-lg font-semibold text-[#666666]">ASSET LIST</h2>
+                    <h2 class="text-lg font-semibold text-[#666666]">DAFTAR ASET</h2>
 
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">ASSET NAME</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">SPECIFICATION</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">QTY</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NOTES</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NAMA ASET</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">TANGGAL PENERIMAAN</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">CATATAN</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Item 1 -->
+                                @if(isset($receipt['items']) && count($receipt['items']) > 0)
+                                    @foreach($receipt['items'] as $item)
                                 <tr class="border-t border-[#EEF1F4]">
-                                    <td class="p-3 text-xs text-[#666666]">Motherboard</td>
-                                    <td class="p-3 text-xs text-[#666666]">ATX</td>
-                                    <td class="p-3 text-xs text-center text-[#666666]">1</td>
-                                    <td class="p-3 text-xs text-[#666666]">baik</td>
+                                        <td class="p-3 text-xs text-[#666666]">{{ $item['procurement_item_name'] ?? 'N/A' }}</td>
+                                        <td class="p-3 text-xs text-center text-[#666666]">{{ isset($item['created_at']) ? date('d M Y', strtotime($item['created_at'])) : 'N/A' }}</td>
+                                        <td class="p-3 text-xs text-[#666666]">{{ $item['notes'] ?? '-' }}</td>
                                 </tr>
+                                    @endforeach
+                                @else
+                                <tr class="border-t border-[#EEF1F4]">
+                                        <td colspan="3" class="p-3 text-center text-gray-500">Tidak ada item yang ditemukan untuk penerimaan ini.</td>
+                                </tr>
+                                @endif
 
-                                <!-- Item 2 -->
-                                <tr class="border-t border-[#EEF1F4]">
-                                    <td class="p-3 text-xs text-[#666666]">CPU core i5</td>
-                                    <td class="p-3 text-xs text-[#666666]">Gen 13</td>
-                                    <td class="p-3 text-xs text-center text-[#666666]">1</td>
-                                    <td class="p-3 text-xs text-[#666666]">baik</td>
+                                <!-- Notes Row -->
+                                @if(isset($receipt['notes']) && !empty($receipt['notes']))
+                                <tr class="border-t border-[#EEF1F4] bg-[#E9ECF6]">
+                                    <td class="p-3 text-xs font-medium text-left text-[#213268]">Catatan</td>
+                                    <td colspan="2" class="p-3 text-xs text-[#666666]">
+                                        {{ $receipt['notes'] ?? 'Tidak ada data' }}
+                                    </td>
                                 </tr>
-
-                                <!-- Item 3 -->
-                                <tr class="border-t border-[#EEF1F4]">
-                                    <td class="p-3 text-xs text-[#666666]">RAM DDR4 8gb</td>
-                                    <td class="p-3 text-xs text-[#666666]">3200MHz</td>
-                                    <td class="p-3 text-xs text-center text-[#666666]">3</td>
-                                    <td class="p-3 text-xs text-[#666666]">baik</td>
-                                </tr>
+                                @endif
                             </tbody>
                         </table>
                     </div>
                 </div>
-
-                <!-- Form Buttons -->
-                <div class="flex gap-4 mt-8">
-                    <button type="button" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
-                        PRINT
-                    </button>
+                @else
+                <!-- Not Found State -->
+                <div class="flex flex-col items-center justify-center py-8">
+                    <svg class="w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">Penerimaan Tidak Ditemukan</h2>
+                    <p class="text-gray-600 mb-8">{{ $error ?? 'Data penerimaan yang diminta tidak dapat ditemukan atau telah dihapus.' }}</p>
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -130,7 +136,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Handle Print button
-        const printBtn = document.querySelector('button.uppercase');
+        const printBtn = document.getElementById('exportPdfBtn');
 
         if (printBtn) {
             printBtn.addEventListener('click', function() {

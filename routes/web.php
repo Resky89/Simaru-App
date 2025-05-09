@@ -31,6 +31,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\DepreciationReportController;
 use App\Http\Controllers\ProcurementPriceComparisonController;
 use App\Http\Controllers\ProcurementPurchaseOrderController;
+use App\Http\Controllers\ProcurementReceiptController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -119,6 +120,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // User Management
     Route::prefix('user')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('user');
+        Route::get('/search', [UserController::class, 'index'])->name('user.search');
 
         // User API Routes
         Route::post('/users/store', [UserController::class, 'storeUser'])->name('users.store');
@@ -266,15 +268,12 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/purchase-order/detail/{id}/export-pdf', [ProcurementPurchaseOrderController::class, 'exportPurchaseOrderDetailPDF'])->name('purchase-order.detail.export-pdf');
 
         // Receipt
-        Route::get('/receipt', function () {
-            return view('Procurement.Receipt.Receipt');
-        })->name('receipt');
+        Route::get('/receipt', [ProcurementReceiptController::class, 'index'])->name('receipt');
         Route::get('/form-receipt/{id?}', function ($id = null) {
             return view('Procurement.Receipt.FormReceipt', ['id' => $id]);
         })->name('form-receipt');
-        Route::get('/detail-receipt/{id?}', function ($id = null) {
-            return view('Procurement.Receipt.DetailReceipt', ['id' => $id]);
-        })->name('detail-receipt');
+        Route::get('/detail-receipt/{id}', [ProcurementReceiptController::class, 'show'])->name('receipt.show');
+        Route::post('/receipt', [ProcurementReceiptController::class, 'create'])->name('receipt.create');
 
         // Inside the procurement route group
         Route::post('/request', [ProcurementRequestController::class, 'store'])->name('store');
