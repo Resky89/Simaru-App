@@ -99,11 +99,11 @@
                             <table class="w-full">
                                 <thead>
                                     <tr>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NAMA ASET</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">SPESIFIKASI</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">JML</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">HARGA SATUAN</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">TOTAL</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">NAMA ASET</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">SPESIFIKASI</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">JML</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">HARGA SATUAN</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">TOTAL</th>
                                     </tr>
                                 </thead>
                                 <tbody id="assetListTableBody">
@@ -538,7 +538,7 @@
                 row.className = 'border-t border-[#EEF1F4]';
 
                 const cell = document.createElement('td');
-                cell.className = 'p-3 text-xs text-[#666666] text-center';
+                cell.className = 'p-3 text-sm text-[#666666] text-center';
                 cell.colSpan = 5;
                 cell.textContent = 'Tidak ada item ditemukan untuk permintaan ini';
 
@@ -566,27 +566,27 @@
 
                 // Create and append cells
                 const nameCell = document.createElement('td');
-                nameCell.className = 'p-3 text-xs text-[#666666]';
+                nameCell.className = 'p-3 text-sm text-[#666666]';
                 nameCell.textContent = assetName;
                 row.appendChild(nameCell);
 
                 const specCell = document.createElement('td');
-                specCell.className = 'p-3 text-xs text-[#666666]';
+                specCell.className = 'p-3 text-sm text-[#666666]';
                 specCell.textContent = specification;
                 row.appendChild(specCell);
 
                 const qtyCell = document.createElement('td');
-                qtyCell.className = 'p-3 text-xs text-center text-[#666666]';
+                qtyCell.className = 'p-3 text-sm text-center text-[#666666]';
                 qtyCell.textContent = quantity;
                 row.appendChild(qtyCell);
 
                 const priceCell = document.createElement('td');
-                priceCell.className = 'p-3 text-xs text-left text-[#666666]';
+                priceCell.className = 'p-3 text-sm text-left text-[#666666]';
                 priceCell.textContent = formatter.format(unitPrice);
                 row.appendChild(priceCell);
 
                 const totalCell = document.createElement('td');
-                totalCell.className = 'p-3 text-xs text-left text-[#666666]';
+                totalCell.className = 'p-3 text-sm text-left text-[#666666]';
                 totalCell.textContent = formatter.format(total);
                 row.appendChild(totalCell);
 
@@ -598,13 +598,13 @@
             totalRow.className = 'border-t border-[#EEF1F4]';
 
             const totalLabelCell = document.createElement('td');
-            totalLabelCell.className = 'p-3 text-xs font-medium text-right text-[#666666]';
+            totalLabelCell.className = 'p-3 text-sm font-medium text-right text-[#666666]';
             totalLabelCell.colSpan = 4;
             totalLabelCell.textContent = 'Total Keseluruhan';
             totalRow.appendChild(totalLabelCell);
 
             const totalValueCell = document.createElement('td');
-            totalValueCell.className = 'p-3 text-xs font-medium text-left text-[#666666]';
+            totalValueCell.className = 'p-3 text-sm font-medium text-left text-[#666666]';
             totalValueCell.textContent = new Intl.NumberFormat('id-ID').format(grandTotal);
             totalRow.appendChild(totalValueCell);
 

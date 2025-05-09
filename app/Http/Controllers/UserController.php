@@ -39,10 +39,10 @@ class UserController extends Controller
             $searchQuery = $request->input('query', '');
 
             $userQueryParams = [
-                'page' => $userPage,
-                'limit' => $userLimit,
-                'sort_by' => 'user_id',
-                'sort_order' => 'asc' // Sort from lowest ID (oldest) to highest ID (newest)
+                    'page' => $userPage,
+                    'limit' => $userLimit,
+                    'sort_by' => 'user_id',
+                    'sort_order' => 'asc' // Sort from lowest ID (oldest) to highest ID (newest)
             ];
 
             // Add search parameter if provided

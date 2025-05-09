@@ -13,7 +13,14 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">RECEIPT FORM</h1>
+                    <div class="flex items-center">
+                        <a href="{{ route('procurement.receipt') }}" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORMULIR PENERIMAAN</h1>
+                    </div>
                 </div>
 
                 <!-- Receipt Form -->
@@ -22,14 +29,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- Receipt Date -->
                         <div class="form-control">
-                            <label class="block text-base font-medium text-[#666666] mb-2">Receipt Date</label>
+                            <label class="block text-base font-medium text-[#666666] mb-2">Tanggal Penerimaan</label>
                             <input type="date" id="receipt_date" name="receipt_date" value="<?php echo date('Y-m-d'); ?>"
                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         </div>
 
                         <!-- Delivered by -->
                         <div class="form-control">
-                            <label class="block text-base font-medium text-[#666666] mb-2">Delivered by</label>
+                            <label class="block text-base font-medium text-[#666666] mb-2">Dikirim oleh</label>
                             <div class="flex">
                                 <input type="text" id="delivered_by" name="delivered_by"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
@@ -38,7 +45,7 @@
 
                         <!-- Received by -->
                         <div class="form-control">
-                            <label class="block text-base font-medium text-[#666666] mb-2">Received by</label>
+                            <label class="block text-base font-medium text-[#666666] mb-2">Diterima oleh</label>
                             <div class="relative">
                                 <input type="text" id="receivedByInput" placeholder="Cari penerima..."
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
@@ -72,10 +79,10 @@
 
                             <div class="absolute inset-y-0 right-0 flex">
                             <button id="searchBtn" type="button" class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451]">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </button>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </button>
                             </div>
 
                             <!-- Dropdown for search results -->
@@ -116,7 +123,7 @@
 
                             <!-- PIC Contact -->
                             <div class="flex items-start gap-2">
-                                <p class="w-24 text-[#666666] font-medium">PIC Contact</p>
+                                <p class="w-24 text-[#666666] font-medium">Kontak PIC</p>
                                 <p class="text-[#666666]">: <span id="displayPicContact"></span></p>
                             </div>
 
@@ -129,15 +136,15 @@
 
                         <!-- ASSET LIST -->
                         <div class="space-y-4 mt-4">
-                            <h2 class="text-lg font-semibold text-[#666666]">ASSET LIST</h2>
+                            <h2 class="text-lg font-semibold text-[#666666]">DAFTAR ASET</h2>
                             <div class="overflow-x-auto">
                                 <table class="w-full">
                                     <thead>
                                         <tr>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">ASSET NAME</th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">SPECIFICATION</th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">QTY</th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NOTES</th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NAMA ASET</th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">SPESIFIKASI</th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">JML</th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">CATATAN</th>
                                         </tr>
                                     </thead>
                                     <tbody id="assetListTableBody">
@@ -156,11 +163,8 @@
 
                     <!-- Form Buttons -->
                     <div class="flex gap-4 mt-8">
-                        <a href="{{ route('procurement.receipt') }}" class="px-6 py-3 bg-[#333333] text-white rounded-lg text-base hover:bg-gray-800 transform active:scale-[0.98] transition-all duration-200 uppercase">
-                            BACK
-                        </a>
                         <button type="submit" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
-                            SAVE
+                            SIMPAN
                         </button>
                     </div>
                 </form>
@@ -200,40 +204,17 @@
 
             // Create the notification element
             const notification = document.createElement('div');
-            notification.id = type === 'success' ? 'successNotification' : 'errorNotification';
-            notification.className = `bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md animate-slide-in-right`;
-            notification.setAttribute('role', 'alert');
+            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+            notification.className = `p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]`;
+            notification.role = 'alert';
 
-            // Check if message is an object (for errors)
-            if (typeof message === 'object' && message !== null && !Array.isArray(message)) {
-                // Format error objects into readable message
-                let errorContent = '<div class="font-bold">Error!</div><div class="error-message">';
+            // Check if message contains HTML
+            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
 
-                if (message.errors) {
-                    errorContent += formatErrorObject(message.errors);
-                } else {
-                    // Try to extract individual properties
-                    errorContent += Object.entries(message)
-                        .map(([key, value]) => {
-                            if (Array.isArray(value)) {
-                                return `<div>${key}: ${value.join(', ')}</div>`;
-                            } else if (typeof value === 'object' && value !== null) {
-                                return `<div>${key}: ${formatErrorObject(value)}</div>`;
-                            } else {
-                                return `<div>${key}: ${value}</div>`;
-                            }
-                        })
-                        .join('');
-                }
-
-                errorContent += '</div>';
-                message = errorContent;
-            }
-
-            // Set inner HTML based on the type
             if (type === 'success') {
+                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                 notification.innerHTML = `
-                    <div class="flex items-center">
+                    <div class="flex items-start">
                         <div class="py-1">
                             <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -247,19 +228,172 @@
                     </div>
                 `;
             } else {
-                notification.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
+                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                // Structure for the notification
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-start';
+
+                // Icon container
+                const iconContainer = document.createElement('div');
+                iconContainer.className = 'py-1 flex-shrink-0';
+                iconContainer.innerHTML = `
                             <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                        </div>
-                        <div class="flex-grow overflow-auto max-h-60">
-                            ${message}
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
                 `;
+
+                // Content container
+                const contentContainer = document.createElement('div');
+                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                // Title
+                const title = document.createElement('p');
+                title.className = 'font-bold';
+                title.textContent = 'Kesalahan!';
+                contentContainer.appendChild(title);
+
+                // Message container
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'error-message';
+
+                // Handle different types of message content
+                if (typeof message === 'object' && message !== null) {
+                    // Create an unordered list for nested errors
+                    const errorList = document.createElement('ul');
+                    errorList.className = 'list-disc pl-5 mt-2 space-y-1';
+
+                    // Process each error field
+                    Object.entries(message).forEach(([key, value]) => {
+                        const listItem = document.createElement('li');
+
+                        if (key === 'errors' && typeof value === 'object') {
+                            // Handle the errors object specially
+                            processErrorObject(value, errorList);
+                        } else if (Array.isArray(value)) {
+                            // If the value is an array, create a nested list
+                            const keyText = document.createElement('span');
+                            keyText.className = 'font-medium';
+                            keyText.textContent = key + ': ';
+                            listItem.appendChild(keyText);
+
+                            const nestedList = document.createElement('ul');
+                            nestedList.className = 'list-disc pl-5 mt-1';
+
+                            value.forEach(item => {
+                                const nestedItem = document.createElement('li');
+                                if (typeof item === 'object' && item !== null) {
+                                    if (item.message) {
+                                        nestedItem.textContent = item.message;
+                                    } else {
+                                        nestedItem.textContent = JSON.stringify(item);
+                                    }
+                                } else {
+                                    nestedItem.textContent = item;
+                                }
+                                nestedList.appendChild(nestedItem);
+                            });
+
+                            listItem.appendChild(nestedList);
+                            errorList.appendChild(listItem);
+                        } else if (typeof value === 'object' && value !== null) {
+                            // Handle nested objects
+                            const keyText = document.createElement('span');
+                            keyText.className = 'font-medium';
+                            keyText.textContent = key + ': ';
+                            listItem.appendChild(keyText);
+
+                            const nestedList = document.createElement('ul');
+                            nestedList.className = 'list-disc pl-5 mt-1';
+
+                            Object.entries(value).forEach(([nestedKey, nestedValue]) => {
+                                const nestedItem = document.createElement('li');
+                                if (Array.isArray(nestedValue)) {
+                                    nestedItem.innerHTML = `<span class="font-medium">${nestedKey}:</span> ${nestedValue.join(', ')}`;
+                                } else {
+                                    nestedItem.innerHTML = `<span class="font-medium">${nestedKey}:</span> ${nestedValue}`;
+                                }
+                                nestedList.appendChild(nestedItem);
+                            });
+
+                            listItem.appendChild(nestedList);
+                            errorList.appendChild(listItem);
+                        } else {
+                            // Simple key-value pair
+                            listItem.innerHTML = `<span class="font-medium">${key}:</span> ${value}`;
+                            errorList.appendChild(listItem);
+                        }
+                    });
+
+                    messageContainer.appendChild(errorList);
+                } else if (hasHTML) {
+                    messageContainer.innerHTML = message;
+                } else {
+                    messageContainer.textContent = message;
+                }
+
+                contentContainer.appendChild(messageContainer);
+
+                // Close button
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = function() {
+                    notification.remove();
+                };
+
+                // Assemble the notification
+                wrapper.appendChild(iconContainer);
+                wrapper.appendChild(contentContainer);
+                wrapper.appendChild(closeBtn);
+                notification.appendChild(wrapper);
+            }
+
+            // Helper function to process error objects recursively
+            function processErrorObject(errors, parentElement) {
+            if (typeof errors === 'string') {
+                    const item = document.createElement('li');
+                    item.textContent = errors;
+                    parentElement.appendChild(item);
+                    return;
+            }
+
+            if (Array.isArray(errors)) {
+                    errors.forEach(error => {
+                        if (typeof error === 'string') {
+                            const item = document.createElement('li');
+                            item.textContent = error;
+                            parentElement.appendChild(item);
+                        } else if (typeof error === 'object' && error !== null) {
+                            // Handle object errors
+                            processErrorObject(error, parentElement);
+                        }
+                    });
+                    return;
+                }
+
+                // Process object errors
+                Object.entries(errors).forEach(([field, messages]) => {
+                    const item = document.createElement('li');
+
+                    if (Array.isArray(messages)) {
+                        item.innerHTML = `<span class="font-medium">${field}:</span> ${messages.join(', ')}`;
+                    } else if (typeof messages === 'object' && messages !== null) {
+                        const fieldText = document.createElement('span');
+                        fieldText.className = 'font-medium';
+                        fieldText.textContent = field + ': ';
+                        item.appendChild(fieldText);
+
+                        const nestedList = document.createElement('ul');
+                        nestedList.className = 'list-disc pl-5 mt-1';
+                        processErrorObject(messages, nestedList);
+                        item.appendChild(nestedList);
+                    } else {
+                        item.innerHTML = `<span class="font-medium">${field}:</span> ${messages}`;
+                    }
+
+                    parentElement.appendChild(item);
+                });
             }
 
             // Add to toast container
@@ -279,70 +413,6 @@
 
             return notification;
         }
-
-        // Helper function to format error objects
-        function formatErrorObject(errors) {
-            if (typeof errors === 'string') {
-                return errors;
-            }
-
-            if (Array.isArray(errors)) {
-                return `<ul class="mt-2 ml-4 list-disc">
-                    ${errors.map(err => {
-                        if (typeof err === 'object' && err !== null) {
-                            if (err.message) {
-                                return `<li>${err.message}</li>`;
-                            } else {
-                                return `<li>${JSON.stringify(err)}</li>`;
-                            }
-                        } else {
-                            return `<li>${err}</li>`;
-                        }
-                    }).join('')}
-                </ul>`;
-            }
-
-            return `<ul class="mt-2 ml-4 list-disc">
-                ${Object.entries(errors).map(([field, messages]) => {
-                    if (Array.isArray(messages)) {
-                        return `<li><span class="font-medium">${field}:</span> ${messages.join(', ')}</li>`;
-                    } else if (typeof messages === 'object' && messages !== null) {
-                        return `<li><span class="font-medium">${field}:</span> ${formatErrorObject(messages)}</li>`;
-                    } else {
-                        return `<li><span class="font-medium">${field}:</span> ${messages}</li>`;
-                    }
-                }).join('')}
-            </ul>`;
-        }
-
-        // Add styling for error messages
-        document.head.insertAdjacentHTML('beforeend', `
-            <style>
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); }
-                    to { transform: translateX(0); }
-                }
-                .animate-slide-in-right {
-                    animation: slideInRight 0.3s ease-out forwards;
-                }
-
-                /* Styling for error messages with HTML content */
-                .error-message ul {
-                    margin-top: 0.5rem;
-                    padding-left: 1.5rem;
-                }
-                .error-message ul li {
-                    margin-bottom: 0.25rem;
-                }
-                .error-message ul li:last-child {
-                    margin-bottom: 0;
-                }
-                .error-message ul li ul {
-                    margin-top: 0.25rem;
-                    margin-bottom: 0.5rem;
-                }
-            </style>
-        `);
 
         // Debounce function to limit how often a function can be called
         function debounce(func, wait, immediate) {
@@ -671,8 +741,14 @@
 
         // Form submission
         if (form) {
+            let isSubmitting = false; // Flag to track submission status
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+
+                // Prevent multiple submissions
+                if (isSubmitting) {
+                    return;
+                }
 
                 // Validate required fields
                 if (!selectedPoId.value) {
@@ -747,6 +823,18 @@
 
                 console.log('Submitting receipt:', receiptData);
 
+                // Set submitting flag
+                isSubmitting = true;
+
+                // Get the submit button and change its appearance
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    MENYIMPAN...
+                `;
+
                 // Submit data to the server
                 fetch('{{ route("procurement.receipt.create") }}', {
                     method: 'POST',
@@ -762,9 +850,14 @@
                     if (data.success) {
                         showToast(data.message || 'Penerimaan barang berhasil dibuat!');
                         setTimeout(() => {
-                            window.location.href = "{{ route('procurement.receipt') }}";
+                window.location.href = "{{ route('procurement.receipt') }}";
                         }, 1500);
                     } else {
+                        // Reset submission state
+                        isSubmitting = false;
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+
                         // Enhanced error handling
                         if (data.errors) {
                             showToast({ errors: data.errors }, 'error');
@@ -775,6 +868,12 @@
                 })
                 .catch(error => {
                     console.error('Error creating receipt:', error);
+
+                    // Reset submission state
+                    isSubmitting = false;
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+
                     showToast('Terjadi kesalahan saat membuat penerimaan barang', 'error');
                 });
             });

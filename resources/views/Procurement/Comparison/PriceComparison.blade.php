@@ -74,8 +74,22 @@
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['comparison_code'] ?? 'N/A' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['procurement_code'] ?? 'N/A' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['title'] ?? 'N/A' }}</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['created_by']['name'] ?? 'N/A' }}</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['created_at'] ? date('d M Y', strtotime($comparison['created_at'])) : 'N/A' }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['creator']['employee_number'] ?? ($comparison['created_by']['name'] ?? 'N/A') }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                    @if(isset($comparison['created_at']))
+                                        @php
+                                            $date = \Carbon\Carbon::parse($comparison['created_at']);
+                                            $indonesianMonths = [
+                                                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                                                'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+                                            ];
+                                            $month = $indonesianMonths[$date->month - 1];
+                                            echo $date->format('d') . ' ' . $month . ' ' . $date->format('Y');
+                                        @endphp
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                     <span class="px-2 py-1 rounded-full text-xs
                                         @if(isset($comparison['status']) && strtolower($comparison['status']) == 'completed') bg-green-100 text-green-800

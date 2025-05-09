@@ -65,6 +65,7 @@
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Justifikasi</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Jumlah</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Pemohon</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Permintaan</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Status</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi</th>
                             </tr>
@@ -80,6 +81,21 @@
                                 </td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                     {{ $procurement['requester']['employee_number'] ?? '' }}
+                                </td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                    @if(isset($procurement['request_date']))
+                                        @php
+                                            $date = \Carbon\Carbon::parse($procurement['request_date']);
+                                            $indonesianMonths = [
+                                                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                                                'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+                                            ];
+                                            $month = $indonesianMonths[$date->month - 1];
+                                            echo $date->format('d') . ' ' . $month . ' ' . $date->format('Y');
+                                        @endphp
+                                    @else
+                                        -
+                                    @endif
                                 </td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                     <span class="px-2 py-1 rounded-full text-xs
@@ -132,7 +148,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="p-3 text-center text-gray-500">Tidak ada permintaan pengadaan ditemukan</td>
+                                <td colspan="8" class="p-3 text-center text-gray-500">Tidak ada permintaan pengadaan ditemukan</td>
                             </tr>
                             @endforelse
                         </tbody>

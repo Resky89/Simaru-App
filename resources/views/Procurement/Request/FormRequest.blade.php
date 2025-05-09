@@ -70,7 +70,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <!-- Asset Selection Type -->
                                     <div class="space-y-2">
-                                        <label class="block text-sm font-medium text-[#666666]">Tipe Aset</label>
+                                        <label class="block text-base font-medium text-[#666666]">Tipe Aset</label>
                                         <select class="asset-type-selector w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                             <option value="new">Aset Baru</option>
                                             <option value="existing">Aset yang Ada</option>
@@ -79,7 +79,7 @@
 
                                     <!-- Item Name (for new assets) -->
                                     <div class="space-y-2 asset-name-container">
-                                        <label class="block text-sm font-medium text-[#666666]">Nama Aset</label>
+                                        <label class="block text-base font-medium text-[#666666]">Nama Aset</label>
                                         <input type="text" name="details[0][asset_name]"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
                                             placeholder="Nama Aset" required>
@@ -87,7 +87,7 @@
 
                                     <!-- Asset Master Selection (for existing assets) - initially hidden -->
                                     <div class="space-y-2 asset-master-container hidden">
-                                        <label class="block text-sm font-medium text-[#666666]">Pilih Aset yang Ada</label>
+                                        <label class="block text-base font-medium text-[#666666]">Pilih Aset yang Ada</label>
                                         <div class="relative">
                                             <input type="text" class="asset-master-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                                 placeholder="Cari aset..." autocomplete="off">
@@ -109,7 +109,7 @@
 
                                     <!-- Quantity -->
                                     <div class="space-y-2">
-                                        <label class="block text-sm font-medium text-[#666666]">Jumlah</label>
+                                        <label class="block text-base font-medium text-[#666666]">Jumlah</label>
                                         <input type="number" name="details[0][quantity]"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 quantity"
                                             placeholder="Jumlah" min="1" required>
@@ -117,7 +117,7 @@
 
                                     <!-- Unit Price -->
                                     <div class="space-y-2">
-                                        <label class="block text-sm font-medium text-[#666666]">Harga Satuan</label>
+                                        <label class="block text-base font-medium text-[#666666]">Harga Satuan</label>
                                         <input type="number" name="details[0][estimated_unit_price]"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 unit-price"
                                             placeholder="Harga Satuan" min="0" required>
@@ -126,7 +126,7 @@
 
                                 <!-- Specifications -->
                                 <div class="space-y-2">
-                                    <label class="block text-sm font-medium text-[#666666]">Spesifikasi</label>
+                                    <label class="block text-base font-medium text-[#666666]">Spesifikasi</label>
                                     <textarea name="details[0][specifications]"
                                         class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 specifications"
                                         placeholder="Spesifikasi" rows="2"></textarea>
@@ -134,7 +134,7 @@
 
                                 <!-- Notes -->
                                 <div class="space-y-2 mt-4">
-                                    <label class="block text-sm font-medium text-[#666666]">Catatan</label>
+                                    <label class="block text-base font-medium text-[#666666]">Catatan</label>
                                     <textarea name="details[0][notes]"
                                         class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 notes"
                                         placeholder="Catatan (opsional)" rows="2"></textarea>
@@ -340,7 +340,7 @@
                     // Show error in the dropdown
                     document.querySelectorAll('.asset-master-list').forEach(list => {
                         const errorItem = document.createElement('li');
-                        errorItem.className = 'px-4 py-2 text-red-500';
+                        errorItem.className = 'px-4 py-2 text-sm text-red-500';
                         errorItem.textContent = 'Gagal memuat daftar aset';
                         list.appendChild(errorItem);
                     });
@@ -404,7 +404,7 @@
                 // Show "No results" if empty
                 if (availableAssets.length === 0) {
                     const noResults = document.createElement('li');
-                    noResults.className = 'px-4 py-2 text-gray-500 italic';
+                    noResults.className = 'px-4 py-2 text-sm text-gray-500 italic no-results-item';
                     noResults.textContent = 'Tidak ada aset tersedia';
                     listElement.appendChild(noResults);
                 }
@@ -471,7 +471,7 @@
                     // Show "No results" message if needed
                     if (!hasVisibleItems) {
                         const noResults = document.createElement('li');
-                        noResults.className = 'px-4 py-2 text-gray-500 italic no-results-item';
+                        noResults.className = 'px-4 py-2 text-sm text-gray-500 italic no-results-item';
                         noResults.textContent = 'Tidak ada aset yang cocok';
                         list.appendChild(noResults);
                     }
@@ -669,7 +669,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <!-- Asset Selection Type -->
                     <div class="space-y-2">
-                        <label class="block text-sm font-medium text-[#666666]">Tipe Aset</label>
+                        <label class="block text-base font-medium text-[#666666]">Tipe Aset</label>
                         <select class="asset-type-selector w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="new">Aset Baru</option>
                             <option value="existing">Aset yang Ada</option>
@@ -678,7 +678,7 @@
 
                     <!-- Item Name (for new assets) -->
                     <div class="space-y-2 asset-name-container">
-                        <label class="block text-sm font-medium text-[#666666]">Nama Aset</label>
+                        <label class="block text-base font-medium text-[#666666]">Nama Aset</label>
                         <input type="text" name="details[${index}][asset_name]"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
                             placeholder="Nama Aset" required value="${data && data.asset_name ? data.asset_name : ''}">
@@ -686,7 +686,7 @@
 
                     <!-- Asset Master Selection (for existing assets) - initially hidden -->
                     <div class="space-y-2 asset-master-container hidden">
-                        <label class="block text-sm font-medium text-[#666666]">Pilih Aset yang Ada</label>
+                        <label class="block text-base font-medium text-[#666666]">Pilih Aset yang Ada</label>
                         <div class="relative">
                             <input type="text" class="asset-master-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                 placeholder="Cari aset..." autocomplete="off">
@@ -708,7 +708,7 @@
 
                     <!-- Quantity -->
                     <div class="space-y-2">
-                        <label class="block text-sm font-medium text-[#666666]">Jumlah</label>
+                        <label class="block text-base font-medium text-[#666666]">Jumlah</label>
                         <input type="number" name="details[${index}][quantity]"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 quantity"
                             placeholder="Jumlah" min="1" required value="${data ? data.quantity : ''}">
@@ -716,7 +716,7 @@
 
                     <!-- Unit Price -->
                     <div class="space-y-2">
-                        <label class="block text-sm font-medium text-[#666666]">Harga Satuan</label>
+                        <label class="block text-base font-medium text-[#666666]">Harga Satuan</label>
                         <input type="number" name="details[${index}][estimated_unit_price]"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 unit-price"
                             placeholder="Harga Satuan" min="0" required value="${data ? data.estimated_unit_price : ''}">
@@ -725,7 +725,7 @@
 
                 <!-- Specifications -->
                 <div class="space-y-2">
-                    <label class="block text-sm font-medium text-[#666666]">Spesifikasi</label>
+                    <label class="block text-base font-medium text-[#666666]">Spesifikasi</label>
                     <textarea name="details[${index}][specifications]"
                         class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 specifications"
                         placeholder="Spesifikasi" rows="2">${data ? data.specifications || '' : ''}</textarea>
@@ -733,7 +733,7 @@
 
                 <!-- Notes -->
                 <div class="space-y-2 mt-4">
-                    <label class="block text-sm font-medium text-[#666666]">Catatan</label>
+                    <label class="block text-base font-medium text-[#666666]">Catatan</label>
                     <textarea name="details[${index}][notes]"
                         class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 notes"
                         placeholder="Catatan (opsional)" rows="2">${data ? data.notes || '' : ''}</textarea>

@@ -10,7 +10,14 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PURCHASE ORDER</h1>
+                    <div class="flex items-center">
+                        <a href="{{ route('procurement.price-comparison') }}" id="backButton" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PURCHASE ORDER</h1>
+                    </div>
                 </div>
 
                 <!-- Search Section -->
@@ -81,11 +88,11 @@
                             <table class="w-full">
                                 <thead>
                                     <tr>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NAMA ASET</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">JML</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">PERKIRAAN HARGA</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">PT WIBOWO (PERSERO) TBK</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">PT SETIAWAN</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">NAMA ASET</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">JML</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PERKIRAAN HARGA</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PT WIBOWO (PERSERO) TBK</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PT SETIAWAN</th>
                                     </tr>
                                 </thead>
                                 <tbody id="assetListTableBody">
@@ -566,7 +573,7 @@
             // Create header cells
             headers.forEach(header => {
                 const th = document.createElement('th');
-                th.className = `bg-[#213268] text-white p-3 font-bold text-xs text-${header.align}`;
+                th.className = `bg-[#213268] text-white p-3 font-bold text-sm text-${header.align}`;
                 th.textContent = header.text;
                 headerRow.appendChild(th);
             });
@@ -587,7 +594,7 @@
                 row.className = 'border-t border-[#EEF1F4]';
 
                 const cell = document.createElement('td');
-                cell.className = 'p-3 text-xs text-[#666666] text-center';
+                cell.className = 'p-3 text-sm text-[#666666] text-center';
                 cell.colSpan = 3 + (vendors.length || 0);
                 cell.textContent = 'Tidak ada item ditemukan untuk penawaran ini';
 
@@ -604,19 +611,19 @@
 
                     // Asset name cell
                     const nameCell = document.createElement('td');
-                    nameCell.className = 'p-3 text-xs text-[#666666]';
+                    nameCell.className = 'p-3 text-sm text-[#666666]';
                     nameCell.textContent = item.procurement_item_name || 'Item ' + (index + 1);
                     row.appendChild(nameCell);
 
                     // Quantity cell
                     const qtyCell = document.createElement('td');
-                    qtyCell.className = 'p-3 text-xs text-center text-[#666666]';
+                    qtyCell.className = 'p-3 text-sm text-center text-[#666666]';
                     qtyCell.textContent = item.quantity || 1;
                     row.appendChild(qtyCell);
 
                     // Estimated price cell
                     const estPriceCell = document.createElement('td');
-                    estPriceCell.className = 'p-3 text-xs text-[#666666]';
+                    estPriceCell.className = 'p-3 text-sm text-[#666666]';
 
                     // Get unit price from the API response
                     const estUnitPrice = parseFloat(item.estimated_unit_price || 0);
@@ -719,7 +726,7 @@
             paymentRow.className = 'border-t border-[#EEF1F4] bg-[#E9ECF6]';
 
             const paymentLabelCell = document.createElement('td');
-            paymentLabelCell.className = 'p-3 text-xs font-medium text-[#213268]';
+            paymentLabelCell.className = 'p-3 text-sm font-medium text-[#213268]';
             paymentLabelCell.textContent = 'Syarat Pembayaran';
             paymentRow.appendChild(paymentLabelCell);
 
@@ -733,14 +740,14 @@
             if (vendors && vendors.length > 0) {
                 vendors.forEach(vendor => {
                     const vendorPaymentCell = document.createElement('td');
-                    vendorPaymentCell.className = 'p-3 text-xs text-[#666666]';
+                    vendorPaymentCell.className = 'p-3 text-sm text-[#666666]';
                     vendorPaymentCell.textContent = vendor.payment_terms || '-';
                     paymentRow.appendChild(vendorPaymentCell);
                 });
             } else {
                 const noVendorPaymentCell = document.createElement('td');
                 noVendorPaymentCell.colSpan = 2;
-                noVendorPaymentCell.className = 'p-3 text-xs text-gray-500 text-center';
+                noVendorPaymentCell.className = 'p-3 text-sm text-gray-500 text-center';
                 noVendorPaymentCell.textContent = '-';
                 paymentRow.appendChild(noVendorPaymentCell);
             }
@@ -752,7 +759,7 @@
             deliveryRow.className = 'border-t border-[#EEF1F4] bg-[#E9ECF6]';
 
             const deliveryLabelCell = document.createElement('td');
-            deliveryLabelCell.className = 'p-3 text-xs font-medium text-[#213268]';
+            deliveryLabelCell.className = 'p-3 text-sm font-medium text-[#213268]';
             deliveryLabelCell.textContent = 'Syarat Pengiriman';
             deliveryRow.appendChild(deliveryLabelCell);
 
@@ -766,14 +773,14 @@
             if (vendors && vendors.length > 0) {
                 vendors.forEach(vendor => {
                     const vendorDeliveryCell = document.createElement('td');
-                    vendorDeliveryCell.className = 'p-3 text-xs text-[#666666]';
+                    vendorDeliveryCell.className = 'p-3 text-sm text-[#666666]';
                     vendorDeliveryCell.textContent = vendor.delivery_terms || '-';
                     deliveryRow.appendChild(vendorDeliveryCell);
                 });
             } else {
                 const noVendorDeliveryCell = document.createElement('td');
                 noVendorDeliveryCell.colSpan = 2;
-                noVendorDeliveryCell.className = 'p-3 text-xs text-gray-500 text-center';
+                noVendorDeliveryCell.className = 'p-3 text-sm text-gray-500 text-center';
                 noVendorDeliveryCell.textContent = '-';
                 deliveryRow.appendChild(noVendorDeliveryCell);
             }
@@ -783,8 +790,16 @@
 
         // Existing form submission code
         if (form) {
+            // Add isSubmitting flag to prevent multiple submissions
+            let isSubmitting = false;
+
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+
+                // Prevent multiple submissions
+                if (isSubmitting) {
+                    return;
+                }
 
                 // Store selected items and vendor info
                 const selectedItems = [];
@@ -842,6 +857,19 @@
 
                 console.log('Submitting purchase order:', purchaseOrderData);
 
+                // Set submission flag and disable submit button
+                isSubmitting = true;
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    PROSES...
+                `;
+
                 // Submit data to the server
                 fetch('{{ route("procurement.purchase-order.create-from-vendor-offers") }}', {
                     method: 'POST',
@@ -860,11 +888,19 @@
                             window.location.href = "{{ route('procurement.purchase-order') }}";
                         }, 1500);
                     } else {
+                        // Reset submission status if failed
+                        isSubmitting = false;
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
                         showToast(data.errors || 'Gagal membuat Purchase Order', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error creating purchase order:', error);
+                    // Reset submission status on error
+                    isSubmitting = false;
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
                     showToast('Terjadi kesalahan saat membuat Purchase Order', 'error');
                 });
             });

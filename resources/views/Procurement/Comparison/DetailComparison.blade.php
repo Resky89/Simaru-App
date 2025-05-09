@@ -41,32 +41,66 @@
                 <div class="grid grid-cols-1 gap-5">
                     <!-- Request Number -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">ID Penawaran</p>
+                        <p class="w-40 text-[#666666] font-medium">Kode Penawaran</p>
                         <p class="text-[#666666]">: <span id="requestNumber">{{ $comparison['comparison_code'] ?? 'N/A' }}</span></p>
                     </div>
 
                     <!-- Request Name -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Judul Permintaan</p>
+                        <p class="w-40 text-[#666666] font-medium">Judul Permintaan</p>
                         <p class="text-[#666666]">: <span id="requestName">{{ $comparison['title'] ?? 'N/A' }}</span></p>
                     </div>
 
                     <!-- User Input -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Dibuat oleh</p>
+                        <p class="w-40 text-[#666666] font-medium">Dibuat oleh</p>
                         <p class="text-[#666666]">: <span id="userInput">{{ isset($comparison['creator']) ? $comparison['creator']['employee_number'] : 'N/A' }}</span></p>
                     </div>
 
                     <!-- Input Date -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Tanggal Penawaran</p>
-                        <p class="text-[#666666]">: <span id="inputDate">{{ isset($comparison['created_at']) ? \Carbon\Carbon::parse($comparison['created_at'])->format('Y-m-d H:i:s') : 'N/A' }}</span></p>
+                        <p class="w-40 text-[#666666] font-medium">Tanggal Penawaran</p>
+                        <p class="text-[#666666]">:
+                            @if(isset($comparison['created_at']))
+                                @php
+                                    $date = \Carbon\Carbon::parse($comparison['created_at']);
+                                    $indonesianMonths = [
+                                        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                                        'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+                                    ];
+                                    $month = $indonesianMonths[$date->month - 1];
+                                    echo $date->format('d') . ' ' . $month . ' ' . $date->format('Y');
+                                @endphp
+                            @else
+                                N/A
+                            @endif
+                        </p>
                     </div>
 
                     <!-- Status -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Status</p>
-                        <p class="text-[#666666]">: <span id="status">{{ $comparison['status'] ?? 'N/A' }}</span></p>
+                        <p class="w-40 text-[#666666] font-medium">Status</p>
+                        <p class="text-[#666666]">:
+                            <span class="px-2 py-1 rounded-full text-xs inline-block ml-1
+                                @if(isset($comparison['status']) && strtolower($comparison['status']) == 'completed') bg-green-100 text-green-800
+                                @elseif(isset($comparison['status']) && strtolower($comparison['status']) == 'in progress') bg-blue-100 text-blue-800
+                                @elseif(isset($comparison['status']) && strtolower($comparison['status']) == 'draft') bg-yellow-100 text-yellow-800
+                                @else bg-gray-100 text-gray-800 @endif">
+                                @if(isset($comparison['status']))
+                                    @if(strtolower($comparison['status']) == 'completed')
+                                        Selesai
+                                    @elseif(strtolower($comparison['status']) == 'in progress')
+                                        Dalam Proses
+                                    @elseif(strtolower($comparison['status']) == 'draft')
+                                        Draft
+                                    @else
+                                        {{ $comparison['status'] }}
+                                    @endif
+                                @else
+                                    Tidak Ada
+                                @endif
+                            </span>
+                        </p>
                     </div>
                 </div>
 
@@ -78,9 +112,9 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Jumlah</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Perkiraan Harga</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Nama Aset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">Jumlah</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Perkiraan Harga</th>
 
                                     @php
                                     $uniqueVendors = [];
@@ -105,7 +139,7 @@
 
                                     @if($hasVendors)
                                         @foreach($uniqueVendors as $vendor)
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">
                                             <div class="flex items-center justify-between">
                                                 <span>{{ $vendor['vendor_name'] }}</span>
                                                 @if(!isset($comparison['status']) || $comparison['status'] !== 'Completed')
@@ -172,9 +206,9 @@
                                 @if(isset($comparison['items']) && is_array($comparison['items']) && count($comparison['items']) > 0)
                                     @foreach($comparison['items'] as $item)
                                     <tr class="border-t border-[#EEF1F4]">
-                                        <td class="p-3 text-xs text-[#666666]">{{ $item['procurement_item_name'] }}</td>
-                                        <td class="p-3 text-xs text-center text-[#666666]">{{ $item['quantity'] }}</td>
-                                        <td class="p-3 text-xs text-[#666666]">
+                                        <td class="p-3 text-sm text-[#666666]">{{ $item['procurement_item_name'] }}</td>
+                                        <td class="p-3 text-sm text-center text-[#666666]">{{ $item['quantity'] }}</td>
+                                        <td class="p-3 text-sm text-[#666666]">
                                             <div class="text-sm font-medium">Rp {{ number_format(floatval($item['estimated_unit_price']) * intval($item['quantity']), 0, ',', '.') }}</div>
                                             <span class="text-xs text-gray-500">@Rp {{ number_format(floatval($item['estimated_unit_price']), 0, ',', '.') }}</span>
                                         </td>
@@ -193,7 +227,7 @@
                                                 }
                                                 @endphp
 
-                                                <td class="p-3 text-xs text-[#666666]">
+                                                <td class="p-3 text-sm text-[#666666]">
                                                     @if($vendorOffer)
                                                     <div class="text-sm font-medium">Rp {{ number_format(floatval($vendorOffer['unit_price']) * intval($item['quantity']), 0, ',', '.') }}</div>
                                                     <span class="text-xs text-gray-500">@Rp {{ number_format(floatval($vendorOffer['unit_price']), 0, ',', '.') }}</span>
@@ -214,8 +248,8 @@
                                 <!-- Payment Terms Row -->
                                 @if($hasVendors)
                                 <tr class="border-t border-[#EEF1F4] bg-[#E9ECF6]">
-                                    <td class="p-3 text-xs font-medium text-left text-[#213268]">Syarat Pembayaran</td>
-                                    <td colspan="2" class="p-3 text-xs text-[#666666]"></td>
+                                    <td class="p-3 text-sm font-medium text-left text-[#213268]">Syarat Pembayaran</td>
+                                    <td colspan="2" class="p-3 text-sm text-[#666666]"></td>
                                     @foreach($uniqueVendors as $vendor)
                                     @php
                                         // Find vendor payment terms for this vendor
@@ -243,14 +277,14 @@
                                             }
                                         }
                                     @endphp
-                                    <td class="p-3 text-xs text-[#666666]">{{ $vendorPaymentTerms ?: 'Tidak ada data' }}</td>
+                                    <td class="p-3 text-sm text-[#666666]">{{ $vendorPaymentTerms ?: 'Tidak ada data' }}</td>
                                     @endforeach
                                 </tr>
 
                                 <!-- Delivery Terms Row -->
                                 <tr class="border-t border-[#EEF1F4] bg-[#E9ECF6]">
-                                    <td class="p-3 text-xs font-medium text-left text-[#213268]">Syarat Pengiriman</td>
-                                    <td colspan="2" class="p-3 text-xs text-[#666666]"></td>
+                                    <td class="p-3 text-sm font-medium text-left text-[#213268]">Syarat Pengiriman</td>
+                                    <td colspan="2" class="p-3 text-sm text-[#666666]"></td>
                                     @foreach($uniqueVendors as $vendor)
                                     @php
                                         // Find vendor delivery terms for this vendor
@@ -278,7 +312,42 @@
                                             }
                                         }
                                     @endphp
-                                    <td class="p-3 text-xs text-[#666666]">{{ $vendorDeliveryTerms ?: 'Tidak ada data' }}</td>
+                                    <td class="p-3 text-sm text-[#666666]">{{ $vendorDeliveryTerms ?: 'Tidak ada data' }}</td>
+                                    @endforeach
+                                </tr>
+
+                                <!-- Notes Row -->
+                                <tr class="border-t border-[#EEF1F4] bg-[#E9ECF6]">
+                                    <td class="p-3 text-sm font-medium text-left text-[#213268]">Catatan</td>
+                                    <td colspan="2" class="p-3 text-sm text-[#666666]"></td>
+                                    @foreach($uniqueVendors as $vendor)
+                                    @php
+                                        // Find notes for this vendor
+                                        $vendorNotes = null;
+
+                                        // Look through all items and their offers
+                                        if(isset($comparison['items']) && is_array($comparison['items'])) {
+                                            foreach($comparison['items'] as $item) {
+                                                if(isset($item['vendor_offers']) && is_array($item['vendor_offers'])) {
+                                                    foreach($item['vendor_offers'] as $offer) {
+                                                        if(isset($offer['vendor']) && $offer['vendor']['vendor_id'] === $vendor['vendor_id']) {
+                                                            // Found an offer from this vendor
+                                                            // Try to get notes from vendor offer directly first
+                                                            $vendorNotes = $offer['notes'] ?? null;
+
+                                                            // If not found, try to get it from the agreement object
+                                                            if(!$vendorNotes && isset($offer['agreement']) && isset($offer['agreement']['notes'])) {
+                                                                $vendorNotes = $offer['agreement']['notes'];
+                                                            }
+
+                                                            break 2; // Exit both loops
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    @endphp
+                                    <td class="p-3 text-sm text-[#666666]">{{ $vendorNotes ?: 'Tidak ada catatan' }}</td>
                                     @endforeach
                                 </tr>
                                 @endif

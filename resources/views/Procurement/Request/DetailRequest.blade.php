@@ -26,67 +26,75 @@
                 <div class="grid grid-cols-1 gap-5">
                     <!-- Request Number -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">ID Permintaan</p>
+                        <p class="w-40 text-[#666666] font-medium">ID Permintaan</p>
                         <p class="text-[#666666]">: <span id="requestNumber">{{ $procurement['procurement_code'] }}</span></p>
                     </div>
 
                     <!-- Request Name -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Judul Permintaan</p>
+                        <p class="w-40 text-[#666666] font-medium">Judul Permintaan</p>
                         <p class="text-[#666666]">: <span id="requestName">{{ $procurement['title'] }}</span></p>
                     </div>
 
                     <!-- User Input -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Pemohon</p>
+                        <p class="w-40 text-[#666666] font-medium">Pemohon</p>
                         <p class="text-[#666666]">: <span id="userInput">{{ $procurement['requester']['employee_number'] }}</span></p>
                     </div>
 
                     <!-- Input Date -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Tanggal Permintaan</p>
+                        <p class="w-40 text-[#666666] font-medium">Tanggal Permintaan</p>
                         <p class="text-[#666666]">: <span id="inputDate">{{ \Carbon\Carbon::parse($procurement['request_date'])->format('Y-m-d H:i:s') }}</span></p>
-                    </div>
-
-                    <!-- Status -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Status</p>
-                        <p class="text-[#666666]">:
-                            <span class="px-2 py-1 rounded-full text-xs
-                                @if($procurement['status'] == 'Submitted') bg-blue-100 text-blue-800
-                                @elseif($procurement['status'] == 'Approved') bg-green-100 text-green-800
-                                @elseif($procurement['status'] == 'Rejected') bg-red-100 text-red-800
-                                @else bg-gray-100 text-gray-800 @endif">
-                                {{ $procurement['status'] }}
-                            </span>
-                        </p>
                     </div>
 
                     <!-- Priority -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Prioritas</p>
+                        <p class="w-40 text-[#666666] font-medium">Prioritas</p>
                         <p class="text-[#666666]">: <span>{{ $procurement['priority'] }}</span></p>
                     </div>
 
                     <!-- Justification -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Justifikasi</p>
+                        <p class="w-40 text-[#666666] font-medium">Justifikasi</p>
                         <p class="text-[#666666]">: <span>{{ $procurement['justification'] }}</span></p>
                     </div>
 
                     <!-- Notes (if available) -->
                     @if($procurement['notes'])
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Catatan</p>
+                        <p class="w-40 text-[#666666] font-medium">Catatan</p>
                         <p class="text-[#666666]">: <span>{{ $procurement['notes'] }}</span></p>
                     </div>
                     @endif
+
+                    <!-- Status -->
+                    <div class="flex items-start gap-2">
+                        <p class="w-40 text-[#666666] font-medium">Status</p>
+                        <p class="text-[#666666]">:
+                            <span class="px-2 py-1 rounded-full text-xs inline-block ml-1
+                                @if($procurement['status'] == 'Submitted') bg-blue-100 text-blue-800
+                                @elseif($procurement['status'] == 'Under Review') bg-yellow-100 text-yellow-800
+                                @elseif($procurement['status'] == 'Approved') bg-green-100 text-green-800
+                                @elseif($procurement['status'] == 'Rejected') bg-red-100 text-red-800
+                                @elseif($procurement['status'] == 'Procured') bg-purple-100 text-purple-800
+                                @else bg-gray-100 text-gray-800 @endif">
+                                @if($procurement['status'] == 'Submitted') Diajukan
+                                @elseif($procurement['status'] == 'Under Review') Dalam Peninjauan
+                                @elseif($procurement['status'] == 'Approved') Disetujui
+                                @elseif($procurement['status'] == 'Rejected') Ditolak
+                                @elseif($procurement['status'] == 'Procured') Dibeli
+                                @else {{ $procurement['status'] }}
+                                @endif
+                            </span>
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Item List -->
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
-                    <h2 class="text-lg font-semibold text-[#666666]">Daftar Aset</h2>
+                    <h2 class="text-lg font-semibold text-[#666666]">DAFTAR ASET</h2>
 
                         <!-- Action Buttons - Repositioned -->
                         <div class="flex flex-wrap gap-3">
@@ -114,29 +122,31 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Spesifikasi</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Jumlah</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Harga Satuan</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Total</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Perbandingan Harga</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Nama Aset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Spesifikasi</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">Jumlah</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Harga Satuan</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Total</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">Perbandingan Harga</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($procurement['details'] as $detail)
                                 <tr class="border-t border-[#EEF1F4]">
-                                    <td class="p-3 text-xs text-[#666666]">{{ $detail['asset_name'] }}</td>
-                                    <td class="p-3 text-xs text-[#666666]">{{ $detail['specifications'] }}</td>
-                                    <td class="p-3 text-xs text-center text-[#666666]">{{ $detail['quantity'] }}</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">{{ number_format($detail['estimated_unit_price'], 0, ',', '.') }}</td>
-                                    <td class="p-3 text-xs text-left text-[#666666]">{{ number_format($detail['estimated_total_price'], 0, ',', '.') }}</td>
-                                    <td class="p-3 text-xs text-center">
-                                        <span class="px-2 py-1 rounded-full text-xs
-                                            @if($detail['status_price_comparison'] == 'Waiting') text-red-500
-                                            @elseif($detail['status_price_comparison'] == 'Completed') text-green-500
-                                            @else text-gray-500 @endif">
+                                    <td class="p-3 text-sm text-[#666666]">{{ $detail['asset_name'] }}</td>
+                                    <td class="p-3 text-sm text-[#666666]">{{ $detail['specifications'] }}</td>
+                                    <td class="p-3 text-sm text-center text-[#666666]">{{ $detail['quantity'] }}</td>
+                                    <td class="p-3 text-sm text-left text-[#666666]">{{ number_format($detail['estimated_unit_price'], 0, ',', '.') }}</td>
+                                    <td class="p-3 text-sm text-left text-[#666666]">{{ number_format($detail['estimated_total_price'], 0, ',', '.') }}</td>
+                                    <td class="p-3 text-sm text-center">
+                                        <span class="px-2 py-1 rounded-full text-sm inline-block
+                                            @if($detail['status_price_comparison'] == 'Waiting') bg-red-100 text-red-800
+                                            @elseif($detail['status_price_comparison'] == 'In Progress') bg-blue-100 text-blue-800
+                                            @elseif($detail['status_price_comparison'] == 'Done') bg-green-100 text-green-800
+                                            @else bg-gray-100 text-gray-800 @endif">
                                             @if($detail['status_price_comparison'] == 'Waiting') Menunggu
-                                            @elseif($detail['status_price_comparison'] == 'Completed') Selesai
+                                            @elseif($detail['status_price_comparison'] == 'In Progress') Dalam Proses
+                                            @elseif($detail['status_price_comparison'] == 'Done') Selesai
                                             @else {{ $detail['status_price_comparison'] }}
                                             @endif
                                         </span>
@@ -146,8 +156,8 @@
 
                                 <!-- Grand Total -->
                                 <tr class="border-t border-[#EEF1F4]">
-                                    <td colspan="4" class="p-3 text-xs font-medium text-right text-[#666666]">Total Keseluruhan</td>
-                                    <td class="p-3 text-xs font-medium text-left text-[#666666]">{{ number_format($procurement['estimated_grand_total'], 0, ',', '.') }}</td>
+                                    <td colspan="4" class="p-3 text-sm font-medium text-right text-[#666666]">Total Keseluruhan</td>
+                                    <td class="p-3 text-sm font-medium text-left text-[#666666]">{{ number_format($procurement['estimated_grand_total'], 0, ',', '.') }}</td>
                                     <td></td>
                                 </tr>
                             </tbody>
@@ -155,20 +165,32 @@
                     </div>
                 </div>
                 @if($procurement['status'] == 'Approved')
-                <!-- Comparison Title -->
-                <div class="space-y-2">
-                    <label class="block text-base font-semibold text-[#666666]">Buat Perbandingan Harga</label>
-                    <input type="text" id="comparison_title"
-                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                        placeholder="Masukkan judul perbandingan">
-                </div>
+                    @php
+                        $hasIncompleteComparison = false;
+                        foreach($procurement['details'] as $detail) {
+                            if($detail['status_price_comparison'] != 'Done') {
+                                $hasIncompleteComparison = true;
+                                break;
+                            }
+                        }
+                    @endphp
 
-                <!-- Form Buttons -->
-                <div class="flex gap-4 mt-8">
-                    <button id="createComparisonBtn" type="button" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                        BUAT PERBANDINGAN HARGA
-                    </button>
-                </div>
+                    @if($hasIncompleteComparison)
+                    <!-- Comparison Title -->
+                    <div class="space-y-2">
+                        <label class="block text-base font-semibold text-[#666666]">Buat Perbandingan Harga</label>
+                        <input type="text" id="comparison_title"
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                            placeholder="Masukkan judul perbandingan">
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="flex gap-4 mt-8">
+                        <button id="createComparisonBtn" type="button" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                            BUAT PERBANDINGAN HARGA
+                        </button>
+                    </div>
+                    @endif
                 @endif
                 @else
                 <!-- Not Found State -->
@@ -743,5 +765,6 @@
     });
 </script>
 @endpush
+
 
 

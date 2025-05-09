@@ -83,18 +83,18 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NAMA ASET</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">TANGGAL PENERIMAAN</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">CATATAN</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">NAMA ASET</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">TANGGAL PENERIMAAN</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">CATATAN</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if(isset($receipt['items']) && count($receipt['items']) > 0)
                                     @foreach($receipt['items'] as $item)
                                 <tr class="border-t border-[#EEF1F4]">
-                                        <td class="p-3 text-xs text-[#666666]">{{ $item['procurement_item_name'] ?? 'N/A' }}</td>
-                                        <td class="p-3 text-xs text-center text-[#666666]">{{ isset($item['created_at']) ? date('d M Y', strtotime($item['created_at'])) : 'N/A' }}</td>
-                                        <td class="p-3 text-xs text-[#666666]">{{ $item['notes'] ?? '-' }}</td>
+                                        <td class="p-3 text-sm text-[#666666]">{{ $item['procurement_item_name'] ?? 'N/A' }}</td>
+                                        <td class="p-3 text-sm text-center text-[#666666]">{{ isset($item['created_at']) ? date('d M Y', strtotime($item['created_at'])) : 'N/A' }}</td>
+                                        <td class="p-3 text-sm text-[#666666]">{{ $item['notes'] ?? '-' }}</td>
                                 </tr>
                                     @endforeach
                                 @else
@@ -106,8 +106,8 @@
                                 <!-- Notes Row -->
                                 @if(isset($receipt['notes']) && !empty($receipt['notes']))
                                 <tr class="border-t border-[#EEF1F4] bg-[#E9ECF6]">
-                                    <td class="p-3 text-xs font-medium text-left text-[#213268]">Catatan</td>
-                                    <td colspan="2" class="p-3 text-xs text-[#666666]">
+                                    <td class="p-3 text-sm font-medium text-left text-[#213268]">Catatan</td>
+                                    <td colspan="2" class="p-3 text-sm text-[#666666]">
                                         {{ $receipt['notes'] ?? 'Tidak ada data' }}
                                     </td>
                                 </tr>
