@@ -10,7 +10,14 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORMULIR PERMINTAAN</h1>
+                    <div class="flex items-center">
+                        <a href="{{ route('procurement.request') }}" id="backButton" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORMULIR PERMINTAAN</h1>
+                    </div>
                 </div>
 
                 <!-- Form -->
@@ -147,9 +154,6 @@
 
                     <!-- Form Buttons -->
                     <div class="flex gap-4 mt-8">
-                        <a href="{{ route('procurement.request') }}" id="cancelButton" class="px-6 py-3 bg-[#333333] text-white rounded-lg text-base hover:bg-gray-800 transform active:scale-[0.98] transition-all duration-200">
-                            BATAL
-                        </a>
                         <button type="submit" id="submitButton" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             KIRIM
                         </button>
@@ -1224,8 +1228,8 @@
             });
         });
 
-        // Add event handler for the cancel button
-        document.getElementById('cancelButton').addEventListener('click', function(e) {
+        // Add event handler for the back button
+        document.getElementById('backButton').addEventListener('click', function(e) {
             if (formHasChanges() && !confirm('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?')) {
                 e.preventDefault();
             } else {

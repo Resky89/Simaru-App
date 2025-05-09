@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Price Comparison Form')
+@section('title', 'Formulir Perbandingan Harga')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -10,14 +10,21 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PRICE COMPARISON FORM</h1>
+                    <div class="flex items-center">
+                        <a href="{{ route('procurement.price-comparison') }}" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORMULIR PERBANDINGAN HARGA</h1>
+                    </div>
                 </div>
 
                 <!-- Search Section -->
                 <div class="space-y-4">
                     <!-- Quotation Title -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Quotation Title</label>
+                        <label class="block text-base font-semibold text-[#666666]">Judul Penawaran</label>
                         <input type="text" id="comparisonTitle" value=""
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                             placeholder="Pembelian toner printer">
@@ -25,11 +32,11 @@
 
                     <!-- Request Number -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Request Number</label>
+                        <label class="block text-base font-semibold text-[#666666]">Nomor Permintaan</label>
                         <div class="relative">
                             <input type="text" id="requestNumber" value=""
                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-l-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                placeholder="Enter approved request number" autocomplete="off">
+                                placeholder="Masukkan nomor permintaan yang disetujui" autocomplete="off">
                             <input type="hidden" id="selected_request_id">
 
                             <div class="absolute inset-y-0 right-0 flex">
@@ -61,41 +68,41 @@
                     <div class="grid grid-cols-1 gap-5">
                         <!-- Request Number -->
                         <div class="flex items-start gap-2">
-                            <p class="w-32 text-[#666666] font-medium">Request Number</p>
+                            <p class="w-32 text-[#666666] font-medium">Nomor Permintaan</p>
                             <p class="text-[#666666]">: <span id="displayRequestNumber">PPB2406002</span></p>
                         </div>
 
                         <!-- Request Title -->
                         <div class="flex items-start gap-2">
-                            <p class="w-32 text-[#666666] font-medium">Request Title</p>
+                            <p class="w-32 text-[#666666] font-medium">Judul Permintaan</p>
                             <p class="text-[#666666]">: <span id="displayRequestName">Pembelian Komputer IT</span></p>
                         </div>
 
                         <!-- Requester -->
                         <div class="flex items-start gap-2">
-                            <p class="w-32 text-[#666666] font-medium">Requester</p>
+                            <p class="w-32 text-[#666666] font-medium">Pemohon</p>
                             <p class="text-[#666666]">: <span id="displayUserInput">Karyawan</span></p>
                         </div>
 
                         <!-- Request Date -->
                         <div class="flex items-start gap-2">
-                            <p class="w-32 text-[#666666] font-medium">Request Date</p>
+                            <p class="w-32 text-[#666666] font-medium">Tanggal Permintaan</p>
                             <p class="text-[#666666]">: <span id="displayInputDate">2024-06-30 06:56:02</span></p>
                         </div>
                     </div>
 
                     <!-- Asset List -->
                     <div class="space-y-4 mt-6">
-                        <h2 class="text-lg font-semibold text-[#666666]">Asset List</h2>
+                        <h2 class="text-lg font-semibold text-[#666666]">Daftar Aset</h2>
 
                         <div class="overflow-x-auto">
                             <table class="w-full">
                                 <thead>
                                     <tr>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">ASSET NAME</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">SPESIFICATION</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">QTY</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">UNIT PRICE</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NAMA ASET</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">SPESIFIKASI</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">JML</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">HARGA SATUAN</th>
                                         <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">TOTAL</th>
                                     </tr>
                                 </thead>
@@ -108,11 +115,8 @@
 
                     <!-- Navigation Buttons -->
                     <div class="flex gap-4 mt-8">
-                        <a href="{{ route('procurement.request') }}" class="px-6 py-3 bg-[#333333] text-white rounded-lg text-base hover:bg-gray-800 transform active:scale-[0.98] transition-all duration-200 uppercase">
-                            BACK
-                        </a>
                         <button type="button" id="submitBtn" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
-                            SUBMIT
+                            KIRIM
                         </button>
                     </div>
                 </div>
@@ -301,7 +305,7 @@
                 // Otherwise, try to fetch by code
                 fetch(`{{ route('procurement.search') }}?search=${encodeURIComponent(procurementCode)}&status=approved`)
                     .then(response => {
-                        if (!response.ok) throw new Error('Failed to search for procurement');
+                        if (!response.ok) throw new Error('Gagal mencari data pengajuan');
                         return response.json();
                     })
                     .then(result => {
@@ -397,7 +401,7 @@
                 const response = await fetch(`{{ route('procurement.search') }}?search=${encodeURIComponent(searchTerm)}&status=approved`);
 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch procurement requests');
+                    throw new Error('Gagal mengambil daftar permintaan');
                 }
 
                 const result = await response.json();
@@ -409,7 +413,7 @@
                 if (procurements.length === 0) {
                     const noResults = document.createElement('li');
                     noResults.className = 'px-4 py-2 text-gray-500 italic';
-                    noResults.textContent = 'No approved procurement requests found';
+                    noResults.textContent = 'Tidak ada permintaan yang disetujui ditemukan';
                     procurementList.appendChild(noResults);
                 } else {
                     procurements.forEach(procurement => {
@@ -447,7 +451,7 @@
                 console.error('Error loading procurement requests:', error);
                 const errorItem = document.createElement('li');
                 errorItem.className = 'px-4 py-2 text-red-500';
-                errorItem.textContent = 'Error loading procurement requests';
+                errorItem.textContent = 'Gagal memuat daftar permintaan';
                 procurementList.appendChild(errorItem);
             } finally {
                 if (procurementLoading) procurementLoading.classList.add('hidden');
@@ -466,13 +470,13 @@
                 const response = await fetch(`{{ url('procurement/request') }}/${procurementId}`);
 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch procurement details');
+                    throw new Error('Gagal mengambil detail permintaan');
                 }
 
                 const result = await response.json();
 
                 if (!result.success || !result.data) {
-                    throw new Error(result.errors?.general || 'Invalid data received from server');
+                    throw new Error(result.errors?.general || 'Data tidak valid dari server');
                 }
 
                 const procurement = result.data;
@@ -517,7 +521,7 @@
                 if (submitBtn) submitBtn.disabled = false;
             } catch (error) {
                 console.error('Error fetching procurement details:', error);
-                showToast('Failed to load procurement details: ' + error.message, 'error');
+                showToast('Gagal memuat detail permintaan: ' + error.message, 'error');
             }
         }
 
@@ -536,7 +540,7 @@
                 const cell = document.createElement('td');
                 cell.className = 'p-3 text-xs text-[#666666] text-center';
                 cell.colSpan = 5;
-                cell.textContent = 'No items found for this procurement request';
+                cell.textContent = 'Tidak ada item ditemukan untuk permintaan ini';
 
                 row.appendChild(cell);
                 tableBody.appendChild(row);
@@ -549,7 +553,7 @@
                 row.className = 'border-t border-[#EEF1F4]';
 
                 // Format item data
-                const assetName = item.asset_name || 'Unknown Asset';
+                const assetName = item.asset_name || 'Aset Tidak Diketahui';
                 const specification = item.specifications || item.specification || '';
                 const quantity = item.quantity || 0;
 
@@ -596,7 +600,7 @@
             const totalLabelCell = document.createElement('td');
             totalLabelCell.className = 'p-3 text-xs font-medium text-right text-[#666666]';
             totalLabelCell.colSpan = 4;
-            totalLabelCell.textContent = 'Grand Total';
+            totalLabelCell.textContent = 'Total Keseluruhan';
             totalRow.appendChild(totalLabelCell);
 
             const totalValueCell = document.createElement('td');
@@ -618,12 +622,12 @@
 
                 // Validate inputs
                 if (!comparisonTitle.value.trim()) {
-                    showToast('Please enter a quotation title', 'error');
+                    showToast('Mohon masukkan judul penawaran', 'error');
                     return;
                 }
 
                 if (!selectedRequestId.value) {
-                    showToast('Please select a procurement request', 'error');
+                    showToast('Mohon pilih permintaan pengadaan', 'error');
                     return;
                 }
 
@@ -639,7 +643,7 @@
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = `
                     <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Submitting...
+                    Mengirim...
                 `;
 
                 // Submit the form via AJAX
@@ -660,19 +664,27 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('Price comparison has been created successfully!', 'success');
-                window.location.href = "{{ route('procurement.price-comparison') }}";
-                        // Don't reset button state or submitting flag on success as we're redirecting
+                        // Show success toast - don't reset button or submitting flag since we're redirecting
+                        showToast(data.message || 'Perbandingan harga berhasil dibuat!');
+
+                        // Set a flag to indicate we're intentionally navigating away
+                        const isNavigatingAway = true;
+
+                        // Redirect after success
+                        setTimeout(() => {
+                            window.location.href = data.redirect_url ||
+                                `{{ route('procurement.price-comparison') }}`;
+                        }, 1500);
                     } else {
-                        // Reset flag and button on error
+                        // Reset submission flag and button on error
                         isSubmitting = false;
                         submitBtn.disabled = false;
-                        submitBtn.innerHTML = 'SUBMIT';
+                        submitBtn.innerHTML = 'KIRIM';
 
                         if (data.errors) {
                             showToast(data.errors, 'error');
                         } else {
-                            showToast(data.message || 'An error occurred while creating the price comparison', 'error');
+                            showToast(data.message || 'Terjadi kesalahan saat membuat perbandingan harga', 'error');
                         }
                     }
                 })
@@ -682,12 +694,12 @@
                     // Reset flag and button on error
                     isSubmitting = false;
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'SUBMIT';
+                    submitBtn.innerHTML = 'KIRIM';
 
                     if (error.errors) {
                         showToast(error.errors, 'error');
                     } else {
-                        showToast(error.message || 'An error occurred while creating the price comparison', 'error');
+                        showToast(error.message || 'Terjadi kesalahan saat membuat perbandingan harga', 'error');
                     }
                 });
             });

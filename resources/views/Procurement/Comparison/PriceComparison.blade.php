@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Price Comparison')
+@section('title', 'Perbandingan Harga')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -10,21 +10,21 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PRICE COMPARISON</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PERBANDINGAN HARGA</h1>
 
                         <!-- Add Comparison Button -->
                         <a href="{{ route('procurement.form-comparison') }}" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
-                            <span class="text-base">Create</span>
+                            <span class="text-base">Buat Baru</span>
                         </a>
                 </div>
 
                 <!-- Search and Filter -->
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
-                        <input type="text" id="searchInput" placeholder="Search by title, quotation number..."
+                        <input type="text" id="searchInput" placeholder="Cari berdasarkan judul, nomor penawaran..."
                             class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         <div class="absolute right-3 top-1/2 -translate-y-1/2">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,19 +37,19 @@
                         <select id="statusFilter"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="" disabled selected>Status</option>
-                            <option value="">All Status</option>
-                            <option value="Submitted">Submitted</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Rejected">Rejected</option>
+                            <option value="">Semua Status</option>
+                            <option value="Submitted">Diajukan</option>
+                            <option value="Approved">Disetujui</option>
+                            <option value="Rejected">Ditolak</option>
                         </select>
 
                         <select id="sortOrder"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" disabled selected>Sort Order</option>
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="title_asc">Title (A-Z)</option>
-                            <option value="title_desc">Title (Z-A)</option>
+                            <option value="" disabled selected>Urutan</option>
+                            <option value="newest">Terbaru</option>
+                            <option value="oldest">Terlama</option>
+                            <option value="title_asc">Judul (A-Z)</option>
+                            <option value="title_desc">Judul (Z-A)</option>
                         </select>
                     </div>
                 </div>
@@ -59,12 +59,13 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Quotation Number</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Request ID</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Title</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Quotation by</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Quotation Date</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nomor Penawaran</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">ID Permintaan</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Judul</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Dibuat Oleh</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Penawaran</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Status</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,6 +76,27 @@
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['title'] ?? 'N/A' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['created_by']['name'] ?? 'N/A' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['created_at'] ? date('d M Y', strtotime($comparison['created_at'])) : 'N/A' }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                    <span class="px-2 py-1 rounded-full text-xs
+                                        @if(isset($comparison['status']) && strtolower($comparison['status']) == 'completed') bg-green-100 text-green-800
+                                        @elseif(isset($comparison['status']) && strtolower($comparison['status']) == 'in progress') bg-blue-100 text-blue-800
+                                        @elseif(isset($comparison['status']) && strtolower($comparison['status']) == 'draft') bg-yellow-100 text-yellow-800
+                                        @else bg-gray-100 text-gray-800 @endif">
+                                        @if(isset($comparison['status']))
+                                            @if(strtolower($comparison['status']) == 'completed')
+                                                Selesai
+                                            @elseif(strtolower($comparison['status']) == 'in progress')
+                                                Dalam Proses
+                                            @elseif(strtolower($comparison['status']) == 'draft')
+                                                Draft
+                                            @else
+                                                {{ $comparison['status'] }}
+                                            @endif
+                                        @else
+                                            Tidak Ada
+                                        @endif
+                                    </span>
+                                </td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center gap-2">
                                         <a href="{{ route('procurement.detail-comparison', ['id' => $comparison['comparison_id'] ?? '']) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
@@ -89,7 +111,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="p-3 text-center text-gray-500">No price comparisons found</td>
+                                <td colspan="7" class="p-3 text-center text-gray-500">Tidak ada perbandingan harga ditemukan</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -106,7 +128,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
-                            Prev
+                            Sebelumnya
                         </button>
 
                             <div class="flex gap-1">
@@ -128,7 +150,7 @@
                             <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
                                    onclick="changePage({{ ($pagination['current_page'] ?? 1) + 1 }})"
                                    {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
-                            Next
+                            Berikutnya
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
@@ -139,11 +161,11 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
-                                Prev
+                                Sebelumnya
                     </button>
                             <button class="w-8 h-8 bg-[#213268] text-white rounded text-sm">1</button>
                             <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
-                                Next
+                                Berikutnya
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
@@ -161,15 +183,15 @@
                                     $from = ($currentPage - 1) * $perPage + 1;
                                     $to = min($currentPage * $perPage, $total);
                                 @endphp
-                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                                Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} entri
                             @else
-                                Showing 1 to {{ count($comparisons) }} of {{ count($comparisons) }} entries
+                                Menampilkan 1 sampai {{ count($comparisons) }} dari {{ count($comparisons) }} entri
                             @endif
                         </span>
                         <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
-                            <option value="10" {{ isset($pagination['limit']) && $pagination['limit'] == 10 ? 'selected' : '' }}>10 per page</option>
-                            <option value="25" {{ isset($pagination['limit']) && $pagination['limit'] == 25 ? 'selected' : '' }}>25 per page</option>
-                            <option value="50" {{ isset($pagination['limit']) && $pagination['limit'] == 50 ? 'selected' : '' }}>50 per page</option>
+                            <option value="10" {{ isset($pagination['limit']) && $pagination['limit'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ isset($pagination['limit']) && $pagination['limit'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ isset($pagination['limit']) && $pagination['limit'] == 50 ? 'selected' : '' }}>50 per halaman</option>
                         </select>
                     </div>
                 </div>
@@ -188,7 +210,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Success!</p>
+            <p class="font-bold">Berhasil!</p>
             <p>{{ session('success') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -217,7 +239,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Error!</p>
+            <p class="font-bold">Gagal!</p>
             <p>{{ session('error') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -320,7 +342,7 @@
                 const comparisonTitle = btn.getAttribute('data-title');
                 if (comparisonId) {
                     // Implement delete confirmation dialog here
-                    if (confirm(`Are you sure you want to delete the price comparison: ${comparisonTitle}?`)) {
+                    if (confirm(`Apakah Anda yakin ingin menghapus perbandingan harga: ${comparisonTitle}?`)) {
                         // Send delete request
                         fetch(`/procurement/price-comparison/${comparisonId}`, {
                             method: 'DELETE',
@@ -334,12 +356,12 @@
                             if (data.success) {
                                 window.location.reload();
                             } else {
-                                alert('Failed to delete: ' + (data.message || 'Unknown error'));
+                                alert('Gagal menghapus: ' + (data.message || 'Kesalahan tidak diketahui'));
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('An error occurred while deleting');
+                            alert('Terjadi kesalahan saat menghapus');
                         });
                     }
                 }

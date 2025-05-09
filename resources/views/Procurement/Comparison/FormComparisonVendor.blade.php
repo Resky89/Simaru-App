@@ -10,9 +10,16 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
-                        {{ isset($vendorOffer) || request()->has('agreement_id') ? 'EDIT VENDOR QUOTATION' : 'ADD VENDOR QUOTATION' }}
-                    </h1>
+                    <div class="flex items-center">
+                        <a href="{{ route('procurement.detail-comparison', ['id' => $comparison_id ?? request()->route('id')]) }}" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
+                            {{ isset($vendorOffer) || request()->has('agreement_id') ? 'EDIT VENDOR QUOTATION' : 'ADD VENDOR QUOTATION' }}
+                        </h1>
+                    </div>
                 </div>
 
                 <!-- Form -->
@@ -97,9 +104,6 @@
 
                     <!-- Form Buttons -->
                     <div class="flex gap-4 mt-8">
-                        <a href="{{ route('procurement.detail-comparison', ['id' => $comparison_id ?? request()->route('id')]) }}" class="px-6 py-3 bg-[#333333] text-white rounded-lg text-base hover:bg-gray-800 transform active:scale-[0.98] transition-all duration-200 uppercase">
-                            CANCEL
-                        </a>
                         <button type="submit" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
                             {{ isset($vendorOffer) || request()->has('offer_id') ? 'UPDATE' : 'SUBMIT' }}
                         </button>
