@@ -1009,7 +1009,7 @@
                 }
             });
 
-            // Show toast notification
+            // Function to show toast notifications
             window.showToast = function (message, type = 'info') {
                 // Create toast element
                 const toast = document.createElement('div');
@@ -1022,7 +1022,6 @@
                     icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>`;
-                    titleP.textContent = 'Berhasil';
                 } else if (type === 'error') {
                     bgColor = 'bg-red-100';
                     borderColor = 'border-red-500';
@@ -1030,7 +1029,6 @@
                     icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>`;
-                    titleP.textContent = 'Kesalahan';
                 } else {
                     bgColor = 'bg-blue-100';
                     borderColor = 'border-blue-500';
@@ -1038,16 +1036,20 @@
                     icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>`;
-                    titleP.textContent = type === 'info' ? 'Informasi' : type.charAt(0).toUpperCase() + type.slice(1);
                 }
 
                 // Simple HTML detection
-                const hasHTML = typeof message === 'string' && message.indexOf('<') !== -1 && message.indexOf('>') !== -1;
+                let hasHTML = false;
+                let isArray = Array.isArray(message);
 
-                toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
+                if (typeof message === 'string') {
+                    hasHTML = message.indexOf('<') !== -1 && message.indexOf('>') !== -1;
+                }
+
+                toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300 max-w-md overflow-y-auto max-h-[80vh]`;
                 toast.setAttribute('role', 'alert');
 
-                // Create simple content structure
+                // Create content structure
                 const content = document.createElement('div');
                 content.className = 'flex items-start';
 
@@ -1063,16 +1065,30 @@
 
                 const titleP = document.createElement('p');
                 titleP.className = 'font-bold';
-                titleP.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+                titleP.textContent = type === 'success' ? 'Berhasil' :
+                                    type === 'error' ? 'Kesalahan' :
+                                    type.charAt(0).toUpperCase() + type.slice(1);
                 messageDiv.appendChild(titleP);
 
                 const messageP = document.createElement('div');
                 messageP.className = 'error-message';
-                if (hasHTML && typeof message === 'string') {
+
+                // Format message based on type
+                if (isArray) {
+                    // Format array as HTML list
+                    let htmlContent = '<ul class="mt-2 ml-4 list-disc">';
+                    message.forEach(item => {
+                        htmlContent += `<li>${item}</li>`;
+                    });
+                    htmlContent += '</ul>';
+                    messageP.innerHTML = htmlContent;
+                    hasHTML = true;
+                } else if (hasHTML && typeof message === 'string') {
                     messageP.innerHTML = message;
                 } else {
                     messageP.textContent = message;
                 }
+
                 messageDiv.appendChild(messageP);
                 content.appendChild(messageDiv);
 
@@ -1089,6 +1105,14 @@
 
                 // Add content to toast
                 toast.appendChild(content);
+
+                // Create toast container if it doesn't exist
+                let toastContainer = document.querySelector('.toast-container');
+                if (!toastContainer) {
+                    toastContainer = document.createElement('div');
+                    toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-4 toast-container';
+                    document.body.appendChild(toastContainer);
+                }
 
                 // Add to container
                 toastContainer.appendChild(toast);

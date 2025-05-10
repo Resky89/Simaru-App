@@ -60,6 +60,13 @@ class RoleController extends Controller
                 }
             }
 
+            // Log the query parameters for debugging
+            \Log::info('Role search parameters:', [
+                'search' => $search,
+                'sort' => $sort,
+                'queryParams' => $queryParams
+            ]);
+
             $response = $this->apiService->request('GET', '/roles', [
                 'query' => $queryParams
             ]);
@@ -116,7 +123,9 @@ class RoleController extends Controller
                         'data' => [],
                         'pagination' => null
                     ],
-                    'error' => $errorMessage
+                    'error' => $errorMessage,
+                    'search' => $search,
+                    'sort' => $sort
                 ]);
             }
 
@@ -165,7 +174,9 @@ class RoleController extends Controller
                     'data' => [],
                     'pagination' => null
                 ],
-                'error' => 'Gagal mengambil data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data: ' . $e->getMessage(),
+                'search' => $request->input('search', ''),
+                'sort' => $request->input('sort', '')
             ]);
         }
     }
@@ -236,27 +247,27 @@ class RoleController extends Controller
                 }
 
                 // Format error message for redirect
-                $errorMessage = '';
                 if (is_array($errorData)) {
-                    // Format error message as HTML list for display in toast notification
-                    $errorMessage = '<ul>';
+                    // If it's a nested array of field => [messages]
+                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             foreach ($messages as $message) {
-                                $errorMessage .= '<li>' . $message . '</li>';
+                                $errorArray[] = $message;
                             }
                         } else {
-                            $errorMessage .= '<li>' . $field . ': ' . $messages . '</li>';
+                            $errorArray[] = $field . ': ' . $messages;
                         }
                     }
-                    $errorMessage .= '</ul>';
-                } else {
-                    $errorMessage = $errorData;
-                }
 
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', $errorMessage);
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', $errorArray);
+                } else {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', $errorData);
+                }
             }
 
             // Successfully created
@@ -362,27 +373,27 @@ class RoleController extends Controller
                 }
 
                 // Format error message for redirect
-                $errorMessage = '';
                 if (is_array($errorData)) {
-                    // Format error message as HTML list for display in toast notification
-                    $errorMessage = '<ul>';
+                    // If it's a nested array of field => [messages]
+                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             foreach ($messages as $message) {
-                                $errorMessage .= '<li>' . $message . '</li>';
+                                $errorArray[] = $message;
                             }
                         } else {
-                            $errorMessage .= '<li>' . $field . ': ' . $messages . '</li>';
+                            $errorArray[] = $field . ': ' . $messages;
                         }
                     }
-                    $errorMessage .= '</ul>';
-                } else {
-                    $errorMessage = $errorData;
-                }
 
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', $errorMessage);
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', $errorArray);
+                } else {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', $errorData);
+                }
             }
 
             // Successfully updated
@@ -473,26 +484,25 @@ class RoleController extends Controller
                 }
 
                 // Format error message for redirect
-                $errorMessage = '';
                 if (is_array($errorData)) {
-                    // Format error message as HTML list for display in toast notification
-                    $errorMessage = '<ul>';
+                    // If it's a nested array of field => [messages]
+                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             foreach ($messages as $message) {
-                                $errorMessage .= '<li>' . $message . '</li>';
+                                $errorArray[] = $message;
                             }
                         } else {
-                            $errorMessage .= '<li>' . $field . ': ' . $messages . '</li>';
+                            $errorArray[] = $field . ': ' . $messages;
                         }
                     }
-                    $errorMessage .= '</ul>';
-                } else {
-                    $errorMessage = $errorData;
-                }
 
-                return redirect()->back()
-                    ->with('error', $errorMessage);
+                    return redirect()->back()
+                        ->with('error', $errorArray);
+                } else {
+                    return redirect()->back()
+                        ->with('error', $errorData);
+                }
             }
 
             // Successfully deleted

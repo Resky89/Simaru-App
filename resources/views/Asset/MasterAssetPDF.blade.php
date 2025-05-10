@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Master Assets Report</title>
+    <title>Laporan Aset Master</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -78,40 +78,48 @@
 </head>
 <body>
     <div class="header">
-        <h1>MASTER ASSETS REPORT</h1>
-        <p>Generated on: {{ $date_generated }}</p>
+        <h1>LAPORAN ASET MASTER</h1>
+        <p>Dibuat pada: {{ $date_generated }}</p>
     </div>
 
     <div class="filters">
         @if(!empty($search))
-        <p><strong>Search:</strong> {{ $search }}</p>
+        <p><strong>Pencarian:</strong> {{ $search }}</p>
         @endif
 
         @if(!empty($assetType))
-        <p><strong>Asset Type:</strong> {{ ucfirst(str_replace('_', ' ', $assetType)) }}</p>
+        <p><strong>Tipe Aset:</strong>
+            @if($assetType == 'medical')
+                Medis
+            @elseif($assetType == 'non_medical')
+                Non Medis
+            @else
+                {{ ucfirst(str_replace('_', ' ', $assetType)) }}
+            @endif
+        </p>
         @endif
 
         @if(!empty($brandId) && isset($brandMap[$brandId]))
-        <p><strong>Brand:</strong> {{ $brandMap[$brandId]['brand_name'] ?? 'Unknown' }}</p>
+        <p><strong>Merek:</strong> {{ $brandMap[$brandId]['brand_name'] ?? 'Tidak Diketahui' }}</p>
         @endif
 
         @if(!empty($subcategoryId) && isset($subcategoryMap[$subcategoryId]))
-        <p><strong>Category:</strong> {{ $subcategoryMap[$subcategoryId]['subcategory_name'] ?? 'Unknown' }}</p>
+        <p><strong>Kategori:</strong> {{ $subcategoryMap[$subcategoryId]['subcategory_name'] ?? 'Tidak Diketahui' }}</p>
         @endif
 
-        <p><strong>Sort Order:</strong>
+        <p><strong>Urutan:</strong>
             @switch($sort)
                 @case('newest')
-                    Newest First
+                    Terbaru
                     @break
                 @case('oldest')
-                    Oldest First
+                    Terlama
                     @break
                 @case('name_asc')
-                    Name (A-Z)
+                    Nama (A-Z)
                     @break
                 @case('name_desc')
-                    Name (Z-A)
+                    Nama (Z-A)
                     @break
                 @default
                     {{ ucfirst(str_replace('_', ' ', $sort)) }}
@@ -122,12 +130,12 @@
     <table class="striped">
         <thead>
             <tr>
-                <th>Asset Code</th>
-                <th>Asset Name</th>
-                <th>Brand</th>
-                <th>Category</th>
-                <th>Type</th>
-                <th>Properties</th>
+                <th>Kode Aset</th>
+                <th>Nama Aset</th>
+                <th>Merek</th>
+                <th>Kategori</th>
+                <th>Tipe</th>
+                <th>Properti</th>
             </tr>
         </thead>
         <tbody>
@@ -152,9 +160,21 @@
                     <td>
                         <span class="asset-type">
                             @if(isset($asset['asset_type']))
-                                {{ ucfirst(str_replace('_', ' ', $asset['asset_type'])) }}
+                                @if($asset['asset_type'] == 'medical')
+                                    Medis
+                                @elseif($asset['asset_type'] == 'non_medical')
+                                    Non Medis
+                                @else
+                                    {{ ucfirst(str_replace('_', ' ', $asset['asset_type'])) }}
+                                @endif
                             @elseif(isset($asset['subcategory_id']) && isset($subcategoryMap[$asset['subcategory_id']]['asset_type']))
-                                {{ ucfirst(str_replace('_', ' ', $subcategoryMap[$asset['subcategory_id']]['asset_type'])) }}
+                                @if($subcategoryMap[$asset['subcategory_id']]['asset_type'] == 'medical')
+                                    Medis
+                                @elseif($subcategoryMap[$asset['subcategory_id']]['asset_type'] == 'non_medical')
+                                    Non Medis
+                                @else
+                                    {{ ucfirst(str_replace('_', ' ', $subcategoryMap[$asset['subcategory_id']]['asset_type'])) }}
+                                @endif
                             @else
                                 -
                             @endif
@@ -163,10 +183,10 @@
                     <td>
                         @if(isset($asset['is_depreciable']) || isset($asset['needs_calibration']))
                             @if(isset($asset['is_depreciable']) && $asset['is_depreciable'])
-                                <div>Depreciable</div>
+                                <div>Dapat Disusutkan</div>
                             @endif
                             @if(isset($asset['needs_calibration']) && $asset['needs_calibration'])
-                                <div>Needs Calibration</div>
+                                <div>Perlu Kalibrasi</div>
                             @endif
                         @else
                             -
@@ -175,14 +195,14 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" style="text-align: center;">No master assets found</td>
+                    <td colspan="6" style="text-align: center;">Tidak ada aset master ditemukan</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
     <div class="footer">
-        <p>Asset Monitoring System - Master Assets Report</p>
+        <p>Sistem Monitoring Aset - Laporan Aset Master</p>
     </div>
 </body>
 </html>

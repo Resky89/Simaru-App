@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Asset Management')
+@section('title', 'Manajemen Aset')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -10,7 +10,7 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">ASSET</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">ASET</h1>
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap gap-3">
@@ -18,25 +18,25 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v8" />
                             </svg>
-                            <span class="text-base">Import Excel</span>
+                            <span class="text-base">Impor Excel</span>
                         </button>
                         <button id="printQRBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
-                            <span class="text-base">Print QR</span>
+                            <span class="text-base">Cetak QR</span>
                         </button>
                         <button id="exportBtn" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
-                            <span class="text-base">Export PDF</span>
+                            <span class="text-base">Ekspor PDF</span>
                         </button>
                         <button id="addAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
-                            <span class="text-base">Add Asset</span>
+                            <span class="text-base">Tambah Aset</span>
                         </button>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                 <!-- Search and Filter -->
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
-                        <input type="text" id="searchInput" placeholder="Search by asset name, code, or category..."
+                        <input type="text" id="searchInput" placeholder="Cari berdasarkan nama aset, kode, atau kategori..."
                             class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         <div class="absolute right-3 top-1/2 -translate-y-1/2">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,30 +56,30 @@
                     <div class="flex flex-wrap gap-4">
                         <select id="assetTypeFilter"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" disabled selected>Select Type</option>
-                            <option value="">All Types</option>
-                            <option value="medical">Medical</option>
-                            <option value="non_medical">Non Medical</option>
+                            <option value="" disabled selected>Pilih Tipe</option>
+                            <option value="">Semua Tipe</option>
+                            <option value="medical">Medis</option>
+                            <option value="non_medical">Non Medis</option>
                         </select>
 
                         <select id="statusFilter"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="" disabled selected>Status</option>
                             <option value="">All Status</option>
-                            <option value="available">Available</option>
-                            <option value="check out">Check Out</option>
-                            <option value="dispose">Dispose</option>
-                            <option value="lost">Lost</option>
-                            <option value="under repair">Under Repair</option>
+                            <option value="available">Tersedia</option>
+                            <option value="check out">Dipinjam</option>
+                            <option value="dispose">Dihapus</option>
+                            <option value="lost">Hilang</option>
+                            <option value="under repair">Dalam Perbaikan</option>
                         </select>
 
                         <select id="sortOrder"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" disabled selected>Sort Order</option>
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="name_asc">Name (A-Z)</option>
-                            <option value="name_desc">Name (Z-A)</option>
+                            <option value="" disabled selected>Urutkan</option>
+                            <option value="newest">Terbaru</option>
+                            <option value="oldest">Terlama</option>
+                            <option value="name_asc">Nama (A-Z)</option>
+                            <option value="name_desc">Nama (Z-A)</option>
                         </select>
                     </div>
                 </div>
@@ -92,12 +92,12 @@
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">
                                     <input type="checkbox" id="select-all-assets" class="checkbox checkbox-sm" />
                                 </th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Code</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Category Name</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kode Aset</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kategori Aset</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Status</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Action</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -117,14 +117,14 @@
                                                 $code = $asset['asset_master']['asset_master_code'];
                                                 $assetType = 'Non Medical';
                                                 if (strpos($code, 'MED-') === 0) {
-                                                    $assetType = 'Medical';
+                                                    $assetType = 'Medis';
                                                 } elseif (strpos($code, 'NMED-') === 0) {
-                                                    $assetType = 'Non Medical';
+                                                    $assetType = 'Non Medis';
                                                 }
                                             @endphp
                                             {{ $assetType }}
                                         @else
-                                            Non Medical
+                                            Non Medis
                                         @endif
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
@@ -199,7 +199,7 @@
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No assets found</td>
+                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada aset yang ditemukan</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -216,7 +216,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
-                            Prev
+                            Sebelumnya
                         </button>
 
                         <div class="flex gap-2">
@@ -236,7 +236,7 @@
                         <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($assets_pagination['current_page'] ?? 1) >= ($assets_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
                                onclick="changeAssetPage({{ ($assets_pagination['current_page'] ?? 1) + 1 }})"
                                {{ ($assets_pagination['current_page'] ?? 1) >= ($assets_pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
-                            Next
+                            Selanjutnya
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
@@ -253,15 +253,15 @@
                                     $from = ($currentPage - 1) * $perPage + 1;
                                     $to = min($currentPage * $perPage, $total);
                                 @endphp
-                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                                Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
                             @else
-                                Showing 1 to {{ count($assets ?? []) }} of {{ count($assets ?? []) }} entries
+                                Menampilkan 1 sampai {{ count($assets ?? []) }} dari {{ count($assets ?? []) }} data
                             @endif
                         </span>
                         <select id="assetPerPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeAssetPerPage(this.value)">
-                            <option value="10" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per page</option>
-                            <option value="25" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per page</option>
-                            <option value="50" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per page</option>
+                            <option value="10" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 10 ? 'selected' : '' }}>10 data per halaman</option>
+                            <option value="25" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 25 ? 'selected' : '' }}>25 data per halaman</option>
+                            <option value="50" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 50 ? 'selected' : '' }}>50 data per halaman
                         </select>
                     </div>
                 </div>
@@ -280,7 +280,7 @@
                 id="addAssetModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">ADD ASSET</h2>
+                    <SSET class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH ASSET</SSET>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -294,15 +294,15 @@
                     <div class="p-6">
                         <div class="space-y-4">
                             <!-- Asset Information Section -->
-                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Asset Information</h3>
+                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Aset</h3>
 
                             <!-- Basic Asset Details -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <!-- Asset Master Dropdown -->
                                 <div class="mb-4">
-                                    <label for="asset_master_id" class="block text-gray-700 text-sm font-bold mb-2">Asset Master</label>
+                                    <label for="asset_master_id" class="block text-gray-700 text-sm font-bold mb-2">Master Aset</label>
                                     <div class="relative">
-                                        <input type="text" id="asset_master_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Search asset master...">
+                                        <input type="text" id="asset_master_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari master aset...">
                                         <input type="hidden" name="asset_master_id" id="selected_asset_master_id">
                                         <input type="hidden" id="selected_is_depreciable" value="false">
 
@@ -320,32 +320,32 @@
                                 </div>
                             </div>
                                 <div class="mb-4">
-                                    <label for="serial_number" class="block text-gray-700 text-sm font-bold mb-2">Serial Number</label>
-                                    <input type="text" name="serial_number" id="serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Serial number">
+                                    <label for="serial_number" class="block text-gray-700 text-sm font-bold mb-2">Nomor Seri</label>
+                                    <input type="text" name="serial_number" id="serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Nomor seri">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Purchase Date</label>
+                                    <label for="purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pembelian</label>
                                     <input type="date" name="purchase_date" id="purchase_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 </div>
                                 <div class="mb-4">
-                                    <label for="purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Purchase Cost</label>
+                                    <label for="purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pembelian</label>
                                     <input type="number" name="purchase_cost" id="purchase_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="warranty_end_date" class="block text-gray-700 text-sm font-bold mb-2">Warranty End Date</label>
+                                    <label for="warranty_end_date" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Berakhir Garansi</label>
                                     <input type="date" name="warranty_end_date" id="warranty_end_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 </div>
                                 <!-- Room Dropdown -->
                                 <div class="mb-4">
-                                    <label for="room_id" class="block text-gray-700 text-sm font-bold mb-2">Room</label>
+                                    <label for="room_id" class="block text-gray-700 text-sm font-bold mb-2">Ruangan</label>
                                     <div class="relative">
-                                        <input type="text" id="room_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Search for room...">
+                                        <input type="text" id="room_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari ruangan...">
                                         <input type="hidden" name="room_id" id="selected_room_id">
                                         <div id="room_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                                             <!-- Loading indicator -->
@@ -366,11 +366,11 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="condition" class="block text-gray-700 text-sm font-bold mb-2">Condition</label>
+                                    <label for="condition" class="block text-gray-700 text-sm font-bold mb-2">Kondisi</label>
                                     <select name="condition" id="condition" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                        <option value="good">Good</option>
-                                        <option value="slightly damage">Slightly Damage</option>
-                                        <option value="high damage">Highly Damage</option>
+                                        <option value="good">Baik</option>
+                                        <option value="slighly damage">Sedikit Rusak</option>
+                                        <option value="high damage">Sangat Rusak</option>
                                     </select>
                                 </div>
                                 <!-- User ID Field -->
@@ -395,36 +395,37 @@
 
                             <!-- Depreciation Fields Section -->
                             <div id="depreciation_fields" class="space-y-4 border rounded-lg p-4 border-dashed border-gray-300 hidden">
-                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Depreciation Information</h3>
+                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Depresiasi</h3>
 
                                 <div class="mb-4">
-                                    <label for="depreciation_method" class="block text-gray-700 text-sm font-bold mb-2">Depreciation Method</label>
+                                    <label for="depreciation_method" class="block text-gray-700 text-sm font-bold mb-2">Metode Depresiasi</label>
                                     <select name="depreciation_method" id="depreciation_method" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                        <option value="Straight Line">Straight Line</option>
-                                        <option value="Double Declining Balance">Double Declining Balance</option>
-                                        <option value="150% Declining Balance">150% Declining Balance</option>
-                                        <option value="Sum of the Year's Digits">Sum of the Year's Digits</option>
+                                        <option value="Straight Line">Garis Lurus</option>
+                                        <option value="Declining Balance">Saldo Menurun</option>
+                                        <option value="Double Declining Balance">Saldo Menurun Ganda</option>
+                                        <option value="150% Declining Balance">Saldo Menurun 150%</option>
+                                        <option value="Sum of the Year's Digits">Jumlah Tahun Angka (SYD)</option>
                                     </select>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="mb-4">
-                                        <label for="acquisition_cost" class="block text-gray-700 text-sm font-bold mb-2">Acquisition Cost</label>
+                                        <label for="acquisition_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pengadaan</label>
                                         <input type="number" name="acquisition_cost" id="acquisition_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
                                     </div>
                                     <div class="mb-4">
-                                        <label for="salvage_value" class="block text-gray-700 text-sm font-bold mb-2">Salvage Value</label>
+                                        <label for="salvage_value" class="block text-gray-700 text-sm font-bold mb-2">Nilai Sisa</label>
                                         <input type="number" name="salvage_value" id="salvage_value" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="mb-4">
-                                        <label for="asset_life_months" class="block text-gray-700 text-sm font-bold mb-2">Asset Life (months)</label>
+                                        <label for="asset_life_months" class="block text-gray-700 text-sm font-bold mb-2">Usia Aset (bulan)</label>
                                         <input type="number" name="asset_life_months" id="asset_life_months" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     </div>
                                     <div class="mb-4">
-                                        <label for="date_acquired" class="block text-gray-700 text-sm font-bold mb-2">Date Acquired</label>
+                                        <label for="date_acquired" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pengadaan</label>
                                         <input type="date" name="date_acquired" id="date_acquired" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     </div>
                                 </div>
@@ -432,7 +433,7 @@
 
                             <!-- Submit Button -->
                             <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Save
+                                Simpan
                             </button>
                         </div>
                     </div>
@@ -451,7 +452,7 @@
                 id="editAssetModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT ASSET</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT ASET</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -466,14 +467,14 @@
                     <div class="p-6">
                         <div class="space-y-4">
                             <!-- Asset Information Section -->
-                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Asset Information</h3>
+                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Aset</h3>
 
                             <!-- Basic Asset Details -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="edit_asset_master_id" class="block text-gray-700 text-sm font-bold mb-2">Asset Master</label>
+                                    <label for="edit_asset_master_id" class="block text-gray-700 text-sm font-bold mb-2">Master Aset</label>
                                     <div class="relative">
-                                        <input type="text" id="edit_asset_master_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Search asset master...">
+                                        <input type="text" id="edit_asset_master_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari master aset...">
                                         <input type="hidden" name="asset_master_id" id="edit_selected_asset_master_id">
                                         <input type="hidden" id="edit_selected_is_depreciable" value="false">
 
@@ -491,35 +492,35 @@
                                 </div>
                             </div>
                                 <div class="mb-4">
-                                    <label for="edit_serial_number" class="block text-gray-700 text-sm font-bold mb-2">Serial Number</label>
-                                    <input type="text" name="serial_number" id="edit_serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Serial number">
+                                    <label for="edit_serial_number" class="block text-gray-700 text-sm font-bold mb-2">Nomor Seri</label>
+                                    <input type="text" name="serial_number" id="edit_serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Nomor seri">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="edit_purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Purchase Date</label>
+                                    <label for="edit_purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pembelian</label>
                                     <input type="date" name="purchase_date" id="edit_purchase_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 </div>
                                 <div class="mb-4">
-                                    <label for="edit_purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Purchase Cost</label>
+                                    <label for="edit_purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pembelian</label>
                                     <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Warranty End Date</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Tanggal Berakhir Garansi</label>
                                     <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                 </div>
                                 <!-- Room Dropdown -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Room</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Ruangan</label>
                                     <div class="relative">
                                         <input type="text" id="edit_room_search"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="Search for room..." autocomplete="off">
+                                            placeholder="Cari ruangan..." autocomplete="off">
                                         <input type="hidden" name="room_id" id="edit_selected_room_id" required>
                                         <div id="edit_room_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                             <div id="edit_room_loading" class="p-2 text-gray-500 text-center">
@@ -527,7 +528,7 @@
                                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
-                                                <span>Loading rooms...</span>
+                                                <span>Memuat ruangan...</span>
                                             </div>
                                             <ul id="edit_room_list" class="py-1"></ul>
                                         </div>
@@ -540,12 +541,12 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Condition</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Kondisi</label>
                                     <select name="condition" id="edit_condition" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="good">Good</option>
-                                        <option value="slightly damage">Slightly Damage</option>
-                                        <option value="high damage">Highly Damage</option>
+                                        <option value="good">Baik</option>
+                                        <option value="slightly damage">Sedikit Rusak</option>
+                                        <option value="high damage">Sangat Rusak</option>
                                     </select>
                                 </div>
                                 <!-- User ID Field -->
@@ -562,7 +563,7 @@
                                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
-                                                <span>Loading users...</span>
+                                                <span>Memuat karyawan...</span>
                                             </div>
                                             <ul id="edit_user_list" class="py-1"></ul>
                                         </div>
@@ -572,28 +573,29 @@
 
                             <!-- Depreciation Fields Section -->
                             <div id="edit_depreciation_fields" class="space-y-4 border rounded-lg p-4 border-dashed border-gray-300 hidden">
-                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Depreciation Information</h3>
+                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Depresiasi</h3>
 
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Depreciation Method</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Metode Depresiasi</label>
                                     <select name="depreciation_method" id="edit_depreciation_method"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="Straight Line">Straight Line</option>
-                                        <option value="Double Declining Balance">Double Declining Balance</option>
-                                        <option value="150% Declining Balance">150% Declining Balance</option>
-                                        <option value="Sum of the Year's Digits">Sum of the Year's Digits</option>
+                                        <option value="Straight Line">Garis Lurus</option>
+                                        <option value="Declining Balance">Saldo Menurun</option>
+                                        <option value="Double Declining Balance">Saldo Menurun Ganda</option>
+                                        <option value="150% Declining Balance">Saldo Menurun 150%</option>
+                                        <option value="Sum of the Year's Digits">Jumlah Tahun Angka (SYD)</option>
                                     </select>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Acquisition Cost</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Biaya Pengadaan</label>
                                         <input type="number" step="0.01" name="acquisition_cost" id="edit_acquisition_cost"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="0.00">
                                     </div>
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Salvage Value</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Nilai Sisa</label>
                                         <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="0.00">
@@ -602,12 +604,12 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Asset Life (months)</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Usia Aset (bulan)</label>
                                         <input type="number" name="asset_life_months" id="edit_asset_life_months"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                     </div>
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Date Acquired</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Tanggal Pengadaan</label>
                                         <input type="date" name="date_acquired" id="edit_date_acquired"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                     </div>
@@ -616,7 +618,7 @@
 
                             <!-- Submit Button -->
                             <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Update
+                                Perbarui
                             </button>
                         </div>
                     </div>
@@ -635,7 +637,7 @@
                 id="deleteAssetModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE ASSET</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS ASET</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -653,15 +655,15 @@
                                 <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this asset? This action cannot be undone.</p>
+                                <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus aset ini? Aksi ini tidak dapat dibatalkan.</p>
                                 <p id="deleteAssetName" class="text-base font-semibold text-center mt-2"></p>
                             </div>
                             <div class="flex gap-3">
                                 <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                    Cancel
+                                    Batal
                                 </button>
                                 <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         </div>
@@ -681,7 +683,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Success!</p>
+            <p class="font-bold">Berhasil!</p>
             <p>{{ session('success') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -711,7 +713,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Error!</p>
+            <p class="font-bold">Gagal!</p>
             <p>{{ session('error') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -741,7 +743,7 @@
                 id="printQRModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">PRINT QR CODE</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">PRINT KODE QR</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -755,13 +757,13 @@
                     <div class="p-6">
                         <div class="space-y-4 max-w-[400px] mx-auto">
                             <div class="space-y-2">
-                                <p class="text-base text-gray-600">Select the size of QR codes to print.</p>
+                                <p class="text-base text-gray-600">Pilih ukuran kode QR untuk dicetak.</p>
                                 <p id="selectedAssetsCount" class="font-semibold text-center"></p>
                             </div>
 
                             <!-- QR Size Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">QR Size (mm)</label>
+                                <label class="block text-base font-semibold text-[#666666]">Ukuran QR (mm)</label>
                                 <select name="qr_size" required class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                     <option value="40">40mm x 40mm</option>
                                     <option value="50" selected>50mm x 50mm</option>
@@ -778,7 +780,7 @@
 
                             <!-- Submit Button -->
                             <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Generate PDF
+                                Buat PDF
                             </button>
                         </div>
                     </div>
@@ -786,21 +788,6 @@
             </div>
         </div>
     </div>
-</div>
-
-<div id="printQRPDFNotification" class="hidden fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
-        <div class="flex items-center">
-            <div class="py-1">
-                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div>
-                <p class="font-bold">QR Codes Generated!</p>
-                <p>Your QR codes are ready to print.</p>
-            </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.classList.add('hidden')">×</span>
-        </div>
 </div>
 
 <!-- Import Asset Modal -->
@@ -812,7 +799,7 @@
                 id="importAssetModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">IMPORT ASSETS</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">IMPOR ASET</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -826,26 +813,26 @@
                         <div class="space-y-6">
                             <!-- Import Instructions -->
                             <div class="text-gray-600 text-sm bg-blue-50 p-4 rounded-lg">
-                                <p class="font-medium text-blue-600 mb-2">Import Instructions:</p>
+                                <p class="font-medium text-blue-600 mb-2">Instruksi Pengimporan:</p>
                                 <ul class="list-disc pl-5 space-y-1">
-                                    <li>Use the Excel template format for importing</li>
-                                    <li>Required columns: Asset Master ID, Serial Number, Room ID, etc.</li>
-                                    <li>Maximum 100 records per import</li>
-                                    <li>File types supported: .xlsx, .xls, .csv</li>
+                                    <li>Gunakan format Excel untuk mengimpor</li>
+                                    <li>Kolom yang diperlukan: Asset Master ID, Nomor Seri, ID Ruangan, dll.</li>
+                                    <li>Maksimal 100 catatan per impor</li>
+                                    <li>Jenis file yang didukung: .xlsx, .xls, .csv</li>
                                 </ul>
                                 <div class="mt-3 flex justify-end">
                                     <a href="{{ asset('docs/ImportAssetTemplate.xlsx') }}" download class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-[#213268] rounded-md hover:bg-[#152451] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                         </svg>
-                                        Download Template
+                                        Unduh Template
                                     </a>
                                 </div>
                             </div>
 
                             <!-- File Upload -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#213268]">Excel File</label>
+                                <label class="block text-base font-semibold text-[#213268]">File Excel</label>
                                 <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                     <!-- File preview -->
                                     <div id="excel-file-name" class="mt-2 mb-4 w-full hidden">
@@ -868,9 +855,8 @@
                                         <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                         </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your Excel file or <span class="text-[#213268] font-semibold">browse files</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: xlsx, xls, csv</p>
-                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                        <p class="mt-1 text-sm text-gray-600">Seret file Excel Anda atau <span class="text-[#213268] font-semibold">jelajahi file</span></p>
+                                        <p class="mt-1 text-xs text-gray-500
                                     </div>
                                     <input type="file" id="excel_file" name="excel_file" accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 </div>
@@ -882,16 +868,16 @@
                             <!-- Loading Indicator -->
                             <div id="excel-loading" class="hidden text-center py-2">
                                 <div class="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                <p class="mt-2 text-sm text-gray-600">Processing Excel data...</p>
+                                <p class="mt-2 text-sm text-gray-600">Memproses data Excel...</p>
                             </div>
 
                             <!-- Buttons -->
                             <div class="flex gap-3">
                                 <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                    Cancel
+                                    Batal
                                 </button>
                                 <button type="button" id="preview-btn" disabled class="w-1/2 h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                                    Preview Data
+                                    Pratinjau Data
                                 </button>
                             </div>
                         </div>
@@ -904,8 +890,8 @@
                         <div class="space-y-6">
                             <!-- Preview Header -->
                             <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-[#213268]">Data Preview</h3>
-                                <span class="text-sm text-gray-500" id="preview-count">0 items found</span>
+                                <h3 class="text-lg font-semibold text-[#213268]">Pratinjau Data</h3>
+                                <span class="text-sm text-gray-500" id="preview-count">0 item ditemukan</span>
                             </div>
 
                             <!-- Preview Table -->
@@ -917,17 +903,17 @@
                                             <th class="p-3 text-left text-xs font-semibold">Asset Master ID</th>
                                             <th class="p-3 text-left text-xs font-semibold">Serial Number</th>
                                             <th class="p-3 text-left text-xs font-semibold">Room ID</th>
-                                            <th class="p-3 text-left text-xs font-semibold">Purchase Date</th>
-                                            <th class="p-3 text-left text-xs font-semibold">Purchase Cost</th>
-                                            <th class="p-3 text-left text-xs font-semibold">Warranty End Date</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Tanggal Pembelian</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Biaya Pembelian</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Tanggal Berakhir Garansi</th>
                                             <th class="p-3 text-left text-xs font-semibold">User ID</th>
-                                            <th class="p-3 text-left text-xs font-semibold">Current Status</th>
-                                            <th class="p-3 text-left text-xs font-semibold">Condition</th>
-                                            <th class="p-3 text-left text-xs font-semibold">Depreciation Method</th>
-                                            <th class="p-3 text-left text-xs font-semibold">Acquisition Cost</th>
-                                            <th class="p-3 text-left text-xs font-semibold">Salvage Value</th>
-                                            <th class="p-3 text-left text-xs font-semibold">Asset Life (months)</th>
-                                            <th class="p-3 text-left text-xs font-semibold">Date Acquired</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Status Saat Ini</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Kondisi</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Metode Depresiasi</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Biaya Pengadaan</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Nilai Sisa</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Usia Aset (bulan)</th>
+                                            <th class="p-3 text-left text-xs font-semibold">Tanggal Pengadaan</th>
                                         </tr>
                                     </thead>
                                     <tbody id="preview-table-body">
@@ -938,7 +924,7 @@
 
                             <!-- Warning/Error Messages -->
                             <div id="preview-warnings" class="hidden text-yellow-600 text-sm bg-yellow-50 p-4 rounded-lg">
-                                <p class="font-medium mb-2">Warnings:</p>
+                                <p class="font-medium mb-2">Peringatan:</p>
                                 <ul class="list-disc pl-5" id="warning-list">
                                     <!-- Warning messages will be inserted here -->
                                 </ul>
@@ -947,13 +933,13 @@
                             <!-- Action Buttons -->
                             <div class="flex gap-3">
                                 <button type="button" id="back-to-upload-btn" class="w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                    Back
+                                    Kembali
                                 </button>
                                 <form action="{{ route('assets.import') }}" method="POST" id="import-form" class="w-2/3" enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" name="excel_data" id="excel_data">
                                     <button type="submit" id="import-btn" class="w-full h-[45px] bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200">
-                                        Import Data
+                                        Impor Data
                                     </button>
                                 </form>
                             </div>
@@ -969,12 +955,12 @@
                                 <svg class="mb-4 w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="text-lg font-semibold text-[#213268]">Import Successful!</p>
-                                <p class="mt-2 text-sm text-gray-600">Your assets have been imported successfully.</p>
+                                <p class="text-lg font-semibold text-[#213268]">Impor Berhasil!</p>
+                                <p class="mt-2 text-sm text-gray-600">Aset Anda telah berhasil diimpor.</p>
                             </div>
                             <div class="flex justify-end">
                                 <button type="button" class="close-modal px-6 py-2 bg-[#213268] text-white rounded-lg hover:bg-[#152451] transition-colors duration-200">
-                                    Close
+                                    Tutup
                                 </button>
                             </div>
                         </div>
@@ -1165,23 +1151,22 @@
 
             if (!result.success) {
                 console.error('Error fetching asset data:', result.message);
-                alert('Failed to load asset data: ' + (result.message || 'Unknown error'));
+                alert('Gagal memuat data aset: ' + (result.message || 'Galat tidak diketahui'));
                 return;
             }
 
             const asset = result.data;
             console.log('Asset data received:', asset);
 
-                // Fill in basic fields
+            // Fill in basic fields
             setFieldValue('edit_serial_number', asset.serial_number);
             setFieldValue('edit_purchase_date', asset.purchase_date);
             setFieldValue('edit_purchase_cost', asset.purchase_cost);
             setFieldValue('edit_warranty_end_date', asset.warranty_end_date);
-            setFieldValue('edit_user_id', asset.user_id);
 
             // Set the asset master information
-                const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
-                if (assetMasterId) {
+            const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
+            if (assetMasterId) {
                 document.getElementById('edit_selected_asset_master_id').value = assetMasterId;
 
                 // Set display name
@@ -1198,43 +1183,85 @@
                 // Show/hide depreciation fields
                 const depreciationFields = document.getElementById('edit_depreciation_fields');
                 if (depreciationFields) {
-                        toggleDepreciationFields(depreciationFields, isDepreciable);
-                    }
+                    toggleDepreciationFields(depreciationFields, isDepreciable);
                 }
-
-                // Set room information with proper checks
-            if (asset.room_id) {
-                // Set the room selection for the searchable dropdown
-                document.getElementById('edit_selected_room_id').value = asset.room_id;
-
-                // Set the room display name
-                    let roomName = "Room ID: " + asset.room_id;
-                if (asset.room) {
-                    const buildingName = asset.room.building ? asset.room.building.building_name :
-                                        (asset.room.building_name ? asset.room.building_name : 'Unknown Building');
-                    roomName = `${asset.room.room_name} (${buildingName})`;
-                } else {
-                    // Try to find the room in the available rooms data
-                        const rooms = @json($rooms ?? []);
-                    const selectedRoom = rooms.find(room => room.room_id == asset.room_id);
-                    if (selectedRoom) {
-                        roomName = `${selectedRoom.room_name} (${selectedRoom.building_name || 'Unknown Building'})`;
-                    }
-                }
-
-                // Update the search input and display
-                document.getElementById('edit_room_search').value = roomName;
-                    const roomNameEl = document.getElementById('edit_selected_room_name');
-                    if (roomNameEl) roomNameEl.textContent = roomName;
             }
 
-                // Set condition
+            // Set room information with proper checks
+            if (asset.room_id) {
+                // Set the hidden input for room ID
+                document.getElementById('edit_selected_room_id').value = asset.room_id;
+
+                // Determine room name and building name
+                let roomName = '';
+
+                if (asset.room) {
+                    // If room data is available in the asset object
+                    const buildingName = asset.room.building ? asset.room.building.building_name :
+                                        (asset.room.building_name || 'Gedung Tidak Diketahui');
+                    roomName = `${asset.room.room_name} (${buildingName})`;
+                } else if (asset.room_name) {
+                    // If room_name is directly available in the asset object
+                    roomName = `${asset.room_name} (${asset.building_name || 'Gedung Tidak Diketahui'})`;
+                } else {
+                    // Try to find the room in the available rooms data
+                    const rooms = @json($rooms ?? []);
+                    const selectedRoom = rooms.find(room => room.room_id == asset.room_id);
+
+                    if (selectedRoom) {
+                        const buildingName = selectedRoom.building ? selectedRoom.building.building_name :
+                                           (selectedRoom.building_name || 'Gedung Tidak Diketahui');
+                        roomName = `${selectedRoom.room_name} (${buildingName})`;
+                    } else {
+                        roomName = `Ruangan ID: ${asset.room_id}`;
+                    }
+                }
+
+                // Update the search input with the room name
+                document.getElementById('edit_room_search').value = roomName;
+
+                // Hide loading indicator if it exists
+                const roomLoading = document.getElementById('edit_room_loading');
+                if (roomLoading) roomLoading.classList.add('hidden');
+            }
+
+            // Set condition
             setSelectValue('edit_condition', asset.condition || 'good');
+
+            // Set user information
+            if (asset.user_id) {
+                document.getElementById('edit_selected_user_id').value = asset.user_id;
+
+                // Find user display information
+                let userDisplay = `User ID: ${asset.user_id}`;
+
+                if (asset.user) {
+                    if (asset.user.employee_number) {
+                        userDisplay = asset.user.employee_number;
+                        if (asset.user.name) userDisplay += ` - ${asset.user.name}`;
+                    } else if (asset.user.name) {
+                        userDisplay = asset.user.name;
+                    }
+                } else {
+                    // Try to find user in global data
+                    const user = window.usersData.find(u => u.user_id == asset.user_id);
+                    if (user) {
+                        if (user.employee_number) {
+                            userDisplay = user.employee_number;
+                            if (user.name) userDisplay += ` - ${user.name}`;
+                        } else if (user.name) {
+                            userDisplay = user.name;
+                        }
+                    }
+                }
+
+                document.getElementById('edit_user_search').value = userDisplay;
+            }
 
             // Handle depreciation fields
             const depreciationFields = document.getElementById('edit_depreciation_fields');
             if (depreciationFields) {
-                    // Check if the asset has depreciation data or is depreciable
+                // Check if the asset has depreciation data or is depreciable
                 const hasDepreciationData =
                     asset.depreciation_method ||
                     asset.acquisition_cost ||
@@ -1246,99 +1273,52 @@
                 const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
 
                 if (hasDepreciationData || isDepreciable) {
-                        toggleDepreciationFields(depreciationFields, true);
+                    toggleDepreciationFields(depreciationFields, true);
 
-                        // Fill depreciation data from either direct properties or nested object
-                        const depData = asset.depreciation || asset;
-                        setFieldValue('edit_acquisition_cost', depData.acquisition_cost || '');
-                        setFieldValue('edit_salvage_value', depData.salvage_value || '');
-                        setFieldValue('edit_asset_life_months', depData.asset_life_months || '');
-                        setFieldValue('edit_date_acquired', depData.date_acquired || '');
+                    // Fill depreciation data from either direct properties or nested object
+                    const depData = asset.depreciation || asset;
+                    setFieldValue('edit_acquisition_cost', depData.acquisition_cost || '');
+                    setFieldValue('edit_salvage_value', depData.salvage_value || '');
+                    setFieldValue('edit_asset_life_months', depData.asset_life_months || '');
+                    setFieldValue('edit_date_acquired', depData.date_acquired || '');
 
-                        // Handle depreciation method dropdown
+                    // Handle depreciation method dropdown
                     const depMethodSelect = document.getElementById('edit_depreciation_method');
-                        const depreciationMethod = depData.depreciation_method || '';
+                    const depreciationMethod = depData.depreciation_method || '';
 
-                        if (depMethodSelect && depreciationMethod) {
-                            // Try exact match first
-                            let found = false;
+                    if (depMethodSelect && depreciationMethod) {
+                        // Try exact match first
+                        let found = false;
+                        for (let i = 0; i < depMethodSelect.options.length; i++) {
+                            if (depMethodSelect.options[i].value === depreciationMethod) {
+                                depMethodSelect.selectedIndex = i;
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        // If no exact match, try fuzzy match
+                        if (!found) {
+                            const methodLower = depreciationMethod.toLowerCase();
                             for (let i = 0; i < depMethodSelect.options.length; i++) {
-                                if (depMethodSelect.options[i].value === depreciationMethod) {
+                                const optionText = depMethodSelect.options[i].textContent.toLowerCase();
+                                if (optionText.includes(methodLower) || methodLower.includes(optionText)) {
                                     depMethodSelect.selectedIndex = i;
-                                    found = true;
                                     break;
                                 }
                             }
-
-                            // If no exact match, try fuzzy match
-                            if (!found) {
-                                const methodLower = depreciationMethod.toLowerCase();
-                                for (let i = 0; i < depMethodSelect.options.length; i++) {
-                                    const optionText = depMethodSelect.options[i].textContent.toLowerCase();
-                                    if (optionText.includes(methodLower) || methodLower.includes(optionText)) {
-                                        depMethodSelect.selectedIndex = i;
-                                        break;
-                                    }
-                                }
-                            }
                         }
-                    } else {
-                        toggleDepreciationFields(depreciationFields, false);
                     }
+                } else {
+                    toggleDepreciationFields(depreciationFields, false);
                 }
-
-                // Update user selection display
-                if (asset.user_id) {
-                    // Log information for debugging
-                    console.log('Updating user field for user_id:', asset.user_id);
-
-                    // Set the hidden input for user ID
-                    setFieldValue('edit_selected_user_id', asset.user_id);
-
-                    // Find user in the global users data by user_id
-                    const users = window.usersData || [];
-                    console.log('Available users data:', users);
-
-                    const user = users.find(u => u.user_id == asset.user_id);
-                    console.log('Found user in global data:', user);
-
-                    // Check asset.user data
-                    console.log('User data from asset:', asset.user);
-
-                    // Start with User ID as fallback
-                    let userDisplay = `User ID: ${asset.user_id}`;
-
-                    // Check user from global data
-                    if (user) {
-                        if (user.employee_number) {
-                            userDisplay = user.employee_number;
-                            console.log('Using employee_number from global data:', user.employee_number);
-                        } else if (user.name) {
-                            userDisplay = user.name;
-                            console.log('Using name from global data:', user.name);
-                        }
-                    }
-                    // Try from the asset.user data if available
-                    else if (asset.user) {
-                        if (asset.user.employee_number) {
-                            userDisplay = asset.user.employee_number;
-                            console.log('Using employee_number from asset.user:', asset.user.employee_number);
-                        } else if (asset.user.name) {
-                            userDisplay = asset.user.name;
-                            console.log('Using name from asset.user:', asset.user.name);
-                        }
-                    }
-
-                    console.log('Final user display value:', userDisplay);
-                    document.getElementById('edit_user_search').value = userDisplay;
-                }
-
+            }
         })
         .catch(error => {
             console.error('Error fetching asset data:', error);
-            alert('Failed to load asset data. Please try again: ' + error.message);
+            alert('Gagal memuat data aset: ' + error.message);
         });
-        };
+    };
 
         // Initialize the asset master dropdown handlers once
         function initAssetMasterListeners() {
@@ -1431,7 +1411,7 @@
                 const assetIds = Array.from(checkedAssets).map(checkbox => checkbox.getAttribute('data-asset-id'));
 
                 if (assetIds.length === 0) {
-                    alert('Please select at least one asset to print QR codes.');
+                    alert('Silakan pilih setidaknya satu aset untuk mencetak kode QR.');
                     return;
                 }
 
@@ -1570,20 +1550,6 @@
 
                     document.body.appendChild(form);
                     form.submit();
-
-                    // Show notification
-                    const notification = document.getElementById('printQRPDFNotification');
-                    if (notification) {
-                        notification.classList.remove('hidden');
-                        setTimeout(() => {
-                            notification.classList.add('hidden');
-                        }, 5000);
-                    }
-
-                    // Reload the current page after a short delay
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 500);
                 });
             }
         }
@@ -1637,7 +1603,8 @@
                         searchTerm = searchTerm.toLowerCase();
                         rooms = rooms.filter(room =>
                             (room.room_name && room.room_name.toLowerCase().includes(searchTerm)) ||
-                            (room.building_name && room.building_name.toLowerCase().includes(searchTerm))
+                            (room.building_name && room.building_name.toLowerCase().includes(searchTerm)) ||
+                            (room.building && room.building.building_name && room.building.building_name.toLowerCase().includes(searchTerm))
                         );
                     }
 
@@ -1650,15 +1617,22 @@
                     if (rooms.length === 0) {
                         const noResults = document.createElement('li');
                         noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'No rooms found';
+                        noResults.textContent = 'Ruangan tidak ditemukan';
                         roomList.appendChild(noResults);
                     } else {
                         rooms.forEach(room => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                            li.textContent = `${room.room_name} (${room.building_name || 'Unknown Building'})`;
+
+                            // Get building name with fallbacks
+                            const buildingName = room.building ? room.building.building_name :
+                                           (room.building_name || 'Gedung Tidak Diketahui');
+
+                            const roomDisplay = `${room.room_name} (${buildingName})`;
+
+                            li.textContent = roomDisplay;
                             li.setAttribute('data-id', room.room_id);
-                            li.setAttribute('data-name', `${room.room_name} (${room.building_name || 'Unknown Building'})`);
+                            li.setAttribute('data-name', roomDisplay);
 
                             li.addEventListener('click', function() {
                                 // Set the selected room ID and name
@@ -1669,6 +1643,11 @@
 
                                 // Update the search input
                                 searchInput.value = this.getAttribute('data-name');
+
+                                // Show selected room display if available
+                                if (selectedRoomDisplay) {
+                                    selectedRoomDisplay.classList.remove('hidden');
+                                }
 
                                 // Hide dropdown
                                 dropdown.classList.add('hidden');
@@ -1681,7 +1660,7 @@
                     console.error('Error loading rooms:', error);
                     const errorItem = document.createElement('li');
                     errorItem.className = 'px-4 py-2 text-red-500';
-                    errorItem.textContent = 'Error loading rooms';
+                    errorItem.textContent = 'Galat memuat ruangan';
                     roomList.appendChild(errorItem);
                 } finally {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
@@ -1746,7 +1725,7 @@
                     if (assetMasters.length === 0) {
                         const noResults = document.createElement('li');
                         noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'No asset masters found';
+                        noResults.textContent = 'Master aset tidak ditemukan';
                         assetMasterList.appendChild(noResults);
                     } else {
                         assetMasters.forEach(item => {
@@ -1792,7 +1771,7 @@
                     console.error('Error loading asset masters:', error);
                     const errorItem = document.createElement('li');
                     errorItem.className = 'px-4 py-2 text-red-500';
-                    errorItem.textContent = 'Error loading asset masters';
+                    errorItem.textContent = 'Galat memuat master aset';
                     assetMasterList.appendChild(errorItem);
                 } finally {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
@@ -1858,7 +1837,7 @@
                     if (users.length === 0) {
                         const noResults = document.createElement('li');
                         noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'No users found';
+                        noResults.textContent = 'Pengguna tidak ditemukan';
                         userList.appendChild(noResults);
                     } else {
                         users.forEach(user => {
@@ -1904,7 +1883,7 @@
                     console.error('Error loading users:', error);
                     const errorItem = document.createElement('li');
                     errorItem.className = 'px-4 py-2 text-red-500';
-                    errorItem.textContent = 'Error processing user data';
+                    errorItem.textContent = 'Galat memproses data pengguna';
                     userList.appendChild(errorItem);
                 } finally {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
@@ -1981,7 +1960,7 @@
         function checkUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('success')) {
-                alert('Asset updated successfully!');
+                alert('Aset berhasil diperbarui!');
             }
         }
 
@@ -2040,7 +2019,7 @@
 
                     if (!['xlsx', 'xls', 'csv'].includes(fileExt)) {
                         if (excelErrorMsg) {
-                            excelErrorMsg.textContent = 'Invalid file type. Please upload an Excel file (.xlsx, .xls) or CSV file.';
+                            excelErrorMsg.textContent = 'Jenis file tidak valid. Silakan unggah file Excel (.xlsx, .xls) atau CSV.';
                             excelErrorMsg.classList.remove('hidden');
                         }
                         this.value = '';
@@ -2073,7 +2052,7 @@
             previewBtn.addEventListener('click', function() {
                 if (!excelFile || !excelFile.files || !excelFile.files[0]) {
                     if (excelErrorMsg) {
-                        excelErrorMsg.textContent = 'Please select a file first.';
+                        excelErrorMsg.textContent = 'Silakan pilih file terlebih dahulu.';
                         excelErrorMsg.classList.remove('hidden');
                     }
                     return;
@@ -2125,7 +2104,7 @@
                     console.error('FileReader error:', reader.error);
                     if (excelLoadingIndicator) excelLoadingIndicator.classList.add('hidden');
                     if (excelErrorMsg) {
-                        excelErrorMsg.textContent = 'Error reading the file. Please try another file.';
+                        excelErrorMsg.textContent = 'Galat membaca file. Silakan coba file lain.';
                         excelErrorMsg.classList.remove('hidden');
                     }
                 };
@@ -2230,15 +2209,15 @@
 
                 // Validate required fields
                 if (!item.asset_master_id) {
-                    warnings.push(`Row ${rowIndex + 1}: Missing Asset Master ID`);
+                    warnings.push(`Row ${rowIndex + 1}:  Asset Master ID Tidak Ditemukan`);
                 }
 
                 if (!item.serial_number) {
-                    warnings.push(`Row ${rowIndex + 1}: Missing Serial Number`);
+                    warnings.push(`Row ${rowIndex + 1}: Nomor Seri Tidak Ditemukan`);
                 }
 
                 if (!item.room_id) {
-                    warnings.push(`Row ${rowIndex + 1}: Missing Room ID`);
+                    warnings.push(`Row ${rowIndex + 1}: ID Ruangan Tidak Ditemukan`);
                 }
 
                 // Add row index for reference
@@ -2261,7 +2240,7 @@
             // Add duplicate warnings
             Object.entries(serialNumberMap).forEach(([serialNumber, rows]) => {
                 if (rows.length > 1) {
-                    warnings.push(`Duplicate Serial Number "${serialNumber}" found in rows: ${rows.join(', ')}`);
+                    warnings.push(`Nomor Seri Duplikat "${serialNumber}" ditemukan di baris: ${rows.join(', ')}`);
                 }
             });
 
@@ -2287,7 +2266,7 @@
             if (warningsContainer) warningsContainer.classList.add('hidden');
 
             // Update count
-            previewCount.textContent = `${data.length} items found`;
+            previewCount.textContent = `${data.length} item ditemukan`;
 
             // Generate table rows
             data.forEach((item, index) => {
@@ -2313,8 +2292,8 @@
                     if (typeof item[field] === 'boolean') {
                         const isTrue = item[field];
                         cell.innerHTML = isTrue ?
-                            '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Yes</span>' :
-                            '<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">No</span>';
+                            '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Ya</span>' :
+                            '<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">Tidak</span>';
                     } else {
                         cell.textContent = item[field] || '-';
                     }
@@ -2337,9 +2316,9 @@
                 // Disable import button if there are critical warnings
                 const importBtn = document.getElementById('import-btn');
                 const hasCriticalWarnings = warnings.some(warning =>
-                    warning.includes('Missing Asset Master ID') ||
-                    warning.includes('Missing Serial Number') ||
-                    warning.includes('Missing Room ID')
+                    warning.includes('Asset Master ID Tidak Ditemukan') ||
+                    warning.includes('Nomor Seri Tidak Ditemukan') ||
+                    warning.includes('ID Ruangan Tidak Ditemukan')
                 );
 
                 if (importBtn && hasCriticalWarnings) {
@@ -2373,7 +2352,7 @@
             importBtn.innerHTML = `
                 <div class="flex items-center justify-center">
                     <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    <span>Importing...</span>
+                    <span>Mengimpor...</span>
                 </div>
             `;
 
@@ -2414,7 +2393,7 @@
                     closeModal(modal);
 
                     // Show success notification
-                    showNotification('success', data.message || 'Assets imported successfully!');
+                    showNotification('success', data.message || 'Aset berhasil diimpor!');
 
                     // Reload the page to show updated data
                     setTimeout(() => {
@@ -2425,7 +2404,7 @@
                     console.error('Import error:', data);
 
                     // Show error notification toast (outside the modal)
-                    let errorMessage = data.message || 'An error occurred during import.';
+                    let errorMessage = data.message || 'Galat terjadi selama pengimporan.';
 
                     // Check for detailed error information in the API response
                     if (data.data && data.data.errors && Array.isArray(data.data.errors)) {

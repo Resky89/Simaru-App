@@ -188,7 +188,7 @@
                                         <label class="block text-base font-semibold text-[#666666]">Nama Role</label>
                                         <input type="text" name="role_name"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Masukkan nama role"
+                                            placeholder="Masukkan nama role">
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Role Name is required</div>
                                     </div>
 
@@ -268,7 +268,7 @@
                                         <label class="block text-base font-semibold text-[#666666]">Nama Role</label>
                                         <input type="text" id="edit_role_name" name="role_name"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Masukkan nama role"
+                                            placeholder="Masukkan nama role">
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Nama Role wajib diisi</div>
                                     </div>
 
@@ -380,8 +380,9 @@
             notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
             notification.role = 'alert';
 
-            // Check if message contains HTML
-            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+            // Check if message contains HTML or is an array
+            const hasHTML = typeof message === 'string' && /<[a-z][\s\S]*>/i.test(message);
+            const isArray = Array.isArray(message);
 
             if (type === 'success') {
                 notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
@@ -429,8 +430,16 @@
                 const messageContainer = document.createElement('div');
                 messageContainer.className = 'error-message';
 
-                // Handle HTML content
-                if (hasHTML) {
+                // Handle different message formats
+                if (isArray) {
+                    // Format array as HTML list
+                    let htmlContent = '<ul class="mt-2 ml-4 list-disc">';
+                    message.forEach(item => {
+                        htmlContent += `<li>${item}</li>`;
+                    });
+                    htmlContent += '</ul>';
+                    messageContainer.innerHTML = htmlContent;
+                } else if (hasHTML) {
                     messageContainer.innerHTML = message;
                 } else {
                     messageContainer.textContent = message;
@@ -507,6 +516,30 @@
                 url.searchParams.set('role_limit', limit);
                 url.searchParams.set('role_page', 1); // Reset to first page when changing limit
                 window.location.href = url.toString();
+            }
+
+            // Get all modal elements
+            const addRoleModal = document.getElementById('addRoleModal');
+            const editRoleModal = document.getElementById('editRoleModal');
+            const deleteRoleModal = document.getElementById('deleteRoleModal');
+            const closeButtons = document.querySelectorAll('.close-modal');
+
+            // Function to open modal
+            function openModal(modal, content) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                }, 10);
+            }
+
+            // Function to close modal
+            function closeModal(modal, content) {
+                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
             }
 
             // Function to fetch permissions

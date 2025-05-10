@@ -368,7 +368,6 @@ class UserController extends Controller
                 ]);
 
                 // Format error message for redirect
-                $errorMessage = '';
                 if (is_array($errorData)) {
                     // If it's a nested array of field => [messages]
                     $errorArray = [];
