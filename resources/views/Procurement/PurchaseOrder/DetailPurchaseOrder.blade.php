@@ -37,38 +37,51 @@
                 <div class="grid grid-cols-1 gap-5">
                     <!-- PO ID -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor Pemesanan</p>
+                        <p class="w-40 text-[#666666] font-medium">Nomor Pemesanan</p>
                         <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $purchaseOrder['purchase_order_code'] }}</p>
                     </div>
 
                     <!-- Comparison ID -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Penawaran</p>
+                        <p class="w-40 text-[#666666] font-medium">Nomor Penawaran</p>
                         <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $purchaseOrder['comparison_code'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- Vendor -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Vendor</p>
+                        <p class="w-40 text-[#666666] font-medium">Vendor</p>
                         <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $purchaseOrder['vendor']['vendor_name'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- PIC -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Penanggung Jawab</p>
+                        <p class="w-40 text-[#666666] font-medium">Penanggung Jawab</p>
                         <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $purchaseOrder['vendor']['contact_person'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- PIC Contact -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Kontak Penanggung Jawab</p>
+                        <p class="w-40 text-[#666666] font-medium">Kontak Penanggung Jawab</p>
                         <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $purchaseOrder['vendor']['phone_number'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- PO Date -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Pemesanan</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ isset($purchaseOrder['created_at']) ? \Carbon\Carbon::parse($purchaseOrder['created_at'])->format('d M Y') : 'N/A' }}</p>
+                        <p class="w-40 text-[#666666] font-medium">Tanggal Pemesanan</p>
+                        <p class="text-[#666666]"><span class="sm:hidden">: </span>
+                            @if(isset($purchaseOrder['created_at']))
+                                @php
+                                    $date = \Carbon\Carbon::parse($purchaseOrder['created_at']);
+                                    $monthsIndonesian = [
+                                        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                                    ];
+                                    echo $date->format('d') . ' ' . $monthsIndonesian[$date->format('n')] . ' ' . $date->format('Y');
+                                @endphp
+                            @else
+                                N/A
+                            @endif
+                        </p>
                     </div>
                 </div>
 

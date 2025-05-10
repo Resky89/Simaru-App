@@ -41,7 +41,7 @@
                 <div class="grid grid-cols-1 gap-5">
                     <!-- Request Number -->
                     <div class="flex items-start gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Kode Penawaran</p>
+                        <p class="w-40 text-[#666666] font-medium">Nomor Penawaran</p>
                         <p class="text-[#666666]">: <span id="requestNumber">{{ $comparison['comparison_code'] ?? 'N/A' }}</span></p>
                     </div>
 
@@ -64,12 +64,11 @@
                             @if(isset($comparison['created_at']))
                                 @php
                                     $date = \Carbon\Carbon::parse($comparison['created_at']);
-                                    $indonesianMonths = [
-                                        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-                                        'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+                                    $monthsIndonesian = [
+                                        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
                                     ];
-                                    $month = $indonesianMonths[$date->month - 1];
-                                    echo $date->format('d') . ' ' . $month . ' ' . $date->format('Y');
+                                    echo $date->format('d') . ' ' . $monthsIndonesian[$date->format('n')] . ' ' . $date->format('Y');
                                 @endphp
                             @else
                                 N/A

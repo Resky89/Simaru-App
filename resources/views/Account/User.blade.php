@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'User Management')
+@section('title', 'Manajemen Pengguna')
 
 @section('content')
     <div class="h-full space-y-4 md:space-y-6">
@@ -10,7 +10,7 @@
                 <div class="flex flex-col gap-6">
                     <!-- Header -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">USER</h1>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PENGGUNA</h1>
 
                         <!-- Button Add User -->
                         <button id="addUserBtn"
@@ -21,8 +21,37 @@
                                 <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
                                     stroke-linecap="round" />
                             </svg>
-                            <span class="text-base">Add User</span>
+                            <span class="text-base">Tambah Pengguna</span>
                         </button>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="relative flex-grow">
+                            <input type="text" id="searchInput" placeholder="Cari berdasarkan nomor pegawai..."
+                                class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-4">
+                            <select id="statusFilter"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" selected>Semua Status</option>
+                                <option value="active">Aktif</option>
+                                <option value="inactive">Tidak Aktif</option>
+                            </select>
+
+                            <select id="sortOrder"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" selected>Urutan Default</option>
+                                <option value="id_asc">Terlama</option>
+                                <option value="id_desc">Terbaru</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- User Table -->
@@ -30,24 +59,16 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
-                                        <input type="checkbox" class="checkbox checkbox-sm" />
-                                    </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">User ID</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Employee Number</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Roles</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nomor Pegawai</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Peran</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Status</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($users ?? [] as $user)
                                     <tr>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                            <input type="checkbox" class="checkbox checkbox-sm" />
-                                        </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $user['user_id'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $user['employee_number'] ?? '-' }}
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
@@ -66,26 +87,24 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             <span
                                                 class="px-2 py-1 rounded text-xs {{ ($user['is_active'] ?? false) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                {{ ($user['is_active'] ?? false) ? 'Active' : 'Inactive' }}
+                                                {{ ($user['is_active'] ?? false) ? 'Aktif' : 'Tidak Aktif' }}
                                             </span>
                                         </td>
-                                        <td class="p-3 border-t border-[#EEF1F4]">
-                                            <div class="flex justify-center gap-2">
-                                                <button class="text-[#3D3D3D] hover:text-[#213268] edit-user-btn"
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            <div class="flex items-center space-x-2 justify-center">
+                                                <button class="edit-user-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                     data-user-id="{{ $user['user_id'] }}"
                                                     data-employee-number="{{ $user['employee_number'] }}"
                                                     data-role-ids="{{ isset($user['roles']) ? json_encode(array_column($user['roles'], 'role_id')) : '[]' }}"
                                                     data-is-active="{{ $user['is_active'] ? 'true' : 'false' }}">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
-                                                <button class="text-[#3D3D3D] hover:text-red-500 delete-user-btn"
+                                                <button class="delete-user-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                                                     data-user-id="{{ $user['user_id'] }}">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
                                             </div>
@@ -93,7 +112,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No users found
+                                        <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada pengguna ditemukan
                                         </td>
                                     </tr>
                                 @endforelse
@@ -111,7 +130,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 19l-7-7 7-7" />
                                 </svg>
-                                Prev
+                                Sebelumnya
                             </a>
                             <div class="flex gap-2">
                                 @php
@@ -159,7 +178,7 @@
                             </div>
                             <a href="{{ $user_pagination['next_page_url'] ?? '#' }}"
                                 class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($user_pagination['current_page'] ?? 1) >= ($user_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
-                                Next
+                                Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -171,24 +190,24 @@
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-600">
                                 @if(isset($user_pagination) && is_array($user_pagination))
-                                                            @php
-                                                                $currentPage = $user_pagination['current_page'] ?? 1;
-                                                                $perPage = $user_pagination['per_page'] ?? 10;
-                                                                $total = $user_pagination['total'] ?? count($users ?? []);
-                                                                $from = ($currentPage - 1) * $perPage + 1;
-                                                                $to = min($currentPage * $perPage, $total);
-                                                            @endphp
-                                                            Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                                    @php
+                                        $currentPage = $user_pagination['current_page'] ?? 1;
+                                        $perPage = $user_pagination['per_page'] ?? 10;
+                                        $total = $user_pagination['total'] ?? count($users ?? []);
+                                        $from = ($currentPage - 1) * $perPage + 1;
+                                        $to = min($currentPage * $perPage, $total);
+                                    @endphp
+                                    Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} entri
                                 @else
-                                    Showing 1 to {{ count($users ?? []) }} of {{ count($users ?? []) }} entries
+                                    Menampilkan 1 sampai {{ count($users ?? []) }} dari {{ count($users ?? []) }} entri
                                 @endif
                             </span>
                             <select id="userPerPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                 onchange="changeUserPerPage(this.value)">
-                                <option value="10" {{ isset($user_pagination['per_page']) && $user_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per page</option>
-                                <option value="25" {{ isset($user_pagination['per_page']) && $user_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per page</option>
-                                <option value="50" {{ isset($user_pagination['per_page']) && $user_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per page</option>
+                                <option value="10" {{ isset($user_pagination['per_page']) && $user_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                                <option value="25" {{ isset($user_pagination['per_page']) && $user_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                                <option value="50" {{ isset($user_pagination['per_page']) && $user_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -206,7 +225,7 @@
                         id="addUserModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">ADD USER</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH PENGGUNA</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="addUserModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,55 +242,33 @@
                                 <div class="space-y-4 max-w-[400px] mx-auto">
                                     <!-- Employee Number Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Employee Number</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Nomor Pegawai</label>
                                         <input type="text" name="employee_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Enter employee number" required>
+                                            placeholder="Masukkan nomor pegawai" required>
                                     </div>
 
                                     <!-- Password Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Password</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Kata Sandi</label>
                                         <input type="password" name="password"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Enter password" required>
+                                            placeholder="Masukkan kata sandi" required autocomplete="new-password">
                                     </div>
 
                                     <!-- Roles Selection for Add User Modal -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Roles</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Peran</label>
                                         <div class="relative">
-                                            <div
-                                                class="w-full min-h-[45px] px-3 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus-within:border-[#213268] focus-within:ring-2 focus-within:ring-[#213268] focus-within:ring-opacity-20 transition-all duration-200">
-                                                <div class="flex flex-wrap gap-2 mb-1">
-                                                    <div id="add-selected-roles-display" class="flex flex-wrap gap-2"></div>
-                                                    <div class="relative flex-grow min-w-[120px]">
-                                                        <input type="text" id="add-roles-input"
-                                                            class="w-full border-none focus:ring-0 p-0 py-1 text-sm bg-transparent"
-                                                            placeholder="Type to search roles">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 pointer-events-none">
-                                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 9l-7 7-7-7"></path>
-                                                </svg>
-                                            </div>
-                                            <div id="add-roles-dropdown"
-                                                class="absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg shadow-lg max-h-[200px] overflow-y-auto hidden">
-                                                @foreach($roles['data'] as $role)
-                                                    <div class="p-2 hover:bg-gray-50 role-option cursor-pointer"
-                                                        data-role-id="{{ $role['role_id'] }}"
-                                                        data-role-name="{{ $role['role_name'] }}" data-target="add">
-                                                        <span class="text-sm text-gray-700">{{ $role['role_name'] }}</span>
-                                                    </div>
-                                                @endforeach
+                                            <input type="text" id="add-roles-input" placeholder="Cari peran..."
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                autocomplete="off">
+                                            <div id="add-roles-dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <!-- Loading indicator and role options will be added dynamically -->
                                             </div>
                                         </div>
                                         <div id="add-role-hidden-inputs"></div>
+                                        <div id="add-selected-roles-display" class="flex flex-wrap gap-2 mt-2"></div>
                                     </div>
 
                                     <!-- Active Status -->
@@ -279,8 +276,8 @@
                                         <label class="block text-base font-semibold text-[#666666]">Status</label>
                                         <select name="is_active"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                            <option value="1" selected>Active</option>
-                                            <option value="0">Inactive</option>
+                                            <option value="1" selected>Aktif</option>
+                                            <option value="0">Tidak Aktif</option>
                                         </select>
                                     </div>
 
@@ -288,7 +285,7 @@
                                     <div class="pt-4">
                                         <button type="submit"
                                             class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                            Save
+                                            Simpan
                                         </button>
                                     </div>
                                 </div>
@@ -308,7 +305,7 @@
                         id="editUserModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT USER</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT PENGGUNA</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="editUserModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,48 +323,25 @@
                                 <div class="space-y-4 max-w-[400px] mx-auto">
                                     <!-- Employee Number Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Employee Number</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Nomor Pegawai</label>
                                         <input type="text" id="edit_employee_number" name="employee_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Enter employee number" required>
+                                            placeholder="Masukkan nomor pegawai" required>
                                     </div>
 
                                     <!-- Roles Selection for Edit User Modal -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Roles</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Peran</label>
                                         <div class="relative">
-                                            <div
-                                                class="w-full min-h-[45px] px-3 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus-within:border-[#213268] focus-within:ring-2 focus-within:ring-[#213268] focus-within:ring-opacity-20 transition-all duration-200">
-                                                <div class="flex flex-wrap gap-2 mb-1">
-                                                    <div id="edit-selected-roles-display" class="flex flex-wrap gap-2">
-                                                    </div>
-                                                    <div class="relative flex-grow min-w-[120px]">
-                                                        <input type="text" id="edit-roles-input"
-                                                            class="w-full border-none focus:ring-0 p-0 py-1 text-sm bg-transparent"
-                                                            placeholder="Type to search roles">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 pointer-events-none">
-                                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 9l-7 7-7-7"></path>
-                                                </svg>
-                                            </div>
-                                            <div id="edit-roles-dropdown"
-                                                class="absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg shadow-lg max-h-[200px] overflow-y-auto hidden">
-                                                @foreach($roles['data'] as $role)
-                                                    <div class="p-2 hover:bg-gray-50 role-option cursor-pointer"
-                                                        data-role-id="{{ $role['role_id'] }}"
-                                                        data-role-name="{{ $role['role_name'] }}" data-target="edit">
-                                                        <span class="text-sm text-gray-700">{{ $role['role_name'] }}</span>
-                                                    </div>
-                                                @endforeach
+                                            <input type="text" id="edit-roles-input" placeholder="Cari peran..."
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                autocomplete="off">
+                                            <div id="edit-roles-dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <!-- Loading indicator and role options will be added dynamically -->
                                             </div>
                                         </div>
                                         <div id="edit-role-hidden-inputs"></div>
+                                        <div id="edit-selected-roles-display" class="flex flex-wrap gap-2 mt-2"></div>
                                     </div>
 
                                     <!-- Active Status -->
@@ -375,8 +349,8 @@
                                         <label class="block text-base font-semibold text-[#666666]">Status</label>
                                         <select id="edit_is_active" name="is_active"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                            <option value="1">Active</option>
-                                            <option value="0">Inactive</option>
+                                            <option value="1">Aktif</option>
+                                            <option value="0">Tidak Aktif</option>
                                         </select>
                                     </div>
 
@@ -384,7 +358,7 @@
                                     <div class="pt-4">
                                         <button type="submit"
                                             class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                            Update
+                                            Perbarui
                                         </button>
                                     </div>
                                 </div>
@@ -404,7 +378,7 @@
                         id="deleteUserModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE USER</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS PENGGUNA</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="deleteUserModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -426,18 +400,18 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <p class="text-base text-gray-600 text-center">Are you sure you want to delete this
-                                            user? This action cannot be undone.</p>
+                                        <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus
+                                            pengguna ini? Tindakan ini tidak dapat dibatalkan.</p>
                                     </div>
                                     <div class="flex gap-3">
                                         <button type="button"
                                             class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
                                             data-modal="deleteUserModal">
-                                            Cancel
+                                            Batal
                                         </button>
                                         <button type="submit"
                                             class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                            Delete
+                                            Hapus
                                         </button>
                                     </div>
                                 </div>
@@ -462,167 +436,324 @@
             setupRoleSearch('add-roles-input', 'add-roles-dropdown', 'add-selected-roles-display', 'add-role-hidden-inputs');
             setupRoleSearch('edit-roles-input', 'edit-roles-dropdown', 'edit-selected-roles-display', 'edit-role-hidden-inputs');
 
-            // Setup role search functionality
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                // Set initial value from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                searchInput.value = urlParams.get('search') || '';
+
+                // Add debounce for search
+                let searchTimeout;
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(applyFilters, 500);
+                });
+            }
+
+            // Function to apply all filters and sorting
+            function applyFilters() {
+                const searchTerm = document.getElementById('searchInput').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+                const sortOrder = document.getElementById('sortOrder').value;
+
+                // Construct URL with filters
+                const url = new URL(window.location.href);
+
+                // Set search parameter
+                if (searchTerm) url.searchParams.set('search', searchTerm);
+                else url.searchParams.delete('search');
+
+                // Set status parameter
+                if (statusFilter) url.searchParams.set('status', statusFilter);
+                else url.searchParams.delete('status');
+
+                // Set sort parameter
+                if (sortOrder) url.searchParams.set('sort', sortOrder);
+                else url.searchParams.delete('sort');
+
+                // Reset to page 1 when filters change
+                url.searchParams.set('user_page', 1);
+
+                // Navigate to the new URL
+                window.location.href = url.toString();
+            }
+
+            // Add event listeners for dropdown filters
+            const statusFilterSelect = document.getElementById('statusFilter');
+            if (statusFilterSelect) {
+                // Set initial value from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('status')) {
+                    statusFilterSelect.value = urlParams.get('status');
+                }
+
+                statusFilterSelect.addEventListener('change', applyFilters);
+            }
+
+            // Add event listener for sort order
+            const sortOrderSelect = document.getElementById('sortOrder');
+            if (sortOrderSelect) {
+                // Set initial value from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('sort')) {
+                    sortOrderSelect.value = urlParams.get('sort');
+                }
+
+                sortOrderSelect.addEventListener('change', applyFilters);
+            }
+
+            // Function to set up role search
             function setupRoleSearch(inputId, dropdownId, displayContainerId, hiddenInputsId) {
                 const input = document.getElementById(inputId);
                 const dropdown = document.getElementById(dropdownId);
                 const displayContainer = document.getElementById(displayContainerId);
                 const hiddenInputsContainer = document.getElementById(hiddenInputsId);
+
+                if (!input || !dropdown || !displayContainer || !hiddenInputsContainer) return;
+
                 const inputContainer = input.closest('.relative');
 
                 // Store selected roles
                 const selectedRoles = new Map();
 
+                // Create loading indicator
+                const loadingIndicator = document.createElement('div');
+                loadingIndicator.className = 'flex justify-center py-2';
+                loadingIndicator.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                `;
+                loadingIndicator.id = `${inputId}-loading`;
+                loadingIndicator.style.display = 'none';
+                dropdown.appendChild(loadingIndicator);
+
+                // Create roles list container
+                const rolesListContainer = document.createElement('div');
+                rolesListContainer.id = `${inputId}-list`;
+                rolesListContainer.className = 'max-h-56 overflow-y-auto';
+                dropdown.appendChild(rolesListContainer);
+
+                // Ensure dropdown has proper z-index and positioning
+                dropdown.style.zIndex = '50';
+
+                // Create the custom input container that will hold the selected roles and the actual input
+                const customInputContainer = document.createElement('div');
+                customInputContainer.className = 'flex flex-wrap items-start gap-1 w-full h-full p-2 overflow-auto';
+
+                // Move the input into the new container
+                const parent = input.parentNode;
+                input.classList.add('flex-grow');
+                input.classList.add('min-w-[80px]');
+                input.classList.add('outline-none');
+                input.classList.add('bg-transparent');
+                input.style.boxShadow = 'none';
+                input.style.border = 'none';
+                input.style.padding = '0';
+                input.style.margin = '0';
+                input.style.height = 'auto';
+
+                // Create a wrapper that will replace the input
+                const wrapper = document.createElement('div');
+                wrapper.className = 'w-full min-h-[45px] h-auto max-h-[200px] overflow-y-auto px-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus-within:outline-none focus-within:border-[#213268] focus-within:ring-2 focus-within:ring-[#213268] focus-within:ring-opacity-20 transition-all duration-200';
+
+                // Replace input with wrapper and move input inside the custom container
+                parent.replaceChild(wrapper, input);
+                wrapper.appendChild(customInputContainer);
+                customInputContainer.appendChild(input);
+
+                // Debounce function for search
+                function debounce(func, wait) {
+                    let timeout;
+                    return function() {
+                        const context = this, args = arguments;
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => func.apply(context, args), wait);
+                    };
+                }
+
                 // Show dropdown when input is focused
-                input.addEventListener('focus', function () {
-                    if (this.value.trim() === '') {
-                        // Show all available options
-                        const options = dropdown.querySelectorAll('.role-option');
-                        options.forEach(option => {
-                            const roleId = option.getAttribute('data-role-id');
-                            if (!selectedRoles.has(roleId)) {
-                                option.classList.remove('hidden');
-                            } else {
-                                option.classList.add('hidden');
-                            }
-                        });
+                input.addEventListener('focus', function() {
+                    dropdown.classList.remove('hidden');
+                    filterAndDisplayRoles('');
+                    wrapper.classList.add('border-[#213268]', 'ring-2', 'ring-[#213268]', 'ring-opacity-20');
+                });
 
-                        dropdown.classList.remove('hidden');
+                // Also handle click on input to show dropdown (helps with mobile)
+                input.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent event from bubbling to wrapper
+                    dropdown.classList.remove('hidden');
+                    filterAndDisplayRoles('');
+                });
+
+                // Remove focus styles when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!wrapper.contains(e.target) && !dropdown.contains(e.target)) {
+                        wrapper.classList.remove('border-[#213268]', 'ring-2', 'ring-[#213268]', 'ring-opacity-20');
                     }
                 });
 
-                // Filter options while typing
-                input.addEventListener('input', function () {
-                    const searchTerm = this.value.toLowerCase().trim();
-
-                    if (searchTerm.length > 0) {
-                        // Show dropdown
-                        dropdown.classList.remove('hidden');
-
-                        // Filter options
-                        const options = dropdown.querySelectorAll('.role-option');
-                        let hasVisibleOptions = false;
-
-                        options.forEach(option => {
-                            const roleName = option.getAttribute('data-role-name').toLowerCase();
-                            const roleId = option.getAttribute('data-role-id');
-
-                            // Hide already selected roles and non-matching roles
-                            if (selectedRoles.has(roleId) || !roleName.includes(searchTerm)) {
-                                option.classList.add('hidden');
-                            } else {
-                                option.classList.remove('hidden');
-                                hasVisibleOptions = true;
-                            }
-                        });
-
-                        // Hide dropdown if no options match
-                        if (!hasVisibleOptions) {
-                            dropdown.classList.add('hidden');
-                        }
-                    } else {
-                        // Show all available options when input is empty
-                        const options = dropdown.querySelectorAll('.role-option');
-                        let hasVisibleOptions = false;
-
-                        options.forEach(option => {
-                            const roleId = option.getAttribute('data-role-id');
-                            if (!selectedRoles.has(roleId)) {
-                                option.classList.remove('hidden');
-                                hasVisibleOptions = true;
-                            } else {
-                                option.classList.add('hidden');
-                            }
-                        });
-
-                        if (hasVisibleOptions) {
-                            dropdown.classList.remove('hidden');
-                        } else {
-                            dropdown.classList.add('hidden');
-                        }
-                    }
-                });
-
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function (e) {
-                    if (!inputContainer.contains(e.target) && !dropdown.contains(e.target)) {
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!wrapper.contains(e.target) && !dropdown.contains(e.target)) {
                         dropdown.classList.add('hidden');
                     }
                 });
 
-                // Handle role selection
-                dropdown.addEventListener('click', function (e) {
-                    const option = e.target.closest('.role-option');
-                    if (option) {
-                        const roleId = option.getAttribute('data-role-id');
-                        const roleName = option.getAttribute('data-role-name');
+                // Filter options while typing with debounce
+                input.addEventListener('input', debounce(function() {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    filterAndDisplayRoles(searchTerm);
+                }, 300));
 
-                        // Add role if not already selected
-                        if (!selectedRoles.has(roleId)) {
-                            selectedRoles.set(roleId, roleName);
+                // Add backspace functionality to remove the last selected role
+                input.addEventListener('keydown', function(e) {
+                    // If backspace key is pressed and input is empty
+                    if (e.key === 'Backspace' && this.value === '') {
+                        // Get the last role ID from the selected roles
+                        if (selectedRoles.size > 0) {
+                            // Convert Map to array and get the last key
+                            const roleIds = Array.from(selectedRoles.keys());
+                            const lastRoleId = roleIds[roleIds.length - 1];
+
+                            // Delete the last role
+                            selectedRoles.delete(lastRoleId);
+
+                            // Update the UI
                             renderSelectedRoles();
-                        }
 
-                        // Clear input and hide dropdown
-                        input.value = '';
-
-                        // Show all unselected options
-                        const options = dropdown.querySelectorAll('.role-option');
-                        let hasVisibleOptions = false;
-
-                        options.forEach(opt => {
-                            const id = opt.getAttribute('data-role-id');
-                            if (!selectedRoles.has(id)) {
-                                opt.classList.remove('hidden');
-                                hasVisibleOptions = true;
-                            } else {
-                                opt.classList.add('hidden');
-                            }
-                        });
-
-                        if (hasVisibleOptions) {
+                            // Show dropdown with updated options
                             dropdown.classList.remove('hidden');
-                        } else {
-                            dropdown.classList.add('hidden');
-                        }
+                            filterAndDisplayRoles('');
 
-                        // Focus back on input for more selections
-                        input.focus();
+                            // Focus on input
+                            input.focus();
+
+                            // Prevent default backspace behavior
+                            e.preventDefault();
+                        }
                     }
                 });
 
+                // Function to filter and display roles
+                function filterAndDisplayRoles(searchTerm) {
+                    // Show loading indicator
+                    loadingIndicator.style.display = 'flex';
+                    rolesListContainer.innerHTML = '';
+
+                    // Get all available roles
+                    const roles = @json($roles['data'] ?? []);
+
+                    // Filter roles based on search term and exclude already selected roles
+                    let filteredRoles = roles.filter(role => {
+                        // Skip already selected roles
+                        if (selectedRoles.has(role.role_id.toString())) {
+                            return false;
+                        }
+
+                        // If there's a search term, match against it
+                        if (searchTerm) {
+                            return role.role_name.toLowerCase().includes(searchTerm);
+                        }
+
+                        // If no search term, include all non-selected roles
+                        return true;
+                    });
+
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+
+                    // If no roles match search
+                    if (filteredRoles.length === 0) {
+                        const noResults = document.createElement('div');
+                        noResults.className = 'p-2 text-center text-gray-500 italic';
+                        noResults.textContent = 'Tidak ada peran ditemukan';
+                        rolesListContainer.appendChild(noResults);
+                        return;
+                    }
+
+                    // Display filtered roles
+                    filteredRoles.forEach(role => {
+                        const option = document.createElement('div');
+                        option.className = 'p-2 hover:bg-gray-50 role-option cursor-pointer';
+                        option.setAttribute('data-role-id', role.role_id);
+                        option.setAttribute('data-role-name', role.role_name);
+                        option.setAttribute('data-target', inputId.split('-')[0]);
+
+                        option.innerHTML = `<span class="text-sm text-gray-700">${role.role_name}</span>`;
+
+                        option.addEventListener('click', function() {
+                            const roleId = this.getAttribute('data-role-id');
+                            const roleName = this.getAttribute('data-role-name');
+
+                            // Add role if not already selected
+                            if (!selectedRoles.has(roleId)) {
+                                selectedRoles.set(roleId, roleName);
+                                renderSelectedRoles();
+                            }
+
+                            // Clear input and hide dropdown
+                            input.value = '';
+
+                            // Focus back on input for more selections
+                            input.focus();
+
+                            // Make sure dropdown remains visible for additional selections
+                            dropdown.classList.remove('hidden');
+
+                            // Refilter to show remaining options
+                            filterAndDisplayRoles('');
+                        });
+
+                        rolesListContainer.appendChild(option);
+                    });
+                }
+
                 // Render selected roles
                 function renderSelectedRoles() {
-                    // Clear containers
-                    displayContainer.innerHTML = '';
+                    // Clear container except for the input
+                    Array.from(customInputContainer.children).forEach(child => {
+                        if (child !== input) {
+                            customInputContainer.removeChild(child);
+                        }
+                    });
+
+                    // Clear hidden inputs
                     hiddenInputsContainer.innerHTML = '';
+
+                    // Group badges into rows to maximize space
+                    const badgesContainer = document.createElement('div');
+                    badgesContainer.className = 'flex flex-wrap gap-1 w-full';
+                    customInputContainer.insertBefore(badgesContainer, input);
 
                     // Add badges and hidden inputs for each selected role
                     selectedRoles.forEach((roleName, roleId) => {
                         // Create badge
                         const badge = document.createElement('div');
-                        badge.className = 'inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-md text-xs';
+                        badge.className = 'inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-md text-xs my-1';
                         badge.innerHTML = `
-                                            <span>${roleName}</span>
-                                            <span class="cursor-pointer hover:text-red-500 font-medium" data-role-id="${roleId}">×</span>
-                                        `;
+                            <span>${roleName}</span>
+                            <span class="cursor-pointer hover:text-red-500 font-medium" data-role-id="${roleId}">×</span>
+                        `;
 
                         // Remove badge when clicking the x
-                        badge.querySelector('span:last-child').addEventListener('click', function (e) {
-                            e.stopPropagation();
+                        badge.querySelector('span:last-child').addEventListener('click', function(e) {
+                            e.stopPropagation(); // Prevent bubbling up to the container click handler
                             const roleId = this.getAttribute('data-role-id');
                             selectedRoles.delete(roleId);
                             renderSelectedRoles();
+
+                            // Focus back on input
                             input.focus();
 
-                            // Update dropdown to show this option again
-                            const option = dropdown.querySelector(`.role-option[data-role-id="${roleId}"]`);
-                            if (option) {
-                                option.classList.remove('hidden');
-                            }
+                            // Refilter to show this option again
+                            filterAndDisplayRoles(input.value.toLowerCase().trim());
                         });
 
-                        displayContainer.appendChild(badge);
+                        // Add badge to the container
+                        badgesContainer.appendChild(badge);
 
                         // Create hidden input for form submission
                         const hiddenInput = document.createElement('input');
@@ -631,17 +762,53 @@
                         hiddenInput.value = roleId;
                         hiddenInputsContainer.appendChild(hiddenInput);
                     });
+
+                    // Add a flex-break after badges for cleaner layout
+                    if (selectedRoles.size > 0) {
+                        const breakDiv = document.createElement('div');
+                        breakDiv.className = 'w-full flex-basis-100';
+                        customInputContainer.insertBefore(breakDiv, input);
+                    }
+
+                    // Dynamically adjust height based on content
+                    adjustWrapperHeight();
                 }
 
-                // Allow container click to focus the input
-                inputContainer.addEventListener('click', function (e) {
-                    if (e.target === this || e.target.closest('.flex.flex-wrap')) {
-                        input.focus();
+                // Function to adjust wrapper height based on content
+                function adjustWrapperHeight() {
+                    // Reset to default height first
+                    wrapper.style.height = '';
+
+                    // Get the content height
+                    const contentHeight = customInputContainer.scrollHeight;
+
+                    // Set new height, respecting min and max heights
+                    if (contentHeight < 45) {
+                        wrapper.style.height = '45px';
+                    } else if (contentHeight > 200) {
+                        wrapper.style.height = '200px';
+                        wrapper.style.overflowY = 'auto';
+                    } else {
+                        wrapper.style.height = contentHeight + 'px';
+                        wrapper.style.overflowY = 'visible';
                     }
+
+                    // Ensure the input is visible (scroll to it if needed)
+                    if (selectedRoles.size > 0) {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+
+                // Listen for window resize to adjust height
+                window.addEventListener('resize', debounce(adjustWrapperHeight, 100));
+
+                // Allow container click to focus the input
+                wrapper.addEventListener('click', function(e) {
+                    input.focus();
                 });
 
                 // Public method to set selected roles (for edit form)
-                window[`set${inputId.split('-')[0].charAt(0).toUpperCase() + inputId.split('-')[0].slice(1)}SelectedRoles`] = function (roleIds, roleNames) {
+                window[`set${inputId.split('-')[0].charAt(0).toUpperCase() + inputId.split('-')[0].slice(1)}SelectedRoles`] = function(roleIds, roleNames) {
                     // Clear existing selections
                     selectedRoles.clear();
 
@@ -659,27 +826,42 @@
             // Modified setupEditUserForm function to handle role names
             window.setupEditUserForm = function (userId, employeeNumber, roleIds, isActive) {
                 const form = document.getElementById('editUserForm');
-                form.action = `{{ route('users.update', '') }}/${userId}`;
+                if (!form) return;
+
+                form.action = `{{ url('user/update') }}/${userId}`;
 
                 // Set employee number
-                document.getElementById('edit_employee_number').value = employeeNumber;
+                const employeeInput = document.getElementById('edit_employee_number');
+                if (employeeInput) employeeInput.value = employeeNumber;
 
                 // Set is_active value
-                document.getElementById('edit_is_active').value = (isActive === 'true') ? '1' : '0';
+                const activeSelect = document.getElementById('edit_is_active');
+                if (activeSelect) activeSelect.value = (isActive === 'true') ? '1' : '0';
 
                 // Get role names for the selected role IDs
-                const roleNames = roleIds.map(roleId => {
-                    const element = document.querySelector(`.role-option[data-role-id="${roleId}"]`);
-                    return element ? element.getAttribute('data-role-name') : '';
-                }).filter(name => name !== '');
+                const roles = @json($roles['data'] ?? []);
+                const roleNames = [];
 
-                // Set selected roles
-                window.setEditSelectedRoles(roleIds, roleNames);
+                if (Array.isArray(roleIds) && roleIds.length > 0 && Array.isArray(roles)) {
+                    roleIds.forEach(roleId => {
+                        const role = roles.find(r => r.role_id.toString() === roleId.toString());
+                        if (role) {
+                            roleNames.push(role.role_name);
+                        }
+                    });
+                }
+
+                // Set selected roles - this calls the function created in setupRoleSearch
+                if (typeof setEditSelectedRoles === 'function') {
+                    setEditSelectedRoles(roleIds, roleNames);
+                }
 
                 // Open the modal
                 const modal = document.getElementById('editUserModal');
                 const content = document.getElementById('editUserModalContent');
-                openModal(modal, content);
+                if (modal && content) {
+                    openModal(modal, content);
+                }
             };
 
             // Reset role selection when opening Add User modal
@@ -723,12 +905,23 @@
             // Edit User Modal
             document.querySelectorAll('.edit-user-btn').forEach(button => {
                 button.addEventListener('click', function () {
-                    const userId = this.getAttribute('data-user-id');
-                    const employeeNumber = this.getAttribute('data-employee-number');
-                    const roleIds = JSON.parse(this.getAttribute('data-role-ids') || '[]');
-                    const isActive = this.getAttribute('data-is-active');
+                    let userId = '';
+                    let employeeNumber = '';
+                    let roleIds = [];
+                    let isActive = 'false';
 
-                    console.log('Button data:', { userId, employeeNumber, roleIds, isActive }); // Debug
+                    try {
+                        userId = this.getAttribute('data-user-id') || '';
+                        employeeNumber = this.getAttribute('data-employee-number') || '';
+
+                        // Safely parse the JSON data
+                        const roleIdsStr = this.getAttribute('data-role-ids') || '[]';
+                        roleIds = JSON.parse(roleIdsStr);
+
+                        isActive = this.getAttribute('data-is-active') || 'false';
+                    } catch (error) {
+                        console.error('Error processing button data:', error);
+                    }
 
                     // Use the global function to set up the form
                     window.setupEditUserForm(userId, employeeNumber, roleIds, isActive);
@@ -737,32 +930,63 @@
 
             // Delete User Modal
             document.querySelectorAll('.delete-user-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const userId = button.getAttribute('data-user-id');
-                    document.getElementById('deleteUserForm').action = `{{ route('users.destroy', '') }}/${userId}`;
+                button.addEventListener('click', function() {
+                    try {
+                        const userId = this.getAttribute('data-user-id') || '';
+                        const deleteForm = document.getElementById('deleteUserForm');
+                        if (deleteForm) {
+                            deleteForm.action = `{{ url('user/delete') }}/${userId}`;
+                        }
 
-                    openModal(deleteUserModal, deleteUserModal.querySelector('[id$="ModalContent"]'));
+                        const modal = document.getElementById('deleteUserModal');
+                        const content = modal?.querySelector('[id$="ModalContent"]');
+                        if (modal && content) {
+                            openModal(modal, content);
+                        }
+                    } catch (error) {
+                        console.error('Error in delete user button:', error);
+                    }
                 });
             });
 
             // Close Modal Handlers
             closeButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    const modalId = button.getAttribute('data-modal');
-                    const modal = document.getElementById(modalId);
-                    const content = modal.querySelector('[id$="ModalContent"]');
-                    closeModal(modal, content);
+                    try {
+                        const modalId = button.getAttribute('data-modal');
+                        if (!modalId) return;
+
+                        const modal = document.getElementById(modalId);
+                        if (!modal) return;
+
+                        const content = modal.querySelector('[id$="ModalContent"]');
+                        if (!content) return;
+
+                        closeModal(modal, content);
+                    } catch (error) {
+                        console.error('Error closing modal:', error);
+                    }
                 });
             });
 
             // Close on outside click
             [addUserModal, editUserModal, deleteUserModal].forEach(modal => {
+                if (!modal) return;
+
                 modal.addEventListener('click', function (e) {
-                    // Check if the click is directly on the modal's overlay area
-                    if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
-                        e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
-                        const content = this.querySelector('[id$="ModalContent"]');
-                        closeModal(this, content);
+                    try {
+                        // Check if the click is directly on the modal's overlay area
+                        const overlayArea = this.querySelector('.fixed.inset-0.z-50.overflow-y-auto');
+                        const bgOverlay = this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50');
+
+                        if (e.target === overlayArea || e.target === bgOverlay) {
+                            const content = this.querySelector('[id$="ModalContent"]');
+                            if (content) {
+                                closeModal(this, content);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error in modal outside click handler:', error);
                     }
                 });
             });
@@ -770,12 +994,18 @@
             // Close on Escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    [addUserModal, editUserModal, deleteUserModal].forEach(modal => {
-                        if (!modal.classList.contains('hidden')) {
-                            const content = modal.querySelector('[id$="ModalContent"]');
-                            closeModal(modal, content);
-                        }
-                    });
+                    try {
+                        [addUserModal, editUserModal, deleteUserModal].forEach(modal => {
+                            if (modal && !modal.classList.contains('hidden')) {
+                                const content = modal.querySelector('[id$="ModalContent"]');
+                                if (content) {
+                                    closeModal(modal, content);
+                                }
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error in Escape key handler:', error);
+                    }
                 }
             });
 
@@ -790,38 +1020,75 @@
                     borderColor = 'border-green-500';
                     textColor = 'text-green-700';
                     icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                    </svg>`;
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>`;
+                    titleP.textContent = 'Berhasil';
                 } else if (type === 'error') {
                     bgColor = 'bg-red-100';
                     borderColor = 'border-red-500';
                     textColor = 'text-red-700';
                     icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                    </svg>`;
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>`;
+                    titleP.textContent = 'Kesalahan';
                 } else {
                     bgColor = 'bg-blue-100';
                     borderColor = 'border-blue-500';
                     textColor = 'text-blue-700';
                     icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                    </svg>`;
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>`;
+                    titleP.textContent = type === 'info' ? 'Informasi' : type.charAt(0).toUpperCase() + type.slice(1);
                 }
+
+                // Simple HTML detection
+                const hasHTML = typeof message === 'string' && message.indexOf('<') !== -1 && message.indexOf('>') !== -1;
 
                 toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
                 toast.setAttribute('role', 'alert');
-                toast.innerHTML = `
-                                                                    <div class="flex items-center">
-                                                                        <div class="py-1">
-                                                                            ${icon}
-                                                                        </div>
-                                                                        <div>
-                                                                            <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-                                                                            <p>${message}</p>
-                                                                        </div>
-                                                                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                                                    </div>
-                                                                `;
+
+                // Create simple content structure
+                const content = document.createElement('div');
+                content.className = 'flex items-start';
+
+                // Add icon
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'py-1 flex-shrink-0';
+                iconDiv.innerHTML = icon;
+                content.appendChild(iconDiv);
+
+                // Add message content
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex-grow';
+
+                const titleP = document.createElement('p');
+                titleP.className = 'font-bold';
+                titleP.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+                messageDiv.appendChild(titleP);
+
+                const messageP = document.createElement('div');
+                messageP.className = 'error-message';
+                if (hasHTML && typeof message === 'string') {
+                    messageP.innerHTML = message;
+                } else {
+                    messageP.textContent = message;
+                }
+                messageDiv.appendChild(messageP);
+                content.appendChild(messageDiv);
+
+                // Add close button
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = function() {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                };
+                content.appendChild(closeBtn);
+
+                // Add content to toast
+                toast.appendChild(content);
 
                 // Add to container
                 toastContainer.appendChild(toast);
@@ -834,80 +1101,51 @@
 
                 // Remove after 5 seconds
                 setTimeout(() => {
-                    toast.classList.remove('opacity-100');
-                    toast.classList.add('opacity-0');
-                    setTimeout(() => {
-                        if (toast.parentNode === toastContainer) {
-                            toastContainer.removeChild(toast);
-                        }
-                    }, 300);
+                    if (toast && toast.parentNode) {
+                        toast.classList.remove('opacity-100');
+                        toast.classList.add('opacity-0');
+                        setTimeout(() => {
+                            if (toast && toast.parentNode === toastContainer) {
+                                toastContainer.removeChild(toast);
+                            }
+                        }, 300);
+                    }
                 }, 5000);
             }
+
+            // Add slide-in animation and styling for error messages to CSS
+            document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); }
+                        to { transform: translateX(0); }
+                    }
+                    .animate-slide-in-right {
+                        animation: slideInRight 0.3s ease-out forwards;
+                    }
+
+                    /* Styling for error messages with HTML content */
+                    .error-message ul {
+                        margin-top: 0.5rem;
+                        padding-left: 1.5rem;
+                    }
+                    .error-message ul li {
+                        margin-bottom: 0.25rem;
+                    }
+                    .error-message ul li:last-child {
+                        margin-bottom: 0;
+                    }
+                </style>
+            `);
+
+            // Show toast notifications for session messages on page load
+            @if(session('success'))
+                showToast("{{ session('success') }}", 'success');
+            @endif
+
+            @if(session('error'))
+                showToast("{{ session('error') }}", 'error');
+            @endif
         });
     </script>
-
-    <!-- Success and Error Notifications -->
-    @if(session('success'))
-        <div id="successNotification"
-            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
-            role="alert">
-            <div class="flex items-center">
-                <div class="py-1">
-                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">Success!</p>
-                    <p>{{ session('success') }}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-            </div>
-        </div>
-
-        <script>
-            setTimeout(function () {
-                const notification = document.getElementById('successNotification');
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function () {
-                        notification.remove();
-                    }, 500);
-                }
-            }, 5000); // Hide after 5 seconds
-        </script>
-    @endif
-
-    @if(session('error'))
-        <div id="errorNotification"
-            class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
-            role="alert">
-            <div class="flex items-center">
-                <div class="py-1">
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">Error!</p>
-                    <p>{{ session('error') }}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-            </div>
-        </div>
-
-        <script>
-            setTimeout(function () {
-                const notification = document.getElementById('errorNotification');
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function () {
-                        notification.remove();
-                    }, 500);
-                }
-            }, 5000); // Hide after 5 seconds
-        </script>
-    @endif
 @endsection

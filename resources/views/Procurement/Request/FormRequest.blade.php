@@ -219,6 +219,33 @@
         const successMessage = document.getElementById('successMessage');
         const errorMessage = document.getElementById('errorMessage');
 
+        // Function to format date in Indonesian
+        function formatDateIndonesian(dateString) {
+            if (!dateString) return '';
+
+            try {
+                // Parse the date string
+                const date = new Date(dateString);
+                if (isNaN(date)) return dateString;
+
+                // Indonesian month names
+                const months = [
+                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ];
+
+                const day = date.getDate();
+                const month = months[date.getMonth()];
+                const year = date.getFullYear();
+                const hours = date.getHours().toString().padStart(2, '0');
+
+                return `${day} ${month} ${year}`;
+            } catch (e) {
+                console.error('Date formatting error:', e);
+                return dateString;
+            }
+        }
+
         // Add a flag to track if we're currently submitting/redirecting to prevent unwanted navigation
         let isNavigatingAway = false;
 

@@ -416,4 +416,66 @@ class ProcurementReceiptController extends Controller
                 ->with('error', 'Failed to create receipt: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Export a receipt to PDF
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function exportReceiptDetailPDF($id)
+    {
+        try {
+            // Log request info
+            \Log::info('Exporting receipt to PDF with ID: ' . $id);
+
+            // Fetch receipt from API
+            $result = $this->apiService->request('GET', '/receipts/' . $id);
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during receipt PDF export:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check if the receipt exists
+            if (!isset($result['data']) || empty($result['data'])) {
+                \Log::warning('Receipt not found:', [
+                    'id' => $id,
+                    'message' => $result['message'] ?? 'Receipt not found'
+                ]);
+
+                return redirect()->route('procurement.receipt')->with('error', 'Receipt not found');
+            }
+
+            // Get receipt data
+            $receipt = $result['data'];
+
+            // Generate PDF
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('Procurement.Receipt.DetailReceiptPDF', [
+                'receipt' => $receipt,
+                'date_generated' => now()->format('Y-m-d H:i:s')
+            ]);
+
+            // Log PDF generation
+            \Log::info('Receipt PDF generated successfully', [
+                'receipt_id' => $receipt['receipt_id'] ?? 'N/A'
+            ]);
+
+            // Stream the PDF to browser
+            return $pdf->stream('receipt_' . $id . '_' . now()->format('YmdHis') . '.pdf');
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during receipt PDF export:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to export Receipt as PDF: ' . $e->getMessage());
+        }
+    }
 }

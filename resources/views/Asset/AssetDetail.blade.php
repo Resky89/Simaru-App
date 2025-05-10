@@ -1623,7 +1623,7 @@
 
                             modalObj.btn.classList.add('opacity-50', 'pointer-events-none');
 
-                            fetch(`{{ route('assets.get', '') }}/${assetId}`, {
+                            fetch(`{{ url('/assets') }}/${assetId}`, {
                                 method: 'GET',
                                 headers: {
                                     'Accept': 'application/json',
@@ -1809,7 +1809,7 @@
                     return;
                 }
 
-                form.action = "{{ route('asset.update', '') }}/" + asset.asset_id;
+                form.action = "{{ url('/assets') }}/" + asset.asset_id;
                 form.reset();
 
                 // Fill basic inputs

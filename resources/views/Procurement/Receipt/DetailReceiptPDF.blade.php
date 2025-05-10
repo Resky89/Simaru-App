@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Laporan Detail Pemesanan</title>
+    <title>Laporan Detail Penerimaan</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -88,10 +88,6 @@
             border-bottom: 1px solid #eee;
             font-size: 10px;
         }
-        .items-table tr.total-row td {
-            font-weight: bold;
-            border-top: 2px solid #213268;
-        }
         .items-table tr.terms-row {
             background-color: #f0f5ff;
         }
@@ -121,29 +117,29 @@
 </head>
 <body>
     <div class="header">
-        <h1>LAPORAN DETAIL PEMESANAN</h1>
-        <p>Nomor Pemesanan: {{ $purchaseOrder['purchase_order_code'] ?? 'N/A' }}</p>
+        <h1>LAPORAN DETAIL PENERIMAAN</h1>
+        <p>Nomor Penerimaan: {{ $receipt['receipt_code'] ?? 'N/A' }}</p>
         <p>Dibuat pada: {{ \Carbon\Carbon::parse($date_generated)->locale('id')->translatedFormat('d F Y') }}</p>
     </div>
 
     <div class="clearfix">
         <!-- Left Column -->
         <div class="col-50">
-            <!-- Order Information -->
+            <!-- Receipt Information -->
             <div class="section">
-                <div class="section-title">Informasi Pemesanan</div>
+                <div class="section-title">Informasi Penerimaan</div>
                 <div class="info-grid">
                     <div class="info-row">
-                        <div class="info-label">Nomor Pemesanan:</div>
-                        <div class="info-value">{{ $purchaseOrder['purchase_order_code'] ?? 'N/A' }}</div>
+                        <div class="info-label">Nomor Penerimaan:</div>
+                        <div class="info-value">{{ $receipt['receipt_code'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Penawaran:</div>
-                        <div class="info-value">{{ $purchaseOrder['comparison_code'] ?? 'N/A' }}</div>
+                        <div class="info-label">Nomor PO:</div>
+                        <div class="info-value">{{ $receipt['purchase_order_id'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Tanggal Pemesanan:</div>
-                        <div class="info-value">{{ isset($purchaseOrder['created_at']) ? \Carbon\Carbon::parse($purchaseOrder['created_at'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}</div>
+                        <div class="info-label">Tanggal Penerimaan:</div>
+                        <div class="info-value">{{ isset($receipt['receipt_date']) ? \Carbon\Carbon::parse($receipt['receipt_date'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}</div>
                     </div>
                 </div>
             </div>
@@ -151,21 +147,25 @@
 
         <!-- Right Column -->
         <div class="col-50">
-            <!-- Vendor Information -->
+            <!-- Personnel Information -->
             <div class="section">
-                <div class="section-title">Informasi Vendor</div>
+                <div class="section-title">Informasi Personil</div>
                 <div class="info-grid">
                     <div class="info-row">
-                        <div class="info-label">Nama Vendor:</div>
-                        <div class="info-value">{{ $purchaseOrder['vendor']['vendor_name'] ?? 'N/A' }}</div>
+                        <div class="info-label">Dikirim Oleh:</div>
+                        <div class="info-value">{{ $receipt['delivered_by'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Penanggung Jawab:</div>
-                        <div class="info-value">{{ $purchaseOrder['vendor']['contact_person'] ?? 'N/A' }}</div>
+                        <div class="info-label">Diterima Oleh:</div>
+                        <div class="info-value">{{ $receipt['receiver_name'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Nomor Telepon:</div>
-                        <div class="info-value">{{ $purchaseOrder['vendor']['phone_number'] ?? 'N/A' }}</div>
+                        <div class="info-label">Diinput Oleh:</div>
+                        <div class="info-value">{{ $receipt['creator_name'] ?? 'N/A' }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Tanggal Input:</div>
+                        <div class="info-value">{{ isset($receipt['created_at']) ? \Carbon\Carbon::parse($receipt['created_at'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}</div>
                     </div>
                 </div>
             </div>
@@ -179,61 +179,38 @@
             <thead>
                 <tr>
                     <th>Nama Aset</th>
-                    <th>Jumlah</th>
-                    <th>Harga Satuan</th>
-                    <th>Total</th>
+                    <th>Tanggal Penerimaan</th>
+                    <th>Catatan</th>
                 </tr>
             </thead>
             <tbody>
-                @php $grandTotal = 0; @endphp
-
-                @if(isset($purchaseOrder['items']) && is_array($purchaseOrder['items']) && count($purchaseOrder['items']) > 0)
-                    @foreach($purchaseOrder['items'] as $item)
-                        @php
-                            $grandTotal += (float)($item['total_price'] ?? 0);
-                        @endphp
+                @if(isset($receipt['items']) && is_array($receipt['items']) && count($receipt['items']) > 0)
+                    @foreach($receipt['items'] as $item)
                         <tr>
                             <td>{{ $item['procurement_item_name'] ?? 'N/A' }}</td>
-                            <td>{{ $item['quantity'] ?? 'N/A' }}</td>
-                            <td>Rp {{ isset($item['unit_price']) ? number_format((float)$item['unit_price'], 0, ',', '.') : 'N/A' }}</td>
-                            <td>Rp {{ isset($item['total_price']) ? number_format((float)$item['total_price'], 0, ',', '.') : 'N/A' }}</td>
+                            <td>{{ isset($item['created_at']) ? \Carbon\Carbon::parse($item['created_at'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}</td>
+                            <td>{{ $item['notes'] ?? '-' }}</td>
                         </tr>
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="4" style="text-align: center;">Tidak ada item yang ditemukan untuk pemesanan ini.</td>
+                        <td colspan="3" style="text-align: center;">Tidak ada item yang ditemukan untuk penerimaan ini.</td>
                     </tr>
                 @endif
 
-                <!-- Grand Total Row -->
-                <tr class="total-row">
-                    <td colspan="3" style="text-align: right;">Total Keseluruhan</td>
-                    <td>Rp {{ number_format($grandTotal, 0, ',', '.') }}</td>
-                </tr>
-
-                <!-- Payment Terms Row -->
-                <tr class="terms-row">
-                    <td>Syarat Pembayaran</td>
-                    <td colspan="3">{{ $purchaseOrder['payment_terms'] ?? 'Tidak ada data' }}</td>
-                </tr>
-
-                <!-- Delivery Terms Row -->
-                <tr class="terms-row">
-                    <td>Syarat Pengiriman</td>
-                    <td colspan="3">{{ $purchaseOrder['delivery_terms'] ?? 'Tidak ada data' }}</td>
-                </tr>
-
                 <!-- Notes Row -->
+                @if(isset($receipt['notes']) && !empty($receipt['notes']))
                 <tr class="terms-row">
                     <td>Catatan</td>
-                    <td colspan="3">{{ $purchaseOrder['notes'] ?? 'Tidak ada data' }}</td>
+                    <td colspan="2">{{ $receipt['notes'] ?? 'Tidak ada data' }}</td>
                 </tr>
+                @endif
             </tbody>
         </table>
     </div>
 
     <div class="footer">
-        Sistem Monitoring Aset - Laporan Pemesanan - {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('Y') }}
+        Sistem Monitoring Aset - Laporan Penerimaan - {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('Y') }}
     </div>
 </body>
 </html>

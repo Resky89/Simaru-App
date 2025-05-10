@@ -55,25 +55,25 @@
                 <div id="orderDetails" class="grid grid-cols-1 gap-4 hidden">
                     <!-- Nomor -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Nomor Penawaran</p>
+                        <p class="w-40 text-[#666666] font-medium">Nomor Penawaran</p>
                         <p class="text-[#666666]">: <span id="displayComparisonCode">PH2406001</span></p>
                     </div>
 
                     <!-- Judul -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Judul Penawaran</p>
+                        <p class="w-40 text-[#666666] font-medium">Judul Penawaran</p>
                         <p class="text-[#666666]">: <span id="displayComparisonTitle">Pembelian Komputer IT</span></p>
                     </div>
 
                     <!-- User Input -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Pembuat</p>
+                        <p class="w-40 text-[#666666] font-medium">Pembuat</p>
                         <p class="text-[#666666]">: <span id="displayUserInput">Staff</span></p>
                     </div>
 
                     <!-- Tanggal Input -->
                     <div class="flex items-start gap-2">
-                        <p class="w-32 text-[#666666] font-medium">Tanggal Penawaran</p>
+                        <p class="w-40 text-[#666666] font-medium">Tanggal Penawaran</p>
                         <p class="text-[#666666]">: <span id="displayComparisonDate">2024-06-30 06:52:12</span></p>
                     </div>
                 </div>
@@ -141,6 +141,32 @@
         const comparisonDropdown = document.getElementById('comparison_dropdown');
         const comparisonList = document.getElementById('comparison_list');
         const comparisonLoading = document.getElementById('comparison_loading');
+
+        // Function to format date in Indonesian
+        function formatDateIndonesian(dateString) {
+            if (!dateString) return '';
+
+            try {
+                // Parse the date string
+                const date = new Date(dateString);
+                if (isNaN(date)) return dateString;
+
+                // Indonesian month names
+                const months = [
+                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ];
+
+                const day = date.getDate();
+                const month = months[date.getMonth()];
+                const year = date.getFullYear();
+
+                return `${day} ${month} ${year}`;
+            } catch (e) {
+                console.error('Date formatting error:', e);
+                return dateString;
+            }
+        }
 
         // Function to show toast notifications
         function showToast(message, type = 'success') {
@@ -497,7 +523,7 @@
                     try {
                         const date = new Date(displayDate);
                         if (!isNaN(date)) {
-                            displayDate = date.toISOString().replace('T', ' ').substring(0, 19);
+                            displayDate = formatDateIndonesian(displayDate);
                         }
                     } catch (e) {
                         console.error('Date formatting error:', e);

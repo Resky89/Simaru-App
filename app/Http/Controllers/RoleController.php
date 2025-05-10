@@ -23,14 +23,45 @@ class RoleController extends Controller
             // Fetch roles
             $rolePage = $request->input('role_page', 1);
             $roleLimit = $request->input('role_limit', 10);
+            $search = $request->input('search', '');
+            $sort = $request->input('sort', '');
+
+            $queryParams = [
+                'page' => $rolePage,
+                'limit' => $roleLimit,
+                'sort_by' => 'role_id',
+                'sort_order' => 'asc'
+            ];
+
+            // Add search parameter if provided
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            // Handle sorting
+            if (!empty($sort)) {
+                switch ($sort) {
+                    case 'name_asc':
+                        $queryParams['sort_by'] = 'role_name';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'name_desc':
+                        $queryParams['sort_by'] = 'role_name';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    case 'id_asc':
+                        $queryParams['sort_by'] = 'role_id';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'id_desc':
+                        $queryParams['sort_by'] = 'role_id';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                }
+            }
 
             $response = $this->apiService->request('GET', '/roles', [
-                'query' => [
-                    'page' => $rolePage,
-                    'limit' => $roleLimit,
-                    'sort_by' => 'role_id',
-                    'sort_order' => 'asc'
-                ]
+                'query' => $queryParams
             ]);
 
             // Check for auth errors
@@ -95,6 +126,14 @@ class RoleController extends Controller
             $rolePagination = null;
             if (isset($response['pagination'])) {
                 $pagination = $response['pagination'];
+
+                // Preserve query parameters
+                $queryParams = $request->all();
+
+                // Create next and previous page URLs with all current parameters
+                $nextPageParams = array_merge($queryParams, ['role_page' => ($pagination['current_page'] ?? 1) + 1]);
+                $prevPageParams = array_merge($queryParams, ['role_page' => ($pagination['current_page'] ?? 1) - 1]);
+
                 $rolePagination = [
                     'current_page' => $pagination['current_page'] ?? 1,
                     'last_page' => $pagination['total_pages'] ?? 1,
@@ -102,8 +141,8 @@ class RoleController extends Controller
                     'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
                     'total' => $pagination['total_items'] ?? 0,
                     'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => $pagination['has_next'] ? url()->current() . '?role_page=' . ($pagination['current_page'] + 1) : null,
-                    'prev_page_url' => $pagination['has_prev'] ? url()->current() . '?role_page=' . ($pagination['current_page'] - 1) : null,
+                    'next_page_url' => $pagination['has_next'] ? url()->current() . '?' . http_build_query($nextPageParams) : null,
+                    'prev_page_url' => $pagination['has_prev'] ? url()->current() . '?' . http_build_query($prevPageParams) : null,
                 ];
             }
 
@@ -111,7 +150,9 @@ class RoleController extends Controller
                 'roles' => [
                     'data' => $roles,
                     'pagination' => $rolePagination
-                ]
+                ],
+                'search' => $search,
+                'sort' => $sort
             ]);
         } catch (\Exception $e) {
             \Log::error('Gagal mengambil data role', [
@@ -197,13 +238,18 @@ class RoleController extends Controller
                 // Format error message for redirect
                 $errorMessage = '';
                 if (is_array($errorData)) {
+                    // Format error message as HTML list for display in toast notification
+                    $errorMessage = '<ul>';
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
+                            foreach ($messages as $message) {
+                                $errorMessage .= '<li>' . $message . '</li>';
+                            }
                         } else {
-                            $errorMessage .= $messages . '; ';
+                            $errorMessage .= '<li>' . $field . ': ' . $messages . '</li>';
                         }
                     }
+                    $errorMessage .= '</ul>';
                 } else {
                     $errorMessage = $errorData;
                 }
@@ -318,13 +364,18 @@ class RoleController extends Controller
                 // Format error message for redirect
                 $errorMessage = '';
                 if (is_array($errorData)) {
+                    // Format error message as HTML list for display in toast notification
+                    $errorMessage = '<ul>';
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
+                            foreach ($messages as $message) {
+                                $errorMessage .= '<li>' . $message . '</li>';
+                            }
                         } else {
-                            $errorMessage .= $messages . '; ';
+                            $errorMessage .= '<li>' . $field . ': ' . $messages . '</li>';
                         }
                     }
+                    $errorMessage .= '</ul>';
                 } else {
                     $errorMessage = $errorData;
                 }
@@ -424,13 +475,18 @@ class RoleController extends Controller
                 // Format error message for redirect
                 $errorMessage = '';
                 if (is_array($errorData)) {
+                    // Format error message as HTML list for display in toast notification
+                    $errorMessage = '<ul>';
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
+                            foreach ($messages as $message) {
+                                $errorMessage .= '<li>' . $message . '</li>';
+                            }
                         } else {
-                            $errorMessage .= $messages . '; ';
+                            $errorMessage .= '<li>' . $field . ': ' . $messages . '</li>';
                         }
                     }
+                    $errorMessage .= '</ul>';
                 } else {
                     $errorMessage = $errorData;
                 }

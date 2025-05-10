@@ -26,7 +26,7 @@
                 <div class="grid grid-cols-1 gap-5">
                     <!-- Request Number -->
                     <div class="flex items-start gap-2">
-                        <p class="w-40 text-[#666666] font-medium">ID Permintaan</p>
+                        <p class="w-40 text-[#666666] font-medium">Nomor Permintaan</p>
                         <p class="text-[#666666]">: <span id="requestNumber">{{ $procurement['procurement_code'] }}</span></p>
                     </div>
 
@@ -45,7 +45,7 @@
                     <!-- Input Date -->
                     <div class="flex items-start gap-2">
                         <p class="w-40 text-[#666666] font-medium">Tanggal Permintaan</p>
-                        <p class="text-[#666666]">: <span id="inputDate">{{ \Carbon\Carbon::parse($procurement['request_date'])->format('Y-m-d H:i:s') }}</span></p>
+                        <p class="text-[#666666]">: <span id="inputDate">{{ \Carbon\Carbon::parse($procurement['request_date'])->locale('id')->translatedFormat('d F Y') }}</span></p>
                     </div>
 
                     <!-- Priority -->

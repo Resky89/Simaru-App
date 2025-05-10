@@ -21,8 +21,33 @@
                                 <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
                                     stroke-linecap="round" />
                             </svg>
-                            <span class="text-base">Add Role</span>
+                            <span class="text-base">Tambah Role</span>
                         </button>
+                    </div>
+
+                    <!-- Search and Sort -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="relative flex-grow">
+                            <input type="text" id="searchInput" placeholder="Cari berdasarkan nama role..."
+                                value="{{ $search ?? '' }}"
+                                class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div>
+                            <select id="sortOrder"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" {{ ($sort ?? '') == '' ? 'selected' : '' }}>Default Order</option>
+                                <option value="id_asc" {{ ($sort ?? '') == 'id_asc' ? 'selected' : '' }}>Terbaru</option>
+                                <option value="id_desc" {{ ($sort ?? '') == 'id_desc' ? 'selected' : '' }}>Terlama</option>
+                                <option value="name_asc" {{ ($sort ?? '') == 'name_asc' ? 'selected' : '' }}>Nama (A-Z)</option>
+                                <option value="name_desc" {{ ($sort ?? '') == 'name_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Role Table -->
@@ -30,47 +55,31 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
-                                        <input type="checkbox" class="checkbox checkbox-sm" />
-                                    </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Role ID</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Role</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Role</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($roles['data'] ?? [] as $role)
                                     <tr>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                            <input type="checkbox" class="checkbox checkbox-sm" />
-                                        </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $role['role_id'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $role['role_name'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $role['description'] ?? '-' }}</td>
                                         <td class="p-3 border-t border-[#EEF1F4]">
-                                            <div class="flex justify-center gap-2">
-                                                <button class="text-[#3D3D3D] hover:text-[#213268] edit-role-btn"
+                                            <div class="flex items-center space-x-2 justify-center">
+                                                <button class="edit-role-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                     data-role-id="{{ $role['role_id'] }}"
                                                     data-role-name="{{ $role['role_name'] }}"
                                                     data-description="{{ $role['description'] ?? '' }}">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
-                                                <button class="text-[#3D3D3D] hover:text-red-500 delete-role-btn"
+                                                <button class="delete-role-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                                                     data-role-id="{{ $role['role_id'] }}">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                                <button class="text-[#3D3D3D] hover:text-[#213268]">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
                                             </div>
@@ -78,7 +87,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No roles found
+                                        <td colspan="3" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada role yang ditemukan
                                         </td>
                                     </tr>
                                 @endforelse
@@ -96,7 +105,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 19l-7-7 7-7" />
                                 </svg>
-                                Prev
+                                Sebelumnya
                             </a>
                             <div class="flex gap-2">
                                 @php
@@ -113,7 +122,7 @@
                             </div>
                             <a href="{{ $roles['pagination']['next_page_url'] ?? '#' }}"
                                 class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($roles['pagination']['current_page'] ?? 1) >= ($roles['pagination']['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
-                                Next
+                                Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -132,17 +141,17 @@
                                                                 $from = ($currentPage - 1) * $perPage + 1;
                                                                 $to = min($currentPage * $perPage, $total);
                                                             @endphp
-                                                            Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                                                            Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
                                 @else
-                                    Showing 1 to {{ count($roles['data'] ?? []) }} of {{ count($roles['data'] ?? []) }} entries
+                                    Menampilkan 1 sampai {{ count($roles['data'] ?? []) }} dari {{ count($roles['data'] ?? []) }} entri
                                 @endif
                             </span>
                             <select id="rolePerPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                 onchange="changeRolePerPage(this.value)">
-                                <option value="10" {{ isset($roles['pagination']['per_page']) && $roles['pagination']['per_page'] == 10 ? 'selected' : '' }}>10 per page</option>
-                                <option value="25" {{ isset($roles['pagination']['per_page']) && $roles['pagination']['per_page'] == 25 ? 'selected' : '' }}>25 per page</option>
-                                <option value="50" {{ isset($roles['pagination']['per_page']) && $roles['pagination']['per_page'] == 50 ? 'selected' : '' }}>50 per page</option>
+                                <option value="10" {{ isset($roles['pagination']['per_page']) && $roles['pagination']['per_page'] == 10 ? 'selected' : '' }}>10 data per halaman</option>
+                                <option value="25" {{ isset($roles['pagination']['per_page']) && $roles['pagination']['per_page'] == 25 ? 'selected' : '' }}>25 data per halaman</option>
+                                <option value="50" {{ isset($roles['pagination']['per_page']) && $roles['pagination']['per_page'] == 50 ? 'selected' : '' }}>50 data per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -159,7 +168,7 @@
                         id="addRoleModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">ADD ROLE</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH ROLE</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="addRoleModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,34 +185,34 @@
                                 <div class="space-y-5 mx-auto">
                                     <!-- Role Name Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Role Name</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Nama Role</label>
                                         <input type="text" name="role_name"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Enter role name" required>
+                                            placeholder="Masukkan nama role"
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Role Name is required</div>
                                     </div>
 
                                     <!-- Description Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Description</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
                                         <textarea name="description"
                                             class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 resize-none"
-                                            placeholder="Enter role description"></textarea>
+                                            placeholder="Masukkan deskripsi role"></textarea>
                                     </div>
 
                                     <!-- Permissions Header -->
                                     <div class="pt-2">
                                         <div class="pb-4 border-b border-gray-200">
-                                            <h3 class="text-lg font-bold text-[#213268] mb-2">PERMISSIONS</h3>
-                                            <p class="text-sm text-gray-600 mb-4">Decide each user's privileges and what
-                                                they can and can't do within your account.</p>
+                                            <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
+                                            <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
 
                                             <div class="flex flex-wrap gap-6 mt-3">
                                                 <div class="flex items-center gap-2">
                                                     <input type="checkbox" id="add-all-permission"
                                                         class="checkbox checkbox-primary" data-target="all">
                                                     <label for="add-all-permission"
-                                                        class="font-semibold cursor-pointer select-none">All
-                                                        Permission</label>
+                                                        class="font-semibold cursor-pointer select-none">
+                                                        Semua Izin</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -211,14 +220,14 @@
 
                                     <!-- Permission Groups Container -->
                                     <div id="add-permissions-container" class="space-y-6 pt-3">
-                                        <p class="text-center text-gray-500 py-4">Loading permissions...</p>
+                                        <p class="text-center text-gray-500 py-4">Memuat izin...</p>
                                     </div>
 
                                     <!-- Button Group -->
                                     <div class="pt-6">
                                         <button type="submit"
                                             class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                            Save
+                                            Simpan
                                         </button>
                                     </div>
                                 </div>
@@ -256,34 +265,34 @@
                                 <div class="space-y-5 mx-auto">
                                     <!-- Role Name Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Role Name</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Nama Role</label>
                                         <input type="text" id="edit_role_name" name="role_name"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Enter role name" required>
+                                            placeholder="Masukkan nama role"
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nama Role wajib diisi</div>
                                     </div>
 
                                     <!-- Description Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Description</label>
+                                        <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
                                         <textarea id="edit_description" name="description"
                                             class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 resize-none"
-                                            placeholder="Enter role description"></textarea>
+                                            placeholder="Masukkan deskripsi role"></textarea>
                                     </div>
 
                                     <!-- Permissions Header -->
                                     <div class="pt-2">
                                         <div class="pb-4 border-b border-gray-200">
-                                            <h3 class="text-lg font-bold text-[#213268] mb-2">PERMISSIONS</h3>
-                                            <p class="text-sm text-gray-600 mb-4">Decide each user's privileges and what
-                                                they can and can't do within your account.</p>
+                                            <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
+                                            <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
 
                                             <div class="flex flex-wrap gap-6 mt-3">
                                                 <div class="flex items-center gap-2">
                                                     <input type="checkbox" id="edit-all-permission"
                                                         class="checkbox checkbox-primary" data-target="all">
                                                     <label for="edit-all-permission"
-                                                        class="font-semibold cursor-pointer select-none">All
-                                                        Permission</label>
+                                                        class="font-semibold cursor-pointer select-none">
+                                                        Semua Izin</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -291,14 +300,14 @@
 
                                     <!-- Permission Groups Container -->
                                     <div id="edit-permissions-container" class="space-y-6 pt-3">
-                                        <p class="text-center text-gray-500 py-4">Loading permissions...</p>
+                                        <p class="text-center text-gray-500 py-4">Memuat izin...</p>
                                     </div>
 
                                     <!-- Button Group -->
                                     <div class="pt-6">
                                         <button type="submit"
                                             class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                            Update
+                                            Perbarui
                                         </button>
                                     </div>
                                 </div>
@@ -318,7 +327,7 @@
                         id="deleteRoleModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE ROLE</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS ROLE</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="deleteRoleModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -340,18 +349,17 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <p class="text-base text-gray-600 text-center">Are you sure you want to delete this
-                                            role? This action cannot be undone.</p>
+                                        <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus role ini? Aksi ini tidak dapat dibatalkan.</p>
                                     </div>
                                     <div class="flex gap-3">
                                         <button type="button"
                                             class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
                                             data-modal="deleteRoleModal">
-                                            Cancel
+                                            Batal
                                         </button>
                                         <button type="submit"
                                             class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                            Delete
+                                            Hapus
                                         </button>
                                     </div>
                                 </div>
@@ -364,42 +372,141 @@
     </div>
 
     <script>
+        // Function to show toast notifications
+        window.showToast = function(message, type = 'success') {
+            // Create the notification element
+            const notification = document.createElement('div');
+            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+            notification.role = 'alert';
+
+            // Check if message contains HTML
+            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+
+            if (type === 'success') {
+                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                notification.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Berhasil!</p>
+                            <div>${message}</div>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            } else {
+                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                // Structure for the notification
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-start';
+
+                // Icon container
+                const iconContainer = document.createElement('div');
+                iconContainer.className = 'py-1 flex-shrink-0';
+                iconContainer.innerHTML = `
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                `;
+
+                // Content container
+                const contentContainer = document.createElement('div');
+                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                // Title
+                const title = document.createElement('p');
+                title.className = 'font-bold';
+                title.textContent = 'Error!';
+                contentContainer.appendChild(title);
+
+                // Message container
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'error-message';
+
+                // Handle HTML content
+                if (hasHTML) {
+                    messageContainer.innerHTML = message;
+                } else {
+                    messageContainer.textContent = message;
+                }
+
+                contentContainer.appendChild(messageContainer);
+
+                // Close button
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = function() {
+                    notification.remove();
+                };
+
+                // Assemble the notification
+                wrapper.appendChild(iconContainer);
+                wrapper.appendChild(contentContainer);
+                wrapper.appendChild(closeBtn);
+                notification.appendChild(wrapper);
+            }
+
+            // Add to document
+            document.body.appendChild(notification);
+
+            // Auto-remove notification after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        }
+
+        // Add slide-in animation and styling for error messages to CSS
+        document.addEventListener('DOMContentLoaded', function() {
+            document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); }
+                        to { transform: translateX(0); }
+                    }
+                    .animate-slide-in-right {
+                        animation: slideInRight 0.3s ease-out forwards;
+                    }
+
+                    /* Styling for error messages with HTML content */
+                    .error-message ul {
+                        margin-top: 0.5rem;
+                        padding-left: 1.5rem;
+                        list-style-type: disc;
+                    }
+                    .error-message ul li {
+                        margin-bottom: 0.25rem;
+                    }
+                    .error-message ul li:last-child {
+                        margin-bottom: 0;
+                    }
+                </style>
+            `);
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
+            // Show toast notifications for session messages on page load
+            @if(session('success'))
+                showToast("{{ session('success') }}", 'success');
+            @endif
+
+            @if(session('error'))
+                showToast("{{ session('error') }}", 'error');
+            @endif
+
             // Function to change items per page for roles
             window.changeRolePerPage = function (limit) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('role_limit', limit);
                 url.searchParams.set('role_page', 1); // Reset to first page when changing limit
                 window.location.href = url.toString();
-            }
-
-            // Toast container
-            const toastContainer = document.createElement('div');
-            toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-4';
-            document.body.appendChild(toastContainer);
-
-            // Get all modal elements
-            const addRoleModal = document.getElementById('addRoleModal');
-            const editRoleModal = document.getElementById('editRoleModal');
-            const deleteRoleModal = document.getElementById('deleteRoleModal');
-            const closeButtons = document.querySelectorAll('.close-modal');
-
-            // Function to open modal
-            function openModal(modal, content) {
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                }, 10);
-            }
-
-            // Function to close modal
-            function closeModal(modal, content) {
-                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                }, 300);
             }
 
             // Function to fetch permissions
@@ -668,21 +775,21 @@
                         openModal(editRoleModal, document.getElementById('editRoleModalContent'));
 
                         // Fetch role data from the API - use the named route
-                        const response = await fetch(`{{ route('roles.show', '') }}/${roleId}`);
+                        const response = await fetch(`{{ url('roles') }}/${roleId}`);
 
                         if (!response.ok) {
-                            throw new Error('Failed to fetch role details');
+                            throw new Error('Gagal mengambil detail role');
                         }
 
                         // Parse the response
                         const roleData = await response.json();
 
-                        if (!roleData.status) {
-                            throw new Error(roleData.message || 'Failed to fetch role details');
+                        if (!roleData.success) {
+                            throw new Error(roleData.message || 'Gagal mengambil detail role');
                         }
 
                         // Set form action
-                        document.getElementById('editRoleForm').action = `{{ route('roles.update', '') }}/${roleId}`;
+                        document.getElementById('editRoleForm').action = `{{ url('roles') }}/${roleId}`;
 
                         // Populate form fields with data from API
                         const role = roleData.data;
@@ -713,7 +820,7 @@
                     const roleId = button.getAttribute('data-role-id');
 
                     // Set the form action for delete
-                    document.getElementById('deleteRoleForm').action = `{{ route('roles.destroy', '') }}/${roleId}`;
+                    document.getElementById('deleteRoleForm').action = `{{ url('roles') }}/${roleId}`;
 
                     // Open the delete modal
                     openModal(deleteRoleModal, document.getElementById('deleteRoleModalContent'));
@@ -765,71 +872,6 @@
                     });
                 }
             });
-
-            // Show toast notification
-            window.showToast = function (message, type = 'info') {
-                // Create toast element
-                const toast = document.createElement('div');
-                let bgColor, borderColor, textColor, icon;
-
-                if (type === 'success') {
-                    bgColor = 'bg-green-100';
-                    borderColor = 'border-green-500';
-                    textColor = 'text-green-700';
-                    icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                                </svg>`;
-                } else if (type === 'error') {
-                    bgColor = 'bg-red-100';
-                    borderColor = 'border-red-500';
-                    textColor = 'text-red-700';
-                    icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                                </svg>`;
-                } else {
-                    bgColor = 'bg-blue-100';
-                    borderColor = 'border-blue-500';
-                    textColor = 'text-blue-700';
-                    icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                                </svg>`;
-                }
-
-                toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
-                toast.setAttribute('role', 'alert');
-                toast.innerHTML = `
-                                                                                <div class="flex items-center">
-                                                                                    <div class="py-1">
-                                                                                        ${icon}
-                                                                                    </div>
-                                                                                    <div>
-                                                                                        <p class="font-bold">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-                                                                                        <p>${message}</p>
-                                                                                    </div>
-                                                                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                                                                </div>
-                                                                            `;
-
-                // Add to container
-                toastContainer.appendChild(toast);
-
-                // Animate in
-                setTimeout(() => {
-                    toast.classList.remove('opacity-0');
-                    toast.classList.add('opacity-100');
-                }, 10);
-
-                // Remove after 5 seconds
-                setTimeout(() => {
-                    toast.classList.remove('opacity-100');
-                    toast.classList.add('opacity-0');
-                    setTimeout(() => {
-                        if (toast.parentNode === toastContainer) {
-                            toastContainer.removeChild(toast);
-                        }
-                    }, 300);
-                }, 5000);
-            }
 
             // Also need to update the permissions header sections in both modals to remove "Set as Admin"
             document.addEventListener('DOMContentLoaded', function () {
@@ -978,71 +1020,113 @@
                 form.submit();
                 document.body.removeChild(form);
             });
+
+            // Search and sorting functionality
+            const searchInput = document.getElementById('searchInput');
+            const sortOrder = document.getElementById('sortOrder');
+
+            // Function to handle search and sorting
+            function applyFilters() {
+                const searchValue = searchInput?.value.trim() || '';
+                const sortValue = sortOrder?.value || '';
+
+                // Create URL with filter parameters
+                const url = new URL(window.location.href);
+
+                // Clear existing parameters we're going to set
+                ['search', 'sort', 'role_page'].forEach(param => {
+                    url.searchParams.delete(param);
+                });
+
+                // Add new parameters if they have values
+                if (searchValue) url.searchParams.set('search', searchValue);
+                if (sortValue) url.searchParams.set('sort', sortValue);
+
+                // Reset to page 1 when filters change
+                url.searchParams.set('role_page', 1);
+
+                // Navigate to the new URL
+                window.location.href = url.toString();
+            }
+
+            // Add event listeners with debounce for search
+            let searchTimeout;
+            searchInput?.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(applyFilters, 500);
+            });
+
+            // Add event listener for sort order
+            sortOrder?.addEventListener('change', applyFilters);
+
+            // Set initial values from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (searchInput) searchInput.value = urlParams.get('search') || '';
+            if (sortOrder) {
+                const sortValue = urlParams.get('sort');
+                if (sortValue) {
+                    sortOrder.value = sortValue;
+                }
+            }
+
+            // Function to change page while preserving search and sort parameters
+            window.changePage = function(page) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('role_page', page);
+                window.location.href = url.toString();
+            };
+
+            // Form validation for Add Role
+            document.getElementById('addRoleForm').addEventListener('submit', function(event) {
+                const roleNameInput = this.querySelector('[name="role_name"]');
+
+                const isRoleNameValid = validateField(roleNameInput);
+
+                if (!isRoleNameValid) {
+                    event.preventDefault();
+                    showToast('Please fill in all required fields', 'error');
+                }
+            });
+
+            // Form validation for Edit Role
+            document.getElementById('editRoleForm').addEventListener('submit', function(event) {
+                const roleNameInput = document.getElementById('edit_role_name');
+
+                const isRoleNameValid = validateField(roleNameInput);
+
+                if (!isRoleNameValid) {
+                    event.preventDefault();
+                    showToast('Please fill in all required fields', 'error');
+                }
+            });
+
+            // Function to validate field and show error styling
+            function validateField(field) {
+                let errorElement = field.closest('.space-y-2').querySelector('.error-message');
+
+                if (!field.value.trim()) {
+                    field.classList.add('border-red-500');
+                    if (errorElement) errorElement.classList.remove('hidden');
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorElement) errorElement.classList.add('hidden');
+                    return true;
+                }
+            }
+
+            // Add input event listeners to clear error styling when typing
+            document.querySelector('[name="role_name"]').addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+                const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+
+            document.getElementById('edit_role_name').addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+                const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
         });
     </script>
-
-    <!-- Success and Error Notifications -->
-    @if(session('success'))
-        <div id="successNotification"
-            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
-            role="alert">
-            <div class="flex items-center">
-                <div class="py-1">
-                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">Success!</p>
-                    <p>{{ session('success') }}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-            </div>
-        </div>
-
-        <script>
-            setTimeout(function () {
-                const notification = document.getElementById('successNotification');
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function () {
-                        notification.remove();
-                    }, 500);
-                }
-            }, 5000); // Hide after 5 seconds
-        </script>
-    @endif
-
-    @if(session('error'))
-        <div id="errorNotification"
-            class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
-            role="alert">
-            <div class="flex items-center">
-                <div class="py-1">
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">Error!</p>
-                    <p>{{ session('error') }}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-            </div>
-        </div>
-
-        <script>
-            setTimeout(function () {
-                const notification = document.getElementById('errorNotification');
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function () {
-                        notification.remove();
-                    }, 500);
-                }
-            }, 5000); // Hide after 5 seconds
-        </script>
-    @endif
 @endsection

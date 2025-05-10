@@ -20,12 +20,13 @@
                 </div>
 
                     @if(isset($receipt))
-                    <button id="exportPdfBtn" class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                    <a href="{{ route('procurement.receipt.export-pdf', ['id' => $receipt['receipt_id']]) }}" id="exportPdfBtn" class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200" target="_blank"
+                    rel="noopener noreferrer">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         Cetak PDF
-                    </button>
+                    </a>
                     @endif
                 </div>
 
@@ -35,43 +36,43 @@
                     <!-- Receipt Number -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor Penerimaan</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['receipt_code'] ?? 'N/A' }}</p>
+                        <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['receipt_code'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- Receipt Date -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Penerimaan</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['receipt_date'] ? date('d M Y', strtotime($receipt['receipt_date'])) : 'N/A' }}</p>
+                        <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['receipt_date'] ? \Carbon\Carbon::parse($receipt['receipt_date'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}</p>
                     </div>
 
                     <!-- Order Number -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor PO</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['purchase_order_id'] ?? 'N/A' }}</p>
+                        <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['purchase_order_id'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- Delivered by -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <p class="w-40 sm:w-48 text-[#666666] font-medium">Dikirim Oleh</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['delivered_by'] ?? 'N/A' }}</p>
+                        <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['delivered_by'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- Received by -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <p class="w-40 sm:w-48 text-[#666666] font-medium">Diterima Oleh</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['receiver_name'] ?? 'N/A' }}</p>
+                        <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['receiver_name'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- User Input -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <p class="w-40 sm:w-48 text-[#666666] font-medium">Diinput Oleh</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['creator_name'] ?? 'N/A' }}</p>
+                        <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['creator_name'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- Input Date -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Input</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $receipt['created_at'] ? date('d M Y H:i', strtotime($receipt['created_at'])) : 'N/A' }}</p>
+                        <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['created_at'] ? \Carbon\Carbon::parse($receipt['created_at'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}</p>
                     </div>
                 </div>
 
@@ -93,7 +94,7 @@
                                     @foreach($receipt['items'] as $item)
                                 <tr class="border-t border-[#EEF1F4]">
                                         <td class="p-3 text-sm text-[#666666]">{{ $item['procurement_item_name'] ?? 'N/A' }}</td>
-                                        <td class="p-3 text-sm text-center text-[#666666]">{{ isset($item['created_at']) ? date('d M Y', strtotime($item['created_at'])) : 'N/A' }}</td>
+                                        <td class="p-3 text-sm text-center text-[#666666]">{{ isset($item['created_at']) ? \Carbon\Carbon::parse($item['created_at'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}</td>
                                         <td class="p-3 text-sm text-[#666666]">{{ $item['notes'] ?? '-' }}</td>
                                 </tr>
                                     @endforeach
@@ -135,14 +136,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle Print button
-        const printBtn = document.getElementById('exportPdfBtn');
-
-        if (printBtn) {
-            printBtn.addEventListener('click', function() {
-                window.print();
-            });
-        }
+        // No additional JavaScript needed as we're using a direct link for PDF export
     });
 </script>
 @endpush

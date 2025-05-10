@@ -105,31 +105,31 @@
                         <div class="grid grid-cols-1 gap-3">
                             <!-- PO Number -->
                             <div class="flex items-start gap-2">
-                                <p class="w-24 text-[#666666] font-medium">Nomor PO</p>
+                                <p class="w-40 text-[#666666] font-medium">Nomor PO</p>
                                 <p class="text-[#666666]">: <span id="displayPoCode"></span></p>
                             </div>
 
                             <!-- Supplier -->
                             <div class="flex items-start gap-2">
-                                <p class="w-24 text-[#666666] font-medium">Vendor</p>
+                                <p class="w-40 text-[#666666] font-medium">Vendor</p>
                                 <p class="text-[#666666]">: <span id="displayVendor"></span></p>
                             </div>
 
                             <!-- PIC -->
                             <div class="flex items-start gap-2">
-                                <p class="w-24 text-[#666666] font-medium">PIC</p>
+                                <p class="w-40 text-[#666666] font-medium">PIC</p>
                                 <p class="text-[#666666]">: <span id="displayPic"></span></p>
                             </div>
 
                             <!-- PIC Contact -->
                             <div class="flex items-start gap-2">
-                                <p class="w-24 text-[#666666] font-medium">Kontak PIC</p>
+                                <p class="w-40 text-[#666666] font-medium">Kontak PIC</p>
                                 <p class="text-[#666666]">: <span id="displayPicContact"></span></p>
                             </div>
 
                             <!-- Input Date -->
                             <div class="flex items-start gap-2">
-                                <p class="w-24 text-[#666666] font-medium">Tanggal PO</p>
+                                <p class="w-40 text-[#666666] font-medium">Tanggal PO</p>
                                 <p class="text-[#666666]">: <span id="displayPoDate"></span></p>
                             </div>
                         </div>
@@ -193,6 +193,33 @@
         const usersDropdown = document.getElementById('users_dropdown');
         const usersList = document.getElementById('users_list');
         const usersLoading = document.getElementById('users_loading');
+
+        // Function to format date in Indonesian
+        function formatDateIndonesian(dateString) {
+            if (!dateString) return '';
+
+            try {
+                // Parse the date string
+                const date = new Date(dateString);
+                if (isNaN(date)) return dateString;
+
+                // Indonesian month names
+                const months = [
+                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ];
+
+                const day = date.getDate();
+                const month = months[date.getMonth()];
+                const year = date.getFullYear();
+                const hours = date.getHours().toString().padStart(2, '0');
+
+                return `${day} ${month} ${year}`;
+            } catch (e) {
+                console.error('Date formatting error:', e);
+                return dateString;
+            }
+        }
 
         // Function to show toast notifications
         function showToast(message, type = 'success') {
@@ -648,7 +675,7 @@
                     try {
                         const date = new Date(displayDate);
                         if (!isNaN(date)) {
-                            displayDate = date.toISOString().replace('T', ' ').substring(0, 19);
+                            displayDate = formatDateIndonesian(displayDate);
                         }
                     } catch (e) {
                         console.error('Date formatting error:', e);

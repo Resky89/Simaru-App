@@ -93,7 +93,20 @@
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['purchase_order_id'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['delivered_by'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['receiver_name'] ?? '-' }}</td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['receipt_date'] ? date('d M Y', strtotime($receipt['receipt_date'])) : '-' }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                        @if($receipt['receipt_date'])
+                                            @php
+                                                $date = \Carbon\Carbon::parse($receipt['receipt_date']);
+                                                $monthsIndonesian = [
+                                                    1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                                                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                                                ];
+                                                echo $date->format('d') . ' ' . $monthsIndonesian[$date->format('n')] . ' ' . $date->format('Y');
+                                            @endphp
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['creator_name'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">{{ isset($receipt['items']) ? count($receipt['items']) : 0 }}</td>
                                     <td class="p-3 border-t border-[#EEF1F4]">

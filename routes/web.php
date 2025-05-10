@@ -123,9 +123,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/search', [UserController::class, 'index'])->name('user.search');
 
         // User API Routes
-        Route::post('/users/store', [UserController::class, 'storeUser'])->name('users.store');
-        Route::put('/users/update/{id}', [UserController::class, 'updateUser'])->name('users.update');
-        Route::delete('/users/delete/{id}', [UserController::class, 'destroyUser'])->name('users.destroy');
+        Route::post('/store', [UserController::class, 'storeUser'])->name('users.store');
+        Route::put('/update/{id}', [UserController::class, 'updateUser'])->name('users.update');
+        Route::delete('/delete/{id}', [UserController::class, 'destroyUser'])->name('users.destroy');
     });
 
     // Role Management
@@ -274,6 +274,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         })->name('form-receipt');
         Route::get('/detail-receipt/{id}', [ProcurementReceiptController::class, 'show'])->name('receipt.show');
         Route::post('/receipt', [ProcurementReceiptController::class, 'create'])->name('receipt.create');
+        Route::get('/receipt/detail/{id}/export-pdf', [ProcurementReceiptController::class, 'exportReceiptDetailPDF'])->name('receipt.export-pdf');
 
         // Inside the procurement route group
         Route::post('/request', [ProcurementRequestController::class, 'store'])->name('store');

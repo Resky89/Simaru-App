@@ -20,23 +20,12 @@ class UserController extends Controller
     public function index(Request $request)
     {
         try {
-            // Fetch roles
-            $rolePage = $request->input('role_page', 1);
-            $roleLimit = $request->input('role_limit', 10);
-
-            $roleResult = $this->apiService->request('GET', '/roles', [
-                'query' => [
-                    'page' => $rolePage,
-                    'limit' => $roleLimit,
-                    'sort_by' => 'role_id',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-
             // Fetch users with the new response format
             $userPage = $request->input('user_page', 1);
             $userLimit = $request->input('user_limit', 10);
-            $searchQuery = $request->input('query', '');
+            $searchQuery = $request->input('search', '');
+            $status = $request->input('status', '');
+            $sort = $request->input('sort', '');
 
             $userQueryParams = [
                     'page' => $userPage,
@@ -50,24 +39,40 @@ class UserController extends Controller
                 $userQueryParams['search'] = $searchQuery;
             }
 
+            // Add status filter if provided
+            if (!empty($status)) {
+                $userQueryParams['is_active'] = $status === 'active' ? true : false;
+            }
+
+            // Apply custom sorting
+            if (!empty($sort)) {
+                switch ($sort) {
+                    case 'id_asc':
+                        $userQueryParams['sort_by'] = 'user_id';
+                        $userQueryParams['sort_order'] = 'asc';
+                        break;
+                    case 'id_desc':
+                        $userQueryParams['sort_by'] = 'user_id';
+                        $userQueryParams['sort_order'] = 'desc';
+                        break;
+                }
+            }
+
             $userResult = $this->apiService->request('GET', '/users', [
                 'query' => $userQueryParams
             ]);
 
             // Check if we got an error response from the ApiService
-            if (
-                (isset($roleResult['errors']) && is_string($roleResult['errors']) &&
-                in_array($roleResult['errors'], ['auth_failed', 'session_expired'])) ||
-                (isset($userResult['errors']) && is_string($userResult['errors']) &&
+            if (isset($userResult['errors']) && is_string($userResult['errors']) &&
                 in_array($userResult['errors'], ['auth_failed', 'session_expired']))
-            ) {
-                $errorMessage = $roleResult['errors'] ?? $userResult['errors'] ?? 'Authentication failed';
-                \Log::warning('Authentication error during roles and users retrieval:', [
+            {
+                $errorMessage = $userResult['errors'] ?? 'Authentication failed';
+                \Log::warning('Authentication error during users retrieval:', [
                     'errors' => $errorMessage
                 ]);
 
                 // Return JSON if requested
-                if ($request->expectsJson() || $request->is('api/*') || $request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() ||  $request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
                         'message' => is_string($errorMessage) ? $errorMessage : 'Authentication failed'
@@ -78,14 +83,11 @@ class UserController extends Controller
             }
 
             // Check for API errors based on success flag
-            if (
-                (!isset($roleResult['success']) || $roleResult['success'] !== true) ||
-                (!isset($userResult['success']) || $userResult['success'] !== true)
-            ) {
-                $errorData = $roleResult['errors'] ?? $userResult['errors'] ?? 'Failed to fetch data';
+            if (!isset($userResult['success']) || $userResult['success'] !== true)
+            {
+                $errorData = $userResult['errors'] ?? 'Failed to fetch data';
 
                 \Log::warning('Error during user data retrieval:', [
-                    'role_success' => $roleResult['success'] ?? false,
                     'user_success' => $userResult['success'] ?? false,
                     'errors' => $errorData
                 ]);
@@ -105,7 +107,7 @@ class UserController extends Controller
                 }
 
                 // Return JSON if requested
-                if ($request->expectsJson() || $request->is('api/*') || $request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() ||  $request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
                         'message' => $errorMessage,
@@ -114,34 +116,13 @@ class UserController extends Controller
                 }
 
                 return view('Account.User', [
-                    'roles' => [
-                        'data' => [],
-                        'pagination' => null
-                    ],
                     'users' => [],
                     'user_pagination' => null,
                     'error' => $errorMessage
                 ]);
             }
 
-            $roles = $roleResult['data'] ?? [];
             $users = $userResult['data'] ?? [];
-
-            // Format pagination for roles
-            $rolePagination = null;
-            if (isset($roleResult['pagination'])) {
-                $pagination = $roleResult['pagination'];
-                $rolePagination = [
-                    'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
-                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
-                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
-                    'total' => $pagination['total_items'] ?? 0,
-                    'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => $pagination['has_next'] ? url()->current() . '?role_page=' . ($pagination['current_page'] + 1) : null,
-                    'prev_page_url' => $pagination['has_prev'] ? url()->current() . '?role_page=' . ($pagination['current_page'] - 1) : null,
-                ];
-            }
 
             // Format pagination for users
             $userPagination = null;
@@ -154,13 +135,13 @@ class UserController extends Controller
                     'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
                     'total' => $pagination['total_items'] ?? 0,
                     'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => $pagination['has_next'] ? url()->current() . '?user_page=' . ($pagination['current_page'] + 1) : null,
-                    'prev_page_url' => $pagination['has_prev'] ? url()->current() . '?user_page=' . ($pagination['current_page'] - 1) : null,
+                    'next_page_url' => $pagination['has_next'] ? url()->current() . '?' . http_build_query(array_merge($request->except('user_page'), ['user_page' => ($pagination['current_page'] + 1)])) : null,
+                    'prev_page_url' => $pagination['has_prev'] ? url()->current() . '?' . http_build_query(array_merge($request->except('user_page'), ['user_page' => ($pagination['current_page'] - 1)])) : null,
                 ];
             }
 
             // Return JSON if requested
-            if ($request->expectsJson() || $request->is('api/*') || $request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() ||  $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'data' => $users,
@@ -168,13 +149,39 @@ class UserController extends Controller
                 ]);
             }
 
+            // Get roles for the view
+            $roles = [];
+            try {
+                $roleResult = $this->apiService->request('GET', '/roles', [
+                    'query' => [
+                        'page' => 1,
+                        'limit' => 100, // Get enough roles for dropdowns
+                        'sort_by' => 'role_id',
+                        'sort_order' => 'asc'
+                    ]
+                ]);
+
+                if (isset($roleResult['success']) && $roleResult['success'] === true) {
+                    $roles = $roleResult['data'] ?? [];
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Failed to fetch roles for dropdown', [
+                    'error' => $e->getMessage()
+                ]);
+            }
+
             return view('Account.User', [
                 'roles' => [
                     'data' => $roles,
-                    'pagination' => $rolePagination
+                    'pagination' => null
                 ],
                 'users' => $users,
-                'user_pagination' => $userPagination
+                'user_pagination' => $userPagination,
+                'filters' => [
+                    'search' => $searchQuery,
+                    'status' => $status,
+                    'sort' => $sort
+                ]
             ]);
         } catch (\Exception $e) {
             \Log::error('Failed to fetch user data', [
@@ -183,7 +190,7 @@ class UserController extends Controller
             ]);
 
             // Return JSON if requested
-            if ($request->expectsJson() || $request->is('api/*') || $request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to fetch data: ' . $e->getMessage()
@@ -210,14 +217,51 @@ class UserController extends Controller
         try {
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
+            $searchQuery = $request->input('search', '');
+            $status = $request->input('status', '');
+            $sort = $request->input('sort', '');
+
+            $queryParams = [
+                'page' => $page,
+                'limit' => $limit,
+                'sort_by' => 'user_id',
+                'sort_order' => 'asc' // Sort from lowest ID (oldest) to highest ID (newest)
+            ];
+
+            // Add search parameter if provided
+            if (!empty($searchQuery)) {
+                $queryParams['search'] = $searchQuery;
+            }
+
+            // Add status filter if provided
+            if (!empty($status)) {
+                $queryParams['is_active'] = $status === 'active' ? true : false;
+            }
+
+            // Apply custom sorting
+            if (!empty($sort)) {
+                switch ($sort) {
+                    case 'id_asc':
+                        $queryParams['sort_by'] = 'user_id';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'id_desc':
+                        $queryParams['sort_by'] = 'user_id';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    case 'emp_asc':
+                        $queryParams['sort_by'] = 'employee_number';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'emp_desc':
+                        $queryParams['sort_by'] = 'employee_number';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                }
+            }
 
             $result = $this->apiService->request('GET', '/users', [
-                'query' => [
-                    'page' => $page,
-                    'limit' => $limit,
-                    'sort_by' => 'user_id',
-                    'sort_order' => 'asc' // Sort from lowest ID (oldest) to highest ID (newest)
-                ]
+                'query' => $queryParams
             ]);
 
             // Check if we got an error response from the ApiService
@@ -260,7 +304,12 @@ class UserController extends Controller
 
             return view('Account.User', [
                 'users' => $result['data'] ?? [],
-                'user_pagination' => $result['pagination'] ?? null
+                'user_pagination' => $result['pagination'] ?? null,
+                'filters' => [
+                    'search' => $searchQuery,
+                    'status' => $status,
+                    'sort' => $sort
+                ]
             ]);
         } catch (\Exception $e) {
             \Log::error('Failed to fetch users', [
@@ -321,20 +370,27 @@ class UserController extends Controller
                 // Format error message for redirect
                 $errorMessage = '';
                 if (is_array($errorData)) {
+                    // If it's a nested array of field => [messages]
+                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
+                            foreach ($messages as $message) {
+                                $errorArray[] = $message;
+                            }
                         } else {
-                            $errorMessage .= $messages . '; ';
+                            $errorArray[] = $messages;
                         }
                     }
-                } else {
-                    $errorMessage = $errorData;
-                }
 
-                return redirect()->back()
-                    ->withInput($request->except('password'))
-                    ->with('error', $errorMessage);
+                    // Return the formatted array for the view
+                    return redirect()->back()
+                        ->withInput($request->except('password'))
+                        ->with('error', $errorArray);
+                } else {
+                    return redirect()->back()
+                        ->withInput($request->except('password'))
+                        ->with('error', $errorData);
+                }
             }
 
             // Successfully created
@@ -406,22 +462,28 @@ class UserController extends Controller
                 ]);
 
                 // Format error message for redirect
-                $errorMessage = '';
                 if (is_array($errorData)) {
+                    // If it's a nested array of field => [messages]
+                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
+                            foreach ($messages as $message) {
+                                $errorArray[] = $message;
+                            }
                         } else {
-                            $errorMessage .= $messages . '; ';
+                            $errorArray[] = $messages;
                         }
                     }
-                } else {
-                    $errorMessage = $errorData;
-                }
 
-                return redirect()->back()
-                    ->withInput($request->except('password'))
-                    ->with('error', $errorMessage);
+                    // Return the formatted array for the view
+                    return redirect()->back()
+                        ->withInput($request->except('password'))
+                        ->with('error', $errorArray);
+                } else {
+                    return redirect()->back()
+                        ->withInput($request->except('password'))
+                        ->with('error', $errorData);
+                }
             }
 
             // Successfully updated
@@ -474,20 +536,23 @@ class UserController extends Controller
                 ]);
 
                 // Format error message for redirect
-                $errorMessage = '';
                 if (is_array($errorData)) {
+                    // If it's a nested array of field => [messages]
+                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
+                            foreach ($messages as $message) {
+                                $errorArray[] = $message;
+                            }
                         } else {
-                            $errorMessage .= $messages . '; ';
+                            $errorArray[] = $messages;
                         }
                     }
-                } else {
-                    $errorMessage = $errorData;
-                }
 
-                return redirect()->back()->with('error', $errorMessage);
+                    return redirect()->back()->with('error', $errorArray);
+                } else {
+                    return redirect()->back()->with('error', $errorData);
+                }
             }
 
             // Successfully deleted

@@ -68,26 +68,26 @@
                     <div class="grid grid-cols-1 gap-5">
                         <!-- Request Number -->
                         <div class="flex items-start gap-2">
-                            <p class="w-32 text-[#666666] font-medium">Nomor Permintaan</p>
-                            <p class="text-[#666666]">: <span id="displayRequestNumber">PPB2406002</span></p>
+                            <p class="w-40 text-[#666666] font-medium">Nomor Permintaan</p>
+                            <p class="text-[#666666]">: <span id="displayRequestNumber"></span></p>
                         </div>
 
                         <!-- Request Title -->
                         <div class="flex items-start gap-2">
-                            <p class="w-32 text-[#666666] font-medium">Judul Permintaan</p>
-                            <p class="text-[#666666]">: <span id="displayRequestName">Pembelian Komputer IT</span></p>
+                            <p class="w-40 text-[#666666] font-medium">Judul Permintaan</p>
+                            <p class="text-[#666666]">: <span id="displayRequestName"></span></p>
                         </div>
 
                         <!-- Requester -->
                         <div class="flex items-start gap-2">
-                            <p class="w-32 text-[#666666] font-medium">Pemohon</p>
-                            <p class="text-[#666666]">: <span id="displayUserInput">Karyawan</span></p>
+                            <p class="w-40 text-[#666666] font-medium">Pemohon</p>
+                            <p class="text-[#666666]">: <span id="displayUserInput"></span></p>
                         </div>
 
                         <!-- Request Date -->
                         <div class="flex items-start gap-2">
-                            <p class="w-32 text-[#666666] font-medium">Tanggal Permintaan</p>
-                            <p class="text-[#666666]">: <span id="displayInputDate">2024-06-30 06:56:02</span></p>
+                            <p class="w-40 text-[#666666] font-medium">Tanggal Permintaan</p>
+                            <p class="text-[#666666]">: <span id="displayInputDate"></span></p>
                         </div>
                     </div>
 
@@ -142,6 +142,32 @@
         const procurementLoading = document.getElementById('procurement_loading');
         const selectedRequestId = document.getElementById('selected_request_id');
         const requestDetails = document.getElementById('requestDetails');
+
+        // Function to format date in Indonesian
+        function formatDateIndonesian(dateString) {
+            if (!dateString) return '';
+
+            try {
+                // Parse the date string
+                const date = new Date(dateString);
+                if (isNaN(date)) return dateString;
+
+                // Indonesian month names
+                const months = [
+                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ];
+
+                const day = date.getDate();
+                const month = months[date.getMonth()];
+                const year = date.getFullYear();
+
+                return `${day} ${month} ${year}`;
+            } catch (e) {
+                console.error('Date formatting error:', e);
+                return dateString;
+            }
+        }
 
         // Function to show toast notifications
         function showToast(message, type = 'success') {
@@ -495,7 +521,7 @@
                     try {
                         const date = new Date(displayDate);
                         if (!isNaN(date)) {
-                            displayDate = date.toISOString().replace('T', ' ').substring(0, 19);
+                            displayDate = formatDateIndonesian(displayDate);
                         }
                     } catch (e) {
                         console.error('Date formatting error:', e);
