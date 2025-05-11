@@ -228,23 +228,22 @@
                             <!-- Contact Person Input -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">
-                                    Kontak Person <span class="text-red-500">*</span>
+                                    Kontak Person
                                 </label>
                                 <input type="text" name="contact_person" id="add_contact_person"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Ketik di sini" required>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Kontak Person harus diisi</div>
+                                    placeholder="Ketik di sini">
+
                             </div>
 
                             <!-- Phone Number Input -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">
-                                    Nomor Telepon <span class="text-red-500">*</span>
+                                    Nomor Telepon
                                 </label>
                                 <input type="tel" name="phone_number" id="add_phone_number"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Ketik di sini" required>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor Telepon harus diisi</div>
+                                    placeholder="Ketik di sini">
                             </div>
 
                             <!-- Email Input -->
@@ -253,7 +252,6 @@
                                 <input type="email" name="email" id="add_email"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                     placeholder="Ketik di sini">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Format Email tidak valid</div>
                             </div>
 
                             <!-- Website Input -->
@@ -262,7 +260,6 @@
                                 <input type="url" name="website" id="add_website"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                     placeholder="Ketik di sini">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Format Website tidak valid</div>
                             </div>
 
                             <!-- Address Input -->
@@ -326,22 +323,22 @@
                             <!-- Contact Person Input -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">
-                                    Kontak Person <span class="text-red-500">*</span>
+                                    Kontak Person
                                 </label>
                                 <input type="text" id="editContactPerson" name="contact_person"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Ketik di sini" required>
+                                    placeholder="Ketik di sini">
                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Kontak Person harus diisi</div>
                             </div>
 
                             <!-- Phone Number Input -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">
-                                    Nomor Telepon <span class="text-red-500">*</span>
+                                    Nomor Telepon
                                 </label>
                                 <input type="text" id="editPhoneNumber" name="phone_number"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Ketik di sini" required>
+                                    placeholder="Ketik di sini">
                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor Telepon harus diisi</div>
                             </div>
 
@@ -811,8 +808,6 @@
             event.preventDefault();
 
             const vendorNameInput = document.getElementById('add_vendor_name');
-            const contactPersonInput = document.getElementById('add_contact_person');
-            const phoneNumberInput = document.getElementById('add_phone_number');
             const emailInput = document.getElementById('add_email');
             const websiteInput = document.getElementById('add_website');
 
@@ -820,8 +815,6 @@
 
             // Validate required fields
             if (!validateField(vendorNameInput)) isValid = false;
-            if (!validateField(contactPersonInput)) isValid = false;
-            if (!validateField(phoneNumberInput)) isValid = false;
 
             // Validate email format if provided
             if (emailInput.value.trim() !== '' && !validateEmail(emailInput)) isValid = false;
@@ -830,7 +823,7 @@
             if (websiteInput.value.trim() !== '' && !validateUrl(websiteInput)) isValid = false;
 
             if (!isValid) {
-                showToast('Silakan isi semua field yang diperlukan dengan benar', 'error');
+                showToast('Silakan isi nama vendor dengan benar', 'error');
                 return false;
             }
 
@@ -842,8 +835,6 @@
             event.preventDefault();
 
             const vendorNameInput = document.getElementById('editVendorName');
-            const contactPersonInput = document.getElementById('editContactPerson');
-            const phoneNumberInput = document.getElementById('editPhoneNumber');
             const emailInput = document.getElementById('editEmail');
             const websiteInput = document.getElementById('editWebsite');
 
@@ -851,8 +842,6 @@
 
             // Validate required fields
             if (!validateField(vendorNameInput)) isValid = false;
-            if (!validateField(contactPersonInput)) isValid = false;
-            if (!validateField(phoneNumberInput)) isValid = false;
 
             // Validate email format if provided
             if (emailInput.value.trim() !== '' && !validateEmail(emailInput)) isValid = false;
@@ -861,7 +850,7 @@
             if (websiteInput.value.trim() !== '' && !validateUrl(websiteInput)) isValid = false;
 
             if (!isValid) {
-                showToast('Silakan isi semua field yang diperlukan dengan benar', 'error');
+                showToast('Silakan isi nama vendor dengan benar', 'error');
                 return false;
             }
 
@@ -1270,14 +1259,6 @@
                     warnings.push(`Row ${rowIndex + 2}: Nama Vendor tidak boleh kosong`);
                 }
 
-                if (!item.contact_person) {
-                    warnings.push(`Row ${rowIndex + 2}: Kontak Person tidak boleh kosong`);
-                }
-
-                if (!item.phone_number) {
-                    warnings.push(`Row ${rowIndex + 2}: Nomor Telepon tidak boleh kosong`);
-                }
-
                 // Add row index for reference
                 item._rowNum = rowIndex + 2; // +2 because we've removed the header row and arrays are 0-indexed
 
@@ -1363,9 +1344,7 @@
                 // Disable import button if there are critical warnings
                 const importBtn = document.getElementById('vendor-import-btn');
                 const hasCriticalWarnings = warnings.some(warning =>
-                    warning.includes('Nama Vendor tidak boleh kosong') ||
-                    warning.includes('Kontak Person tidak boleh kosong') ||
-                    warning.includes('Nomor Telepon tidak boleh kosong')
+                    warning.includes('Nama Vendor tidak boleh kosong')
                 );
 
                 if (importBtn && hasCriticalWarnings) {

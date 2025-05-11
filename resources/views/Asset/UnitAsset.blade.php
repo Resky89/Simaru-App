@@ -153,6 +153,10 @@
                                                         $statusText = 'DIHAPUSKAN';
                                                         $statusColor = 'bg-[#ACC3EF]';
                                                         break;
+                                                    case 'under repair':
+                                                        $statusText = 'PERBAIKAN';
+                                                        $statusColor = 'bg-[#25B1FF]';
+                                                        break;
                                                     default:
                                                         $statusText = strtoupper($asset['current_status']);
                                                 }
@@ -289,7 +293,7 @@
                 </div>
 
                 <!-- Add Asset Form -->
-                <form action="{{ route('assets.store') }}" method="POST">
+                <form action="{{ route('assets.store') }}" method="POST" id="addAssetForm" novalidate>
                     @csrf
                     <div class="p-6">
                         <div class="space-y-4">
@@ -300,11 +304,12 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <!-- Asset Master Dropdown -->
                                 <div class="mb-4">
-                                    <label for="asset_master_id" class="block text-gray-700 text-sm font-bold mb-2">Master Aset</label>
+                                    <label for="asset_master_id" class="block text-gray-700 text-sm font-bold mb-2">Master Aset <span class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <input type="text" id="asset_master_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari master aset...">
-                                        <input type="hidden" name="asset_master_id" id="selected_asset_master_id">
+                                        <input type="text" id="asset_master_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari master aset..." required>
+                                        <input type="hidden" name="asset_master_id" id="selected_asset_master_id" required>
                                         <input type="hidden" id="selected_is_depreciable" value="false">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Master aset harus dipilih</div>
 
                                         <!-- Dropdown -->
                                         <div id="asset_master_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
@@ -320,19 +325,22 @@
                                 </div>
                             </div>
                                 <div class="mb-4">
-                                    <label for="serial_number" class="block text-gray-700 text-sm font-bold mb-2">Nomor Seri</label>
-                                    <input type="text" name="serial_number" id="serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Nomor seri">
+                                    <label for="serial_number" class="block text-gray-700 text-sm font-bold mb-2">Nomor Seri <span class="text-red-500">*</span></label>
+                                    <input type="text" name="serial_number" id="serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Nomor seri" required>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor seri harus diisi</div>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pembelian</label>
-                                    <input type="date" name="purchase_date" id="purchase_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                    <label for="purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pembelian <span class="text-red-500">*</span></label>
+                                    <input type="date" name="purchase_date" id="purchase_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian harus diisi</div>
                                 </div>
                                 <div class="mb-4">
-                                    <label for="purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pembelian</label>
-                                    <input type="number" name="purchase_cost" id="purchase_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
+                                    <label for="purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pembelian <span class="text-red-500">*</span></label>
+                                    <input type="number" name="purchase_cost" id="purchase_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00" required>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
                                 </div>
                             </div>
 
@@ -343,10 +351,11 @@
                                 </div>
                                 <!-- Room Dropdown -->
                                 <div class="mb-4">
-                                    <label for="room_id" class="block text-gray-700 text-sm font-bold mb-2">Ruangan</label>
+                                    <label for="room_id" class="block text-gray-700 text-sm font-bold mb-2">Ruangan <span class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <input type="text" id="room_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari ruangan...">
-                                        <input type="hidden" name="room_id" id="selected_room_id">
+                                        <input type="text" id="room_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari ruangan..." required>
+                                        <input type="hidden" name="room_id" id="selected_room_id" required>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Ruangan harus dipilih</div>
                                         <div id="room_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                                             <!-- Loading indicator -->
                                             <div id="room_loading" class="flex justify-center py-2">
@@ -366,12 +375,14 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="condition" class="block text-gray-700 text-sm font-bold mb-2">Kondisi</label>
-                                    <select name="condition" id="condition" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                    <label for="condition" class="block text-gray-700 text-sm font-bold mb-2">Kondisi <span class="text-red-500">*</span></label>
+                                    <select name="condition" id="condition" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                        <option value="">Pilih Kondisi</option>
                                         <option value="good">Baik</option>
                                         <option value="slighly damage">Sedikit Rusak</option>
                                         <option value="high damage">Sangat Rusak</option>
                                     </select>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Kondisi harus dipilih</div>
                                 </div>
                                 <!-- User ID Field -->
                                 <div class="mb-4">
@@ -395,38 +406,44 @@
 
                             <!-- Depreciation Fields Section -->
                             <div id="depreciation_fields" class="space-y-4 border rounded-lg p-4 border-dashed border-gray-300 hidden">
-                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Depresiasi</h3>
+                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Penyusutan</h3>
 
                                 <div class="mb-4">
-                                    <label for="depreciation_method" class="block text-gray-700 text-sm font-bold mb-2">Metode Depresiasi</label>
-                                    <select name="depreciation_method" id="depreciation_method" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                    <label for="depreciation_method" class="block text-gray-700 text-sm font-bold mb-2">Metode Penyusutan <span class="text-red-500">*</span></label>
+                                    <select name="depreciation_method" id="depreciation_method" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" disabled>
+                                        <option value="">Pilih Metode</option>
                                         <option value="Straight Line">Garis Lurus</option>
                                         <option value="Declining Balance">Saldo Menurun</option>
                                         <option value="Double Declining Balance">Saldo Menurun Ganda</option>
                                         <option value="150% Declining Balance">Saldo Menurun 150%</option>
                                         <option value="Sum of the Year's Digits">Jumlah Tahun Angka (SYD)</option>
                                     </select>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Metode penyusutan harus dipilih</div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="mb-4">
-                                        <label for="acquisition_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pengadaan</label>
-                                        <input type="number" name="acquisition_cost" id="acquisition_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
+                                        <label for="acquisition_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pengadaan <span class="text-red-500">*</span></label>
+                                        <input type="number" name="acquisition_cost" id="acquisition_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00" disabled>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan harus diisi</div>
                                     </div>
                                     <div class="mb-4">
-                                        <label for="salvage_value" class="block text-gray-700 text-sm font-bold mb-2">Nilai Sisa</label>
-                                        <input type="number" name="salvage_value" id="salvage_value" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
+                                        <label for="salvage_value" class="block text-gray-700 text-sm font-bold mb-2">Nilai Sisa <span class="text-red-500">*</span></label>
+                                        <input type="number" name="salvage_value" id="salvage_value" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00" disabled>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus diisi</div>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="mb-4">
-                                        <label for="asset_life_months" class="block text-gray-700 text-sm font-bold mb-2">Usia Aset (bulan)</label>
-                                        <input type="number" name="asset_life_months" id="asset_life_months" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                        <label for="asset_life_months" class="block text-gray-700 text-sm font-bold mb-2">Usia Aset (bulan) <span class="text-red-500">*</span></label>
+                                        <input type="number" name="asset_life_months" id="asset_life_months" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" disabled>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Usia aset harus diisi</div>
                                     </div>
                                     <div class="mb-4">
-                                        <label for="date_acquired" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pengadaan</label>
-                                        <input type="date" name="date_acquired" id="date_acquired" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                        <label for="date_acquired" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pengadaan <span class="text-red-500">*</span></label>
+                                        <input type="date" name="date_acquired" id="date_acquired" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" disabled>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan harus diisi</div>
                                     </div>
                                 </div>
                             </div>
@@ -461,7 +478,7 @@
                 </div>
 
                 <!-- Edit Asset Form -->
-                <form id="editAssetForm" method="POST">
+                <form id="editAssetForm" method="POST" novalidate>
                     @csrf
                     @method('PUT')
                     <div class="p-6">
@@ -471,12 +488,15 @@
 
                             <!-- Basic Asset Details -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="mb-4">
-                                    <label for="edit_asset_master_id" class="block text-gray-700 text-sm font-bold mb-2">Master Aset</label>
+                                <div class="space-y-2">
+                                    <label for="edit_asset_master_id" class="block text-base font-semibold text-[#666666]">
+                                        Master Aset <span class="text-red-500">*</span>
+                                    </label>
                                     <div class="relative">
-                                        <input type="text" id="edit_asset_master_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari master aset...">
-                                        <input type="hidden" name="asset_master_id" id="edit_selected_asset_master_id">
+                                        <input type="text" id="edit_asset_master_search" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" placeholder="Cari master aset..." required>
+                                        <input type="hidden" name="asset_master_id" id="edit_selected_asset_master_id" required>
                                         <input type="hidden" id="edit_selected_is_depreciable" value="false">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Master aset harus dipilih</div>
 
                                         <!-- Dropdown -->
                                         <div id="edit_asset_master_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
@@ -490,38 +510,57 @@
                                             <ul id="edit_asset_master_list" class="max-h-56 overflow-y-auto"></ul>
                                     </div>
                                 </div>
-                            </div>
-                                <div class="mb-4">
-                                    <label for="edit_serial_number" class="block text-gray-700 text-sm font-bold mb-2">Nomor Seri</label>
-                                    <input type="text" name="serial_number" id="edit_serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Nomor seri">
                                 </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="mb-4">
-                                    <label for="edit_purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pembelian</label>
-                                    <input type="date" name="purchase_date" id="edit_purchase_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                </div>
-                                <div class="mb-4">
-                                    <label for="edit_purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pembelian</label>
-                                    <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
+                                <div class="space-y-2">
+                                    <label for="edit_serial_number" class="block text-base font-semibold text-[#666666]">
+                                        Nomor Seri <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="serial_number" id="edit_serial_number" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                        placeholder="Nomor seri">
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor seri harus diisi</div>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Tanggal Berakhir Garansi</label>
+                                    <label for="edit_purchase_date" class="block text-base font-semibold text-[#666666]">
+                                        Tanggal Pembelian <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="date" name="purchase_date" id="edit_purchase_date" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian harus diisi</div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="edit_purchase_cost" class="block text-base font-semibold text-[#666666]">
+                                        Biaya Pembelian <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01" required
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                        placeholder="0.00">
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="edit_warranty_end_date" class="block text-base font-semibold text-[#666666]">
+                                        Tanggal Berakhir Garansi
+                                    </label>
                                     <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                 </div>
                                 <!-- Room Dropdown -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Ruangan</label>
+                                    <label class="block text-base font-semibold text-[#666666]">
+                                        Ruangan <span class="text-red-500">*</span>
+                                    </label>
                                     <div class="relative">
-                                        <input type="text" id="edit_room_search"
+                                        <input type="text" id="edit_room_search" required
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="Cari ruangan..." autocomplete="off">
                                         <input type="hidden" name="room_id" id="edit_selected_room_id" required>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Ruangan harus dipilih</div>
                                         <div id="edit_room_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                             <div id="edit_room_loading" class="p-2 text-gray-500 text-center">
                                                 <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -541,17 +580,23 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Kondisi</label>
+                                    <label class="block text-base font-semibold text-[#666666]">
+                                        Kondisi <span class="text-red-500">*</span>
+                                    </label>
                                     <select name="condition" id="edit_condition" required
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <option value="">Pilih Kondisi</option>
                                         <option value="good">Baik</option>
                                         <option value="slightly damage">Sedikit Rusak</option>
                                         <option value="high damage">Sangat Rusak</option>
                                     </select>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Kondisi harus dipilih</div>
                                 </div>
                                 <!-- User ID Field -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Karyawan yang Bertanggung Jawab</label>
+                                    <label class="block text-base font-semibold text-[#666666]">
+                                        Karyawan yang Bertanggung Jawab
+                                    </label>
                                     <div class="relative">
                                         <input type="text" id="edit_user_search"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
@@ -573,45 +618,61 @@
 
                             <!-- Depreciation Fields Section -->
                             <div id="edit_depreciation_fields" class="space-y-4 border rounded-lg p-4 border-dashed border-gray-300 hidden">
-                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Depresiasi</h3>
+                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Penyusutan</h3>
 
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Metode Depresiasi</label>
+                                    <label class="block text-base font-semibold text-[#666666]">
+                                        Metode Penyusutan <span class="text-red-500">*</span>
+                                    </label>
                                     <select name="depreciation_method" id="edit_depreciation_method"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" disabled>
+                                        <option value="">Pilih Metode</option>
                                         <option value="Straight Line">Garis Lurus</option>
                                         <option value="Declining Balance">Saldo Menurun</option>
                                         <option value="Double Declining Balance">Saldo Menurun Ganda</option>
                                         <option value="150% Declining Balance">Saldo Menurun 150%</option>
                                         <option value="Sum of the Year's Digits">Jumlah Tahun Angka (SYD)</option>
                                     </select>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Metode penyusutan harus dipilih</div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Biaya Pengadaan</label>
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Biaya Pengadaan <span class="text-red-500">*</span>
+                                        </label>
                                         <input type="number" step="0.01" name="acquisition_cost" id="edit_acquisition_cost"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="0.00">
+                                            placeholder="0.00" disabled>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan harus diisi</div>
                                     </div>
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Nilai Sisa</label>
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Nilai Sisa <span class="text-red-500">*</span>
+                                        </label>
                                         <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="0.00">
+                                            placeholder="0.00" disabled>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus diisi</div>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Usia Aset (bulan)</label>
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Usia Aset (bulan) <span class="text-red-500">*</span>
+                                        </label>
                                         <input type="number" name="asset_life_months" id="edit_asset_life_months"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" disabled>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Usia aset harus diisi</div>
                                     </div>
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Tanggal Pengadaan</label>
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Tanggal Pengadaan <span class="text-red-500">*</span>
+                                        </label>
                                         <input type="date" name="date_acquired" id="edit_date_acquired"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" disabled>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan harus diisi</div>
                                     </div>
                                 </div>
                             </div>
@@ -734,7 +795,7 @@
 </script>
 @endif
 
-<!-- Modified Print QR Modal -->
+<!-- Print QR Modal -->
 <div id="printQRModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -743,7 +804,7 @@
                 id="printQRModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">PRINT KODE QR</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">CETAK QR CODE</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -752,37 +813,56 @@
                 </div>
 
                 <!-- Form -->
-                <form id="printQRForm" method="POST" action="{{ url('/assets/qr/print-pdf') }}" target="_blank">
+                <form id="printQRForm" action="{{ route('assets.qr.print-direct') }}" method="post" target="_blank">
                     @csrf
                     <div class="p-6">
-                        <div class="space-y-4 max-w-[400px] mx-auto">
-                            <div class="space-y-2">
-                                <p class="text-base text-gray-600">Pilih ukuran kode QR untuk dicetak.</p>
-                                <p id="selectedAssetsCount" class="font-semibold text-center"></p>
-                            </div>
+                        <div class="space-y-4">
+                            <input type="hidden" name="asset_ids" id="printQRAssetIds" value="">
 
-                            <!-- QR Size Input -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Ukuran QR (mm)</label>
-                                <select name="qr_size" required class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                    <option value="40">40mm x 40mm</option>
-                                    <option value="50" selected>50mm x 50mm</option>
-                                    <option value="60">60mm x 60mm</option>
-                                    <option value="80">80mm x 80mm</option>
+                                <label class="block text-base font-semibold text-[#666666]">Ukuran Kertas Stiker</label>
+                                <select name="qr_size" id="qr_size"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                    <option value="80">80 x 50 mm (Kertas Stiker)</option>
+                                    <option value="100">100 x 50 mm (Kertas Stiker)</option>
                                 </select>
                             </div>
 
-                            <!-- Hidden field to store selected asset IDs -->
-                            <input type="hidden" id="selectedAssetIds" name="asset_ids" value="">
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Jumlah Cetak</label>
+                                <input type="number" name="quantity" id="quantity" min="1" value="1"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                            </div>
 
-                            <!-- Hidden field for quantity dengan nilai default 1 -->
-                            <input type="hidden" name="quantity" value="1">
-
-                            <!-- Submit Button -->
-                            <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Buat PDF
-                            </button>
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Tipe Cetak</label>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input id="print_direct" name="print_type" type="radio" value="direct" checked
+                                            class="h-4 w-4 text-[#213268] border-gray-300 focus:ring-[#213268]">
+                                        <label for="print_direct" class="ml-2 block text-sm text-gray-700">
+                                            Cetak Langsung
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center mt-2">
+                                        <input id="print_pdf" name="print_type" type="radio" value="pdf"
+                                            class="h-4 w-4 text-[#213268] border-gray-300 focus:ring-[#213268]">
+                                        <label for="print_pdf" class="ml-2 block text-sm text-gray-700">
+                                            Download PDF
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="flex gap-3 p-6 pt-0">
+                        <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                            Batal
+                        </button>
+                        <button type="submit" class="w-1/2 h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                            Cetak QR Code
+                        </button>
                     </div>
                 </form>
             </div>
@@ -847,16 +927,17 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                     </svg>
                                                 </button>
-        </div>
-    </div>
-</div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <div class="text-center">
                                         <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                         </svg>
                                         <p class="mt-1 text-sm text-gray-600">Seret file Excel Anda atau <span class="text-[#213268] font-semibold">jelajahi file</span></p>
-                                        <p class="mt-1 text-xs text-gray-500
+                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: xlsx, xls, csv</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih file</p>
                                     </div>
                                     <input type="file" id="excel_file" name="excel_file" accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 </div>
@@ -884,7 +965,7 @@
                     </div>
                 </div>
 
-                <!-- Step 2: Import Progress -->
+                <!-- Step 2: Data Preview -->
                 <div id="import-step-2" class="hidden">
                     <div class="p-6">
                         <div class="space-y-6">
@@ -979,6 +1060,268 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Form validation for Add Asset
+        document.getElementById('addAssetForm')?.addEventListener('submit', function(event) {
+            const assetMasterSearch = document.getElementById('asset_master_search');
+            const selectedAssetMasterId = document.getElementById('selected_asset_master_id');
+            const serialNumber = document.getElementById('serial_number');
+            const purchaseDate = document.getElementById('purchase_date');
+            const purchaseCost = document.getElementById('purchase_cost');
+            const roomSearch = document.getElementById('room_search');
+            const selectedRoomId = document.getElementById('selected_room_id');
+            const condition = document.getElementById('condition');
+
+            // Validate required fields
+            const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
+            const isSerialNumberValid = validateField(serialNumber);
+            const isPurchaseDateValid = validateField(purchaseDate);
+            const isPurchaseCostValid = validateField(purchaseCost);
+            const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
+            const isConditionValid = validateField(condition);
+
+            // Check depreciation fields if they're visible
+            let depreciationFieldsValid = true;
+            const depreciationFields = document.getElementById('depreciation_fields');
+            if (depreciationFields && !depreciationFields.classList.contains('hidden')) {
+                const depreciationMethod = document.getElementById('depreciation_method');
+                const acquisitionCost = document.getElementById('acquisition_cost');
+                const salvageValue = document.getElementById('salvage_value');
+                const assetLifeMonths = document.getElementById('asset_life_months');
+                const dateAcquired = document.getElementById('date_acquired');
+
+                const isDepreciationMethodValid = validateField(depreciationMethod);
+                const isAcquisitionCostValid = validateField(acquisitionCost);
+                const isSalvageValueValid = validateField(salvageValue);
+                const isAssetLifeMonthsValid = validateField(assetLifeMonths);
+                const isDateAcquiredValid = validateField(dateAcquired);
+
+                depreciationFieldsValid = isDepreciationMethodValid && isAcquisitionCostValid &&
+                    isSalvageValueValid && isAssetLifeMonthsValid && isDateAcquiredValid;
+            }
+
+            // If any validation fails, prevent form submission
+            if (!isAssetMasterValid || !isSerialNumberValid || !isPurchaseDateValid ||
+                !isPurchaseCostValid || !isRoomValid || !isConditionValid || !depreciationFieldsValid) {
+                event.preventDefault();
+                showToast('Silakan isi semua field yang diperlukan', 'error');
+            }
+        });
+
+        // Form validation for Edit Asset
+        document.getElementById('editAssetForm')?.addEventListener('submit', function(event) {
+            const assetMasterSearch = document.getElementById('edit_asset_master_search');
+            const selectedAssetMasterId = document.getElementById('edit_selected_asset_master_id');
+            const serialNumber = document.getElementById('edit_serial_number');
+            const purchaseDate = document.getElementById('edit_purchase_date');
+            const purchaseCost = document.getElementById('edit_purchase_cost');
+            const roomSearch = document.getElementById('edit_room_search');
+            const selectedRoomId = document.getElementById('edit_selected_room_id');
+            const condition = document.getElementById('edit_condition');
+
+            // Validate required fields
+            const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
+            const isSerialNumberValid = validateField(serialNumber);
+            const isPurchaseDateValid = validateField(purchaseDate);
+            const isPurchaseCostValid = validateField(purchaseCost);
+            const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
+            const isConditionValid = validateField(condition);
+
+            // Check depreciation fields if they're visible
+            let depreciationFieldsValid = true;
+            const depreciationFields = document.getElementById('edit_depreciation_fields');
+            if (depreciationFields && !depreciationFields.classList.contains('hidden')) {
+                const depreciationMethod = document.getElementById('edit_depreciation_method');
+                const acquisitionCost = document.getElementById('edit_acquisition_cost');
+                const salvageValue = document.getElementById('edit_salvage_value');
+                const assetLifeMonths = document.getElementById('edit_asset_life_months');
+                const dateAcquired = document.getElementById('edit_date_acquired');
+
+                const isDepreciationMethodValid = validateField(depreciationMethod);
+                const isAcquisitionCostValid = validateField(acquisitionCost);
+                const isSalvageValueValid = validateField(salvageValue);
+                const isAssetLifeMonthsValid = validateField(assetLifeMonths);
+                const isDateAcquiredValid = validateField(dateAcquired);
+
+                depreciationFieldsValid = isDepreciationMethodValid && isAcquisitionCostValid &&
+                    isSalvageValueValid && isAssetLifeMonthsValid && isDateAcquiredValid;
+            }
+
+            // If any validation fails, prevent form submission
+            if (!isAssetMasterValid || !isSerialNumberValid || !isPurchaseDateValid ||
+                !isPurchaseCostValid || !isRoomValid || !isConditionValid || !depreciationFieldsValid) {
+                event.preventDefault();
+                showToast('Silakan isi semua field yang diperlukan', 'error');
+            }
+        });
+
+        // Function to validate field and show/hide error message
+        function validateField(field, customCheck = null) {
+            if (!field) return true; // Skip if field doesn't exist
+
+            let isValid = true;
+            if (customCheck !== null) {
+                isValid = customCheck;
+            } else if (field.tagName.toLowerCase() === 'select') {
+                isValid = field.value !== '';
+            } else {
+                isValid = field.value.trim() !== '';
+            }
+
+            // Find the error message element
+            const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+
+            if (!isValid) {
+                field.classList.add('border-red-500');
+                if (errorElement) errorElement.classList.remove('hidden');
+            } else {
+                field.classList.remove('border-red-500');
+                if (errorElement) errorElement.classList.add('hidden');
+            }
+
+            return isValid;
+        }
+
+        // Add input event listeners to clear error styling when typing
+        // Add form fields
+        document.getElementById('asset_master_search')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('serial_number')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('purchase_date')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('purchase_cost')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('room_search')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('condition')?.addEventListener('change', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        // Edit form fields
+        document.getElementById('edit_asset_master_search')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('edit_serial_number')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('edit_purchase_date')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('edit_purchase_cost')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('edit_room_search')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('edit_condition')?.addEventListener('change', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        // Function to show toast notifications
+        function showToast(message, type = 'success') {
+            // Create the notification element
+            const notification = document.createElement('div');
+            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+            notification.role = 'alert';
+
+            // Add the appropriate styling based on type
+            if (type === 'success') {
+                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                notification.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Berhasil!</p>
+                            <div>${message}</div>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            } else {
+                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+                notification.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Error!</p>
+                            <div>${message}</div>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            }
+
+            // Add to document
+            document.body.appendChild(notification);
+
+            // Auto-remove notification after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        }
+
+        // Add animation for toast notifications
+        document.head.insertAdjacentHTML('beforeend', `
+            <style>
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+                .animate-slide-in-right {
+                    animation: slideInRight 0.3s ease-out forwards;
+                }
+            </style>
+        `);
+
         // Debounce utility function to limit how often a function can be called
         function debounce(func, wait, immediate) {
             let timeout;
@@ -1416,10 +1759,7 @@
                 }
 
                 // Update the hidden input with selected asset IDs
-                document.getElementById('selectedAssetIds').value = assetIds.join(',');
-
-                // Update the count display
-                document.getElementById('selectedAssetsCount').textContent = `Selected Assets: ${assetIds.length}`;
+                document.getElementById('printQRAssetIds').value = assetIds.join(',');
 
                 // Open the print QR modal
                 const printQRModal = document.getElementById('printQRModal');
@@ -2493,7 +2833,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-bold">Success!</p>
+                            <p class="font-bold">Berhasil!</p>
                             <div>${message}</div>
                         </div>
                         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -2572,18 +2912,6 @@
                 }
                 .animate-slide-in-right {
                     animation: slideInRight 0.3s ease-out forwards;
-                }
-
-                /* Styling for error messages with HTML content */
-                .error-message ul {
-                    margin-top: 0.5rem;
-                    padding-left: 1.5rem;
-                }
-                .error-message ul li {
-                    margin-bottom: 0.25rem;
-                }
-                .error-message ul li:last-child {
-                    margin-bottom: 0;
                 }
             </style>
         `);
@@ -2688,3 +3016,56 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 @endpush
 @endsection
+
+<!-- JavaScript for handling print type selection -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const printForm = document.getElementById('printQRForm');
+        const printDirectRadio = document.getElementById('print_direct');
+        const printPdfRadio = document.getElementById('print_pdf');
+
+        if (printForm && printDirectRadio && printPdfRadio) {
+            // Function to update form action based on selected print type
+            const updateFormAction = () => {
+                if (printDirectRadio.checked) {
+                    printForm.action = "{{ route('assets.qr.print-direct') }}";
+                } else {
+                    printForm.action = "{{ route('assets.qr.print-pdf') }}";
+                }
+            };
+
+            // Add event listeners for radio buttons
+            printDirectRadio.addEventListener('change', updateFormAction);
+            printPdfRadio.addEventListener('change', updateFormAction);
+
+            // Set initial form action
+            updateFormAction();
+
+            // Add submit handler to reload page after form submission
+            printForm.addEventListener('submit', function() {
+                // Close the modal first
+                const modal = document.getElementById('printQRModal');
+                if (modal) {
+                    const modalContent = document.getElementById('printQRModalContent');
+                    modalContent.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
+                    modalContent.classList.add('opacity-0', 'scale-95', 'translate-y-4');
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                        // Reload the page after a short delay to allow the print window to open
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }, 300);
+                }
+            });
+        }
+
+        // Close Print QR Modal
+        document.getElementById('printQRModal')?.querySelectorAll('.close-modal').forEach(button => {
+            button.addEventListener('click', function() {
+                const modal = document.getElementById('printQRModal');
+                closeModal(modal);
+            });
+        });
+    });
+</script>

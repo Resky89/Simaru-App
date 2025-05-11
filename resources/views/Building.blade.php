@@ -34,6 +34,30 @@
                         </div>
                     </div>
 
+                    <!-- Search and Filter -->
+                    <div class="flex flex-col md:flex-row gap-4 mb-6">
+                        <div class="relative flex-grow">
+                            <input type="text" id="searchBuildingInput" placeholder="Cari berdasarkan nama gedung atau alamat..."
+                                class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <select id="sortBuildingOrder"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" selected>Urutan Default</option>
+                                <option value="id_asc">Terlama</option>
+                                <option value="id_desc">Terbaru</option>
+                                <option value="name_asc">Nama (A-Z)</option>
+                                <option value="name_desc">Nama (Z-A)</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- Building Table -->
                     <div class="overflow-x-auto">
                         <table class="w-full">
@@ -357,7 +381,7 @@
             <div id="successNotification"
                 class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
                 role="alert">
-                <div class="flex items-center">
+                <div class="flex items-start">
                     <div class="py-1">
                         <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -366,7 +390,7 @@
                     </div>
                     <div>
                         <p class="font-bold">Berhasil!</p>
-                        <p>{{ session('success') }}</p>
+                        <div>{{ session('success') }}</div>
                     </div>
                     <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                 </div>
@@ -389,7 +413,7 @@
             <div id="errorNotification"
                 class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
                 role="alert">
-                <div class="flex items-center">
+                <div class="flex items-start">
                     <div class="py-1">
                         <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -398,7 +422,7 @@
                     </div>
                     <div>
                         <p class="font-bold">Gagal!</p>
-                        <p>{{ session('error') }}</p>
+                        <div>{{ session('error') }}</div>
                     </div>
                     <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                 </div>
@@ -598,6 +622,56 @@
                     window.location.href = url.toString();
                 }
 
+                // Search functionality
+                const searchBuildingInput = document.getElementById('searchBuildingInput');
+                const sortBuildingOrder = document.getElementById('sortBuildingOrder');
+
+                // Function to handle search and sorting
+                function applyBuildingFilters() {
+                    const searchValue = searchBuildingInput?.value.trim() || '';
+                    const sortValue = sortBuildingOrder?.value || '';
+
+                    // Create URL with parameters
+                    const url = new URL(window.location.href);
+
+                    // Clear existing parameters we're going to set
+                    ['search', 'sort', 'building_page'].forEach(param => {
+                        url.searchParams.delete(param);
+                    });
+
+                    // Add new parameters if they have values
+                    if (searchValue) url.searchParams.set('search', searchValue);
+                    if (sortValue) url.searchParams.set('sort', sortValue);
+
+                    // Reset to page 1 when filters change
+                    url.searchParams.set('building_page', 1);
+
+                    // Navigate to the new URL
+                    window.location.href = url.toString();
+                }
+
+                // Add event listener with debounce for search
+                let searchTimeout;
+                searchBuildingInput?.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(applyBuildingFilters, 500);
+                });
+
+                // Add event listener for sort order
+                sortBuildingOrder?.addEventListener('change', applyBuildingFilters);
+
+                // Set initial values from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                if (searchBuildingInput) {
+                    searchBuildingInput.value = urlParams.get('search') || '';
+                }
+                if (sortBuildingOrder) {
+                    const sortValue = urlParams.get('sort');
+                    if (sortValue) {
+                        sortBuildingOrder.value = sortValue;
+                    }
+                }
+
                 // Toast container
                 const toastContainer = document.createElement('div');
                 toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-4';
@@ -784,30 +858,30 @@
                 document.getElementById('addBuildingForm').addEventListener('submit', function(event) {
                     const buildingNameInput = document.getElementById('add_building_name');
                     const buildingAddressInput = document.getElementById('add_building_address');
-                    
+
                     const isNameValid = validateField(buildingNameInput);
                     const isAddressValid = validateField(buildingAddressInput);
-                    
+
                     if (!isNameValid || !isAddressValid) {
                         event.preventDefault();
                         showToast('Silakan isi semua field yang diperlukan', 'error');
                     }
                 });
-                
+
                 // Form validation for Edit Building
                 document.getElementById('editBuildingForm').addEventListener('submit', function(event) {
                     const buildingNameInput = document.getElementById('editBuildingName');
                     const buildingAddressInput = document.getElementById('editAddress');
-                    
+
                     const isNameValid = validateField(buildingNameInput);
                     const isAddressValid = validateField(buildingAddressInput);
-                    
+
                     if (!isNameValid || !isAddressValid) {
                         event.preventDefault();
                         showToast('Silakan isi semua field yang diperlukan', 'error');
                     }
                 });
-                
+
                 // Function to validate field and show error styling
                 function validateField(field) {
                     let errorElement = field.closest('.space-y-2').querySelector('.error-message');
@@ -822,26 +896,26 @@
                         return true;
                     }
                 }
-                
+
                 // Add input event listeners to clear error styling when typing
                 document.getElementById('add_building_name').addEventListener('input', function() {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
                 });
-                
+
                 document.getElementById('add_building_address').addEventListener('input', function() {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
                 });
-                
+
                 document.getElementById('editBuildingName').addEventListener('input', function() {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
                 });
-                
+
                 document.getElementById('editAddress').addEventListener('input', function() {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.space-y-2').querySelector('.error-message');

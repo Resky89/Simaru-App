@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Asset Detail Report</title>
+    <title>Laporan Detail Aset</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -123,51 +123,51 @@
 </head>
 <body>
     <div class="header">
-        <h1>ASSET DETAIL REPORT</h1>
-        <p>Generated on: {{ $date_generated }}</p>
+        <h1>LAPORAN DETAIL ASET</h1>
+        <p>Dibuat pada: {{ $date_generated }}</p>
     </div>
 
     <!-- Asset Image Section -->
     <div class="asset-info">
-        <h2>Asset Image</h2>
+        <h2>Gambar Aset</h2>
         <div class="image-container" style="text-align: center; margin: 10px 0; padding: 10px; background-color: white; border: 1px solid #eee;">
             @if(!empty($asset['image_base64']))
-                <img src="data:image/jpeg;base64,{{ $asset['image_base64'] }}" alt="Asset Image" style="max-width: 300px; max-height: 300px;">
+                <img src="data:image/jpeg;base64,{{ $asset['image_base64'] }}" alt="Gambar Aset" style="max-width: 300px; max-height: 300px;">
             @elseif(isset($asset['asset_master']['reference_image_path']) && $asset['asset_master']['reference_image_path'])
                 <!-- This likely won't work in PDF, but keeping as fallback -->
-                <img src="{{ config('app.backend_url') }}/public{{ $asset['asset_master']['reference_image_path'] }}" alt="Asset Image" style="max-width: 300px; max-height: 300px;">
+                <img src="{{ config('app.backend_url') }}/public{{ $asset['asset_master']['reference_image_path'] }}" alt="Gambar Aset" style="max-width: 300px; max-height: 300px;">
             @else
-                <p style="color: #999; font-style: italic;">No image available</p>
+                <p style="color: #999; font-style: italic;">Tidak ada gambar tersedia</p>
             @endif
         </div>
     </div>
 
     <!-- Asset Master Information Section -->
     <div class="asset-info">
-        <h2>Informasi Master Asset</h2>
+        <h2>Informasi Master Aset</h2>
 
         <div class="info-row">
-            <div class="info-label">Asset ID:</div>
+            <div class="info-label">ID Aset:</div>
             <div class="info-value">{{ $asset['asset_id'] ?? 'N/A' }}</div>
         </div>
 
         <div class="info-row">
-            <div class="info-label">Asset Code:</div>
+            <div class="info-label">Kode Aset:</div>
             <div class="info-value">{{ $asset['asset_code'] ?? 'N/A' }}</div>
         </div>
 
         <div class="info-row">
-            <div class="info-label">Asset Name:</div>
+            <div class="info-label">Nama Aset:</div>
             <div class="info-value">{{ $asset['asset_master']['asset_name'] ?? $asset['asset_master_name'] ?? 'N/A' }}</div>
         </div>
 
         <div class="info-row">
-            <div class="info-label">Asset Master Code:</div>
+            <div class="info-label">Kode Master Aset:</div>
             <div class="info-value">{{ $asset['asset_master']['asset_master_code'] ?? 'N/A' }}</div>
         </div>
 
         <div class="info-row">
-            <div class="info-label">Tipe Asset:</div>
+            <div class="info-label">Tipe Aset:</div>
             <div class="info-value">{{ $asset['asset_master']['asset_type'] ?? $asset['asset_master']['category']['category_name'] ?? 'N/A' }}</div>
         </div>
 
@@ -189,7 +189,7 @@
 
     <!-- Asset Information Section -->
     <div class="asset-info">
-        <h2>Informasi Asset</h2>
+        <h2>Informasi Aset</h2>
 
         <div class="info-row">
             <div class="info-label">Status:</div>
@@ -197,7 +197,7 @@
                 @php
                     $statusClass = '';
                     $status = $asset['current_status'] ?? '';
-                    $statusText = 'UNKNOWN';
+                    $statusText = 'TIDAK DIKETAHUI';
 
                     switch(strtolower($status)) {
                         case 'available':
@@ -342,7 +342,7 @@
         </div>
 
         <div class="info-row">
-            <div class="info-label">Umur Asset:</div>
+            <div class="info-label">Umur Aset:</div>
             <div class="info-value">
                 {{ $asset['depreciation']['asset_life_months'] ?? 'N/A' }} bulan
             </div>
@@ -360,26 +360,26 @@
     <!-- QR Code Section -->
     @if(isset($asset['qr_base64']))
     <div class="asset-info">
-        <h2>Asset QR Code</h2>
+        <h2>Kode QR Aset</h2>
         <div class="image-container" style="text-align: center; margin: 10px 0; padding: 10px; background-color: white; border: 1px solid #eee;">
-            <img src="data:image/png;base64,{{ $asset['qr_base64'] }}" alt="Asset QR Code" style="max-width: 200px; max-height: 200px;">
+            <img src="data:image/png;base64,{{ $asset['qr_base64'] }}" alt="Kode QR Aset" style="max-width: 200px; max-height: 200px;">
         </div>
     </div>
     @elseif(isset($asset['qr_code']))
     <div class="asset-info">
-        <h2>Asset QR Code</h2>
+        <h2>Kode QR Aset</h2>
         <div class="image-container" style="text-align: center; margin: 10px 0; padding: 10px; background-color: white; border: 1px solid #eee;">
             @php
                 $backendUrl = rtrim(config('app.backend_url'), '/');
                 $qrImageUrl = $backendUrl . '/public' . $asset['qr_code'];
             @endphp
-            <img src="{{ $qrImageUrl }}" alt="Asset QR Code" style="max-width: 200px; max-height: 200px;">
+            <img src="{{ $qrImageUrl }}" alt="Kode QR Aset" style="max-width: 200px; max-height: 200px;">
         </div>
     </div>
     @endif
 
     <div class="footer">
-        <p>Asset Monitoring System - Asset Detail Report</p>
+        <p>Sistem Monitoring Aset - Laporan Detail Aset</p>
     </div>
 </body>
 </html>

@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Document Details')
+@section('title', 'Detail Dokumen')
 
 @section('content')
 <div class="p-4 md:p-6">
@@ -13,7 +13,7 @@
                 </svg>
             </a>
             <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
-                DOCUMENT: {{ $document['document_title'] ?? 'Document Details' }}
+                DOKUMEN: {{ $document['document_title'] ?? 'Detail Dokumen' }}
             </h1>
         </div>
 
@@ -23,7 +23,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
-                <span class="text-sm md:text-base">Edit</span>
+                <span class="text-sm md:text-base">Ubah</span>
             </button>
         </div>
     </div>
@@ -31,24 +31,19 @@
     <!-- Document Information Card -->
     <div class="mb-6">
         <div class="bg-[#213268] rounded-t-lg p-4">
-            <h2 class="text-white font-semibold">Document Information</h2>
+            <h2 class="text-white font-semibold">Informasi Dokumen</h2>
         </div>
         <div class="bg-white p-6 rounded-b-lg border border-t-0 border-gray-200">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Document Details - First Column -->
                 <div>
                     <div class="mb-4">
-                        <p class="text-sm text-gray-500">Document ID</p>
-                        <p class="font-medium">{{ $document['document_id'] ?? 'N/A' }}</p>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-sm text-gray-500">Document Title</p>
+                        <p class="text-sm text-gray-500">Judul Dokumen</p>
                         <p class="font-medium">{{ $document['document_title'] ?? 'N/A' }}</p>
                     </div>
 
                     <div class="mb-4">
-                        <p class="text-sm text-gray-500">Upload Date</p>
+                        <p class="text-sm text-gray-500">Tanggal Upload</p>
                         <p class="font-medium">
                             @if(isset($document['upload_date']))
                                 {{ \Carbon\Carbon::parse($document['upload_date'])->format('d M Y, H:i') }}
@@ -62,7 +57,7 @@
                 <!-- Document Details - Second Column -->
                 <div>
                     <div class="mb-4">
-                        <p class="text-sm text-gray-500">Uploaded By</p>
+                        <p class="text-sm text-gray-500">Dibuat Oleh</p>
                         <p class="font-medium">
                             @if(isset($document['uploader']) && isset($document['uploader']['employee_number']))
                                 {{ $document['uploader']['employee_number'] }}
@@ -73,21 +68,10 @@
                     </div>
 
                     <div class="mb-4">
-                        <p class="text-sm text-gray-500">Has File</p>
-                        <p class="font-medium">
-                            @if(isset($document['file_path']) && !empty($document['file_path']))
-                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Yes</span>
-                            @else
-                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">No</span>
-                            @endif
-                        </p>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-sm text-gray-500">Created At</p>
+                        <p class="text-sm text-gray-500">Tanggal Dibuat</p>
                         <p class="font-medium">
                             @if(isset($document['created_at']))
-                                {{ \Carbon\Carbon::parse($document['created_at'])->format('d M Y, H:i') }}
+                                {{ \Carbon\Carbon::parse($document['created_at'])->locale('id')->format('d M Y') }}
                             @else
                                 N/A
                             @endif
@@ -98,16 +82,16 @@
 
             <!-- Notes Section -->
             <div class="mt-4">
-                <p class="text-sm text-gray-500">Notes</p>
+                <p class="text-sm text-gray-500">Catatan</p>
                 <div class="mt-2 p-3 bg-gray-50 rounded-lg">
-                    <p>{{ $document['notes'] ?? 'No notes available' }}</p>
+                    <p>{{ $document['notes'] ?? 'Tidak ada catatan' }}</p>
                 </div>
             </div>
 
             <!-- Document File Preview Section -->
             @if(isset($document['file_path']) && !empty($document['file_path']))
             <div class="mt-6">
-                <p class="text-sm text-gray-500 mb-2">Document File</p>
+                <p class="text-sm text-gray-500 mb-2">File Dokumen</p>
                 @php
                     $filePath = $document['file_path'];
                     $fileName = pathinfo($filePath, PATHINFO_BASENAME);
@@ -130,7 +114,7 @@
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
-                                Download Image
+                                Unduh Gambar
                             </span>
                         </a>
                     </div>
@@ -143,7 +127,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                     <div>
-                        <p class="font-medium">PDF Document</p>
+                        <p class="font-medium">Dokumen PDF</p>
                         <p class="text-sm text-gray-600">{{ $fileName }}</p>
                     </div>
                     @elseif(in_array($fileExtension, ['doc', 'docx']))
@@ -151,7 +135,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                     <div>
-                        <p class="font-medium">Word Document</p>
+                        <p class="font-medium">Dokumen Word</p>
                         <p class="text-sm text-gray-600">{{ $fileName }}</p>
                     </div>
                     @elseif(in_array($fileExtension, ['xls', 'xlsx', 'csv']))
@@ -159,7 +143,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                     <div>
-                        <p class="font-medium">Excel Spreadsheet</p>
+                        <p class="font-medium">Spreadsheet Excel</p>
                         <p class="text-sm text-gray-600">{{ $fileName }}</p>
                     </div>
                     @else
@@ -167,7 +151,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <div>
-                        <p class="font-medium">Document File</p>
+                        <p class="font-medium">File Dokumen</p>
                         <p class="text-sm text-gray-600">{{ $fileName }}</p>
                     </div>
                     @endif
@@ -176,7 +160,7 @@
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 8m4-4v12" />
                             </svg>
-                            Download
+                            Unduh
                         </span>
                     </a>
                 </div>
@@ -189,13 +173,13 @@
     <!-- Associated Assets Section -->
     <div class="mb-6">
         <div class="bg-[#213268] rounded-t-lg p-4 flex justify-between items-center">
-            <h2 class="text-white font-semibold">Associated Assets</h2>
+            <h2 class="text-white font-semibold">Asset Terkait</h2>
             <button id="link-document-btn" class="flex items-center justify-center gap-2 px-3 py-1.5 bg-white text-[#213268] rounded-lg hover:bg-gray-100 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.172 13.828a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101" />
                 </svg>
-                <span class="text-sm">Link Asset</span>
+                <span class="text-sm">Hubungkan Asset</span>
             </button>
         </div>
         <div class="bg-white p-6 rounded-b-lg border border-t-0 border-gray-200">
@@ -204,18 +188,14 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 text-left text-sm font-medium">Asset ID</th>
-                                <th class="bg-[#213268] text-white p-3 text-left text-sm font-medium">Asset Code</th>
-                                <th class="bg-[#213268] text-white p-3 text-left text-sm font-medium">Asset Name</th>
-                                <th class="bg-[#213268] text-white p-3 text-center text-sm font-medium">Action</th>
+                                <th class="bg-[#213268] text-white p-3 text-left text-sm font-medium">Kode Asset</th>
+                                <th class="bg-[#213268] text-white p-3 text-left text-sm font-medium">Nama Asset</th>
+                                <th class="bg-[#213268] text-white p-3 text-center text-sm font-medium">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($document['assets'] as $asset)
                                 <tr>
-                                    <td class="p-3 text-sm border-t border-gray-200">
-                                        {{ $asset['asset_id'] }}
-                                    </td>
                                     <td class="p-3 text-sm border-t border-gray-200">
                                         {{ $asset['asset_code'] }}
                                     </td>
@@ -231,7 +211,7 @@
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                     </svg>
-                                                    Unlink
+                                                    Putuskan
                                                 </span>
                                             </button>
                                         </form>
@@ -246,7 +226,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                     </svg>
-                    <p>No assets associated with this document</p>
+                    <p>Tidak ada asset terkait dengan dokumen ini</p>
                 </div>
             @endif
         </div>
@@ -262,7 +242,7 @@
                 id="editDocumentModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT DOCUMENT</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT DOKUMEN</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -279,7 +259,7 @@
                         <div class="space-y-4">
                             <!-- Document Title -->
                             <div>
-                                <label for="edit_document_title" class="block text-sm font-medium text-gray-700 mb-1">Document Title <span class="text-red-500">*</span></label>
+                                <label for="edit_document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
                                 <input type="text" id="edit_document_title" name="document_title"
                                     class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20"
                                     required value="{{ $document['document_title'] ?? '' }}">
@@ -287,7 +267,7 @@
 
                             <!-- File Upload -->
                             <div>
-                                <label for="edit_file" class="block text-sm font-medium text-gray-700 mb-1">Replace File (Optional)</label>
+                                <label for="edit_file" class="block text-sm font-medium text-gray-700 mb-1">Ganti File (Opsional)</label>
                                 <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                     <!-- Current File Info (if any) -->
                                     <div id="edit_current_file" class="mb-4 w-full">
@@ -353,9 +333,9 @@
                                         <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                         </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your file or <span class="text-[#213268] font-semibold">browse files</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
-                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                        <p class="mt-1 text-sm text-gray-600">Seret file Anda atau <span class="text-[#213268] font-semibold">telusuri file</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih file</p>
                                     </div>
                                     <input type="file" id="edit_file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 </div>
@@ -363,14 +343,14 @@
 
                             <!-- Notes -->
                             <div>
-                                <label for="edit_notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                                <label for="edit_notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
                                 <textarea id="edit_notes" name="notes" rows="3"
                                     class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20">{{ $document['notes'] ?? '' }}</textarea>
                             </div>
 
                             <!-- Associated Assets (hidden for future use) -->
                             <div class="hidden">
-                                <label for="edit_asset_ids" class="block text-sm font-medium text-gray-700 mb-1">Associated Assets</label>
+                                <label for="edit_asset_ids" class="block text-sm font-medium text-gray-700 mb-1">Asset Terkait</label>
                                 <select id="edit_asset_ids" name="asset_ids[]" multiple class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20">
                                     <!-- Options would be populated dynamically -->
                                 </select>
@@ -383,7 +363,7 @@
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                         </svg>
-                                        Update Document
+                                        Perbarui Dokumen
                                     </span>
                                 </button>
                             </div>
@@ -404,7 +384,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Success!</p>
+            <p class="font-bold">Berhasil!</p>
             <p>{{ session('success') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -421,8 +401,8 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Error!</p>
-            <p>{!! session('error') ?? $error ?? 'An error occurred' !!}</p>
+            <p class="font-bold">Gagal!</p>
+            <p>{!! session('error') ?? $error ?? 'Terjadi kesalahan' !!}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
     </div>
@@ -438,7 +418,7 @@
                 id="linkAssetsModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Select Assets</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Pilih Asset</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -452,7 +432,7 @@
                     <div class="flex flex-col md:flex-row gap-4 mb-4">
                         <div class="relative flex-grow">
                             <input type="text" id="asset-search"
-                                placeholder="Search by asset name, code, or serial number..."
+                                placeholder="Cari berdasarkan nama, kode, atau nomor seri..."
                                 class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
@@ -472,18 +452,18 @@
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
                                         <input type="checkbox" id="select-all-link-assets" class="checkbox checkbox-sm">
                                     </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Code</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Category Name</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kode Asset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Asset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Jenis Asset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Kategori</th>
                                 </tr>
                             </thead>
                             <tbody id="assets-table-body">
                                 <!-- Assets will be loaded here via AJAX -->
                                 <tr>
                                     <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                        Loading assets...
+                                        Memuat asset...
                                     </td>
                                 </tr>
                             </tbody>
@@ -498,7 +478,7 @@
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                     </svg>
-                                    Prev
+                                    Sebelumnya
                                 </span>
                             </button>
                             <div id="pagination-numbers" class="flex items-center space-x-1">
@@ -507,7 +487,7 @@
                             </div>
                             <button id="next-page" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">
                                 <span class="flex items-center">
-                                    Next
+                                    Selanjutnya
                                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                     </svg>
@@ -517,13 +497,13 @@
 
                         <div class="flex items-center gap-2 mt-4 md:mt-0">
                             <span class="text-sm text-gray-600" id="pagination-info">
-                                Showing 1 to 10 of 0 entries
+                                Menampilkan 1 sampai 10 dari 0 entri
                             </span>
                             <select id="per-page" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
-                                <option value="10">10 per page</option>
-                                <option value="25">25 per page</option>
-                                <option value="50">50 per page</option>
-                                <option value="100">100 per page</option>
+                                <option value="10">10 per halaman</option>
+                                <option value="25">25 per halaman</option>
+                                <option value="50">50 per halaman</option>
+                                <option value="100">100 per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -531,7 +511,7 @@
                     <!-- Button Group -->
                     <div class="pt-4 flex justify-end gap-4">
                         <button type="button" id="link-selected-assets" class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200" disabled>
-                            Link Selected
+                            Tautkan yang Dipilih
                         </button>
                     </div>
                 </div>
@@ -958,8 +938,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-bold">Error!</p>
-                            <p>Please select at least one asset</p>
+                            <p class="font-bold">Gagal!</p>
+                            <p>Silakan pilih setidaknya satu asset</p>
                         </div>
                         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                     </div>
@@ -997,7 +977,7 @@
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                Loading assets...
+                                Memuat asset...
                             </div>
                         </td>
                     </tr>
@@ -1051,7 +1031,7 @@
                     if (paginationInfo) {
                         const start = (currentPage - 1) * perPage + 1;
                         const end = Math.min(currentPage * perPage, totalAssets);
-                        paginationInfo.textContent = `Showing ${start} to ${end} of ${totalAssets} entries`;
+                        paginationInfo.textContent = `Menampilkan ${start} sampai ${end} dari ${totalAssets} entri`;
                     }
 
                     // Enable/disable pagination buttons
@@ -1155,7 +1135,7 @@
                             tableBody.innerHTML = `
                                 <tr>
                                     <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                        No assets found
+                                        Tidak ada asset yang ditemukan
                                     </td>
                                 </tr>
                             `;
@@ -1305,8 +1285,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-bold">Error!</p>
-                            <p>All selected assets are already linked to this document.</p>
+                            <p class="font-bold">Gagal!</p>
+                            <p>Semua asset yang dipilih sudah terhubung dengan dokumen ini.</p>
                         </div>
                         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                     </div>
@@ -1337,7 +1317,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Linking...
+                    Memuat...
                 `;
 
                 // Make API request
@@ -1386,7 +1366,7 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="font-bold">Success!</p>
+                                    <p class="font-bold">Berhasil!</p>
                                     <p>${result.message}</p>
                                 </div>
                                 <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -1408,7 +1388,32 @@
                         }, 1000);
                     } else {
                         // Show error message
-                        alert(result.message || 'Failed to link assets');
+                        // Replace alert with toast notification
+                        const errorToast = document.createElement('div');
+                        errorToast.id = 'errorNotification';
+                        errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                        errorToast.role = 'alert';
+                        errorToast.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="py-1">
+                                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-bold">Gagal!</p>
+                                    <p>${result.message || 'Gagal menautkan asset'}</p>
+                                </div>
+                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                            </div>
+                        `;
+                        document.body.appendChild(errorToast);
+
+                        // Auto-hide after 5 seconds
+                        setTimeout(() => {
+                            errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                            setTimeout(() => errorToast.remove(), 500);
+                        }, 5000);
 
                         // Reset button
                         if (linkButton) {
@@ -1421,12 +1426,37 @@
                     console.error('Error linking assets:', error);
 
                     // Show detailed error message
-                    let errorMessage = 'An error occurred while linking assets.';
+                    let errorMessage = 'Terjadi kesalahan saat menautkan asset.';
                     if (error.message) {
                         errorMessage += ' ' + error.message;
                     }
 
-                    alert(errorMessage + ' Please try again.');
+                    // Replace alert with toast notification
+                    const errorToast = document.createElement('div');
+                    errorToast.id = 'errorNotification';
+                    errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                    errorToast.role = 'alert';
+                    errorToast.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="py-1">
+                                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">Gagal!</p>
+                                <p>${errorMessage} Silakan coba lagi.</p>
+                            </div>
+                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                        </div>
+                    `;
+                    document.body.appendChild(errorToast);
+
+                    // Auto-hide after 5 seconds
+                    setTimeout(() => {
+                        errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(() => errorToast.remove(), 500);
+                    }, 5000);
 
                     // Reset button
                     if (linkButton) {

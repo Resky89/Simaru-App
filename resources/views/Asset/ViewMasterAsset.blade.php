@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Master Asset Details')
+@section('title', 'Detail Aset Master')
 
 @section('content')
 <div class="p-4 md:p-6">
@@ -13,7 +13,7 @@
                 </svg>
             </a>
             <h1 class="text-2xl md:text-[32px] font-semibold text-[#28356B]">
-                MASTER ASSET: {{ $masterAsset['asset_name'] ?? 'Asset Details' }}
+                DETAIL ASSET MASTER: {{ $masterAsset['asset_name'] ?? 'Detail Asset Master' }}
             </h1>
         </div>
         <div class="flex gap-2">
@@ -21,13 +21,13 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
-                Edit
+                Ubah
             </button>
             <a href="{{ route('export-master-asset-pdf', ['id' => $masterAsset['asset_master_id'] ?? '']) }}" target="_blank" class="flex items-center gap-2 px-4 py-3 border-2 border-[#28356B] rounded-lg text-[#28356B] hover:bg-[#28356B] hover:text-white transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Export PDF
+                Expor PDF
             </a>
         </div>
     </div>
@@ -35,7 +35,7 @@
     <!-- Master Asset Information -->
     <div class="mb-6">
         <div class="bg-[#28356B] rounded-t-lg p-4">
-            <h2 class="text-white font-semibold">Master Asset Information</h2>
+            <h2 class="text-white font-semibold">Informasi Aset Master</h2>
         </div>
         <div class="bg-white p-6 rounded-b-lg border border-t-0 border-gray-200">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -53,7 +53,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span class="text-gray-400">No image available</span>
+                            <span class="text-gray-400">Tidak ada gambar</span>
                         </div>
                     @endif
                 </div>
@@ -61,17 +61,17 @@
                 <!-- Asset Details - First Column -->
                 <div>
                     <div class="mb-4">
-                        <p class="text-sm text-gray-500">Asset Code</p>
+                        <p class="text-sm text-gray-500">Kode Aset</p>
                         <p class="font-medium">{{ $masterAsset['asset_master_code'] ?? 'N/A' }}</p>
                     </div>
 
                     <div class="mb-4">
-                        <p class="text-sm text-gray-500">Asset Type</p>
+                        <p class="text-sm text-gray-500">Jenis Aset</p>
                         <p class="font-medium">{{ isset($masterAsset['asset_type']) ? ucwords(str_replace('_', ' ', $masterAsset['asset_type'])) : 'N/A' }}</p>
                     </div>
 
                     <div class="mb-4">
-                        <p class="text-sm text-gray-500">Subcategory</p>
+                        <p class="text-sm text-gray-500">Kategori</p>
                         <p class="font-medium">{{ $masterAsset['subcategory_name'] ?? 'N/A' }}</p>
                     </div>
                 </div>
@@ -79,24 +79,24 @@
                 <!-- Asset Details - Second Column -->
                 <div>
                     <div class="mb-4">
-                        <p class="text-sm text-gray-500">Brand</p>
+                        <p class="text-sm text-gray-500">Merk</p>
                         <p class="font-medium">{{ $masterAsset['brand_name'] ?? 'N/A' }}</p>
                     </div>
 
                     <div class="mb-4">
-                        <p class="text-sm text-gray-500">Created At</p>
-                        <p class="font-medium">{{ \Carbon\Carbon::parse($masterAsset['created_at'] ?? now())->format('d M Y H:i') }}</p>
+                        <p class="text-sm text-gray-500">Tanggal Dibuat</p>
+                        <p class="font-medium">{{ \Carbon\Carbon::parse($masterAsset['created_at'] ?? now())->locale('id')->format('d M Y') }}</p>
                     </div>
 
                     <div class="mb-4">
-                        <p class="text-sm text-gray-500">Characteristics</p>
+                        <p class="text-sm text-gray-500">Karakteristik</p>
                         <div class="flex flex-wrap gap-2 mt-1">
                             @if(isset($masterAsset['is_depreciable']) && $masterAsset['is_depreciable'])
-                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Depreciable</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Aset Dapat Mengalami Depresiasi</span>
                             @endif
 
                             @if(isset($masterAsset['needs_calibration']) && $masterAsset['needs_calibration'])
-                                <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">Needs Calibration</span>
+                                <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">Aset Memerlukan Kalibrasi</span>
                             @endif
                         </div>
                     </div>
@@ -105,8 +105,8 @@
 
             <!-- Description (Full Width) -->
             <div class="mt-4 pt-4 border-t border-gray-200">
-                <p class="text-sm text-gray-500">Description</p>
-                <p class="mt-1">{{ $masterAsset['description'] ?? 'No description available' }}</p>
+                <p class="text-sm text-gray-500">Deskripsi</p>
+                <p class="mt-1">{{ $masterAsset['description'] ?? 'Tidak ada deskripsi' }}</p>
             </div>
         </div>
     </div>
@@ -114,9 +114,9 @@
     <!-- Asset Units Section -->
     <div>
         <div class="bg-[#28356B] rounded-t-lg p-4 flex justify-between items-center">
-            <h2 class="text-white font-semibold">Asset Units</h2>
+            <h2 class="text-white font-semibold">Unit Aset</h2>
             <div class="bg-white text-[#28356B] text-sm font-bold px-3 py-1 rounded-full">
-                Total: {{ count($masterAsset['linked_assets'] ?? []) }} units
+                Total: {{ count($masterAsset['linked_assets'] ?? []) }} unit
             </div>
         </div>
 
@@ -125,12 +125,12 @@
                 <table class="w-full">
                     <thead>
                         <tr>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Asset Code</th>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Serial Number</th>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Condition</th>
+                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Kode Aset</th>
+                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Nomor Seri</th>
+                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Kondisi</th>
                             <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Status</th>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Location</th>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-center">Action</th>
+                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Lokasi</th>
+                            <th class="bg-[#28356B] text-white p-3 font-semibold text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -152,6 +152,7 @@
                                                     $conditionClass = 'bg-green-100 text-green-800';
                                                     break;
                                                 case 'fair':
+                                                case 'slightly damage':
                                                     $conditionClass = 'bg-yellow-100 text-yellow-800';
                                                     break;
                                                 case 'poor':
@@ -174,25 +175,49 @@
                                         if(isset($asset['current_status'])) {
                                             switch(strtolower($asset['current_status'])) {
                                                 case 'available':
-                                                    $statusClass = 'bg-green-100 text-green-800';
+                                                    $statusClass = 'bg-[#659B09] text-white';
                                                     break;
-                                                case 'in_use':
-                                                    $statusClass = 'bg-blue-100 text-blue-800';
+                                                case 'check out':
+                                                    $statusClass = 'bg-[#F59E0B] text-white';
                                                     break;
-                                                case 'maintenance':
-                                                    $statusClass = 'bg-yellow-100 text-yellow-800';
-                                                    break;
-                                                case 'broken':
-                                                    $statusClass = 'bg-orange-100 text-orange-800';
+                                                case 'under repair':
+                                                    $statusClass = 'bg-[#25B1FF] text-white';
                                                     break;
                                                 case 'dispose':
-                                                    $statusClass = 'bg-red-100 text-red-800';
+                                                    $statusClass = 'bg-[#ACC3EF] text-white';
+                                                    break;
+                                                case 'lost':
+                                                    $statusClass = 'bg-[#EF4444] text-white';
                                                     break;
                                             }
                                         }
                                     @endphp
                                     <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
-                                        {{ ucfirst(str_replace('_', ' ', $asset['current_status'] ?? 'Unknown')) }}
+                                        @php
+                                            $statusText = 'UNKNOWN';
+                                            if (isset($asset['current_status'])) {
+                                                switch (strtolower($asset['current_status'])) {
+                                                    case 'available':
+                                                        $statusText = 'TERSEDIA';
+                                                        break;
+                                                    case 'check out':
+                                                        $statusText = 'DIPINJAM';
+                                                        break;
+                                                    case 'under repair':
+                                                        $statusText = 'PERBAIKAN';
+                                                        break;
+                                                    case 'lost':
+                                                        $statusText = 'HILANG';
+                                                        break;
+                                                    case 'dispose':
+                                                        $statusText = 'DIHAPUSKAN';
+                                                        break;
+                                                    default:
+                                                        $statusText = strtoupper($asset['current_status']);
+                                                }
+                                            }
+                                        @endphp
+                                        {{ $statusText }}
                                     </span>
                                 </td>
                                 <td class="p-3 text-sm border-t border-gray-200">
@@ -214,7 +239,7 @@
             </div>
         @else
             <div class="bg-white p-4 text-center border border-t-0 border-gray-200 rounded-b-lg">
-                <p class="text-gray-500">No assets linked to this master asset.</p>
+                <p class="text-gray-500">Tidak ada aset terhubung ke aset master ini.</p>
             </div>
         @endif
     </div>
@@ -228,7 +253,7 @@
                     id="editMasterAssetModalContent">
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">EDIT MASTER ASSET</h2>
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">UBAH ASSET MASTER</h2>
                         <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -244,16 +269,16 @@
                             <!-- Loading indicator -->
                             <div class="text-center" id="editFormSpinner">
                                 <div class="inline-block w-8 h-8 border-4 border-[#28356B] border-t-transparent rounded-full animate-spin"></div>
-                                <p class="mt-2 text-gray-600">Loading asset data...</p>
+                                <p class="mt-2 text-gray-600">Memuat data aset...</p>
                             </div>
 
                             <div id="edit-form-content" class="space-y-4 hidden">
                                 <!-- Asset Information Section -->
-                                <h3 class="text-lg font-semibold text-[#28356B] border-b pb-2">Asset Information</h3>
+                                <h3 class="text-lg font-semibold text-[#28356B] border-b pb-2">Informasi Aset</h3>
 
                                 <!-- Image upload -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Asset Image</label>
+                                    <label class="block text-base font-semibold text-[#666666]">Gambar Aset</label>
                                     <div class="border-2 border-dashed border-[#28356B] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                         <!-- Current image preview -->
                                         <div id="edit_image_preview" class="mt-2 mb-4 w-full hidden">
@@ -271,8 +296,8 @@
                                             <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
-                                            <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-[#28356B] font-semibold">browse files</span></p>
-                                            <p class="mt-1 text-xs text-gray-500">Accepted formats: jpg, jpeg, png</p>
+                                            <p class="mt-1 text-sm text-gray-600">Seret gambar Anda atau <span class="text-[#28356B] font-semibold">browsing file</span></p>
+                                            <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png</p>
                                         </div>
                                         <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                     </div>
@@ -281,32 +306,34 @@
                                 <!-- Basic Asset Details -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label for="edit_asset_name" class="block text-base font-semibold text-[#666666]">Asset Name</label>
+                                        <label for="edit_asset_name" class="block text-base font-semibold text-[#666666]">Nama Aset <span class="text-red-500">*</span></label>
                                         <input type="text" name="asset_name" id="edit_asset_name" required
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]"
-                                            placeholder="Asset name">
+                                            placeholder="Nama Aset">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nama Aset harus diisi</div>
                                     </div>
 
                                     <div class="space-y-2">
-                                        <label for="edit_asset_type" class="block text-base font-semibold text-[#666666]">Asset Type</label>
+                                        <label for="edit_asset_type" class="block text-base font-semibold text-[#666666]">Tipe Aset <span class="text-red-500">*</span></label>
                                         <select name="asset_type" id="edit_asset_type" required
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]">
-                                            <option value="">Select Asset Type</option>
+                                            <option value="">Pilih Tipe Aset</option>
                                             <option value="medical">Medical</option>
                                             <option value="non_medical">Non Medical</option>
                                         </select>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tipe Aset harus dipilih</div>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label for="edit_subcategory_id" class="block text-base font-semibold text-[#666666]">Subcategory</label>
+                                        <label for="edit_subcategory_id" class="block text-base font-semibold text-[#666666]">Kategori <span class="text-red-500">*</span></label>
                                         <div class="custom-select-container relative">
                                             <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]"
-                                                placeholder="Search subcategory...">
+                                                placeholder="Cari kategori...">
                                             <input type="hidden" name="subcategory_id" id="edit_subcategory_id" required>
                                             <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
-                                                <div class="p-2 text-center text-gray-500">Type to search...</div>
+                                                <div class="p-2 text-center text-gray-500">Cari kategori...</div>
                                                 @foreach($subcategories as $subcategory)
                                                 <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
                                                     data-value="{{ $subcategory['subcategory_id'] }}"
@@ -316,16 +343,17 @@
                                             @endforeach
                                             </div>
                                         </div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus dipilih</div>
                                     </div>
 
                                     <div class="space-y-2">
-                                        <label for="edit_brand_id" class="block text-base font-semibold text-[#666666]">Brand</label>
+                                        <label for="edit_brand_id" class="block text-base font-semibold text-[#666666]">Merk <span class="text-red-500">*</span></label>
                                         <div class="custom-select-container relative">
                                             <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]"
-                                                placeholder="Search brand...">
+                                                placeholder="Cari merk...">
                                             <input type="hidden" name="brand_id" id="edit_brand_id" required>
                                             <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
-                                                <div class="p-2 text-center text-gray-500">Type to search...</div>
+                                                <div class="p-2 text-center text-gray-500">Cari merk...</div>
                                                 @foreach($brands as $brand)
                                                 <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
                                                     data-value="{{ $brand['brand_id'] }}">
@@ -334,20 +362,21 @@
                                             @endforeach
                                             </div>
                                         </div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Merk harus dipilih</div>
                                     </div>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label for="edit_description" class="block text-base font-semibold text-[#666666]">Description</label>
+                                    <label for="edit_description" class="block text-base font-semibold text-[#666666]">Deskripsi</label>
                                     <textarea name="description" id="edit_description"
                                         class="w-full h-[100px] px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B] resize-none"
-                                        placeholder="Asset description"></textarea>
+                                        placeholder="Deskripsi Aset"></textarea>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <!-- Depreciation Toggle Switch -->
                                     <div class="flex items-center justify-between">
-                                        <label for="edit_is_depreciable" class="text-base font-semibold text-[#666666]">Enable Asset Depreciation</label>
+                                        <label for="edit_is_depreciable" class="text-base font-semibold text-[#666666]">Aktifkan Depresiasi Aset</label>
                                         <label class="relative inline-flex items-center cursor-pointer">
                                             <input type="checkbox" name="is_depreciable" id="edit_is_depreciable" class="sr-only peer depreciation-toggle" value="1">
                                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
@@ -356,13 +385,13 @@
                                                 after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
                                                 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
                                                 peer-checked:bg-[#28356B]"></div>
-                                            <span class="ml-2 text-sm font-medium text-gray-900 depreciation-status">No</span>
+                                            <span class="ml-2 text-sm font-medium text-gray-900 depreciation-status">Tidak</span>
                                         </label>
                                     </div>
 
                                     <!-- Calibration Toggle Switch -->
                                     <div class="flex items-center justify-between">
-                                        <label for="edit_needs_calibration" class="text-base font-semibold text-[#666666]">Needs Calibration</label>
+                                        <label for="edit_needs_calibration" class="text-base font-semibold text-[#666666]">Memerlukan Kalibrasi</label>
                                         <label class="relative inline-flex items-center cursor-pointer">
                                             <input type="checkbox" name="needs_calibration" id="edit_needs_calibration" class="sr-only peer calibration-toggle" value="1">
                                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
@@ -371,14 +400,14 @@
                                                 after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
                                                 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
                                                 peer-checked:bg-[#28356B]"></div>
-                                            <span class="ml-2 text-sm font-medium text-gray-900 calibration-status">No</span>
+                                            <span class="ml-2 text-sm font-medium text-gray-900 calibration-status">Tidak</span>
                                         </label>
                                     </div>
                                 </div>
 
                                 <!-- Submit Button -->
                                 <button type="submit" id="edit-submit-btn" class="w-full h-[45px] bg-[#28356B] text-white rounded-lg text-base hover:bg-[#1e2c5a] transform active:scale-[0.98] transition-all duration-200 mt-6">
-                                    Update
+                                    Perbarui
                                     </button>
                             </div>
                         </div>
@@ -453,11 +482,20 @@
                         searchInput.value = text;
                         optionsContainer.classList.add('hidden');
 
+                        // Clear error styling when a value is selected
+                        searchInput.classList.remove('border-red-500');
+                        const errorElement = container.closest('.space-y-2').querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+
                         // Set asset type from subcategory if available
                         if (hiddenInput.id === 'edit_subcategory_id' && option.dataset.type) {
                             const assetTypeSelect = document.getElementById('edit_asset_type');
                             if (assetTypeSelect) {
                                 assetTypeSelect.value = option.dataset.type;
+                                // Clear error styling for asset type as well
+                                assetTypeSelect.classList.remove('border-red-500');
+                                const assetTypeError = assetTypeSelect.closest('.space-y-2').querySelector('.error-message');
+                                if (assetTypeError) assetTypeError.classList.add('hidden');
                             }
                         }
                     });
@@ -519,6 +557,109 @@
         const editForm = document.getElementById('editMasterAssetForm');
         const editFormSpinner = document.getElementById('editFormSpinner');
         const editFormContent = document.getElementById('edit-form-content');
+
+        // Form validation for Edit Master Asset
+        editForm.addEventListener('submit', function(event) {
+            const assetNameInput = document.getElementById('edit_asset_name');
+            const assetTypeInput = document.getElementById('edit_asset_type');
+            const subcategoryInput = document.getElementById('edit_subcategory_id');
+            const brandInput = document.getElementById('edit_brand_id');
+
+            let isValid = true;
+
+            // Validate asset name
+            if (!assetNameInput.value.trim()) {
+                showFieldError(assetNameInput);
+                isValid = false;
+            }
+
+            // Validate asset type
+            if (!assetTypeInput.value) {
+                showFieldError(assetTypeInput);
+                isValid = false;
+            }
+
+            // Validate subcategory
+            if (!subcategoryInput.value) {
+                const subcategoryContainer = subcategoryInput.closest('.custom-select-container');
+                const searchInput = subcategoryContainer.querySelector('.search-input');
+                showFieldError(searchInput);
+                isValid = false;
+            }
+
+            // Validate brand
+            if (!brandInput.value) {
+                const brandContainer = brandInput.closest('.custom-select-container');
+                const searchInput = brandContainer.querySelector('.search-input');
+                showFieldError(searchInput);
+                isValid = false;
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+                // Show error toast
+                showToast('Silakan isi semua field yang diperlukan', 'error');
+            }
+        });
+
+        // Function to show field error
+        function showFieldError(field) {
+            field.classList.add('border-red-500');
+            const errorElement = field.closest('.space-y-2').querySelector('.error-message');
+            if (errorElement) errorElement.classList.remove('hidden');
+        }
+
+        // Function to clear field error
+        function clearFieldError(field) {
+            field.classList.remove('border-red-500');
+            const errorElement = field.closest('.space-y-2').querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        }
+
+        // Add input event listeners to clear error styling when typing
+        document.getElementById('edit_asset_name').addEventListener('input', function() {
+            clearFieldError(this);
+        });
+
+        document.getElementById('edit_asset_type').addEventListener('change', function() {
+            clearFieldError(this);
+
+            const selectedType = this.value;
+            const container = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
+            const options = container.querySelectorAll('.option');
+            const searchInput = container.querySelector('.search-input');
+            const hiddenInput = document.getElementById('edit_subcategory_id');
+
+            // Reset subcategory selection
+            searchInput.value = '';
+            hiddenInput.value = '';
+
+            // Filter subcategories by asset type
+            let hasVisibleOptions = false;
+            options.forEach(option => {
+                const optionType = option.dataset.type;
+                if (!selectedType || optionType === selectedType) {
+                    option.style.display = '';
+                    hasVisibleOptions = true;
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+
+            // Show a message if no matching subcategories
+            const optionsContainer = container.querySelector('.options-container');
+            const existingNoResults = optionsContainer.querySelector('.no-results');
+            if (existingNoResults) {
+                existingNoResults.remove();
+            }
+
+            if (!hasVisibleOptions) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'no-results p-3 text-center text-gray-500';
+                    msgDiv.textContent = 'Tidak ada kategori yang ditemukan untuk jenis aset ini';
+                optionsContainer.appendChild(msgDiv);
+            }
+        });
 
         // Modal Open/Close functions
         const openModal = function(modal, content) {
@@ -617,15 +758,15 @@
                     editFormSpinner.classList.add('hidden');
                     editFormContent.classList.remove('hidden');
                 } else {
-                    console.error('Failed to fetch master asset details');
+                    console.error('Gagal mengambil detail aset master');
                     closeEditModal();
-                    alert('Failed to load master asset details. Please try again.');
+                    alert('Gagal memuat detail aset master. Silakan coba lagi.');
                 }
             })
             .catch(error => {
                 console.error('Error fetching master asset details:', error);
                 closeEditModal();
-                alert('Failed to load master asset details. Please try again.');
+                alert('Gagal memuat detail aset master. Silakan coba lagi.');
             });
         }
 
@@ -665,45 +806,6 @@
                 document.getElementById('edit_image_preview').classList.add('hidden');
             }
         }
-
-        // Handle asset type change to filter subcategories
-        document.getElementById('edit_asset_type').addEventListener('change', function() {
-            const selectedType = this.value;
-            const container = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
-            const options = container.querySelectorAll('.option');
-            const searchInput = container.querySelector('.search-input');
-            const hiddenInput = document.getElementById('edit_subcategory_id');
-
-            // Reset subcategory selection
-            searchInput.value = '';
-            hiddenInput.value = '';
-
-            // Filter subcategories by asset type
-            let hasVisibleOptions = false;
-            options.forEach(option => {
-                const optionType = option.dataset.type;
-                if (!selectedType || optionType === selectedType) {
-                    option.style.display = '';
-                    hasVisibleOptions = true;
-                } else {
-                    option.style.display = 'none';
-                }
-            });
-
-            // Show a message if no matching subcategories
-            const optionsContainer = container.querySelector('.options-container');
-            const existingNoResults = optionsContainer.querySelector('.no-results');
-            if (existingNoResults) {
-                existingNoResults.remove();
-            }
-
-            if (!hasVisibleOptions) {
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'no-results p-3 text-center text-gray-500';
-                msgDiv.textContent = 'No subcategories found for this asset type';
-                optionsContainer.appendChild(msgDiv);
-            }
-        });
 
         // Image change
         document.getElementById('edit_image_file').addEventListener('change', function() {
@@ -779,6 +881,52 @@
             content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
             content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
         }
+
+        // Function to show toast notifications
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
+
+            if (type === 'success') {
+                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+            } else {
+                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+            }
+
+            toast.innerHTML = `
+                <div class="py-1">
+                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        ${type === 'success'
+                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                    <p>${message}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Auto-remove the toast after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => {
+                    toast.remove();
+                }, 500);
+            }, 5000);
+        }
+
+        // Show toast notifications for session messages on page load
+        @if(session('success'))
+            showToast("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showToast("{{ session('error') }}", 'error');
+        @endif
     });
 </script>
 @endpush

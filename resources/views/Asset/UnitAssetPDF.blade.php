@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Unit Assets Report</title>
+    <title>Laporan Aset Unit</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -98,7 +98,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>UNIT ASSETS REPORT</h1>
+        <h1>LAPORAN ASSET UNIT</h1>
         <p>Generated on: {{ $date_generated }}</p>
     </div>
 
@@ -108,26 +108,26 @@
         @endif
 
         @if(!empty($typeFilter))
-        <p><strong>Asset Type:</strong> {{ ucfirst(str_replace('_', ' ', $typeFilter)) }}</p>
+        <p><strong>Tipe Aset:</strong> {{ ucfirst(str_replace('_', ' ', $typeFilter)) }}</p>
         @endif
 
         @if(!empty($statusFilter))
         <p><strong>Status:</strong> {{ ucfirst($statusFilter) }}</p>
         @endif
 
-        <p><strong>Sort Order:</strong>
+        <p><strong>Urutan Pengurutan:</strong>
             @switch($sortOrder)
                 @case('newest')
-                    Newest First
+                    Terbaru
                     @break
                 @case('oldest')
-                    Oldest First
+                    Terlama
                     @break
                 @case('name_asc')
-                    Name (A-Z)
+                    Nama (A-Z)
                     @break
                 @case('name_desc')
-                    Name (Z-A)
+                    Nama (Z-A)
                     @break
                 @default
                     {{ ucfirst(str_replace('_', ' ', $sortOrder)) }}
@@ -138,14 +138,14 @@
     <table class="striped">
         <thead>
             <tr>
-                <th>Asset Code</th>
-                <th>Asset Name</th>
-                <th>Type</th>
-                <th>Category</th>
-                <th>Location</th>
+                <th>Kode Aset</th>
+                <th>Nama Aset</th>
+                <th>Tipe</th>
+                <th>Kategori</th>
+                <th>Lokasi</th>
                 <th>Status</th>
-                <th>Serial Number</th>
-                <th>Purchase Date</th>
+                <th>Nomor Seri</th>
+                <th>Tanggal Pembelian</th>
             </tr>
         </thead>
         <tbody>
@@ -157,16 +157,16 @@
                         @if(isset($asset['asset_master']) && isset($asset['asset_master']['asset_master_code']))
                             @php
                                 $code = $asset['asset_master']['asset_master_code'];
-                                $assetType = 'Non Medical';
+                                $assetType = 'Non Medis';
                                 if (strpos($code, 'MED-') === 0) {
-                                    $assetType = 'Medical';
+                                    $assetType = 'Medis';
                                 } elseif (strpos($code, 'NMED-') === 0) {
-                                    $assetType = 'Non Medical';
+                                    $assetType = 'Non Medis';
                                 }
                             @endphp
                             {{ $assetType }}
                         @else
-                            Non Medical
+                            Non Medis
                         @endif
                     </td>
                     <td>
@@ -221,14 +221,14 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" style="text-align: center;">No assets found</td>
+                    <td colspan="8" style="text-align: center;">Tidak ada aset yang ditemukan</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
     <div class="footer">
-        <p>Asset Monitoring System - Unit Assets Report</p>
+        <p>Sistem Pengawasan Aset - Laporan Aset Unit</p>
     </div>
 </body>
 </html>

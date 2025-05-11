@@ -495,41 +495,6 @@
         </div>
     </div>
 </div>
-
-@if(session('success'))
-<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Success!</p>
-            <p>{{ session('success') }}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-@endif
-
-@if(session('error') || isset($error))
-<div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Error!</p>
-            <p>{!! session('error') ?? $error ?? 'An error occurred' !!}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-@endif
-
 @endsection
 
 @push('scripts')
@@ -549,28 +514,79 @@
             // Create the toast element
             const toast = document.createElement('div');
 
+            // Check if message contains HTML
+            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+
             // Set classes based on type
             if (type === 'success') {
-                toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center';
-            } else {
-                toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center';
-            }
+                toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center animate-slide-in-right';
 
-            // Add content
-            toast.innerHTML = `
-                <div class="py-1">
-                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        ${type === 'success'
-                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                // Add content
+                toast.innerHTML = `
+                    <div class="py-1">
+                        <svg class="h-6 w-6 mr-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-bold">Berhasil!</p>
+                        <div>${message}</div>
+                    </div>
+                    <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
+                `;
+            } else {
+                toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center overflow-auto max-w-md animate-slide-in-right';
+
+                // Structure for the notification
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-start';
+
+                // Icon container
+                const iconContainer = document.createElement('div');
+                iconContainer.className = 'py-1 flex-shrink-0';
+                iconContainer.innerHTML = `
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                </div>
-                <div>
-                    <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Error!'}</p>
-                    <p>${message}</p>
-                </div>
-                <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
-            `;
+                `;
+
+                // Content container
+                const contentContainer = document.createElement('div');
+                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                // Title
+                const title = document.createElement('p');
+                title.className = 'font-bold';
+                title.textContent = 'Error!';
+                contentContainer.appendChild(title);
+
+                // Message container
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'error-message';
+
+                // Handle HTML content
+                if (hasHTML) {
+                    messageContainer.innerHTML = message;
+                } else {
+                    messageContainer.textContent = message;
+                }
+
+                contentContainer.appendChild(messageContainer);
+
+                // Close button
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = function() {
+                    toast.remove();
+                };
+
+                // Assemble the notification
+                wrapper.appendChild(iconContainer);
+                wrapper.appendChild(contentContainer);
+                wrapper.appendChild(closeBtn);
+                toast.appendChild(wrapper);
+            }
 
             // Add to container
             toastContainer.appendChild(toast);
@@ -583,6 +599,19 @@
                 }, 500);
             }, 5000);
         }
+
+        // Add slide-in animation and styling for error messages to CSS
+        document.head.insertAdjacentHTML('beforeend', `
+            <style>
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+                .animate-slide-in-right {
+                    animation: slideInRight 0.3s ease-out forwards;
+                }
+            </style>
+        `);
 
         // Modal functionality
         const openModal = function(modal, content) {
@@ -1150,6 +1179,58 @@
                             if (response.message) {
                                 errorMessage = response.message;
                             }
+
+                            // Enhanced error handling for arrays
+                            // Check for detailed error information in the API response
+                            if (response.data && response.data.errors && Array.isArray(response.data.errors)) {
+                                const detailedErrors = response.data.errors.map(error => {
+                                    if (error.row && error.reason) {
+                                        return `Row ${error.row}: ${error.reason || 'Unknown error'}`;
+                                    } else if (typeof error === 'string') {
+                                        return error;
+                                    } else if (error.message) {
+                                        return error.message;
+                                    }
+                                    return 'Unknown error';
+                                });
+
+                                if (detailedErrors.length > 0) {
+                                    errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+                                    detailedErrors.forEach(err => {
+                                        errorMessage += `<li>${err}</li>`;
+                                    });
+                                    errorMessage += '</ul>';
+                                }
+                            } else if (response.errors) {
+                                errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+
+                                // Handle different error formats
+                                if (Array.isArray(response.errors)) {
+                                    // Array of error messages
+                                    response.errors.forEach(error => {
+                                        if (typeof error === 'string') {
+                                            errorMessage += `<li>${error}</li>`;
+                                        } else if (error.message) {
+                                            errorMessage += `<li>${error.message}</li>`;
+                                        } else if (error.reason) {
+                                            errorMessage += `<li>${error.reason}</li>`;
+                                        }
+                                    });
+                                } else {
+                                    // Object with field names as keys
+                                    Object.entries(response.errors).forEach(([field, errors]) => {
+                                        if (Array.isArray(errors)) {
+                                            errors.forEach(error => {
+                                                errorMessage += `<li>${error}</li>`;
+                                            });
+                                        } else if (typeof errors === 'string') {
+                                            errorMessage += `<li>${errors}</li>`;
+                                        }
+                                    });
+                                }
+
+                                errorMessage += '</ul>';
+                            }
                         } catch (e) {
                             // If response is not valid JSON
                             console.error('Error parsing error response:', e);
@@ -1157,7 +1238,7 @@
 
                         progressBar.classList.remove('bg-green-500');
                         progressBar.classList.add('bg-red-500');
-                        statusMessage.textContent = 'Error: ' + errorMessage;
+                        statusMessage.textContent = 'Error: ' + errorMessage.replace(/<[^>]*>/g, '');
 
                         // Show toast notification for error
                         showToast(errorMessage, 'error');
@@ -1288,6 +1369,58 @@
                             if (response.message) {
                                 errorMessage = response.message;
                             }
+
+                            // Enhanced error handling for arrays
+                            // Check for detailed error information in the API response
+                            if (response.data && response.data.errors && Array.isArray(response.data.errors)) {
+                                const detailedErrors = response.data.errors.map(error => {
+                                    if (error.row && error.reason) {
+                                        return `Row ${error.row}: ${error.reason || 'Unknown error'}`;
+                                    } else if (typeof error === 'string') {
+                                        return error;
+                                    } else if (error.message) {
+                                        return error.message;
+                                    }
+                                    return 'Unknown error';
+                                });
+
+                                if (detailedErrors.length > 0) {
+                                    errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+                                    detailedErrors.forEach(err => {
+                                        errorMessage += `<li>${err}</li>`;
+                                    });
+                                    errorMessage += '</ul>';
+                                }
+                            } else if (response.errors) {
+                                errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+
+                                // Handle different error formats
+                                if (Array.isArray(response.errors)) {
+                                    // Array of error messages
+                                    response.errors.forEach(error => {
+                                        if (typeof error === 'string') {
+                                            errorMessage += `<li>${error}</li>`;
+                                        } else if (error.message) {
+                                            errorMessage += `<li>${error.message}</li>`;
+                                        } else if (error.reason) {
+                                            errorMessage += `<li>${error.reason}</li>`;
+                                        }
+                                    });
+                                } else {
+                                    // Object with field names as keys
+                                    Object.entries(response.errors).forEach(([field, errors]) => {
+                                        if (Array.isArray(errors)) {
+                                            errors.forEach(error => {
+                                                errorMessage += `<li>${error}</li>`;
+                                            });
+                                        } else if (typeof errors === 'string') {
+                                            errorMessage += `<li>${errors}</li>`;
+                                        }
+                                    });
+                                }
+
+                                errorMessage += '</ul>';
+                            }
                         } catch (e) {
                             // If response is not valid JSON
                             console.error('Error parsing error response:', e);
@@ -1295,7 +1428,7 @@
 
                         progressBar.classList.remove('bg-green-500');
                         progressBar.classList.add('bg-red-500');
-                        statusMessage.textContent = 'Error: ' + errorMessage;
+                        statusMessage.textContent = 'Error: ' + errorMessage.replace(/<[^>]*>/g, '');
 
                         // Show toast notification for error
                         showToast(errorMessage, 'error');
@@ -1368,7 +1501,61 @@
                         }, 1000);
                     } else {
                         // Show error notification
-                        showToast(data.message || 'Gagal menghapus dokumen', 'error');
+                        let errorMessage = data.message || 'Gagal menghapus dokumen';
+
+                        // Enhanced error handling for arrays
+                        // Check for detailed error information in the API response
+                        if (data.data && data.data.errors && Array.isArray(data.data.errors)) {
+                            const detailedErrors = data.data.errors.map(error => {
+                                if (error.row && error.reason) {
+                                    return `Row ${error.row}: ${error.reason || 'Unknown error'}`;
+                                } else if (typeof error === 'string') {
+                                    return error;
+                                } else if (error.message) {
+                                    return error.message;
+                                }
+                                return 'Unknown error';
+                            });
+
+                            if (detailedErrors.length > 0) {
+                                errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+                                detailedErrors.forEach(err => {
+                                    errorMessage += `<li>${err}</li>`;
+                                });
+                                errorMessage += '</ul>';
+                            }
+                        } else if (data.errors) {
+                            errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+
+                            // Handle different error formats
+                            if (Array.isArray(data.errors)) {
+                                // Array of error messages
+                                data.errors.forEach(error => {
+                                    if (typeof error === 'string') {
+                                        errorMessage += `<li>${error}</li>`;
+                                    } else if (error.message) {
+                                        errorMessage += `<li>${error.message}</li>`;
+                                    } else if (error.reason) {
+                                        errorMessage += `<li>${error.reason}</li>`;
+                                    }
+                                });
+                            } else {
+                                // Object with field names as keys
+                                Object.entries(data.errors).forEach(([field, errors]) => {
+                                    if (Array.isArray(errors)) {
+                                        errors.forEach(error => {
+                                            errorMessage += `<li>${error}</li>`;
+                                        });
+                                    } else if (typeof errors === 'string') {
+                                        errorMessage += `<li>${errors}</li>`;
+                                    }
+                                });
+                            }
+
+                            errorMessage += '</ul>';
+                        }
+
+                        showToast(errorMessage, 'error');
 
                         // Reset button
                         submitBtn.disabled = false;

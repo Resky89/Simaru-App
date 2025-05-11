@@ -310,6 +310,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::post('/assets/qr/generate-bulk', [UnitAssetController::class, 'generateBulkQR'])->name('assets.qr.generate-bulk');
     Route::get('/assets/qr/preview', [UnitAssetController::class, 'previewQRCodes'])->name('assets.qr.preview');
     Route::match(['get', 'post'], '/assets/qr/print-pdf', [UnitAssetController::class, 'printQRCodesPDF'])->name('assets.qr.print-pdf');
+    Route::match(['get', 'post'], '/assets/qr/print-direct', [UnitAssetController::class, 'printQRCodesDirect'])->name('assets.qr.print-direct');
 
     // Checkout routes
     Route::post('/assets/checkout', [AssetDetailsController::class, 'checkoutAsset'])->name('asset.checkout');

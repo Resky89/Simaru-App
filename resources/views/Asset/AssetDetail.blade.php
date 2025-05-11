@@ -259,7 +259,7 @@
                                                         $statusText = 'DIHAPUSKAN';
                                                         break;
                                                     case 'under repair':
-                                                        $statusText = 'DALAM PERBAIKAN';
+                                                        $statusText = 'PERBAIKAN';
                                                         break;
                                                     default:
                                                         $statusText = strtoupper($asset['current_status']);

@@ -23,14 +23,47 @@ class BuildingController extends Controller
             // Fetch buildings
             $buildingPage = $request->input('building_page', 1);
             $buildingLimit = $request->input('building_limit', 10);
+            // Get search parameter
+            $search = $request->input('search', '');
+            // Get sort parameter
+            $sort = $request->input('sort', '');
+
+            $queryParams = [
+                'page' => $buildingPage,
+                'limit' => $buildingLimit,
+                'sort_by' => 'building_id',
+                'sort_order' => 'asc'
+            ];
+
+            // Add search parameter if provided
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            // Custom sorting
+            if (!empty($sort)) {
+                switch ($sort) {
+                    case 'name_asc':
+                        $queryParams['sort_by'] = 'building_name';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'name_desc':
+                        $queryParams['sort_by'] = 'building_name';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                    case 'id_asc':
+                        $queryParams['sort_by'] = 'building_id';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'id_desc':
+                        $queryParams['sort_by'] = 'building_id';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
+                }
+            }
 
             $buildingResult = $this->apiService->request('GET', '/buildings', [
-                'query' => [
-                    'page' => $buildingPage,
-                    'limit' => $buildingLimit,
-                    'sort_by' => 'building_id',
-                    'sort_order' => 'asc'
-                ]
+                'query' => $queryParams
             ]);
 
             // Check if we got an error response from the ApiService

@@ -10,7 +10,7 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">SUB KATEGORI</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">KATEGORI</h1>
 
                     <!-- Button Add Sub Categories -->
                     <div class="flex flex-wrap gap-3">
@@ -33,7 +33,7 @@
                 <!-- Search and Filter -->
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
-                        <input type="text" id="searchInput" placeholder="Cari berdasarkan nama sub kategori..."
+                        <input type="text" id="searchInput" placeholder="Cari berdasarkan nama kategori..."
                             class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         <div class="absolute right-3 top-1/2 -translate-y-1/2">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +66,6 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">ID Sub Kategori</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[25%]">Tipe Aset</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Sub Kategori</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[88px]">Aksi</th>
@@ -75,7 +74,6 @@
                         <tbody>
                             @forelse($subcategories as $subcategory)
                                 <tr>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $subcategory['subcategory_id'] }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                         @if($subcategory['asset_type'] == 'medical')
                                             Medis
@@ -108,7 +106,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="p-3 text-xs text-center border-t border-[#EEF1F4]">Tidak ada sub kategori ditemukan</td>
+                                    <td colspan="4" class="p-3 text-xs text-center border-t border-[#EEF1F4]">Tidak ada kategori ditemukan</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -212,7 +210,7 @@
                 id="subCategoryModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">TAMBAH SUB KATEGORI</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">TAMBAH KATEGORI</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -228,7 +226,7 @@
                             <!-- Category Dropdown -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">
-                                    Kategori <span class="text-red-500">*</span>
+                                    Tipe Aset <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <select name="asset_type" id="add_asset_type" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] appearance-none focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 bg-white cursor-pointer" required>
@@ -241,19 +239,18 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </div>
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus dipilih</div>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Tipe harus dipilih</div>
                                 </div>
                             </div>
 
-                            <!-- Sub Category Input -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">
-                                    Sub Kategori <span class="text-red-500">*</span>
+                                    Kategori <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="subcategory_name" id="add_subcategory_name"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                     placeholder="Ketik di sini" required>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Sub Kategori harus diisi</div>
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus diisi</div>
                             </div>
 
                             <!-- Submit Button -->
@@ -277,7 +274,7 @@
                 id="editSubCategoryModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">EDIT SUB KATEGORI</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">EDIT KATEGORI</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -296,7 +293,7 @@
 
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">
-                                    Kategori <span class="text-red-500">*</span>
+                                    Tipe Aset <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <select id="editAssetType" name="asset_type" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] appearance-none focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 bg-white cursor-pointer" required>
@@ -309,17 +306,17 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </div>
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus dipilih</div>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Tipe harus dipilih</div>
                                 </div>
                             </div>
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">
-                                    Sub Kategori <span class="text-red-500">*</span>
+                                    Kategori <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="editSubCategoryName" name="subcategory_name"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                     placeholder="Ketik di sini" required>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Sub Kategori harus diisi</div>
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus diisi</div>
                             </div>
                             <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
                                 Perbarui
@@ -341,7 +338,7 @@
                 id="deleteSubCategoryModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">HAPUS SUB KATEGORI</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">HAPUS KATEGORI</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -356,7 +353,7 @@
                             <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus sub kategori ini? Tindakan ini tidak dapat dibatalkan.</p>
+                            <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus kategori ini? Tindakan ini tidak dapat dibatalkan.</p>
                         </div>
                         <div class="flex gap-3">
                             <button class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
@@ -387,7 +384,7 @@
                 id="importCategoryModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">IMPOR SUB KATEGORI</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">IMPOR KATEGORI</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -404,7 +401,7 @@
                                 <p class="font-medium text-blue-600 mb-2">Petunjuk Impor:</p>
                                 <ul class="list-disc pl-5 space-y-1">
                                     <li>Gunakan format template Excel untuk mengimpor</li>
-                                    <li>Kolom yang diperlukan: Nama Sub Kategori, Tipe Aset</li>
+                                    <li>Kolom yang diperlukan: Nama Kategori, Tipe Aset</li>
                                     <li>Maksimal 100 data per impor</li>
                                     <li>Format file yang didukung: .xlsx, .xls, .csv</li>
                                 </ul>

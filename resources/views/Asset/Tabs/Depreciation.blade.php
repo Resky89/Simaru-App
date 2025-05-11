@@ -1,13 +1,23 @@
 <div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-[#213268]">PENYUSUTAN</h2>
-        <button id="updateDepreciationBtn" class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            PENGATURAN
-        </button>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center">
+                <span class="text-sm text-gray-600 mr-2">Nilai</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="percentageToggle" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#213268] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#213268]"></div>
+                    <span class="ml-2 text-sm text-gray-600">Persen</span>
+                </label>
+            </div>
+            <button id="updateDepreciationBtn" class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                PENGATURAN
+            </button>
+        </div>
     </div>
 
     <!-- Loading indicator -->
@@ -186,6 +196,8 @@
         apiBaseUrl: "{{ config('app.api_url', '') }}",
         chart: null,
         currentDepreciation: null,
+        isPercentageView: true,
+        originalChartData: null,
 
         init() {
             if (this.initialized) return;
@@ -250,6 +262,20 @@
                 updateSubmitBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     this.submitUpdateForm();
+                });
+            }
+
+            // Percentage toggle
+            const percentageToggle = document.getElementById('percentageToggle');
+            if (percentageToggle) {
+                percentageToggle.addEventListener('change', () => {
+                    this.isPercentageView = percentageToggle.checked;
+                    if (this.originalChartData) {
+                        this.updateChartDisplay();
+                    }
+                    if (this.currentDepreciation) {
+                        this.updateDepreciationData(this.currentDepreciation);
+                    }
                 });
             }
         },
@@ -530,6 +556,12 @@
             }).format(value);
         },
 
+        formatPercentage(value, baseValue) {
+            if (value === null || value === undefined || baseValue === 0) return '-';
+            const percentage = (value / baseValue) * 100;
+            return percentage.toFixed(2) + '%';
+        },
+
         loadDepreciationData() {
             if (!this.assetId) {
                 this.showError('Asset ID tidak tersedia');
@@ -596,12 +628,18 @@
         },
 
         updateDepreciationData(depreciation) {
+            // Store current depreciation data for reference
+            this.currentDepreciation = depreciation;
+
+            const totalCost = depreciation.total_cost || 0;
+            const salvageValue = depreciation.salvage_value || 0;
+
             // Update summary table
             document.getElementById('depreciationSummary').innerHTML = `
                 <tr>
                     <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.date_acquired || '-'}</td>
-                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.formatCurrency(depreciation.total_cost)}</td>
-                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.formatCurrency(depreciation.salvage_value)}</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? '100%' : this.formatCurrency(totalCost)}</td>
+                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? this.formatPercentage(salvageValue, totalCost) : this.formatCurrency(salvageValue)}</td>
                     <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.asset_life_months || '-'}</td>
                     <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.getDepreciationMethodText(depreciation.depreciation_method)}</td>
                 </tr>
@@ -609,21 +647,39 @@
 
             // Update monthly data table
             if (Array.isArray(depreciation.monthly_data)) {
-                const monthlyRows = depreciation.monthly_data.map(month => `
+                const monthlyRows = depreciation.monthly_data.map(month => {
+                    const expense = month.expense || 0;
+                    const accumulatedDepreciation = month.accumulated_depreciation || 0;
+                    const bookValue = month.book_value || 0;
+
+                    return `
                     <tr>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${month.month_number}</td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${month.month_name}</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.formatCurrency(month.expense)}</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.formatCurrency(month.accumulated_depreciation)}</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.formatCurrency(month.book_value)}</td>
+                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${
+                            this.isPercentageView
+                                ? this.formatPercentage(expense, totalCost)
+                                : this.formatCurrency(expense)
+                        }</td>
+                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${
+                            this.isPercentageView
+                                ? this.formatPercentage(accumulatedDepreciation, totalCost)
+                                : this.formatCurrency(accumulatedDepreciation)
+                        }</td>
+                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${
+                            this.isPercentageView
+                                ? this.formatPercentage(bookValue, totalCost)
+                                : this.formatCurrency(bookValue)
+                        }</td>
                     </tr>
-                `).join('');
+                    `;
+                }).join('');
                 document.getElementById('monthlyDepreciationData').innerHTML = monthlyRows;
             }
 
             // Update chart
             if (depreciation.chart_data) {
-                this.updateChart(depreciation.chart_data);
+                this.updateChartData(depreciation.chart_data);
             }
         },
 
@@ -641,70 +697,95 @@
             return methodMap[method] || method;
         },
 
-        updateChart(chartData) {
-        const ctx = document.getElementById('depreciationChart').getContext('2d');
+        updateChartData(chartData) {
+            this.originalChartData = {...chartData};
+            this.updateChartDisplay();
+        },
+
+        updateChartDisplay() {
+            if (!this.originalChartData) return;
+
+            const ctx = document.getElementById('depreciationChart').getContext('2d');
 
             // Destroy existing chart if it exists
             if (this.chart) {
                 this.chart.destroy();
             }
 
-            if (!chartData || !chartData.years || !chartData.values) {
-                console.error('Invalid chart data:', chartData);
-                return;
+            // Create a copy of chart data to manipulate
+            const displayData = {...this.originalChartData};
+
+            // If percentage view is enabled, convert values to percentages
+            if (this.isPercentageView && displayData.values && displayData.values.length > 0) {
+                const initialValue = displayData.values[0];
+                displayData.values = displayData.values.map(value =>
+                    initialValue > 0 ? (value / initialValue) * 100 : 0
+                );
             }
 
             this.chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                    labels: chartData.years,
-                datasets: [{
-                        data: chartData.values,
-                    borderColor: '#36A2EB',
-                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                    pointBackgroundColor: '#36A2EB',
-                    pointRadius: 4,
-                    borderWidth: 2,
-                    tension: 0.1,
+                type: 'line',
+                data: {
+                    labels: displayData.years,
+                    datasets: [{
+                        data: displayData.values,
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        pointBackgroundColor: '#36A2EB',
+                        pointRadius: 4,
+                        borderWidth: 2,
+                        tension: 0.1,
                         fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                                label: (context) => {
-                                    return this.formatCurrency(context.parsed.y);
-                                }
-                        }
-                    }
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                if (value === 0) return '0';
-                                return (value / 1000000).toFixed(1) + 'M';
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    if (this.isPercentageView) {
+                                        return context.parsed.y.toFixed(2) + '%';
+                                    } else {
+                                        return this.formatCurrency(context.parsed.y);
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => {
+                                    if (this.isPercentageView) {
+                                        return value + '%';
+                                    } else {
+                                        if (value === 0) return '0';
+                                        return (value / 1000000).toFixed(1) + 'M';
+                                    }
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
                             }
                         },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        },
+
+        updateChart(chartData) {
+            this.updateChartData(chartData);
         }
     };
 
