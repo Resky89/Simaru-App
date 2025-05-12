@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Asset Documents Management')
+@section('title', 'Dokumen Aset')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -10,7 +10,7 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">ASSET DOCUMENTS</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DOKUMEN ASET</h1>
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap gap-3">
@@ -18,7 +18,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
-                            <span class="text-base">Add Document</span>
+                            <span class="text-base">Tambah Dokumen</span>
                         </button>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                 <!-- Search and Filter -->
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
-                        <input type="text" id="searchInput" placeholder="Search by document title or notes..."
+                        <input type="text" id="searchInput" placeholder="Cari berdasarkan judul dokumen atau catatan..."
                             class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         <div class="absolute right-3 top-1/2 -translate-y-1/2">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,11 +38,11 @@
                     <div class="flex flex-wrap gap-4">
                         <select id="sortOrder"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" disabled selected>Select Sort Order</option>
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="title_asc">Title (A-Z)</option>
-                            <option value="title_desc">Title (Z-A)</option>
+                            <option value="" disabled selected>Pilih Urutan</option>
+                            <option value="newest">Terbaru</option>
+                            <option value="oldest">Terlama</option>
+                            <option value="title_asc">Judul (A-Z)</option>
+                            <option value="title_desc">Judul (Z-A)</option>
                         </select>
                     </div>
                 </div>
@@ -52,12 +52,12 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Document ID</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Document Title</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Upload Date</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Uploaded By</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Notes</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">Actions</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">ID Dokumen</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Judul Dokumen</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Tanggal Upload</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Ditambahkan Oleh</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Catatan</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -68,7 +68,7 @@
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">{{ $document['document_title'] ?? '-' }}</td>
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">
                                         @if(isset($document['upload_date']))
-                                            {{ \Carbon\Carbon::parse($document['upload_date'])->format('d M Y, H:i') }}
+                                            {{ \Carbon\Carbon::parse($document['upload_date'])->locale('id')->format('d M Y') }}
                                         @else
                                             -
                                         @endif
@@ -109,7 +109,7 @@
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="6" class="p-3 text-sm border-t border-[#EEF1F4] text-center">No documents found</td>
+                                    <td colspan="6" class="p-3 text-sm border-t border-[#EEF1F4] text-center">Tidak ada dokumen yang ditemukan</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -126,7 +126,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
-                            Prev
+                            Sebelumnya
                         </button>
 
                         <div class="flex gap-2">
@@ -146,7 +146,7 @@
                         <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($documents_pagination['current_page'] ?? 1) >= ($documents_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
                                onclick="changePage({{ ($documents_pagination['current_page'] ?? 1) + 1 }})"
                                {{ ($documents_pagination['current_page'] ?? 1) >= ($documents_pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
-                            Next
+                            Selanjutnya
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
@@ -163,15 +163,15 @@
                                     $from = ($currentPage - 1) * $perPage + 1;
                                     $to = min($currentPage * $perPage, $total);
                                 @endphp
-                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
+                                Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
                             @else
-                                Showing 1 to {{ count($documents ?? []) }} of {{ count($documents ?? []) }} entries
+                                Menampilkan 1 sampai {{ count($documents ?? []) }} dari {{ count($documents ?? []) }} data
                             @endif
                         </span>
                         <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
-                            <option value="10" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per page</option>
-                            <option value="25" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per page</option>
-                            <option value="50" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per page</option>
+                            <option value="10" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
                         </select>
                     </div>
                 </div>
@@ -265,7 +265,7 @@
 
                             <!-- Associated Assets (optional field for future use) -->
                             <div class="hidden">
-                                <label for="asset_ids" class="block text-sm font-medium text-gray-700 mb-1">Associated Assets</label>
+                                <label for="asset_ids" class="block text-sm font-medium text-gray-700 mb-1">Aset Terkait</label>
                                 <select id="asset_ids" name="asset_ids[]" multiple class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
                                     <!-- Options would be populated dynamically -->
                                 </select>
@@ -308,7 +308,7 @@
                 id="deleteModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE DOCUMENT</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS DOKUMEN</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -326,15 +326,15 @@
                                 <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this document? This action cannot be undone.</p>
+                                <p class="text-base text-gray-600 text-center">ApakahAAndayaikiniinginmmnng apuokumkn in ini? Akss  iidpidakadapatdaibatalkaakan.</p>
                                 <p id="delete-document-title" class="text-base font-semibold text-center mt-2"></p>
                             </div>
                             <div class="flex gap-3">
                                 <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                    Cancel
+                                    Batal
                                 </button>
                                 <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         </div>
@@ -462,7 +462,7 @@
 
                             <!-- Associated Assets (hidden for future use) -->
                             <div class="hidden">
-                                <label for="edit_asset_ids" class="block text-sm font-medium text-gray-700 mb-1">Associated Assets</label>
+                                <label for="edit_asset_ids" class="block text-sm font-medium text-gray-700 mb-1">Aset Terkait</label>
                                 <select id="edit_asset_ids" name="asset_ids[]" multiple class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
                                     <!-- Options would be populated dynamically -->
                                 </select>

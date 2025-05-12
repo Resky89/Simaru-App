@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Calibration Detail Report</title>
+    <title>Laporan Detail Kalibrasi</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -145,21 +145,33 @@
     </style>
 </head>
 <body>
+    @php
+        function translateMonth($date) {
+            $englishMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            $indonesianMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+
+            $formattedDate = date('d M Y', strtotime($date));
+            foreach ($englishMonths as $index => $month) {
+                $formattedDate = str_replace($month, $indonesianMonths[$index], $formattedDate);
+            }
+            return $formattedDate;
+        }
+    @endphp
     <div class="header">
-        <h1>CALIBRATION DETAIL REPORT</h1>
-        <p>Generated on: {{ $date_generated }}</p>
+        <h1>LAPORAN DETAIL KALIBRASI</h1>
+        <p>Dibuat pada: {{ $date_generated }}</p>
     </div>
 
     <div class="content-section">
         <table class="info-grid">
             <tr>
-                <td class="label">Asset:</td>
+                <td class="label">Aset:</td>
                 <td class="value">
                     <div>{{ $calibration['asset_name'] ?? 'N/A' }}</div>
                     <div style="color: #666; font-size: 10px;">{{ $calibration['asset_code'] ?? 'N/A' }}</div>
                 </td>
-                <td class="label">Planning Date:</td>
-                <td class="value">{{ isset($calibration['planning_calibration_date']) && $calibration['planning_calibration_date'] ? date('d M Y', strtotime($calibration['planning_calibration_date'])) : 'N/A' }}</td>
+                <td class="label">Tanggal Rencana:</td>
+                <td class="value">{{ isset($calibration['planning_calibration_date']) && $calibration['planning_calibration_date'] ? translateMonth($calibration['planning_calibration_date']) : 'N/A' }}</td>
             </tr>
             <tr>
                 <td class="label">Status:</td>
@@ -167,46 +179,51 @@
                     @php
                         $statusClass = '';
                         $status = $calibration['status_calibration'] ?? '';
+                        $statusText = 'Tidak Diketahui';
 
                         if ($status == 'scheduled') {
                             $statusClass = 'status-scheduled';
+                            $statusText = 'Terjadwal';
                         } elseif ($status == 'in_progress') {
                             $statusClass = 'status-in-progress';
+                            $statusText = 'Dalam Proses';
                         } elseif ($status == 'completed') {
                             $statusClass = 'status-completed';
+                            $statusText = 'Selesai';
                         } elseif ($status == 'overdue') {
                             $statusClass = 'status-overdue';
+                            $statusText = 'Terlambat';
                         }
                     @endphp
                     <span class="status-badge {{ $statusClass }}">
-                        {{ ucfirst(str_replace('_', ' ', $status ?: 'Unknown')) }}
+                        {{ $statusText }}
                     </span>
                 </td>
-                <td class="label">Actual Calibration Date:</td>
+                <td class="label">Tanggal Kalibrasi Aktual:</td>
                 <td class="value">
                     @if(!isset($calibration['actual_calibration_date']) || !$calibration['actual_calibration_date'])
                         <span style="color: #856404;">Belum dilakukan kalibrasi</span>
                     @else
-                        {{ date('d M Y', strtotime($calibration['actual_calibration_date'])) }}
+                        {{ translateMonth($calibration['actual_calibration_date']) }}
                     @endif
                 </td>
             </tr>
             <tr>
-                <td class="label">Brand:</td>
+                <td class="label">Merek:</td>
                 <td class="value">{{ $calibration['brand_name'] ?? 'N/A' }}</td>
                 @if(isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'])
-                <td class="label">Next Calibration Date:</td>
-                <td class="value">{{ isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'] ? date('d M Y', strtotime($calibration['next_calibration_date'])) : 'N/A' }}</td>
+                <td class="label">Tanggal Kalibrasi Berikutnya:</td>
+                <td class="value">{{ isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'] ? translateMonth($calibration['next_calibration_date']) : 'N/A' }}</td>
                 @else
                 <td></td>
                 <td></td>
                 @endif
             </tr>
             <tr>
-                <td class="label">Serial Number:</td>
+                <td class="label">Nomor Seri:</td>
                 <td class="value">{{ $calibration['serial_number'] ?? 'N/A' }}</td>
                 @if(isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'])
-                <td class="label">Certificate Number:</td>
+                <td class="label">Nomor Sertifikat:</td>
                 <td class="value">{{ $calibration['certificate_number'] ?? 'N/A' }}</td>
                 @else
                 <td></td>
@@ -214,7 +231,7 @@
                 @endif
             </tr>
             <tr>
-                <td class="label">Location:</td>
+                <td class="label">Lokasi:</td>
                 <td class="value">
                     @php
                         $locationText = 'N/A';
@@ -231,7 +248,7 @@
                     {{ $locationText }}
                 </td>
                 @if(isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'])
-                <td class="label">Result:</td>
+                <td class="label">Hasil:</td>
                 <td class="value">
                     @php
                         $resultClass = '';
@@ -240,13 +257,13 @@
 
                         if ($result == 'pass') {
                             $resultClass = 'result-pass';
-                            $resultText = 'Pass';
+                            $resultText = 'Lulus';
                         } elseif ($result == 'fail') {
                             $resultClass = 'result-fail';
-                            $resultText = 'Fail';
+                            $resultText = 'Gagal';
                         } elseif ($result == 'unknown') {
                             $resultClass = 'result-unknown';
-                            $resultText = 'Unknown';
+                            $resultText = 'Tidak Ditemukan';
                         }
                     @endphp
                     <span class="result-badge {{ $resultClass }}">
@@ -263,23 +280,23 @@
 
     <!-- Notes section -->
     <div class="content-section">
-        <div class="section-title">Notes</div>
+        <div class="section-title">Catatan</div>
         <div class="notes-box">
             @if(!isset($calibration['actual_calibration_date']) || !$calibration['actual_calibration_date'])
                 <p style="color: #856404; margin: 0;">Belum dilakukan kalibrasi</p>
             @else
-                <p style="margin: 0;">{{ $calibration['notes'] ?? 'No notes available' }}</p>
+                <p style="margin: 0;">{{ $calibration['notes'] ?? 'Tidak ada catatan' }}</p>
             @endif
         </div>
     </div>
 
     @if(!empty($calibration['certificate_file_path']))
     <div class="content-section">
-        <div class="section-title">Certificate File</div>
+        <div class="section-title">Berkas Sertifikat</div>
         <div class="certificate-box">
             @if(!empty($calibration['certificate_file_base64']))
             <!-- Certificate is an image, display it -->
-            <p style="margin: 0;"><strong>Certificate File:</strong> {{ basename($calibration['certificate_file_path']) }}</p>
+            <p style="margin: 0;"><strong>Berkas Sertifikat:</strong> {{ basename($calibration['certificate_file_path']) }}</p>
             <div style="margin-top: 10px; text-align: center;">
                 <img src="data:image/jpeg;base64,{{ $calibration['certificate_file_base64'] }}"
                      style="max-width: 100%; max-height: 400px; border: 1px solid #ddd; border-radius: 4px; padding: 5px;" />
@@ -287,7 +304,7 @@
             @else
             <!-- Certificate is a document, make filename clickable -->
             <p style="margin: 0;">
-                <strong>Certificate File:</strong>
+                <strong>Berkas Sertifikat:</strong>
                 <a href="{{ $calibration['certificate_file_url'] ?? '#' }}" style="color: #0066cc; text-decoration: underline;">
                     {{ basename($calibration['certificate_file_path']) }}
                 </a>
@@ -300,21 +317,36 @@
     <!-- History section (if applicable) -->
     @if(!empty($calibration['history']) && count($calibration['history']) > 0)
     <div class="content-section">
-        <div class="section-title">History</div>
+        <div class="section-title">Riwayat</div>
         <table class="data-table striped">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Action</th>
-                    <th>User</th>
-                    <th>Details</th>
+                    <th>Tanggal</th>
+                    <th>Aksi</th>
+                    <th>Pengguna</th>
+                    <th>Rincian</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($calibration['history'] as $entry)
                 <tr>
-                    <td>{{ date('d M Y H:i', strtotime($entry['created_at'])) }}</td>
-                    <td>{{ $entry['action'] }}</td>
+                    <td>{{ isset($entry['created_at']) ? translateMonth($entry['created_at']) . ' ' . date('H:i', strtotime($entry['created_at'])) : 'N/A' }}</td>
+                    <td>
+                    @php
+                        $action = $entry['action'];
+                        if($action == 'created') {
+                            echo 'Dibuat';
+                        } elseif($action == 'updated') {
+                            echo 'Diperbarui';
+                        } elseif($action == 'deleted') {
+                            echo 'Dihapus';
+                        } elseif($action == 'completed') {
+                            echo 'Diselesaikan';
+                        } else {
+                            echo $action;
+                        }
+                    @endphp
+                    </td>
                     <td>{{ $entry['user_name'] }}</td>
                     <td>{{ $entry['details'] }}</td>
                 </tr>
@@ -325,7 +357,7 @@
     @endif
 
     <div class="footer">
-        <p>Asset Monitoring System - Calibration Detail Report</p>
+        <p>Sistem Monitoring Aset - Laporan Detail Kalibrasi</p>
     </div>
 </body>
 </html>

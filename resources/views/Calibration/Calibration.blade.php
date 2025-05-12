@@ -123,13 +123,46 @@
                                                                     @endif
                                                                 </td>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    {{ $calibration['planning_calibration_date'] ? date('d M Y', strtotime($calibration['planning_calibration_date'])) : '-' }}
+                                                                    @if($calibration['planning_calibration_date'])
+                                                                        @php
+                                                                            $date = \Carbon\Carbon::parse($calibration['planning_calibration_date']);
+                                                                            $indonesianMonths = [
+                                                                                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                                                                                'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+                                                                            ];
+                                                                            echo $date->format('d') . ' ' . $indonesianMonths[$date->month - 1] . ' ' . $date->format('Y');
+                                                                        @endphp
+                                                                    @else
+                                                                        -
+                                                                    @endif
                                                                 </td>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    {{ isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'] ? date('d M Y', strtotime($calibration['actual_calibration_date'])) : '-' }}
+                                                                    @if(isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'])
+                                                                        @php
+                                                                            $date = \Carbon\Carbon::parse($calibration['actual_calibration_date']);
+                                                                            $indonesianMonths = [
+                                                                                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                                                                                'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+                                                                            ];
+                                                                            echo $date->format('d') . ' ' . $indonesianMonths[$date->month - 1] . ' ' . $date->format('Y');
+                                                                        @endphp
+                                                                    @else
+                                                                        -
+                                                                    @endif
                                                                 </td>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    {{ isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'] ? date('d M Y', strtotime($calibration['next_calibration_date'])) : '-' }}
+                                                                    @if(isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'])
+                                                                        @php
+                                                                            $date = \Carbon\Carbon::parse($calibration['next_calibration_date']);
+                                                                            $indonesianMonths = [
+                                                                                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                                                                                'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+                                                                            ];
+                                                                            echo $date->format('d') . ' ' . $indonesianMonths[$date->month - 1] . ' ' . $date->format('Y');
+                                                                        @endphp
+                                                                    @else
+                                                                        -
+                                                                    @endif
                                                                 </td>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                                                     {{ $calibration['certificate_number'] ?? '-' }}
@@ -198,35 +231,35 @@
                                                                     <div class="flex justify-center gap-2">
                                                                         <!-- View Details Icon (Eye) -->
                                                                         <a href="{{ route('calibration.detail', ['id' => $calibration['id']]) }}"
-                                                                           class="text-[#3D3D3D] hover:text-[#213268]"
+                                                                           class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
                                                                            title="Lihat Detail">
-                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                                                <circle cx="12" cy="12" r="3"></circle>
                                                                             </svg>
                                                                         </a>
 
                                                                         <!-- Perform Calibration Icon (Pencil) -->
                                                                         @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
-                                                                        <button class="text-[#3D3D3D] hover:text-[#213268] edit-calibration-btn"
+                                                                        <button class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-calibration-btn"
                                                                             data-id="{{ $calibration['id'] }}"
                                                                             title="Lakukan Kalibrasi">
-                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                                                             </svg>
                                                                         </button>
                                                                         @endif
 
                                                                         <!-- Delete Icon (Trash) -->
-                                                                        <button class="text-[#3D3D3D] hover:text-red-500 delete-calibration-btn"
+                                                                        <button class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-calibration-btn"
                                                                             data-id="{{ $calibration['id'] }}"
                                                                             title="Hapus Kalibrasi">
-                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                                                <line x1="14" y1="11" x2="14" y2="17"></line>
                                                                             </svg>
                                                                         </button>
                                                                     </div>
@@ -361,9 +394,72 @@
                                     Bidang dengan tanda <span class="text-red-500">*</span> wajib diisi
                                 </div>
 
+                                <!-- ASSET INFORMATION SECTION -->
+                                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Aset</h3>
+
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <!-- Left Column -->
-                                    <div class="space-y-5">
+                                        <div class="space-y-4">
+                                        <!-- Asset Code -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">KODE ASET</label>
+                                            <input type="text" id="asset_code_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Asset Name -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">NAMA ASET</label>
+                                            <input type="text" id="asset_name_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Serial Number -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">NOMOR SERI</label>
+                                            <input type="text" id="serial_number_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="space-y-4">
+                                        <!-- Brand (Merk) -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">MERK</label>
+                                            <input type="text" id="brand_name_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Type -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">TIPE</label>
+                                            <input type="text" id="model_number_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Location -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">LOKASI</label>
+                                            <input type="text" id="location_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CALIBRATION SCHEDULE SECTION -->
+                                <div class="bg-yellow-50 rounded-lg p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Jadwal Kalibrasi</h3>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <!-- Planning Date -->
                                         <div>
                                             <label for="planning_calibration_date"
@@ -396,67 +492,25 @@
                                                 class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
                                                 required>
                                         </div>
-
-                                        <!-- Asset Code -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">KODE ASET</label>
-                                            <input type="text" id="asset_code_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
-
-                                        <!-- Asset Name -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">NAMA ASET</label>
-                                            <input type="text" id="asset_name_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
-
-                                        <!-- Certificate Number -->
-                                        <div>
-                                            <label for="certificate_number" class="block text-sm font-medium text-gray-700">
-                                                NOMOR SERTIFIKAT<span class="text-red-500">*</span>
-                                            </label>
-                                            <input type="text" id="certificate_number" name="certificate_number"
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                required>
-                                        </div>
                                     </div>
+                                </div>
 
-                                    <!-- Right Column -->
-                                    <div class="space-y-5">
-                                        <!-- Serial Number -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">NOMOR SERI</label>
-                                            <input type="text" id="serial_number_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
+                                <!-- CALIBRATION DETAILS SECTION -->
+                                <div class="bg-green-50 rounded-lg p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Detail Kalibrasi</h3>
 
-                                        <!-- Brand (Merk) -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">MERK</label>
-                                            <input type="text" id="brand_name_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
-
-                                        <!-- Type -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">TIPE</label>
-                                            <input type="text" id="model_number_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
-
-                                        <!-- Location -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">LOKASI</label>
-                                            <input type="text" id="location_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Left Column -->
+                                        <div class="space-y-4">
+                                            <!-- Certificate Number -->
+                                            <div>
+                                                <label for="certificate_number" class="block text-sm font-medium text-gray-700">
+                                                    NOMOR SERTIFIKAT<span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="text" id="certificate_number" name="certificate_number"
+                                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                    required>
+                                            </div>
 
                                         <!-- Vendor -->
                                         <div>
@@ -468,22 +522,26 @@
                                                 class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
                                                 <input type="hidden" id="vendor_id" name="vendor_id">
                                                 <div id="vendor_results" class="absolute z-10 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto border border-gray-300"></div>
+                                                </div>
                                         </div>
                                         </div>
 
+                                        <!-- Right Column -->
+                                        <div class="space-y-4">
                                         <!-- Service Price -->
                                         <div>
                                             <label for="calibration_price" class="block text-sm font-medium text-gray-700">
                                                 BIAYA LAYANAN
                                             </label>
+                                                <div class="relative mt-1">
+                                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <span class="text-gray-500 sm:text-sm">Rp</span>
+                                                    </div>
                                             <input type="number" id="calibration_price" name="calibration_price" step="0.01"
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                                        </div>
+                                                        class="block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
                                     </div>
                                         </div>
 
-                                <!-- Full Width Fields -->
-                                <div class="mt-6 space-y-5">
                                         <!-- Result -->
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700">
@@ -506,13 +564,20 @@
                                                         value="unknown" class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
                                                 <label for="result_unknown" class="ml-2 text-sm text-gray-700">Tidak
                                                     Ditemukan</label>
+                                                    </div>
+                                                </div>
+                                            </div>
                                                 </div>
                                             </div>
                                         </div>
 
+                                <!-- DOCUMENTATION SECTION -->
+                                <div class="bg-purple-50 rounded-lg p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Dokumentasi</h3>
+
                                         <!-- Document File -->
                                         <div>
-                                        <label class="block text-sm font-medium text-gray-700">BERKAS TERUNGGAH</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">BERKAS TERUNGGAH</label>
                                         <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                             <!-- File preview container -->
                                             <div id="file-preview" class="mt-2 mb-4 w-full hidden">
@@ -548,11 +613,11 @@
                                 </div>
 
                                 <!-- Calibration Notes - Full Width -->
-                                <div>
-                                    <label for="notes" class="block text-sm font-medium text-gray-700">CATATAN
-                                        KALIBRASI</label>
+                                    <div class="mt-4">
+                                        <label for="notes" class="block text-sm font-medium text-gray-700">CATATAN KALIBRASI</label>
                                     <textarea id="notes" name="notes" rows="3"
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"></textarea>
+                                            class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                            placeholder="Tambahkan catatan atau keterangan tambahan tentang kalibrasi ini..."></textarea>
                                             </div>
                                 </div>
 
@@ -561,7 +626,10 @@
 
                                 <div class="pt-4">
                                     <button type="submit"
-                                        class="w-full py-3 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transition-colors duration-200">
+                                        class="w-full py-3 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transition-colors duration-200 flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
                                         Simpan Kalibrasi
                                     </button>
                                 </div>
@@ -906,6 +974,87 @@
                 notification.className = `fixed top-4 right-4 bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md z-50`;
                 notification.setAttribute('role', 'alert');
 
+                // Check if message is an object or array (for detailed error messages)
+                let messageContent = '';
+                if (typeof message === 'object' && message !== null) {
+                    // If it's an error object with nested errors
+                    if (message.errors && typeof message.errors === 'object') {
+                        messageContent = '<ul class="list-disc pl-5 mt-2">';
+                        for (const field in message.errors) {
+                            if (Array.isArray(message.errors[field])) {
+                                message.errors[field].forEach(error => {
+                                    messageContent += `<li>${error}</li>`;
+                                });
+                            } else if (typeof message.errors[field] === 'object') {
+                                // Handle nested objects
+                                for (const subField in message.errors[field]) {
+                                    messageContent += `<li>${subField}: ${message.errors[field][subField]}</li>`;
+                                }
+                            } else {
+                                messageContent += `<li>${field}: ${message.errors[field]}</li>`;
+                            }
+                        }
+                        messageContent += '</ul>';
+                    } else if (Array.isArray(message)) {
+                        // If it's an array of error messages
+                        messageContent = '<ul class="list-disc pl-5 mt-2">';
+                        message.forEach(error => {
+                            if (typeof error === 'object' && error !== null) {
+                                // Handle Zod-style validation errors with path and message properties
+                                if (error.path && error.message) {
+                                    // Convert field names to readable format
+                                    let readableField = error.path;
+                                    if (error.path === 'actual_calibration_date') readableField = 'Tanggal Kerja';
+                                    else if (error.path === 'next_calibration_date') readableField = 'Kalibrasi Berikutnya';
+                                    else if (error.path === 'certificate_number') readableField = 'Nomor Sertifikat';
+                                    else if (error.path === 'calibration_result') readableField = 'Hasil';
+                                    else if (error.path === 'notes') readableField = 'Catatan Kalibrasi';
+
+                                    messageContent += `<li>${readableField}: ${error.message}</li>`;
+                                } else {
+                                    // Generic object representation
+                                    messageContent += `<li>${JSON.stringify(error)}</li>`;
+                                }
+                            } else {
+                            messageContent += `<li>${error}</li>`;
+                            }
+                        });
+                        messageContent += '</ul>';
+                    } else if (message.message) {
+                        // If it has a message property (common in Error objects)
+                        messageContent = message.message;
+                    } else if (message.error) {
+                        // If it has an error property
+                        messageContent = message.error;
+                    } else {
+                        // Try to prettify the object for better readability
+                        try {
+                            // Create a formatted message showing each property
+                            messageContent = '<ul class="list-disc pl-5 mt-2">';
+                            Object.entries(message).forEach(([key, value]) => {
+                                if (key !== 'stack' && key !== '__proto__') { // Skip non-helpful properties
+                                    if (typeof value === 'object' && value !== null) {
+                                        messageContent += `<li>${key}: ${JSON.stringify(value)}</li>`;
+                                    } else {
+                                        messageContent += `<li>${key}: ${value}</li>`;
+                                    }
+                                }
+                            });
+                            messageContent += '</ul>';
+
+                            // If there were no properties to show, fallback to stringify
+                            if (messageContent === '<ul class="list-disc pl-5 mt-2"></ul>') {
+                            messageContent = JSON.stringify(message);
+                            }
+                        } catch (e) {
+                            messageContent = "Error object could not be displayed";
+                        }
+                    }
+                } else {
+                    // Simple string message
+                    messageContent = message;
+                }
+
                 // Set inner HTML
                 notification.innerHTML = `
                     <div class="flex items-center">
@@ -917,7 +1066,7 @@
                         </div>
                         <div>
                             <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
-                            <p>${message}</p>
+                            <div class="error-message">${messageContent}</div>
                         </div>
                         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                     </div>
@@ -1330,7 +1479,14 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(data => {
+                                    throw data;
+                                });
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             if (data.success) {
                                 const calibration = data.data;
@@ -1385,9 +1541,18 @@
                                                 document.getElementById('vendor_search').value = '';
                                             }
 
-                                // Only set next_calibration_date if it exists in the data
+                                // Set next_calibration_date if it exists in the data
                                 if (calibration.next_calibration_date) {
                                     document.getElementById('next_calibration_date').value = calibration.next_calibration_date;
+                                }
+
+                                // Set actual_calibration_date if it exists in the data
+                                if (calibration.actual_calibration_date) {
+                                    document.getElementById('actual_calibration_date').value = calibration.actual_calibration_date;
+                                } else {
+                                    // Set current date as default
+                                    const today = new Date().toISOString().split('T')[0];
+                                    document.getElementById('actual_calibration_date').value = today;
                                 }
 
                                 document.getElementById('certificate_number').value = calibration.certificate_number || '';
@@ -1483,7 +1648,12 @@
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            showToast('Terjadi kesalahan saat memuat detail kalibrasi', 'error');
+                            // If error is an object with message or errors, use that
+                            if (typeof error === 'object' && error !== null) {
+                                showToast(error, 'error');
+                            } else {
+                                showToast('Terjadi kesalahan saat memuat detail kalibrasi', 'error');
+                            }
                         });
                 });
             });
@@ -1624,14 +1794,62 @@
                             window.location.reload();
                         }, 1000);
                     } else {
-                        showToast(data.message || 'Gagal menghapus kalibrasi', 'error');
+                        showToast(data.message || data.error || 'Gagal menghapus kalibrasi', 'error');
                         console.error('Delete error:', data.errors);
                     }
                 })
                 .catch(error => {
                     console.error('Delete request failed:', error);
                     closeModal(modals.delete, modalContents.delete);
-                    showToast(error.message || 'Terjadi kesalahan saat menghapus kalibrasi', 'error');
+
+                    // Handle the error object properly
+                    if (typeof error === 'object' && error !== null) {
+                        if (error.errors) {
+                            // Handle array-style errors (common in Zod validation)
+                            if (Array.isArray(error.errors)) {
+                                const errorMessages = [];
+
+                                error.errors.forEach(err => {
+                                    // Format for errors with path and message properties
+                                    if (err.path && err.message) {
+                                        errorMessages.push(`${err.path}: ${err.message}`);
+                                    } else {
+                                        // Generic error format
+                                        errorMessages.push(typeof err === 'string' ? err : JSON.stringify(err));
+                                    }
+                                });
+
+                                if (errorMessages.length > 0) {
+                                    showToast(errorMessages, 'error');
+                                    return;
+                                }
+                            }
+
+                            // Format validation errors
+                            const errorMessages = [];
+                            for (const field in error.errors) {
+                                const fieldErrors = Array.isArray(error.errors[field])
+                                    ? error.errors[field]
+                                    : [error.errors[field]];
+
+                                fieldErrors.forEach(msg => {
+                                    errorMessages.push(`${field}: ${msg}`);
+                                });
+                            }
+
+                            if (errorMessages.length > 0) {
+                                showToast(errorMessages, 'error');
+                            } else {
+                                showToast(error.message || 'Gagal menghapus kalibrasi', 'error');
+                            }
+                        } else if (error.message) {
+                            showToast(error.message, 'error');
+                        } else {
+                            showToast(error, 'error');
+                        }
+                    } else {
+                        showToast('Terjadi kesalahan saat menghapus kalibrasi', 'error');
+                    }
                 });
             });
 
@@ -1656,13 +1874,20 @@
                     },
                     body: formData
                 })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw data;
+                            });
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             // Close the modal
                             closeModal(modals.view, modalContents.view);
 
-                            // Show toast notification first
+                            // Show toast notification with server message
                             showToast(data.message || 'Kalibrasi berhasil diperbarui', 'success');
 
                             // Delay the redirect slightly to allow the toast to be seen
@@ -1670,12 +1895,82 @@
                                 window.location.href = "{{ route('calibration') }}";
                             }, 1000);
                         } else {
-                            showToast(data.message || 'Gagal memperbarui kalibrasi', 'error');
+                            showToast(data.message || data.error || 'Gagal memperbarui kalibrasi', 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        showToast('Terjadi kesalahan saat memperbarui kalibrasi', 'error');
+
+                        // If error is an object with message or errors, use that
+                        if (typeof error === 'object' && error !== null) {
+                        // Handle specific validation errors
+                        if (error.errors) {
+                            // Handle array-style errors (common in Zod validation)
+                            if (Array.isArray(error.errors)) {
+                                const errorMessages = [];
+
+                                error.errors.forEach(err => {
+                                    // Format for errors with path and message properties
+                                    if (err.path && err.message) {
+                                        // Convert field names like "actual_calibration_date" to "Tanggal Kerja"
+                                        let readableField = err.path;
+                                        if (err.path === 'actual_calibration_date') readableField = 'Tanggal Kerja';
+                                        else if (err.path === 'next_calibration_date') readableField = 'Kalibrasi Berikutnya';
+                                        else if (err.path === 'certificate_number') readableField = 'Nomor Sertifikat';
+                                        else if (err.path === 'calibration_result') readableField = 'Hasil';
+                                        else if (err.path === 'notes') readableField = 'Catatan Kalibrasi';
+
+                                        errorMessages.push(`${readableField}: ${err.message}`);
+                                    } else {
+                                        // Generic error format
+                                        errorMessages.push(typeof err === 'string' ? err : JSON.stringify(err));
+                                    }
+                                });
+
+                                if (errorMessages.length > 0) {
+                                    showToast(errorMessages, 'error');
+                                    return;
+                                }
+                            }
+
+                            // Handle object-style errors (traditional Laravel validation)
+                            const errorMessages = [];
+
+                            for (const field in error.errors) {
+                                // Format error messages with field name for clarity
+                                const fieldErrors = Array.isArray(error.errors[field])
+                                    ? error.errors[field]
+                                    : [error.errors[field]];
+
+                                fieldErrors.forEach(msg => {
+                                    // Convert field names like "actual_calibration_date" to "Tanggal Kerja"
+                                    let readableField = field;
+                                    if (field === 'actual_calibration_date') readableField = 'Tanggal Kerja';
+                                    else if (field === 'next_calibration_date') readableField = 'Kalibrasi Berikutnya';
+                                    else if (field === 'certificate_number') readableField = 'Nomor Sertifikat';
+                                    else if (field === 'calibration_result') readableField = 'Hasil';
+                                    else if (field === 'notes') readableField = 'Catatan Kalibrasi';
+
+                                    errorMessages.push(`${readableField}: ${msg}`);
+                                });
+                            }
+
+                            // Show all errors in a single toast
+                            if (errorMessages.length > 0) {
+                                showToast(errorMessages, 'error');
+                            } else {
+                                showToast(error.message || 'Gagal memperbarui kalibrasi', 'error');
+                            }
+                        } else if (error.message) {
+                            // Error has a simple message property
+                            showToast(error.message, 'error');
+                        } else {
+                            // No standard error format, send the whole object for processing
+                            showToast(error, 'error');
+                        }
+                        } else {
+                            showToast('Terjadi kesalahan saat memperbarui kalibrasi', 'error');
+                        }
                     });
             });
 
@@ -1812,97 +2107,14 @@
                       `;
 
                       // Show error notification
-                      showErrorNotification('Gagal memuat aset: ' + error.message);
+                      showToast('Gagal memuat aset: ' + error.message, 'error');
                   });
               }
 
               // Add this function to show error notifications similar to UnitAsset.blade.php
               function showErrorNotification(message) {
-                  // Create the notification element
-                  const notification = document.createElement('div');
-                  notification.id = 'errorNotification' + Date.now(); // Unique ID
-                  notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
-                  notification.role = 'alert';
-
-                  // Check if message contains HTML
-                  const hasHTML = /<[a-z][\s\S]*>/i.test(message);
-
-                  notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
-
-                  // Structure for the notification
-                  const wrapper = document.createElement('div');
-                  wrapper.className = 'flex items-start';
-
-                  // Icon container
-                  const iconContainer = document.createElement('div');
-                  iconContainer.className = 'py-1 flex-shrink-0';
-                  iconContainer.innerHTML = `
-                      <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                  `;
-
-                  // Content container
-                  const contentContainer = document.createElement('div');
-                  contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                  // Title
-                  const title = document.createElement('p');
-                  title.className = 'font-bold';
-                  title.textContent = 'Kesalahan!';
-                  contentContainer.appendChild(title);
-
-                  // Message container
-                  const messageContainer = document.createElement('div');
-                  messageContainer.className = 'error-message';
-
-                  // Handle HTML content
-                  if (hasHTML) {
-                      messageContainer.innerHTML = message;
-                  } else {
-                      messageContainer.textContent = message;
-                  }
-
-                  contentContainer.appendChild(messageContainer);
-
-                  // Close button
-                  const closeBtn = document.createElement('span');
-                  closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                  closeBtn.textContent = '×';
-                  closeBtn.onclick = function() {
-                      notification.remove();
-                  };
-
-                  // Assemble the notification
-                  wrapper.appendChild(iconContainer);
-                  wrapper.appendChild(contentContainer);
-                  wrapper.appendChild(closeBtn);
-                  notification.appendChild(wrapper);
-
-                  // Add to document
-                  document.body.appendChild(notification);
-
-                  // Add animation styles if they don't exist
-                  if (!document.getElementById('notification-styles')) {
-                      const styleElement = document.createElement('style');
-                      styleElement.id = 'notification-styles';
-                      styleElement.textContent = `
-                          @keyframes slideInRight {
-                              from { transform: translateX(100%); }
-                              to { transform: translateX(0); }
-                          }
-                          .animate-slide-in-right {
-                              animation: slideInRight 0.3s ease-out forwards;
-                          }
-                      `;
-                      document.head.appendChild(styleElement);
-                  }
-
-                  // Auto-remove notification after 5 seconds
-                  setTimeout(() => {
-                      notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                      setTimeout(() => notification.remove(), 500);
-                  }, 5000);
+                  // Just use the enhanced showToast function
+                  showToast(message, 'error');
               }
 
               // Helper function to render assets with or without filtering
@@ -2324,13 +2536,20 @@
                       },
                       body: JSON.stringify(formData)
                   })
-                  .then(response => response.json())
+                  .then(response => {
+                      if (!response.ok) {
+                          return response.json().then(data => {
+                              throw data; // Throw the response data for handling in the catch block
+                          });
+                      }
+                      return response.json();
+                  })
                   .then(data => {
                       if (data.success) {
                           // Close the modal
                           closeModal(document.getElementById('addCalibrationModal'), document.getElementById('addCalibrationModalContent'));
 
-                          // Show toast notification first
+                          // Show toast notification first with server message
                           showToast(data.message || 'Kalibrasi berhasil dibuat', 'success');
 
                           // Delay the redirect slightly to allow the toast to be seen
@@ -2338,13 +2557,19 @@
                               window.location.href = "{{ route('calibration') }}";
                           }, 1000);
                       } else {
-                          // Show error message
-                          showToast(data.message, 'error');
+                          // Show error message from server
+                          showToast(data.message || data.error || 'Gagal membuat kalibrasi', 'error');
                       }
                   })
                   .catch(error => {
                       console.error('Error creating calibrations:', error);
-                      showToast('Terjadi kesalahan saat membuat kalibrasi.', 'error');
+
+                      // If error is an object with message or errors, use that
+                      if (typeof error === 'object' && error !== null) {
+                          showToast(error, 'error');
+                      } else {
+                          showToast('Terjadi kesalahan saat membuat kalibrasi.', 'error');
+                      }
                   });
               });
 
@@ -2490,6 +2715,13 @@
                           // If we got some vendors, still show them
                           if (allVendors.length > 0) {
                               filterAndDisplayVendors(vendorSearchInput?.value.trim() || '');
+                          }
+
+                          // Show toast notification with error details
+                          if (typeof error === 'object' && error !== null) {
+                              showToast(error, 'error');
+                          } else {
+                              showToast('Gagal memuat vendor: ' + error.message, 'error');
                           }
                       });
                   }
@@ -2769,6 +3001,9 @@
                       updateSelectedAssetsList();
                   }
               }
+
+            // Handle dates in the form
+            // Function removed to fix date display issues
         });
     </script>
     @endpush

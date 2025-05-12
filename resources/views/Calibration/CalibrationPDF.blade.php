@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Calibration Report</title>
+    <title>Laporan Kalibrasi</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -117,32 +117,32 @@
 </head>
 <body>
     <div class="header">
-        <h1>CALIBRATION REPORT</h1>
-        <p>Generated on: {{ $date_generated }}</p>
+        <h1>LAPORAN KALIBRASI</h1>
+        <p>Dibuat pada: {{ $date_generated }}</p>
     </div>
 
     <div class="filters">
         @if(!empty($search))
-        <p><strong>Search:</strong> {{ $search }}</p>
+        <p><strong>Pencarian:</strong> {{ $search }}</p>
         @endif
-        <p><strong>Sort Order:</strong> {{ $sort_order == 'desc' ? 'Newest First' : 'Oldest First' }}</p>
+        <p><strong>Urutan:</strong> {{ $sort_order == 'desc' ? 'Terbaru Terlebih Dahulu' : 'Terlama Terlebih Dahulu' }}</p>
         @if(!empty($status))
-        <p><strong>Status Filter:</strong> {{ ucfirst(str_replace('_', ' ', $status)) }}</p>
+        <p><strong>Filter Status:</strong> {{ ucfirst(str_replace('_', ' ', $status)) }}</p>
         @endif
     </div>
 
     <table class="striped">
         <thead>
             <tr>
-                <th>Asset</th>
-                <th>Task Code</th>
+                <th>Aset</th>
+                <th>Kode Tugas</th>
                 <th>Status</th>
-                <th>Planning Date</th>
-                <th>Actual Date</th>
-                <th>Next Date</th>
-                <th>Certificate</th>
-                <th>Result</th>
-                <th>Cost</th>
+                <th>Tanggal Perencanaan</th>
+                <th>Tanggal Aktual</th>
+                <th>Tanggal Berikutnya</th>
+                <th>Sertifikat</th>
+                <th>Hasil</th>
+                <th>Biaya</th>
             </tr>
         </thead>
         <tbody>
@@ -160,28 +160,33 @@
 
                             if ($status == 'scheduled') {
                                 $statusClass = 'status-scheduled';
+                                $statusText = 'Dijadwalkan';
                             } elseif ($status == 'in_progress') {
                                 $statusClass = 'status-in-progress';
+                                $statusText = 'Dalam Pengerjaan';
                             } elseif ($status == 'completed') {
                                 $statusClass = 'status-completed';
+                                $statusText = 'Selesai';
                             } elseif ($status == 'overdue') {
                                 $statusClass = 'status-overdue';
+                                $statusText = 'Terlambat';
                             } elseif ($status == 'cancelled') {
                                 $statusClass = 'status-cancelled';
+                                $statusText = 'Dibatalkan';
                             }
                         @endphp
                         <span class="status-badge {{ $statusClass }}">
-                            {{ ucfirst(str_replace('_', ' ', $status ?: 'Unknown')) }}
+                            {{ ucfirst(str_replace('_', ' ', $statusText ?: 'Unknown')) }}
                         </span>
                     </td>
                     <td>
-                        {{ isset($calibration['planning_calibration_date']) ? date('d M Y', strtotime($calibration['planning_calibration_date'])) : '-' }}
+                        {{ isset($calibration['planning_calibration_date']) ? \Carbon\Carbon::parse($calibration['planning_calibration_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
                     </td>
                     <td>
-                        {{ isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'] ? date('d M Y', strtotime($calibration['actual_calibration_date'])) : '-' }}
+                        {{ isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'] ? \Carbon\Carbon::parse($calibration['actual_calibration_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
                     </td>
                     <td>
-                        {{ isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'] ? date('d M Y', strtotime($calibration['next_calibration_date'])) : '-' }}
+                        {{ isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'] ? \Carbon\Carbon::parse($calibration['next_calibration_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
                     </td>
                     <td>{{ $calibration['certificate_number'] ?? '-' }}</td>
                     <td>
@@ -213,14 +218,14 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" style="text-align: center;">No calibrations found</td>
+                    <td colspan="9" style="text-align: center;">Tidak ada kalibrasi yang ditemukan</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
     <div class="footer">
-        <p>Asset Monitoring System - Calibration Report</p>
+        <p>Sistem Monitoring Aset - Laporan Kalibrasi</p>
     </div>
 </body>
 </html>

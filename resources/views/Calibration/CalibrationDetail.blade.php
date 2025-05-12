@@ -41,19 +41,23 @@
                     <div class="flex items-center">
                         @if(isset($calibration['status_calibration']) && $calibration['status_calibration'] == 'scheduled')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                Scheduled
+                                Terjadwal
+                            </span>
+                        @elseif(isset($calibration['status_calibration']) && $calibration['status_calibration'] == 'in_progress')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Dalam Proses
                             </span>
                         @elseif(isset($calibration['status_calibration']) && $calibration['status_calibration'] == 'completed')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Completed
+                                Selesai
                             </span>
                         @elseif(isset($calibration['status_calibration']) && $calibration['status_calibration'] == 'overdue')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                Overdue
+                                Terlambat
                             </span>
                         @else
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                {{ isset($calibration['status_calibration']) ? ucfirst($calibration['status_calibration']) : 'Unknown' }}
+                                Tidak Diketahui
                             </span>
                         @endif
                     </div>
@@ -91,7 +95,17 @@
             <div class="space-y-4">
                 <div class="flex flex-col space-y-1">
                     <span class="text-sm text-gray-500">Planning Date</span>
-                    <span class="font-medium">{{ isset($calibration['planning_calibration_date']) && $calibration['planning_calibration_date'] ? date('d M Y', strtotime($calibration['planning_calibration_date'])) : 'N/A' }}</span>
+                    <span class="font-medium">
+                        @php
+                            if (isset($calibration['planning_calibration_date']) && $calibration['planning_calibration_date']) {
+                                $date = new DateTime($calibration['planning_calibration_date']);
+                                $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                echo $date->format('j') . ' ' . $months[$date->format('n')-1] . ' ' . $date->format('Y');
+                            } else {
+                                echo 'N/A';
+                            }
+                        @endphp
+                    </span>
                 </div>
 
                 <div class="flex flex-col space-y-1">
@@ -104,14 +118,30 @@
                             Belum dilakukan kalibrasi
                         </span>
                     @else
-                        <span class="font-medium">{{ date('d M Y', strtotime($calibration['actual_calibration_date'])) }}</span>
+                        <span class="font-medium">
+                            @php
+                                $date = new DateTime($calibration['actual_calibration_date']);
+                                $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                echo $date->format('j') . ' ' . $months[$date->format('n')-1] . ' ' . $date->format('Y');
+                            @endphp
+                        </span>
                     @endif
                 </div>
 
                 @if(isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'])
                 <div class="flex flex-col space-y-1">
                     <span class="text-sm text-gray-500">Next Calibration Date</span>
-                    <span class="font-medium">{{ isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'] ? date('d M Y', strtotime($calibration['next_calibration_date'])) : 'N/A' }}</span>
+                    <span class="font-medium">
+                        @php
+                            if (isset($calibration['next_calibration_date']) && $calibration['next_calibration_date']) {
+                                $date = new DateTime($calibration['next_calibration_date']);
+                                $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                echo $date->format('j') . ' ' . $months[$date->format('n')-1] . ' ' . $date->format('Y');
+                            } else {
+                                echo 'N/A';
+                            }
+                        @endphp
+                    </span>
                 </div>
 
                 <div class="flex flex-col space-y-1">
@@ -129,15 +159,15 @@
                     <div>
                         @if(isset($calibration['calibration_result']) && $calibration['calibration_result'] == 'pass')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Pass
+                                Lulus
                             </span>
                         @elseif(isset($calibration['calibration_result']) && $calibration['calibration_result'] == 'fail')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                Fail
+                                Gagal
                             </span>
                         @elseif(isset($calibration['calibration_result']) && $calibration['calibration_result'] == 'unknown')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                Unknown
+                                Tidak Ditemukan
                             </span>
                         @else
                             <span class="font-medium">{{ isset($calibration['calibration_result']) ? ucfirst($calibration['calibration_result']) : 'N/A' }}</span>
