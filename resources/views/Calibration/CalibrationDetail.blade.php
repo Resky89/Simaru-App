@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Calibration Details')
+@section('title', 'Detail Kalibrasi')
 
 @section('content')
 <div class="bg-white p-6 rounded-lg shadow-md">
@@ -12,7 +12,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
-            <h1 class="text-2xl font-bold text-[#213268]">CALIBRATION DETAILS</h1>
+            <h1 class="text-2xl font-bold text-[#213268]">DETAIL KALIBRASI</h1>
         </div>
         <div>
             <a href="{{ route('calibration.detail.export.pdf', ['id' => $calibration['id'] ?? 0]) }}" target="_blank"
@@ -20,7 +20,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Export PDF
+                Ekspor PDF
             </a>
         </div>
     </div>
@@ -31,7 +31,7 @@
             <!-- Left column -->
             <div class="space-y-4">
                 <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Asset</span>
+                    <span class="text-sm text-gray-500">Aset</span>
                     <span class="font-medium">{{ $calibration['asset_name'] ?? 'N/A' }}</span>
                     <span class="text-sm text-gray-600">{{ $calibration['asset_code'] ?? 'N/A' }}</span>
                 </div>
@@ -64,17 +64,17 @@
                 </div>
 
                 <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Brand</span>
+                    <span class="text-sm text-gray-500">Merek</span>
                     <span class="font-medium">{{ $calibration['brand_name'] ?? 'N/A' }}</span>
                 </div>
 
                 <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Serial Number</span>
+                    <span class="text-sm text-gray-500">Nomor Seri</span>
                     <span class="font-medium">{{ $calibration['serial_number'] ?? 'N/A' }}</span>
                 </div>
 
                 <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Location</span>
+                    <span class="text-sm text-gray-500">Lokasi</span>
                     @php
                         $locationText = 'N/A';
                         if(isset($calibration['location'])) {
@@ -94,7 +94,7 @@
             <!-- Right column -->
             <div class="space-y-4">
                 <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Planning Date</span>
+                    <span class="text-sm text-gray-500">Tanggal Rencana</span>
                     <span class="font-medium">
                         @php
                             if (isset($calibration['planning_calibration_date']) && $calibration['planning_calibration_date']) {
@@ -109,7 +109,7 @@
                 </div>
 
                 <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Actual Calibration Date</span>
+                    <span class="text-sm text-gray-500">Tanggal Kalibrasi Aktual</span>
                     @if(!isset($calibration['actual_calibration_date']) || !$calibration['actual_calibration_date'])
                         <span class="font-medium text-amber-600 flex items-center">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +130,7 @@
 
                 @if(isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'])
                 <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Next Calibration Date</span>
+                    <span class="text-sm text-gray-500">Tanggal Kalibrasi Berikutnya</span>
                     <span class="font-medium">
                         @php
                             if (isset($calibration['next_calibration_date']) && $calibration['next_calibration_date']) {
@@ -150,12 +150,12 @@
                 </div>
 
                 <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Certificate Number</span>
+                    <span class="text-sm text-gray-500">Nomor Sertifikat</span>
                     <span class="font-medium">{{ $calibration['certificate_number'] ?? 'N/A' }}</span>
                 </div>
 
                 <div class="flex flex-col space-y-1">
-                    <span class="text-sm text-gray-500">Result</span>
+                    <span class="text-sm text-gray-500">Hasil</span>
                     <div>
                         @if(isset($calibration['calibration_result']) && $calibration['calibration_result'] == 'pass')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -181,7 +181,7 @@
 
     <!-- Notes section -->
     <div class="mb-8">
-        <h2 class="text-lg font-semibold mb-2 text-[#213268]">Notes</h2>
+        <h2 class="text-lg font-semibold mb-2 text-[#213268]">Catatan</h2>
         <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
             @if(!isset($calibration['actual_calibration_date']) || !$calibration['actual_calibration_date'])
                 <p class="text-amber-600 flex items-center">
@@ -191,7 +191,7 @@
                     Belum dilakukan kalibrasi
                 </p>
             @else
-                <p class="text-gray-700 whitespace-pre-line">{{ $calibration['notes'] ?? 'No notes available' }}</p>
+                <p class="text-gray-700 whitespace-pre-line">{{ $calibration['notes'] ?? 'Tidak ada catatan' }}</p>
             @endif
         </div>
     </div>
@@ -199,7 +199,7 @@
     <!-- Certificate file section -->
     @if(!empty($calibration['certificate_file_path']))
     <div class="mb-8">
-        <h2 class="text-lg font-semibold mb-2 text-[#213268]">Certificate File</h2>
+        <h2 class="text-lg font-semibold mb-2 text-[#213268]">Berkas Sertifikat</h2>
         <div class="flex flex-col p-4 bg-gray-50 rounded-lg border border-gray-200">
             @php
                 $fileName = basename($calibration['certificate_file_path']);
@@ -210,7 +210,7 @@
             @if($isImage)
                 <div class="mb-4 w-full flex justify-center">
                     <img src="http://localhost:5000/public/images/{{ $fileName }}"
-                         alt="Certificate"
+                         alt="Sertifikat"
                          class="max-w-md w-full object-contain rounded-lg shadow-md"
                          style="max-height: 350px;"
                          onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('p-4');">
@@ -225,7 +225,7 @@
                         <a href="http://localhost:5000/public/documents/{{ $fileName }}"
                             target="_blank"
                             class="text-blue-600 hover:underline text-sm">
-                            View Document
+                            Lihat Dokumen
                         </a>
                     </div>
                 </div>

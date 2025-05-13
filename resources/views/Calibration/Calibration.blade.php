@@ -395,7 +395,7 @@
                                 </div>
 
                                 <!-- ASSET INFORMATION SECTION -->
-                                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                                <div class="bg-blue-100 rounded-lg p-4 mb-6">
                                     <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Aset</h3>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -456,7 +456,7 @@
                                 </div>
 
                                 <!-- CALIBRATION SCHEDULE SECTION -->
-                                <div class="bg-yellow-50 rounded-lg p-4 mb-6">
+                                <div class="bg-yellow-100 rounded-lg p-4 mb-6">
                                     <h3 class="text-[#213268] font-semibold text-lg mb-4">Jadwal Kalibrasi</h3>
 
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -496,7 +496,7 @@
                                 </div>
 
                                 <!-- CALIBRATION DETAILS SECTION -->
-                                <div class="bg-green-50 rounded-lg p-4 mb-6">
+                                <div class="bg-green-100 rounded-lg p-4 mb-6">
                                     <h3 class="text-[#213268] font-semibold text-lg mb-4">Detail Kalibrasi</h3>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -510,7 +510,7 @@
                                                 <input type="text" id="certificate_number" name="certificate_number"
                                                     class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
                                                     required>
-                                            </div>
+                                        </div>
 
                                         <!-- Vendor -->
                                         <div>
@@ -572,7 +572,7 @@
                                         </div>
 
                                 <!-- DOCUMENTATION SECTION -->
-                                <div class="bg-purple-50 rounded-lg p-4 mb-6">
+                                <div class="bg-blue-100 rounded-lg p-4 mb-6">
                                     <h3 class="text-[#213268] font-semibold text-lg mb-4">Dokumentasi</h3>
 
                                         <!-- Document File -->

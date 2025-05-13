@@ -83,7 +83,7 @@ class DashboardController extends Controller
                 $dashboardData['as_of_date'] = $depreciationResult['data']['as_of_date'] ?? date('Y-m-d');
             }
 
-            return view('dashboard', ['dashboardData' => $dashboardData]);
+            return view('Dashboard', ['dashboardData' => $dashboardData]);
 
         } catch (\Exception $e) {
             \Log::error('Exception during dashboard data retrieval', [
@@ -92,7 +92,7 @@ class DashboardController extends Controller
             ]);
 
             // Return view with default empty data and error message
-            return view('dashboard', [
+            return view('Dashboard', [
                 'dashboardData' => [
                     'total_users' => 0,
                     'total_assets' => 0,
@@ -289,23 +289,31 @@ class DashboardController extends Controller
     }
 
     /**
-     * Get depreciation data (direct endpoint)
+     * Get calendar events data for a specific year and month
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getDepreciation()
+    public function getCalendarEvents(Request $request)
     {
         try {
-            // Log request info
-            \Log::info('Fetching depreciation data via direct endpoint');
+            // Get year and month from request (default to current year and month if not provided)
+            $year = $request->query('year', date('Y'));
+            $month = $request->query('month', date('m'));
 
-            // Fetch depreciation data from API
-            $result = $this->apiService->request('GET', '/depreciations/total-value');
+            // Log request info
+            \Log::info('Fetching calendar events', [
+                'year' => $year,
+                'month' => $month
+            ]);
+
+            // Fetch calendar data from API
+            $result = $this->apiService->request('GET', "/dashboard/calendar?year={$year}&month={$month}");
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during depreciation data retrieval', [
+                \Log::warning('Authentication error during calendar data retrieval', [
                     'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
 
@@ -317,9 +325,9 @@ class DashboardController extends Controller
 
             // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve depreciation data';
+                $errorData = $result['errors'] ?? 'Failed to retrieve calendar data';
 
-                \Log::warning('Error during depreciation data retrieval', [
+                \Log::warning('Error during calendar data retrieval', [
                     'success' => $result['success'] ?? false,
                     'errors' => $errorData
                 ]);
@@ -330,21 +338,155 @@ class DashboardController extends Controller
                 ], 400);
             }
 
-            // Return the depreciation data with consistent success key
-            $result['success'] = $result['success'] ?? $result['status'] ?? true;
-            unset($result['status']);
+            // Get API data
+            $calendarData = $result['data'] ?? [];
 
-            return response()->json($result);
+            // If no events data, initialize with an empty array
+            if (!isset($calendarData['events'])) {
+                $calendarData['events'] = [];
+            }
+
+            // Prepare metadata if not provided by API
+            if (!isset($calendarData['meta'])) {
+                $events = $calendarData['events'] ?? [];
+                $calendarData['meta'] = [
+                    'total_events' => count($events),
+                    'total_by_type' => [
+                        'calibration' => count(array_filter($events, function($e) { return $e['type'] === 'calibration'; })),
+                        'maintenance' => count(array_filter($events, function($e) { return $e['type'] === 'maintenance'; })),
+                        'warranty' => count(array_filter($events, function($e) { return $e['type'] === 'warranty'; }))
+                    ],
+                    'period' => [
+                        'year' => $year,
+                        'month' => $month,
+                        'month_name' => $this->getIndonesianMonthName($month)
+                    ]
+                ];
+            }
+
+            // Return the calendar data with success message
+            return response()->json([
+                'success' => true,
+                'message' => 'Daftar acara kalender berhasil diambil',
+                'data' => $calendarData
+            ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during depreciation data retrieval', [
+            \Log::error('Exception during calendar data retrieval', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
                 'success' => false,
-                'errors' => 'Failed to retrieve depreciation data: ' . $e->getMessage()
+                'errors' => 'Failed to retrieve calendar data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get Indonesian month name from month number
+     *
+     * @param  int|string  $month
+     * @return string
+     */
+    private function getIndonesianMonthName($month)
+    {
+        $monthNumber = (int) $month;
+        $indonesianMonths = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember'
+        ];
+
+        return $indonesianMonths[$monthNumber] ?? 'Unknown';
+    }
+
+    /**
+     * Get asset activities history
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAssetActivities(Request $request)
+    {
+        try {
+            // Get pagination parameters from request
+            $page = $request->query('page', 1);
+            $limit = $request->query('limit', 10);
+
+            // Log request info
+            \Log::info('Fetching asset activities', [
+                'page' => $page,
+                'limit' => $limit
+            ]);
+
+            // Fetch asset activities from API
+            $result = $this->apiService->request('GET', "/asset-histories/activities/all?page={$page}&limit={$limit}");
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during asset activities retrieval', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], 401);
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to retrieve asset activities';
+
+                \Log::warning('Error during asset activities retrieval', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                ], 400);
+            }
+
+            // Return the activities data with success message
+            return response()->json([
+                'success' => true,
+                'message' => 'Aktivitas aset berhasil diambil',
+                'data' => $result['data'] ?? [
+                    'histories' => [],
+                    'pagination' => [
+                        'total_items' => 0,
+                        'total_pages' => 0,
+                        'current_page' => (int)$page,
+                        'limit' => (int)$limit,
+                        'has_next' => false,
+                        'has_prev' => false
+                    ]
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during asset activities retrieval', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'errors' => 'Failed to retrieve asset activities: ' . $e->getMessage()
             ], 500);
         }
     }

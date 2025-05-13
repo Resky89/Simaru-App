@@ -19,12 +19,14 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scrolling at body level */
         }
 
         main {
             min-height: calc(100vh - 4rem);
             padding-top: 2rem;
             background-color: #f8fafc;
+            max-width: 100%; /* Ensure main content doesn't exceed viewport width */
         }
 
         .page-enter-active,
@@ -61,6 +63,18 @@
         h6 {
             font-weight: 700;
         }
+
+        /* Add responsive table support */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Make images responsive */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
@@ -90,14 +104,14 @@
         </div>
 
         <!-- Main Content Wrapper -->
-        <div class="flex-1 flex flex-col lg:ml-64">
+        <div class="flex-1 flex flex-col lg:ml-64 overflow-hidden w-full">
             <!-- Navbar -->
             <div class="fixed top-0 right-0 left-0 lg:left-64 h-16 z-20">
                 @include('Layout.navbar')
             </div>
 
             <!-- Content Area -->
-            <main class="flex-1 p-6 mt-16 overflow-y-auto">
+            <main class="flex-1 p-4 sm:p-6 mt-16 overflow-y-auto overflow-x-hidden w-full max-w-full">
                 @yield('content')
             </main>
         </div>

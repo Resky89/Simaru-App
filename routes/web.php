@@ -74,7 +74,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/summary', [DashboardController::class, 'getSummary'])->name('dashboard.summary');
-    Route::get('/dashboard/depreciation', [DashboardController::class, 'getDepreciation'])->name('dashboard.depreciation');
+    Route::get('/dashboard/calendar', [DashboardController::class, 'getCalendarEvents'])->name('dashboard.calendar');
+    Route::get('/dashboard/activities', [DashboardController::class, 'getAssetActivities'])->name('dashboard.activities');
 
     // Token Refresh Route (for AJAX requests)
     Route::post('/auth/refresh-token', [AuthController::class, 'refreshToken'])->name('auth.refresh-token');
@@ -389,4 +390,6 @@ Route::fallback(function () {
 
 // New calibration detail route
 Route::get('/calibration/detail/{id}', [CalibrationController::class, 'showCalibrationDetail'])->name('calibration.detail');
+Route::get('/calibration/edit/{id}', [CalibrationController::class, 'update'])->name('calibration.edit');
 Route::get('/calibration/detail/{id}/export-pdf', [CalibrationController::class, 'exportCalibrationDetailPDF'])->name('calibration.detail.export.pdf');
+
