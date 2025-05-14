@@ -17,7 +17,7 @@
                 </div>
                 <div class="flex flex-col">
                     <div class="stat-value text-[28px] font-medium text-[#232D42]">{{ formatCompactNumber($dashboardData['total_assets'] ?? 0) }}</div>
-                    <div class="stat-title text-[14px] text-[#659B09] m-0 opacity-80">Asset</div>
+                    <div class="stat-title text-[14px] text-[#659B09] m-0 opacity-80">Aset</div>
                 </div>
             </div>
         </div>
@@ -95,7 +95,7 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body p-4">
                 <!-- Title -->
-                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Asset Berdasarkan Status</h2>
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Aset Berdasarkan Status</h2>
 
                 <!-- Divider -->
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -148,7 +148,7 @@
             <div class="card-body p-4">
                 <!-- Title and Toggle -->
                 <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins']">Asset Berdasarkan Kategori</h2>
+                    <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins']">Aset Berdasarkan Kategori</h2>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="displayToggle" class="sr-only peer">
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#213268]"></div>
@@ -200,7 +200,7 @@
                         </div>
                     @empty
                         <div class="col-span-2 text-center py-4 text-gray-500">
-                            No category data available
+                            Tidak ada data kategori tersedia
                         </div>
                     @endforelse
                 </div>
@@ -214,7 +214,7 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body p-4">
                 <!-- Title -->
-                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Asset Yang Akan Disetel</h2>
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Aset Yang Akan Disetel</h2>
 
                 <!-- Divider -->
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -225,15 +225,24 @@
                     <div class="flex justify-between items-center">
                         <div class="flex gap-4">
                             <div class="flex flex-col w-[173px]">
-                                    <h3 class="text-lg font-['Poppins'] font-medium text-[#232D42]">{{ $calibration['asset_name'] ?? 'Unknown Asset' }}</h3>
-                                    <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">{{ $calibration['room_name'] ?? 'Unknown Location' }}</p>
+                                    <h3 class="text-lg font-['Poppins'] font-medium text-[#232D42]">{{ $calibration['asset_name'] ?? 'Aset Tidak Diketahui' }}</h3>
+                                    <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">{{ $calibration['room_name'] ?? 'Lokasi Tidak Diketahui' }}</p>
                             </div>
                             <div class="flex flex-col w-[82px]">
                                     @php
                                         $date = $calibration['planning_calibration_date'] ?? now()->format('Y-m-d');
                                         $dateObj = \Carbon\Carbon::parse($date);
-                                        $formattedDate = $dateObj->format('d M');
-                                        $dayLabel = $dateObj->isToday() ? 'Today' : ($dateObj->isTomorrow() ? 'Tomorrow' : ($dateObj->isCurrentWeek() ? $dateObj->format('D') : 'Next Week'));
+
+                                        // Indonesian month names (abbreviated)
+                                        $indonesianMonths = [
+                                            'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                                            'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+                                        ];
+
+                                        // Format the date with Indonesian month
+                                        $formattedDate = $dateObj->format('d') . ' ' . $indonesianMonths[$dateObj->month - 1];
+
+                                        $dayLabel = $dateObj->isToday() ? 'Hari Ini' : ($dateObj->isTomorrow() ? 'Besok' : ($dateObj->isCurrentWeek() ? $dateObj->format('D') : 'Minggu Depan'));
                                         // Determine if urgent based on date (within next 3 days)
                                         $isUrgent = $dateObj->diffInDays(now()) <= 3;
                                     @endphp
@@ -264,7 +273,7 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body p-4">
                 <!-- Title -->
-                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Asset Berdasarkan Lokasi</h2>
+                <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Aset Berdasarkan Lokasi</h2>
 
                 <!-- Divider -->
                 <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -311,7 +320,7 @@
                         </div>
                     @empty
                         <div class="text-center py-4 text-gray-500">
-                            No location data available
+                            Tidak ada data lokasi tersedia
                         </div>
                     @endforelse
                 </div>
@@ -1013,6 +1022,7 @@ function formatCompactCurrency($number) {
     window.changeMonth = changeMonth;
     window.goToSelectedDate = goToSelectedDate;
     window.fetchCalendarData = fetchCalendarData;
+    window.generateCalendar = generateCalendar;
 
     // Function to populate year selector with options
     function populateYearSelector() {
@@ -1078,7 +1088,7 @@ function formatCompactCurrency($number) {
                     </svg>
                     <p class="mt-2 text-gray-500">Kesalahan jaringan, coba lagi nanti</p>
                 </div>
-            `;
+            `; generateCalendar(currentMonth, currentYear)
         }
     }
 
@@ -1289,7 +1299,13 @@ function formatCompactCurrency($number) {
     function formatDate(dateString) {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
-        const month = date.toLocaleString('id-ID', { month: 'short' });
+
+        // Indonesian month names (abbreviated)
+        const indonesianMonths = [
+            'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+            'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+        ];
+        const month = indonesianMonths[date.getMonth()];
         const year = date.getFullYear().toString().slice(-2);
 
         return `${day} ${month} ${year}`;
@@ -2047,32 +2063,31 @@ function formatCompactCurrency($number) {
     }, 300));
 
     // Load all vendors
-    function loadAllVendors() {
-        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-        vendorResults.style.display = 'block';
+                function loadAllVendors() {
+                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
+                vendorResults.style.display = 'block';
 
-        // First try to get from localStorage to avoid delay
-        const cachedVendors = localStorage.getItem('allVendors');
-        if (cachedVendors) {
-            try {
-                allVendors = JSON.parse(cachedVendors);
+                // First try to get from localStorage to avoid delay
+                const cachedVendors = localStorage.getItem('allVendors');
+                if (cachedVendors) {
+                    try {
+                        allVendors = JSON.parse(cachedVendors);
 
+                        // Show the dropdown with cached data
+                        filterAndDisplayVendors(vendorSearchInput?.value.trim() || '');
 
-                // Show the dropdown with cached data
-                filterAndDisplayVendors('');
+                        // Still load fresh data in the background
+                        fetchAllVendors();
 
-                // Still load fresh data in the background
+                        return; // Exit early with cached data
+                    } catch (e) {
+                        console.error('Error parsing cached vendors:', e);
+                    }
+                }
+
+                // If no cache, fetch from API
                 fetchAllVendors();
-
-                return; // Exit early with cached data
-            } catch (e) {
-
             }
-        }
-
-        // If no cache, fetch from API
-        fetchAllVendors();
-    }
 
     // Fetch all vendors with pagination
     function fetchAllVendors() {
@@ -2103,8 +2118,6 @@ function formatCompactCurrency($number) {
                 let vendors = [];
                 let pagination = null;
 
-                console.log('Received vendors data:', data);
-
                 // Handle different response formats
                 if (Array.isArray(data)) {
                     vendors = data;
@@ -2115,8 +2128,6 @@ function formatCompactCurrency($number) {
                     vendors = data.data;
                     pagination = data.pagination;
                 }
-
-
 
                 // Add to our collection
                 allVendors = [...allVendors, ...vendors];
@@ -2131,17 +2142,20 @@ function formatCompactCurrency($number) {
                     // Cache for future use
                     try {
                         localStorage.setItem('allVendors', JSON.stringify(allVendors));
-
                     } catch (e) {
-
+                        console.error('Error caching vendors:', e);
                     }
 
-                    // Display the results
-                    filterAndDisplayVendors(vendorSearchInput?.value.trim() || '');
+                    // If the input has a value, filter and display
+                    if (vendorSearchInput && vendorSearchInput.value.trim()) {
+                        filterAndDisplayVendors(vendorSearchInput.value.trim());
+                    } else {
+                        vendorResults.style.display = 'none';
+                    }
                 }
             })
             .catch(error => {
-
+                console.error(`Error fetching vendors page ${page}:`, error);
                 vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
 
                 // If we got some vendors, still show them
@@ -2160,7 +2174,6 @@ function formatCompactCurrency($number) {
         // Make sure dropdown is visible
         vendorResults.style.display = 'block';
 
-
         // Show loading message during search
         if (searchTerm && searchTerm.length > 0) {
             vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Mencari vendor...</div>';
@@ -2176,35 +2189,36 @@ function formatCompactCurrency($number) {
         let filteredVendors = allVendors;
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
-            filteredVendors = allVendors.filter(vendor =>
-                vendor.vendor_name?.toLowerCase().includes(term)
-            );
+            filteredVendors = allVendors.filter(vendor => {
+                if (!vendor.vendor_name) return false;
+                return vendor.vendor_name.toLowerCase().includes(term);
+            });
         }
-
-
 
         // Sort by relevance if we have a search term
         if (searchTerm) {
             filteredVendors.sort((a, b) => {
+                if (!a.vendor_name || !b.vendor_name) return 0;
+
                 // Exact matches first
-                if (a.vendor_name?.toLowerCase() === searchTerm.toLowerCase()) return -1;
-                if (b.vendor_name?.toLowerCase() === searchTerm.toLowerCase()) return 1;
+                if (a.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return -1;
+                if (b.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return 1;
 
                 // Then starts-with matches
-                const aStarts = a.vendor_name?.toLowerCase().startsWith(searchTerm.toLowerCase());
-                const bStarts = b.vendor_name?.toLowerCase().startsWith(searchTerm.toLowerCase());
+                const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
+                const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
                 if (aStarts && !bStarts) return -1;
                 if (bStarts && !aStarts) return 1;
 
                 // Then alphabetical
-                return a.vendor_name?.localeCompare(b.vendor_name || '');
+                return a.vendor_name.localeCompare(b.vendor_name);
             });
         }
 
         // Limit to first 20 for performance
         const displayVendors = filteredVendors.slice(0, 20);
 
-        // Update DOM
+        // Update DOM with animation delay
         vendorResults.innerHTML = '';
 
         if (displayVendors.length === 0) {
@@ -2212,10 +2226,10 @@ function formatCompactCurrency($number) {
             return;
         }
 
-        // Add vendor items
+        // Add vendor items with staggered animation
         displayVendors.forEach((vendor, index) => {
             if (!vendor.vendor_name || !vendor.vendor_id) {
-                console.warn('Invalid vendor data:', vendor);
+                console.error('Vendor missing name or ID:', vendor);
                 return;
             }
 
@@ -2223,14 +2237,13 @@ function formatCompactCurrency($number) {
             div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
             div.textContent = vendor.vendor_name;
             div.setAttribute('data-id', vendor.vendor_id);
-            div.style.animationDelay = `${index * 30}ms`;
+            div.style.animationDelay = `${index * 30}ms`; // Staggered animation
             div.classList.add('fade-in');
 
             div.addEventListener('click', function() {
                 vendorIdInput.value = this.getAttribute('data-id');
                 vendorSearchInput.value = this.textContent;
                 vendorResults.style.display = 'none';
-
             });
 
             vendorResults.appendChild(div);
@@ -2239,7 +2252,7 @@ function formatCompactCurrency($number) {
         // Show count if limited
         if (filteredVendors.length > 20) {
             const countDiv = document.createElement('div');
-            countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
+            countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
             countDiv.textContent = `Menampilkan 20 dari ${filteredVendors.length} vendor`;
             vendorResults.appendChild(countDiv);
         }

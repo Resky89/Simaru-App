@@ -974,88 +974,55 @@
                 notification.className = `fixed top-4 right-4 bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md z-50`;
                 notification.setAttribute('role', 'alert');
 
-                // Check if message is an object or array (for detailed error messages)
+                // Process message content
                 let messageContent = '';
-                if (typeof message === 'object' && message !== null) {
-                    // If it's an error object with nested errors
-                    if (message.errors && typeof message.errors === 'object') {
-                        messageContent = '<ul class="list-disc pl-5 mt-2">';
-                        for (const field in message.errors) {
-                            if (Array.isArray(message.errors[field])) {
-                                message.errors[field].forEach(error => {
-                                    messageContent += `<li>${error}</li>`;
-                                });
-                            } else if (typeof message.errors[field] === 'object') {
-                                // Handle nested objects
-                                for (const subField in message.errors[field]) {
-                                    messageContent += `<li>${subField}: ${message.errors[field][subField]}</li>`;
-                                }
-                            } else {
-                                messageContent += `<li>${field}: ${message.errors[field]}</li>`;
-                            }
-                        }
-                        messageContent += '</ul>';
-                    } else if (Array.isArray(message)) {
-                        // If it's an array of error messages
-                        messageContent = '<ul class="list-disc pl-5 mt-2">';
-                        message.forEach(error => {
-                            if (typeof error === 'object' && error !== null) {
-                                // Handle Zod-style validation errors with path and message properties
-                                if (error.path && error.message) {
-                                    // Convert field names to readable format
-                                    let readableField = error.path;
-                                    if (error.path === 'actual_calibration_date') readableField = 'Tanggal Kerja';
-                                    else if (error.path === 'next_calibration_date') readableField = 'Kalibrasi Berikutnya';
-                                    else if (error.path === 'certificate_number') readableField = 'Nomor Sertifikat';
-                                    else if (error.path === 'calibration_result') readableField = 'Hasil';
-                                    else if (error.path === 'notes') readableField = 'Catatan Kalibrasi';
 
-                                    messageContent += `<li>${readableField}: ${error.message}</li>`;
-                                } else {
-                                    // Generic object representation
-                                    messageContent += `<li>${JSON.stringify(error)}</li>`;
-                                }
-                            } else {
-                            messageContent += `<li>${error}</li>`;
-                            }
-                        });
-                        messageContent += '</ul>';
-                    } else if (message.message) {
-                        // If it has a message property (common in Error objects)
-                        messageContent = message.message;
-                    } else if (message.error) {
-                        // If it has an error property
-                        messageContent = message.error;
-                    } else {
-                        // Try to prettify the object for better readability
-                        try {
-                            // Create a formatted message showing each property
-                            messageContent = '<ul class="list-disc pl-5 mt-2">';
-                            Object.entries(message).forEach(([key, value]) => {
-                                if (key !== 'stack' && key !== '__proto__') { // Skip non-helpful properties
-                                    if (typeof value === 'object' && value !== null) {
-                                        messageContent += `<li>${key}: ${JSON.stringify(value)}</li>`;
-                                    } else {
-                                        messageContent += `<li>${key}: ${value}</li>`;
-                                    }
+                // Simple string handling
+                if (typeof message === 'string') {
+                    messageContent = message;
+                }
+                // Array handling (convert to comma-separated string)
+                else if (Array.isArray(message)) {
+                    messageContent = message.join(', ');
+                }
+                // Object handling
+                else if (typeof message === 'object' && message !== null) {
+                    // Get the first available error message from the object
+                    if (message.errors) {
+                        if (typeof message.errors === 'string') {
+                            messageContent = message.errors;
+                        } else if (typeof message.errors === 'object') {
+                            const errorValues = [];
+
+                            // Extract all error values
+                            Object.values(message.errors).forEach(error => {
+                                if (Array.isArray(error)) {
+                                    errorValues.push(...error);
+                                } else if (typeof error === 'string') {
+                                    errorValues.push(error);
                                 }
                             });
-                            messageContent += '</ul>';
 
-                            // If there were no properties to show, fallback to stringify
-                            if (messageContent === '<ul class="list-disc pl-5 mt-2"></ul>') {
+                            messageContent = errorValues.join(', ');
+                        }
+                    } else if (message.message) {
+                        messageContent = message.message;
+                    } else if (message.error) {
+                        messageContent = message.error;
+                    } else {
+                        // No recognizable error format, just convert to string
+                        try {
                             messageContent = JSON.stringify(message);
-                            }
-                        } catch (e) {
-                            messageContent = "Error object could not be displayed";
+                        } catch(e) {
+                            messageContent = "Error tidak dapat ditampilkan";
                         }
                     }
                 } else {
-                    // Simple string message
-                    messageContent = message;
+                    // Fallback for other types
+                    messageContent = "Terjadi kesalahan";
                 }
 
-                // Set inner HTML
+                // Set inner HTML with simplified content
                 notification.innerHTML = `
                     <div class="flex items-center">
                         <div class="py-1">
@@ -1397,6 +1364,37 @@
                 content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
                 setTimeout(() => {
                     modal.classList.add('hidden');
+
+                    // Clear form fields when modal is closed
+                    if (modal.id === 'addCalibrationModal') {
+                        // Reset the add calibration form
+                        document.getElementById('addCalibrationForm')?.reset();
+                        // Clear selected assets list
+                        selectedAssets = [];
+                        updateSelectedAssetsList();
+                                        } else if (modal.id === 'viewCalibrationModal') {
+                        // Reset the update calibration form
+                        document.getElementById('updateCalibrationForm')?.reset();
+                        // Clear file preview
+                        const filePreview = document.getElementById('file-preview');
+                        if (filePreview) filePreview.classList.add('hidden');
+
+                        // Clear vendor search
+                        const vendorSearchInput = document.getElementById('vendor_search');
+                        if (vendorSearchInput) vendorSearchInput.value = '';
+                        const vendorIdInput = document.getElementById('vendor_id');
+                        if (vendorIdInput) vendorIdInput.value = '';
+                        const vendorResults = document.getElementById('vendor_results');
+                        if (vendorResults) vendorResults.style.display = 'none';
+
+                        // Remove any info messages
+                        const infoMessage = document.getElementById('completed-info-message');
+                        if (infoMessage) infoMessage.remove();
+                    } else if (modal.id === 'assetSelectionModal') {
+                        // Clear asset search
+                        const assetSearchInput = document.getElementById('assetSearchInput');
+                        if (assetSearchInput) assetSearchInput.value = '';
+                    }
                 }, 300);
             }
 
@@ -1802,50 +1800,29 @@
                     console.error('Delete request failed:', error);
                     closeModal(modals.delete, modalContents.delete);
 
-                    // Handle the error object properly
+                    // Extract just the error message
                     if (typeof error === 'object' && error !== null) {
                         if (error.errors) {
-                            // Handle array-style errors (common in Zod validation)
-                            if (Array.isArray(error.errors)) {
+                            // Case: {errors: "Message"}
+                            if (typeof error.errors === 'string') {
+                                showToast(error.errors, 'error');
+                            }
+                            // Case: {errors: {field: ["Error 1", "Error 2"]}}
+                            else if (typeof error.errors === 'object') {
                                 const errorMessages = [];
-
-                                error.errors.forEach(err => {
-                                    // Format for errors with path and message properties
-                                    if (err.path && err.message) {
-                                        errorMessages.push(`${err.path}: ${err.message}`);
+                                Object.values(error.errors).forEach(err => {
+                                    if (Array.isArray(err)) {
+                                        errorMessages.push(...err);
                                     } else {
-                                        // Generic error format
-                                        errorMessages.push(typeof err === 'string' ? err : JSON.stringify(err));
+                                        errorMessages.push(err);
                                     }
                                 });
-
-                                if (errorMessages.length > 0) {
-                                    showToast(errorMessages, 'error');
-                                    return;
-                                }
-                            }
-
-                            // Format validation errors
-                            const errorMessages = [];
-                            for (const field in error.errors) {
-                                const fieldErrors = Array.isArray(error.errors[field])
-                                    ? error.errors[field]
-                                    : [error.errors[field]];
-
-                                fieldErrors.forEach(msg => {
-                                    errorMessages.push(`${field}: ${msg}`);
-                                });
-                            }
-
-                            if (errorMessages.length > 0) {
-                                showToast(errorMessages, 'error');
-                            } else {
-                                showToast(error.message || 'Gagal menghapus kalibrasi', 'error');
+                                showToast(errorMessages.join(', '), 'error');
                             }
                         } else if (error.message) {
                             showToast(error.message, 'error');
                         } else {
-                            showToast(error, 'error');
+                            showToast('Gagal menghapus kalibrasi', 'error');
                         }
                     } else {
                         showToast('Terjadi kesalahan saat menghapus kalibrasi', 'error');
@@ -1901,72 +1878,31 @@
                     .catch(error => {
                         console.error('Error:', error);
 
-                        // If error is an object with message or errors, use that
+                        // Extract just the error message
                         if (typeof error === 'object' && error !== null) {
-                        // Handle specific validation errors
                         if (error.errors) {
-                            // Handle array-style errors (common in Zod validation)
-                            if (Array.isArray(error.errors)) {
+                                // Simple string error
+                                if (typeof error.errors === 'string') {
+                                    showToast(error.errors, 'error');
+                                }
+                                // Object with error fields
+                                else if (typeof error.errors === 'object') {
                                 const errorMessages = [];
 
-                                error.errors.forEach(err => {
-                                    // Format for errors with path and message properties
-                                    if (err.path && err.message) {
-                                        // Convert field names like "actual_calibration_date" to "Tanggal Kerja"
-                                        let readableField = err.path;
-                                        if (err.path === 'actual_calibration_date') readableField = 'Tanggal Kerja';
-                                        else if (err.path === 'next_calibration_date') readableField = 'Kalibrasi Berikutnya';
-                                        else if (err.path === 'certificate_number') readableField = 'Nomor Sertifikat';
-                                        else if (err.path === 'calibration_result') readableField = 'Hasil';
-                                        else if (err.path === 'notes') readableField = 'Catatan Kalibrasi';
+                                    Object.values(error.errors).forEach(err => {
+                                        if (Array.isArray(err)) {
+                                            errorMessages.push(...err);
+                                        } else if (typeof err === 'string') {
+                                            errorMessages.push(err);
+                                        }
+                                    });
 
-                                        errorMessages.push(`${readableField}: ${err.message}`);
-                                    } else {
-                                        // Generic error format
-                                        errorMessages.push(typeof err === 'string' ? err : JSON.stringify(err));
-                                    }
-                                });
-
-                                if (errorMessages.length > 0) {
-                                    showToast(errorMessages, 'error');
-                                    return;
-                                }
-                            }
-
-                            // Handle object-style errors (traditional Laravel validation)
-                            const errorMessages = [];
-
-                            for (const field in error.errors) {
-                                // Format error messages with field name for clarity
-                                const fieldErrors = Array.isArray(error.errors[field])
-                                    ? error.errors[field]
-                                    : [error.errors[field]];
-
-                                fieldErrors.forEach(msg => {
-                                    // Convert field names like "actual_calibration_date" to "Tanggal Kerja"
-                                    let readableField = field;
-                                    if (field === 'actual_calibration_date') readableField = 'Tanggal Kerja';
-                                    else if (field === 'next_calibration_date') readableField = 'Kalibrasi Berikutnya';
-                                    else if (field === 'certificate_number') readableField = 'Nomor Sertifikat';
-                                    else if (field === 'calibration_result') readableField = 'Hasil';
-                                    else if (field === 'notes') readableField = 'Catatan Kalibrasi';
-
-                                    errorMessages.push(`${readableField}: ${msg}`);
-                                });
-                            }
-
-                            // Show all errors in a single toast
-                            if (errorMessages.length > 0) {
-                                showToast(errorMessages, 'error');
-                            } else {
-                                showToast(error.message || 'Gagal memperbarui kalibrasi', 'error');
+                                    showToast(errorMessages.join(', '), 'error');
                             }
                         } else if (error.message) {
-                            // Error has a simple message property
                             showToast(error.message, 'error');
                         } else {
-                            // No standard error format, send the whole object for processing
-                            showToast(error, 'error');
+                                showToast('Gagal memperbarui kalibrasi', 'error');
                         }
                         } else {
                             showToast('Terjadi kesalahan saat memperbarui kalibrasi', 'error');
@@ -2015,7 +1951,10 @@
                     </tr>
                 `;
 
-                // Fetch assets from API
+                // Debug pagination
+                console.log(`Loading assets: page=${page}, limit=${limit}, search=${searchTerm}`);
+
+                // Fetch assets from API - make sure to pass needs_calibration=true to filter only calibratable assets
                 fetch(`/assets/data?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}&needs_calibration=true`, {
                     headers: {
                         'Accept': 'application/json',
@@ -2079,11 +2018,36 @@
                                     </td>
                                 </tr>
                             `;
+                            // Still setup pagination with zero data to ensure UI consistency
+                            const limit = document.getElementById('assetPerPageSelect').value;
+                            const paginationData = data.success ? data.pagination : data.assets_pagination;
+                            if (paginationData) {
+                                // Create pagination with zero items
+                                const zeroPagination = {
+                                    ...paginationData,
+                                    current_page: 1,
+                                    total_items: 0,
+                                    total_pages: 1
+                                };
+                                setupAssetPagination(zeroPagination);
+                            }
                             return;
                         }
 
-                        // Render filtered assets
-                        renderAssets(filteredAssets, data);
+                        // Create a modified data object that preserves the original total but with filtered assets
+                        const modifiedData = {
+                            ...data,
+                            pagination: {
+                                ...(data.success ? data.pagination : data.assets_pagination),
+                                total_items: data.success && data.pagination ? data.pagination.total_items :
+                                            (data.assets_pagination ? data.assets_pagination.total_items : filteredAssets.length),
+                                total: data.success && data.pagination ? data.pagination.total :
+                                      (data.assets_pagination ? data.assets_pagination.total : filteredAssets.length)
+                            }
+                        };
+
+                        // Render filtered assets with modified data
+                        renderAssets(filteredAssets, modifiedData);
                     })
                     .catch(error => {
                         console.error('Error fetching calibration data:', error);
@@ -2187,14 +2151,36 @@
 
                   // Setup pagination and event handlers
                   if (data) {
-                      const limit = document.getElementById('assetPerPageSelect').value;
+                      const limit = parseInt(document.getElementById('assetPerPageSelect').value, 10) || 10;
                       const paginationData = data.success ? data.pagination : data.assets_pagination;
                       if (paginationData) {
+                          // Get the total items from the server response, not the filtered assets
+                          const serverTotalItems = paginationData.total_items || paginationData.total || 0;
+
+                          // For debugging
+                          console.log('Pagination data:', {
+                              serverTotalItems,
+                              filteredAssetsCount: assets.length,
+                              currentPage: paginationData.current_page || 1,
+                              limit
+                          });
+
+                          // Use the server's total_items for pagination, not the filtered count
                           const updatedPagination = {
                               ...paginationData,
-                              total_items: assets.length,
-                              total_pages: Math.ceil(assets.length / limit)
+                              total_items: serverTotalItems,
+                              total_pages: Math.max(1, Math.ceil(serverTotalItems / limit)),
+                              // Make sure we don't exceed the total pages
+                              current_page: Math.min(
+                                  paginationData.current_page || 1,
+                                  Math.max(1, Math.ceil(serverTotalItems / limit))
+                              )
                           };
+
+                          // Log the updated pagination
+                          console.log('Updated pagination:', updatedPagination);
+
+                          // Set up the pagination with the correct total
                           setupAssetPagination(updatedPagination);
                       }
                   }
@@ -2283,7 +2269,7 @@
 
                   // Update pagination info
                   if (paginationInfo) {
-                      paginationInfo.textContent = `Showing ${from} to ${to} of ${totalItems} dataes`;
+                      paginationInfo.textContent = `Menampilkan ${from} sampai ${to} dari ${totalItems} data`;
                   }
 
                   // Generate pagination controls
@@ -2459,8 +2445,8 @@
                   }
               });
 
-              // Remove selected asset
-              function removeSelectedAsset(assetId) {
+              // Make removeSelectedAsset available globally to be called from onclick
+              window.removeSelectedAsset = function(assetId) {
                   selectedAssets = selectedAssets.filter(asset => asset.id !== assetId);
 
                   // If removing an asset might make the current page empty, check if we need to go to previous page
@@ -2548,11 +2534,7 @@
                       if (data.success) {
                           // Close the modal
                           closeModal(document.getElementById('addCalibrationModal'), document.getElementById('addCalibrationModalContent'));
-
-                          // Show toast notification first with server message
                           showToast(data.message || 'Kalibrasi berhasil dibuat', 'success');
-
-                          // Delay the redirect slightly to allow the toast to be seen
                           setTimeout(() => {
                               window.location.href = "{{ route('calibration') }}";
                           }, 1000);
@@ -2563,10 +2545,31 @@
                   })
                   .catch(error => {
                       console.error('Error creating calibrations:', error);
-
-                      // If error is an object with message or errors, use that
                       if (typeof error === 'object' && error !== null) {
-                          showToast(error, 'error');
+                          // Extract just the error message
+                          if (error.errors) {
+                              // Case: {errors: "Duplikasi kode tugas kalibrasi tidak diizinkan"}
+                              if (typeof error.errors === 'string') {
+                                  showToast(error.errors, 'error');
+                              }
+                              // Case: {errors: {field1: ["Error 1", "Error 2"], field2: "Error 3"}}
+                              else if (typeof error.errors === 'object') {
+                                  const errorMessages = [];
+                                  Object.keys(error.errors).forEach(key => {
+                                      const value = error.errors[key];
+                                      if (Array.isArray(value)) {
+                                          errorMessages.push(...value);
+                                      } else {
+                                          errorMessages.push(value);
+                                      }
+                                  });
+                                  showToast(errorMessages.join(', '), 'error');
+                              }
+                          } else if (error.message) {
+                              showToast(error.message, 'error');
+                          } else {
+                              showToast('Terjadi kesalahan saat membuat kalibrasi.', 'error');
+                          }
                       } else {
                           showToast('Terjadi kesalahan saat membuat kalibrasi.', 'error');
                       }
@@ -2578,7 +2581,6 @@
                   loadAssets(1);
               });
 
-              // Debounce function (reuse the existing one in the file)
               function debounce(func, wait) {
                   let timeout;
                   return function () {
@@ -2874,7 +2876,7 @@
                               <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.category_name || '-'}</td>
                               <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                   <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
-                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
+                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                       </svg>
                                   </button>
@@ -3001,9 +3003,6 @@
                       updateSelectedAssetsList();
                   }
               }
-
-            // Handle dates in the form
-            // Function removed to fix date display issues
         });
     </script>
     @endpush

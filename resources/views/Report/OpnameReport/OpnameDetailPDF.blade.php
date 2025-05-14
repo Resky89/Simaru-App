@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Asset Opname Detail Report</title>
+    <title>Laporan Detail Opname Aset</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,40 +66,40 @@
     </style>
 </head>
 <body>
-    <h1>Asset Opname Detail Report</h1>
+    <h1>Laporan Detail Opname Aset</h1>
     <p style="text-align: center;">{{ $opnameCode }}</p>
 
     <table class="info">
         <tr>
-            <td class="label">Opname Code:</td>
+            <td class="label">Kode Opname:</td>
             <td>{{ $opnameCode }}</td>
         </tr>
         <tr>
-            <td class="label">Room:</td>
+            <td class="label">Ruangan:</td>
             <td>{{ isset($roomInfo['room_name']) ? $roomInfo['room_name'] : '-' }}</td>
         </tr>
         <tr>
-            <td class="label">Floor:</td>
+            <td class="label">Lantai:</td>
             <td>{{ isset($roomInfo['floor_number']) ? $roomInfo['floor_number'] : '-' }}</td>
         </tr>
         <tr>
-            <td class="label">Building:</td>
+            <td class="label">Gedung:</td>
             <td>{{ isset($roomInfo['building_name']) ? $roomInfo['building_name'] : '-' }}</td>
         </tr>
         <tr>
-            <td class="label">Date Created:</td>
+            <td class="label">Tanggal Dibuat:</td>
             <td>{{ isset($roomInfo['created_at']) ? date('d M Y, H:i', strtotime($roomInfo['created_at'])) : date('d M Y, H:i') }}</td>
         </tr>
     </table>
 
-    <h2>Asset Summary</h2>
+    <h2>Ringkasan Aset</h2>
     <table>
         <tr>
-            <th>Total Assets</th>
-            <th>Scanned Assets</th>
-            <th>Found Assets</th>
-            <th>Missing Assets</th>
-            <th>Misplaced Assets</th>
+            <th>Total Aset</th>
+            <th>Terscan</th>
+            <th>Ditemukan</th>
+            <th>Hilang</th>
+            <th>Salah Tempat</th>
         </tr>
         <tr>
             <td style="text-align: center;">{{ isset($summary['total_assets']) ? $summary['total_assets'] : '0' }}</td>
@@ -110,17 +110,17 @@
         </tr>
     </table>
 
-    <h2>Asset Details</h2>
+    <h2>Detail Aset</h2>
     @if(!empty($details))
     <table>
         <tr>
-            <th>Asset Code</th>
-            <th>Description</th>
-            <th>Scan Date</th>
+            <th>Kode Aset</th>
+            <th>Deskripsi</th>
+            <th>Tanggal Scan</th>
             <th>Status</th>
-            <th>Expected Location</th>
-            <th>Actual Location</th>
-            <th>Scanned By</th>
+            <th>Lokasi Seharusnya</th>
+            <th>Lokasi Aktual</th>
+            <th>Discan Oleh</th>
         </tr>
         @foreach($details as $asset)
         <tr>
@@ -136,11 +136,11 @@
             <td>
                 @if(isset($asset['scan_status']))
                     @if($asset['scan_status'] == 'found')
-                        <span class="found">Found</span>
+                        <span class="found">Ditemukan</span>
                     @elseif($asset['scan_status'] == 'missing')
-                        <span class="missing">Missing</span>
+                        <span class="missing">Hilang</span>
                     @elseif($asset['scan_status'] == 'misplaced')
-                        <span class="misplaced">Misplaced</span>
+                        <span class="misplaced">Salah Tempat</span>
                     @else
                         {{ $asset['scan_status'] }}
                     @endif
@@ -155,12 +155,12 @@
         @endforeach
     </table>
     @else
-    <p>No asset data available for this opname report.</p>
+    <p>Tidak ada data aset tersedia untuk laporan opname ini.</p>
     @endif
 
     <div class="footer">
-        <p>Generated on: {{ date('Y-m-d H:i:s') }}</p>
-        <p>This is an automatically generated report. Please verify all information with physical assets.</p>
+        <p>Dibuat pada: {{ date('Y-m-d H:i:s') }}</p>
+        <p>Ini adalah laporan yang dibuat secara otomatis. Harap verifikasi semua informasi dengan aset fisik.</p>
     </div>
 </body>
 </html>

@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Maintenance Management')
+@section('title', 'Manajemen Pemeliharaan')
 
 @section('content')
     <div class="h-full space-y-4 md:space-y-6">
@@ -10,14 +10,14 @@
                 <div class="flex flex-col gap-6">
                     <!-- Header -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">MAINTENANCE</h1>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PEMELIHARAAN</h1>
 
                         <div class="flex gap-4">
                             <button id="exportBtn" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
-                                <span class="text-base">Export PDF</span>
+                                <span class="text-base">Ekspor PDF</span>
                             </button>
 
                             <button id="addMaintenanceBtn"
@@ -28,7 +28,7 @@
                                     <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
                                         stroke-linecap="round" />
                                 </svg>
-                                <span class="text-base">Add Maintenance</span>
+                                <span class="text-base">Tambah Pemeliharaan</span>
                             </button>
                         </div>
                     </div>
@@ -36,7 +36,7 @@
                     <!-- Search and Filter -->
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="relative flex-grow">
-                            <input type="text" id="searchInput" placeholder="Search by asset name, interval, or status..."
+                            <input type="text" id="searchInput" placeholder="Cari berdasarkan nama aset, interval, atau status..."
                                 class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,18 +49,16 @@
                             <select id="statusFilter"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" disabled selected>Status</option>
-                                <option value="">All Status</option>
-                                <option value="new">New</option>
-                                <option value="scheduled">Scheduled</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                                <option value="canceled">Canceled</option>
+                                <option value="">Semua Status</option>
+                                <option value="new">Baru</option>
+                                <option value="in_progress">Dalam Proses</option>
+                                <option value="finished">Selesai</option>
                             </select>
                             <select id="sortOrder"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                <option value="" disabled selected>Sort Order</option>
-                                <option value="newest">Newest First</option>
-                                <option value="oldest">Oldest First</option>
+                                <option value="" disabled selected>Urutan</option>
+                                <option value="newest">Terbaru</option>
+                                <option value="oldest">Terlama</option>
                             </select>
                         </div>
                     </div>
@@ -70,34 +68,59 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">ID</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Aset</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Interval</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Start Date</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">End Date</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Assigned To</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Mulai</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Selesai</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Ditugaskan Ke</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Vendor</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Status</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Action
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($maintenances ?? [] as $maintenance)
                                     <tr>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['id'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             <div class="flex flex-col">
                                                 <span class="font-medium">{{ $maintenance['asset_name'] ?? '-' }}</span>
-                                                <span class="text-gray-500">Code: {{ $maintenance['asset_code'] ?? '-' }}</span>
+                                                <span class="text-gray-500">Kode: {{ $maintenance['asset_code'] ?? '-' }}</span>
                                             </div>
                                         </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['interval'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            {{ isset($maintenance['start_date']) ? date('d M Y', strtotime($maintenance['start_date'])) : '-' }}
+                                            @php
+                                                $intervalText = '-';
+                                                $interval = $maintenance['interval'] ?? '';
+                                                if ($interval === 'ONCE') {
+                                                    $intervalText = 'Sekali';
+                                                } elseif ($interval === 'DAILY') {
+                                                    $intervalText = 'Harian';
+                                                } elseif ($interval === 'WEEKLY') {
+                                                    $intervalText = 'Mingguan';
+                                                } elseif ($interval === '2 WEEKS') {
+                                                    $intervalText = '2 Minggu';
+                                                } elseif ($interval === 'MONTHLY') {
+                                                    $intervalText = 'Bulanan';
+                                                } elseif ($interval === '2 MONTHS') {
+                                                    $intervalText = '2 Bulan';
+                                                } elseif ($interval === '3 MONTHS') {
+                                                    $intervalText = '3 Bulan';
+                                                } elseif ($interval === '4 MONTHS') {
+                                                    $intervalText = '4 Bulan';
+                                                } elseif ($interval === '6 MONTHS') {
+                                                    $intervalText = '6 Bulan';
+                                                } elseif ($interval === 'YEARLY') {
+                                                    $intervalText = 'Tahunan';
+                                                }
+                                            @endphp
+                                            {{ $intervalText }}
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            {{ isset($maintenance['end_date']) ? date('d M Y', strtotime($maintenance['end_date'])) : '-' }}
+                                            {{ isset($maintenance['start_date']) ? \Carbon\Carbon::parse($maintenance['start_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ isset($maintenance['end_date']) ? \Carbon\Carbon::parse($maintenance['end_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['assigned_to'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['vendor_name'] ?? '-' }}</td>
@@ -105,21 +128,21 @@
                                             @php
                                                 $statusClass = '';
                                                 $status = $maintenance['status'] ?? '';
+                                                $statusText = '-';
 
                                                 if ($status == 'new') {
                                                     $statusClass = 'bg-blue-100 text-blue-800';
-                                                } elseif ($status == 'scheduled') {
-                                                    $statusClass = 'bg-purple-100 text-purple-800';
+                                                    $statusText = 'Baru';
                                                 } elseif ($status == 'in_progress') {
                                                     $statusClass = 'bg-yellow-100 text-yellow-800';
-                                                } elseif ($status == 'completed') {
+                                                    $statusText = 'Dalam Proses';
+                                                } elseif ($status == 'finished') {
                                                     $statusClass = 'bg-green-100 text-green-800';
-                                                } elseif ($status == 'canceled') {
-                                                    $statusClass = 'bg-red-100 text-red-800';
+                                                    $statusText = 'Selesai';
                                                 }
                                             @endphp
                                             <span class="px-2 py-1 rounded text-xs {{ $statusClass }}">
-                                                {{ ucfirst($status) ?: '-' }}
+                                                {{ $statusText }}
                                             </span>
                                         </td>
                                         <td class="p-3 border-t border-[#EEF1F4]">
@@ -127,7 +150,7 @@
                                                 <!-- View Details Icon (Eye) -->
                                                 <a href="{{ route('maintenance.detail', ['id' => $maintenance['id']]) }}"
                                                    class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
-                                                   title="View Details">
+                                                   title="Lihat Detail">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -135,32 +158,32 @@
                                                 </a>
 
                                                 <!-- Edit Maintenance Icon (Pencil) -->
-                                                @if(!in_array(strtolower($maintenance['status'] ?? ''), ['completed']))
+                                                @if(!in_array(strtolower($maintenance['status'] ?? ''), ['finished']))
                                                 <button class="edit-maintenance-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                     data-id="{{ $maintenance['id'] }}"
-                                                    title="Edit Maintenance">
+                                                    title="Edit Pemeliharaan">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
                                                 @endif
 
                                                 <!-- Create Report Icon (Document) -->
-                                                <button class="create-report-btn p-2 bg-[#C2F5E9] text-[#036B5C] rounded-md hover:bg-teal-200 transition-colors"
+                                                <button class="create-report-btn p-2 bg-green-100 text-green-500 rounded-md hover:bg-green-200 transition-colors"
                                                     data-id="{{ $maintenance['id'] }}"
                                                     data-asset-name="{{ $maintenance['asset_name'] ?? '' }}"
                                                     data-asset-code="{{ $maintenance['asset_code'] ?? '' }}"
-                                                    title="Create Report">
+                                                    title="Buat Laporan">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                     </svg>
                                                 </button>
 
                                                 <!-- Delete Maintenance Icon (Trash) -->
-                                                @if(!in_array(strtolower($maintenance['status'] ?? ''), ['completed']))
+                                                @if(!in_array(strtolower($maintenance['status'] ?? ''), ['finished']))
                                                 <button class="delete-maintenance-btn p-2 bg-[#F9D2D2] text-[#8E2121] rounded-md hover:bg-red-200 transition-colors"
                                                     data-id="{{ $maintenance['id'] }}"
-                                                    title="Delete Maintenance">
+                                                    title="Hapus Pemeliharaan">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
@@ -171,8 +194,8 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="10" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No
-                                            maintenance schedules found</td>
+                                        <td colspan="10" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak
+                                            ditemukan jadwal pemeliharaan</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -182,19 +205,19 @@
                     <!-- Pagination -->
                     <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ isset($maintenances_pagination['has_prev']) && $maintenances_pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $maintenances_pagination['current_page'] - 1]) : '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($maintenances_pagination['has_prev']) || !$maintenances_pagination['has_prev'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <a href="{{ isset($pagination['has_prev']) && $pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] - 1]) : '#' }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_prev']) || !$pagination['has_prev'] ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 19l-7-7 7-7" />
                                 </svg>
-                                Prev
+                                Sebelumnya
                             </a>
                             <div class="flex gap-2">
                                 @php
-                                    $currentPage = $maintenances_pagination['current_page'] ?? 1;
-                                    $totalPages = $maintenances_pagination['total_pages'] ?? 1;
+                                    $currentPage = $pagination['current_page'] ?? 1;
+                                    $totalPages = $pagination['total_pages'] ?? 1;
                                     $maxPagesShown = 5; // Show max 5 pages at once
                                     $startPage = max(1, $currentPage - 2);
                                     $endPage = min($totalPages, $startPage + $maxPagesShown - 1);
@@ -235,9 +258,9 @@
                                     </a>
                                 @endif
                             </div>
-                            <a href="{{ isset($maintenances_pagination['has_next']) && $maintenances_pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $maintenances_pagination['current_page'] + 1]) : '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($maintenances_pagination['has_next']) || !$maintenances_pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
-                                Next
+                            <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                Berikutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -248,20 +271,20 @@
 
                         <div class="flex items-center gap-2 mt-4 md:mt-0">
                             <span class="text-sm text-gray-600">
-                                @if(isset($maintenances_pagination) && isset($maintenances_pagination['total_items']))
-                                    Showing {{ ($maintenances_pagination['current_page'] - 1) * $maintenances_pagination['limit'] + 1 }}
-                                    to {{ min($maintenances_pagination['current_page'] * $maintenances_pagination['limit'], $maintenances_pagination['total_items']) }}
-                                    of {{ $maintenances_pagination['total_items'] }} entries
+                                @if(isset($pagination) && isset($pagination['total_items']))
+                                    Menampilkan {{ ($pagination['current_page'] - 1) * $pagination['limit'] + 1 }}
+                                    sampai {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
+                                    dari {{ $pagination['total_items'] }} data
                                 @else
-                                    Showing 0 to 0 of 0 entries
+                                    Menampilkan 0 sampai 0 dari 0 data
                                 @endif
                             </span>
-                            <select id="assetPerPageSelect"
+                            <select id="perPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                 onchange="changePerPage(this.value)">
-                                <option value="10" {{ (isset($maintenances_pagination['limit']) && $maintenances_pagination['limit'] == 10) ? 'selected' : '' }}>10 per page</option>
-                                <option value="25" {{ (isset($maintenances_pagination['limit']) && $maintenances_pagination['limit'] == 25) ? 'selected' : '' }}>25 per page</option>
-                                <option value="50" {{ (isset($maintenances_pagination['limit']) && $maintenances_pagination['limit'] == 50) ? 'selected' : '' }}>50 per page</option>
+                                <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per halaman</option>
+                                <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per halaman</option>
+                                <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -278,7 +301,7 @@
                         id="addMaintenanceModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Add New Maintenance Schedule</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Tambah Jadwal Pemeliharaan Baru</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="addMaintenanceModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -294,7 +317,7 @@
                                 @csrf
                                 <!-- Required fields note -->
                                 <div class="text-sm text-gray-600">
-                                    Field marked <span class="text-red-500">*</span> are required to fill or mandatory
+                                    Kolom dengan tanda <span class="text-red-500">*</span> wajib diisi
                                 </div>
 
                                 <!-- Schedule Dates -->
@@ -302,7 +325,7 @@
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
                                             <label class="block text-base font-semibold">
-                                                START DATE<span class="text-red-500">*</span>
+                                                TANGGAL MULAI<span class="text-red-500">*</span>
                                             </label>
                                         </div>
                                         <div class="flex-1">
@@ -315,7 +338,7 @@
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
                                             <label class="block text-base font-semibold">
-                                                END DATE<span class="text-red-500">*</span>
+                                                TANGGAL SELESAI<span class="text-red-500">*</span>
                                             </label>
                                         </div>
                                         <div class="flex-1">
@@ -335,12 +358,16 @@
                                             <select name="interval" id="interval"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                                 required>
-                                                <option value="DAILY">Daily</option>
-                                                <option value="WEEKLY">Weekly</option>
-                                                <option value="MONTHLY" selected>Monthly</option>
-                                                <option value="QUARTERLY">Quarterly</option>
-                                                <option value="BIANNUAL">Biannual</option>
-                                                <option value="ANNUAL">Annual</option>
+                                                <option value="ONCE">Sekali</option>
+                                                <option value="DAILY">Harian</option>
+                                                <option value="WEEKLY">Mingguan</option>
+                                                <option value="2 WEEKS">2 Minggu</option>
+                                                <option value="MONTHLY" selected>Bulanan</option>
+                                                <option value="2 MONTHS">2 Bulan</option>
+                                                <option value="3 MONTHS">3 Bulan</option>
+                                                <option value="4 MONTHS">4 Bulan</option>
+                                                <option value="6 MONTHS">6 Bulan</option>
+                                                <option value="YEARLY">Tahunan</option>
                                             </select>
                                         </div>
                                     </div>
@@ -348,7 +375,7 @@
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
                                             <label class="block text-base font-semibold">
-                                                ASSIGNED TO<span class="text-red-500">*</span>
+                                                DITUGASKAN KE<span class="text-red-500">*</span>
                                             </label>
                                         </div>
                                         <div class="flex-1">
@@ -378,7 +405,7 @@
                                         </div>
                                         <div class="flex-1">
                                             <div class="relative">
-                                                <input type="text" id="vendor_search" placeholder="Search vendor..."
+                                                <input type="text" id="vendor_search" placeholder="Cari vendor..."
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                                 <input type="hidden" id="vendor_id" name="vendor_id">
                                                 <div id="vendor_results" class="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md overflow-y-auto border border-gray-300"></div>
@@ -388,7 +415,7 @@
                                             <button type="button" id="addAssetsBtn"
                                                 class="bg-[#4299e1] hover:bg-[#3182ce] text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
                                                 <span class="text-xl mr-1">+</span>
-                                                Add Assets
+                                                Tambah Aset
                                             </button>
                                         </div>
                                     </div>
@@ -403,23 +430,23 @@
                                                     class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center w-[40px]">
                                                     No</th>
                                                 <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
-                                                    AssetCode</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Asset
-                                                    Name</th>
+                                                    Kode Aset</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Nama
+                                                    Aset</th>
                                                 <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
-                                                    Description</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Asset
-                                                    Type</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Category
-                                                    Name</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center">Action
+                                                    Deskripsi</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Tipe
+                                                    Aset</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Nama
+                                                    Kategori</th>
+                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center">Aksi
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody id="selectedAssetsList">
                                             <tr>
-                                                <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No
-                                                    data available in table</td>
+                                                <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak
+                                                    ada data tersedia dalam tabel</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -433,13 +460,13 @@
 
                                     <div class="flex items-center gap-2 mt-4 md:mt-0">
                                         <span class="text-sm text-gray-600" id="selectedAssetsInfo">
-                                            Showing 0 to 0 of 0 entries
+                                            Menampilkan 0 sampai 0 dari 0 data
                                         </span>
                                         <select id="selectedAssetsPerPage"
                                             class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
-                                            <option value="5" selected>5 per page</option>
-                                            <option value="10">10 per page</option>
-                                            <option value="20">20 per page</option>
+                                            <option value="5" selected>5 per halaman</option>
+                                            <option value="10">10 per halaman</option>
+                                            <option value="20">20 per halaman</option>
                                         </select>
                                     </div>
                                 </div>
@@ -448,7 +475,7 @@
                                 <div class="pt-4 flex justify-end gap-4">
                                     <button type="submit"
                                         class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Save
+                                        Simpan
                                     </button>
                                 </div>
                             </form>
@@ -467,7 +494,7 @@
                         id="assetSelectionModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Select Assets</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Pilih Aset</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="assetSelectionModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -503,22 +530,22 @@
                                             <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
                                                 <input type="checkbox" id="selectAllAssets" class="checkbox checkbox-sm">
                                             </th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Code
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kode Aset
                                             </th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Name
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset
                                             </th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi
                                             </th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset
                                             </th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Category
-                                                Name</th>
+                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kategori
+                                                Nama</th>
                                         </tr>
                                     </thead>
                                     <tbody id="assetSelectionList">
                                         <tr>
                                             <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                Loading assets...</td>
+                                                Memuat aset...</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -532,13 +559,13 @@
 
                                 <div class="flex items-center gap-2 mt-4 md:mt-0">
                                     <span class="text-sm text-gray-600" id="assetModalPaginationInfo">
-                                        Showing 0 to 0 of 0 entries
+                                        Menampilkan 0 sampai 0 dari 0 data
                                     </span>
                                     <select id="assetModalPerPageSelect"
                                         class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
-                                        <option value="10">10 per page</option>
-                                        <option value="25">25 per page</option>
-                                        <option value="50">50 per page</option>
+                                        <option value="10">10 per halaman</option>
+                                        <option value="25">25 per halaman</option>
+                                        <option value="50">50 per halaman</option>
                                     </select>
                                 </div>
                             </div>
@@ -548,11 +575,11 @@
                                     <button type="button"
                                     class="close-modal px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
                                         data-modal="assetSelectionModal">
-                                        Cancel
+                                        Batal
                                     </button>
                                     <button type="button" id="selectAssetsBtn"
                                     class="px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Select
+                                        Pilih
                                     </button>
                             </div>
                         </div>
@@ -570,7 +597,7 @@
                         id="deleteMaintenanceModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">DELETE MAINTENANCE</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS PEMELIHARAAN</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="deleteMaintenanceModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -589,16 +616,16 @@
                                         <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <p class="text-base text-gray-600 text-center">Are you sure you want to delete this maintenance record? This action cannot be undone.</p>
+                                        <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus rekaman pemeliharaan ini? Tindakan ini tidak dapat dibatalkan.</p>
                                         <p id="deleteMaintenanceName" class="text-base font-semibold text-center mt-2"></p>
                                     </div>
                                     <div class="flex gap-3">
                                         <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
                                             data-modal="deleteMaintenanceModal">
-                                            Cancel
+                                            Batal
                                         </button>
                                         <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                            Delete
+                                            Hapus
                                         </button>
                                     </div>
                                 </div>
@@ -618,7 +645,7 @@
                         id="editMaintenanceModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Edit Maintenance Schedule</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Ubah Jadwal Pemeliharaan</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="editMaintenanceModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -637,7 +664,7 @@
 
                                 <!-- Required fields note -->
                                 <div class="text-sm text-gray-600 mb-6">
-                                    Field marked <span class="text-red-500">*</span> are required to fill or mandatory
+                                    Kolom yang di tandai <span class="text-red-500">*</span> adalah wajib diisi
                                 </div>
 
                                 <!-- Asset Info (Display Only) -->
@@ -651,36 +678,15 @@
                                             <span id="edit_asset_code" class="text-sm text-gray-500 block"></span>
                                         </div>
                                     </div>
-                                </div>
+                          </div>
 
                                 <!-- Schedule Information -->
                                 <div class="bg-[#B0DAE5] p-4 rounded-lg space-y-4 mb-6">
-                                    <!-- Interval -->
-                                    <div class="flex items-center gap-4">
-                                        <div class="min-w-[150px]">
-                                            <label for="edit_interval" class="block text-base font-semibold">
-                                                INTERVAL<span class="text-red-500">*</span>
-                                            </label>
-                                        </div>
-                                        <div class="flex-1">
-                                            <select id="edit_interval" name="interval"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
-                                                <option value="DAILY">Daily</option>
-                                                <option value="WEEKLY">Weekly</option>
-                                                <option value="MONTHLY">Monthly</option>
-                                                <option value="QUARTERLY">Quarterly</option>
-                                                <option value="BIANNUAL">Biannual</option>
-                                                <option value="ANNUAL">Annual</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
                                     <!-- Start Date -->
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
                                             <label for="edit_start_date" class="block text-base font-semibold">
-                                                START DATE<span class="text-red-500">*</span>
+                                                TANGGAL MULAI<span class="text-red-500">*</span>
                                             </label>
                                         </div>
                                         <div class="flex-1">
@@ -694,7 +700,7 @@
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
                                             <label for="edit_end_date" class="block text-base font-semibold">
-                                                END DATE<span class="text-red-500">*</span>
+                                                TANGGAL SELESAI<span class="text-red-500">*</span>
                                             </label>
                                         </div>
                                         <div class="flex-1">
@@ -704,18 +710,43 @@
                                         </div>
                                     </div>
 
+                                    <!-- Interval -->
+                                    <div class="flex items-center gap-4">
+                                        <div class="min-w-[150px]">
+                                            <label for="edit_interval" class="block text-base font-semibold">
+                                                INTERVAL<span class="text-red-500">*</span>
+                                            </label>
+                                        </div>
+                                        <div class="flex-1">
+                                            <select id="edit_interval" name="interval"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                required>
+                                                <option value="ONCE">Sekali</option>
+                                                <option value="DAILY">Harian</option>
+                                                <option value="WEEKLY">Mingguan</option>
+                                                <option value="2 WEEKS">2 Minggu</option>
+                                                <option value="MONTHLY">Bulanan</option>
+                                                <option value="2 MONTHS">2 Bulan</option>
+                                                <option value="3 MONTHS">3 Bulan</option>
+                                                <option value="4 MONTHS">4 Bulan</option>
+                                                <option value="6 MONTHS">6 Bulan</option>
+                                                <option value="YEARLY">Tahunan</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <!-- Assigned To -->
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
                                             <label for="edit_assigned_to" class="block text-base font-semibold">
-                                                ASSIGNED TO<span class="text-red-500">*</span>
+                                                DITUGASKAN KE<span class="text-red-500">*</span>
                                             </label>
                                         </div>
                                         <div class="flex-1">
                                             <select id="edit_assigned_to" name="assigned_to"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                                 required>
-                                                <option value="" disabled selected>Select Employee</option>
+                                                <option value="" disabled selected>Pilih Karyawan</option>
                                                 @foreach($users ?? [] as $user)
                                                     <option value="{{ $user['user_id'] }}">
                                                         {{ $user['employee_number'] ?? '' }} {{ !empty($user['employee_number']) && !empty($user['name']) ? '-' : '' }} {{ $user['name'] ?? '' }}
@@ -728,20 +759,17 @@
                                     <!-- Vendor -->
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
-                                            <label for="edit_vendor_id" class="block text-base font-semibold">
+                                            <label for="edit_vendor_search" class="block text-base font-semibold">
                                                 VENDOR
                                             </label>
                                         </div>
                                         <div class="flex-1">
-                                            <select id="edit_vendor_id" name="vendor_id"
+                                            <div class="relative">
+                                                <input type="text" id="edit_vendor_search" placeholder="Cari vendor..."
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                                <option value="">No Vendor</option>
-                                                @foreach($vendors ?? [] as $vendor)
-                                                    <option value="{{ $vendor['vendor_id'] }}">
-                                                        {{ $vendor['vendor_name'] }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                                <input type="hidden" id="edit_vendor_id" name="vendor_id">
+                                                <div id="edit_vendor_results" class="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md overflow-y-auto border border-gray-300"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -750,7 +778,7 @@
                                 <div class="pt-4 flex justify-end gap-4">
                                     <button type="submit"
                                         class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Save Changes
+                                        Simpan Perubahan
                                     </button>
                                 </div>
                             </form>
@@ -769,7 +797,7 @@
                         id="createReportModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Create Maintenance Report</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Buat Laporan Pemeliharaan</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="createReportModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -785,9 +813,9 @@
                                 @csrf
                                 <input type="hidden" id="report_maintenance_id" name="maintenance_id">
 
-                                <!-- Required fields note -->
+                                <!-- Required fields note z-->
                                 <div class="text-sm text-gray-600 mb-6">
-                                    Field marked <span class="text-red-500">*</span> are required to fill or mandatory
+                                    Kolom yang di tandai <span class="text-red-500">*</span> adalah wajib diisi
                                 </div>
 
                                 <!-- Asset Info (Display Only) -->
@@ -809,7 +837,7 @@
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
                                             <label for="maintenance_date" class="block text-base font-semibold">
-                                                REPORT DATE<span class="text-red-500">*</span>
+                                                TANGGAL LAPORAN<span class="text-red-500">*</span>
                                             </label>
                                         </div>
                                         <div class="flex-1">
@@ -823,13 +851,13 @@
                                     <div class="flex items-start gap-4">
                                         <div class="min-w-[150px] pt-2">
                                             <label for="description" class="block text-base font-semibold">
-                                                DESCRIPTION<span class="text-red-500">*</span>
+                                                DESKRIPSI<span class="text-red-500">*</span>
                                             </label>
                                         </div>
                                         <div class="flex-1">
                                             <textarea id="description" name="description" rows="4"
                                                 class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 resize-none"
-                                                required placeholder="Enter maintenance report details..."></textarea>
+                                                required placeholder="Masukkan detail laporan pemeliharaan..."></textarea>
                                         </div>
                                     </div>
 
@@ -837,7 +865,7 @@
                                     <div class="flex items-start gap-4">
                                         <div class="min-w-[150px] pt-2">
                                             <label for="attachment" class="block text-base font-semibold">
-                                                ATTACHMENT
+                                                LAMPIRAN
                                             </label>
                                         </div>
                                         <div class="flex-1">
@@ -858,9 +886,9 @@
                                                     <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                                     </svg>
-                                                    <p class="mt-1 text-sm text-gray-600">Drag your image or <span class="text-[#213268] font-semibold">browse files</span></p>
-                                                    <p class="mt-1 text-xs text-gray-500">Accepted formats: jpg, jpeg, png</p>
-                                                    <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                                    <p class="mt-1 text-sm text-gray-600">Seret gambar Anda atau <span class="text-[#213268] font-semibold">Cari file</span></p>
+                                                    <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png</p>
+                                                    <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk memilih file</p>
                                                 </div>
                                                 <input type="file" id="attachment" name="file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                             </div>
@@ -872,7 +900,7 @@
                                 <div class="pt-4 flex justify-end gap-4">
                                     <button type="submit"
                                         class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Submit Report
+                                        Kirim Laporan
                                     </button>
                                 </div>
                             </form>
@@ -882,71 +910,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Success and Error Notifications -->
-    @if(session('success'))
-        <div id="successNotification"
-            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
-            role="alert">
-            <div class="flex items-center">
-                <div class="py-1">
-                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">Berhasil!</p>
-                    <p>{{ session('success') }}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-            </div>
-        </div>
-
-        <script>
-            setTimeout(function () {
-                const notification = document.getElementById('successNotification');
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function () {
-                        notification.remove();
-                    }, 500);
-                }
-            }, 5000); // Hide after 5 seconds
-        </script>
-    @endif
-
-    @if(session('error'))
-        <div id="errorNotification"
-            class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
-            role="alert">
-            <div class="flex items-center">
-                <div class="py-1">
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 14l2-2m0 0l2-2m-2 2l-2 2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">Gagal!</p>
-                    <p>{{ session('error') }}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-            </div>
-        </div>
-
-        <script>
-            setTimeout(function () {
-                const notification = document.getElementById('errorNotification');
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function () {
-                        notification.remove();
-                    }, 500);
-                }
-            }, 5000); // Hide after 5 seconds
-        </script>
-    @endif
 
     @push('scripts')
     <script>
@@ -980,6 +943,82 @@
                     if (endDateInput.value && endDateInput.value < this.value) {
                         endDateInput.value = this.value;
                     }
+
+                    // If interval is DAILY or ONCE, also update end date to match start date
+                    const currentInterval = document.getElementById('interval').value;
+                    if (currentInterval === 'DAILY' || currentInterval === 'ONCE') {
+                        endDateInput.value = this.value;
+                    }
+                });
+            }
+
+            // Set similar behavior for edit modal
+            const editStartDateInput = document.getElementById('edit_start_date');
+            const editEndDateInput = document.getElementById('edit_end_date');
+            if (editStartDateInput && editEndDateInput) {
+                editStartDateInput.addEventListener('change', function() {
+                    // When start date changes, set it as minimum for end date
+                    editEndDateInput.setAttribute('min', this.value);
+
+                    // If end date is now less than start date, update it
+                    if (editEndDateInput.value && editEndDateInput.value < this.value) {
+                        editEndDateInput.value = this.value;
+                    }
+
+                    // If interval is DAILY or ONCE, also update end date to match start date
+                    const currentEditInterval = document.getElementById('edit_interval').value;
+                    if (currentEditInterval === 'DAILY' || currentEditInterval === 'ONCE') {
+                        editEndDateInput.value = this.value;
+                    }
+                });
+            }
+
+            // Function to toggle end date field visibility based on interval
+            function toggleEndDateVisibility(intervalValue, formType = 'add') {
+                const endDateField = formType === 'add'
+                    ? document.getElementById('end_date').closest('.flex.items-center.gap-4')
+                    : document.getElementById('edit_end_date').closest('.flex.items-center.gap-4');
+                const endDateInput = formType === 'add'
+                    ? document.getElementById('end_date')
+                    : document.getElementById('edit_end_date');
+
+                                if (intervalValue === 'DAILY' || intervalValue === 'ONCE') {
+                    // Hide end date field for daily and once intervals
+                    endDateField.style.display = 'none';
+                    // Remove required attribute when hidden
+                    endDateInput.removeAttribute('required');
+
+                    // Set end date equal to start date for data consistency
+                    const startDateValue = formType === 'add'
+                        ? document.getElementById('start_date').value
+                        : document.getElementById('edit_start_date').value;
+                    endDateInput.value = startDateValue;
+                } else {
+                    // Show end date field for other intervals
+                    endDateField.style.display = 'flex';
+                    // Add required attribute when visible
+                    endDateInput.setAttribute('required', 'required');
+                }
+            }
+
+            // Add interval change event listener for Add Maintenance modal
+            const intervalSelect = document.getElementById('interval');
+            if (intervalSelect) {
+                intervalSelect.addEventListener('change', function() {
+                    toggleEndDateVisibility(this.value, 'add');
+                });
+
+                // Set initial state
+                if (intervalSelect.value === 'DAILY') {
+                    toggleEndDateVisibility('DAILY', 'add');
+                }
+            }
+
+            // Add interval change event listener for Edit Maintenance modal
+            const editIntervalSelect = document.getElementById('edit_interval');
+            if (editIntervalSelect) {
+                editIntervalSelect.addEventListener('change', function() {
+                    toggleEndDateVisibility(this.value, 'edit');
                 });
             }
 
@@ -999,6 +1038,27 @@
                 };
             }
 
+            // Utility function to parse error responses from the server
+            // This ensures error arrays are properly passed to the catch block
+            function handleApiResponse(response) {
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            console.error('Server error response:', data);
+                            // Preserve the full error data structure
+                            data.status = response.status;
+                            return Promise.reject(data);
+                        }
+                        return data;
+                    });
+                }
+                if (!response.ok) {
+                    throw new Error(`Server responded with status ${response.status}`);
+                }
+                return Promise.resolve({ success: true });
+            }
+
             // Show toast notification function
             window.showToast = function(message, type = 'success') {
                 // Remove existing notifications with the same type
@@ -1007,25 +1067,122 @@
                     existingNotification.remove();
                 }
 
-                // Process message if it's an error object
-                if (typeof message === 'object' && message !== null) {
-                    if (message.message) {
-                        message = message.message;
-                    } else if (message.error) {
-                        message = message.error;
-                    } else {
-                        message = 'An error occurred';
-                    }
-                }
-
-                // Ensure message is a string
-                message = String(message);
-
                 // Create the notification element
                 const notification = document.createElement('div');
                 notification.id = type === 'success' ? 'successNotification' : 'errorNotification';
                 notification.className = `fixed top-4 right-4 bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md z-50`;
                 notification.setAttribute('role', 'alert');
+
+                // Check if message is an object or array (for detailed error messages)
+                let messageContent = '';
+                if (typeof message === 'object' && message !== null) {
+                    // If it's an error object with nested errors
+                    if (message.errors && typeof message.errors === 'object') {
+                        messageContent = '<ul class="list-disc pl-5 mt-2">';
+                        for (const field in message.errors) {
+                            if (Array.isArray(message.errors[field])) {
+                                message.errors[field].forEach(error => {
+                                    messageContent += `<li>${error}</li>`;
+                                });
+                            } else if (typeof message.errors[field] === 'object') {
+                                // Handle nested objects
+                                for (const subField in message.errors[field]) {
+                                    messageContent += `<li>${subField}: ${message.errors[field][subField]}</li>`;
+                                }
+                            } else {
+                                messageContent += `<li>${field}: ${message.errors[field]}</li>`;
+                            }
+                        }
+                        messageContent += '</ul>';
+                    } else if (Array.isArray(message)) {
+                        // If it's an array of error messages
+                        messageContent = '<ul class="list-disc pl-5 mt-2">';
+
+                        // First process and display general errors at the top
+                        const generalErrors = message.filter(error =>
+                            typeof error === 'object' && error !== null &&
+                            error.path === 'general' && error.message
+                        );
+
+                        // Then process field-specific errors
+                        const fieldErrors = message.filter(error =>
+                            typeof error === 'object' && error !== null &&
+                            error.path && error.path !== 'general' && error.message
+                        );
+
+                        // Handle string errors or other formats
+                        const otherErrors = message.filter(error =>
+                            !(typeof error === 'object' && error !== null && error.path && error.message)
+                        );
+
+                        // Display general errors first with stronger styling
+                        generalErrors.forEach(error => {
+                            messageContent += `<li class="font-medium text-red-800 mb-2">${error.message}</li>`;
+                        });
+
+                        // Display field errors with translated field names
+                        fieldErrors.forEach(error => {
+                            // Convert field names to readable format
+                            let readableField = error.path;
+                            if (error.path === 'start_date') readableField = 'Tanggal Mulai';
+                            else if (error.path === 'end_date') readableField = 'Tanggal Selesai';
+                            else if (error.path === 'interval') readableField = 'Interval';
+                            else if (error.path === 'assigned_to') readableField = 'Ditugaskan Kepada';
+                            else if (error.path === 'asset_ids') readableField = 'Aset';
+                            else if (error.path === 'maintenance_date') readableField = 'Tanggal Laporan';
+                            else if (error.path === 'description') readableField = 'Deskripsi';
+                            else if (error.path === 'vendor_id') readableField = 'Vendor';
+                            else if (error.path === 'file') readableField = 'File Lampiran';
+                            else if (error.path === 'status') readableField = 'Status';
+
+                            messageContent += `<li><strong>${readableField}:</strong> ${error.message}</li>`;
+                        });
+
+                        // Display other error formats
+                        otherErrors.forEach(error => {
+                            if (typeof error === 'string') {
+                                messageContent += `<li>${error}</li>`;
+                            } else {
+                                // Generic object representation
+                                messageContent += `<li>${JSON.stringify(error)}</li>`;
+                            }
+                        });
+
+                        messageContent += '</ul>';
+                    } else if (message.message) {
+                        // If it has a message property (common in Error objects)
+                        messageContent = message.message;
+                    } else if (message.error) {
+                        // If it has an error property
+                        messageContent = message.error;
+                    } else {
+                        // Try to prettify the object for better readability
+                        try {
+                            // Create a formatted message showing each property
+                            messageContent = '<ul class="list-disc pl-5 mt-2">';
+                            Object.entries(message).forEach(([key, value]) => {
+                                if (key !== 'stack' && key !== '__proto__') { // Skip non-helpful properties
+                                    if (typeof value === 'object' && value !== null) {
+                                        messageContent += `<li>${key}: ${JSON.stringify(value)}</li>`;
+                                    } else {
+                                        messageContent += `<li>${key}: ${value}</li>`;
+                                    }
+                                }
+                            });
+                            messageContent += '</ul>';
+
+                            // If there were no properties to show, fallback to stringify
+                            if (messageContent === '<ul class="list-disc pl-5 mt-2"></ul>') {
+                                messageContent = JSON.stringify(message);
+                            }
+                        } catch (e) {
+                            messageContent = "Error object could not be displayed";
+                        }
+                    }
+                } else {
+                    // Simple string message
+                    messageContent = message;
+                }
 
                 // Set inner HTML
                 notification.innerHTML = `
@@ -1038,7 +1195,7 @@
                         </div>
                         <div>
                             <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
-                            <p>${message}</p>
+                            <div class="error-message">${messageContent}</div>
                         </div>
                         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                     </div>
@@ -1170,14 +1327,11 @@
                                 <div class="flex justify-center">
                                     <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#213268]"></div>
                                 </div>
-                                <div class="mt-2">Loading data...</div>
+                                <div class="mt-2">Memuat data...</div>
                             </td>
                         </tr>
                     `;
                 }
-
-                // This is where you would fetch data from the server with AJAX
-                // and update the table without page reload
             }
 
             // Search input - apply filters on debounce
@@ -1385,7 +1539,7 @@
                 // Show loading state
                 document.getElementById('assetSelectionList').innerHTML = `
                     <tr>
-                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Loading assets...</td>
+                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Memuat aset...</td>
                     </tr>
                 `;
 
@@ -1398,7 +1552,7 @@
                 })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('Network response was not ok');
+                            throw new Error('Jaringan tidak berfungsi');
                         }
                         return response.json();
                     })
@@ -1409,7 +1563,7 @@
                         if (assets.length === 0) {
                             document.getElementById('assetSelectionList').innerHTML = `
                                 <tr>
-                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No assets found</td>
+                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada aset    </td>
                                 </tr>
                             `;
                             return;
@@ -1484,7 +1638,7 @@
                         console.error('Error loading assets:', error);
                         document.getElementById('assetSelectionList').innerHTML = `
                             <tr>
-                                <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">Error loading assets</td>
+                                <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">Gagal memuat aset</td>
                             </tr>
                         `;
                     });
@@ -1561,7 +1715,7 @@
 
                 // Update pagination info
                 if (paginationInfo) {
-                    paginationInfo.textContent = `Showing ${from} to ${to} of ${totalItems} entries`;
+                    paginationInfo.textContent = `Menampilkan ${from} sampai ${to} dari ${totalItems} data`;
                 }
 
                 // Generate pagination controls
@@ -1729,7 +1883,7 @@
                         });
                     });
                 } else {
-                    selectedAssetsList.innerHTML = '<tr><td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No data available in table</td></tr>';
+                    selectedAssetsList.innerHTML = '<tr><td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia dalam tabel</td></tr>';
 
                     // Reset pagination
                     const paginationContainer = document.getElementById('selectedAssetsPagination');
@@ -1739,7 +1893,7 @@
 
                     const infoContainer = document.getElementById('selectedAssetsInfo');
                     if (infoContainer) {
-                        infoContainer.textContent = 'Showing 0 to 0 of 0 entries';
+                        infoContainer.textContent = 'Menampilkan 0 sampai 0 dari 0 data';
                     }
 
                     // Clear hidden inputs
@@ -1763,7 +1917,7 @@
                 const to = Math.min(currentPage * perPage, totalItems);
 
                 // Update info text
-                infoContainer.textContent = `Showing ${from} to ${to} of ${totalItems} entries`;
+                infoContainer.textContent = `Menampilkan ${from} sampai ${to} dari ${totalItems} data`;
 
                 // Generate pagination controls
                 let html = '';
@@ -1867,13 +2021,24 @@
             const vendorIdInput = document.getElementById('vendor_id');
             const vendorResults = document.getElementById('vendor_results');
 
+            // Edit modal vendor search
+            const editVendorSearchInput = document.getElementById('edit_vendor_search');
+            const editVendorIdInput = document.getElementById('edit_vendor_id');
+            const editVendorResults = document.getElementById('edit_vendor_results');
+
             // Initial load of vendors
             loadAllVendors();
 
             // Show/hide vendor results
             vendorSearchInput?.addEventListener('focus', function() {
-                filterAndDisplayVendors(this.value.trim());
+                filterAndDisplayVendors(this.value.trim(), 'add');
                 vendorResults.style.display = 'block';
+            });
+
+            // Show/hide edit vendor results
+            editVendorSearchInput?.addEventListener('focus', function() {
+                filterAndDisplayVendors(this.value.trim(), 'edit');
+                editVendorResults.style.display = 'block';
             });
 
             // Hide vendor results when clicking outside
@@ -1881,17 +2046,26 @@
                 if (e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
                     vendorResults.style.display = 'none';
                 }
+                if (e.target !== editVendorSearchInput && !editVendorResults.contains(e.target)) {
+                    editVendorResults.style.display = 'none';
+                }
             });
 
             // Search vendors with debounce
             vendorSearchInput?.addEventListener('input', debounce(function() {
                 const searchTerm = this.value.trim();
-                filterAndDisplayVendors(searchTerm);
+                filterAndDisplayVendors(searchTerm, 'add');
+            }, 300));
+
+            // Search vendors in edit modal with debounce
+            editVendorSearchInput?.addEventListener('input', debounce(function() {
+                const searchTerm = this.value.trim();
+                filterAndDisplayVendors(searchTerm, 'edit');
             }, 300));
 
             // Load all vendors
             function loadAllVendors() {
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
                 vendorResults.style.display = 'block';
 
                 // First try to get from localStorage to avoid delay
@@ -1920,13 +2094,13 @@
 
                 function fetchPage(page) {
                     if (page === 1) {
-                        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+                        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
                     } else {
                         // Update loading message for subsequent pages
-                        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors (page ' + page + ')...</div>';
+                        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor (halaman ' + page + ')...</div>';
                     }
 
-                    fetch(`/vendor?json=true&page=${page}&limit=100`, {
+                    fetch(`/vendor?json=true&page=${page}&limit=1000`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -1980,7 +2154,7 @@
                     })
                     .catch(error => {
                         console.error(`Error fetching vendors page ${page}:`, error);
-                        vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Error loading vendors</div>';
+                        vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
 
                         // If we got some vendors, still show them
                         if (allVendors.length > 0) {
@@ -1994,18 +2168,23 @@
             }
 
             // Filter and display vendors based on search term
-            function filterAndDisplayVendors(searchTerm) {
+            function filterAndDisplayVendors(searchTerm, mode = 'add') {
+                // Determine which elements to use based on mode
+                const resultsElem = mode === 'add' ? vendorResults : editVendorResults;
+                const searchInputElem = mode === 'add' ? vendorSearchInput : editVendorSearchInput;
+                const idInputElem = mode === 'add' ? vendorIdInput : editVendorIdInput;
+
                 // Make sure dropdown is visible
-                vendorResults.style.display = 'block';
+                resultsElem.style.display = 'block';
 
                 // Show loading message during search
                 if (searchTerm && searchTerm.length > 0) {
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Searching vendors...</div>';
+                    resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Mencari vendor...</div>';
                 }
 
                 // If we have no vendors yet
                 if (allVendors.length === 0) {
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+                    resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
                     return;
                 }
 
@@ -2040,10 +2219,10 @@
                 const displayVendors = filteredVendors.slice(0, 20);
 
                 // Update DOM with animation delay
-                    vendorResults.innerHTML = '';
+                resultsElem.innerHTML = '';
 
                 if (displayVendors.length === 0) {
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">No vendors found</div>';
+                    resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada vendor yang ditemukan</div>';
                     return;
                 }
 
@@ -2056,20 +2235,20 @@
                     div.style.animationDelay = `${index * 30}ms`; // Staggered animation
 
                     div.addEventListener('click', function() {
-                        vendorIdInput.value = this.getAttribute('data-id');
-                        vendorSearchInput.value = this.textContent;
-                        vendorResults.style.display = 'none';
+                        idInputElem.value = this.getAttribute('data-id');
+                        searchInputElem.value = this.textContent;
+                        resultsElem.style.display = 'none';
                     });
 
-                    vendorResults.appendChild(div);
+                    resultsElem.appendChild(div);
                 });
 
                 // Show count if limited
                 if (filteredVendors.length > 20) {
                     const countDiv = document.createElement('div');
                     countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
-                    countDiv.textContent = `Showing 20 of ${filteredVendors.length} vendors`;
-                    vendorResults.appendChild(countDiv);
+                    countDiv.textContent = `Menampilkan 20 dari ${filteredVendors.length} vendor`;
+                    resultsElem.appendChild(countDiv);
                 }
             }
 
@@ -2199,7 +2378,7 @@
                             if (users.length > 10) {
                                 const countDiv = document.createElement('li');
                                 countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
-                                countDiv.textContent = `Showing 10 of ${users.length} users`;
+                                countDiv.textContent = `Menampilkan 10 dari ${users.length} pengguna`;
                                 userList.appendChild(countDiv);
                             }
                         }
@@ -2207,7 +2386,7 @@
                         console.error('Error loading users:', error);
                         const errorItem = document.createElement('li');
                         errorItem.className = 'px-4 py-2 text-red-500';
-                        errorItem.textContent = 'Error processing user data';
+                        errorItem.textContent = 'Gagal memproses data pengguna';
                         userList.appendChild(errorItem);
                     } finally {
                         if (loadingIndicator) loadingIndicator.classList.add('hidden');
@@ -2228,27 +2407,27 @@
                 let errorMessages = [];
 
                 if (!startDate) {
-                    errorMessages.push('Start date is required');
+                    errorMessages.push('Tanggal mulai diperlukan');
                 }
 
                 if (!endDate) {
-                    errorMessages.push('End date is required');
+                    errorMessages.push('Tanggal akhir diperlukan');
                 }
 
                 if (!interval) {
-                    errorMessages.push('Interval is required');
+                    errorMessages.push('Interval diperlukan');
                 }
 
                 if (!assignedTo) {
-                    errorMessages.push('Assigned to field is required');
+                    errorMessages.push('Bidang yang ditugaskan diperlukan');
                 }
 
                 if (selectedAssets.length === 0) {
-                    errorMessages.push('Please select at least one asset');
+                    errorMessages.push('Silakan pilih setidaknya satu aset');
                 }
 
                 if (errorMessages.length > 0) {
-                    showToast(errorMessages.join('<br>'), 'error');
+                    showToast(errorMessages, 'error');
                     return;
                 }
 
@@ -2275,6 +2454,11 @@
                     delete jsonData.vendor_id;
                 }
 
+                // Don't send end_date for ONCE or DAILY intervals
+                if (jsonData.interval === 'ONCE' || jsonData.interval === 'DAILY') {
+                    delete jsonData.end_date;
+                }
+
                 // Convert asset_ids to array of numbers
                 jsonData.asset_ids = selectedAssets.map(asset => {
                     // Make sure each asset ID is a valid number
@@ -2291,7 +2475,7 @@
 
                 // Validation check for asset_ids format
                 if (!Array.isArray(jsonData.asset_ids) || jsonData.asset_ids.length === 0) {
-                    showToast('Error: No valid asset IDs to submit', 'error');
+                    showToast('Error: Tidak ada ID aset yang valid untuk dikirim', 'error');
                     return;
                 }
 
@@ -2306,48 +2490,11 @@
                             'Accept': 'application/json'
                         }
                     })
-                    .then(response => {
-                        // First check if response is ok
-                        if (!response.ok) {
-                            // If status code indicates error, handle it
-                            return response.json().then(errorData => {
-                                console.error('Server returned error status:', response.status, errorData);
-
-                                // Laravel validation errors usually come in a specific format
-                                if (response.status === 422 && errorData.errors) {
-                                    // Format validation errors for display
-                                    let errorMessages = '';
-
-                                    // Check different validation error formats
-                                    if (Array.isArray(errorData.errors)) {
-                                        // Format for array of error objects
-                                        errorMessages = errorData.errors.map(err =>
-                                            err.message || JSON.stringify(err)
-                                        ).join('<br>');
-                                    } else if (typeof errorData.errors === 'object') {
-                                        // Format for Laravel's standard validation errors object
-                                        errorMessages = Object.entries(errorData.errors)
-                                            .map(([field, messages]) => {
-                                                if (Array.isArray(messages)) {
-                                                    return `${field}: ${messages.join(', ')}`;
-                                                }
-                                                return `${field}: ${messages}`;
-                                            })
-                                            .join('<br>');
-                                    }
-
-                                    throw new Error(errorMessages || errorData.message || 'Validation failed');
-                                }
-
-                                throw new Error(errorData.message || 'Server responded with an error');
-                            });
-                        }
-                        return response.json();
-                    })
+                .then(handleApiResponse)
                 .then(data => {
                         console.log('Maintenance creation response:', data);
                     if (data.success) {
-                        showToast(data.message || 'Maintenance schedule created successfully', 'success');
+                        showToast(data.message || 'Jadwal pemeliharaan berhasil dibuat', 'success');
                         closeModal(modals.add, modalContents.add);
 
                         // Reload the page after a short delay
@@ -2361,23 +2508,35 @@
                             } else if (data.message) {
                                 showToast(data.message, 'error');
                             } else if (data.errors) {
-                                // Handle structured validation errors
-                                const errorMessages = Array.isArray(data.errors)
-                                    ? data.errors.map(err => err.message || JSON.stringify(err)).join('<br>')
-                                    : Object.values(data.errors).flat().join('<br>');
-                                showToast(errorMessages, 'error');
+                            showToast({ errors: data.errors }, 'error');
                             } else {
-                                showToast('Failed to create maintenance schedule', 'error');
+                            showToast('Gagal membuat jadwal pemeliharaan', 'error');
                             }
                     }
                 })
                 .catch(error => {
                     console.error('Error creating maintenance schedule:', error);
-                        showToast(error.message || 'An error occurred while creating the maintenance schedule', 'error');
+
+                    // Handle different error formats
+                    if (error && error.errors) {
+                        if (Array.isArray(error.errors)) {
+                            // If we have an array of errors with path and message properties
+                            showToast(error.errors, 'error');
+                        } else {
+                            // If we have structured validation errors in object format
+                            showToast({ errors: error.errors }, 'error');
+                        }
+                    } else if (error && error.status === 422) {
+                        // If it's a validation error but no structured data
+                        showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
+                    } else {
+                        // Generic error message
+                        showToast(error.message || 'Gagal membuat jadwal pemeliharaan', 'error');
+                    }
                 });
                 } catch (error) {
                     console.error('Error handling maintenance form submission:', error);
-                    showToast('An error occurred while processing the form', 'error');
+                    showToast('Gagal memproses formulir', 'error');
                 }
             });
 
@@ -2404,11 +2563,11 @@
                     document.getElementById('deleteMaintenanceForm').setAttribute('data-id', maintenanceId);
 
                     // Get maintenance details to show in the confirmation modal
-                    const assetName = this.closest('tr').querySelector('td:nth-child(2) .font-medium').textContent;
-                    const assetCode = this.closest('tr').querySelector('td:nth-child(2) .text-gray-500').textContent;
+                    const assetName = this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
+                    const assetCode = this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent;
 
                     // Set maintenance name in the modal
-                    deleteMaintenanceName.textContent = `${assetName} (${assetCode})`;
+                    deleteMaintenanceName.textContent = `${assetName} (${assetCode.replace('Kode: ', '')})`;
 
                     // Open delete confirmation modal
                     openModal(modals.delete, modalContents.delete);
@@ -2430,35 +2589,43 @@
                         'Accept': 'application/json'
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(data => {
-                            console.error('Server error response:', data);
-                            throw new Error(data.message || `Server responded with status ${response.status}`);
-                        });
-                    }
-                    return response.json();
-                })
+                .then(handleApiResponse)
                 .then(data => {
                     // Close the modal
                     closeModal(modals.delete, modalContents.delete);
 
                     if (data.success) {
                         // Show toast notification first
-                        showToast(data.message || 'Maintenance record deleted successfully', 'success');
+                        showToast(data.message || 'Rekaman pemeliharaan berhasil dihapus', 'success');
 
                         // Delay the redirect slightly to allow the toast to be seen
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);
                     } else {
-                        showToast(data.message || 'Failed to delete maintenance record', 'error');
+                        showToast(data.message || 'Gagal menghapus rekaman pemeliharaan', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Delete request failed:', error);
                     closeModal(modals.delete, modalContents.delete);
-                    showToast(error.message || 'An error occurred while deleting the maintenance record', 'error');
+
+                    // Handle different error formats
+                    if (error && error.errors) {
+                        if (Array.isArray(error.errors)) {
+                            // If we have an array of errors with path and message properties
+                            showToast(error.errors, 'error');
+                        } else {
+                            // If we have structured validation errors in object format
+                            showToast({ errors: error.errors }, 'error');
+                        }
+                    } else if (error && error.status === 422) {
+                        // If it's a validation error but no structured data
+                        showToast(`Validasi gagal: ${error.message || 'Silakan periksa form Anda'}`, 'error');
+                    } else {
+                        // Generic error message
+                        showToast(error.message || 'Gagal menghapus rekaman pemeliharaan', 'error');
+                    }
                 });
             });
 
@@ -2466,8 +2633,8 @@
             document.querySelectorAll('.edit-maintenance-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const maintenanceId = this.getAttribute('data-id');
-                    const assetName = this.closest('tr').querySelector('td:nth-child(2) .font-medium').textContent;
-                    const assetCode = this.closest('tr').querySelector('td:nth-child(2) .text-gray-500').textContent.replace('Code: ', '');
+                    const assetName = this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
+                    const assetCode = this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent.replace('Kode: ', '');
 
                     // Show loading state in edit form
                     document.getElementById('edit_asset_name').textContent = assetName;
@@ -2485,13 +2652,13 @@
                     })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('Failed to fetch maintenance details');
+                            throw new Error('Gagal mengambil detail pemeliharaan');
                         }
                         return response.json();
                     })
                     .then(result => {
                         if (!result.success) {
-                            throw new Error(result.message || 'Failed to fetch maintenance details');
+                            throw new Error(result.message || 'Gagal mengambil detail pemeliharaan');
                         }
 
                         const maintenance = result.data;
@@ -2513,6 +2680,8 @@
                         // Set interval
                         if (maintenance.interval) {
                             document.getElementById('edit_interval').value = maintenance.interval;
+                            // Apply end date visibility based on interval
+                            toggleEndDateVisibility(maintenance.interval, 'edit');
                         }
 
                         // Set assigned_to
@@ -2520,11 +2689,13 @@
                             document.getElementById('edit_assigned_to').value = maintenance.assigned_to;
                         }
 
-                        // Set vendor_id (if exists)
-                        if (maintenance.vendor_id) {
+                        // Set vendor_id and vendor_name (if exists)
+                        if (maintenance.vendor_id && maintenance.vendor_name) {
                             document.getElementById('edit_vendor_id').value = maintenance.vendor_id;
+                            document.getElementById('edit_vendor_search').value = maintenance.vendor_name;
                         } else {
                             document.getElementById('edit_vendor_id').value = '';
+                            document.getElementById('edit_vendor_search').value = '';
                         }
 
                         // Open the edit modal
@@ -2532,7 +2703,7 @@
                     })
                     .catch(error => {
                         console.error('Error fetching maintenance details:', error);
-                        showToast(error.message || 'Failed to fetch maintenance details', 'error');
+                        showToast(error.message || 'Gagal mengambil detail pemeliharaan', 'error');
                     });
                 });
             });
@@ -2543,7 +2714,7 @@
 
                 const maintenanceId = document.getElementById('edit_maintenance_id').value;
                 if (!maintenanceId) {
-                    showToast('Maintenance ID is missing', 'error');
+                    showToast('ID pemeliharaan tidak ada', 'error');
                     return;
                 }
 
@@ -2551,10 +2722,14 @@
                 const formData = {
                     interval: document.getElementById('edit_interval').value,
                     start_date: document.getElementById('edit_start_date').value,
-                    end_date: document.getElementById('edit_end_date').value,
                     assigned_to: parseInt(document.getElementById('edit_assigned_to').value, 10),
                     vendor_id: document.getElementById('edit_vendor_id').value ? parseInt(document.getElementById('edit_vendor_id').value, 10) : null
                 };
+
+                // Only add end_date if interval is not ONCE or DAILY
+                if (formData.interval !== 'ONCE' && formData.interval !== 'DAILY') {
+                    formData.end_date = document.getElementById('edit_end_date').value;
+                }
 
                 // Make the PUT request to update the maintenance
                 fetch(`/maintenance/${maintenanceId}`, {
@@ -2566,34 +2741,42 @@
                     },
                     body: JSON.stringify(formData)
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(data => {
-                            console.error('Server error response:', data);
-                            throw new Error(data.message || `Server responded with status ${response.status}`);
-                        });
-                    }
-                    return response.json();
-                })
+                .then(handleApiResponse)
                 .then(data => {
                     // Close the modal
                     closeModal(modals.edit, modalContents.edit);
 
                     if (data.success) {
                         // Show toast notification
-                        showToast(data.message || 'Maintenance record updated successfully', 'success');
+                        showToast(data.message || 'Rekaman pemeliharaan berhasil diperbarui', 'success');
 
                         // Reload the page after a short delay
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);
                     } else {
-                        showToast(data.message || 'Failed to update maintenance record', 'error');
+                        showToast(data.message || 'Gagal memperbarui rekaman pemeliharaan', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Update request failed:', error);
-                    showToast(error.message || 'An error occurred while updating the maintenance record', 'error');
+
+                    // Handle different error formats
+                    if (error && error.errors) {
+                        if (Array.isArray(error.errors)) {
+                            // If we have an array of errors with path and message properties
+                            showToast(error.errors, 'error');
+                        } else {
+                            // If we have structured validation errors in object format
+                            showToast({ errors: error.errors }, 'error');
+                        }
+                    } else if (error && error.status === 422) {
+                        // If it's a validation error but no structured data
+                        showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
+                    } else {
+                        // Generic error message
+                        showToast(error.message || 'Gagal memperbarui rekaman pemeliharaan', 'error');
+                    }
                 });
             });
 
@@ -2601,8 +2784,15 @@
             document.querySelectorAll('.create-report-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const maintenanceId = this.getAttribute('data-id');
-                    const assetName = this.getAttribute('data-asset-name');
-                    const assetCode = this.getAttribute('data-asset-code');
+                    // Coba ambil dari atribut data dulu
+                    let assetName = this.getAttribute('data-asset-name');
+                    let assetCode = this.getAttribute('data-asset-code');
+
+                    // Jika tidak ada di data attributes, ambil dari row
+                    if (!assetName || !assetCode) {
+                        assetName = this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
+                        assetCode = this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent.replace('Kode: ', '');
+                    }
 
                     // Set the form data
                     document.getElementById('report_maintenance_id').value = maintenanceId;
@@ -2635,17 +2825,17 @@
                 const maintenanceDate = document.getElementById('maintenance_date').value;
 
                 if (!maintenanceId) {
-                    showToast('Maintenance ID is missing', 'error');
+                    showToast('ID pemeliharaan tidak ada', 'error');
                     return;
                 }
 
                 if (!description) {
-                    showToast('Description is required', 'error');
+                    showToast('Deskripsi diperlukan', 'error');
                     return;
                 }
 
                 if (!maintenanceDate) {
-                    showToast('Report date is required', 'error');
+                    showToast('Tanggal laporan diperlukan', 'error');
                     return;
                 }
 
@@ -2670,7 +2860,7 @@
                 submitBtn.innerHTML = `
                     <div class="flex items-center justify-center">
                         <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Submitting...</span>
+                        <span>Membuat...</span>
                     </div>
                 `;
 
@@ -2687,21 +2877,7 @@
                     },
                     credentials: 'same-origin' // Important for CSRF
                 })
-                .then(response => {
-                    // Always try to parse response as JSON, even for error responses
-                    return response.json().then(data => {
-                        if (!response.ok) {
-                            console.error('Server error response:', data);
-                            throw new Error(data.message || `Server responded with status ${response.status}`);
-                        }
-                        return data;
-                    }).catch(err => {
-                        if (!response.ok) {
-                            throw new Error(`Server responded with status ${response.status}`);
-                        }
-                        throw err;
-                    });
-                })
+                .then(handleApiResponse)
                 .then(data => {
                     console.log('Server response:', data);
 
@@ -2714,24 +2890,39 @@
 
                     if (data.success) {
                         // Show toast notification
-                        showToast(data.message || 'Maintenance report created successfully', 'success');
+                        showToast(data.message || 'Laporan pemeliharaan berhasil dibuat', 'success');
 
                         // Reload the page after a short delay
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);
                     } else {
-                        showToast(data.message || 'Failed to create maintenance report', 'error');
+                        showToast(data.message || 'Gagal membuat laporan pemeliharaan', 'error');
                     }
                 })
                 .catch(error => {
-                    console.error('Create report request failed:', error);
+                    console.error('Gagal membuat laporan pemeliharaan:', error);
 
                     // Reset button state
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
 
-                    showToast(error.message || 'An error occurred while creating the maintenance report', 'error');
+                    // Handle different error formats
+                    if (error && error.errors) {
+                        if (Array.isArray(error.errors)) {
+                            // If we have an array of errors with path and message properties
+                            showToast(error.errors, 'error');
+                        } else {
+                            // If we have structured validation errors in object format
+                            showToast({ errors: error.errors }, 'error');
+                        }
+                    } else if (error && error.status === 422) {
+                        // If it's a validation error but no structured data
+                        showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
+                    } else {
+                        // Generic error message
+                        showToast(error.message || 'Gagal membuat laporan pemeliharaan', 'error');
+                    }
                 });
             });
 

@@ -228,7 +228,7 @@
                             <!-- Contact Person Input -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">
-                                    Kontak Person
+                                    Kontak
                                 </label>
                                 <input type="text" name="contact_person" id="add_contact_person"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
@@ -323,12 +323,12 @@
                             <!-- Contact Person Input -->
                             <div class="space-y-2">
                                 <label class="block text-base font-semibold text-[#666666]">
-                                    Kontak Person
+                                    Kontak
                                 </label>
                                 <input type="text" id="editContactPerson" name="contact_person"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                     placeholder="Ketik di sini">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Kontak Person harus diisi</div>
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Kontak harus diisi</div>
                             </div>
 
                             <!-- Phone Number Input -->

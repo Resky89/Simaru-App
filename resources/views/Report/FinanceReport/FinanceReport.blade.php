@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Finance Report')
+@section('title', 'Laporan ')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -10,21 +10,21 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FINANCE REPORT</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">LAPORAN KEUANGAN</h1>
 
                     <!-- Button Export PDF -->
                     <button id="exportBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        <span class="text-base">Export PDF</span>
+                        <span class="text-base">Expor PDF</span>
                     </button>
                 </div>
 
                 <!-- Search and Filter -->
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
-                        <input type="text" id="searchInput" placeholder="Search by asset name or description..." value="{{ $search ?? '' }}"
+                        <input type="text" id="searchInput" placeholder="Cari berdasarkan nama aset dan deskripsi..." value="{{ $search ?? '' }}"
                             class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         <div class="absolute right-3 top-1/2 -translate-y-1/2">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,10 +34,19 @@
                         </div>
                     </div>
                     <div class="flex gap-4">
+                        <select id="filterType"
+                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <option value="all" {{ ($filter ?? 'all') == 'all' ? 'selected' : '' }}>Semua Tipe</option>
+                            <option value="income" {{ ($filter ?? 'all') == 'income' ? 'selected' : '' }}>Pemasukan</option>
+                            <option value="expense" {{ ($filter ?? 'all') == 'expense' ? 'selected' : '' }}>Pengeluaran</option>
+                        </select>
+
                         <select id="sortOrder"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="newest" {{ ($sort ?? 'newest') == 'newest' ? 'selected' : '' }}>Newest First</option>
-                            <option value="oldest" {{ ($sort ?? 'newest') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                            <option value="newest" {{ ($sort ?? 'newest') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                            <option value="oldest" {{ ($sort ?? 'newest') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                            <option value="amount-high" {{ ($sort ?? 'newest') == 'amount-high' ? 'selected' : '' }}>Nominal (Tinggi-Rendah)</option>
+                            <option value="amount-low" {{ ($sort ?? 'newest') == 'amount-low' ? 'selected' : '' }}>Nominal (Rendah-Tinggi)</option>
                         </select>
                     </div>
                 </div>
@@ -54,12 +63,12 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Transaction Type</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Amount</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Recorded by</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Transaction Date</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Aset</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Transaksi</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Jumlah</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Dibuat Oleh</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Transaksi</th>
                             </tr>
                         </thead>
                         <tbody id="transactionsTableBody">
@@ -68,7 +77,6 @@
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                         <div class="flex flex-col">
                                             <span class="font-medium">{{ $transaction['asset_name'] ?? '-' }}</span>
-                                            <span class="text-gray-500">ID: {{ $transaction['asset_id'] ?? '-' }}</span>
                                     </div>
                                 </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
@@ -78,13 +86,13 @@
 
                                             if ($type == 'income') {
                                                 $typeClass = 'bg-green-100 text-green-800';
-                                                $typeText = 'Income';
+                                                $typeText = 'Pemasukan';
                                             } elseif ($type == 'expense') {
                                                 $typeClass = 'bg-red-100 text-red-800';
-                                                $typeText = 'Expense';
+                                                $typeText = 'Pengeluaran';
                                             } else {
                                                 $typeClass = 'bg-gray-100 text-gray-800';
-                                                $typeText = ucfirst($type ?: 'Unknown');
+                                                $typeText = ucfirst($type ?: 'Tidak Diketahui');
                                             }
                                         @endphp
                                         <span class="px-2 py-1 rounded-full text-xs {{ $typeClass }}">
@@ -103,12 +111,12 @@
                                         {{ $transaction['description'] ?? '-' }}
                                 </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        {{ isset($transaction['transaction_date']) ? date('d M Y', strtotime($transaction['transaction_date'])) : '-' }}
+                                        {{ isset($transaction['transaction_date']) ? \Carbon\Carbon::parse($transaction['transaction_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
                                 </td>
                             </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No transactions found</td>
+                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Transaksi tidak ditemukan</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -126,7 +134,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 19l-7-7 7-7" />
                             </svg>
-                            Prev
+                            Sebelumnya
                         </a>
                         <div class="flex gap-2">
                             @php
@@ -174,7 +182,7 @@
                         </div>
                         <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
                             class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
-                            Next
+                            Selanjutnya
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -185,16 +193,16 @@
 
                     <div class="flex items-center gap-2 mt-4 md:mt-0">
                         <span class="text-sm text-gray-600">
-                            Showing {{ ($pagination['current_page'] - 1) * $pagination['limit'] + 1 }}
-                            to {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
-                            of {{ $pagination['total_items'] }} entries
+                            Menampilkan {{ ($pagination['current_page'] - 1) * $pagination['limit'] + 1 }}
+                            sampai {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
+                            dari {{ $pagination['total_items'] }} data
                         </span>
                         <select id="perPageSelect"
                             class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                             onchange="changePerPage(this.value)">
-                            <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per page</option>
-                            <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per page</option>
-                            <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per page</option>
+                            <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per halaman</option>
                         </select>
                     </div>
                 </div>
@@ -210,6 +218,7 @@
         const exportBtn = document.getElementById('exportBtn');
         const searchInput = document.getElementById('searchInput');
         const sortOrder = document.getElementById('sortOrder');
+        const filterType = document.getElementById('filterType');
         const perPageSelect = document.getElementById('perPageSelect');
 
         // Debounce function to limit how often search is triggered
@@ -229,6 +238,7 @@
         function applyFilters() {
             const searchTerm = searchInput.value;
             const sort = sortOrder.value;
+            const filter = filterType.value;
             const limit = perPageSelect?.value || 10;
 
             const url = new URL(window.location.href);
@@ -240,6 +250,10 @@
             // Set sort parameter
             if (sort) url.searchParams.set('sort', sort);
             else url.searchParams.delete('sort');
+
+            // Set filter parameter
+            if (filter && filter !== 'all') url.searchParams.set('filter', filter);
+            else url.searchParams.delete('filter');
 
             // Set limit parameter
             url.searchParams.set('limit', limit);
@@ -264,6 +278,10 @@
         }, 500));
 
         sortOrder?.addEventListener('change', function() {
+            applyFilters();
+        });
+
+        filterType?.addEventListener('change', function() {
             applyFilters();
         });
 

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Maintenance Report</title>
+    <title>Laporan Pemeliharaan</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -114,32 +114,32 @@
 </head>
 <body>
     <div class="header">
-        <h1>MAINTENANCE SCHEDULE REPORT</h1>
-        <p>Generated on: {{ $date_generated }}</p>
+        <h1>LAPORAN JADWAL PEMELIHARAAN</h1>
+        <p>Dibuat pada: {{ $date_generated }}</p>
     </div>
 
     <div class="filter-info">
         @if(!empty($search))
-            <strong>Search:</strong> {{ $search }} |
+            <strong>Pencarian:</strong> {{ $search }} |
         @endif
         @if(!empty($status))
             <strong>Status:</strong> {{ ucfirst($status) }} |
         @endif
-        <strong>Sort:</strong> {{ $sort_by ?? 'created_at' }} ({{ $sort_order ?? 'desc' }})
+        <strong>Urutan:</strong> {{ $sort_by ?? 'created_at' }} ({{ $sort_order ?? 'desc' }})
     </div>
 
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Asset</th>
+                <th>Aset</th>
                 <th>Interval</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Assigned To</th>
+                <th>Tanggal Mulai</th>
+                <th>Tanggal Selesai</th>
+                <th>Ditugaskan Kepada</th>
                 <th>Vendor</th>
                 <th>Status</th>
-                <th>Created</th>
+                <th>Dibuat</th>
             </tr>
         </thead>
         <tbody>
@@ -148,7 +148,7 @@
                     <td>{{ $maintenance['id'] ?? '-' }}</td>
                     <td>
                         <div class="asset-name">{{ $maintenance['asset_name'] ?? '-' }}</div>
-                        <div class="asset-code">Code: {{ $maintenance['asset_code'] ?? '-' }}</div>
+                        <div class="asset-code">Kode: {{ $maintenance['asset_code'] ?? '-' }}</div>
                     </td>
                     <td>{{ $maintenance['interval'] ?? '-' }}</td>
                     <td>{{ isset($maintenance['start_date']) ? date('d M Y', strtotime($maintenance['start_date'])) : '-' }}</td>
@@ -157,22 +157,22 @@
                     <td>{{ $maintenance['vendor_name'] ?? '-' }}</td>
                     <td>
                         <span class="status-{{ strtolower($maintenance['status'] ?? 'unknown') }}">
-                            {{ ucfirst($maintenance['status'] ?? 'Unknown') }}
+                            {{ ucfirst($maintenance['status'] ?? 'Tidak Diketahui') }}
                         </span>
                     </td>
                     <td>{{ isset($maintenance['created_at']) ? date('d M Y', strtotime($maintenance['created_at'])) : '-' }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" style="text-align: center;">No maintenance schedules found</td>
+                    <td colspan="9" style="text-align: center;">Tidak ditemukan jadwal pemeliharaan</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
     <div class="footer">
-        <p>This report was automatically generated from the Asset Monitoring System.</p>
-        <p>© {{ date('Y') }} Asset Monitoring System. All rights reserved.</p>
+        <p>Laporan ini dibuat secara otomatis dari Sistem Monitoring Aset.</p>
+        <p>© {{ date('Y') }} Sistem Monitoring Aset. Hak Cipta Dilindungi.</p>
     </div>
 </body>
 </html>

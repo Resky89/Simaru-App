@@ -365,7 +365,7 @@ class ComplainRepairController extends Controller
                 ], status: 500);
             }
 
-            return redirect()->route('complaint.index')->with('error', 'Failed to retrieve complaint detail: ' . $e->getMessage());
+            return redirect()->route('complaint-repair.index')->with('error', 'Failed to retrieve complaint detail: ' . $e->getMessage());
         }
     }
 

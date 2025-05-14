@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="utf-8">
-    <title>Complaint & Repair Detail</title>
+    <title>Detail Keluhan & Perbaikan</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -135,44 +135,43 @@
 </head>
 <body>
     <div class="header">
-        <h1>COMPLAINT & REPAIR DETAIL</h1>
-        <p>Generated on: {{ date('d M Y H:i:s') }}</p>
+        <h1>DETAIL KELUHAN & PERBAIKAN</h1>
+        <p>Dibuat pada: {{ \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM YYYY') }}</p>
     </div>
 
     <!-- Complaint Section -->
     <div class="section">
-        <h2 class="section-title">COMPLAINT INFORMATION</h2>
+        <h2 class="section-title">INFORMASI KELUHAN</h2>
 
         <div class="clearfix">
             <!-- Complaint Image (Left Half) -->
             <div class="col-50">
-                <h3 class="subsection-title">Complaint Image</h3>
+                <h3 class="subsection-title">Gambar Keluhan</h3>
                 <div class="image-container">
                     @if(!empty($complaint['complaint_picture_base64']))
-                        <img src="data:image/jpeg;base64,{{ $complaint['complaint_picture_base64'] }}" alt="Complaint Image">
+                        <img src="data:image/jpeg;base64,{{ $complaint['complaint_picture_base64'] }}" alt="Gambar Keluhan">
                     @else
-                        <p style="color: #999; font-style: italic;">No image available</p>
+                        <p style="color: #999; font-style: italic;">Gambar tidak tersedia</p>
                     @endif
                 </div>
             </div>
 
             <!-- Complaint Details (Right Half) -->
             <div class="col-50">
-                <h3 class="subsection-title">Basic Details</h3>
+                <h3 class="subsection-title">Detail Keluhan</h3>
                 <div class="detail-grid">
                     <div class="detail-row">
                         <div class="detail-cell">
-                            <span class="detail-cell-title">Asset Name</span>
+                            <span class="detail-cell-title">Nama Aset</span>
                             <span class="detail-cell-value">{{ $complaint['asset_name'] ?? 'N/A' }}</span>
                         </div>
                         <div class="detail-cell">
-                            <span class="detail-cell-title">Asset ID</span>
-                            <span class="detail-cell-value">{{ $complaint['asset_id'] ?? 'N/A' }}</span>
-                        </div>
+                            <span class="detail-cell-title">Kode Aset</span>
+                            <span class="detail-cell-value">{{ $complaint['asset_code'] ?? 'N/A' }}</span>                        </div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-cell" colspan="2">
-                            <span class="detail-cell-title">Description</span>
+                            <span class="detail-cell-title">Deskripsi</span>
                             <span class="detail-cell-value">{{ $complaint['description'] ?? 'N/A' }}</span>
                         </div>
                     </div>
@@ -195,27 +194,39 @@
                                     }
                                 @endphp
                                 <span class="status-badge {{ $statusClass }}">
-                                    {{ ucfirst(str_replace('_', ' ', $status ?: 'Unknown')) }}
+                                    @if($status == 'approved')
+                                        Disetujui
+                                    @elseif($status == 'pending')
+                                        Menunggu
+                                    @elseif($status == 'rejected')
+                                        Ditolak
+                                    @elseif($status == 'in_progress')
+                                        Sedang Diproses
+                                    @elseif($status == 'completed')
+                                        Selesai
+                                    @else
+                                        Tidak Diketahui
+                                    @endif
                                 </span>
                             </span>
                         </div>
                         <div class="detail-cell">
-                            <span class="detail-cell-title">Reported By</span>
+                            <span class="detail-cell-title">Keluhan Oleh</span>
                             <span class="detail-cell-value">ID: {{ $complaint['reporter_number'] ?? 'N/A' }}</span>
                         </div>
                     </div>
                 </div>
 
-                <h3 class="subsection-title">Timeline</h3>
+                <h3 class="subsection-title">Waktu</h3>
                 <div class="detail-grid">
                     <div class="detail-row">
                         <div class="detail-cell">
-                            <span class="detail-cell-title">Complaint Date</span>
-                            <span class="detail-cell-value">{{ isset($complaint['complaint_date']) ? date('d M Y H:i', strtotime($complaint['complaint_date'])) : 'N/A' }}</span>
+                            <span class="detail-cell-title">Tanggal Keluhan</span>
+                            <span class="detail-cell-value">{{ isset($complaint['complaint_date']) ? \Carbon\Carbon::parse($complaint['complaint_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                         </div>
                         <div class="detail-cell">
-                            <span class="detail-cell-title">Finished Date</span>
-                            <span class="detail-cell-value">{{ isset($complaint['finished_date']) && $complaint['finished_date'] ? date('d M Y H:i', strtotime($complaint['finished_date'])) : 'N/A' }}</span>
+                            <span class="detail-cell-title">Tanggal Selesai</span>
+                            <span class="detail-cell-value">{{ isset($complaint['finished_date']) && $complaint['finished_date'] ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                         </div>
                     </div>
                 </div>
@@ -225,73 +236,73 @@
 
     <!-- Repair Section -->
     <div class="section">
-        <h2 class="section-title">REPAIR INFORMATION</h2>
+        <h2 class="section-title">INFORMASI PERBAIKAN</h2>
 
         @if(!empty($complaint['repair']))
             <div class="clearfix">
                 <!-- Repair Image (Left Half) -->
                 <div class="col-50">
-                    <h3 class="subsection-title">Repair Image</h3>
+                    <h3 class="subsection-title">Gambar Perbaikan</h3>
                     <div class="image-container">
                         @if(!empty($complaint['repair']['repair_picture_base64']))
-                            <img src="data:image/jpeg;base64,{{ $complaint['repair']['repair_picture_base64'] }}" alt="Repair Image">
+                            <img src="data:image/jpeg;base64,{{ $complaint['repair']['repair_picture_base64'] }}" alt="Gambar Perbaikan">
                         @else
-                            <p style="color: #999; font-style: italic;">No repair image available</p>
+                            <p style="color: #999; font-style: italic;">Gambar perbaikan tidak tersedia</p>
                         @endif
                     </div>
                 </div>
 
                 <!-- Repair Details (Right Half) -->
                 <div class="col-50">
-                    <h3 class="subsection-title">Repair Details</h3>
+                    <h3 class="subsection-title">Detail Perbaikan</h3>
                     <div class="detail-grid">
                         <div class="detail-row">
                             <div class="detail-cell">
-                                <span class="detail-cell-title">Result</span>
+                                <span class="detail-cell-title">Hasil</span>
                                 <span class="detail-cell-value">{{ $complaint['repair']['final_result'] ?? 'N/A' }}</span>
                             </div>
                             <div class="detail-cell">
-                                <span class="detail-cell-title">Cost</span>
+                                <span class="detail-cell-title">Biaya</span>
                                 <span class="detail-cell-value">{{ isset($complaint['repair']['repair_cost']) ? 'Rp ' . number_format((float)$complaint['repair']['repair_cost'], 0, ',', '.') : 'N/A' }}</span>
                             </div>
                         </div>
                         <div class="detail-row">
                             <div class="detail-cell" colspan="2">
-                                <span class="detail-cell-title">Description</span>
+                                <span class="detail-cell-title">Deskripsi</span>
                                 <span class="detail-cell-value">{{ $complaint['repair']['repair_description'] ?? 'N/A' }}</span>
                             </div>
                         </div>
                         <div class="detail-row">
                             <div class="detail-cell">
-                                <span class="detail-cell-title">Technician</span>
+                                <span class="detail-cell-title">Teknisi</span>
                                 <span class="detail-cell-value">ID: {{ $complaint['repair']['technician_number'] ?? 'N/A' }}</span>
                             </div>
                             <div class="detail-cell">
-                                <span class="detail-cell-title">Parts Replaced</span>
+                                <span class="detail-cell-title">Bagian yang Diganti</span>
                                 <span class="detail-cell-value">{{ $complaint['repair']['parts_replaced'] ?? 'N/A' }}</span>
                             </div>
                         </div>
                     </div>
 
-                    <h3 class="subsection-title">Timeline</h3>
+                    <h3 class="subsection-title">Waktu</h3>
                     <div class="detail-grid">
                         <div class="detail-row">
                             <div class="detail-cell">
-                                <span class="detail-cell-title">Repair Date</span>
-                                <span class="detail-cell-value">{{ isset($complaint['repair']['repair_date']) ? date('d M Y H:i', strtotime($complaint['repair']['repair_date'])) : 'N/A' }}</span>
+                                <span class="detail-cell-title">Tanggal Perbaikan</span>
+                                <span class="detail-cell-value">{{ isset($complaint['repair']['repair_date']) ? \Carbon\Carbon::parse($complaint['repair']['repair_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                             </div>
                             <div class="detail-cell">
-                                <span class="detail-cell-title">Completion Date</span>
-                                <span class="detail-cell-value">{{ isset($complaint['repair']['completion_date']) ? date('d M Y H:i', strtotime($complaint['repair']['completion_date'])) : 'N/A' }}</span>
+                                <span class="detail-cell-title">Tanggal Selesai</span>
+                                <span class="detail-cell-value">{{ isset($complaint['repair']['completion_date']) ? \Carbon\Carbon::parse($complaint['repair']['completion_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                             </div>
                         </div>
                         <div class="detail-row">
                             <div class="detail-cell">
-                                <span class="detail-cell-title">Approval Date</span>
-                                <span class="detail-cell-value">{{ isset($complaint['repair']['approval_date']) ? date('d M Y H:i', strtotime($complaint['repair']['approval_date'])) : 'N/A' }}</span>
+                                <span class="detail-cell-title">Tanggal Disetujui</span>
+                                <span class="detail-cell-value">{{ isset($complaint['repair']['approval_date']) ? \Carbon\Carbon::parse($complaint['repair']['approval_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                             </div>
                             <div class="detail-cell">
-                                <span class="detail-cell-title">Approved By</span>
+                                <span class="detail-cell-title">Disetujui Oleh</span>
                                 <span class="detail-cell-value">ID: {{ $complaint['repair']['approver_number'] ?? 'N/A' }}</span>
                             </div>
                         </div>
@@ -300,13 +311,13 @@
             </div>
         @else
             <div style="text-align: center; padding: 30px; background-color: #f9f9f9; border-radius: 4px;">
-                <p style="color: #666; font-size: 14px;">No repair information available yet.</p>
+                <p style="color: #666; font-size: 14px;">Belum ada informasi perbaikan.</p>
             </div>
         @endif
     </div>
 
     <div class="footer">
-        <p>Asset Monitoring System - Complaint & Repair Detail Report</p>
+        <p>Sistem Monitoring Aset - Laporan Detail Keluhan & Perbaikan</p>
     </div>
 </body>
 </html>

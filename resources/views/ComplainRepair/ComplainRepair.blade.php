@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Complaint & Repair')
+@section('title', 'Keluhan & Perbaikan')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -10,7 +10,7 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">COMPLAINT & REPAIR</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">KELUHAN & PERBAIKAN</h1>
 
                     <div class="flex gap-3">
                         <!-- Create Complaint Button -->
@@ -18,7 +18,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
-                            <span class="text-base">Create Complaint</span>
+                            <span class="text-base">Buat Keluhan</span>
                         </button>
 
                         <!-- Button Export PDF -->
@@ -26,7 +26,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
-                            <span class="text-base">Export PDF</span>
+                            <span class="text-base">Ekspor PDF</span>
                         </button>
                     </div>
                 </div>
@@ -34,7 +34,7 @@
                 <!-- Search and Filter -->
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
-                        <input type="text" id="searchInput" placeholder="Search by asset name or description..." value="{{ $search ?? '' }}"
+                        <input type="text" id="searchInput" placeholder="Cari berdasarkan nama aset atau deskripsi..." value="{{ $search ?? '' }}"
                             class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         <div class="absolute right-3 top-1/2 -translate-y-1/2">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,16 +46,16 @@
                     <div class="flex gap-4">
                         <select id="sortOrder"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="newest" {{ ($sort ?? 'newest') == 'newest' ? 'selected' : '' }}>Newest First</option>
-                            <option value="oldest" {{ ($sort ?? 'newest') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                            <option value="newest" {{ ($sort ?? 'newest') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                            <option value="oldest" {{ ($sort ?? 'newest') == 'oldest' ? 'selected' : '' }}>Terlama</option>
                         </select>
                         <select id="statusFilter"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" {{ ($status ?? '') == '' ? 'selected' : '' }}>All Status</option>
-                            <option value="new" {{ ($status ?? '') == 'new' ? 'selected' : '' }}>New</option>
-                            <option value="approved" {{ ($status ?? '') == 'approved' ? 'selected' : '' }}>Approved</option>
-                            <option value="in_progress" {{ ($status ?? '') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="completed" {{ ($status ?? '') == 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="" {{ ($status ?? '') == '' ? 'selected' : '' }}>Semua Status</option>
+                            <option value="new" {{ ($status ?? '') == 'new' ? 'selected' : '' }}>Baru</option>
+                            <option value="in progress" {{ ($status ?? '') == 'in progress' ? 'selected' : '' }}>Sedang Diproses</option>
+                            <option value="finished" {{ ($status ?? '') == 'finished' ? 'selected' : '' }}>Selesai</option>
+                            <option value="approved" {{ ($status ?? '') == 'approved' ? 'selected' : '' }}>Disetujui</option>
                         </select>
                     </div>
                 </div>
@@ -72,13 +72,13 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Description</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Aset</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Status</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Complaint Date</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Finished Date</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Reporter</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Actions</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Keluhan</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Selesai</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Pelapor</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tindakan</th>
                             </tr>
                         </thead>
                         <tbody id="complaintsTableBody">
@@ -97,27 +97,34 @@
                                             $statusClass = '';
                                             $status = $complaint['status'] ?? '';
 
-                                            if ($status == 'approved' || $status == 'completed') {
-                                                $statusClass = 'bg-green-100 text-green-800';
-                                            } elseif ($status == 'pending' || $status == 'new') {
+                                            if ($status == 'new') {
                                                 $statusClass = 'bg-yellow-100 text-yellow-800';
-                                            } elseif ($status == 'rejected') {
-                                                $statusClass = 'bg-red-100 text-red-800';
-                                            } elseif ($status == 'in_progress') {
+                                            } elseif ($status == 'in progress') {
                                                 $statusClass = 'bg-blue-100 text-blue-800';
+                                            } elseif ($status == 'finished') {
+                                                $statusClass = 'bg-emerald-100 text-emerald-800';
+                                            } elseif ($status == 'approved') {
+                                                $statusClass = 'bg-green-100 text-green-800';
                                             } else {
                                                 $statusClass = 'bg-gray-100 text-gray-800';
                                             }
+
+                                            // Translate status text to Indonesian
+                                            $statusText = 'Tidak Diketahui';
+                                            if ($status == 'new') $statusText = 'Baru';
+                                            elseif ($status == 'in progress') $statusText = 'Sedang Diproses';
+                                            elseif ($status == 'finished') $statusText = 'Selesai';
+                                            elseif ($status == 'approved') $statusText = 'Disetujui';
                                         @endphp
-                                        <span class="px-2 py-1 rounded-full text-xs {{ $statusClass }}">
-                                            {{ ucfirst(str_replace('_', ' ', $status ?: 'Unknown')) }}
+                                        <span class="px-3 py-1.5 rounded-full text-xs font-medium {{ $statusClass }} inline-block min-w-[90px] text-center whitespace-nowrap">
+                                            {{ $statusText }}
                                         </span>
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        {{ isset($complaint['complaint_date']) ? date('d M Y', strtotime($complaint['complaint_date'])) : '-' }}
+                                        {{ isset($complaint['complaint_date']) ? \Carbon\Carbon::parse($complaint['complaint_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        {{ isset($complaint['finished_date']) && $complaint['finished_date'] ? date('d M Y', strtotime($complaint['finished_date'])) : '-' }}
+                                        {{ isset($complaint['finished_date']) && $complaint['finished_date'] ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                         ID: {{ $complaint['reporter_number'] ?? '-' }}
@@ -126,28 +133,28 @@
                                         <div class="flex space-x-2">
                                             <button
                                                 onclick="viewComplaintDetails({{ $complaint['id'] }})"
-                                                class="text-[#3D3D3D] hover:text-[#213268]"
-                                                title="View Details">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
+                                                title="Lihat Detail">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                             </button>
                                             <button
-                                                class="text-[#3D3D3D] hover:text-[#213268] repair-complaint-btn"
+                                                class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors repair-complaint-btn"
                                                 data-id="{{ $complaint['id'] }}"
                                                 data-asset="{{ $complaint['asset_name'] ?? 'Unknown' }}"
-                                                title="Perform Repair">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                title="Lakukan Perbaikan">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                                                 </svg>
                                             </button>
                                             <button
-                                                class="text-[#3D3D3D] hover:text-red-500 delete-complaint-btn"
+                                                class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-complaint-btn"
                                                 data-id="{{ $complaint['id'] }}"
                                                 data-name="{{ $complaint['asset_name'] ?? 'Unknown' }}"
-                                                title="Delete Complaint">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                title="Hapus Keluhan">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
@@ -156,7 +163,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">No complaints found</td>
+                                    <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada keluhan ditemukan</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -174,7 +181,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 19l-7-7 7-7" />
                             </svg>
-                            Prev
+                            Sebelumnya
                         </a>
                         <div class="flex gap-2">
                             @php
@@ -222,7 +229,7 @@
                         </div>
                         <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
                             class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
-                            Next
+                            Selanjutnya
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -233,16 +240,16 @@
 
                     <div class="flex items-center gap-2 mt-4 md:mt-0">
                         <span class="text-sm text-gray-600">
-                            Showing {{ ($pagination['current_page'] - 1) * $pagination['limit'] + 1 }}
-                            to {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
-                            of {{ $pagination['total_items'] }} entries
+                            Menampilkan {{ ($pagination['current_page'] - 1) * $pagination['limit'] + 1 }}
+                            sampai {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
+                            dari {{ $pagination['total_items'] }} data
                         </span>
                         <select id="perPageSelect"
                             class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                             onchange="changePerPage(this.value)">
-                            <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per page</option>
-                            <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per page</option>
-                            <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per page</option>
+                            <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per halaman</option>
                         </select>
                     </div>
                 </div>
@@ -262,7 +269,7 @@
                 id="createComplaintModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">CREATE COMPLAINT</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">BUAT KELUHAN</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -274,7 +281,7 @@
                 <div id="errorMessages" class="px-6 pt-4">
                     @if ($errors->any())
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                        <p class="font-bold">Validation errors:</p>
+                        <p class="font-bold">Error validasi:</p>
                         <ul class="list-disc pl-5">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -291,14 +298,14 @@
                     <div class="p-6">
                         <div class="space-y-4">
                             <!-- Complaint Information Section -->
-                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Complaint Information</h3>
+                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Keluhan</h3>
 
                             <!-- Asset Selection -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Asset*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Aset*</label>
                                 <div class="relative">
                                     <input type="text" id="assetSearch"
-                                        placeholder="Search for an asset..."
+                                        placeholder="Cari aset..."
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
                                     />
                                     <input type="hidden" id="assetId" name="asset_id" required />
@@ -317,10 +324,10 @@
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
-                                            <p class="mt-1">Loading...</p>
+                                            <p class="mt-1">Memuat...</p>
                                         </div>
                                         <div id="assetNoResults" class="p-2 text-center text-gray-500 hidden">
-                                            No assets found
+                                            Tidak ada aset ditemukan
                                         </div>
                                     </div>
                                 </div>
@@ -341,20 +348,20 @@
 
                             <!-- Description -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Description*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Deskripsi*</label>
                                 <textarea id="description" name="description" rows="4" required
                                     class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
-                                    placeholder="Describe the issue..."></textarea>
+                                    placeholder="Jelaskan masalahnya..."></textarea>
                             </div>
 
                             <!-- Image Upload -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Image*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Gambar*</label>
                                 <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                     <!-- Image preview -->
                                     <div id="imagePreview" class="mt-2 mb-4 w-full hidden">
                                         <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
-                                            <img id="previewImg" src="#" alt="Preview" class="w-full h-auto max-h-64 object-contain mx-auto rounded">
+                                            <img id="previewImg" src="#" alt="Pratinjau" class="w-full h-auto max-h-64 object-contain mx-auto rounded">
                                             <button type="button" id="removeImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -367,9 +374,9 @@
                                         <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                         </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-[#213268] font-semibold">browse files</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: jpg, jpeg, png (Max file size: 5MB)</p>
-                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                        <p class="mt-1 text-sm text-gray-600">Tarik gambar atau <span class="text-[#213268] font-semibold">pilih file</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png (Ukuran maks: 5MB)</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk memilih file</p>
                                     </div>
                                     <input id="imageFile" name="image_file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" required />
                                 </div>
@@ -377,7 +384,7 @@
 
                             <!-- Submit Button -->
                             <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Create Complaint
+                                Buat Keluhan
                             </button>
                         </div>
                     </div>
@@ -396,7 +403,7 @@
                 id="deleteComplaintModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Delete Complaint</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Hapus Keluhan</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -418,16 +425,16 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="text-base text-gray-600 text-center">Are you sure you want to delete this complaint? This action cannot be undone.</p>
+                                <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus keluhan ini? Tindakan ini tidak dapat dibatalkan.</p>
                             </div>
                             <div class="flex gap-3">
                                 <button type="button"
                                     class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                    Cancel
+                                    Batal
                                 </button>
                                 <button type="submit"
                                     class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                    Delete
+                                    Hapus
                                 </button>
                             </div>
                         </div>
@@ -447,7 +454,7 @@
                 id="repairComplaintModalContent">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">PERFORM REPAIR</h2>
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">LAKUKAN PERBAIKAN</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -465,59 +472,59 @@
                     <div class="p-6">
                         <div class="space-y-4">
                             <!-- Repair Information Section -->
-                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Repair Information</h3>
+                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Perbaikan</h3>
 
                             <!-- Asset Name Display -->
                             <div class="mb-4 p-3 bg-gray-100 rounded-lg">
-                                <p class="text-sm text-gray-500">Repairing Asset:</p>
+                                <p class="text-sm text-gray-500">Memperbaiki Aset:</p>
                                 <p class="text-base font-medium" id="repairAssetName"></p>
                             </div>
 
                             <!-- Repair Description -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Repair Description*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Deskripsi Perbaikan*</label>
                                 <textarea id="repairDescription" name="repair_description" rows="3" required
                                     class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
-                                    placeholder="Describe the repair work..."></textarea>
+                                    placeholder="Jelaskan pekerjaan perbaikan..."></textarea>
                             </div>
 
                              <!-- Final Result -->
                              <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Final Result*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Hasil Akhir*</label>
                                 <select id="finalResult" name="final_result" required
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20">
-                                    <option value="" disabled selected>Select a final result</option>
-                                    <option value="Good">Good</option>
-                                    <option value="Slightly Damage">Slightly Damage</option>
-                                    <option value="Heavy Damage">Heavy Damage</option>
-                                    <option value="Waiting for Part">Waiting for Part</option>
+                                    <option value="" disabled selected>Pilih hasil akhir</option>
+                                    <option value="Good">Baik</option>
+                                    <option value="Slightly Damage">Sedikit Rusak</option>
+                                    <option value="Heavy Damage">Rusak Parah</option>
+                                    <option value="Waiting for Part">Menunggu Spare Part</option>
                                 </select>
                             </div>
 
                             <!-- Repair Cost -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Repair Cost*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Biaya Perbaikan*</label>
                                 <input type="number" id="repairCost" name="repair_cost" required
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
-                                    placeholder="Cost in IDR">
+                                    placeholder="Biaya dalam Rupiah">
                             </div>
 
                             <!-- Parts Replaced -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Parts Replaced*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Komponen yang Diganti*</label>
                                 <input type="text" id="partsReplaced" name="parts_replaced" required
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
-                                    placeholder="List of replaced parts">
+                                    placeholder="Daftar komponen yang diganti">
                             </div>
 
                             <!-- Image Upload -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Repair Image*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Gambar Perbaikan*</label>
                                 <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                     <!-- Image preview -->
                                     <div id="repairImagePreview" class="mt-2 mb-4 w-full hidden">
                                         <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
-                                            <img id="repairPreviewImg" src="#" alt="Preview" class="w-full h-auto max-h-64 object-contain mx-auto rounded">
+                                            <img id="repairPreviewImg" src="#" alt="Pratinjau" class="w-full h-auto max-h-64 object-contain mx-auto rounded">
                                             <button type="button" id="removeRepairImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -530,9 +537,9 @@
                                         <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                         </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Drag your image(s) or <span class="text-[#213268] font-semibold">browse files</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">Accepted formats: jpg, jpeg, png (Max file size: 5MB)</p>
-                                        <p class="mt-1 text-xs text-[#213268] font-medium">Click anywhere in this area to select a file</p>
+                                        <p class="mt-1 text-sm text-gray-600">Tarik gambar atau <span class="text-[#213268] font-semibold">pilih file</span></p>
+                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png (Ukuran maks: 5MB)</p>
+                                        <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk memilih file</p>
                                     </div>
                                     <input id="repairImageFile" name="file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" required />
                                 </div>
@@ -540,7 +547,7 @@
 
                             <!-- Submit Button -->
                             <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Submit Repair
+                                Kirim Perbaikan
                             </button>
                         </div>
                     </div>
@@ -559,7 +566,7 @@
             </svg>
         </div>
         <div>
-            <p class="font-bold">Success!</p>
+            <p class="font-bold">Berhasil!</p>
             <p>{{ session('success') }}</p>
         </div>
         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
@@ -600,7 +607,7 @@
                 </svg>
             </div>
             <div>
-                <p class="font-bold">${type === 'success' ? 'Success!' : 'Error!'}</p>
+                <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Error!'}</p>
                 <p>${message}</p>
             </div>
             <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
@@ -895,8 +902,8 @@
                 const div = document.createElement('div');
                 div.className = 'p-2 hover:bg-gray-100 cursor-pointer rounded transition-colors';
                 div.innerHTML = `
-                    <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Unknown Asset'}</div>
-                    <div class="text-xs text-gray-500">Code: ${asset.asset_code || 'N/A'}</div>
+                    <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Aset Tidak Diketahui'}</div>
+                    <div class="text-xs text-gray-500">Kode: ${asset.asset_code || 'N/A'}</div>
                 `;
 
                 div.addEventListener('click', function() {
@@ -936,18 +943,18 @@
             // Basic validation for required fields
             if (!formData.get('asset_id')) {
                 isValid = false;
-                errorMessage = 'Asset is required';
+                errorMessage = 'Aset wajib diisi';
             }
 
             if (!formData.get('description').trim()) {
                 isValid = false;
-                errorMessage = 'Description is required';
+                errorMessage = 'Deskripsi wajib diisi';
             }
 
             // Check for image file
             if (!formData.get('image_file') || formData.get('image_file').size === 0) {
                 isValid = false;
-                errorMessage = 'Image is required';
+                errorMessage = 'Gambar wajib diunggah';
             }
 
             // If validation fails, prevent form submission and show error
@@ -955,7 +962,7 @@
                 e.preventDefault();
                 errorMsgDiv.innerHTML = `
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                        <p class="font-bold">Validation Error</p>
+                        <p class="font-bold">Error Validasi</p>
                         <p>${errorMessage}</p>
                     </div>
                 `;
@@ -979,33 +986,33 @@
             // Basic validation for required fields
             if (!formData.get('complaint_id')) {
                 isValid = false;
-                errorMessage = 'Complaint ID is required';
+                errorMessage = 'ID Keluhan wajib diisi';
             }
 
             if (!formData.get('repair_description').trim()) {
                 isValid = false;
-                errorMessage = 'Repair description is required';
+                errorMessage = 'Deskripsi perbaikan wajib diisi';
             }
 
             if (!formData.get('final_result').trim()) {
                 isValid = false;
-                errorMessage = 'Final result is required';
+                errorMessage = 'Hasil akhir wajib diisi';
             }
 
             if (!formData.get('repair_cost')) {
                 isValid = false;
-                errorMessage = 'Repair cost is required';
+                errorMessage = 'Biaya perbaikan wajib diisi';
             }
 
             if (!formData.get('parts_replaced').trim()) {
                 isValid = false;
-                errorMessage = 'Parts replaced is required';
+                errorMessage = 'Komponen yang diganti wajib diisi';
             }
 
             // Check for image file
             if (!formData.get('file') || formData.get('file').size === 0) {
                 isValid = false;
-                errorMessage = 'Repair image is required';
+                errorMessage = 'Gambar perbaikan wajib diunggah';
             }
 
             // If validation fails, prevent form submission and show error
@@ -1013,7 +1020,7 @@
                 e.preventDefault();
                 repairErrorMsgDiv.innerHTML = `
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                        <p class="font-bold">Validation Error</p>
+                        <p class="font-bold">Error Validasi</p>
                         <p>${errorMessage}</p>
                     </div>
                 `;
@@ -1115,7 +1122,7 @@
     // Function to view complaint details - defined globally
     function viewComplaintDetails(id) {
         // Redirect to the complaint detail page
-        window.location.href = "{{ url('complaint/detail') }}/" + id;
+        window.location.href = "{{ url('complaint-repair/detail') }}/" + id;
     }
 </script>
 @endsection

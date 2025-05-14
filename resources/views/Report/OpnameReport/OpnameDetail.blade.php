@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Opname Detail')
+@section('title', 'Detail Opname')
 
 @section('styles')
 <style>
@@ -37,9 +37,9 @@
                         </a>
                         <div>
                             <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
-                                Opname Detail
+                                Detail Opname
                             </h1>
-                            <p class="text-sm text-gray-500 mt-1">View detailed information about this asset opname</p>
+                            <p class="text-sm text-gray-500 mt-1">Lihat informasi detail tentang opname ini</p>
                         </div>
                     </div>
 
@@ -50,13 +50,7 @@
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
-                            Export PDF
-                        </a>
-                        <a class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            Export Excel
+                            Ekspor PDF
                         </a>
                     </div>
                 </div>
@@ -65,15 +59,15 @@
                 <div class="bg-[#F8F9FA] p-5 rounded-lg border border-[#E9ECEF]">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">Opname Code</p>
+                            <p class="text-sm text-gray-500 mb-1">Kode Opname</p>
                             <p class="text-lg font-semibold text-[#213268]">{{ $opnameCode ?? 'N/A' }}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">Room</p>
+                            <p class="text-sm text-gray-500 mb-1">Ruangan</p>
                             <p class="text-lg font-semibold text-[#213268]">{{ $roomInfo['room_name'] ?? 'N/A' }}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">Date Created</p>
+                            <p class="text-sm text-gray-500 mb-1">Tanggal Dibuat</p>
                             <p class="text-lg font-semibold text-[#213268]">
                                 {{ isset($roomInfo['created_at']) ? date('d M Y, H:i', strtotime($roomInfo['created_at'])) : 'N/A' }}
                             </p>
@@ -83,14 +77,14 @@
 
                 <!-- Summary Cards Section Title -->
                 <div>
-                    <h2 class="text-xl md:text-2xl font-bold text-[#213268] mb-4">Asset Summary</h2>
+                    <h2 class="text-xl md:text-2xl font-bold text-[#213268] mb-4">Ringkasan Aset</h2>
                 </div>
 
                 <!-- Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
                     <div class="bg-gradient-to-br from-[#E9ECEF] to-[#F8F9FA] p-5 rounded-lg shadow-sm border border-[#E9ECEF]">
                         <div class="flex items-center justify-between mb-2">
-                            <p class="text-base font-medium text-gray-700">Total Assets</p>
+                            <p class="text-base font-medium text-gray-700">Total Aset</p>
                             <div class="bg-white p-1.5 rounded-full">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#213268]" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1v1h-1v-1H6v1H5v-1a1 1 0 01-1-1V4zm3 1h6v4H7V5zm6 6H7v2h6v-2z" clip-rule="evenodd" />
@@ -101,7 +95,7 @@
                     </div>
                     <div class="bg-gradient-to-br from-[#E9ECEF] to-[#F8F9FA] p-5 rounded-lg shadow-sm border border-[#E9ECEF]">
                         <div class="flex items-center justify-between mb-2">
-                            <p class="text-base font-medium text-gray-700">Scanned Assets</p>
+                            <p class="text-base font-medium text-gray-700">Terscan</p>
                             <div class="bg-white p-1.5 rounded-full">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#213268]" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clip-rule="evenodd" />
@@ -112,7 +106,7 @@
                     </div>
                     <div class="bg-gradient-to-br from-[#DCFCE7] to-[#F0FDF4] p-5 rounded-lg shadow-sm border border-[#DCFCE7]">
                         <div class="flex items-center justify-between mb-2">
-                            <p class="text-base font-medium text-green-700">Found Assets</p>
+                            <p class="text-base font-medium text-green-700">Ditemukan</p>
                             <div class="bg-white p-1.5 rounded-full">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -123,7 +117,7 @@
                     </div>
                     <div class="bg-gradient-to-br from-[#FEE2E2] to-[#FEF2F2] p-5 rounded-lg shadow-sm border border-[#FEE2E2]">
                         <div class="flex items-center justify-between mb-2">
-                            <p class="text-base font-medium text-red-700">Missing Assets</p>
+                            <p class="text-base font-medium text-red-700">Hilang</p>
                             <div class="bg-white p-1.5 rounded-full">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
@@ -134,7 +128,7 @@
                     </div>
                     <div class="bg-gradient-to-br from-[#FEF3C7] to-[#FFFBEB] p-5 rounded-lg shadow-sm border border-[#FEF3C7]">
                         <div class="flex items-center justify-between mb-2">
-                            <p class="text-base font-medium text-amber-700">Misplaced Assets</p>
+                            <p class="text-base font-medium text-amber-700">Salah Tempat</p>
                             <div class="bg-white p-1.5 rounded-full">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
@@ -147,7 +141,7 @@
 
                 <!-- Asset Details Section Title -->
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl md:text-2xl font-bold text-[#213268]">Asset Details</h2>
+                    <h2 class="text-xl md:text-2xl font-bold text-[#213268]">Detail Aset</h2>
 
                     <!-- Search Input -->
                     <div class="relative max-w-xs">
@@ -156,31 +150,31 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <input type="text" id="table-search" class="bg-white border border-[#D8DAE5] text-gray-900 text-sm rounded-md focus:ring-[#213268] focus:border-[#213268] block w-full pl-10 p-2.5" placeholder="Search assets...">
+                        <input type="text" id="table-search" class="bg-white border border-[#D8DAE5] text-gray-900 text-sm rounded-md focus:ring-[#213268] focus:border-[#213268] block w-full pl-10 p-2.5" placeholder="Cari aset...">
                     </div>
                 </div>
 
                 <!-- Status Filter Buttons -->
                 <div class="flex flex-wrap gap-2">
                     <button data-status="all" class="status-filter-btn active-filter px-4 py-2 rounded-md bg-[#213268] text-white text-sm font-medium hover:bg-[#1a2857] transition-all duration-150">
-                        All Status
+                        Semua Status
                     </button>
                     <button data-status="found" class="status-filter-btn px-4 py-2 rounded-md bg-white border border-[#D8DAE5] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-150">
                         <span class="inline-flex items-center">
                             <span class="h-2 w-2 rounded-full bg-green-600 mr-1.5"></span>
-                            Found
+                            Ditemukan
                         </span>
                     </button>
                     <button data-status="missing" class="status-filter-btn px-4 py-2 rounded-md bg-white border border-[#D8DAE5] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-150">
                         <span class="inline-flex items-center">
                             <span class="h-2 w-2 rounded-full bg-red-600 mr-1.5"></span>
-                            Missing
+                            Hilang
                         </span>
                     </button>
                     <button data-status="misplaced" class="status-filter-btn px-4 py-2 rounded-md bg-white border border-[#D8DAE5] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-150">
                         <span class="inline-flex items-center">
                             <span class="h-2 w-2 rounded-full bg-amber-500 mr-1.5"></span>
-                            Misplaced
+                            Salah Tempat
                         </span>
                     </button>
                 </div>
@@ -190,13 +184,13 @@
                     <table class="w-full" id="assetsTable">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Asset Code</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Description</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Scan Date</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Kode Aset</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Deskripsi</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Tanggal Scan</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Status</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Expected Location</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Actual Location</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Scanned By</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Lokasi Seharusnya</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Lokasi Aktual</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Discan Oleh</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -221,17 +215,17 @@
                                             @if($asset['scan_status'] == 'found')
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                     <span class="h-1.5 w-1.5 rounded-full bg-green-600 mr-1.5"></span>
-                                                    Found
+                                                    Ditemukan
                                                 </span>
                                             @elseif($asset['scan_status'] == 'missing')
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                     <span class="h-1.5 w-1.5 rounded-full bg-red-600 mr-1.5"></span>
-                                                    Missing
+                                                    Hilang
                                                 </span>
                                             @elseif($asset['scan_status'] == 'misplaced')
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                                                     <span class="h-1.5 w-1.5 rounded-full bg-amber-500 mr-1.5"></span>
-                                                    Misplaced
+                                                    Salah Tempat
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -288,8 +282,8 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            <p>No assets match your search criteria</p>
-                                            <button id="clear-search" class="mt-3 text-sm text-[#213268] font-medium hover:underline">Clear Search</button>
+                                            <p>Tidak ada aset yang sesuai dengan kriteria pencarian</p>
+                                            <button id="clear-search" class="mt-3 text-sm text-[#213268] font-medium hover:underline">Hapus Pencarian</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -299,8 +293,8 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            <p>No asset details found for this opname</p>
-                                            <button class="mt-3 text-sm text-[#213268] font-medium hover:underline" onclick="window.location.reload()">Refresh Data</button>
+                                            <p>Tidak ditemukan detail aset untuk opname ini</p>
+                                            <button class="mt-3 text-sm text-[#213268] font-medium hover:underline" onclick="window.location.reload()">Segarkan Data</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -320,7 +314,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 19l-7-7 7-7" />
                             </svg>
-                            Prev
+                            Sebelumnya
                         </a>
                         <div class="flex gap-2">
                             @php
@@ -368,7 +362,7 @@
                         </div>
                         <a href="{{ request()->fullUrlWithQuery(['page' => min($totalPages, ($currentPage + 1))]) }}"
                             class="flex items-center gap-2 px-4 py-2 bg-white border border-[#D8DAE5] rounded-md text-[#213268] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-200 {{ !($pagination['has_next'] ?? false) ? 'opacity-50 cursor-not-allowed' : '' }}">
-                            Next
+                            Selanjutnya
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -379,16 +373,16 @@
 
                     <div class="flex items-center gap-3 mt-4 md:mt-0">
                         <span class="text-sm font-medium text-gray-600">
-                            Showing {{ ($currentPage - 1) * ($pagination['limit'] ?? 10) + 1 }} to
-                            {{ min($currentPage * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0) }} of
-                            {{ $pagination['total_items'] ?? 0 }} entries
+                            Menampilkan {{ ($currentPage - 1) * ($pagination['limit'] ?? 10) + 1 }} sampai
+                            {{ min($currentPage * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0) }} dari
+                            {{ $pagination['total_items'] ?? 0 }} data
                         </span>
                         <select id="perPageSelect"
                             class="px-3 py-2 bg-white border border-[#D8DAE5] rounded-md text-[#213268] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#213268]"
                             onchange="changePerPage(this.value)">
-                            <option value="10" {{ ($pagination['limit'] ?? 10) == 10 ? 'selected' : '' }}>10 per page</option>
-                            <option value="25" {{ ($pagination['limit'] ?? 10) == 25 ? 'selected' : '' }}>25 per page</option>
-                            <option value="50" {{ ($pagination['limit'] ?? 10) == 50 ? 'selected' : '' }}>50 per page</option>
+                            <option value="10" {{ ($pagination['limit'] ?? 10) == 10 ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ ($pagination['limit'] ?? 10) == 25 ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ ($pagination['limit'] ?? 10) == 50 ? 'selected' : '' }}>50 per halaman</option>
                         </select>
                     </div>
                 </div>

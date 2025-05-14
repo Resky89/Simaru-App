@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="utf-8">
-    <title>Complaint & Repair Report</title>
+    <title>Laporan Keluhan & Perbaikan</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -97,29 +97,29 @@
 </head>
 <body>
     <div class="header">
-        <h1>COMPLAINT & REPAIR REPORT</h1>
-        <p>Generated on: {{ $date_generated }}</p>
+        <h1>LAPORAN KELUHAN & PERBAIKAN</h1>
+        <p>Dibuat pada: {{ \Carbon\Carbon::parse($date_generated)->locale('id')->isoFormat('DD MMMM YYYY') }}</p>
     </div>
 
     <div class="filters">
         @if(!empty($search))
-        <p><strong>Search:</strong> {{ $search }}</p>
+        <p><strong>Pencarian:</strong> {{ $search }}</p>
         @endif
-        <p><strong>Sort Order:</strong> {{ ucfirst($sort) }}</p>
+        <p><strong>Urutan Sortir:</strong> {{ ucfirst($sort) }}</p>
         @if(!empty($status))
-        <p><strong>Status Filter:</strong> {{ ucfirst(str_replace('_', ' ', $status)) }}</p>
+        <p><strong>Filter Status:</strong> {{ ucfirst(str_replace('_', ' ', $status)) }}</p>
         @endif
     </div>
 
     <table class="striped">
         <thead>
             <tr>
-                <th>Asset</th>
-                <th>Description</th>
+                <th>Aset</th>
+                <th>Deskripsi</th>
                 <th>Status</th>
-                <th>Complaint Date</th>
-                <th>Finished Date</th>
-                <th>Reporter</th>
+                <th>Tanggal Keluhan</th>
+                <th>Tanggal Selesai</th>
+                <th>Pelapor</th>
             </tr>
         </thead>
         <tbody>
@@ -134,26 +134,31 @@
                         @php
                             $statusClass = '';
                             $status = $complaint['status'] ?? '';
+                            $statusText = 'Tidak Diketahui';
 
-                            if ($status == 'approved' || $status == 'completed') {
-                                $statusClass = 'status-approved';
-                            } elseif ($status == 'pending') {
+                            if ($status == 'new') {
                                 $statusClass = 'status-pending';
-                            } elseif ($status == 'rejected') {
-                                $statusClass = 'status-rejected';
-                            } elseif ($status == 'in_progress') {
+                                $statusText = 'Baru';
+                            } elseif ($status == 'in progress') {
                                 $statusClass = 'status-in-progress';
+                                $statusText = 'Sedang Diproses';
+                            } elseif ($status == 'finished') {
+                                $statusClass = 'status-completed';
+                                $statusText = 'Selesai';
+                            } elseif ($status == 'approved') {
+                                $statusClass = 'status-approved';
+                                $statusText = 'Disetujui';
                             }
                         @endphp
                         <span class="status-badge {{ $statusClass }}">
-                            {{ ucfirst(str_replace('_', ' ', $status ?: 'Unknown')) }}
+                            {{ $statusText }}
                         </span>
                     </td>
                     <td>
-                        {{ isset($complaint['complaint_date']) ? date('d M Y', strtotime($complaint['complaint_date'])) : '-' }}
+                        {{ isset($complaint['complaint_date']) ? \Carbon\Carbon::parse($complaint['complaint_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
                     </td>
                     <td>
-                        {{ isset($complaint['finished_date']) && $complaint['finished_date'] ? date('d M Y', strtotime($complaint['finished_date'])) : '-' }}
+                        {{ isset($complaint['finished_date']) && $complaint['finished_date'] ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
                     </td>
                     <td>
                         ID: {{ $complaint['reporter_number'] ?? '-' }}
@@ -161,14 +166,14 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" style="text-align: center;">No complaints found</td>
+                    <td colspan="6" style="text-align: center;">Tidak ada keluhan ditemukan</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
     <div class="footer">
-        <p>Asset Monitoring System - Complaint & Repair Report</p>
+        <p>Sistem Monitoring Aset - Laporan Keluhan & Perbaikan</p>
     </div>
 </body>
 </html>

@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Complaint & Repair Detail')
+@section('title', 'Detail Keluhan & Perbaikan')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -16,7 +16,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
-                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">COMPLAINT DETAIL</h1>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DETAIL KELUHAN</h1>
                     </div>
 
                     <!-- Export Button -->
@@ -25,7 +25,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        Export PDF
+                        Expor PDF
                     </a>
                 </div>
 
@@ -35,11 +35,11 @@
                     <div class="lg:col-span-1 order-2 lg:order-1">
                         @if(!empty($complaint['complaint_picture_path']))
                         <div class="bg-gray-50 p-4 rounded-lg h-full flex flex-col">
-                            <h2 class="text-lg font-semibold text-[#213268] mb-3 pb-2 border-b">Complaint Image</h2>
+                            <h2 class="text-lg font-semibold text-[#213268] mb-3 pb-2 border-b">Gambar Keluhan</h2>
                             <div class="flex-grow flex items-center justify-center bg-white p-2 border rounded-lg overflow-hidden">
                                 <img
                                     src="http://localhost:5000/public/images/{{ basename($complaint['complaint_picture_path']) }}"
-                                    alt="Complaint Image"
+                                    alt="Gambar Keluhan"
                                     class="w-full object-contain rounded-lg"
                                     style="max-height: 350px;"
                                     onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('p-4');"
@@ -48,13 +48,13 @@
                         </div>
                         @else
                         <div class="bg-gray-50 p-4 rounded-lg h-full flex flex-col">
-                            <h2 class="text-lg font-semibold text-[#213268] mb-3 pb-2 border-b">Complaint Image</h2>
+                            <h2 class="text-lg font-semibold text-[#213268] mb-3 pb-2 border-b">Gambar Keluhan</h2>
                             <div class="flex-grow flex items-center justify-center bg-white p-4 border rounded-lg">
                                 <div class="text-center text-gray-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    <p>No image available</p>
+                                    <p>Gambar Keluhan Tidak Tersedia</p>
                                 </div>
                             </div>
                         </div>
@@ -64,22 +64,22 @@
                     <!-- Complaint Information (Right Column on Desktop) -->
                     <div class="lg:col-span-2 order-1 lg:order-2">
                         <div class="bg-gray-50 p-4 rounded-lg h-full">
-                            <h2 class="text-lg font-semibold text-[#213268] mb-3 pb-2 border-b">Complaint Information</h2>
+                            <h2 class="text-lg font-semibold text-[#213268] mb-3 pb-2 border-b">Informasi Keluhan</h2>
 
                             <!-- Basic Information Section -->
                             <div class="mb-5">
-                                <h3 class="text-sm font-semibold text-gray-600 mb-2">Basic Details</h3>
+                                <h3 class="text-sm font-semibold text-gray-600 mb-2">Detail Keluhan</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-3 rounded-lg border border-gray-100">
                                     <div class="flex flex-col">
-                                        <span class="text-xs font-medium text-gray-500">Asset Name</span>
+                                        <span class="text-xs font-medium text-gray-500">Nama Aset</span>
                                         <span class="font-medium">{{ $complaint['asset_name'] ?? 'N/A' }}</span>
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="text-xs font-medium text-gray-500">Asset ID</span>
-                                        <span class="font-medium">{{ $complaint['asset_id'] ?? 'N/A' }}</span>
+                                        <span class="text-xs font-medium text-gray-500">Kode Aset</span>
+                                        <span class="font-medium">{{ $complaint['asset_code'] ?? 'N/A' }}</span>
                                     </div>
                                     <div class="flex flex-col md:col-span-2">
-                                        <span class="text-xs font-medium text-gray-500">Description</span>
+                                        <span class="text-xs font-medium text-gray-500">Deskripsi</span>
                                         <span>{{ $complaint['description'] ?? 'N/A' }}</span>
                                     </div>
                                     <div class="flex flex-col">
@@ -107,23 +107,23 @@
                                         </div>
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="text-xs font-medium text-gray-500">Reported By</span>
-                                        <span>ID: {{ $complaint['reporter_number'] ?? 'N/A' }}</span>
+                                        <span class="text-xs font-medium text-gray-500">Keluhan Oleh</span>
+                                        <span>{{ $complaint['reporter_number'] ?? 'N/A' }}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Timeline Section -->
                             <div>
-                                <h3 class="text-sm font-semibold text-gray-600 mb-2">Timeline</h3>
+                                <h3 class="text-sm font-semibold text-gray-600 mb-2">Waktu</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-3 rounded-lg border border-gray-100">
                                     <div class="flex flex-col">
-                                        <span class="text-xs font-medium text-gray-500">Complaint Date</span>
-                                        <span>{{ isset($complaint['complaint_date']) ? date('d M Y H:i', strtotime($complaint['complaint_date'])) : 'N/A' }}</span>
+                                        <span class="text-xs font-medium text-gray-500">Tanggal Keluhan</span>
+                                        <span>{{ isset($complaint['complaint_date']) ? \Carbon\Carbon::parse($complaint['complaint_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="text-xs font-medium text-gray-500">Finished Date</span>
-                                        <span>{{ isset($complaint['finished_date']) && $complaint['finished_date'] ? date('d M Y H:i', strtotime($complaint['finished_date'])) : 'N/A' }}</span>
+                                        <span class="text-xs font-medium text-gray-500">Tanggal Selesai</span>
+                                        <span>{{ isset($complaint['finished_date']) && $complaint['finished_date'] ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -133,7 +133,7 @@
 
                 <!-- Repair Section -->
                 <div class="mt-2">
-                    <h2 class="text-xl font-semibold text-[#213268] mb-4 pb-2 border-b">Repair Information</h2>
+                    <h2 class="text-xl font-semibold text-[#213268] mb-4 pb-2 border-b">Informasi Perbaikan</h2>
 
                     @if(!empty($complaint['repair']))
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -141,7 +141,7 @@
                         <div class="lg:col-span-1 order-2 lg:order-1">
                             @if(!empty($complaint['repair']['repair_picture_path']))
                             <div class="bg-gray-50 p-4 rounded-lg h-full flex flex-col">
-                                <h3 class="text-md font-semibold text-[#213268] mb-3 pb-2 border-b">Repair Image</h3>
+                                <h3 class="text-md font-semibold text-[#213268] mb-3 pb-2 border-b">Gambar Perbaikan</h3>
                                 <div class="flex-grow flex items-center justify-center bg-white p-2 border rounded-lg overflow-hidden">
                                     <img
                                         src="http://localhost:5000/public/images/{{ basename($complaint['repair']['repair_picture_path']) }}"
@@ -154,13 +154,13 @@
                             </div>
                             @else
                             <div class="bg-gray-50 p-4 rounded-lg h-full flex flex-col">
-                                <h3 class="text-md font-semibold text-[#213268] mb-3 pb-2 border-b">Repair Image</h3>
+                                <h3 class="text-md font-semibold text-[#213268] mb-3 pb-2 border-b">Gambar Perbaikan</h3>
                                 <div class="flex-grow flex items-center justify-center bg-white p-4 border rounded-lg">
                                     <div class="text-center text-gray-400">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
-                                        <p>No repair image available</p>
+                                        <p>Gambar Perbaikan Tidak Tersedia</p>
                                     </div>
                                 </div>
                             </div>
@@ -172,26 +172,26 @@
                             <div class="bg-gray-50 p-4 rounded-lg h-full">
                                 <!-- Repair Details Section -->
                                 <div class="mb-5">
-                                    <h3 class="text-sm font-semibold text-gray-600 mb-2">Repair Details</h3>
+                                    <h3 class="text-sm font-semibold text-gray-600 mb-2">Detail Perbaikan</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-3 rounded-lg border border-gray-100">
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-medium text-gray-500">Result</span>
+                                            <span class="text-xs font-medium text-gray-500">Hasil</span>
                                             <span class="font-medium">{{ $complaint['repair']['final_result'] ?? 'N/A' }}</span>
                                         </div>
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-medium text-gray-500">Cost</span>
+                                            <span class="text-xs font-medium text-gray-500">Biaya</span>
                                             <span class="font-medium">{{ isset($complaint['repair']['repair_cost']) ? 'Rp ' . number_format((float)$complaint['repair']['repair_cost'], 0, ',', '.') : 'N/A' }}</span>
                                         </div>
                                         <div class="flex flex-col md:col-span-2">
-                                            <span class="text-xs font-medium text-gray-500">Description</span>
+                                            <span class="text-xs font-medium text-gray-500">Deskripsi</span>
                                             <span>{{ $complaint['repair']['repair_description'] ?? 'N/A' }}</span>
                                         </div>
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-medium text-gray-500">Technician</span>
+                                            <span class="text-xs font-medium text-gray-500">Teknisi</span>
                                             <span>ID: {{ $complaint['repair']['technician_number'] ?? 'N/A' }}</span>
                                         </div>
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-medium text-gray-500">Parts Replaced</span>
+                                            <span class="text-xs font-medium text-gray-500">Bagian yang Diganti</span>
                                             <span>{{ $complaint['repair']['parts_replaced'] ?? 'N/A' }}</span>
                                         </div>
                                     </div>
@@ -199,22 +199,22 @@
 
                                 <!-- Repair Timeline -->
                                 <div>
-                                    <h3 class="text-sm font-semibold text-gray-600 mb-2">Timeline</h3>
+                                    <h3 class="text-sm font-semibold text-gray-600 mb-2">Waktu</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-3 rounded-lg border border-gray-100">
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-medium text-gray-500">Repair Date</span>
-                                            <span>{{ isset($complaint['repair']['repair_date']) ? date('d M Y H:i', strtotime($complaint['repair']['repair_date'])) : 'N/A' }}</span>
+                                            <span class="text-xs font-medium text-gray-500">Tanggal Perbaikan</span>
+                                            <span>{{ isset($complaint['repair']['repair_date']) ? \Carbon\Carbon::parse($complaint['repair']['repair_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                                         </div>
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-medium text-gray-500">Completion Date</span>
-                                            <span>{{ isset($complaint['repair']['completion_date']) ? date('d M Y H:i', strtotime($complaint['repair']['completion_date'])) : 'N/A' }}</span>
+                                            <span class="text-xs font-medium text-gray-500">Tanggal Selesai</span>
+                                            <span>{{ isset($complaint['repair']['completion_date']) ? \Carbon\Carbon::parse($complaint['repair']['completion_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                                         </div>
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-medium text-gray-500">Approval Date</span>
-                                            <span>{{ isset($complaint['repair']['approval_date']) ? date('d M Y H:i', strtotime($complaint['repair']['approval_date'])) : 'N/A' }}</span>
+                                            <span class="text-xs font-medium text-gray-500">Tanggal Disetujui</span>
+                                            <span>{{ isset($complaint['repair']['approval_date']) ? \Carbon\Carbon::parse($complaint['repair']['approval_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                                         </div>
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-medium text-gray-500">Approved By</span>
+                                            <span class="text-xs font-medium text-gray-500">Disetujui Oleh</span>
                                             <span>ID: {{ $complaint['repair']['approver_number'] ?? 'N/A' }}</span>
                                         </div>
                                     </div>
@@ -227,7 +227,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p class="text-gray-500 text-lg">No repair information available yet.</p>
+                        <p class="text-gray-500 text-lg">Belum ada informasi perbaikan.</p>
                     </div>
                     @endif
                 </div>

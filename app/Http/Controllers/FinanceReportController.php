@@ -29,6 +29,7 @@ class FinanceReportController extends Controller
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
             $sort = $request->input('sort', 'newest');
+            $filter = $request->input('filter', 'all');
 
             // Log request info
             \Log::info('Fetching all asset transactions with parameters:', [
@@ -36,6 +37,7 @@ class FinanceReportController extends Controller
                 'limit' => $limit,
                 'search' => $search,
                 'sort' => $sort,
+                'filter' => $filter,
                 'request_url' => $request->fullUrl(),
                 'ajax' => $request->ajax()
             ]);
@@ -51,19 +53,35 @@ class FinanceReportController extends Controller
                 $queryParams['search'] = $search;
             }
 
+            // Add filter parameter if it's not 'all'
+            if ($filter !== 'all') {
+                // Only pass valid filter values (income or expense)
+                if (in_array($filter, ['income', 'expense'])) {
+                    $queryParams['type'] = $filter; // Use 'type' parameter for the API
+                }
+            }
+
             // Handle sorting
             switch ($sort) {
                 case 'newest':
-                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_by'] = 'transaction_date';
                     $queryParams['sort_order'] = 'desc';
                     break;
                 case 'oldest':
-                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_by'] = 'transaction_date';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                case 'amount-high':
+                    $queryParams['sort_by'] = 'amount';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
+                case 'amount-low':
+                    $queryParams['sort_by'] = 'amount';
                     $queryParams['sort_order'] = 'asc';
                     break;
                 default:
                     // Default sort (newest first)
-                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_by'] = 'transaction_date';
                     $queryParams['sort_order'] = 'desc';
             }
 
@@ -131,6 +149,7 @@ class FinanceReportController extends Controller
                     'pagination' => null,
                     'search' => $search,
                     'sort' => $sort,
+                    'filter' => $filter,
                     'error' => $errorMessage
                 ]);
             }
@@ -154,7 +173,8 @@ class FinanceReportController extends Controller
                 'transactions' => $transactions,
                 'pagination' => $pagination,
                 'search' => $search,
-                'sort' => $sort
+                'sort' => $sort,
+                'filter' => $filter
             ]);
 
         } catch (\Exception $e) {
@@ -175,6 +195,7 @@ class FinanceReportController extends Controller
                 'pagination' => null,
                 'search' => $search,
                 'sort' => $sort,
+                'filter' => $filter,
                 'error' => 'Failed to retrieve asset transactions: ' . $e->getMessage()
             ]);
         }
@@ -194,6 +215,7 @@ class FinanceReportController extends Controller
             // Get search and sort parameters
             $search = $request->input('search', '');
             $sort = $request->input('sort', 'newest');
+            $filter = $request->input('filter', 'all');
 
             // Build query parameters - use a large limit to get all data
             $queryParams = [
@@ -206,19 +228,35 @@ class FinanceReportController extends Controller
                 $queryParams['search'] = $search;
             }
 
+            // Add filter parameter if it's not 'all'
+            if ($filter !== 'all') {
+                // Only pass valid filter values (income or expense)
+                if (in_array($filter, ['income', 'expense'])) {
+                    $queryParams['type'] = $filter; // Use 'type' parameter for the API
+                }
+            }
+
             // Handle sorting
             switch ($sort) {
                 case 'newest':
-                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_by'] = 'transaction_date';
                     $queryParams['sort_order'] = 'desc';
                     break;
                 case 'oldest':
-                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_by'] = 'transaction_date';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                case 'amount-high':
+                    $queryParams['sort_by'] = 'amount';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
+                case 'amount-low':
+                    $queryParams['sort_by'] = 'amount';
                     $queryParams['sort_order'] = 'asc';
                     break;
                 default:
                     // Default sort (newest first)
-                    $queryParams['sort_by'] = 'created_at';
+                    $queryParams['sort_by'] = 'transaction_date';
                     $queryParams['sort_order'] = 'desc';
             }
 
@@ -274,7 +312,8 @@ class FinanceReportController extends Controller
             $pdf = Pdf::loadView('Report.FinanceReport.FinanceReportPDF', [
                 'transactions' => $transactions,
                 'search' => $search,
-                'sort' => $sort
+                'sort' => $sort,
+                'filter' => $filter
             ]);
 
             // Set paper size and orientation

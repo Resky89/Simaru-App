@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Maintenance Detail Report</title>
+    <title>Laporan Detail Pemeliharaan</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -156,14 +156,14 @@
 </head>
 <body>
     <div class="header">
-        <h1>MAINTENANCE DETAIL REPORT</h1>
+        <h1>LAPORAN DETAIL PEMELIHARAAN</h1>
         <p>ID: {{ $maintenance['id'] ?? 'N/A' }} | Status:
         @php
             $status = $maintenance['status'] ?? '';
-            echo ucfirst($status) ?: 'Unknown';
+            echo ucfirst($status) ?: 'Tidak Diketahui';
         @endphp
         </p>
-        <p>Generated on: {{ date('d M Y H:i:s') }}</p>
+        <p>Dibuat pada: {{ date('d M Y H:i:s') }}</p>
     </div>
 
     <div class="clearfix">
@@ -171,23 +171,23 @@
         <div class="col-50">
             <!-- Asset Information -->
             <div class="section">
-                <div class="section-title">Asset Information</div>
+                <div class="section-title">Informasi Aset</div>
                 <div class="info-grid">
                     <div class="info-row">
-                        <div class="info-label">Asset Name:</div>
+                        <div class="info-label">Nama Aset:</div>
                         <div class="info-value">{{ $maintenance['asset_name'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Asset ID:</div>
+                        <div class="info-label">ID Aset:</div>
                         <div class="info-value">{{ $maintenance['asset_id'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Asset Code:</div>
+                        <div class="info-label">Kode Aset:</div>
                         <div class="info-value">{{ $maintenance['asset_code'] ?? 'N/A' }}</div>
                     </div>
                     @if(isset($maintenance['asset']) && isset($maintenance['asset']['location']))
                     <div class="info-row">
-                        <div class="info-label">Location:</div>
+                        <div class="info-label">Lokasi:</div>
                         <div class="info-value">{{ $maintenance['asset']['location']['room_name'] ?? 'N/A' }}, {{ $maintenance['asset']['location']['building_name'] ?? '' }}</div>
                     </div>
                     @endif
@@ -196,26 +196,26 @@
 
             <!-- Schedule Information -->
             <div class="section">
-                <div class="section-title">Schedule Information</div>
+                <div class="section-title">Informasi Jadwal</div>
                 <div class="info-grid">
                     <div class="info-row">
                         <div class="info-label">Interval:</div>
                         <div class="info-value">{{ $maintenance['interval'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Start Date:</div>
+                        <div class="info-label">Tanggal Mulai:</div>
                         <div class="info-value">{{ isset($maintenance['start_date']) ? date('d M Y', strtotime($maintenance['start_date'])) : 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">End Date:</div>
+                        <div class="info-label">Tanggal Selesai:</div>
                         <div class="info-value">{{ isset($maintenance['end_date']) ? date('d M Y', strtotime($maintenance['end_date'])) : 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Created At:</div>
+                        <div class="info-label">Dibuat Pada:</div>
                         <div class="info-value">{{ isset($maintenance['created_at']) ? date('d M Y H:i', strtotime($maintenance['created_at'])) : 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Updated At:</div>
+                        <div class="info-label">Diperbarui Pada:</div>
                         <div class="info-value">{{ isset($maintenance['updated_at']) ? date('d M Y H:i', strtotime($maintenance['updated_at'])) : 'N/A' }}</div>
                     </div>
                 </div>
@@ -226,14 +226,14 @@
         <div class="col-50">
             <!-- Assignment Information -->
             <div class="section">
-                <div class="section-title">Assignment Information</div>
+                <div class="section-title">Informasi Penugasan</div>
                 <div class="info-grid">
                     <div class="info-row">
-                        <div class="info-label">Assigned To:</div>
+                        <div class="info-label">Ditugaskan Kepada:</div>
                         <div class="info-value">{{ $maintenance['assigned_to'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Scheduled By:</div>
+                        <div class="info-label">Dijadwalkan Oleh:</div>
                         <div class="info-value">{{ $maintenance['scheduled_by'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
@@ -247,19 +247,19 @@
             @if((isset($maintenance['notes']) && !empty($maintenance['notes']) && $maintenance['notes'] != 'No notes available') ||
                 (isset($maintenance['document_file_path']) && !empty($maintenance['document_file_path'])))
             <div class="section">
-                <div class="section-title">Notes & Documents</div>
+                <div class="section-title">Catatan & Dokumen</div>
                 <div class="info-grid">
                     @if(isset($maintenance['notes']) && !empty($maintenance['notes']) && $maintenance['notes'] != 'No notes available')
                     <div class="info-row">
-                        <div class="info-label">Notes:</div>
+                        <div class="info-label">Catatan:</div>
                         <div class="info-value">{{ $maintenance['notes'] }}</div>
                     </div>
                     @endif
 
                     @if(isset($maintenance['document_file_path']) && !empty($maintenance['document_file_path']))
                     <div class="info-row">
-                        <div class="info-label">Attached Document:</div>
-                        <div class="info-value">Document available (not viewable in PDF)</div>
+                        <div class="info-label">Dokumen Terlampir:</div>
+                        <div class="info-value">Dokumen tersedia (tidak dapat dilihat di PDF)</div>
                     </div>
                     @endif
                 </div>
@@ -271,21 +271,21 @@
     <!-- Maintenance Report Section - Full Width -->
     @if(isset($maintenance['maintenance_report']))
     <div class="report-section">
-        <div class="section-title">Maintenance Report</div>
+        <div class="section-title">Laporan Pemeliharaan</div>
 
         <div class="clearfix">
             <div class="col-50">
                 <div class="info-grid">
                     <div class="info-row">
-                        <div class="info-label">Report Date:</div>
+                        <div class="info-label">Tanggal Laporan:</div>
                         <div class="info-value">{{ isset($maintenance['maintenance_report']['maintenance_date']) ? date('d M Y H:i', strtotime($maintenance['maintenance_report']['maintenance_date'])) : 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Reported By:</div>
+                        <div class="info-label">Dilaporkan Oleh:</div>
                         <div class="info-value">ID: {{ $maintenance['maintenance_report']['reported_by'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Report Created At:</div>
+                        <div class="info-label">Laporan Dibuat Pada:</div>
                         <div class="info-value">{{ isset($maintenance['maintenance_report']['created_at']) ? date('d M Y H:i', strtotime($maintenance['maintenance_report']['created_at'])) : 'N/A' }}</div>
                     </div>
                 </div>
@@ -294,8 +294,8 @@
             <div class="col-50">
                 <div class="info-grid">
                     <div class="info-row">
-                        <div class="info-label">Description:</div>
-                        <div class="info-value">{{ $maintenance['maintenance_report']['description'] ?? 'No description available' }}</div>
+                        <div class="info-label">Deskripsi:</div>
+                        <div class="info-value">{{ $maintenance['maintenance_report']['description'] ?? 'Tidak ada deskripsi tersedia' }}</div>
                     </div>
                 </div>
             </div>
@@ -304,9 +304,9 @@
         <!-- Maintenance Report Image -->
         <div class="image-container">
             @if(!empty($maintenance['maintenance_report']['attachment_picture_base64']))
-                <img src="data:image/jpeg;base64,{{ $maintenance['maintenance_report']['attachment_picture_base64'] }}" alt="Maintenance Report Image">
+                <img src="data:image/jpeg;base64,{{ $maintenance['maintenance_report']['attachment_picture_base64'] }}" alt="Gambar Laporan Pemeliharaan">
             @else
-                <p style="color: #999; font-style: italic;">No image available</p>
+                <p style="color: #999; font-style: italic;">Tidak ada gambar tersedia</p>
             @endif
         </div>
     </div>
@@ -319,15 +319,15 @@
 
     @if($hasHistory)
     <div class="section">
-        <div class="section-title">Maintenance History</div>
+        <div class="section-title">Riwayat Pemeliharaan</div>
         <table class="history-table">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Changed By</th>
-                    <th>Field</th>
-                    <th>From</th>
-                    <th>To</th>
+                    <th>Tanggal</th>
+                    <th>Diubah Oleh</th>
+                    <th>Bidang</th>
+                    <th>Dari</th>
+                    <th>Ke</th>
                 </tr>
             </thead>
             <tbody>
@@ -346,7 +346,7 @@
     @endif
 
     <div class="footer">
-        Asset Monitoring System - Maintenance Report - {{ date('Y') }}
+        Sistem Monitoring Aset - Laporan Pemeliharaan - {{ date('Y') }}
     </div>
 </body>
 </html>
