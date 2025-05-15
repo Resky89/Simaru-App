@@ -236,7 +236,7 @@
                 </div>
 
                 <!-- Form -->
-                <form action="{{ route('asset-master.store') }}" method="POST" enctype="multipart/form-data">
+                <form id="createMasterAssetForm" action="{{ route('asset-master.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="p-6">
                         <div class="space-y-4">
@@ -275,7 +275,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label class="block text-base font-semibold text-[#666666]">Nama Aset <span class="text-red-500">*</span></label>
-                                    <input type="text" name="asset_name" required
+                                    <input type="text" name="asset_name"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                         placeholder="Nama aset">
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Nama aset harus diisi</div>
@@ -283,7 +283,7 @@
 
                                 <div class="space-y-2">
                                     <label class="block text-base font-semibold text-[#666666]">Tipe Aset <span class="text-red-500">*</span></label>
-                                    <select name="asset_type" id="asset_type" required
+                                    <select name="asset_type" id="asset_type"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                         <option value="" disabled selected>Pilih Tipe Aset</option>
                                         <option value="medical">Medis</option>
@@ -300,7 +300,7 @@
                                     <div class="custom-select-container relative">
                                         <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="Cari kategori...">
-                                        <input type="hidden" name="subcategory_id" id="subcategory_id" required>
+                                        <input type="hidden" name="subcategory_id" id="subcategory_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500">Ketik untuk mencari...</div>
                                             @foreach($subcategories as $subcategory)
@@ -321,7 +321,7 @@
                                     <div class="custom-select-container relative">
                                         <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="Cari merk...">
-                                        <input type="hidden" name="brand_id" required>
+                                        <input type="hidden" name="brand_id" id="brand_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500">Ketik untuk mencari...</div>
                                             @foreach($brands as $brand)
@@ -450,7 +450,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label class="block text-base font-semibold text-[#666666]">Nama Aset <span class="text-red-500">*</span></label>
-                                    <input type="text" name="asset_name" id="edit_asset_name" required
+                                    <input type="text" name="asset_name" id="edit_asset_name"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                         placeholder="Nama aset">
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Nama aset harus diisi</div>
@@ -459,7 +459,7 @@
                                 <!-- Asset Type Field -->
                                 <div class="space-y-2">
                                     <label class="block text-base font-semibold text-[#666666]">Tipe Aset <span class="text-red-500">*</span></label>
-                                    <select name="asset_type" id="edit_asset_type" required
+                                    <select name="asset_type" id="edit_asset_type"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                         <option value="" disabled selected>Pilih Tipe Aset</option>
                                         <option value="non_medical">Non Medis</option>
@@ -476,7 +476,7 @@
                                     <div class="custom-select-container relative">
                                         <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="Cari kategori...">
-                                        <input type="hidden" name="subcategory_id" id="edit_subcategory_id" required>
+                                        <input type="hidden" name="subcategory_id" id="edit_subcategory_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500">Ketik untuk mencari...</div>
                                             @foreach($subcategories as $subcategory)
@@ -496,7 +496,7 @@
                                     <div class="custom-select-container relative">
                                         <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="Cari merk...">
-                                        <input type="hidden" name="brand_id" id="edit_brand_id" required>
+                                        <input type="hidden" name="brand_id" id="edit_brand_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500">Ketik untuk mencari...</div>
                                             @foreach($brands as $brand)
@@ -762,43 +762,7 @@
     </div>
 </div>
 
-@if(session('success'))
-<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Berhasil!</p>
-            <p>{{ session('success') }}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-@endif
-
-<!-- Success notifications are now handled by JavaScript -->
-
-@if(session('error') || isset($error))
-<div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Gagal!</p>
-            <p>{!! session('error') ?? $error ?? 'An error occurred' !!}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-@endif
-
-<!-- Error notifications are now handled by JavaScript -->
+<!-- All notifications are handled by JavaScript -->
 
 @endsection
 
@@ -1134,6 +1098,10 @@
 
                         // Ensure this option is visible
                         ensureOptionVisible(container, value);
+
+                        // Trigger change event to validate properly
+                        const event = new Event('change', { bubbles: true });
+                        hiddenInput.dispatchEvent(event);
                         return;
                     }
                 } else if (selectId === 'edit_brand_id') {
@@ -1145,6 +1113,10 @@
 
                         // Ensure this option is visible
                         ensureOptionVisible(container, value);
+
+                        // Trigger change event to validate properly
+                        const event = new Event('change', { bubbles: true });
+                        hiddenInput.dispatchEvent(event);
                         return;
                     }
                 }
@@ -1161,6 +1133,10 @@
                 setTimeout(() => {
                     foundOption.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 100);
+
+                // Trigger change event to validate properly
+                const event = new Event('change', { bubbles: true });
+                hiddenInput.dispatchEvent(event);
             } else {
                 console.warn(`Option with value "${value}" not found for ${selectId}`);
                 searchInput.value = value.toString();
@@ -1238,6 +1214,8 @@
                     openModal(editModal, editContent);
 
                     // Fetch asset data with proper error handling
+                    console.log(`Fetching asset master data for ID: ${assetId}`);
+
                     fetch(`{{ url('asset-master') }}/${assetId}`, {
                         method: 'GET',
                         headers: {
@@ -1261,6 +1239,8 @@
                         return response.json();
                     })
                     .then(data => {
+                        console.log('Asset data received:', data);
+
                         if (!data || !data.masterAsset) {
                             throw new Error('Invalid response data structure');
                         }
@@ -1396,6 +1376,28 @@
                     openModal(deleteModal, deleteContent);
                 }
             });
+        });
+
+        // Prevent multiple submissions for delete form
+        document.getElementById('delete-form')?.addEventListener('submit', function(event) {
+            // Prevent multiple submissions
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                // Save original button text
+                const originalText = submitBtn.innerHTML;
+
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menghapus...</span></div>';
+
+                // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+                }, 10000);
+            }
         });
 
         // Modal close buttons
@@ -1534,17 +1536,6 @@
             url.searchParams.set('page', 1); // Reset to page 1 when changing items per page
             window.location.href = url.toString();
         };
-
-        // Auto-hide notifications after 5 seconds
-        /*setTimeout(function() {
-            const notifications = document.querySelectorAll('#successNotification, #errorNotification');
-            notifications.forEach(notification => {
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(() => notification.remove(), 500);
-                }
-            });
-        }, 5000);*/
 
         // Function to handle search and filtering
         function applyFilters() {
@@ -2297,6 +2288,77 @@
             return isValid;
         }
 
+        // Form validation for Add Master Asset
+        document.getElementById('createMasterAssetForm')?.addEventListener('submit', function(event) {
+            // Get all required fields from the form
+            const assetName = document.querySelector('#createMasterAssetForm input[name="asset_name"]');
+            const assetType = document.querySelector('#createMasterAssetForm select[name="asset_type"]');
+
+            // For custom select dropdowns, get the hidden inputs
+            const subcategoryInput = document.querySelector('#createMasterAssetForm input[name="subcategory_id"]');
+            const brandInput = document.querySelector('#createMasterAssetForm input[name="brand_id"]');
+
+            // Validate required fields
+            const isAssetNameValid = validateField(assetName);
+            const isAssetTypeValid = validateField(assetType);
+
+            // For custom select dropdowns, check the hidden input value
+            const isSubcategoryValid = validateField(
+                subcategoryInput.closest('.custom-select-container').querySelector('.search-input'),
+                subcategoryInput && subcategoryInput.value ? true : false
+            );
+
+            const isBrandValid = validateField(
+                brandInput.closest('.custom-select-container').querySelector('.search-input'),
+                brandInput && brandInput.value ? true : false
+            );
+
+            // If any validation fails, prevent form submission
+            if (!isAssetNameValid || !isAssetTypeValid || !isSubcategoryValid || !isBrandValid) {
+                event.preventDefault();
+                showToast('Silakan isi semua field yang diperlukan', 'error');
+                return false;
+            }
+
+            // Remove empty fields from form submission
+            const formInputs = this.querySelectorAll('input, textarea, select');
+            formInputs.forEach(input => {
+                // Skip checkbox inputs and file inputs
+                if (input.type === 'checkbox' || input.type === 'file' || input.type === 'hidden') {
+                    return;
+                }
+
+                // If the input is empty, disable it so it won't be included in form submission
+                if (input.value === '' || input.value === null) {
+                    input.disabled = true;
+                }
+            });
+
+            // Prevent multiple submissions
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                // Save original button text
+                const originalText = submitBtn.innerHTML;
+
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
+
+                // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+
+                    // Re-enable all inputs that were disabled
+                    formInputs.forEach(input => {
+                        input.disabled = false;
+                    });
+                }, 10000);
+            }
+        });
+
         // Form validation for Edit Master Asset
         document.getElementById('editMasterAssetForm')?.addEventListener('submit', function(event) {
             const assetName = document.getElementById('edit_asset_name');
@@ -2304,25 +2366,123 @@
             const subcategoryId = document.getElementById('edit_subcategory_id');
             const brandId = document.getElementById('edit_brand_id');
 
+            // Log values for debugging
+            console.log("Edit Form Validation - Values:", {
+                asset_name: assetName.value,
+                asset_type: assetType.value,
+                subcategory_id: subcategoryId.value,
+                brand_id: brandId.value
+            });
+
             // Validate required fields
             const isAssetNameValid = validateField(assetName);
             const isAssetTypeValid = validateField(assetType);
 
-            // For custom select dropdowns, check the hidden input value
-            const subcategoryInput = document.querySelector('input[name="edit_subcategory_id"]');
-            const isSubcategoryValid = validateField(subcategoryId, subcategoryInput && subcategoryInput.value ? true : false);
+            // For custom select dropdowns, explicitly look at the hidden input value
+            const subcategoryContainer = subcategoryId.closest('.custom-select-container');
+            const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
+            const isSubcategoryValid = subcategoryId.value ? true : false;
 
-            const brandInput = document.querySelector('input[name="edit_brand_id"]');
-            const isBrandValid = validateField(brandId, brandInput && brandInput.value ? true : false);
+            // Show visual feedback if invalid
+            if (!isSubcategoryValid) {
+                subcategorySearchInput.classList.add('border-red-500');
+                const errorElement = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) errorElement.classList.remove('hidden');
+            }
+
+            const brandContainer = brandId.closest('.custom-select-container');
+            const brandSearchInput = brandContainer.querySelector('.search-input');
+            const isBrandValid = brandId.value ? true : false;
+
+            // Show visual feedback if invalid
+            if (!isBrandValid) {
+                brandSearchInput.classList.add('border-red-500');
+                const errorElement = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) errorElement.classList.remove('hidden');
+            }
 
             // If any validation fails, prevent form submission
             if (!isAssetNameValid || !isAssetTypeValid || !isSubcategoryValid || !isBrandValid) {
                 event.preventDefault();
+                console.log("Validation failed:", {
+                    isAssetNameValid,
+                    isAssetTypeValid,
+                    isSubcategoryValid,
+                    isBrandValid
+                });
                 showToast('Silakan isi semua field yang diperlukan', 'error');
+                return false;
+            }
+
+            // Make sure hidden inputs for custom selects are properly included
+            const hiddenInputs = ['edit_subcategory_id', 'edit_brand_id', 'edit_asset_type'];
+            hiddenInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input && input.value) {
+                    // Ensure the field will be submitted with correct value
+                    input.disabled = false;
+
+                    // Also add a data-debug attribute to verify in browser inspection
+                    input.setAttribute('data-included-in-submission', 'true');
+                    console.log(`Including ${id} in submission with value: ${input.value}`);
+                }
+            });
+
+            // Remove empty fields from form submission
+            const formInputs = this.querySelectorAll('input, textarea, select');
+            formInputs.forEach(input => {
+                // Skip checkbox inputs, file inputs, and special inputs
+                if (input.type === 'checkbox' || input.type === 'file' ||
+                    input.name === '_token' || input.name === '_method' ||
+                    hiddenInputs.includes(input.id)) {
+                    return;
+                }
+
+                // If the input is empty, disable it so it won't be included in form submission
+                if (input.value === '' || input.value === null) {
+                    input.disabled = true;
+                }
+            });
+
+            // Prevent multiple submissions
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                // Save original button text
+                const originalText = submitBtn.innerHTML;
+
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
+
+                // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+
+                    // Re-enable all inputs that were disabled
+                    formInputs.forEach(input => {
+                        input.disabled = false;
+                    });
+                }, 10000);
             }
         });
 
-        // Add input event listeners to clear error styling when typing
+        // Add input event listeners to clear error styling when typing in add form
+        document.querySelector('#createMasterAssetForm input[name="asset_name"]')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.querySelector('#createMasterAssetForm select[name="asset_type"]')?.addEventListener('change', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        // Add input event listeners to clear error styling when typing in edit form
         document.getElementById('edit_asset_name')?.addEventListener('input', function() {
             this.classList.remove('border-red-500');
             const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
@@ -2334,6 +2494,21 @@
             const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
             if (errorElement) errorElement.classList.add('hidden');
         });
+
+        // Helper function to ensure an option is visible
+        function ensureOptionVisible(container, value) {
+            const options = container.querySelectorAll('.option');
+            const optionsContainer = container.querySelector('.options-container');
+
+            options.forEach(option => {
+                if (option.dataset.value === value.toString()) {
+                    option.style.display = '';
+                    setTimeout(() => {
+                        option.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 100);
+                }
+            });
+        }
 
         // For custom select dropdowns
         document.querySelectorAll('.custom-select-container .search-input').forEach(input => {

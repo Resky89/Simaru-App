@@ -13,7 +13,7 @@
                 </svg>
             </a>
             <h1 class="text-2xl md:text-[32px] font-semibold text-[#28356B]">
-                DETAIL ASSET MASTER: {{ $masterAsset['asset_name'] ?? 'Detail Asset Master' }}
+                DETAIL ASSET MASTER
             </h1>
         </div>
         <div class="flex gap-2">
@@ -61,6 +61,11 @@
                 <!-- Asset Details - First Column -->
                 <div>
                     <div class="mb-4">
+                        <p class="text-sm text-gray-500">Nama Aset</p>
+                        <p class="font-medium">{{ $masterAsset['asset_name'] ?? 'N/A' }}</p>
+                    </div>
+
+                    <div class="mb-4">
                         <p class="text-sm text-gray-500">Kode Aset</p>
                         <p class="font-medium">{{ $masterAsset['asset_master_code'] ?? 'N/A' }}</p>
                     </div>
@@ -85,7 +90,7 @@
 
                     <div class="mb-4">
                         <p class="text-sm text-gray-500">Tanggal Dibuat</p>
-                        <p class="font-medium">{{ \Carbon\Carbon::parse($masterAsset['created_at'] ?? now())->locale('id')->format('d M Y') }}</p>
+                        <p class="font-medium">{{ \Carbon\Carbon::parse($masterAsset['created_at'] ?? now())->locale('id')->translatedFormat('d F Y') }}</p>
                     </div>
 
                     <div class="mb-4">

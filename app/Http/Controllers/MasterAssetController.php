@@ -238,16 +238,38 @@ class MasterAssetController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            // Prepare master asset data
-            $masterAssetData = [
-                'asset_name' => $request->input('asset_name'),
-                'description' => $request->input('description'),
-                'subcategory_id' => (int) $request->input('subcategory_id'),
-                'brand_id' => (int) $request->input('brand_id'),
-                'is_depreciable' => $request->input('is_depreciable') === 'true' || $request->input('is_depreciable') === true,
-                'needs_calibration' => $request->input('needs_calibration') === 'true' || $request->input('needs_calibration') === true,
-                'asset_type' => $request->input('asset_type')
-            ];
+            // Prepare master asset data - only include non-empty fields
+            $masterAssetData = [];
+
+            // Only add non-empty fields to request body
+            if ($request->filled('asset_name')) {
+                $masterAssetData['asset_name'] = $request->input('asset_name');
+            }
+
+            if ($request->filled('description')) {
+                $masterAssetData['description'] = $request->input('description');
+            }
+
+            if ($request->filled('subcategory_id')) {
+                $masterAssetData['subcategory_id'] = (int) $request->input('subcategory_id');
+            }
+
+            if ($request->filled('brand_id')) {
+                $masterAssetData['brand_id'] = (int) $request->input('brand_id');
+            }
+
+            // Boolean fields - only include if they have values
+            if ($request->has('is_depreciable')) {
+                $masterAssetData['is_depreciable'] = $request->input('is_depreciable') === 'true' || $request->input('is_depreciable') === true;
+            }
+
+            if ($request->has('needs_calibration')) {
+                $masterAssetData['needs_calibration'] = $request->input('needs_calibration') === 'true' || $request->input('needs_calibration') === true;
+            }
+
+            if ($request->filled('asset_type')) {
+                $masterAssetData['asset_type'] = $request->input('asset_type');
+            }
 
             // Log structured data yang akan dikirim ke API
             \Log::info('Sending to API:', [
@@ -258,8 +280,13 @@ class MasterAssetController extends Controller
             if ($request->hasFile('image_file')) {
                 $multipartData = [];
 
-                // Add asset data as form fields
+                // Add asset data as form fields - only include fields that have values
                 foreach ($masterAssetData as $key => $value) {
+                    // Skip empty values except for boolean fields which might be false
+                    if ($value === null || ($value === '' && !is_bool($value))) {
+                        continue;
+                    }
+
                     // Convert boolean values to string
                     if (is_bool($value)) {
                         $value = $value ? 'true' : 'false';
@@ -363,17 +390,36 @@ class MasterAssetController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            // Prepare master asset data
+            // Prepare master asset data - only include non-empty fields
             $masterAssetData = [
-                'asset_master_id' => $id,
-                'asset_name' => $request->input('asset_name'),
-                'description' => $request->input('description'),
-                'subcategory_id' => (int) $request->input('subcategory_id'),
-                'brand_id' => (int) $request->input('brand_id'),
-                'is_depreciable' => $request->has('is_depreciable'),
-                'needs_calibration' => $request->has('needs_calibration'),
-                'asset_type' => $request->input('asset_type')
+                'asset_master_id' => $id // ID is always required for update
             ];
+
+            // Only add non-empty fields to request body
+            if ($request->filled('asset_name')) {
+                $masterAssetData['asset_name'] = $request->input('asset_name');
+            }
+
+            if ($request->filled('description')) {
+                $masterAssetData['description'] = $request->input('description');
+            }
+
+            if ($request->filled('subcategory_id')) {
+                $masterAssetData['subcategory_id'] = (int) $request->input('subcategory_id');
+            }
+
+            if ($request->filled('brand_id')) {
+                $masterAssetData['brand_id'] = (int) $request->input('brand_id');
+            }
+
+            // Boolean fields need special handling - we need to explicitly include them
+            // because their absence means they should be false
+            $masterAssetData['is_depreciable'] = $request->has('is_depreciable');
+            $masterAssetData['needs_calibration'] = $request->has('needs_calibration');
+
+            if ($request->filled('asset_type')) {
+                $masterAssetData['asset_type'] = $request->input('asset_type');
+            }
 
             // Check if the image should be removed
             if ($request->has('remove_image')) {
@@ -391,6 +437,13 @@ class MasterAssetController extends Controller
 
                 // Send each field asset data individually in multipart
                 foreach ($masterAssetData as $key => $value) {
+                    // Skip empty values except for booleans which might be false
+                    // and the asset_master_id which is required for updates
+                    if ($key !== 'asset_master_id' && $value === null ||
+                       ($value === '' && !is_bool($value))) {
+                        continue;
+                    }
+
                     // Convert boolean values to string for multipart
                     if (is_bool($value)) {
                         // Explicitly convert to 'true'/'false' strings
@@ -398,7 +451,7 @@ class MasterAssetController extends Controller
                     } elseif (is_array($value)) {
                         $value = json_encode($value);
                     } elseif ($value === null) {
-                        $value = ''; // Convert null to empty string
+                        continue; // Skip null values altogether
                     }
 
                     $multipartData[] = [

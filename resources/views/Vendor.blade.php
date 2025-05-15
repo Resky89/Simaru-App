@@ -734,13 +734,22 @@
             const form = document.getElementById('createVendorForm');
             if (form) {
                 form.reset();
-                const submitBtn = form.querySelector('button[type="submit"]');
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = 'Simpan';
-                }
+                // Clear any validation errors
+                const errorElements = form.querySelectorAll('.error-message');
+                errorElements.forEach(el => el.classList.add('hidden'));
+
+                const inputs = form.querySelectorAll('input, textarea');
+                inputs.forEach(input => input.classList.remove('border-red-500'));
             }
+
+            // Explicitly ensure the submit button is enabled
+            const submitBtn = document.getElementById('submitVendorBtn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = 'Simpan';
+            }
+
             openModal(addVendorModal, addVendorModal.querySelector('[id$="ModalContent"]'));
         });
 
@@ -848,17 +857,17 @@
         });
 
         // Form validation for Add Vendor
-        document.getElementById('createVendorForm').addEventListener('submit', function(event) {
+        const createVendorForm = document.getElementById('createVendorForm');
+        const submitVendorBtn = document.getElementById('submitVendorBtn');
+
+        function handleCreateVendorSubmit(event) {
             event.preventDefault();
 
             const vendorNameInput = document.getElementById('add_vendor_name');
-
-
             let isValid = true;
 
             // Only vendor name is mandatory
             if (!validateField(vendorNameInput)) isValid = false;
-
 
             if (!isValid) {
                 showToast('Silakan isi nama vendor dengan benar', 'error');
@@ -866,7 +875,7 @@
             }
 
             // Prevent multiple submissions
-            const submitBtn = this.querySelector('button[type="submit"]');
+            const submitBtn = event.target.type === 'submit' ? event.target : createVendorForm.querySelector('button[type="submit"]');
             if (submitBtn && !submitBtn.disabled) {
                 // Save original button text
                 const originalText = submitBtn.innerHTML;
@@ -889,8 +898,22 @@
                 }, 10000);
             }
 
-            this.submit();
-        });
+            createVendorForm.submit();
+        }
+
+        // Add both form submit and button click handlers for redundancy
+        if (createVendorForm) {
+            createVendorForm.addEventListener('submit', handleCreateVendorSubmit);
+        }
+
+        if (submitVendorBtn) {
+            submitVendorBtn.addEventListener('click', function(e) {
+                // Only handle if the form submit didn't already handle it
+                if (!e.defaultPrevented) {
+                    handleCreateVendorSubmit(e);
+                }
+            });
+        }
 
         // Form validation for Edit Vendor
         document.getElementById('editVendorForm').addEventListener('submit', function(event) {

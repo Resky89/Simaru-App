@@ -60,7 +60,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Kode Opname</p>
-                            <p class="text-lg font-semibold text-[#213268]">{{ $opnameCode ?? 'N/A' }}</p>
+                            <p class="text-lg font-semibold text-[#213268]">{{ $opnameInfo['opname_code'] ?? $opnameCode ?? 'N/A' }}</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Ruangan</p>
@@ -69,7 +69,7 @@
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Tanggal Dibuat</p>
                             <p class="text-lg font-semibold text-[#213268]">
-                                {{ isset($roomInfo['created_at']) ? date('d M Y, H:i', strtotime($roomInfo['created_at'])) : 'N/A' }}
+                                {{ isset($opnameInfo['opname_created_at']) ? date('d M Y, H:i', strtotime($opnameInfo['opname_created_at'])) : 'N/A' }}
                             </p>
                         </div>
                     </div>
@@ -197,7 +197,7 @@
                             @forelse($details as $asset)
                                 <tr class="hover:bg-[#F8F9FA] transition-all duration-150 asset-row">
                                     <td class="p-3 text-sm border-t border-[#EEF1F4] font-medium">{{ $asset['asset_code'] ?? '-' }}</td>
-                                    <td class="p-3 text-sm border-t border-[#EEF1F4]">{{ $asset['asset_description'] ?? '-' }}</td>
+                                    <td class="p-3 text-sm border-t border-[#EEF1F4]">{{ $asset['asset_name'] ?? '-' }}</td>
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">
                                         @if(isset($asset['scan_date']))
                                             <div class="flex items-center">

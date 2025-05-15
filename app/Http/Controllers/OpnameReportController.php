@@ -295,15 +295,16 @@ class OpnameReportController extends Controller
                 ]);
             }
 
-            // Extract data from API response
-            $opnameData = $result ?? [];
-            $details = $opnameData['data'] ?? [];
-            $opnameCode = !empty($details) ? ($details[0]['opname_code'] ?? null) : null;
-            $pagination = $opnameData['pagination'] ?? null;
-            $summary = $opnameData['summary'] ?? null;
-            $roomInfo = $opnameData['room_info'] ?? null;
+            // Extract data from API response - Updated for new response structure
+            $responseData = $result['data'] ?? [];
+            $details = $responseData['details'] ?? [];
+            $pagination = $responseData['pagination'] ?? null;
+            $summary = $responseData['summary'] ?? null;
+            $roomInfo = $responseData['room_info'] ?? null;
+            $opnameInfo = $responseData['opname_info'] ?? null;
 
-
+            // Get opname code from the opname_info
+            $opnameCode = $opnameInfo['opname_code'] ?? null;
 
             return view('Report.OpnameReport.OpnameDetail', [
                 'opnameId' => $id,
@@ -312,6 +313,7 @@ class OpnameReportController extends Controller
                 'pagination' => $pagination,
                 'summary' => $summary,
                 'roomInfo' => $roomInfo,
+                'opnameInfo' => $opnameInfo,
             ]);
 
         } catch (\Exception $e) {
@@ -328,6 +330,7 @@ class OpnameReportController extends Controller
                 'pagination' => null,
                 'summary' => null,
                 'roomInfo' => null,
+                'opnameInfo' => null,
                 'error' => 'Failed to retrieve opname details: ' . $e->getMessage()
             ]);
         }
@@ -390,21 +393,26 @@ class OpnameReportController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Extract data exactly like in showOpnameDetail method - using data directly from server
-            $opnameData = $result ?? [];
-            $details = $opnameData['data'] ?? [];
-            $opnameCode = !empty($details) && isset($details[0]['opname_code']) ? $details[0]['opname_code'] : 'N/A';
-            $summary = $opnameData['summary'] ?? [];
-            $roomInfo = $opnameData['room_info'] ?? [];
+            // Extract data using new response structure
+            $responseData = $result['data'] ?? [];
+            $details = $responseData['details'] ?? [];
+            $pagination = $responseData['pagination'] ?? null;
+            $summary = $responseData['summary'] ?? null;
+            $roomInfo = $responseData['room_info'] ?? null;
+            $opnameInfo = $responseData['opname_info'] ?? null;
+
+            // Get opname code from the opname_info
+            $opnameCode = $opnameInfo['opname_code'] ?? 'N/A';
 
             \Log::info('Data prepared for PDF export', [
                 'opnameCode' => $opnameCode,
                 'details_count' => count($details),
                 'has_summary' => !empty($summary),
-                'has_roomInfo' => !empty($roomInfo)
+                'has_roomInfo' => !empty($roomInfo),
+                'has_opnameInfo' => !empty($opnameInfo)
             ]);
 
-            // Create the PDF with the data - exactly matching the structure used in the view
+            // Create the PDF with the data - including opnameInfo
             $pdf = Pdf::loadView('Report.OpnameReport.OpnameDetailPDF', [
                 'opnameId' => $id,
                 'opnameCode' => $opnameCode,
@@ -412,6 +420,7 @@ class OpnameReportController extends Controller
                 'pagination' => null, // Not needed for PDF
                 'summary' => $summary,
                 'roomInfo' => $roomInfo,
+                'opnameInfo' => $opnameInfo,
             ]);
 
             // Set paper size and orientation

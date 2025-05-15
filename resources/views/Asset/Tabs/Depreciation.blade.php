@@ -127,12 +127,14 @@
                                     <label for="depreciation_method" class="block text-sm font-medium text-gray-700 mb-1">Metode Penyusutan <span class="text-red-500">*</span></label>
                                     <select id="depreciation_method" name="depreciation_method"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" required>
+                                        <option value="">Pilih Metode Penyusutan</option>
                                         <option value="Straight Line">Garis Lurus (Straight Line)</option>
                                         <option value="Declining Balance">Saldo Menurun (Declining Balance)</option>
                                         <option value="Double Declining Balance">Saldo Menurun Ganda (Double Declining Balance)</option>
                                         <option value="150% Declining Balance">Saldo Menurun 150% (150% Declining Balance)</option>
                                         <option value="Sum of the Years Digits">Jumlah Digit Tahun (Sum of Year's Digits)</option>
                                     </select>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Metode penyusutan harus dipilih</div>
                                 </div>
 
                                 <!-- Acquisition Cost and Salvage Value side by side -->
@@ -141,11 +143,13 @@
                                         <label for="acquisition_cost" class="block text-sm font-medium text-gray-700 mb-1">Biaya Pengadaan <span class="text-red-500">*</span></label>
                                         <input type="text" id="acquisition_cost" name="acquisition_cost" placeholder="0"
                                             class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" required>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan harus diisi</div>
                                     </div>
                                     <div>
                                         <label for="salvage_value" class="block text-sm font-medium text-gray-700 mb-1">Nilai Sisa <span class="text-red-500">*</span></label>
                                         <input type="text" id="salvage_value" name="salvage_value" placeholder="0"
                                             class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" required>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus diisi</div>
                                     </div>
                                 </div>
 
@@ -155,16 +159,18 @@
                                         <label for="asset_life_months" class="block text-sm font-medium text-gray-700 mb-1">Usia Asset (bulan) <span class="text-red-500">*</span></label>
                                         <input type="number" id="asset_life_months" name="asset_life_months" min="1" max="360"
                                             class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" required>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Usia asset harus diisi</div>
                                     </div>
                                     <div>
                                         <label for="date_acquired" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pengadaan <span class="text-red-500">*</span></label>
                                         <input type="date" id="date_acquired" name="date_acquired"
                                             class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" required>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan harus diisi</div>
                                     </div>
                                 </div>
 
                                 <!-- Error message container -->
-                                <div id="update-form-error" class="hidden text-red-500 text-sm"></div>
+                                <div id="update-form-error" class="hidden text-red-500 text-sm p-2 bg-red-50 rounded-md mt-2 mb-4"></div>
 
                                 <!-- Form Actions -->
                                 <div class="flex justify-end">
@@ -265,6 +271,32 @@
                 });
             }
 
+            // Add input event listeners to clear field validation errors when typing
+            const depreciationForm = document.getElementById('updateDepreciationForm');
+            if (depreciationForm) {
+                // For select fields
+                depreciationForm.querySelectorAll('select').forEach(select => {
+                    select.addEventListener('change', () => {
+                        select.classList.remove('border-red-500');
+                        const errorElement = select.nextElementSibling;
+                        if (errorElement && errorElement.classList.contains('error-message')) {
+                            errorElement.classList.add('hidden');
+                        }
+                    });
+                });
+
+                // For input fields
+                depreciationForm.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('input', () => {
+                        input.classList.remove('border-red-500');
+                        const errorElement = input.nextElementSibling;
+                        if (errorElement && errorElement.classList.contains('error-message')) {
+                            errorElement.classList.add('hidden');
+                        }
+                    });
+                });
+            }
+
             // Percentage toggle
             const percentageToggle = document.getElementById('percentageToggle');
             if (percentageToggle) {
@@ -306,15 +338,41 @@
             }
         },
 
+        showFieldError(field, message) {
+            if (!field) return;
+
+            field.classList.add('border-red-500');
+            const errorElement = field.nextElementSibling;
+            if (errorElement && errorElement.classList.contains('error-message')) {
+                if (message) {
+                    errorElement.textContent = message;
+                }
+                errorElement.classList.remove('hidden');
+            }
+        },
+
+        clearFieldErrors() {
+            const fields = document.querySelectorAll('#updateDepreciationForm input, #updateDepreciationForm select');
+            fields.forEach(field => {
+                field.classList.remove('border-red-500');
+                const errorElement = field.nextElementSibling;
+                if (errorElement && errorElement.classList.contains('error-message')) {
+                    errorElement.classList.add('hidden');
+                }
+            });
+
+            const errorDiv = document.getElementById('update-form-error');
+            if (errorDiv) errorDiv.classList.add('hidden');
+        },
+
         openUpdateModal() {
             const modal = document.getElementById('updateDepreciationModal');
             const content = document.getElementById('updateDepreciationModalContent');
 
             if (!modal || !content) return;
 
-            // Clear previous error messages
-            const errorDiv = document.getElementById('update-form-error');
-            if (errorDiv) errorDiv.classList.add('hidden');
+            // Clear previous error messages and field error styling
+            this.clearFieldErrors();
 
             // Populate form with current values if available
             if (this.currentDepreciation) {
@@ -364,16 +422,66 @@
                 errorDiv.classList.add('hidden');
             }
 
-            // Get form values
-            let depreciationMethod = document.getElementById('depreciation_method').value;
-            let acquisitionCost = document.getElementById('acquisition_cost').value;
-            let salvageValue = document.getElementById('salvage_value').value;
-            const assetLifeMonths = document.getElementById('asset_life_months').value;
-            const dateAcquired = document.getElementById('date_acquired').value;
+            // Get form fields
+            const depreciationMethodField = document.getElementById('depreciation_method');
+            const acquisitionCostField = document.getElementById('acquisition_cost');
+            const salvageValueField = document.getElementById('salvage_value');
+            const assetLifeMonthsField = document.getElementById('asset_life_months');
+            const dateAcquiredField = document.getElementById('date_acquired');
 
-            // Validate required fields
-            if (!depreciationMethod || !acquisitionCost || !salvageValue || !assetLifeMonths || !dateAcquired) {
-                this.showToast('Semua field harus diisi', 'error');
+            // Get form values
+            let depreciationMethod = depreciationMethodField.value;
+            let acquisitionCost = acquisitionCostField.value;
+            let salvageValue = salvageValueField.value;
+            const assetLifeMonths = assetLifeMonthsField.value;
+            const dateAcquired = dateAcquiredField.value;
+
+            // Reset all error states
+            const fields = [depreciationMethodField, acquisitionCostField, salvageValueField, assetLifeMonthsField, dateAcquiredField];
+            fields.forEach(field => {
+                field.classList.remove('border-red-500');
+                const errorElement = field.nextElementSibling;
+                if (errorElement && errorElement.classList.contains('error-message')) {
+                    errorElement.classList.add('hidden');
+                }
+            });
+
+            // Validate each field individually and show specific error messages
+            let isValid = true;
+
+            // Validate depreciation method
+            if (!depreciationMethod) {
+                this.showFieldError(depreciationMethodField, "Metode penyusutan harus dipilih");
+                isValid = false;
+            }
+
+            // Validate acquisition cost
+            if (!acquisitionCost) {
+                this.showFieldError(acquisitionCostField, "Biaya pengadaan harus diisi");
+                isValid = false;
+            }
+
+            // Validate salvage value
+            if (!salvageValue) {
+                this.showFieldError(salvageValueField, "Nilai sisa harus diisi");
+                isValid = false;
+            }
+
+            // Validate asset life months
+            if (!assetLifeMonths) {
+                this.showFieldError(assetLifeMonthsField, "Usia asset harus diisi");
+                isValid = false;
+            }
+
+            // Validate date acquired
+            if (!dateAcquired) {
+                this.showFieldError(dateAcquiredField, "Tanggal pengadaan harus diisi");
+                isValid = false;
+            }
+
+            // Don't proceed if validation fails
+            if (!isValid) {
+                this.showToast('Mohon lengkapi semua field yang wajib diisi', 'error');
                 return;
             }
 
