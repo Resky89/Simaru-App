@@ -176,6 +176,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::delete('/delete/{id}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
         Route::get('/by-asset-type', [CategoriesController::class, 'getByAssetType'])->name('categories.by-asset-type');
         Route::post('/import', [CategoriesController::class, 'import'])->name('categories.import');
+        Route::get('/{id}', [CategoriesController::class, 'show'])->name('categories.show');
     });
 
     // Brand routes

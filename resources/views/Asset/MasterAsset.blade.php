@@ -302,14 +302,8 @@
                                             placeholder="Cari kategori...">
                                         <input type="hidden" name="subcategory_id" id="subcategory_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
-                                            <div class="p-2 text-center text-gray-500">Ketik untuk mencari...</div>
-                                            @foreach($subcategories as $subcategory)
-                                            <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
-                                                data-value="{{ $subcategory['subcategory_id'] }}"
-                                                data-type="{{ $subcategory['asset_type'] }}">
-                                                {{ $subcategory['subcategory_name'] }}
-                                            </div>
-                                            @endforeach
+                                            <div class="p-2 text-center text-gray-500" id="subcategory-loading-message">Pilih tipe aset terlebih dahulu</div>
+                                            <!-- Subcategories will be loaded dynamically based on asset_type -->
                                         </div>
                                     </div>
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus dipilih</div>
@@ -323,13 +317,8 @@
                                             placeholder="Cari merk...">
                                         <input type="hidden" name="brand_id" id="brand_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
-                                            <div class="p-2 text-center text-gray-500">Ketik untuk mencari...</div>
-                                            @foreach($brands as $brand)
-                                            <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
-                                                data-value="{{ $brand['brand_id'] }}">
-                                                {{ $brand['brand_name'] }}
-                                            </div>
-                                            @endforeach
+                                            <div class="p-2 text-center text-gray-500" id="brand-loading-message">Memuat data merk...</div>
+                                            <!-- Brands will be loaded dynamically -->
                                         </div>
                                     </div>
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Merk harus dipilih</div>
@@ -478,13 +467,8 @@
                                             placeholder="Cari kategori...">
                                         <input type="hidden" name="subcategory_id" id="edit_subcategory_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
-                                            <div class="p-2 text-center text-gray-500">Ketik untuk mencari...</div>
-                                            @foreach($subcategories as $subcategory)
-                                            <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
-                                                data-value="{{ $subcategory['subcategory_id'] }}">
-                                                {{ $subcategory['subcategory_name'] }}
-                                            </div>
-                                            @endforeach
+                                            <div class="p-2 text-center text-gray-500" id="edit-subcategory-loading-message">Pilih tipe aset terlebih dahulu</div>
+                                            <!-- Subcategories will be loaded dynamically based on asset_type -->
                                         </div>
                                     </div>
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus dipilih</div>
@@ -498,13 +482,8 @@
                                             placeholder="Cari merk...">
                                         <input type="hidden" name="brand_id" id="edit_brand_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
-                                            <div class="p-2 text-center text-gray-500">Ketik untuk mencari...</div>
-                                            @foreach($brands as $brand)
-                                            <div class="option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]"
-                                                data-value="{{ $brand['brand_id'] }}">
-                                                {{ $brand['brand_name'] }}
-                                            </div>
-                                            @endforeach
+                                            <div class="p-2 text-center text-gray-500" id="edit-brand-loading-message">Memuat data merk...</div>
+                                            <!-- Brands will be loaded dynamically -->
                                         </div>
                                     </div>
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Merk harus dipilih</div>
@@ -987,62 +966,32 @@
                     }
                 }
 
-                // Search functionality with debounce
+                // Attach event handlers for dynamic search with dropdown
                 searchInput.addEventListener('input', debounce(function() {
                     const searchValue = this.value.toLowerCase().trim();
+                    const containerId = hiddenInput.id;
+                    const containerLoadingId = optionsContainer.querySelector('[id$="-loading-message"]')?.id || `${containerId}-loading-message`;
 
-                    if (searchValue === '') {
-                        // If search is cleared, reset to show initial options
-                        if (isFullyLoaded) {
-                            allOptions.forEach(option => {
-                                option.style.display = '';
-                            });
+                    // Identify what type of dropdown this is (subcategory or brand)
+                    if (containerId.includes('subcategory')) {
+                        // For subcategory, we need the asset type
+                        const assetTypeSelect = document.getElementById(containerId === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type');
+                        if (assetTypeSelect && assetTypeSelect.value) {
+                            loadSubcategories(assetTypeSelect.value, containerId, containerLoadingId, searchValue);
                         } else {
-                            // Only show limited options
-                            allOptions.forEach((option, index) => {
-                                option.style.display = index < visibleCount ? '' : 'none';
-                            });
-
-                            // Make sure "load more" is visible
-                            if (!optionsContainer.querySelector('.load-more')) {
-                                const loadMoreDiv = document.createElement('div');
-                                loadMoreDiv.className = 'load-more p-3 text-center text-blue-600 hover:bg-gray-100 cursor-pointer';
-                                loadMoreDiv.textContent = `Muat lebih banyak opsi... (${visibleCount} dari ${allOptions.length})`;
-                                loadMoreDiv.addEventListener('click', function() {
-                                    const newVisibleCount = Math.min(visibleCount + loadMoreIncrement, allOptions.length);
-                                    for (let i = visibleCount; i < newVisibleCount; i++) {
-                                        allOptions[i].style.display = '';
-                                    }
-                                    visibleCount = newVisibleCount;
-
-                                    if (visibleCount >= allOptions.length) {
-                                        this.remove();
-                                        isFullyLoaded = true;
-                                    } else {
-                                        this.textContent = `Muat lebih banyak opsi... (${visibleCount} dari ${allOptions.length})`;
-                                    }
-                                });
-                                optionsContainer.appendChild(loadMoreDiv);
-                            }
+                            // If no asset type is selected, show a message
+                            Array.from(optionsContainer.querySelectorAll('.option, .no-results')).forEach(el => el.remove());
+                            const msgDiv = document.createElement('div');
+                            msgDiv.className = 'p-2 text-center text-gray-500';
+                            msgDiv.textContent = 'Pilih tipe aset terlebih dahulu';
+                            optionsContainer.classList.remove('hidden');
+                            optionsContainer.appendChild(msgDiv);
                         }
-
-                        // Remove any no-results message
-                        const existingNoResults = optionsContainer.querySelector('.no-results');
-                        if (existingNoResults) {
-                            existingNoResults.remove();
-                        }
-
-                        // Remove any results count message
-                        const resultsCount = optionsContainer.querySelector('.results-count');
-                        if (resultsCount) {
-                            resultsCount.remove();
-                        }
-                    } else {
-                        // For search: always search through all options (even if they were hidden by lazy loading)
-                        // This ensures we find all matches even in lazy loaded data
-                        filterOptions(searchValue);
+                    } else if (containerId.includes('brand')) {
+                        // For brand, just search directly
+                        loadBrands(containerId, containerLoadingId, searchValue);
                     }
-                }, 200)); // Reduced debounce time for more responsiveness
+                }, 100)); // Reduced debounce time for more responsive search
 
                 // Set selected option
                 options.forEach(option => {
@@ -1063,7 +1012,7 @@
         }
 
         // Function to set select value and display text
-        function setSelectValue(selectId, value) {
+        function setSelectValue(selectId, value, displayText = null) {
             if (!value) return;
 
             // Get the elements
@@ -1072,12 +1021,22 @@
 
             const container = hiddenInput.closest('.custom-select-container');
             const searchInput = container.querySelector('.search-input');
-            const options = container.querySelectorAll('.option');
 
             // Set the hidden input value
             hiddenInput.value = value.toString();
 
-            // Find the matching option to display its text
+            // If we have display text, use it directly
+            if (displayText) {
+                searchInput.value = displayText;
+
+                // Trigger change event to validate properly
+                const event = new Event('change', { bubbles: true });
+                hiddenInput.dispatchEvent(event);
+                return;
+            }
+
+            // Otherwise, try to find the display text
+            const options = container.querySelectorAll('.option');
             let foundOption = null;
 
             // Try to find the option in the DOM
@@ -1087,42 +1046,7 @@
                 }
             });
 
-            // If option not found in DOM, try to find it in the data
-            if (!foundOption) {
-                if (selectId === 'edit_subcategory_id') {
-                    const subcategories = @json($subcategories);
-                    const subcategory = subcategories.find(sc => sc.subcategory_id.toString() === value.toString());
-                    if (subcategory) {
-                        console.log('Found subcategory in data:', subcategory);
-                        searchInput.value = subcategory.subcategory_name || value.toString();
-
-                        // Ensure this option is visible
-                        ensureOptionVisible(container, value);
-
-                        // Trigger change event to validate properly
-                        const event = new Event('change', { bubbles: true });
-                        hiddenInput.dispatchEvent(event);
-                        return;
-                    }
-                } else if (selectId === 'edit_brand_id') {
-                    const brands = @json($brands);
-                    const brand = brands.find(b => b.brand_id.toString() === value.toString());
-                    if (brand) {
-                        console.log('Found brand in data:', brand);
-                        searchInput.value = brand.brand_name || value.toString();
-
-                        // Ensure this option is visible
-                        ensureOptionVisible(container, value);
-
-                        // Trigger change event to validate properly
-                        const event = new Event('change', { bubbles: true });
-                        hiddenInput.dispatchEvent(event);
-                        return;
-                    }
-                }
-            }
-
-            // Update the display text
+            // Update the display text if we found the option
             if (foundOption) {
                 searchInput.value = foundOption.textContent.trim();
 
@@ -1133,39 +1057,370 @@
                 setTimeout(() => {
                     foundOption.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 100);
-
-                // Trigger change event to validate properly
-                const event = new Event('change', { bubbles: true });
-                hiddenInput.dispatchEvent(event);
             } else {
-                console.warn(`Option with value "${value}" not found for ${selectId}`);
-                searchInput.value = value.toString();
+                // For subcategory and brand, we need to fetch the display text from API
+                if (selectId === 'edit_subcategory_id') {
+                    // Fetch subcategory details to get the display name
+                    fetch(`/categories/${value}?json=true`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.subcategory_name) {
+                                searchInput.value = data.subcategory_name;
+                            } else {
+                                searchInput.value = value.toString();
+                                console.warn(`Could not find subcategory name for ID ${value}`);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching subcategory details:', error);
+                            searchInput.value = value.toString();
+                        });
+                } else if (selectId === 'edit_brand_id') {
+                    // Fetch brand details to get the display name
+                    fetch(`/brands/${value}?json=true`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.brand_name) {
+                                searchInput.value = data.brand_name;
+                            } else {
+                                searchInput.value = value.toString();
+                                console.warn(`Could not find brand name for ID ${value}`);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching brand details:', error);
+                            searchInput.value = value.toString();
+                        });
+                } else {
+                    // For other fields, just use the value as display text
+                    console.warn(`Option with value "${value}" not found for ${selectId}`);
+                    searchInput.value = value.toString();
+                }
             }
+
+                        // Trigger change event to validate properly
+                        const event = new Event('change', { bubbles: true });
+                        hiddenInput.dispatchEvent(event);
         }
 
         // Initialize all custom selects
         initCustomSelects();
 
-        // Update asset type filter for subcategory
+                // Load subcategories based on selected asset type
+        function loadSubcategories(assetType, targetElementId, loadingMessageId, searchTerm = '') {
+            // Get container elements
+            const container = document.querySelector(`#${targetElementId}`).closest('.custom-select-container');
+            const optionsContainer = container.querySelector('.options-container');
+            const loadingMessage = document.getElementById(loadingMessageId);
+            const searchInput = container.querySelector('.search-input');
+
+            // Reset previous options
+            Array.from(optionsContainer.querySelectorAll('.option')).forEach(option => option.remove());
+
+            // Remove any existing no-results message
+            const existingNoResults = optionsContainer.querySelector('.no-results');
+            if (existingNoResults) {
+                existingNoResults.remove();
+            }
+
+            // Set loading message
+            if (loadingMessage) {
+                loadingMessage.textContent = searchTerm ? 'Mencari kategori...' : 'Memuat kategori...';
+            } else {
+                // Create a loading message if it doesn't exist
+                const newLoadingMsg = document.createElement('div');
+                newLoadingMsg.id = loadingMessageId;
+                newLoadingMsg.className = 'p-2 text-center text-gray-500';
+                newLoadingMsg.textContent = searchTerm ? 'Mencari kategori...' : 'Memuat kategori...';
+                optionsContainer.appendChild(newLoadingMsg);
+            }
+
+            // Show options container if it's hidden (for search)
+            if (optionsContainer.classList.contains('hidden')) {
+                optionsContainer.classList.remove('hidden');
+            }
+
+            if (!assetType) {
+                if (loadingMessage) {
+                    loadingMessage.textContent = 'Pilih tipe aset terlebih dahulu';
+                }
+                        return;
+                    }
+
+            // Build URL with search parameter if provided
+            let url = `/categories?asset_type=${assetType}&json=true`;
+            if (searchTerm) {
+                url += `&search=${encodeURIComponent(searchTerm)}`;
+            }
+
+            // Fetch subcategories from API
+            fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Clear the loading message
+                    Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
+
+                    // Check if we have data
+                    if (!Array.isArray(data) || data.length === 0) {
+                        const noDataMsg = document.createElement('div');
+                        noDataMsg.className = 'no-results p-2 text-center text-gray-500';
+                        noDataMsg.textContent = searchTerm ? `Tidak ada hasil untuk "${searchTerm}"` : 'Tidak ada kategori tersedia';
+                        optionsContainer.appendChild(noDataMsg);
+                        return;
+                    }
+
+                    // Add search help message
+                    const searchHelpMsg = document.createElement('div');
+                    searchHelpMsg.className = 'p-2 text-center text-gray-500';
+                    searchHelpMsg.textContent = 'Ketik untuk mencari...';
+                    optionsContainer.appendChild(searchHelpMsg);
+
+                    // Add options
+                    data.forEach(subcategory => {
+                        const option = document.createElement('div');
+                        option.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
+                        option.setAttribute('data-value', subcategory.subcategory_id);
+                        option.setAttribute('data-type', subcategory.asset_type);
+                        option.textContent = subcategory.subcategory_name;
+
+                        // Add click event
+                        option.addEventListener('click', () => {
+                            const hiddenInput = container.querySelector('input[type="hidden"]');
+                            hiddenInput.value = subcategory.subcategory_id;
+                            searchInput.value = subcategory.subcategory_name;
+                            optionsContainer.classList.add('hidden');
+
+                            // Trigger change event
+                const event = new Event('change', { bubbles: true });
+                hiddenInput.dispatchEvent(event);
+                        });
+
+                        optionsContainer.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching subcategories:', error);
+                    Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
+
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'p-2 text-center text-red-500';
+                    errorMsg.textContent = 'Error loading categories';
+                    optionsContainer.appendChild(errorMsg);
+                });
+        }
+
+                // Load brands
+        function loadBrands(targetElementId, loadingMessageId, searchTerm = '') {
+            // Get container elements
+            const container = document.querySelector(`#${targetElementId}`).closest('.custom-select-container');
+            const optionsContainer = container.querySelector('.options-container');
+            const loadingMessage = document.getElementById(loadingMessageId);
+            const searchInput = container.querySelector('.search-input');
+
+            // Reset previous options
+            Array.from(optionsContainer.querySelectorAll('.option')).forEach(option => option.remove());
+
+            // Remove any existing no-results message
+            const existingNoResults = optionsContainer.querySelector('.no-results');
+            if (existingNoResults) {
+                existingNoResults.remove();
+            }
+
+            // Set loading message
+            if (loadingMessage) {
+                loadingMessage.textContent = searchTerm ? 'Mencari merk...' : 'Memuat data merk...';
+            } else {
+                // Create a loading message if it doesn't exist
+                const newLoadingMsg = document.createElement('div');
+                newLoadingMsg.id = loadingMessageId;
+                newLoadingMsg.className = 'p-2 text-center text-gray-500';
+                newLoadingMsg.textContent = searchTerm ? 'Mencari merk...' : 'Memuat data merk...';
+                optionsContainer.appendChild(newLoadingMsg);
+            }
+
+            // Show options container if it's hidden (for search)
+            if (optionsContainer.classList.contains('hidden')) {
+                optionsContainer.classList.remove('hidden');
+            }
+
+            // Build URL with search parameter if provided
+            let url = '/brands?json=true';
+            if (searchTerm) {
+                url += `&search=${encodeURIComponent(searchTerm)}`;
+            }
+
+            // Fetch brands from API
+            fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Clear the loading message
+                    Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
+
+                    // Check if we have data
+                    if (!Array.isArray(data) || data.length === 0) {
+                        const noDataMsg = document.createElement('div');
+                        noDataMsg.className = 'no-results p-2 text-center text-gray-500';
+                        noDataMsg.textContent = searchTerm ? `Tidak ada hasil untuk "${searchTerm}"` : 'Tidak ada merk tersedia';
+                        optionsContainer.appendChild(noDataMsg);
+                        return;
+                    }
+
+                    // Add search help message
+                    const searchHelpMsg = document.createElement('div');
+                    searchHelpMsg.className = 'p-2 text-center text-gray-500';
+                    searchHelpMsg.textContent = 'Ketik untuk mencari...';
+                    optionsContainer.appendChild(searchHelpMsg);
+
+                    // Add options with highlight for search term
+                    data.forEach(brand => {
+                        const option = document.createElement('div');
+                        option.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
+                        option.setAttribute('data-value', brand.brand_id);
+
+                        // Highlight search term if it exists
+                        if (searchTerm && brand.brand_name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                            const regex = new RegExp(searchTerm, 'gi');
+                            option.innerHTML = brand.brand_name.replace(regex, match =>
+                                `<span class="bg-yellow-200">${match}</span>`
+                            );
+                } else {
+                            option.textContent = brand.brand_name;
+                        }
+
+                        // Add click event
+                        option.addEventListener('click', () => {
+                            const hiddenInput = container.querySelector('input[type="hidden"]');
+                            hiddenInput.value = brand.brand_id;
+                            searchInput.value = brand.brand_name;
+                            optionsContainer.classList.add('hidden');
+
+                            // Trigger change event
+                            const event = new Event('change', { bubbles: true });
+                            hiddenInput.dispatchEvent(event);
+                        });
+
+                        optionsContainer.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching brands:', error);
+                    Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
+
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'p-2 text-center text-red-500';
+                    errorMsg.textContent = 'Error loading brands';
+                    optionsContainer.appendChild(errorMsg);
+                });
+        }
+
+        // Asset type change handlers
         document.getElementById('asset_type')?.addEventListener('change', function() {
             const selectedType = this.value;
             const container = document.querySelector('#subcategory_id').closest('.custom-select-container');
-            const options = container.querySelectorAll('.option');
-
-            options.forEach(option => {
-                const optionType = option.dataset.type;
-                if (!selectedType || option.value === '' || optionType === selectedType) {
-                    option.style.display = '';
-                } else {
-                    option.style.display = 'none';
-                }
-            });
-
-            // Reset the subcategory selection
-            const hiddenInput = container.querySelector('input[type="hidden"]');
             const searchInput = container.querySelector('.search-input');
+            const hiddenInput = container.querySelector('input[type="hidden"]');
+
+            // Reset the selection when asset type changes
             hiddenInput.value = '';
             searchInput.value = '';
+
+            // Load subcategories with empty search value
+            loadSubcategories(selectedType, 'subcategory_id', 'subcategory-loading-message', '');
+        });
+
+        document.getElementById('edit_asset_type')?.addEventListener('change', function() {
+            const selectedType = this.value;
+            const container = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
+            const searchInput = container.querySelector('.search-input');
+            const hiddenInput = container.querySelector('input[type="hidden"]');
+
+            // Reset the selection when asset type changes
+            hiddenInput.value = '';
+            searchInput.value = '';
+
+            // Load subcategories with empty search value
+            loadSubcategories(selectedType, 'edit_subcategory_id', 'edit-subcategory-loading-message', '');
+        });
+
+        // Load brands when form opens
+        document.getElementById('addMasterAssetBtn')?.addEventListener('click', function() {
+            // Load brands when the add modal is opened
+            loadBrands('brand_id', 'brand-loading-message');
+        });
+
+        // Load brands for edit form
+        document.querySelectorAll('.edit-asset-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // After asset data is loaded, we need to load brands
+                const originalFetchComplete = function(asset) {
+                    // Load brands
+                    loadBrands('edit_brand_id', 'edit-brand-loading-message');
+
+                    // If asset has asset_type, load subcategories filtered by that type
+                    if (asset.asset_type) {
+                        loadSubcategories(asset.asset_type, 'edit_subcategory_id', 'edit-subcategory-loading-message');
+                    }
+                };
+
+                // Store the original event for later use
+                const originalFetch = window.fetch;
+                window.fetch = function(...args) {
+                    const url = args[0];
+                    if (typeof url === 'string' && url.includes('/asset-master/') && url.includes(button.dataset.id)) {
+                        return originalFetch.apply(this, args)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Call our function after data is fetched
+                                if (data && data.masterAsset) {
+                                    originalFetchComplete(data.masterAsset);
+                                }
+
+                                // Return a new response with the same data
+                                const newResponse = new Response(JSON.stringify(data), {
+                                    status: 200,
+                                    headers: { 'Content-Type': 'application/json' }
+                                });
+                                return newResponse;
+                            });
+                    }
+                    return originalFetch.apply(this, args);
+                };
+
+                // Reset fetch after a short delay
+                setTimeout(() => {
+                    window.fetch = originalFetch;
+                }, 5000);
+            });
         });
 
         // Add master asset button
@@ -1253,11 +1508,21 @@
                         // Set asset type
                         if (asset.asset_type) {
                             document.getElementById('edit_asset_type').value = asset.asset_type;
+
+                            // Load subcategories based on asset type
+                            loadSubcategories(asset.asset_type, 'edit_subcategory_id', 'edit-subcategory-loading-message');
+
+                            // After a short delay to allow subcategories to load, set the selected value
+                            setTimeout(() => {
+                                setSelectValue('edit_subcategory_id', asset.subcategory_id, asset.subcategory_name);
+                            }, 1000);
                         }
 
-                        // Set subcategory and brand using the helper function
-                        setSelectValue('edit_subcategory_id', asset.subcategory_id);
-                        setSelectValue('edit_brand_id', asset.brand_id);
+                        // Load brands and set the selected brand
+                        loadBrands('edit_brand_id', 'edit-brand-loading-message');
+                        setTimeout(() => {
+                            setSelectValue('edit_brand_id', asset.brand_id, asset.brand_name);
+                        }, 1000);
 
                         // Handle checkboxes
                         document.getElementById('edit_is_depreciable').checked = Boolean(asset.is_depreciable);
@@ -1400,15 +1665,125 @@
             }
         });
 
+        // Function to reset the add master asset form
+        function resetAddMasterAssetForm() {
+            const form = document.getElementById('createMasterAssetForm');
+            if (form) {
+                form.reset();
+
+                // Reset image preview
+                const imagePreview = document.getElementById('image-preview');
+                if (imagePreview) {
+                    imagePreview.classList.add('hidden');
+                }
+
+                // Reset custom dropdowns
+                form.querySelectorAll('.custom-select-container').forEach(container => {
+                    const searchInput = container.querySelector('.search-input');
+                    const hiddenInput = container.querySelector('input[type="hidden"]');
+                    if (searchInput) searchInput.value = '';
+                    if (hiddenInput) hiddenInput.value = '';
+                });
+
+                // Reset error messages
+                form.querySelectorAll('.error-message').forEach(error => {
+                    error.classList.add('hidden');
+                });
+
+                // Reset toggle switches
+                form.querySelectorAll('.depreciation-status, .calibration-status').forEach(status => {
+                    status.textContent = 'No';
+                });
+            }
+        }
+
+        // Function to reset the edit master asset form
+        function resetEditMasterAssetForm() {
+            const form = document.getElementById('editMasterAssetForm');
+            if (form) {
+                form.reset();
+
+                // Reset image preview
+                const imageContainer = document.getElementById('edit-image-container');
+                if (imageContainer) {
+                    imageContainer.classList.add('hidden');
+                }
+
+                // Remove any "remove_image" input
+                const removeImageInput = form.querySelector('input[name="remove_image"]');
+                if (removeImageInput) {
+                    removeImageInput.remove();
+                }
+
+                // Reset custom dropdowns
+                form.querySelectorAll('.custom-select-container').forEach(container => {
+                    const searchInput = container.querySelector('.search-input');
+                    const hiddenInput = container.querySelector('input[type="hidden"]');
+                    if (searchInput) searchInput.value = '';
+                    if (hiddenInput) hiddenInput.value = '';
+                });
+
+                // Reset error messages
+                form.querySelectorAll('.error-message').forEach(error => {
+                    error.classList.add('hidden');
+                });
+
+                // Reset toggle switches
+                form.querySelectorAll('.depreciation-status, .calibration-status').forEach(status => {
+                    status.textContent = 'No';
+                });
+
+                // Reset loading state
+                const loadingIndicator = document.getElementById('edit-loading');
+                const formContent = document.getElementById('edit-form-content');
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                if (formContent) formContent.classList.add('hidden');
+            }
+        }
+
+        // Function to reset the import modal
+        function resetImportModal() {
+            // Reset to step 1
+            document.getElementById('import-step-1')?.classList.remove('hidden');
+            document.getElementById('import-step-2')?.classList.add('hidden');
+
+            // Reset file input and preview
+            const fileInput = document.getElementById('excel_file');
+            if (fileInput) fileInput.value = '';
+
+            const previewContainer = document.getElementById('excel-file-name');
+            if (previewContainer) previewContainer.classList.add('hidden');
+
+            // Reset other elements
+            document.getElementById('excel-error')?.classList.add('hidden');
+            document.getElementById('excel-loading')?.classList.add('hidden');
+            document.getElementById('preview-btn')?.setAttribute('disabled', 'disabled');
+        }
+
+        // Function to reset the delete modal
+        function resetDeleteModal() {
+            const form = document.getElementById('delete-form');
+            if (form) {
+                form.reset();
+                document.getElementById('delete-asset-name').textContent = '';
+            }
+        }
+
         // Modal close buttons
         document.querySelectorAll('.close-modal').forEach(closeButton => {
             closeButton.addEventListener('click', function() {
                 const modal = this.closest('[id$="Modal"]');
                 const content = modal.querySelector('[id$="Content"]');
 
-                // If it's the edit master asset modal, reset the form
-                if (modal.id === 'editMasterAssetModal') {
+                // Reset the appropriate form based on which modal is being closed
+                if (modal.id === 'addMasterAssetModal') {
+                    resetAddMasterAssetForm();
+                } else if (modal.id === 'editMasterAssetModal') {
                     resetEditMasterAssetForm();
+                } else if (modal.id === 'importMasterAssetModal') {
+                    resetImportModal();
+                } else if (modal.id === 'deleteModal') {
+                    resetDeleteModal();
                 }
 
                 if (modal && content) {
@@ -1423,9 +1798,15 @@
                 if (e.target === this) {
                     const content = this.querySelector('[id$="Content"]');
 
-                    // If it's the edit master asset modal, reset the form
-                    if (this.id === 'editMasterAssetModal') {
+                    // Reset the appropriate form based on which modal is being closed
+                    if (this.id === 'addMasterAssetModal') {
+                        resetAddMasterAssetForm();
+                    } else if (this.id === 'editMasterAssetModal') {
                         resetEditMasterAssetForm();
+                    } else if (this.id === 'importMasterAssetModal') {
+                        resetImportModal();
+                    } else if (this.id === 'deleteModal') {
+                        resetDeleteModal();
                     }
 
                     if (content) {
@@ -2414,7 +2795,7 @@
                 return false;
             }
 
-            // Make sure hidden inputs for custom selects are properly included
+                        // Make sure hidden inputs for custom selects are properly included
             const hiddenInputs = ['edit_subcategory_id', 'edit_brand_id', 'edit_asset_type'];
             hiddenInputs.forEach(id => {
                 const input = document.getElementById(id);
@@ -2495,20 +2876,86 @@
             if (errorElement) errorElement.classList.add('hidden');
         });
 
-        // Helper function to ensure an option is visible
-        function ensureOptionVisible(container, value) {
-            const options = container.querySelectorAll('.option');
-            const optionsContainer = container.querySelector('.options-container');
+        // Load categories and brands when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize custom select dropdowns
+            initCustomSelects();
 
-            options.forEach(option => {
-                if (option.dataset.value === value.toString()) {
-                    option.style.display = '';
-                    setTimeout(() => {
-                        option.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }, 100);
+            // Enhance each search input for dynamic search
+            document.querySelectorAll('.custom-select-container').forEach(container => {
+                const searchInput = container.querySelector('.search-input');
+                const hiddenInput = container.querySelector('input[type="hidden"]');
+
+                if (searchInput && hiddenInput) {
+                    // Show dropdown when clicking on the input (not just on focus)
+                    searchInput.addEventListener('click', function(e) {
+            const optionsContainer = container.querySelector('.options-container');
+                        if (optionsContainer && optionsContainer.classList.contains('hidden')) {
+                            // Trigger the appropriate load function based on input type
+                            if (hiddenInput.id.includes('subcategory')) {
+                                const assetTypeId = hiddenInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
+                                const assetTypeSelect = document.getElementById(assetTypeId);
+                                if (assetTypeSelect && assetTypeSelect.value) {
+                                    loadSubcategories(assetTypeSelect.value, hiddenInput.id, `${hiddenInput.id}-loading-message`, '');
+                                }
+                            } else if (hiddenInput.id.includes('brand')) {
+                                loadBrands(hiddenInput.id, `${hiddenInput.id}-loading-message`, '');
+                            }
+                        }
+                    });
                 }
             });
-        }
+
+            // For initial page load, pre-load brands (don't show dropdown)
+            document.querySelectorAll('[id$="brand_id"]').forEach(brandInput => {
+                // Create a loading indicator but don't display it initially
+                const brandContainer = brandInput.closest('.custom-select-container');
+                const optionsContainer = brandContainer.querySelector('.options-container');
+                if (!optionsContainer.querySelector(`#${brandInput.id}-loading-message`)) {
+                    const loadingMsg = document.createElement('div');
+                    loadingMsg.id = `${brandInput.id}-loading-message`;
+                    loadingMsg.className = 'p-2 text-center text-gray-500 hidden';
+                    loadingMsg.textContent = 'Memuat data merk...';
+                    optionsContainer.appendChild(loadingMsg);
+                }
+
+                // Preload the data in the background
+                fetch('/brands?json=true', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .catch(error => console.error('Error preloading brands:', error));
+            });
+
+            // Same for subcategories if asset type is already selected
+            const assetTypeSelect = document.getElementById('asset_type');
+            if (assetTypeSelect && assetTypeSelect.value) {
+                const subcategoryId = 'subcategory_id';
+                // Create a loading indicator but don't display it
+                const subcategoryContainer = document.getElementById(subcategoryId).closest('.custom-select-container');
+                const optionsContainer = subcategoryContainer.querySelector('.options-container');
+                if (!optionsContainer.querySelector(`#${subcategoryId}-loading-message`)) {
+                    const loadingMsg = document.createElement('div');
+                    loadingMsg.id = `${subcategoryId}-loading-message`;
+                    loadingMsg.className = 'p-2 text-center text-gray-500 hidden';
+                    loadingMsg.textContent = 'Memuat kategori...';
+                    optionsContainer.appendChild(loadingMsg);
+                }
+
+                // Preload the data in the background
+                fetch(`/categories?asset_type=${assetTypeSelect.value}&json=true`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .catch(error => console.error('Error preloading subcategories:', error));
+            }
+        });
 
         // For custom select dropdowns
         document.querySelectorAll('.custom-select-container .search-input').forEach(input => {

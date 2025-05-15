@@ -17,6 +17,7 @@ class CategoriesController extends Controller
 
     /**
      * Display a listing of the asset subcategories.
+     * Can return either HTML view or JSON depending on the request.
      */
     public function index(Request $request)
     {
@@ -27,6 +28,11 @@ class CategoriesController extends Controller
             $assetType = $request->query('asset_type', '');
             $search = $request->query('search', '');
             $sort = $request->query('sort', '');
+
+            // For JSON requests, increase the limit to load more items
+            if ($request->expectsJson() || $request->ajax()) {
+                $limit = $request->query('limit', 100);
+            }
 
             // Build query parameters
             $queryParams = [
@@ -77,6 +83,14 @@ class CategoriesController extends Controller
                 Log::warning('Authentication error while fetching asset subcategories:', [
                     'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => 'Authentication failed'
+                    ], 401);
+                }
+
                 return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
@@ -103,6 +117,13 @@ class CategoriesController extends Controller
                     $errorMessage = $errorData;
                 }
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorMessage
+                    ], 400);
+                }
+
                 return view('Categories', [
                     'subcategories' => [],
                     'assetTypes' => [],
@@ -120,12 +141,19 @@ class CategoriesController extends Controller
                 ]);
             }
 
+            // Format data from the API result
+            $subcategories = $result['data'] ?? [];
+
+            // If this is an AJAX or JSON request, return the subcategories as JSON
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json($subcategories);
+            }
+
+            // For HTML view, continue with normal flow
+
             // Get asset types for the dropdown
             $assetTypesResult = $this->apiService->request('GET', '/asset-types');
             $assetTypes = $assetTypesResult['data'] ?? [];
-
-            // Format data for the view
-            $subcategories = $result['data'] ?? [];
 
             // Format pagination similar to UserController
             $pagination = null;
@@ -163,13 +191,20 @@ class CategoriesController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Failed to load asset subcategories: ' . $e->getMessage()
+                ], 500);
+            }
+
             return view('Categories', [
                 'subcategories' => [],
                 'assetTypes' => [],
                 'pagination' => [
                     'current_page' => 1,
                     'last_page' => 1,
-                    'per_page' => $limit,
+                    'per_page' => $limit ?? 10,
                     'total' => 0,
                     'from' => 0,
                     'to' => 0,
@@ -380,64 +415,89 @@ class CategoriesController extends Controller
     }
 
     /**
-     * Get asset subcategories by asset type.
+     * Get details for a specific subcategory.
+     * Can return either HTML view or JSON depending on the request.
      */
-    public function getByAssetType(Request $request)
+    public function show($id, Request $request)
     {
         try {
-            $assetType = $request->query('asset_type');
-            $search = $request->query('search');
+            // Get subcategory from API
+            $result = $this->apiService->request('GET', "/asset-subcategories/{$id}");
 
-            if (empty($assetType)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Asset type is required'
-                ], status: 400);
-            }
-
-            $queryParams = [
-                'asset_type' => $assetType,
-                'limit' => 100  // Increase limit to load more subcategories
-            ];
-
-            // Add search parameter if provided
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
-            }
-
-            $result = $this->apiService->request('GET', '/asset-subcategories', ['query' => $queryParams]);
-
-            // Check for auth errors in JSON context
+            // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                Log::warning('Authentication error while fetching subcategory details:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => 'Authentication failed'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
             }
 
             // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to fetch subcategories';
+                $errorData = $result['errors'] ?? 'Failed to fetch subcategory details';
 
-                return response()->json([
-                    'success' => false,
+                Log::warning('Error while fetching subcategory details:', [
+                    'success' => $result['success'] ?? false,
                     'errors' => $errorData
-                ], status: 400);
+                ]);
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorMessage
+                    ], 400);
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
             }
 
-            return response()->json($result);
+            // Format data from the API result
+            $subcategory = $result['data'] ?? null;
+
+            // If this is an AJAX or JSON request, return the subcategory as JSON
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json($subcategory);
+            }
+
+            // For HTML view, return a view with the subcategory details
+            return view('CategoryDetails', compact('subcategory'));
         } catch (\Exception $e) {
-            Log::error('Error fetching subcategories by asset type:', [
+            Log::error('Failed to fetch subcategory details:', [
                 'error' => $e->getMessage(),
-                'asset_type' => $assetType ?? 'not_provided',
-                'search' => $search ?? 'not_provided'
+                'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'errors' => ['exception' => 'An error occurred while fetching subcategories: ' . $e->getMessage()]
-            ], status: 500);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Failed to load subcategory details: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to load subcategory details: ' . $e->getMessage());
         }
     }
 

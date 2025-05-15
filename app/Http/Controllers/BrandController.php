@@ -16,6 +16,7 @@ class BrandController extends Controller
 
     /**
      * Display a listing of all brands.
+     * Can return either HTML view or JSON depending on the request.
      */
     public function index(Request $request)
     {
@@ -25,13 +26,20 @@ class BrandController extends Controller
             $search = $request->input('search', '');
             $sort = $request->input('sort', '');
 
+            // For JSON/AJAX requests, increase the limit to load more items
+            if ($request->expectsJson() || $request->ajax()) {
+                $limit = $request->input('limit', 100);
+            }
+
             // Log request info
             \Log::info('Fetching brands with parameters:', [
                 'page' => $page,
                 'limit' => $limit,
                 'search' => $search,
                 'sort' => $sort,
-                'request_url' => $request->fullUrl()
+                'request_url' => $request->fullUrl(),
+                'is_ajax' => $request->ajax(),
+                'expects_json' => $request->expectsJson()
             ]);
 
             // Build query parameters
@@ -82,6 +90,14 @@ class BrandController extends Controller
             // Check for auth errors
             if (isset($brandsResult['errors']) && is_string($brandsResult['errors']) &&
                 in_array($brandsResult['errors'], ['auth_failed', 'session_expired'])) {
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => 'Authentication failed'
+                    ], 401);
+                }
+
                 return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
@@ -94,7 +110,7 @@ class BrandController extends Controller
                     'errors' => $errorData
                 ]);
 
-                // Format error message for view
+                // Format error message
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -108,6 +124,13 @@ class BrandController extends Controller
                     $errorMessage = $errorData;
                 }
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorMessage
+                    ], 400);
+                }
+
                 return view('Brand.Brand', [
                     'brands' => [],
                     'brands_pagination' => null,
@@ -116,6 +139,13 @@ class BrandController extends Controller
             }
 
             $brands = $brandsResult['data'] ?? [];
+
+            // If this is an AJAX or JSON request, return the brands as JSON
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json($brands);
+            }
+
+            // For HTML view, continue with normal flow
 
             // Format pagination for brands
             $brandsPagination = null;
@@ -142,6 +172,13 @@ class BrandController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Failed to fetch data: ' . $e->getMessage()
+                ], 500);
+            }
 
             return view('Brand.Brand', [
                 'brands' => [],
@@ -395,8 +432,8 @@ class BrandController extends Controller
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            if (request()->ajax()) {
-                return response()->json(['brand' => $brand]);
+            if (request()->ajax() || request()->expectsJson()) {
+                return response()->json($brand);
             }
 
             return view('Brand.EditBrand', ['brand' => $brand]);
