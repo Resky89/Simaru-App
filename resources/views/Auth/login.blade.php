@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Asset Monitoring</title>
+    <title>Masuk - Pemantauan Aset</title>
     <link rel="icon" href="images/logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -38,10 +38,10 @@
         <div class="hidden md:flex flex-1 flex-col items-center justify-center px-4 md:px-20">
             <div class="text-center mb-8">
                 <h1 class="text-3xl md:text-4xl font-['Poppins'] font-semibold text-[#213268] mb-2">
-                    ASSETS MONITORING
+                    PEMANTAUAN ASET
                 </h1>
                 <p class="text-lg md:text-xl font-['Poppins'] text-[#1B8ADB]">
-                    Track Every Asset, Anytime, Anywhere
+                    Pantau Setiap Aset, Kapan Saja, Dimana Saja
                 </p>
             </div>
             <div class="w-full max-w-[500px]">
@@ -54,10 +54,10 @@
             <div class="bg-white p-6 md:p-10 rounded-[30px] shadow-2xl w-full max-w-[450px]">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-['Poppins'] font-semibold text-[#213268]">
-                        Welcome Admin,
+                        Selamat Datang Admin,
                     </h2>
                     <p class="text-3xl font-['Poppins'] font-semibold">
-                        Please <span class="text-[#1B8ADB]">Login</span>
+                        Silakan <span class="text-[#1B8ADB]">Masuk</span>
                     </p>
                 </div>
 
@@ -110,7 +110,7 @@
 
                     <button type="submit"
                         class="w-full py-3 bg-[#213268] text-white rounded-lg font-['Poppins'] hover:bg-[#1a2857] transition-colors">
-                        Log in
+                        Masuk
                     </button>
                 </form>
 

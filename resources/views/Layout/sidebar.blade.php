@@ -62,7 +62,7 @@
                     <a href="{{ route('categories') }}" class="block">
                         <div
                             class="{{ $submenuLinkClass }} {{ Request::routeIs('categories') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Sub Kategori</span>
+                            <span class="{{ $submenuTextClass }}">Kategori</span>
                         </div>
                     </a>
                     <a href="{{ route('brands') }}" class="block">
@@ -205,7 +205,7 @@
                     style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
                     @php
                         $procurementSubmenuItems = [
-                            ['route' => 'procurement.request', 'name' => 'Pengajuan Pengadaan'],
+                            ['route' => 'procurement.request', 'name' => 'Permintaan'],
                             ['route' => 'procurement.price-comparison', 'name' => 'Perbandingan Harga'],
                             ['route' => 'procurement.purchase-order', 'name' => 'Pemesanan'],
                             ['route' => 'procurement.receipt', 'name' => 'Penerimaan'],

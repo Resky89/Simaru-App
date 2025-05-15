@@ -445,70 +445,100 @@
             </div>
         </div>
 
-        <!-- Success and Error Notifications -->
-        @if(session('success'))
-            <div id="successNotification"
-                class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
-                role="alert">
-                <div class="flex items-center">
-                    <div class="py-1">
-                        <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="font-bold">Berhasil!</p>
-                        <p>{{ session('success') }}</p>
-                    </div>
-                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                </div>
-            </div>
+        <script>
+            // Handle delete form submission with AJAX
+            document.addEventListener('DOMContentLoaded', function() {
+                const deleteRoomForm = document.getElementById('deleteRoomForm');
+                if (deleteRoomForm) {
+                    deleteRoomForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
 
-            <script>
-                setTimeout(function () {
-                    const notification = document.getElementById('successNotification');
-                    if (notification) {
-                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                        setTimeout(function () {
-                            notification.remove();
-                        }, 500);
-                    }
-                }, 5000); // Hide after 5 seconds
-            </script>
-        @endif
+                        const formData = new FormData(this);
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        const originalBtnText = submitBtn.innerHTML;
+                        const url = this.action;
 
-        @if(session('error'))
-            <div id="errorNotification"
-                class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
-                role="alert">
-                <div class="flex items-center">
-                    <div class="py-1">
-                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="font-bold">Gagal!</p>
-                        <p>{{ session('error') }}</p>
-                    </div>
-                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                </div>
-            </div>
+                        // Show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
 
-            <script>
-                setTimeout(function () {
-                    const notification = document.getElementById('errorNotification');
-                    if (notification) {
-                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                        setTimeout(function () {
-                            notification.remove();
-                        }, 500);
-                    }
-                }, 5000); // Hide after 5 seconds
-            </script>
-        @endif
+                        fetch(url, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                return response.json().then(data => {
+                                    data.status = response.status;
+                                    return data;
+                                });
+                            } else {
+                                throw new Error('Invalid response format');
+                            }
+                        })
+                        .then(data => {
+                            // Reset button state
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+
+                            // Close the modal
+                            const modal = document.getElementById('deleteRoomModal');
+                            closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+
+                            if (data.success === true) {
+                                // Show success toast
+                                showToast(data.message || 'Ruangan berhasil dihapus', 'success');
+
+                                // Reload the page after a short delay
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Show error toast
+                                showToast(data.message || 'Gagal menghapus ruangan', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            // Reset button state
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+
+                            // Show error toast
+                            showToast('Terjadi kesalahan: ' + error.message, 'error');
+
+                            // Close the modal
+                            const modal = document.getElementById('deleteRoomModal');
+                            closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                        });
+                    });
+                }
+            });
+        </script>
+
+        <!-- Success and Error Notifications using JavaScript -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Show session success message using the toast system
+                @if(session('success'))
+                    showToast('{{ session('success') }}', 'success');
+                @endif
+
+                // Show session error message using the toast system
+                @if(session('error'))
+                    showToast('{{ session('error') }}', 'error');
+                @endif
+            });
+        </script>
 
         <!-- Import Room Modal -->
         <div id="importRoomModal" class="fixed inset-0 z-50 hidden">
@@ -1085,12 +1115,83 @@
                     });
                 }
 
+                // Function to clear form inputs and error states when a modal is closed
+                function clearModalForms(modal) {
+                    if (!modal) return;
+
+                    // Get forms in the modal
+                    const forms = modal.querySelectorAll('form');
+
+                    forms.forEach(form => {
+                        // Reset the form
+                        form.reset();
+
+                        // Clear validation styling and error messages
+                        const inputs = form.querySelectorAll('input, select, textarea');
+                        inputs.forEach(input => {
+                            input.classList.remove('border-red-500');
+                            const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                            if (errorElement) errorElement.classList.add('hidden');
+                        });
+                    });
+
+                    // Additional cleanup for specific modals
+                    if (modal.id === 'importRoomModal') {
+                        // Reset file upload
+                        const fileInput = modal.querySelector('#room_excel_file');
+                        if (fileInput) fileInput.value = '';
+
+                        const fileNameContainer = modal.querySelector('#room-excel-file-name');
+                        if (fileNameContainer) fileNameContainer.classList.add('hidden');
+
+                        const previewBtn = modal.querySelector('#room-preview-btn');
+                        if (previewBtn) previewBtn.disabled = true;
+
+                        const errorDiv = modal.querySelector('#room-excel-error');
+                        if (errorDiv) errorDiv.classList.add('hidden');
+
+                        // Reset to step 1 if on any other step
+                        document.getElementById('import-room-step-1')?.classList.remove('hidden');
+                        document.getElementById('import-room-step-2')?.classList.add('hidden');
+                        document.getElementById('import-room-step-3')?.classList.add('hidden');
+                    }
+
+                    // Special handling for edit room modal
+                    if (modal.id === 'editRoomModal') {
+                        // Clear building dropdown data
+                        const buildingSearchInput = document.getElementById('edit_building_search');
+                        const buildingIdInput = document.getElementById('editRoomBuilding');
+
+                        if (buildingSearchInput) buildingSearchInput.value = '';
+                        if (buildingIdInput) buildingIdInput.value = '';
+
+                        // Hide any open dropdowns
+                        const dropdown = document.getElementById('edit_building_dropdown');
+                        if (dropdown) dropdown.classList.add('hidden');
+                    }
+
+                    // Special handling for add room modal
+                    if (modal.id === 'addRoomModal') {
+                        // Clear building dropdown data
+                        const buildingSearchInput = document.getElementById('add_building_search');
+                        const buildingIdInput = document.getElementById('add_building_id');
+
+                        if (buildingSearchInput) buildingSearchInput.value = '';
+                        if (buildingIdInput) buildingIdInput.value = '';
+
+                        // Hide any open dropdowns
+                        const dropdown = document.getElementById('add_building_dropdown');
+                        if (dropdown) dropdown.classList.add('hidden');
+                    }
+                }
+
                 // Modal close handlers
                 closeButtons.forEach(button => {
                     button.addEventListener('click', () => {
                         const modal = button.closest('[id$="Modal"]');
                         const content = modal.querySelector('[id$="ModalContent"]');
                         closeModal(modal, content);
+                        clearModalForms(modal);
                     });
                 });
 
@@ -1101,6 +1202,7 @@
                             e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
                             const content = this.querySelector('[id$="ModalContent"]');
                             closeModal(this, content);
+                            clearModalForms(this);
                         }
                     });
                 });
@@ -1112,6 +1214,7 @@
                             if (!modal.classList.contains('hidden')) {
                                 const content = modal.querySelector('[id$="ModalContent"]');
                                 closeModal(modal, content);
+                                clearModalForms(modal);
                             }
                         });
                     }
@@ -1643,6 +1746,449 @@
                             showToast('Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.', 'error');
                         });
                     });
+                }
+
+                // Handle room import form submission with AJAX
+                const roomImportForm = document.getElementById('room-import-form');
+                if (roomImportForm) {
+                    roomImportForm.addEventListener('submit', function(e) {
+                        e.preventDefault(); // Prevent traditional form submission
+
+                        // Get form data
+                        const formData = new FormData(this);
+
+                        // Add the Excel file to the form data if needed
+                        const originalFileInput = document.getElementById('room_excel_file');
+                        if (originalFileInput && originalFileInput.files.length > 0) {
+                            formData.append('excel_file', originalFileInput.files[0]);
+                        }
+
+                        // Show loading state
+                        const importBtn = document.getElementById('room-import-btn');
+                        const originalBtnText = importBtn.innerHTML;
+                        importBtn.disabled = true;
+                        importBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        // Send AJAX request
+                        fetch('{{ route('rooms.import') }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => {
+                            // Check if response is JSON
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                return response.json().then(data => {
+                                    // Add status to the data object
+                                    data.status = response.status;
+                                    return data;
+                                });
+                            } else {
+                                // If not JSON, it's likely an error page or redirect
+                                throw new Error('Invalid response format');
+                            }
+                        })
+                        .then(data => {
+                            // Reset button state
+                            importBtn.disabled = false;
+                            importBtn.innerHTML = originalBtnText;
+
+                            if (data.success === true) {
+                                // Success response
+                                console.log('Import successful:', data);
+
+                                // Close the modal
+                                const modal = document.getElementById('importRoomModal');
+                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+
+                                // Show success notification
+                                showToast(data.message || 'Ruangan berhasil diimpor!', 'success');
+
+                                // Reload the page to show updated data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error response
+                                console.error('Import error:', data);
+
+                                // Show error notification toast
+                                let errorMessage = data.message || 'Terjadi kesalahan selama pengimporan.';
+                                let errorDetails = [];
+
+                                // Add validation errors if present
+                                if (data.data && data.data.errors) {
+                                    console.log('Server returned detailed errors:', data.data.errors);
+
+                                    if (Array.isArray(data.data.errors)) {
+                                        data.data.errors.forEach(error => {
+                                            if (typeof error === 'string') {
+                                                errorDetails.push(error);
+                                            } else if (error.message) {
+                                                errorDetails.push(error.message);
+                                            } else if (error.room_name && error.reason) {
+                                                errorDetails.push(`"${error.room_name}" - ${error.reason}`);
+                                            } else if (error.row && error.reason) {
+                                                errorDetails.push(`Baris ${error.row}: ${error.reason}`);
+                                            } else if (error.reason) {
+                                                errorDetails.push(error.reason);
+                                            }
+                                        });
+                                    }
+                                }
+
+                                // Format the error message with details if available
+                                if (errorDetails.length > 0) {
+                                    errorMessage = `${errorMessage}<ul class="mt-2 ml-4 list-disc">`;
+                                    errorDetails.forEach(detail => {
+                                        errorMessage += `<li>${detail}</li>`;
+                                    });
+                                    errorMessage += '</ul>';
+                                }
+
+                                // Create and show the toast notification
+                                showToast(errorMessage, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            // Reset button state
+                            importBtn.disabled = false;
+                            importBtn.innerHTML = originalBtnText;
+
+                            console.error('Import fetch error:', error);
+
+                            // Try to get more detailed error if available
+                            let errorMessage = 'Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.';
+
+                            if (error.response) {
+                                // The server responded with a status code outside the 2xx range
+                                try {
+                                    // Try to parse the error response
+                                    error.response.json().then(data => {
+                                        if (data.message) {
+                                            errorMessage = data.message;
+
+                                            // Add details if available
+                                            if (data.errors) {
+                                                errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+                                                if (typeof data.errors === 'object') {
+                                                    Object.values(data.errors).flat().forEach(err => {
+                                                        errorMessage += `<li>${err}</li>`;
+                                                    });
+                                                } else if (Array.isArray(data.errors)) {
+                                                    data.errors.forEach(err => {
+                                                        errorMessage += `<li>${err}</li>`;
+                                                    });
+                                                }
+                                                errorMessage += '</ul>';
+                                            }
+
+                                            showToast(errorMessage, 'error');
+                                        }
+                                    }).catch(() => {
+                                        // If we can't parse the JSON, just show the status text
+                                        showToast(`Error: ${error.response.statusText || errorMessage}`, 'error');
+                                    });
+                                } catch (e) {
+                                    // If any error in parsing, use default message
+                                    showToast(errorMessage, 'error');
+                                }
+                            } else {
+                                // Network error or something prevented the request
+                                showToast(error.message || errorMessage, 'error');
+                            }
+                        });
+                    });
+                }
+
+                // File input handling for rooms
+                const roomExcelFile = document.getElementById('room_excel_file');
+                const roomFileNameContainer = document.getElementById('room-excel-file-name');
+                const roomFileNameText = document.getElementById('room-file-name-text');
+                const removeRoomExcel = document.getElementById('remove-room-excel');
+                const roomPreviewBtn = document.getElementById('room-preview-btn');
+                const roomExcelError = document.getElementById('room-excel-error');
+                const roomExcelLoading = document.getElementById('room-excel-loading');
+
+                if (roomExcelFile) {
+                    roomExcelFile.addEventListener('change', function(e) {
+                        if (roomExcelError) roomExcelError.classList.add('hidden');
+
+                        if (this.files && this.files[0]) {
+                            const file = this.files[0];
+                            const fileExt = file.name.split('.').pop().toLowerCase();
+
+                            if (!['xlsx', 'xls', 'csv'].includes(fileExt)) {
+                                if (roomExcelError) {
+                                    roomExcelError.textContent = 'Tipe file tidak valid. Silakan unggah file Excel (.xlsx, .xls) atau CSV.';
+                                    roomExcelError.classList.remove('hidden');
+                                }
+                                this.value = '';
+                                if (roomFileNameContainer) roomFileNameContainer.classList.add('hidden');
+                                if (roomPreviewBtn) roomPreviewBtn.disabled = true;
+                                return;
+                            }
+
+                            if (roomFileNameText) roomFileNameText.textContent = file.name;
+                            if (roomFileNameContainer) roomFileNameContainer.classList.remove('hidden');
+                            if (roomPreviewBtn) roomPreviewBtn.disabled = false;
+                        } else {
+                            if (roomFileNameContainer) roomFileNameContainer.classList.add('hidden');
+                            if (roomPreviewBtn) roomPreviewBtn.disabled = true;
+                        }
+                    });
+                }
+
+                if (removeRoomExcel) {
+                    removeRoomExcel.addEventListener('click', function() {
+                        if (roomExcelFile) roomExcelFile.value = '';
+                        if (roomFileNameContainer) roomFileNameContainer.classList.add('hidden');
+                        if (roomPreviewBtn) roomPreviewBtn.disabled = true;
+                        if (roomExcelError) roomExcelError.classList.add('hidden');
+                    });
+                }
+
+                // Preview button for rooms
+                if (roomPreviewBtn) {
+                    roomPreviewBtn.addEventListener('click', function() {
+                        if (!roomExcelFile || !roomExcelFile.files || !roomExcelFile.files[0]) {
+                            if (roomExcelError) {
+                                roomExcelError.textContent = 'Silakan pilih file terlebih dahulu.';
+                                roomExcelError.classList.remove('hidden');
+                            }
+                            return;
+                        }
+
+                        const file = roomExcelFile.files[0];
+
+                        if (roomExcelLoading) roomExcelLoading.classList.remove('hidden');
+                        if (roomExcelError) roomExcelError.classList.add('hidden');
+
+                        const reader = new FileReader();
+
+                        reader.onload = function(e) {
+                            try {
+                                // Use XLSX.js to parse Excel data
+                                const data = new Uint8Array(e.target.result);
+                                const workbook = XLSX.read(data, { type: 'array' });
+
+                                // Get first sheet
+                                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+                                // Convert to JSON
+                                const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                                // Process data
+                                if (rows.length < 2) {
+                                    throw new Error('File tidak memiliki data atau header yang hilang.');
+                                }
+
+                                // Process the Excel data for rooms
+                                processRoomExcelData(rows);
+
+                                if (roomExcelLoading) roomExcelLoading.classList.add('hidden');
+
+                                // Show step 2
+                                document.getElementById('import-room-step-1').classList.add('hidden');
+                                document.getElementById('import-room-step-2').classList.remove('hidden');
+                            } catch (error) {
+                                console.error('Excel parsing error:', error);
+                                if (roomExcelLoading) roomExcelLoading.classList.add('hidden');
+                                if (roomExcelError) {
+                                    roomExcelError.textContent = 'Gagal memproses file: ' + error.message;
+                                    roomExcelError.classList.remove('hidden');
+                                }
+                            }
+                        };
+
+                        reader.onerror = function() {
+                            console.error('FileReader error:', reader.error);
+                            if (roomExcelLoading) roomExcelLoading.classList.add('hidden');
+                            if (roomExcelError) {
+                                roomExcelError.textContent = 'Gagal membaca file. Silakan coba file lainnya.';
+                                roomExcelError.classList.remove('hidden');
+                            }
+                        };
+
+                        reader.readAsArrayBuffer(file);
+                    });
+                }
+
+                // Back button for room import
+                const roomBackBtn = document.getElementById('room-back-to-upload-btn');
+                if (roomBackBtn) {
+                    roomBackBtn.addEventListener('click', function() {
+                        document.getElementById('import-room-step-2').classList.add('hidden');
+                        document.getElementById('import-room-step-1').classList.remove('hidden');
+                    });
+                }
+
+                // Function to process Excel data for rooms
+                function processRoomExcelData(data) {
+                    // Get headers (first row)
+                    const headers = data[0];
+                    // Remove empty rows
+                    const rows = data.slice(1).filter(row => row.length > 0 && row.some(cell => cell !== null && cell !== ''));
+
+                    // Map headers to normalized names
+                    const headerMap = {};
+                    headers.forEach((header, index) => {
+                        if (header) {
+                            const normalizedHeader = String(header).toLowerCase().trim()
+                                .replace(/\s+/g, '_')
+                                .replace(/[^a-z0-9_]/g, '');
+                            headerMap[normalizedHeader] = index;
+                        }
+                    });
+
+                    // Transform data for preview
+                    const previewData = [];
+                    const warnings = [];
+
+                    rows.forEach((row, rowIndex) => {
+                        const item = {};
+
+                        // Helper function to get value by possible header names
+                        const getValue = (possibleNames) => {
+                            for (const name of possibleNames) {
+                                const normalizedName = name.toLowerCase().trim()
+                                    .replace(/\s+/g, '_')
+                                    .replace(/[^a-z0-9_]/g, '');
+
+                                if (headerMap[normalizedName] !== undefined) {
+                                    return row[headerMap[normalizedName]];
+                                }
+                            }
+                            return null;
+                        };
+
+                        // Map values to normalized fields
+                        item.room_name = getValue(['room_name', 'name', 'nama_ruangan', 'nama ruangan', 'ruangan']);
+                        item.building_name = getValue(['building_name', 'building', 'gedung', 'nama_gedung', 'nama gedung']);
+                        item.floor_number = getValue(['floor_number', 'floor', 'lantai', 'nomor_lantai', 'nomor lantai']);
+                        item.description = getValue(['description', 'desc', 'deskripsi', 'notes']);
+
+                        // Validate required fields
+                        if (!item.room_name) {
+                            warnings.push(`Row ${rowIndex + 2}: Nama Ruangan tidak boleh kosong`);
+                        }
+
+                        if (!item.building_name) {
+                            warnings.push(`Row ${rowIndex + 2}: Gedung tidak boleh kosong`);
+                        }
+
+                        if (!item.floor_number) {
+                            warnings.push(`Row ${rowIndex + 2}: Lantai tidak boleh kosong`);
+                        }
+
+                        // Add row index for reference
+                        item._rowNum = rowIndex + 2; // +2 because we've removed the header row and arrays are 0-indexed
+
+                        previewData.push(item);
+                    });
+
+                    // Check for duplicate room names
+                    const roomNameMap = {};
+                    previewData.forEach(item => {
+                        if (item.room_name && item.building_name) {
+                            const key = `${item.building_name}|${item.room_name.toLowerCase()}`;
+                            if (!roomNameMap[key]) {
+                                roomNameMap[key] = [];
+                            }
+                            roomNameMap[key].push(item._rowNum);
+                        }
+                    });
+
+                    // Add duplicate warnings
+                    Object.entries(roomNameMap).forEach(([key, rows]) => {
+                        if (rows.length > 1) {
+                            const [buildingName, roomName] = key.split('|');
+                            warnings.push(`Ruangan duplikat "${roomName}" untuk Gedung "${buildingName}" ditemukan di baris: ${rows.join(', ')}`);
+                        }
+                    });
+
+                    // Update hidden field with JSON data for form submission
+                    document.getElementById('room_excel_data').value = JSON.stringify(previewData);
+
+                    // Show preview with warnings
+                    showRoomDataPreview(previewData, warnings);
+                }
+
+                // Function to show data preview for rooms
+                function showRoomDataPreview(data, warnings) {
+                    const previewTableBody = document.getElementById('room-preview-table-body');
+                    const previewCount = document.getElementById('room-preview-count');
+                    const warningsContainer = document.getElementById('room-preview-warnings');
+                    const warningsList = document.getElementById('room-warning-list');
+
+                    if (!previewTableBody || !previewCount) return;
+
+                    // Clear previous content
+                    previewTableBody.innerHTML = '';
+                    if (warningsList) warningsList.innerHTML = '';
+                    if (warningsContainer) warningsContainer.classList.add('hidden');
+
+                    // Update count
+                    previewCount.textContent = `${data.length} item ditemukan`;
+
+                    // Generate table rows
+                    data.forEach((item, index) => {
+                        const row = document.createElement('tr');
+                        row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+
+                        // Add row number
+                        const indexCell = document.createElement('td');
+                        indexCell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
+                        indexCell.textContent = index + 1;
+                        row.appendChild(indexCell);
+
+                        // Add data cells
+                        const fields = ['room_name', 'building_name', 'floor_number', 'description'];
+
+                        fields.forEach(field => {
+                            const cell = document.createElement('td');
+                            cell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
+                            cell.textContent = item[field] || '-';
+                            row.appendChild(cell);
+                        });
+
+                        previewTableBody.appendChild(row);
+                    });
+
+                    // Show warnings if any
+                    if (warnings && warnings.length > 0 && warningsList && warningsContainer) {
+                        warnings.forEach(warning => {
+                            const li = document.createElement('li');
+                            li.textContent = warning;
+                            warningsList.appendChild(li);
+                        });
+                        warningsContainer.classList.remove('hidden');
+
+                        // Disable import button if there are critical warnings
+                        const importBtn = document.getElementById('room-import-btn');
+                        const hasCriticalWarnings = warnings.some(warning =>
+                            warning.includes('Nama Ruangan tidak boleh kosong') ||
+                            warning.includes('Gedung tidak boleh kosong') ||
+                            warning.includes('Lantai tidak boleh kosong')
+                        );
+
+                        if (importBtn && hasCriticalWarnings) {
+                            importBtn.disabled = true;
+                            importBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        } else if (importBtn) {
+                            importBtn.disabled = false;
+                            importBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                    }
                 }
             });
         </script>

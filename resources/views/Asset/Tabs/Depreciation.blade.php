@@ -418,14 +418,14 @@
                 headers: {
                     'X-CSRF-TOKEN': token,
                     'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                contentType: 'application/json',
                 data: JSON.stringify(formData),
                 success: (result) => {
                     console.log('Depreciation update result:', result);
 
-                    if (result.status) {
+                    if (result.success) {
                         // Success case
                         this.showToast('Data penyusutan berhasil diperbarui', 'success');
 
@@ -438,11 +438,30 @@
                         this.loadDepreciationData();
                     } else {
                         // Error with response
-                        this.showToast(result.message || 'Gagal memperbarui data penyusutan', 'error');
+                        let errorMessage = 'Gagal memperbarui data penyusutan';
+
+                        if (result.errors) {
+                            if (typeof result.errors === 'string') {
+                                errorMessage = result.errors;
+                            } else if (typeof result.errors === 'object') {
+                                errorMessage = Object.values(result.errors).flat().join(', ');
+                            }
+                        } else if (result.message) {
+                            errorMessage = result.message;
+                        }
+
+                        this.showToast(errorMessage, 'error');
+
+                        // Display detailed errors in the error div if available
+                        if (errorDiv && result.errors) {
+                            errorDiv.textContent = errorMessage;
+                            errorDiv.classList.remove('hidden');
+                        }
                     }
                 },
                 error: (xhr, status, error) => {
                     console.error('Error updating depreciation:', status, error);
+                    console.log('Response:', xhr.responseText);
 
                     if (xhr.status === 401) {
                         // Auth error - redirect to login
@@ -455,11 +474,38 @@
 
                     let errorMessage = 'Terjadi kesalahan saat memperbarui data penyusutan';
 
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                    try {
+                        if (xhr.responseJSON) {
+                            if (xhr.responseJSON.errors) {
+                                if (typeof xhr.responseJSON.errors === 'string') {
+                                    errorMessage = xhr.responseJSON.errors;
+                                } else if (typeof xhr.responseJSON.errors === 'object') {
+                                    errorMessage = Object.values(xhr.responseJSON.errors).flat().join(', ');
+                                }
+                            } else if (xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
+                            }
+                        } else if (xhr.responseText) {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.errors) {
+                                errorMessage = typeof response.errors === 'object'
+                                    ? Object.values(response.errors).flat().join(', ')
+                                    : response.errors;
+                            } else if (response.message) {
+                                errorMessage = response.message;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error parsing error response:', e);
                     }
 
                     this.showToast(errorMessage, 'error');
+
+                    // Display detailed errors in the error div
+                    if (errorDiv) {
+                        errorDiv.textContent = errorMessage;
+                        errorDiv.classList.remove('hidden');
+                    }
                 },
                 complete: () => {
                     // Reset button state

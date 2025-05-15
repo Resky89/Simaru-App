@@ -200,12 +200,22 @@ class RoleController extends Controller
                 }, $request->input('permission_ids', []));
             }
 
+            // Create request payload
+            $payload = [
+                'role_name' => $request->input('role_name'),
+                'permission_ids' => $permissionIds
+            ];
+
+            // Only include description if it's provided and is a string
+            if ($request->has('description') && is_string($request->input('description'))) {
+                $description = trim($request->input('description'));
+                if (!empty($description)) {
+                    $payload['description'] = $description;
+                }
+            }
+
             $result = $this->apiService->request('POST', '/roles', [
-                'json' => [
-                    'role_name' => $request->input('role_name'),
-                    'description' => $request->input('description'),
-                    'permission_ids' => $permissionIds
-                ]
+                'json' => $payload
             ]);
 
             // Log the API response
@@ -322,13 +332,23 @@ class RoleController extends Controller
                 }, $request->input('permission_ids', []));
             }
 
+            // Create request payload
+            $payload = [
+                'role_id' => $id,
+                'role_name' => $request->input('role_name'),
+                'permission_ids' => $permissionIds
+            ];
+
+            // Only include description if it's provided and is a string
+            if ($request->has('description') && is_string($request->input('description'))) {
+                $description = trim($request->input('description'));
+                if (!empty($description)) {
+                    $payload['description'] = $description;
+                }
+            }
+
             $result = $this->apiService->request('PUT', "/roles/{$id}", [
-                'json' => [
-                    'role_id' => $id,
-                    'role_name' => $request->input('role_name'),
-                    'description' => $request->input('description'),
-                    'permission_ids' => $permissionIds
-                ]
+                'json' => $payload
             ]);
 
             // Log the API response

@@ -696,7 +696,57 @@
         content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
         setTimeout(() => {
             modal.classList.add('hidden');
+
+            // Reset forms when closing modals
+            if (modal.id === 'addBrandModal') {
+                resetForm('addBrandForm');
+            } else if (modal.id === 'editBrandModal') {
+                resetForm('editBrandForm');
+            } else if (modal.id === 'importBrandModal') {
+                // Reset the import form
+                if (document.getElementById('brand_excel_file')) {
+                    document.getElementById('brand_excel_file').value = '';
+                }
+                if (document.getElementById('brand-excel-file-name')) {
+                    document.getElementById('brand-excel-file-name').classList.add('hidden');
+                }
+                if (document.getElementById('brand-excel-error')) {
+                    document.getElementById('brand-excel-error').classList.add('hidden');
+                }
+                if (document.getElementById('brand-preview-btn')) {
+                    document.getElementById('brand-preview-btn').disabled = true;
+                }
+
+                // Show step 1, hide step 2 and 3
+                if (document.getElementById('import-brand-step-1')) {
+                    document.getElementById('import-brand-step-1').classList.remove('hidden');
+                }
+                if (document.getElementById('import-brand-step-2')) {
+                    document.getElementById('import-brand-step-2').classList.add('hidden');
+                }
+                if (document.getElementById('import-brand-step-3')) {
+                    document.getElementById('import-brand-step-3').classList.add('hidden');
+                }
+            }
         }, 300);
+    }
+
+    // Function to reset a form and clear validation errors
+    function resetForm(formId) {
+        const form = document.getElementById(formId);
+        if (!form) return;
+
+        // Reset the form fields
+        form.reset();
+
+        // Clear validation errors
+        form.querySelectorAll('input, select, textarea').forEach(field => {
+            field.classList.remove('border-red-500');
+            const errorElement = field.nextElementSibling;
+            if (errorElement && errorElement.classList.contains('invalid-feedback')) {
+                errorElement.classList.add('hidden');
+            }
+        });
     }
 
         // Handle Edit Brand button click
@@ -725,7 +775,7 @@
                 document.getElementById('delete_brand_name').textContent = brandName;
 
                 // Update form action with the correct route and log it
-                const formAction = "{{ url('brands/destroy') }}/" + brandId;
+                const formAction = "{{ url('brands') }}/" + brandId;
                 document.getElementById('deleteBrandForm').action = formAction;
                 console.log('Delete form action set to:', formAction);
 
@@ -1178,6 +1228,32 @@
             if (!isValid) {
                 event.preventDefault();
                 showToast('Silakan isi semua field yang diperlukan', 'error');
+            } else {
+                // Prevent multiple submissions by disabling the button
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.disabled) {
+                    // Save original button text
+                    const originalText = submitBtn.innerHTML;
+
+                    // Disable the button and show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `
+                        <div class="flex items-center justify-center">
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <span>Memproses...</span>
+                        </div>
+                    `;
+
+                    // Re-enable button after 10 seconds as a failsafe
+                    setTimeout(() => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                        }
+                    }, 10000);
+                }
             }
         });
 
@@ -1189,6 +1265,61 @@
             if (!isValid) {
                 event.preventDefault();
                 showToast('Silakan isi semua field yang diperlukan', 'error');
+            } else {
+                // Prevent multiple submissions by disabling the button
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.disabled) {
+                    // Save original button text
+                    const originalText = submitBtn.innerHTML;
+
+                    // Disable the button and show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `
+                        <div class="flex items-center justify-center">
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <span>Memproses...</span>
+                        </div>
+                    `;
+
+                    // Re-enable button after 10 seconds as a failsafe
+                    setTimeout(() => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                        }
+                    }, 10000);
+                }
+            }
+        });
+
+        // Prevent multiple submissions for Delete Brand form
+        document.getElementById('deleteBrandForm').addEventListener('submit', function(event) {
+            // Prevent multiple submissions by disabling the button
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                // Save original button text
+                const originalText = submitBtn.innerHTML;
+
+                // Disable the button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span>Menghapus...</span>
+                    </div>
+                `;
+
+                // Re-enable button after 10 seconds as a failsafe
+                setTimeout(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = originalText;
+                    }
+                }, 10000);
             }
         });
 

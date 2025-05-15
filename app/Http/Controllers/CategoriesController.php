@@ -193,6 +193,11 @@ class CategoriesController extends Controller
                 'description' => 'nullable|string'
             ]);
 
+            // Ensure description is an empty string instead of NULL
+            if (!isset($validated['description'])) {
+                $validated['description'] = '';
+            }
+
             // Log the request data
             Log::info('Attempting to create subcategory with data:', [
                 'request_data' => $validated
@@ -270,6 +275,11 @@ class CategoriesController extends Controller
                 'subcategory_name' => 'required|string|max:255',
                 'description' => 'nullable|string'
             ]);
+
+            // Ensure description is an empty string instead of NULL
+            if (!isset($validated['description'])) {
+                $validated['description'] = '';
+            }
 
             $result = $this->apiService->request('PUT', "/asset-subcategories/{$id}", [
                 'json' => array_merge(['subcategory_id' => $id], $validated)

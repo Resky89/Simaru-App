@@ -730,12 +730,55 @@
                     });
                 });
 
+                // Function to clear form inputs and error states when a modal is closed
+                function clearModalForms(modal) {
+                    if (!modal) return;
+
+                    // Get forms in the modal
+                    const forms = modal.querySelectorAll('form');
+
+                    forms.forEach(form => {
+                        // Reset the form
+                        form.reset();
+
+                        // Clear validation styling and error messages
+                        const inputs = form.querySelectorAll('input, select, textarea');
+                        inputs.forEach(input => {
+                            input.classList.remove('border-red-500');
+                            const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                            if (errorElement) errorElement.classList.add('hidden');
+                        });
+                    });
+
+                    // Additional cleanup for specific modals
+                    if (modal.id === 'importBuildingModal') {
+                        // Reset file upload
+                        const fileInput = modal.querySelector('#building_excel_file');
+                        if (fileInput) fileInput.value = '';
+
+                        const fileNameContainer = modal.querySelector('#building-excel-file-name');
+                        if (fileNameContainer) fileNameContainer.classList.add('hidden');
+
+                        const previewBtn = modal.querySelector('#building-preview-btn');
+                        if (previewBtn) previewBtn.disabled = true;
+
+                        const errorDiv = modal.querySelector('#building-excel-error');
+                        if (errorDiv) errorDiv.classList.add('hidden');
+
+                        // Reset to step 1 if on any other step
+                        document.getElementById('import-building-step-1')?.classList.remove('hidden');
+                        document.getElementById('import-building-step-2')?.classList.add('hidden');
+                        document.getElementById('import-building-step-3')?.classList.add('hidden');
+                    }
+                }
+
                 // Close Modal Handlers
                 closeButtons.forEach(button => {
                     button.addEventListener('click', () => {
                         const modal = button.closest('[id$="Modal"]');
                         const content = modal.querySelector('[id$="ModalContent"]');
                         closeModal(modal, content);
+                        clearModalForms(modal);
                     });
                 });
 
@@ -747,6 +790,7 @@
                             e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
                             const content = this.querySelector('[id$="ModalContent"]');
                             closeModal(this, content);
+                            clearModalForms(this);
                         }
                     });
                 });
@@ -758,6 +802,7 @@
                             if (!modal.classList.contains('hidden')) {
                                 const content = modal.querySelector('[id$="ModalContent"]');
                                 closeModal(modal, content);
+                                clearModalForms(modal);
                             }
                         });
                     }
@@ -865,6 +910,32 @@
                     if (!isNameValid || !isAddressValid) {
                         event.preventDefault();
                         showToast('Silakan isi semua field yang diperlukan', 'error');
+                    } else {
+                        // Prevent multiple submissions by disabling the button
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn && !submitBtn.disabled) {
+                            // Save original button text
+                            const originalText = submitBtn.innerHTML;
+
+                            // Disable the button and show loading state
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
+
+                            // Re-enable button after 10 seconds as a failsafe
+                            setTimeout(() => {
+                                if (submitBtn) {
+                                    submitBtn.disabled = false;
+                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                    submitBtn.innerHTML = originalText;
+                                }
+                            }, 10000);
+                        }
                     }
                 });
 
@@ -879,6 +950,61 @@
                     if (!isNameValid || !isAddressValid) {
                         event.preventDefault();
                         showToast('Silakan isi semua field yang diperlukan', 'error');
+                    } else {
+                        // Prevent multiple submissions by disabling the button
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn && !submitBtn.disabled) {
+                            // Save original button text
+                            const originalText = submitBtn.innerHTML;
+
+                            // Disable the button and show loading state
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
+
+                            // Re-enable button after 10 seconds as a failsafe
+                            setTimeout(() => {
+                                if (submitBtn) {
+                                    submitBtn.disabled = false;
+                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                    submitBtn.innerHTML = originalText;
+                                }
+                            }, 10000);
+                        }
+                    }
+                });
+
+                // Prevent multiple submissions for Delete Building form
+                document.getElementById('deleteBuildingForm').addEventListener('submit', function(event) {
+                    // Prevent multiple submissions by disabling the button
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable the button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Menghapus...</span>
+                            </div>
+                        `;
+
+                        // Re-enable button after 10 seconds as a failsafe
+                        setTimeout(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
                     }
                 });
 

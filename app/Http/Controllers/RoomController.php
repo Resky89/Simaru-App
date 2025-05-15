@@ -217,9 +217,13 @@ class RoomController extends Controller
             $payload = [
                 'room_name' => $request->input('room_name'),
                 'building_id' => $buildingId,
-                'floor_number' => $request->input('floor_number'),
-                'description' => $request->input('description')
+                'floor_number' => $request->input('floor_number')
             ];
+
+            // Only add description to payload if it's not empty
+            if ($request->filled('description')) {
+                $payload['description'] = $request->input('description');
+            }
 
             \Log::info('Sending API request with payload:', ['payload' => $payload]);
 
@@ -338,9 +342,13 @@ class RoomController extends Controller
                 'room_id' => (int) $id,
                 'room_name' => $request->input('room_name'),
                 'building_id' => $buildingId,
-                'floor_number' => $request->input('floor_number'),
-                'description' => $request->input('description')
+                'floor_number' => $request->input('floor_number')
             ];
+
+            // Only add description to payload if it's not empty
+            if ($request->filled('description')) {
+                $payload['description'] = $request->input('description');
+            }
 
             \Log::info('Sending API request with payload:', ['payload' => $payload]);
 
@@ -647,7 +655,7 @@ class RoomController extends Controller
         }
     }
 
-    /**
+   /**
      * Import room data from Excel file.
      */
     public function import(Request $request)
@@ -662,7 +670,7 @@ class RoomController extends Controller
                         'data' => [
                             'errors' => ['File Excel tidak ditemukan']
                         ]
-                    ], 400);
+                    ], status: 400);
                 }
 
                 return redirect()->back()
@@ -691,43 +699,14 @@ class RoomController extends Controller
 
             // Log the API response
             \Log::info('API response for room import:', [
-                'api_response' => $result,
-                'status_code' => $result['status_code'] ?? 'unknown'
+                'api_response' => $result
             ]);
 
-            // Get status code from response
-            $statusCode = $result['status_code'] ?? 500;
-
-            // Check response based on status code
-            if ($statusCode >= 200 && $statusCode < 300) {
-                // Success response (2xx status codes)
-                $successMessage = $result['message'] ?? 'Data ruangan berhasil diimpor';
-                $totalImported = $result['data']['total'] ?? 0;
-                $successCount = $result['data']['success'] ?? 0;
-                $failedCount = $result['data']['failed'] ?? 0;
-
-                \Log::info('Rooms imported successfully', [
-                    'total' => $totalImported,
-                    'success' => $successCount,
-                    'failed' => $failedCount
-                ]);
-
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => $successMessage,
-                        'data' => $result['data'] ?? null
-                    ], 200);
-                }
-
-                return redirect()->route('rooms')
-                    ->with('success', 'Data ruangan berhasil diimpor: ' .
-                        $successCount . ' sukses, ' .
-                        $failedCount . ' gagal');
-            } else if ($statusCode == 401 || $statusCode == 403) {
-                // Authentication/Authorization errors
+            // Check if we got an auth error response
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 \Log::warning('Authentication error during room import:', [
-                    'status_code' => $statusCode
+                    'error' => $result['errors']
                 ]);
 
                 if ($request->expectsJson()) {
@@ -737,16 +716,18 @@ class RoomController extends Controller
                         'data' => [
                             'errors' => ['Authentication failed']
                         ]
-                    ], 401);
+                    ], status: 401);
                 }
 
                 return redirect()->route('login')->with('error', 'Authentication failed');
-            } else {
-                // Other error responses (4xx or 5xx)
-                $errorData = $result['errors'] ?? ($result['message'] ?? 'Gagal mengimpor data ruangan');
+            }
+
+            // Check for other API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal mengimpor data ruangan';
 
                 \Log::warning('Error during room import:', [
-                    'status_code' => $statusCode,
+                'success' => $result['success'] ?? false,
                     'errors' => $errorData
                 ]);
 
@@ -757,7 +738,7 @@ class RoomController extends Controller
                         'data' => isset($result['data']) ? $result['data'] : [
                             'errors' => is_array($errorData) ? array_values($errorData) : [$errorData]
                 ]
-                    ], $statusCode >= 400 && $statusCode < 500 ? $statusCode : 400);
+                    ], status: 400);
                 }
 
                 // Format error message
@@ -777,6 +758,31 @@ class RoomController extends Controller
                 return redirect()->back()
                     ->with('error', $errorMessage);
             }
+
+            // Successfully imported
+            $successMessage = $result['message'] ?? 'Data ruangan berhasil diimpor';
+            $totalImported = $result['data']['total'] ?? 0;
+            $successCount = $result['data']['success'] ?? 0;
+            $failedCount = $result['data']['failed'] ?? 0;
+
+            \Log::info('Rooms imported successfully', [
+                'total' => $totalImported,
+                'success' => $successCount,
+                'failed' => $failedCount
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('rooms')
+                ->with('success', 'Data ruangan berhasil diimpor: ' .
+                    $successCount . ' sukses, ' .
+                    $failedCount . ' gagal');
         } catch (\Exception $e) {
             \Log::error('Exception during room import:', [
                 'error' => $e->getMessage(),
@@ -796,7 +802,7 @@ class RoomController extends Controller
                         ],
                         'created' => []
                     ]
-                ], 500);
+                ], status:  500);
             }
 
             return redirect()->back()

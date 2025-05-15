@@ -25,7 +25,7 @@
                             <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                             <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                         </svg>
-                        <span class="text-base">Tambah Sub Kategori</span>
+                        <span class="text-base">Tambah Kategori</span>
                     </button>
                     </div>
                 </div>
@@ -67,7 +67,8 @@
                         <thead>
                             <tr>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[25%]">Tipe Aset</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Sub Kategori</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kategori</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[88px]">Aksi</th>
                             </tr>
                         </thead>
@@ -84,6 +85,7 @@
                                         @endif
                                     </td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $subcategory['subcategory_name'] }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $subcategory['description'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                         <div class="flex items-center space-x-2 justify-center">
                                             <button class="edit-subcategory-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
@@ -253,6 +255,16 @@
                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus diisi</div>
                             </div>
 
+                            <!-- Description Field -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">
+                                    Deskripsi
+                                </label>
+                                <textarea name="description" id="add_description"
+                                    class="w-full p-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Ketik deskripsi di sini" rows="3"></textarea>
+                            </div>
+
                             <!-- Submit Button -->
                             <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
                                 Simpan
@@ -318,6 +330,17 @@
                                     placeholder="Ketik di sini" required>
                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus diisi</div>
                             </div>
+
+                            <!-- Description Field -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">
+                                    Deskripsi
+                                </label>
+                                <textarea id="editDescription" name="description"
+                                    class="w-full p-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                    placeholder="Ketik deskripsi di sini" rows="3"></textarea>
+                            </div>
+
                             <button type="submit" class="w-full h-[45px] bg-[#203268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
                                 Perbarui
                             </button>
@@ -556,6 +579,52 @@
         const importCategoryModal = document.getElementById('importCategoryModal');
         const closeButtons = document.querySelectorAll('.close-modal');
 
+        // Prevent multiple form submissions
+        const createSubCategoryForm = document.getElementById('createSubCategoryForm');
+        const editSubCategoryForm = document.getElementById('editSubCategoryForm');
+        const deleteSubCategoryForm = document.getElementById('deleteSubCategoryForm');
+
+        // Helper function to prevent multiple submissions
+        function preventMultipleSubmits(form, buttonSelector) {
+            if (!form) return;
+
+            form.addEventListener('submit', function(e) {
+                // Only proceed if validation passes
+                if (this.checkValidity()) {
+                    // Find the submit button
+                    const submitBtn = this.querySelector(buttonSelector);
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable the button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        // Re-enable button after 10 seconds as a failsafe
+                        setTimeout(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+                }
+            });
+        }
+
+        // Apply to all forms
+        preventMultipleSubmits(createSubCategoryForm, 'button[type="submit"]');
+        preventMultipleSubmits(editSubCategoryForm, 'button[type="submit"]');
+        preventMultipleSubmits(deleteSubCategoryForm, 'button[type="submit"]');
+
         // Show toast notifications for session messages on page load
         @if(session('success'))
             showToast("{{ session('success') }}", 'success');
@@ -619,6 +688,7 @@
                 document.getElementById('editSubCategoryId').value = subcategoryId;
                 document.getElementById('editAssetType').value = assetType;
                 document.getElementById('editSubCategoryName').value = subcategoryName;
+                document.getElementById('editDescription').value = description || '';
 
                 openModal(editSubCategoryModal, editSubCategoryModal.querySelector('[id$="ModalContent"]'));
             });
@@ -641,12 +711,55 @@
             });
         });
 
+        // Function to clear form inputs and error states when a modal is closed
+        function clearModalForms(modal) {
+            if (!modal) return;
+
+            // Get forms in the modal
+            const forms = modal.querySelectorAll('form');
+
+            forms.forEach(form => {
+                // Reset the form
+                form.reset();
+
+                // Clear validation styling and error messages
+                const inputs = form.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    input.classList.remove('border-red-500');
+                    const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            });
+
+            // Additional cleanup for specific modals
+            if (modal.id === 'importCategoryModal') {
+                // Reset file upload
+                const fileInput = modal.querySelector('#category_excel_file');
+                if (fileInput) fileInput.value = '';
+
+                const fileNameContainer = modal.querySelector('#category-excel-file-name');
+                if (fileNameContainer) fileNameContainer.classList.add('hidden');
+
+                const previewBtn = modal.querySelector('#category-preview-btn');
+                if (previewBtn) previewBtn.disabled = true;
+
+                const errorDiv = modal.querySelector('#category-excel-error');
+                if (errorDiv) errorDiv.classList.add('hidden');
+
+                // Reset to step 1 if on any other step
+                document.getElementById('import-category-step-1')?.classList.remove('hidden');
+                document.getElementById('import-category-step-2')?.classList.add('hidden');
+                document.getElementById('import-category-step-3')?.classList.add('hidden');
+            }
+        }
+
         // Close Modal Handlers
         closeButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const modal = button.closest('[id$="Modal"]');
                 const content = modal.querySelector('[id$="ModalContent"]');
                 closeModal(modal, content);
+                clearModalForms(modal);
             });
         });
 
@@ -658,6 +771,7 @@
                     e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
                     const content = this.querySelector('[id$="ModalContent"]');
                     closeModal(this, content);
+                    clearModalForms(this);
                 }
             });
         });
@@ -669,6 +783,7 @@
                     if (!modal.classList.contains('hidden')) {
                         const content = modal.querySelector('[id$="ModalContent"]');
                         closeModal(modal, content);
+                        clearModalForms(modal);
                     }
                 });
             }
@@ -678,9 +793,15 @@
         document.getElementById('createSubCategoryForm').addEventListener('submit', function(event) {
             const assetTypeInput = document.getElementById('add_asset_type');
             const subcategoryNameInput = document.getElementById('add_subcategory_name');
+            const descriptionInput = document.getElementById('add_description');
 
             const isAssetTypeValid = validateField(assetTypeInput);
             const isSubcategoryNameValid = validateField(subcategoryNameInput);
+
+            // Ensure description is never NULL
+            if (descriptionInput && descriptionInput.value === null) {
+                descriptionInput.value = '';
+            }
 
             if (!isAssetTypeValid || !isSubcategoryNameValid) {
                 event.preventDefault();
@@ -692,9 +813,15 @@
         document.getElementById('editSubCategoryForm').addEventListener('submit', function(event) {
             const assetTypeInput = document.getElementById('editAssetType');
             const subcategoryNameInput = document.getElementById('editSubCategoryName');
+            const descriptionInput = document.getElementById('editDescription');
 
             const isAssetTypeValid = validateField(assetTypeInput);
             const isSubcategoryNameValid = validateField(subcategoryNameInput);
+
+            // Ensure description is never NULL
+            if (descriptionInput && descriptionInput.value === null) {
+                descriptionInput.value = '';
+            }
 
             if (!isAssetTypeValid || !isSubcategoryNameValid) {
                 event.preventDefault();

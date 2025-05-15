@@ -181,20 +181,30 @@ class VendorController extends Controller
     public function store(Request $request)
     {
         try {
+            $validated = $request->validate([
+                'vendor_name' => 'required|string|max:50',
+                'contact_person' => 'nullable|string|max:100',
+                'phone_number' => 'nullable|string|max:20',
+                'email' => 'nullable|string|email|max:100',
+                'website' => 'nullable|string|url|max:255',
+                'address' => 'nullable|string'
+            ]);
+
+            // Remove empty fields from request body
+            $optionalFields = ['contact_person', 'phone_number', 'email', 'website', 'address'];
+            foreach ($optionalFields as $field) {
+                if (!isset($validated[$field]) || $validated[$field] === null || $validated[$field] === '') {
+                    unset($validated[$field]);
+                }
+            }
+
             // Log the request data
             \Log::info('Attempting to create vendor with data:', [
-                'request_data' => $request->all()
+                'request_data' => $validated
             ]);
 
             $result = $this->apiService->request('POST', '/vendors', [
-                'json' => [
-                    'vendor_name' => $request->input('vendor_name'),
-                    'contact_person' => $request->input('contact_person'),
-                    'phone_number' => $request->input('phone_number'),
-                    'email' => $request->input('email'),
-                    'website' => $request->input('website'),
-                    'address' => $request->input('address')
-                ]
+                'json' => $validated
             ]);
 
             // Log the API response
@@ -262,16 +272,28 @@ class VendorController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $validated = $request->validate([
+                'vendor_name' => 'required|string|max:50',
+                'contact_person' => 'nullable|string|max:100',
+                'phone_number' => 'nullable|string|max:20',
+                'email' => 'nullable|string|email|max:100',
+                'website' => 'nullable|string|url|max:255',
+                'address' => 'nullable|string'
+            ]);
+
+            // Remove empty fields from request body
+            $optionalFields = ['contact_person', 'phone_number', 'email', 'website', 'address'];
+            foreach ($optionalFields as $field) {
+                if (!isset($validated[$field]) || $validated[$field] === null || $validated[$field] === '') {
+                    unset($validated[$field]);
+                }
+            }
+
+            // Add vendor_id to validated data
+            $validated['vendor_id'] = $id;
+
             $result = $this->apiService->request('PUT', "/vendors/{$id}", [
-                'json' => [
-                    'vendor_id' => $id,
-                    'vendor_name' => $request->input('vendor_name'),
-                    'contact_person' => $request->input('contact_person'),
-                    'phone_number' => $request->input('phone_number'),
-                    'email' => $request->input('email'),
-                    'website' => $request->input('website'),
-                    'address' => $request->input('address')
-                ]
+                'json' => $validated
             ]);
 
             // Check if we got an auth error response

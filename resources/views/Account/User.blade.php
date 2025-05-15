@@ -33,7 +33,7 @@
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0118 0z" />
                                 </svg>
                             </div>
                         </div>
@@ -215,7 +215,6 @@
             </div>
         </div>
 
-        <!-- All modals should be outside the main content section -->
         <!-- Add User Modal -->
         <div id="addUserModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -237,28 +236,36 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="addUserForm" action="{{ route('users.store') }}" method="POST">
+                            <form id="addUserForm" action="{{ route('users.store') }}" method="POST" novalidate>
                                 @csrf
                                 <div class="space-y-4 max-w-[400px] mx-auto">
                                     <!-- Employee Number Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Nomor Pegawai</label>
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Nomor Pegawai <span class="text-red-500">*</span>
+                                        </label>
                                         <input type="text" name="employee_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Masukkan nomor pegawai" required>
+                                            placeholder="Masukkan nomor pegawai">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor pegawai harus diisi</div>
                                     </div>
 
                                     <!-- Password Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Kata Sandi</label>
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Kata Sandi <span class="text-red-500">*</span>
+                                        </label>
                                         <input type="password" name="password"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Masukkan kata sandi" required autocomplete="new-password">
+                                            placeholder="Masukkan kata sandi" autocomplete="new-password">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Kata sandi harus diisi</div>
                                     </div>
 
                                     <!-- Roles Selection for Add User Modal -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Peran</label>
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Peran <span class="text-red-500">*</span>
+                                        </label>
                                         <div class="relative">
                                             <input type="text" id="add-roles-input" placeholder="Cari peran..."
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
@@ -269,6 +276,7 @@
                                         </div>
                                         <div id="add-role-hidden-inputs"></div>
                                         <div id="add-selected-roles-display" class="flex flex-wrap gap-2 mt-2"></div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Setidaknya satu peran harus dipilih</div>
                                     </div>
 
                                     <!-- Active Status -->
@@ -317,21 +325,26 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="editUserForm" action="" method="POST">
+                            <form id="editUserForm" action="" method="POST" novalidate>
                                 @csrf
                                 @method('PUT')
                                 <div class="space-y-4 max-w-[400px] mx-auto">
                                     <!-- Employee Number Input -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Nomor Pegawai</label>
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Nomor Pegawai <span class="text-red-500">*</span>
+                                        </label>
                                         <input type="text" id="edit_employee_number" name="employee_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Masukkan nomor pegawai" required>
+                                            placeholder="Masukkan nomor pegawai">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor pegawai harus diisi</div>
                                     </div>
 
                                     <!-- Roles Selection for Edit User Modal -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Peran</label>
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Peran <span class="text-red-500">*</span>
+                                        </label>
                                         <div class="relative">
                                             <input type="text" id="edit-roles-input" placeholder="Cari peran..."
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
@@ -342,6 +355,7 @@
                                         </div>
                                         <div id="edit-role-hidden-inputs"></div>
                                         <div id="edit-selected-roles-display" class="flex flex-wrap gap-2 mt-2"></div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Setidaknya satu peran harus dipilih</div>
                                     </div>
 
                                     <!-- Active Status -->
@@ -503,7 +517,7 @@
                 sortOrderSelect.addEventListener('change', applyFilters);
             }
 
-            // Function to set up role search
+            // Modify setupRoleSearch to handle validation
             function setupRoleSearch(inputId, dropdownId, displayContainerId, hiddenInputsId) {
                 const input = document.getElementById(inputId);
                 const dropdown = document.getElementById(dropdownId);
@@ -750,6 +764,9 @@
 
                             // Refilter to show this option again
                             filterAndDisplayRoles(input.value.toLowerCase().trim());
+
+                            // Check if roles are empty and show error if needed
+                            checkRolesValidation();
                         });
 
                         // Add badge to the container
@@ -770,8 +787,25 @@
                         customInputContainer.insertBefore(breakDiv, input);
                     }
 
+                    // Hide error message if roles are selected
+                    checkRolesValidation();
+
                     // Dynamically adjust height based on content
                     adjustWrapperHeight();
+                }
+
+                // Function to check role validation and update UI
+                function checkRolesValidation() {
+                    const errorElement = displayContainer.closest('.space-y-2').querySelector('.error-message');
+                    const hasRoles = hiddenInputsContainer.querySelectorAll('input[name="role_ids[]"]').length > 0;
+
+                    if (!hasRoles) {
+                        wrapper.classList.add('border-red-500');
+                        if (errorElement) errorElement.classList.remove('hidden');
+                    } else {
+                        wrapper.classList.remove('border-red-500');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    }
                 }
 
                 // Function to adjust wrapper height based on content
@@ -820,6 +854,9 @@
                     }
 
                     renderSelectedRoles();
+
+                    // Make sure to check validation after setting roles
+                    checkRolesValidation();
                 };
             }
 
@@ -895,11 +932,45 @@
                 content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
                 setTimeout(() => {
                     modal.classList.add('hidden');
-                }, 300);
 
-                // Hide any open dropdowns
-                document.getElementById('add-roles-dropdown').classList.add('hidden');
-                document.getElementById('edit-roles-dropdown').classList.add('hidden');
+                    // Reset forms when closing modals
+                    if (modal.id === 'addUserModal') {
+                        resetForm('addUserForm');
+                    } else if (modal.id === 'editUserModal') {
+                        resetForm('editUserForm');
+                    }
+                }, 300);
+            }
+
+            // Function to reset a form and clear validation errors
+            function resetForm(formId) {
+                const form = document.getElementById(formId);
+                if (!form) return;
+
+                // Reset the form fields
+                form.reset();
+
+                // Clear validation errors
+                form.querySelectorAll('input, select, textarea').forEach(field => {
+                    field.classList.remove('border-red-500');
+                    const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+
+                // Clear role selections
+                if (formId === 'addUserForm') {
+                    setAddSelectedRoles([], []);
+                    const roleWrapper = document.querySelector('#add-roles-input').closest('.relative');
+                    roleWrapper.classList.remove('border-red-500');
+                    const roleError = document.querySelector('#add-selected-roles-display').closest('.space-y-2').querySelector('.error-message');
+                    if (roleError) roleError.classList.add('hidden');
+                } else if (formId === 'editUserForm') {
+                    setEditSelectedRoles([], []);
+                    const roleWrapper = document.querySelector('#edit-roles-input').closest('.relative');
+                    roleWrapper.classList.remove('border-red-500');
+                    const roleError = document.querySelector('#edit-selected-roles-display').closest('.space-y-2').querySelector('.error-message');
+                    if (roleError) roleError.classList.add('hidden');
+                }
             }
 
             // Edit User Modal
@@ -952,7 +1023,6 @@
             // Close Modal Handlers
             closeButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    try {
                         const modalId = button.getAttribute('data-modal');
                         if (!modalId) return;
 
@@ -963,9 +1033,6 @@
                         if (!content) return;
 
                         closeModal(modal, content);
-                    } catch (error) {
-                        console.error('Error closing modal:', error);
-                    }
                 });
             });
 
@@ -1170,6 +1237,142 @@
             @if(session('error'))
                 showToast("{{ session('error') }}", 'error');
             @endif
+
+            // Modify the validation code in preventMultipleSubmits
+            function preventMultipleSubmits(form, buttonSelector) {
+                if (!form) return;
+
+                form.addEventListener('submit', function(e) {
+                    // First check if validation passes
+                    let isValid = true;
+
+                    if (form.id === 'addUserForm') {
+                        const employeeNumberInput = this.querySelector('[name="employee_number"]');
+                        const passwordInput = this.querySelector('[name="password"]');
+                        const roleInputsContainer = document.getElementById('add-role-hidden-inputs');
+
+                        // Validate all required fields
+                        const isEmployeeNumberValid = validateField(employeeNumberInput);
+                        const isPasswordValid = validateField(passwordInput);
+
+                        // Validate roles - get actual count of role inputs
+                        const hasRoles = roleInputsContainer.querySelectorAll('input[name="role_ids[]"]').length > 0;
+                        const roleSelector = document.getElementById('add-selected-roles-display');
+                        const roleErrorElement = roleSelector.closest('.space-y-2').querySelector('.error-message');
+
+                        if (!hasRoles) {
+                            roleSelector.closest('.relative').classList.add('border-red-500');
+                            if (roleErrorElement) roleErrorElement.classList.remove('hidden');
+                            isValid = false;
+                        } else {
+                            roleSelector.closest('.relative').classList.remove('border-red-500');
+                            if (roleErrorElement) roleErrorElement.classList.add('hidden');
+                        }
+
+                        isValid = isEmployeeNumberValid && isPasswordValid && hasRoles;
+                    } else if (form.id === 'editUserForm') {
+                        const employeeNumberInput = this.querySelector('[name="employee_number"]');
+                        const roleInputsContainer = document.getElementById('edit-role-hidden-inputs');
+
+                        // Validate all required fields
+                        const isEmployeeNumberValid = validateField(employeeNumberInput);
+
+                        // Validate roles - get actual count of role inputs
+                        const hasRoles = roleInputsContainer.querySelectorAll('input[name="role_ids[]"]').length > 0;
+                        const roleSelector = document.getElementById('edit-selected-roles-display');
+                        const roleErrorElement = roleSelector.closest('.space-y-2').querySelector('.error-message');
+
+                        if (!hasRoles) {
+                            roleSelector.closest('.relative').classList.add('border-red-500');
+                            if (roleErrorElement) roleErrorElement.classList.remove('hidden');
+                            isValid = false;
+                        } else {
+                            roleSelector.closest('.relative').classList.remove('border-red-500');
+                            if (roleErrorElement) roleErrorElement.classList.add('hidden');
+                        }
+
+                        isValid = isEmployeeNumberValid && hasRoles;
+                    }
+
+                    // If validation fails, show error and prevent form submission
+                    if (!isValid) {
+                        e.preventDefault();
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                        return false;
+                    }
+
+                    // Only proceed if validation passes
+                    // Find the submit button
+                    const submitBtn = this.querySelector(buttonSelector);
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable the button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        // Re-enable button after 10 seconds as a failsafe
+                        setTimeout(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+                });
+            }
+
+            // Apply to all forms
+            preventMultipleSubmits(addUserForm, 'button[type="submit"]');
+            preventMultipleSubmits(editUserForm, 'button[type="submit"]');
+            preventMultipleSubmits(deleteUserForm, 'button[type="submit"]');
+
+            // Remove these event listeners as they're now handled in preventMultipleSubmits
+            // Form validation for Add User Modal
+            document.getElementById('addUserForm').removeEventListener('submit', function(){});
+
+            // Form validation for Edit User Modal
+            document.getElementById('editUserForm').removeEventListener('submit', function(){});
+
+            // Function to validate field and show error styling
+            function validateField(field) {
+                let errorElement = field.closest('.space-y-2').querySelector('.error-message');
+
+                if (!field.value.trim()) {
+                    field.classList.add('border-red-500');
+                    if (errorElement) errorElement.classList.remove('hidden');
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorElement) errorElement.classList.add('hidden');
+                    return true;
+                }
+            }
+
+            // Add input event listeners to clear error styling when typing
+            document.getElementById('addUserForm').querySelectorAll('input[required]').forEach(input => {
+                input.addEventListener('input', function() {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            });
+
+            document.getElementById('editUserForm').querySelectorAll('input[required]').forEach(input => {
+                input.addEventListener('input', function() {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            });
         });
     </script>
 @endsection

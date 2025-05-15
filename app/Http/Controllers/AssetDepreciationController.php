@@ -107,6 +107,9 @@ class AssetDepreciationController extends Controller
     public function updateAssetDepreciation(Request $request, $assetId)
     {
         try {
+            // Get request data properly depending on content type
+            $requestData = $request->json()->all();
+
             // Validate request data
             $validated = $request->validate([
                 'date_acquired' => 'required|date',
@@ -124,7 +127,9 @@ class AssetDepreciationController extends Controller
             ]);
 
             // Send update request to API
-            $result = $this->apiService->request('PUT', "/depreciations/asset/{$assetId}", $validated);
+            $result = $this->apiService->request('PUT', "/depreciations/asset/{$assetId}", [
+                'json' => $validated
+            ]);
 
             // Log API response for debugging
             \Log::info('API response for depreciation update:', [
@@ -198,6 +203,7 @@ class AssetDepreciationController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
+                    'status' => true,
                     'data' => [
                         'asset_id' => (int) $assetId
                     ]

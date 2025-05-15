@@ -233,7 +233,6 @@
                                 <input type="text" name="contact_person" id="add_contact_person"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                     placeholder="Ketik di sini">
-
                             </div>
 
                             <!-- Phone Number Input -->
@@ -328,7 +327,6 @@
                                 <input type="text" id="editContactPerson" name="contact_person"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                     placeholder="Ketik di sini">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Kontak harus diisi</div>
                             </div>
 
                             <!-- Phone Number Input -->
@@ -339,7 +337,6 @@
                                 <input type="text" id="editPhoneNumber" name="phone_number"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                     placeholder="Ketik di sini">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor Telepon harus diisi</div>
                             </div>
 
                             <!-- Email Input -->
@@ -695,15 +692,25 @@
                 // Reset add vendor form
                 else if (modal.id === 'addVendorModal') {
                     const form = document.getElementById('createVendorForm');
-                    if (form) form.reset();
+                    if (form) {
+                        form.reset();
 
-                    // Remove validation error styling
-                    const inputs = form?.querySelectorAll('input, textarea, select');
-                    inputs?.forEach(input => {
-                        input.classList.remove('border-red-500');
-                        const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
-                        if (errorElement) errorElement.classList.add('hidden');
-                    });
+                        // Remove validation error styling
+                        const inputs = form?.querySelectorAll('input, textarea, select');
+                        inputs?.forEach(input => {
+                            input.classList.remove('border-red-500');
+                            const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                            if (errorElement) errorElement.classList.add('hidden');
+                        });
+
+                        // Ensure submit button is enabled and reset
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = 'Simpan';
+                        }
+                    }
                 }
                 // Reset edit vendor form
                 else if (modal.id === 'editVendorModal') {
@@ -723,6 +730,17 @@
 
         // Add Vendor Modal
         addVendorBtn.addEventListener('click', () => {
+            // Reset form and ensure submit button is enabled
+            const form = document.getElementById('createVendorForm');
+            if (form) {
+                form.reset();
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = 'Simpan';
+                }
+            }
             openModal(addVendorModal, addVendorModal.querySelector('[id$="ModalContent"]'));
         });
 
@@ -770,6 +788,32 @@
             });
         });
 
+        // Prevent multiple submissions for Delete Vendor
+        document.getElementById('deleteVendorForm').addEventListener('submit', function(event) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                // Save original button text
+                const originalText = submitBtn.innerHTML;
+
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span>Memproses...</span>
+                    </div>
+                `;
+
+                // Re-enable after 10 seconds as failsafe
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+                }, 10000);
+            }
+        });
+
         // Close Modal Handlers
         closeButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -808,23 +852,41 @@
             event.preventDefault();
 
             const vendorNameInput = document.getElementById('add_vendor_name');
-            const emailInput = document.getElementById('add_email');
-            const websiteInput = document.getElementById('add_website');
+
 
             let isValid = true;
 
-            // Validate required fields
+            // Only vendor name is mandatory
             if (!validateField(vendorNameInput)) isValid = false;
 
-            // Validate email format if provided
-            if (emailInput.value.trim() !== '' && !validateEmail(emailInput)) isValid = false;
-
-            // Validate website format if provided
-            if (websiteInput.value.trim() !== '' && !validateUrl(websiteInput)) isValid = false;
 
             if (!isValid) {
                 showToast('Silakan isi nama vendor dengan benar', 'error');
                 return false;
+            }
+
+            // Prevent multiple submissions
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                // Save original button text
+                const originalText = submitBtn.innerHTML;
+
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span>Memproses...</span>
+                    </div>
+                `;
+
+                // Re-enable after 10 seconds as failsafe
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+                }, 10000);
             }
 
             this.submit();
@@ -835,23 +897,41 @@
             event.preventDefault();
 
             const vendorNameInput = document.getElementById('editVendorName');
-            const emailInput = document.getElementById('editEmail');
-            const websiteInput = document.getElementById('editWebsite');
+
 
             let isValid = true;
 
-            // Validate required fields
+            // Only vendor name is mandatory
             if (!validateField(vendorNameInput)) isValid = false;
 
-            // Validate email format if provided
-            if (emailInput.value.trim() !== '' && !validateEmail(emailInput)) isValid = false;
-
-            // Validate website format if provided
-            if (websiteInput.value.trim() !== '' && !validateUrl(websiteInput)) isValid = false;
 
             if (!isValid) {
                 showToast('Silakan isi nama vendor dengan benar', 'error');
                 return false;
+            }
+
+            // Prevent multiple submissions
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                // Save original button text
+                const originalText = submitBtn.innerHTML;
+
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span>Memproses...</span>
+                    </div>
+                `;
+
+                // Re-enable after 10 seconds as failsafe
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+                }, 10000);
             }
 
             this.submit();
