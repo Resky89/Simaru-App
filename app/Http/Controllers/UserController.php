@@ -143,6 +143,7 @@ class UserController extends Controller
             // Return JSON if requested
             if ($request->expectsJson() ||  $request->ajax() || $request->wantsJson()) {
                 return response()->json([
+                    'users' => $users,
                     'success' => true,
                     'data' => $users,
                     'pagination' => $userPagination

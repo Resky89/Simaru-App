@@ -52,9 +52,8 @@
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="" disabled selected>Pilih Tipe</option>
                             <option value="">Semua Tipe</option>
-                            @foreach($assetTypes as $type)
-                                <option value="{{ $type }}">{{ ucfirst(str_replace('_', ' ', $type)) }}</option>
-                            @endforeach
+                            <option value="medical">Medis</option>
+                            <option value="non_medical">Non Medis</option>
                         </select>
 
                         <select id="sortOrder"
@@ -1116,8 +1115,8 @@
         // Initialize all custom selects
         initCustomSelects();
 
-                // Load subcategories based on selected asset type
-        function loadSubcategories(assetType, targetElementId, loadingMessageId, searchTerm = '') {
+        // Load subcategories based on selected asset type
+        function loadSubcategories(assetType, targetElementId, loadingMessageId, searchTerm = '', silentLoad = false) {
             // Get container elements
             const container = document.querySelector(`#${targetElementId}`).closest('.custom-select-container');
             const optionsContainer = container.querySelector('.options-container');
@@ -1145,8 +1144,8 @@
                 optionsContainer.appendChild(newLoadingMsg);
             }
 
-            // Show options container if it's hidden (for search)
-            if (optionsContainer.classList.contains('hidden')) {
+            // Show options container only if not in silent mode
+            if (!silentLoad && optionsContainer.classList.contains('hidden')) {
                 optionsContainer.classList.remove('hidden');
             }
 
@@ -1230,7 +1229,7 @@
         }
 
                 // Load brands
-        function loadBrands(targetElementId, loadingMessageId, searchTerm = '') {
+        function loadBrands(targetElementId, loadingMessageId, searchTerm = '', silentLoad = false) {
             // Get container elements
             const container = document.querySelector(`#${targetElementId}`).closest('.custom-select-container');
             const optionsContainer = container.querySelector('.options-container');
@@ -1258,8 +1257,8 @@
                 optionsContainer.appendChild(newLoadingMsg);
             }
 
-            // Show options container if it's hidden (for search)
-            if (optionsContainer.classList.contains('hidden')) {
+            // Show options container only if not in silent mode
+            if (!silentLoad && optionsContainer.classList.contains('hidden')) {
                 optionsContainer.classList.remove('hidden');
             }
 
@@ -1383,12 +1382,12 @@
             button.addEventListener('click', function() {
                 // After asset data is loaded, we need to load brands
                 const originalFetchComplete = function(asset) {
-                    // Load brands
-                    loadBrands('edit_brand_id', 'edit-brand-loading-message');
+                    // Load brands in silent mode (don't show dropdown)
+                    loadBrands('edit_brand_id', 'edit-brand-loading-message', '', true);
 
-                    // If asset has asset_type, load subcategories filtered by that type
+                    // If asset has asset_type, load subcategories filtered by that type in silent mode
                     if (asset.asset_type) {
-                        loadSubcategories(asset.asset_type, 'edit_subcategory_id', 'edit-subcategory-loading-message');
+                        loadSubcategories(asset.asset_type, 'edit_subcategory_id', 'edit-subcategory-loading-message', '', true);
                     }
                 };
 
@@ -1509,20 +1508,22 @@
                         if (asset.asset_type) {
                             document.getElementById('edit_asset_type').value = asset.asset_type;
 
-                            // Load subcategories based on asset type
-                            loadSubcategories(asset.asset_type, 'edit_subcategory_id', 'edit-subcategory-loading-message');
+                            // Load subcategories based on asset type with silent mode (don't show dropdown)
+                            loadSubcategories(asset.asset_type, 'edit_subcategory_id', 'edit-subcategory-loading-message', '', true);
 
-                            // After a short delay to allow subcategories to load, set the selected value
-                            setTimeout(() => {
+                            // Set the selected subcategory value immediately
+                            if (asset.subcategory_id && asset.subcategory_name) {
                                 setSelectValue('edit_subcategory_id', asset.subcategory_id, asset.subcategory_name);
-                            }, 1000);
+                            }
                         }
 
-                        // Load brands and set the selected brand
-                        loadBrands('edit_brand_id', 'edit-brand-loading-message');
-                        setTimeout(() => {
+                        // Load brands with silent mode (don't show dropdown)
+                        loadBrands('edit_brand_id', 'edit-brand-loading-message', '', true);
+
+                        // Set the selected brand value immediately
+                        if (asset.brand_id && asset.brand_name) {
                             setSelectValue('edit_brand_id', asset.brand_id, asset.brand_name);
-                        }, 1000);
+                        }
 
                         // Handle checkboxes
                         document.getElementById('edit_is_depreciable').checked = Boolean(asset.is_depreciable);

@@ -318,28 +318,28 @@
                                                 <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                    </div>
+                                                </svg>
+                                            </div>
                                             <ul id="asset_master_list" class="max-h-56 overflow-y-auto"></ul>
-                                    </div>
-                                </div>
+                                        </div>
+                            </div>
                             </div>
                                 <div class="mb-4">
-                                    <label for="serial_number" class="block text-gray-700 text-sm font-bold mb-2">Nomor Seri <span class="text-red-500">*</span></label>
-                                    <input type="text" name="serial_number" id="serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Nomor seri" required>
+                                    <label for="serial_number" class="block text-gray-700 text-sm font-bold mb-2">Nomor Seri</label>
+                                    <input type="text" name="serial_number" id="serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Nomor seri">
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor seri harus diisi</div>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pembelian <span class="text-red-500">*</span></label>
-                                    <input type="date" name="purchase_date" id="purchase_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                    <label for="purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pembelian</label>
+                                    <input type="date" name="purchase_date" id="purchase_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian harus diisi</div>
                                 </div>
                                 <div class="mb-4">
-                                    <label for="purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pembelian <span class="text-red-500">*</span></label>
-                                    <input type="number" name="purchase_cost" id="purchase_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00" required>
+                                    <label for="purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pembelian</label>
+                                    <input type="number" name="purchase_cost" id="purchase_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
                                 </div>
                             </div>
@@ -367,16 +367,13 @@
                                             <ul id="room_list" class="max-h-56 overflow-y-auto"></ul>
                                         </div>
                                     </div>
-                                    <div id="selected_room_display" class="hidden">
-                                        <span id="selected_room_name"></span>
-                                    </div>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="condition" class="block text-gray-700 text-sm font-bold mb-2">Kondisi <span class="text-red-500">*</span></label>
-                                    <select name="condition" id="condition" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                    <label for="condition" class="block text-gray-700 text-sm font-bold mb-2">Kondisi</label>
+                                    <select name="condition" id="condition" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                         <option value="">Pilih Kondisi</option>
                                         <option value="good">Baik</option>
                                         <option value="slighly damage">Sedikit Rusak</option>
@@ -513,9 +510,9 @@
                                 </div>
                                 <div class="space-y-2">
                                     <label for="edit_serial_number" class="block text-base font-semibold text-[#666666]">
-                                        Nomor Seri <span class="text-red-500">*</span>
+                                        Nomor Seri
                                     </label>
-                                    <input type="text" name="serial_number" id="edit_serial_number" required
+                                    <input type="text" name="serial_number" id="edit_serial_number"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                         placeholder="Nomor seri">
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor seri harus diisi</div>
@@ -525,17 +522,17 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label for="edit_purchase_date" class="block text-base font-semibold text-[#666666]">
-                                        Tanggal Pembelian <span class="text-red-500">*</span>
+                                        Tanggal Pembelian
                                     </label>
-                                    <input type="date" name="purchase_date" id="edit_purchase_date" required
+                                    <input type="date" name="purchase_date" id="edit_purchase_date"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian harus diisi</div>
                                 </div>
                                 <div class="space-y-2">
                                     <label for="edit_purchase_cost" class="block text-base font-semibold text-[#666666]">
-                                        Biaya Pembelian <span class="text-red-500">*</span>
+                                        Biaya Pembelian
                                     </label>
-                                    <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01" required
+                                    <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                         placeholder="0.00">
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
@@ -572,18 +569,15 @@
                                             <ul id="edit_room_list" class="py-1"></ul>
                                         </div>
                                     </div>
-                                    <div id="edit_selected_room_display" class="hidden">
-                                        <span id="edit_selected_room_name"></span>
-                                    </div>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label class="block text-base font-semibold text-[#666666]">
-                                        Kondisi <span class="text-red-500">*</span>
+                                        Kondisi
                                     </label>
-                                    <select name="condition" id="edit_condition" required
+                                    <select name="condition" id="edit_condition"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                         <option value="">Pilih Kondisi</option>
                                         <option value="good">Baik</option>
@@ -1054,56 +1048,42 @@
 
 @push('scripts')
 <script>
-    // Store user data in a global variable
-    window.usersData = @json($users ?? []);
-</script>
-
-<script>
     document.addEventListener('DOMContentLoaded', function() {
         // Form validation for Add Asset
         document.getElementById('addAssetForm')?.addEventListener('submit', function(event) {
             const assetMasterSearch = document.getElementById('asset_master_search');
             const selectedAssetMasterId = document.getElementById('selected_asset_master_id');
-            const serialNumber = document.getElementById('serial_number');
-            const purchaseDate = document.getElementById('purchase_date');
-            const purchaseCost = document.getElementById('purchase_cost');
             const roomSearch = document.getElementById('room_search');
             const selectedRoomId = document.getElementById('selected_room_id');
-            const condition = document.getElementById('condition');
+            const submitBtn = this.querySelector('button[type="submit"]');
 
-            // Validate required fields
+            // Validate only mandatory fields
             const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
-            const isSerialNumberValid = validateField(serialNumber);
-            const isPurchaseDateValid = validateField(purchaseDate);
-            const isPurchaseCostValid = validateField(purchaseCost);
             const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
-            const isConditionValid = validateField(condition);
 
-            // Check depreciation fields if they're visible
-            let depreciationFieldsValid = true;
-            const depreciationFields = document.getElementById('depreciation_fields');
-            if (depreciationFields && !depreciationFields.classList.contains('hidden')) {
-                const depreciationMethod = document.getElementById('depreciation_method');
-                const acquisitionCost = document.getElementById('acquisition_cost');
-                const salvageValue = document.getElementById('salvage_value');
-                const assetLifeMonths = document.getElementById('asset_life_months');
-                const dateAcquired = document.getElementById('date_acquired');
-
-                const isDepreciationMethodValid = validateField(depreciationMethod);
-                const isAcquisitionCostValid = validateField(acquisitionCost);
-                const isSalvageValueValid = validateField(salvageValue);
-                const isAssetLifeMonthsValid = validateField(assetLifeMonths);
-                const isDateAcquiredValid = validateField(dateAcquired);
-
-                depreciationFieldsValid = isDepreciationMethodValid && isAcquisitionCostValid &&
-                    isSalvageValueValid && isAssetLifeMonthsValid && isDateAcquiredValid;
+            // If mandatory fields validation fails, prevent form submission
+            if (!isAssetMasterValid || !isRoomValid) {
+                event.preventDefault();
+                showToast('Silakan pilih master aset dan ruangan', 'error');
+                return;
             }
 
-            // If any validation fails, prevent form submission
-            if (!isAssetMasterValid || !isSerialNumberValid || !isPurchaseDateValid ||
-                !isPurchaseCostValid || !isRoomValid || !isConditionValid || !depreciationFieldsValid) {
-                event.preventDefault();
-                showToast('Silakan isi semua field yang diperlukan', 'error');
+            // Prevent multiple submissions
+            if (submitBtn && !submitBtn.disabled) {
+                // Save original button text
+                const originalText = submitBtn.innerHTML;
+
+            // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
+
+                // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+                }, 10000);
             }
         });
 
@@ -1111,46 +1091,37 @@
         document.getElementById('editAssetForm')?.addEventListener('submit', function(event) {
             const assetMasterSearch = document.getElementById('edit_asset_master_search');
             const selectedAssetMasterId = document.getElementById('edit_selected_asset_master_id');
-            const serialNumber = document.getElementById('edit_serial_number');
-            const purchaseDate = document.getElementById('edit_purchase_date');
-            const purchaseCost = document.getElementById('edit_purchase_cost');
             const roomSearch = document.getElementById('edit_room_search');
             const selectedRoomId = document.getElementById('edit_selected_room_id');
-            const condition = document.getElementById('edit_condition');
+            const submitBtn = this.querySelector('button[type="submit"]');
 
-            // Validate required fields
+            // Validate only mandatory fields
             const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
-            const isSerialNumberValid = validateField(serialNumber);
-            const isPurchaseDateValid = validateField(purchaseDate);
-            const isPurchaseCostValid = validateField(purchaseCost);
             const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
-            const isConditionValid = validateField(condition);
 
-            // Check depreciation fields if they're visible
-            let depreciationFieldsValid = true;
-            const depreciationFields = document.getElementById('edit_depreciation_fields');
-            if (depreciationFields && !depreciationFields.classList.contains('hidden')) {
-                const depreciationMethod = document.getElementById('edit_depreciation_method');
-                const acquisitionCost = document.getElementById('edit_acquisition_cost');
-                const salvageValue = document.getElementById('edit_salvage_value');
-                const assetLifeMonths = document.getElementById('edit_asset_life_months');
-                const dateAcquired = document.getElementById('edit_date_acquired');
-
-                const isDepreciationMethodValid = validateField(depreciationMethod);
-                const isAcquisitionCostValid = validateField(acquisitionCost);
-                const isSalvageValueValid = validateField(salvageValue);
-                const isAssetLifeMonthsValid = validateField(assetLifeMonths);
-                const isDateAcquiredValid = validateField(dateAcquired);
-
-                depreciationFieldsValid = isDepreciationMethodValid && isAcquisitionCostValid &&
-                    isSalvageValueValid && isAssetLifeMonthsValid && isDateAcquiredValid;
+            // If mandatory fields validation fails, prevent form submission
+            if (!isAssetMasterValid || !isRoomValid) {
+                event.preventDefault();
+                showToast('Silakan pilih master aset dan ruangan', 'error');
+                return;
             }
 
-            // If any validation fails, prevent form submission
-            if (!isAssetMasterValid || !isSerialNumberValid || !isPurchaseDateValid ||
-                !isPurchaseCostValid || !isRoomValid || !isConditionValid || !depreciationFieldsValid) {
-                event.preventDefault();
-                showToast('Silakan isi semua field yang diperlukan', 'error');
+            // Prevent multiple submissions
+            if (submitBtn && !submitBtn.disabled) {
+                // Save original button text
+                const originalText = submitBtn.innerHTML;
+
+            // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Memperbarui...</span></div>';
+
+                // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+                }, 10000);
             }
         });
 
@@ -1398,21 +1369,55 @@
             const content = modal.querySelector('.transform');
             if (!content) return;
 
-            // Reset form jika ada di dalam modal
-            const forms = modal.querySelectorAll('form');
-            forms.forEach(form => {
+            // Identify which modal is being closed
+            const modalId = modal.id;
+
+            // Reset form if present in the modal
+            if (modalId === 'addAssetModal') {
+                resetAddAssetForm();
+            } else if (modalId === 'editAssetModal') {
+                resetEditAssetForm();
+            } else if (modalId === 'deleteAssetModal') {
+                resetDeleteAssetForm();
+            } else if (modalId === 'printQRModal') {
+                resetPrintQRForm();
+            } else if (modalId === 'importAssetModal') {
+                resetImportAssetModal();
+            }
+
+            // Animation to close the modal
+            content.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
+            content.classList.add('opacity-0', 'scale-95', 'translate-y-4');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        // Function to reset add asset form
+        function resetAddAssetForm() {
+            const form = document.getElementById('addAssetForm');
+            if (!form) return;
+
+            // Reset the form
                 form.reset();
 
-                // Reset hidden inputs yang mungkin tidak terpengaruh oleh form.reset()
+            // Reset hidden inputs
                 const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
                 hiddenInputs.forEach(input => {
                     input.value = '';
                 });
 
-                // Reset semua text inputs
-                const textInputs = form.querySelectorAll('input[type="text"], input[type="search"]');
-                textInputs.forEach(input => {
+            // Reset all text inputs
+            const allInputs = form.querySelectorAll('input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"])');
+            allInputs.forEach(input => {
                     input.value = '';
+                input.classList.remove('border-red-500');
+            });
+
+            // Reset radio and checkbox inputs
+            const radioCheckboxInputs = form.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+            radioCheckboxInputs.forEach(input => {
+                input.checked = input.defaultChecked;
                 });
 
                 // Reset select elements
@@ -1421,16 +1426,123 @@
                     if (select.options.length > 0) {
                         select.selectedIndex = 0;
                     }
-                });
+                select.classList.remove('border-red-500');
+            });
 
-                // Sembunyikan dropdown yang mungkin terbuka
+            // Hide all error messages
+            const errorMessages = form.querySelectorAll('.error-message');
+            errorMessages.forEach(msg => {
+                msg.classList.add('hidden');
+            });
+
+            // Hide dropdowns
                 const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
                 dropdowns.forEach(dropdown => {
                     dropdown.classList.add('hidden');
                 });
 
+            // Reset search fields
+            const searchFields = form.querySelectorAll('[id$="_search"], [id$="_master_search"]');
+            searchFields.forEach(field => {
+                field.value = '';
+            });
+
+            // Hide special displays
+            const specialDisplays = form.querySelectorAll('[id$="_display"], [id$="_selected_display"]');
+            specialDisplays.forEach(display => {
+                display.classList.add('hidden');
+            });
+
+            // Reset depreciation fields
+            const depreciationFields = form.querySelector('#depreciation_fields');
+            if (depreciationFields) {
+                depreciationFields.classList.add('hidden');
+                const inputs = depreciationFields.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.disabled = true;
+                    input.required = false;
+                    if (input.tagName === 'INPUT') {
+                        input.value = '';
+                    } else if (input.tagName === 'SELECT' && input.options.length > 0) {
+                        input.selectedIndex = 0;
+                    }
+                });
+            }
+
+            // Reset submit button
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = 'Simpan';
+            }
+        }
+
+        // Function to reset edit asset form
+        function resetEditAssetForm() {
+            const form = document.getElementById('editAssetForm');
+            if (!form) return;
+
+            // Reset the form
+            form.reset();
+
+            // Reset action attribute
+            form.action = '';
+
+            // Reset hidden inputs
+            const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+            hiddenInputs.forEach(input => {
+                input.value = '';
+            });
+
+            // Reset all text inputs
+            const allInputs = form.querySelectorAll('input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"])');
+            allInputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('border-red-500');
+            });
+
+            // Reset radio and checkbox inputs
+            const radioCheckboxInputs = form.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+            radioCheckboxInputs.forEach(input => {
+                input.checked = input.defaultChecked;
+            });
+
+            // Reset select elements
+            const selects = form.querySelectorAll('select');
+            selects.forEach(select => {
+                if (select.options.length > 0) {
+                    select.selectedIndex = 0;
+                }
+                select.classList.remove('border-red-500');
+            });
+
+            // Hide all error messages
+            const errorMessages = form.querySelectorAll('.error-message');
+            errorMessages.forEach(msg => {
+                msg.classList.add('hidden');
+            });
+
+            // Hide dropdowns
+            const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.add('hidden');
+            });
+
+            // Reset search fields
+            const searchFields = form.querySelectorAll('[id$="_search"], [id$="_master_search"]');
+            searchFields.forEach(field => {
+                field.value = '';
+            });
+
+            // Hide special displays
+            const specialDisplays = form.querySelectorAll('[id$="_display"], [id$="_selected_display"]');
+            specialDisplays.forEach(display => {
+                display.classList.add('hidden');
+            });
+
                 // Reset depreciation fields
-                const depreciationFields = form.querySelector('#depreciation_fields') || form.querySelector('#edit_depreciation_fields');
+            const depreciationFields = form.querySelector('#edit_depreciation_fields');
                 if (depreciationFields) {
                     depreciationFields.classList.add('hidden');
                     const inputs = depreciationFields.querySelectorAll('input, select');
@@ -1444,14 +1556,106 @@
                         }
                     });
                 }
-            });
 
-            content.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
-            content.classList.add('opacity-0', 'scale-95', 'translate-y-4');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        };
+            // Reset submit button
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = 'Perbarui';
+            }
+        }
+
+        // Function to reset delete asset form
+        function resetDeleteAssetForm() {
+            const form = document.getElementById('deleteAssetForm');
+            if (!form) return;
+
+            // Reset the form
+            form.reset();
+
+            // Reset action attribute
+            form.action = '';
+
+            // Reset asset name display
+            document.getElementById('deleteAssetName').textContent = '';
+
+            // Reset submit button
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = 'Hapus';
+            }
+        }
+
+        // Function to reset print QR form
+        function resetPrintQRForm() {
+            const form = document.getElementById('printQRForm');
+            if (!form) return;
+
+            // Reset the form
+            form.reset();
+
+            // Reset asset IDs
+            document.getElementById('printQRAssetIds').value = '';
+
+            // Reset radio buttons to defaults
+            const printDirectRadio = document.getElementById('print_direct');
+            if (printDirectRadio) {
+                printDirectRadio.checked = true;
+            }
+
+            // Reset quantity to 1
+            const quantityInput = document.getElementById('quantity');
+            if (quantityInput) {
+                quantityInput.value = '1';
+            }
+        }
+
+        // Function to reset import asset modal
+        function resetImportAssetModal() {
+            // Reset to step 1
+            document.getElementById('import-step-1')?.classList.remove('hidden');
+            document.getElementById('import-step-2')?.classList.add('hidden');
+            document.getElementById('import-step-3')?.classList.add('hidden');
+
+            // Reset file input
+            const fileInput = document.getElementById('excel_file');
+            if (fileInput) fileInput.value = '';
+
+            // Reset file name display
+            const fileNameContainer = document.getElementById('excel-file-name');
+            if (fileNameContainer) fileNameContainer.classList.add('hidden');
+
+            // Reset preview button
+            const previewBtn = document.getElementById('preview-btn');
+            if (previewBtn) previewBtn.disabled = true;
+
+            // Hide error messages
+            document.getElementById('excel-error')?.classList.add('hidden');
+            document.getElementById('excel-loading')?.classList.add('hidden');
+            document.getElementById('preview-warnings')?.classList.add('hidden');
+
+            // Reset preview table
+            const previewTableBody = document.getElementById('preview-table-body');
+            if (previewTableBody) previewTableBody.innerHTML = '';
+
+            // Reset warning list
+            const warningList = document.getElementById('warning-list');
+            if (warningList) warningList.innerHTML = '';
+
+            // Reset excel data input
+            document.getElementById('excel_data')?.setAttribute('value', '');
+
+            // Reset import button
+            const importBtn = document.getElementById('import-btn');
+            if (importBtn) {
+                importBtn.disabled = false;
+                importBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                importBtn.innerHTML = 'Impor Data';
+            }
+        }
 
         // Single implementation of setupWithData for editing assets
         window.setupWithData = function(assetId) {
@@ -1900,9 +2104,7 @@
             dropdown,
             roomList,
             loadingIndicator,
-            selectedRoomId,
-            selectedRoomName,
-            selectedRoomDisplay
+            selectedRoomId
         ) {
             if (!searchInput || !dropdown || !roomList) return;
 
@@ -1935,21 +2137,21 @@
                 roomList.innerHTML = '';
 
                 try {
-                    // Use the existing rooms data from the page
-                    let rooms = @json($rooms ?? []);
+                    // Fetch rooms from the server
+                    const response = await fetch(`{{ url('/rooms') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
-                    // Filter rooms based on search term
-                    if (searchTerm) {
-                        searchTerm = searchTerm.toLowerCase();
-                        rooms = rooms.filter(room =>
-                            (room.room_name && room.room_name.toLowerCase().includes(searchTerm)) ||
-                            (room.building_name && room.building_name.toLowerCase().includes(searchTerm)) ||
-                            (room.building && room.building.building_name && room.building.building_name.toLowerCase().includes(searchTerm))
-                        );
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch rooms from server');
                     }
 
-                    // Sort rooms by name for better UX
-                    rooms.sort((a, b) => (a.room_name || '').localeCompare(b.room_name || ''));
+                    const data = await response.json();
+                    const rooms = data.rooms
+                     || [];
 
                     // Populate dropdown
                     roomList.innerHTML = '';
@@ -1975,19 +2177,11 @@
                             li.setAttribute('data-name', roomDisplay);
 
                             li.addEventListener('click', function() {
-                                // Set the selected room ID and name
+                                // Set the selected room ID
                                 selectedRoomId.value = this.getAttribute('data-id');
-                                if (selectedRoomName) {
-                                    selectedRoomName.textContent = this.getAttribute('data-name');
-                                }
 
                                 // Update the search input
                                 searchInput.value = this.getAttribute('data-name');
-
-                                // Show selected room display if available
-                                if (selectedRoomDisplay) {
-                                    selectedRoomDisplay.classList.remove('hidden');
-                                }
 
                                 // Hide dropdown
                                 dropdown.classList.add('hidden');
@@ -2050,14 +2244,19 @@
 
                 try {
                     // Fetch asset masters data from the API
-                    const response = await fetch(`{{ route('asset-master.data') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`);
+                    const response = await fetch(`{{ route('asset-master') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
                     if (!response.ok) {
                         throw new Error('Failed to fetch asset masters');
                     }
 
-                    const result = await response.json();
-                    let assetMasters = result.masterAssets || [];
+                    const data = await response.json();
+                    let assetMasters = data.masterAssets || [];
 
                     // Populate dropdown
                     assetMasterList.innerHTML = '';
@@ -2158,18 +2357,19 @@
                 userList.innerHTML = '';
 
                 try {
-                    // Use locally available data instead of fetching from server
-                    let users = window.usersData || [];
+                    const response = await fetch(`{{ url('/user') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
-                    // Filter users based on search term
-                    if (searchTerm) {
-                        searchTerm = searchTerm.toLowerCase();
-                        users = users.filter(user => {
-                            return (user.employee_number && user.employee_number.toLowerCase().includes(searchTerm)) ||
-                                   (user.name && user.name.toLowerCase().includes(searchTerm)) ||
-                                   (user.user_id && user.user_id.toString().includes(searchTerm));
-                        });
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch users from server');
                     }
+
+                    const data = await response.json();
+                    const users = data.users || [];
 
                     // Populate dropdown
                     userList.innerHTML = '';
@@ -2239,9 +2439,7 @@
                 document.getElementById('room_dropdown'),
                 document.getElementById('room_list'),
                 document.getElementById('room_loading'),
-                document.getElementById('selected_room_id'),
-                document.getElementById('selected_room_name'),
-                document.getElementById('selected_room_display')
+                document.getElementById('selected_room_id')
             );
 
             // Room search for edit modal
@@ -2250,9 +2448,7 @@
                 document.getElementById('edit_room_dropdown'),
                 document.getElementById('edit_room_list'),
                 document.getElementById('edit_room_loading'),
-                document.getElementById('edit_selected_room_id'),
-                document.getElementById('edit_selected_room_name'),
-                document.getElementById('edit_selected_room_display')
+                document.getElementById('edit_selected_room_id')
             );
 
             // Asset master search for add modal
@@ -3009,6 +3205,29 @@
 
             // Redirect to the export URL
             window.open(exportUrl, '_blank');
+        });
+
+        // Add an event listener to the delete form to prevent multiple submissions
+        document.getElementById('deleteAssetForm')?.addEventListener('submit', function(event) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+
+            // Prevent multiple submissions
+            if (submitBtn && !submitBtn.disabled) {
+                // Save original button text
+                const originalText = submitBtn.innerHTML;
+
+            // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menghapus...</span></div>';
+
+                // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+                }, 10000);
+            }
         });
     });
 </script>

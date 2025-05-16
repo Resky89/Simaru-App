@@ -121,9 +121,6 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // User Management
     Route::prefix('user')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('user');
-        Route::get('/search', [UserController::class, 'index'])->name('user.search');
-
-        // User API Routes
         Route::post('/store', [UserController::class, 'storeUser'])->name('users.store');
         Route::put('/update/{id}', [UserController::class, 'updateUser'])->name('users.update');
         Route::delete('/delete/{id}', [UserController::class, 'destroyUser'])->name('users.destroy');

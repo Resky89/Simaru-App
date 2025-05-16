@@ -61,7 +61,6 @@ class UnitAssetController extends Controller
                         // Try using the frontend sort parameter directly
                         $query['sort'] = 'name_asc';
 
-                        // Remove standard sort params that might interfere
                         unset($query['sort_by']);
                         unset($query['sort_order']);
                         break;
@@ -127,47 +126,17 @@ class UnitAssetController extends Controller
                 ]);
             }
 
-            // Fetch subcategories which contain asset type information
-            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
-
-            // Fetch rooms for the room dropdown
-            $roomsResult = $this->apiService->request('GET', '/rooms');
-
-            // Fetch brands for brand dropdown with separate pagination
-            $brandsResult = $this->apiService->request('GET', '/brands', [
-                'query' => [
-                    'page' => $request->input('brand_page', 1),
-                    'limit' => $request->input('brand_limit', 1000),
-                    'sort_by' => 'brand_id',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-
-            // Fetch all users for the dropdown
-            $usersResult = $this->apiService->request('GET', '/users', [
-                'query' => [
-                    'limit' => 1000, // Get only a minimal set of users for fallback, we now use lazy loading
-                    'sort_by' => 'employee_number',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-
             // Log API responses for debugging
             \Log::info('API response for assets list:', [
                 'assets_success' => $assetsResult['success'] ?? null,
-                'assets_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0,
-                'brands_success' => $brandsResult['success'] ?? null,
-                'brands_count' => isset($brandsResult['data']) ? count($brandsResult['data']) : 0
+                'assets_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0
             ]);
 
             // Check for auth errors
-            if (
-                (isset($brandsResult['errors']) && is_string($brandsResult['errors']) &&
-                 in_array($brandsResult['errors'], ['auth_failed', 'session_expired'])) ||
-                (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
-                 in_array($assetsResult['errors'], ['auth_failed', 'session_expired']))
+            if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
+                in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])
             ) {
-                $errorMessage = $brandsResult['errors'] ?? $assetsResult['errors'] ?? 'Authentication failed';
+                $errorMessage = $assetsResult['errors'] ?? 'Authentication failed';
                 \Log::warning('Authentication error during assets index retrieval:', [
                     'errors' => $errorMessage
                 ]);
@@ -175,15 +144,11 @@ class UnitAssetController extends Controller
             }
 
             // Check for API errors based on success flag
-            if (
-                (!isset($assetsResult['success']) || $assetsResult['success'] !== true) ||
-                (!isset($brandsResult['success']) || $brandsResult['success'] !== true)
-            ) {
-                $errorData = $assetsResult['errors'] ?? $brandsResult['errors'] ?? 'Failed to fetch data';
+            if (!isset($assetsResult['success']) || $assetsResult['success'] !== true) {
+                $errorData = $assetsResult['errors'] ?? 'Failed to fetch data';
 
                 \Log::warning('Error during data retrieval:', [
                     'assets_success' => $assetsResult['success'] ?? false,
-                    'brands_success' => $brandsResult['success'] ?? false,
                     'errors' => $errorData
                 ]);
 
@@ -203,67 +168,13 @@ class UnitAssetController extends Controller
 
                 return view('Asset.UnitAsset', [
                     'assets' => [],
-                    'brands' => [],
-                    'users' => [],
-                    'rooms' => [],
                     'assets_pagination' => null,
-                    'brands_pagination' => null,
-                    'subcategories' => [],
-                    'assetTypes' => [],
                     'error' => $errorMessage
                 ]);
             }
 
-            // Parse subcategories data
-            $subcategories = $subcategoriesResult['data'] ?? [];
-
-            // Extract asset types from subcategories
-            $assetTypes = [];
-            foreach ($subcategories as $subcategory) {
-                if (isset($subcategory['asset_type']) && !in_array($subcategory['asset_type'], $assetTypes)) {
-                    $assetTypes[] = $subcategory['asset_type'];
-                }
-            }
-
-            // Parse other data
-            $rooms = $roomsResult['data'] ?? [];
-            $brands = $brandsResult['data'] ?? [];
+            // Parse assets data
             $assets = $assetsResult['data'] ?? [];
-            $users = $usersResult['data'] ?? [];
-
-            // Transform the rooms data to include building_name at root level for compatibility
-            $transformedRooms = [];
-            foreach ($rooms as $room) {
-                // Buat salinan room data untuk menghindari referensi
-                $transformedRoom = $room;
-
-                // Cek struktur data building dengan lebih detil
-                if (isset($room['building']) && is_array($room['building'])) {
-                    $buildingName = $room['building']['building_name'] ?? 'Unknown Building';
-                } elseif (isset($room['building_id'])) {
-                    // Jika building_id ada tapi tidak ada nested building object,
-                    // coba cari building dari daftar buildings
-                    $buildingId = $room['building_id'];
-                    $buildingName = 'Building ID: ' . $buildingId;
-
-                    // Ambil data building dari API jika perlu
-                    try {
-                        $buildingResult = $this->apiService->request('GET', "/buildings/{$buildingId}");
-                        if (isset($buildingResult['success']) && $buildingResult['success'] === true && isset($buildingResult['data']['building_name'])) {
-                            $buildingName = $buildingResult['data']['building_name'];
-                        }
-                    } catch (\Exception $e) {
-                        // Abaikan error saat fetch building
-                    }
-                } else {
-                    $buildingName = 'No Building';
-                }
-
-                // Tambahkan building_name langsung ke level root
-                $transformedRoom['building_name'] = $buildingName;
-
-                $transformedRooms[] = $transformedRoom;
-            }
 
             // Format pagination for assets
             $assetsPagination = null;
@@ -281,77 +192,11 @@ class UnitAssetController extends Controller
                 ];
             }
 
-            // Format pagination for brands
-            $brandsPagination = null;
-            if (isset($brandsResult['pagination'])) {
-                $pagination = $brandsResult['pagination'];
-                $brandsPagination = [
-                    'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
-                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
-                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
-                    'total' => $pagination['total_items'] ?? 0,
-                    'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => ($pagination['has_next'] ?? false) ? url()->current() . '?brand_page=' . ($pagination['current_page'] + 1) : null,
-                    'prev_page_url' => ($pagination['has_prev'] ?? false) ? url()->current() . '?brand_page=' . ($pagination['current_page'] - 1) : null,
-                ];
-            }
-
-            // Map subcategories by ID for quick lookup
-            $subcategoryMap = [];
-            foreach ($subcategories as $subcategory) {
-                $subcategoryMap[$subcategory['subcategory_id']] = $subcategory;
-            }
-
-            // Add subcategory data to each asset
-            foreach ($assets as &$asset) {
-                if (isset($asset['subcategory_id']) && isset($subcategoryMap[$asset['subcategory_id']])) {
-                    $asset['subcategory'] = $subcategoryMap[$asset['subcategory_id']];
-                }
-
-                // Ensure room data is properly structured
-                if (!isset($asset['room'])) {
-                    $asset['room'] = [];
-                }
-
-                if (!isset($asset['room']['building'])) {
-                    $asset['room']['building'] = ['building_name' => '-'];
-                }
-
-                // If asset_name is not set but asset_master has a name, use it
-                if ((!isset($asset['asset_name']) || empty($asset['asset_name'])) &&
-                    isset($asset['asset_master']) && isset($asset['asset_master']['asset_master_name'])) {
-                    $asset['asset_name'] = $asset['asset_master']['asset_master_name'];
-                }
-
-                // If description is not set but asset_master has a description, use it
-                if ((!isset($asset['description']) || empty($asset['description'])) &&
-                    isset($asset['asset_master']) && isset($asset['asset_master']['description'])) {
-                    $asset['description'] = $asset['asset_master']['description'];
-                }
-
-                // For subcategory, we need to handle cases where it might be nested in asset_master
-                if (!isset($asset['subcategory']) || empty($asset['subcategory'])) {
-                    if (isset($asset['asset_master']) && isset($asset['asset_master']['subcategory'])) {
-                        $asset['subcategory'] = $asset['asset_master']['subcategory'];
-                    } elseif (isset($asset['asset_master']) && isset($asset['asset_master']['subcategory_id'])) {
-                        $subcatId = $asset['asset_master']['subcategory_id'];
-                        if (isset($subcategoryMap[$subcatId])) {
-                            $asset['subcategory'] = $subcategoryMap[$subcatId];
-                        }
-                    }
-                }
-            }
+            // No preprocessing needed for assets now
 
             return view('Asset.UnitAsset', [
                 'assets' => $assets,
-                'brands' => $brands,
-                'users' => $users,
-                'rooms' => $transformedRooms,
-                'assets_pagination' => $assetsPagination,
-                'brands_pagination' => $brandsPagination,
-                'subcategories' => $subcategories,
-                'assetTypes' => $assetTypes
+                'assets_pagination' => $assetsPagination
             ]);
         } catch (\Exception $e) {
             \Log::error('Exception during data retrieval:', [
@@ -361,13 +206,7 @@ class UnitAssetController extends Controller
 
             return view('Asset.UnitAsset', [
                 'assets' => [],
-                'brands' => [],
-                'users' => [],
-                'rooms' => [],
                 'assets_pagination' => null,
-                'brands_pagination' => null,
-                'subcategories' => [],
-                'assetTypes' => [],
                 'error' => 'Failed to fetch data: ' . $e->getMessage()
             ]);
         }

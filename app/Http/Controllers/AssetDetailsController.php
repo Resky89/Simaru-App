@@ -545,20 +545,39 @@ class AssetDetailsController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            // Base checkout data that's always required
+            // Base checkout data with only asset_id
             $checkoutData = [
-                'asset_id' => (int)$request->input('asset_id'),
-                'checkout_notes' => $request->input('checkout_notes')
+                'asset_id' => (int)$request->input('asset_id')
             ];
 
-            // Check if it's a location checkout or employee checkout
-            if ($request->has('room_id') || ($request->has('location_id') && $request->input('checkout_to_type') === 'location')) {
-                // Location checkout - use room_id and do NOT include assigned_to
-                $checkoutData['room_id'] = (int)($request->input('room_id') ?? $request->input('location_id'));
-            } else {
-                // Employee checkout - use assigned_to
-                $checkoutData['assigned_to'] = (int)$request->input('assigned_to');
+            // Add notes only if not empty
+            if ($request->filled('checkout_notes')) {
+                $checkoutData['checkout_notes'] = $request->input('checkout_notes');
             }
+
+            // Determine checkout type based on checkout_to_type
+            if ($request->input('checkout_to_type') === 'location') {
+                // Location checkout - include room_id
+                $roomId = (int)($request->input('room_id') ?? $request->input('location_id') ?? 0);
+                if ($roomId > 0) {
+                    $checkoutData['room_id'] = $roomId;
+                } else {
+                    return redirect()->back()->with('error', 'ID ruangan harus berupa angka positif');
+                }
+            } else {
+                // Employee checkout - include assigned_to
+                $userId = (int)$request->input('assigned_to');
+                if ($userId > 0) {
+                    $checkoutData['assigned_to'] = $userId;
+                } else {
+                    return redirect()->back()->with('error', 'ID karyawan harus berupa angka positif');
+                }
+            }
+
+            // Log the actual data being sent to API
+            \Log::info('Sending to API:', [
+                'checkout_data' => $checkoutData
+            ]);
 
             // Send request to API
             $options = ['json' => $checkoutData];
@@ -651,12 +670,25 @@ class AssetDetailsController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            // Prepare check-in data
+            // Prepare check-in data with required fields
             $checkinData = [
-                'asset_id' => (int)$request->input('asset_id'),
-                'return_notes' => $request->input('return_notes'),
-                'condition' => $request->input('condition')
+                'asset_id' => (int)$request->input('asset_id')
             ];
+
+            // Only include notes if provided
+            if ($request->filled('return_notes')) {
+                $checkinData['return_notes'] = $request->input('return_notes');
+            }
+
+            // Add condition if provided
+            if ($request->filled('condition')) {
+                $checkinData['condition'] = $request->input('condition');
+            }
+
+            // Log the actual data being sent to API
+            \Log::info('Sending to API:', [
+                'checkin_data' => $checkinData
+            ]);
 
             // Send request to API
             $options = ['json' => $checkinData];
@@ -749,11 +781,20 @@ class AssetDetailsController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            // Prepare lost report data
+            // Prepare lost report data with required fields
             $lostData = [
-                'asset_id' => (int)$request->input('asset_id'),
-                'loss_reason' => $request->input('loss_reason')
+                'asset_id' => (int)$request->input('asset_id')
             ];
+
+            // Only include reason if provided
+            if ($request->filled('loss_reason')) {
+                $lostData['loss_reason'] = $request->input('loss_reason');
+            }
+
+            // Log the actual data being sent to API
+            \Log::info('Sending to API:', [
+                'lost_data' => $lostData
+            ]);
 
             // Send request to API
             $options = ['json' => $lostData];
@@ -846,11 +887,20 @@ class AssetDetailsController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            // Prepare found data
+            // Prepare found data with required fields
             $foundData = [
-                'asset_id' => (int)$request->input('asset_id'),
-                'found_notes' => $request->input('found_notes')
+                'asset_id' => (int)$request->input('asset_id')
             ];
+
+            // Only include notes if provided
+            if ($request->filled('found_notes')) {
+                $foundData['found_notes'] = $request->input('found_notes');
+            }
+
+            // Log the actual data being sent to API
+            \Log::info('Sending to API:', [
+                'found_data' => $foundData
+            ]);
 
             // Send request to API
             $options = ['json' => $foundData];
@@ -943,13 +993,25 @@ class AssetDetailsController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            // Prepare disposal data
+            // Prepare disposal data with required fields
             $disposeData = [
                 'asset_id' => (int)$request->input('asset_id'),
                 'disposal_reason' => $request->input('disposal_reason'),
-                'disposal_method' => $request->input('disposal_method'),
-                'disposal_notes' => $request->input('disposal_notes')
             ];
+
+
+            if ($request->filled('disposal_method')) {
+                $disposeData['disposal_method'] = $request->input('disposal_method');
+            }
+
+            if ($request->filled('disposal_notes')) {
+                $disposeData['disposal_notes'] = $request->input('disposal_notes');
+            }
+
+            // Log the actual data being sent to API
+            \Log::info('Sending to API:', [
+                'dispose_data' => $disposeData
+            ]);
 
             // Send request to API
             $options = ['json' => $disposeData];
