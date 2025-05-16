@@ -1112,8 +1112,11 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Global data and utility functions
-            window.usersData = @json($users ?? []);
+            // Initialize cache variables
+            window.usersCache = [];
+            window.roomsCache = [];
+            window.buildingsCache = [];
+            window.assetMastersCache = [];
 
             // Debounce utility function
             function debounce(func, wait) {
@@ -1138,51 +1141,34 @@
             function closeModal(modal, content) {
                 if (!modal || !content) return;
 
+                // Get modal ID to determine which reset function to call
+                const modalId = modal.id;
+
                 // Reset forms inside the modal
                 const forms = modal.querySelectorAll('form');
                 forms.forEach(form => {
-                    form.reset();
-
-                    // Reset hidden inputs that might not be affected by form.reset()
-                    const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
-                    hiddenInputs.forEach(input => {
-                        input.value = '';
-                    });
-
-                    // Reset all text inputs
-                    const textInputs = form.querySelectorAll('input[type="text"], input[type="search"]');
-                    textInputs.forEach(input => {
-                        input.value = '';
-                    });
-
-                    // Reset select elements
-                    const selects = form.querySelectorAll('select');
-                    selects.forEach(select => {
-                        if (select.options.length > 0) {
-                            select.selectedIndex = 0;
-                        }
-                    });
-
-                    // Hide any open dropdowns
-                    const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
-                    dropdowns.forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                    });
-
-                    // Reset depreciation fields if present
-                    const depreciationFields = form.querySelector('#depreciation_fields') || form.querySelector('#edit_depreciation_fields');
-                    if (depreciationFields) {
-                        depreciationFields.classList.add('hidden');
-                        const depInputs = depreciationFields.querySelectorAll('input, select');
-                        depInputs.forEach(input => {
-                            input.disabled = true;
-                            input.required = false;
-                            if (input.tagName === 'INPUT') {
-                                input.value = '';
-                            } else if (input.tagName === 'SELECT' && input.options.length > 0) {
-                                input.selectedIndex = 0;
-                            }
-                        });
+                    // Call specific reset function based on modal type
+                    switch(modalId) {
+                        case 'editAssetModal':
+                            resetEditAssetForm(form);
+                            break;
+                        case 'checkoutAssetModal':
+                            resetCheckoutForm(form);
+                            break;
+                        case 'checkinAssetModal':
+                            resetCheckinForm(form);
+                            break;
+                        case 'reportLostModal':
+                            resetLostForm(form);
+                            break;
+                        case 'foundAssetModal':
+                            resetFoundForm(form);
+                            break;
+                        case 'disposeAssetModal':
+                            resetDisposeForm(form);
+                            break;
+                        default:
+                            resetGenericForm(form);
                     }
                 });
 
@@ -1192,6 +1178,142 @@
                 setTimeout(() => {
                     modal.classList.add('hidden');
                 }, 300);
+            }
+
+            // Generic form reset
+            function resetGenericForm(form) {
+                if (!form) return;
+
+                form.reset();
+
+                // Reset hidden inputs that might not be affected by form.reset()
+                const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+                hiddenInputs.forEach(input => {
+                    // Keep asset ID inputs
+                    if (!input.name.includes('asset_id')) {
+                        input.value = '';
+                    }
+                });
+
+                // Reset all text inputs
+                const textInputs = form.querySelectorAll('input[type="text"], input[type="search"]');
+                textInputs.forEach(input => {
+                    input.value = '';
+                });
+
+                // Reset select elements
+                const selects = form.querySelectorAll('select');
+                selects.forEach(select => {
+                    if (select.options.length > 0) {
+                        select.selectedIndex = 0;
+                    }
+                });
+
+                // Hide any open dropdowns
+                const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('hidden');
+                });
+
+                // Enable any disabled submit buttons
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                }
+
+                // Reset error states
+                const errorFields = form.querySelectorAll('.error, .border-red-500');
+                errorFields.forEach(field => {
+                    field.classList.remove('error', 'border-red-500');
+                });
+
+                // Hide error messages
+                const errorMessages = form.querySelectorAll('.error-message');
+                errorMessages.forEach(message => {
+                    message.textContent = '';
+                    message.classList.add('hidden');
+                });
+            }
+
+            // Edit Asset form reset
+            function resetEditAssetForm(form) {
+                resetGenericForm(form);
+
+                // Reset depreciation fields if present
+                const depreciationFields = form.querySelector('#edit_depreciation_fields');
+                if (depreciationFields) {
+                    depreciationFields.classList.add('hidden');
+                    const depInputs = depreciationFields.querySelectorAll('input, select');
+                    depInputs.forEach(input => {
+                        input.disabled = true;
+                        input.required = false;
+                        if (input.tagName === 'INPUT') {
+                            input.value = '';
+                        } else if (input.tagName === 'SELECT' && input.options.length > 0) {
+                            input.selectedIndex = 0;
+                        }
+                    });
+                }
+            }
+
+            // Checkout form reset
+            function resetCheckoutForm(form) {
+                resetGenericForm(form);
+
+                // Reset checkout-specific elements
+                document.getElementById('employeeDropdown').classList.remove('hidden');
+                document.getElementById('locationDropdown').classList.add('hidden');
+
+                // Set current date
+                const dateField = form.querySelector('input[name="checkout_date"]');
+                if (dateField) {
+                    dateField.value = new Date().toISOString().split('T')[0];
+                }
+
+                // Reset radio buttons
+                const employeeRadio = document.getElementById('employee');
+                if (employeeRadio) {
+                    employeeRadio.checked = true;
+                }
+            }
+
+            // Check-in form reset
+            function resetCheckinForm(form) {
+                resetGenericForm(form);
+
+                // Set current date for return date
+                const dateField = form.querySelector('input[name="return_date"]');
+                if (dateField) {
+                    dateField.value = new Date().toISOString().split('T')[0];
+                }
+            }
+
+            // Lost form reset
+            function resetLostForm(form) {
+                resetGenericForm(form);
+
+                // Set current date for loss date
+                const dateField = form.querySelector('input[name="loss_date"]');
+                if (dateField) {
+                    dateField.value = new Date().toISOString().split('T')[0];
+                }
+            }
+
+            // Found form reset
+            function resetFoundForm(form) {
+                resetGenericForm(form);
+            }
+
+            // Dispose form reset
+            function resetDisposeForm(form) {
+                resetGenericForm(form);
+
+                // Set current date for dispose date
+                const dateField = form.querySelector('input[name="dispose_date"]');
+                if (dateField) {
+                    dateField.value = new Date().toISOString().split('T')[0];
+                }
             }
 
             // Common fetch handler
@@ -1371,22 +1493,22 @@
                 roomList.innerHTML = '';
 
                 try {
-                    const rooms = @json($rooms ?? []);
-                    let filteredRooms = rooms;
+                    const response = await fetch(`{{ route('rooms') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
-                    if (searchTerm) {
-                        const search = searchTerm.toLowerCase();
-                        filteredRooms = rooms.filter(room =>
-                            (room.room_name && room.room_name.toLowerCase().includes(search)) ||
-                            (room.room_number && room.room_number.toLowerCase().includes(search)) ||
-                            (room.building && room.building.building_name && room.building.building_name.toLowerCase().includes(search))
-                        );
-                    }
+                    if (!response.ok) throw new Error('Failed to fetch rooms');
 
-                    if (filteredRooms.length === 0) {
+                    const result = await response.json();
+                    let rooms = result.rooms || result.data || [];
+
+                    if (rooms.length === 0) {
                         roomList.appendChild(createDropdownItem('No rooms found', 'px-4 py-2 text-gray-500 italic'));
                     } else {
-                        filteredRooms.forEach(item => {
+                        rooms.forEach(item => {
                             let buildingName = 'Unknown Building';
 
                             if (item.building && item.building.building_name) {
@@ -1425,16 +1547,17 @@
                 userList.innerHTML = '';
 
                 try {
-                    let users = window.usersData || [];
+                    const response = await fetch(`{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
-                    if (searchTerm) {
-                        searchTerm = searchTerm.toLowerCase();
-                        users = users.filter(user =>
-                            (user.employee_number && user.employee_number.toLowerCase().includes(searchTerm)) ||
-                            (user.name && user.name.toLowerCase().includes(searchTerm)) ||
-                            (user.user_id && user.user_id.toString().includes(searchTerm))
-                        );
-                    }
+                    if (!response.ok) throw new Error('Failed to fetch users');
+
+                    const result = await response.json();
+                    let users = result.users || result.data || [];
 
                     if (users.length === 0) {
                         userList.appendChild(createDropdownItem('No users found', 'px-4 py-2 text-gray-500 italic'));
@@ -1476,12 +1599,17 @@
                 assetMasterList.innerHTML = '';
 
                 try {
-                    const response = await fetch(`{{ route('asset-master.data') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`);
+                    const response = await fetch(`{{ route('asset-master') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
                     if (!response.ok) throw new Error('Failed to fetch asset masters');
 
                     const result = await response.json();
-                    let assetMasters = result.masterAssets || [];
+                    let assetMasters = result.masterAssets || result.data || [];
 
                     if (assetMasters.length === 0) {
                         assetMasterList.appendChild(createDropdownItem('No asset masters found', 'px-4 py-2 text-gray-500 italic'));
@@ -1829,24 +1957,11 @@
 
                 // Set asset master information
                 const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
+                const assetMasterName = asset.asset_master_name || (asset.asset_master && asset.asset_master.asset_name) || '';
+
                 if (assetMasterId) {
                     document.getElementById('edit_selected_asset_master_id').value = assetMasterId;
-
-                    let assetMasterName = '';
-                    if (asset.asset_master && asset.asset_master.asset_name) {
-                        assetMasterName = asset.asset_master.asset_name;
-                    } else if (asset.asset_master && asset.asset_master.asset_master_name) {
-                        assetMasterName = asset.asset_master.asset_master_name;
-                    } else if (asset.asset_master_name) {
-                        assetMasterName = asset.asset_master_name;
-                    } else {
-                        assetMasterName = 'Asset Master ID: ' + assetMasterId;
-                    }
-
                     document.getElementById('edit_asset_master_search').value = assetMasterName;
-
-                    const assetMasterLoading = document.getElementById('edit_asset_master_loading');
-                    if (assetMasterLoading) assetMasterLoading.classList.add('hidden');
 
                     const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
                     document.getElementById('edit_selected_is_depreciable').value = isDepreciable.toString();
@@ -1861,35 +1976,20 @@
                 if (asset.room_id) {
                     document.getElementById('edit_selected_room_id').value = asset.room_id;
 
-                    let roomName = "Room ID: " + asset.room_id;
-                    if (asset.room) {
-                        const buildingName = asset.room.building ? asset.room.building.building_name :
-                                            (asset.room.building_name ? asset.room.building_name : 'Unknown Building');
-                        roomName = `${asset.room.room_name} (${buildingName})`;
-                    } else if (asset.room_name) {
-                        roomName = `${asset.room_name} (${asset.building_name || 'Unknown Building'})`;
-                    } else {
-                        const rooms = @json($rooms ?? []);
-                        const selectedRoom = rooms.find(room => room.room_id == asset.room_id);
-                        if (selectedRoom) {
-                            const buildingName = selectedRoom.building ? selectedRoom.building.building_name :
-                                                (selectedRoom.building_name || 'Unknown Building');
-                            roomName = `${selectedRoom.room_name} (${buildingName})`;
-                        }
+                    let roomName = '';
+                    if (asset.room_name) {
+                        const buildingName = asset.building_name || 'Unknown Building';
+                        roomName = `${asset.room_name} (${buildingName})`;
                     }
 
                     document.getElementById('edit_room_search').value = roomName;
-
-                    const roomLoading = document.getElementById('edit_room_loading');
-                    if (roomLoading) roomLoading.classList.add('hidden');
                 }
 
                 // Set user information
                 if (asset.user_id) {
                     document.getElementById('edit_selected_user_id').value = asset.user_id;
 
-                    let userDisplay = `User ID: ${asset.user_id}`;
-
+                    let userDisplay = '';
                     if (asset.user) {
                         if (asset.user.employee_number) {
                             userDisplay = asset.user.employee_number;
@@ -1897,22 +1997,9 @@
                         } else if (asset.user.name) {
                             userDisplay = asset.user.name;
                         }
-                    } else {
-                        const user = window.usersData.find(u => u.user_id == asset.user_id);
-                        if (user) {
-                            if (user.employee_number) {
-                                userDisplay = user.employee_number;
-                                if (user.name) userDisplay += ` - ${user.name}`;
-                            } else if (user.name) {
-                                userDisplay = user.name;
-                            }
-                        }
                     }
 
                     document.getElementById('edit_user_search').value = userDisplay;
-
-                    const userLoading = document.getElementById('edit_user_loading');
-                    if (userLoading) userLoading.classList.add('hidden');
                 }
 
                 // Set depreciation data
@@ -1971,33 +2058,46 @@
                 }
             );
 
-            // Function to load buildings
+            // Function to load buildings with API fetch
             async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput) {
                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                 buildingList.innerHTML = '';
 
-                try {
-                    const buildings = @json($buildings ?? []);
-                    let filteredBuildings = buildings;
+                // Cache buildings data
+                if (!window.buildingsCache) {
+                    window.buildingsCache = [];
+                }
 
-                    if (searchTerm) {
-                        const search = searchTerm.toLowerCase();
-                        filteredBuildings = buildings.filter(building =>
-                            (building.building_name && building.building_name.toLowerCase().includes(search)) ||
-                            (building.address && building.address.toLowerCase().includes(search))
-                        );
+                try {
+                    let buildings = [];
+
+                    // Use cached data if available and no search term, otherwise fetch new data
+                    if (window.buildingsCache.length > 0 && !searchTerm) {
+                        buildings = window.buildingsCache;
+                    } else {
+                        const response = await fetch(`{{ route('buildings.data') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (!response.ok) throw new Error('Failed to fetch buildings');
+
+                        const result = await response.json();
+                        buildings = result.data || [];
+
+                        // Cache the buildings data if we're not searching
+                        if (!searchTerm) {
+                            window.buildingsCache = buildings;
+                        }
                     }
 
-                    if (filteredBuildings.length === 0) {
-                        const noResults = document.createElement('li');
-                        noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'No buildings found';
-                        buildingList.appendChild(noResults);
+                    if (buildings.length === 0) {
+                        buildingList.appendChild(createDropdownItem('No buildings found', 'px-4 py-2 text-gray-500 italic'));
                     } else {
-                        filteredBuildings.forEach(building => {
-                            const li = document.createElement('li');
-                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                            li.textContent = building.building_name;
+                        buildings.forEach(building => {
+                            const li = createDropdownItem(building.building_name);
                             li.setAttribute('data-id', building.building_id);
                             li.setAttribute('data-name', building.building_name);
 
@@ -2023,10 +2123,7 @@
                     }
                 } catch (error) {
                     console.error('Error loading buildings:', error);
-                    const errorItem = document.createElement('li');
-                    errorItem.className = 'px-4 py-2 text-red-500';
-                    errorItem.textContent = 'Error loading buildings';
-                    buildingList.appendChild(errorItem);
+                    buildingList.appendChild(createDropdownItem('Error loading buildings', 'px-4 py-2 text-red-500'));
                 } finally {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 }
@@ -2059,33 +2156,23 @@
                 roomList.innerHTML = '';
 
                 try {
-                    const rooms = @json($rooms ?? []);
+                    const response = await fetch(`{{ route('rooms') }}?search=${encodeURIComponent(searchTerm || '')}&building_id=${buildingId}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
-                    // Filter rooms by building ID
-                    let filteredRooms = rooms.filter(room =>
-                        (room.building_id && room.building_id == buildingId) ||
-                        (room.building && room.building.building_id == buildingId)
-                    );
+                    if (!response.ok) throw new Error('Failed to fetch rooms');
 
-                    // Further filter by search term if provided
-                    if (searchTerm) {
-                        const search = searchTerm.toLowerCase();
-                        filteredRooms = filteredRooms.filter(room =>
-                            (room.room_name && room.room_name.toLowerCase().includes(search)) ||
-                            (room.room_number && room.room_number.toLowerCase().includes(search))
-                        );
-                    }
+                    const result = await response.json();
+                    const rooms = result.rooms || result.data || [];
 
-                    if (filteredRooms.length === 0) {
-                        const noResults = document.createElement('li');
-                        noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'No rooms found in this building';
-                        roomList.appendChild(noResults);
+                    if (rooms.length === 0) {
+                        roomList.appendChild(createDropdownItem('No rooms found in this building', 'px-4 py-2 text-gray-500 italic'));
                     } else {
-                        filteredRooms.forEach(room => {
-                            const li = document.createElement('li');
-                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                            li.textContent = room.room_name;
+                        rooms.forEach(room => {
+                            const li = createDropdownItem(room.room_name);
                             li.setAttribute('data-id', room.room_id);
                             li.setAttribute('data-name', room.room_name);
 
@@ -2103,14 +2190,134 @@
                     }
                 } catch (error) {
                     console.error('Error loading rooms:', error);
-                    const errorItem = document.createElement('li');
-                    errorItem.className = 'px-4 py-2 text-red-500';
-                    errorItem.textContent = 'Error loading rooms';
-                    roomList.appendChild(errorItem);
+                    roomList.appendChild(createDropdownItem('Error loading rooms', 'px-4 py-2 text-red-500'));
                 } finally {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 }
             }
+
+            // Edit asset functionality
+            document.querySelectorAll('.edit-asset-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const assetId = '{{ $asset["asset_id"] ?? "" }}';
+                    const editModal = document.getElementById('editAssetModal');
+                    const editContent = document.getElementById('editAssetModalContent');
+                    const loadingIndicator = document.getElementById('edit-loading');
+                    const formContent = document.getElementById('edit-form-content');
+                    const submitBtn = document.getElementById('edit-submit-btn');
+
+                    if (editModal && editContent) {
+                        // Reset form and show loading
+                        document.getElementById('editAssetForm').reset();
+                        document.getElementById('editAssetForm').action = `{{ url('assets') }}/${assetId}`;
+
+                        // Show loading indicator
+                        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                        if (formContent) formContent.classList.add('hidden');
+                        if (submitBtn) submitBtn.disabled = true;
+
+                        // Open the modal while loading
+                        openModal(editModal, editContent);
+
+                        // Fetch asset data with proper error handling
+                        console.log(`Fetching asset data for ID: ${assetId}`);
+
+                        fetch(`{{ route('asset.details', ['id' => $asset['asset_id']]) }}`, {
+                            method: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            },
+                            credentials: 'same-origin'
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Asset data received:', data);
+
+                            if (!data || !data.data) {
+                                throw new Error('Invalid response data structure');
+                            }
+
+                            const asset = data.data;
+
+                            // Use the standard setupWithData function
+                            setupWithData(asset);
+
+                            // Hide loading and show form
+                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            if (formContent) formContent.classList.remove('hidden');
+                            if (submitBtn) submitBtn.disabled = false;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching asset data:', error);
+
+                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+
+                            if (formContent) {
+                                formContent.innerHTML = `
+                                    <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                                        <p class="font-medium">Failed to load asset data</p>
+                                        <p>${error.message}</p>
+                                        <p class="mt-2">Please try again or contact support if the problem persists.</p>
+                                    </div>
+                                    <button type="button" class="close-modal w-full h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300">
+                                        Close
+                                    </button>
+                                `;
+                                formContent.classList.remove('hidden');
+                            }
+
+                            // Reattach close event listeners
+                            formContent.querySelectorAll('.close-modal').forEach(btn => {
+                                btn.addEventListener('click', function() {
+                                    closeModal(editModal, editContent);
+                                });
+                            });
+                        });
+                    }
+                });
+            });
+
+            // Prevent multiple submissions for all forms
+            function setupFormSubmissionHandling(formId, loadingText = 'Processing...') {
+                const form = document.getElementById(formId);
+                if (!form) return;
+
+                form.addEventListener('submit', function(event) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>${loadingText}</span></div>`;
+
+                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                        setTimeout(() => {
+                            if (submitBtn.disabled) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+                });
+            }
+
+            // Setup form submission handling for all asset action forms
+            setupFormSubmissionHandling('editAssetForm', 'Memperbarui...');
+            setupFormSubmissionHandling('checkoutAssetForm', 'Meminjam...');
+            setupFormSubmissionHandling('checkinAssetForm', 'Mengembalikan...');
+            setupFormSubmissionHandling('reportLostForm', 'Melaporkan...');
+            setupFormSubmissionHandling('foundAssetForm', 'Melaporkan ditemukan...');
+            setupFormSubmissionHandling('disposeAssetForm', 'Menghapuskan...');
         });
     </script>
 @endsection
