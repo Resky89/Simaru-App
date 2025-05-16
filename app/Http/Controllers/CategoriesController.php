@@ -432,8 +432,8 @@ class CategoriesController extends Controller
                 ]);
 
                 if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
+                return response()->json([
+                    'success' => false,
                         'errors' => 'Authentication failed'
                     ], 401);
                 }
@@ -469,7 +469,7 @@ class CategoriesController extends Controller
                         'success' => false,
                         'errors' => $errorMessage
                     ], 400);
-                }
+            }
 
                 return redirect()->back()->with('error', $errorMessage);
             }
@@ -491,8 +491,8 @@ class CategoriesController extends Controller
             ]);
 
             if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
+            return response()->json([
+                'success' => false,
                     'errors' => 'Failed to load subcategory details: ' . $e->getMessage()
                 ], 500);
             }
