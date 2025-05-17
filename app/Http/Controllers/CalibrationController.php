@@ -406,7 +406,7 @@ class CalibrationController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function reportCalibration(Request $request, $id)
     {
         try {
             // Validate the request
@@ -501,7 +501,7 @@ class CalibrationController extends Controller
                 ]);
 
                 // Send request to API using multipart form data
-                $result = $this->apiService->request('PUT', '/calibrations/' . $id, [
+                $result = $this->apiService->request('PUT', '/calibrations/report/' . $id, [
                     'multipart' => $multipart
                 ]);
             } else {
@@ -510,7 +510,7 @@ class CalibrationController extends Controller
                 ]);
 
                 // Send request to API without file
-                $result = $this->apiService->request('PUT', '/calibrations/' . $id, [
+                $result = $this->apiService->request('PUT', '/calibrations/report/' . $id, [
                     'json' => $requestData
                 ]);
             }
@@ -1052,6 +1052,102 @@ class CalibrationController extends Controller
             ]);
 
             return redirect()->back()->with('error', 'Failed to export Calibration detail as PDF: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update a calibration schedule.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateCalibrationSchedule(Request $request, $id)
+    {
+        try {
+            // Validate the request
+            $validator = \Validator::make($request->all(), [
+                'planning_calibration_date' => 'required|date'
+            ]);
+
+            if ($validator->fails()) {
+                \Log::warning('Validation error in calibration schedule update:', [
+                    'errors' => $validator->errors()->toArray()
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], status: 422);
+            }
+
+            // Log request info
+            \Log::info('Updating calibration schedule for ID: ' . $id, [
+                'planning_calibration_date' => $request->input('planning_calibration_date'),
+                'request_url' => $request->fullUrl()
+            ]);
+
+            // Prepare request data
+            $requestData = [
+                'planning_calibration_date' => $request->input('planning_calibration_date')
+            ];
+
+            // Send request to API
+            $result = $this->apiService->request('PUT', '/calibrations/schedule/' . $id, [
+                'json' => $requestData
+            ]);
+
+            // Log API response for debugging
+            \Log::info('API response for calibration schedule update:', [
+                'api_response_status' => $result['status'] ?? null,
+                'api_response_message' => $result['message'] ?? null
+            ]);
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during calibration schedule update:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], status: 401);
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to update calibration schedule';
+
+                \Log::warning('Error during calibration schedule update:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $errorData
+                ], status: 400);
+            }
+
+            // Return successful response
+            return response()->json([
+                'success' => true,
+                'message' => 'Jadwal kalibrasi berhasil diperbarui',
+                'data' => $result['data'] ?? []
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during calibration schedule update:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update calibration schedule: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

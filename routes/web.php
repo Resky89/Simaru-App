@@ -343,7 +343,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::get('/calibrations', [CalibrationController::class, 'index'])->name('calibration');
     Route::post('/calibrations/bulk', [CalibrationController::class, 'createBulkCalibrations'])->name('calibrations.bulk.create');
     Route::get('/calibrations/{id}', [CalibrationController::class, 'getCalibration']);
-    Route::put('/calibrations/{id}', [CalibrationController::class, 'update']);
+    Route::put('/calibrations/report/{id}', [CalibrationController::class, 'reportCalibration'])->name('calibration.report');
+    Route::put('/calibrations/schedule/{id}', [CalibrationController::class, 'updateCalibrationSchedule'])->name('calibration.schedule.update');
     Route::delete('/calibrations/bulk', [CalibrationController::class, 'destroy'])->name('calibrations.bulk.delete');
     Route::get('/calibrations/export/pdf', [CalibrationController::class, 'exportCalibrationPDF'])->name('calibrations.export.pdf');
 

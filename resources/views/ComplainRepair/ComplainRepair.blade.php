@@ -186,7 +186,7 @@
                         <div class="flex gap-2">
                             @php
                                 $currentPage = $pagination['current_page'] ?? 1;
-                                $totalPages = $pagination['total_pages'] ?? 1;
+                                $totalPages = isset($pagination['total_pages']) ? $pagination['total_pages'] : (isset($pagination['total_items']) && isset($pagination['limit']) && $pagination['limit'] > 0 ? ceil($pagination['total_items'] / $pagination['limit']) : 1);
                                 $maxPagesShown = 5; // Show max 5 pages at once
                                 $startPage = max(1, $currentPage - 2);
                                 $endPage = min($totalPages, $startPage + $maxPagesShown - 1);
@@ -302,13 +302,13 @@
 
                             <!-- Asset Selection -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Aset*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Aset<span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <input type="text" id="assetSearch"
                                         placeholder="Cari aset..."
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
                                     />
-                                    <input type="hidden" id="assetId" name="asset_id" required />
+                                    <input type="hidden" id="assetId" name="asset_id"/>
                                     <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -330,6 +330,7 @@
                                             Tidak ada aset ditemukan
                                         </div>
                                     </div>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus dipilih</div>
                                 </div>
                                 <div id="selectedAssetInfo" class="mt-2 p-2 bg-gray-100 rounded-lg hidden">
                                     <div class="flex items-center justify-between">
@@ -348,15 +349,16 @@
 
                             <!-- Description -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Deskripsi*</label>
-                                <textarea id="description" name="description" rows="4" required
+                                <label class="block text-base font-semibold text-[#666666]">Deskripsi<span class="text-red-500">*</span></label>
+                                <textarea id="description" name="description" rows="4"
                                     class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
                                     placeholder="Jelaskan masalahnya..."></textarea>
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi harus diisi</div>
                             </div>
 
                             <!-- Image Upload -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Gambar*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Gambar<span class="text-red-500">*</span></label>
                                 <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                     <!-- Image preview -->
                                     <div id="imagePreview" class="mt-2 mb-4 w-full hidden">
@@ -364,7 +366,7 @@
                                             <img id="previewImg" src="#" alt="Pratinjau" class="w-full h-auto max-h-64 object-contain mx-auto rounded">
                                             <button type="button" id="removeImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                                 </svg>
                                             </button>
                                         </div>
@@ -378,8 +380,9 @@
                                         <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png (Ukuran maks: 5MB)</p>
                                         <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk memilih file</p>
                                     </div>
-                                    <input id="imageFile" name="image_file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" required />
+                                    <input id="imageFile" name="image_file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*"/>
                                 </div>
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Gambar harus diunggah</div>
                             </div>
 
                             <!-- Submit Button -->
@@ -413,9 +416,8 @@
                 </div>
 
                 <!-- Content -->
-                <form id="deleteComplaintForm" action="" method="POST">
+                <form id="deleteComplaintForm">
                     @csrf
-                    @method('DELETE')
                     <input type="hidden" id="deleteComplaintId" name="complaint_id">
                     <div class="p-6">
                         <div class="space-y-6 max-w-[400px] mx-auto">
@@ -426,6 +428,7 @@
                                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus keluhan ini? Tindakan ini tidak dapat dibatalkan.</p>
+                                <p id="deleteComplaintName" class="text-base font-semibold text-center mt-2"></p>
                             </div>
                             <div class="flex gap-3">
                                 <button type="button"
@@ -482,16 +485,17 @@
 
                             <!-- Repair Description -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Deskripsi Perbaikan*</label>
-                                <textarea id="repairDescription" name="repair_description" rows="3" required
+                                <label class="block text-base font-semibold text-[#666666]">Deskripsi Perbaikan<span class="text-red-500">*</span></label>
+                                <textarea id="repairDescription" name="repair_description" rows="3"
                                     class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
                                     placeholder="Jelaskan pekerjaan perbaikan..."></textarea>
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi perbaikan harus diisi</div>
                             </div>
 
                              <!-- Final Result -->
                              <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Hasil Akhir*</label>
-                                <select id="finalResult" name="final_result" required
+                                <label class="block text-base font-semibold text-[#666666]">Hasil Akhir<span class="text-red-500">*</span></label>
+                                <select id="finalResult" name="final_result"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20">
                                     <option value="" disabled selected>Pilih hasil akhir</option>
                                     <option value="Good">Baik</option>
@@ -499,27 +503,30 @@
                                     <option value="Heavy Damage">Rusak Parah</option>
                                     <option value="Waiting for Part">Menunggu Spare Part</option>
                                 </select>
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Hasil akhir harus dipilih</div>
                             </div>
 
                             <!-- Repair Cost -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Biaya Perbaikan*</label>
-                                <input type="number" id="repairCost" name="repair_cost" required
+                                <label class="block text-base font-semibold text-[#666666]">Biaya Perbaikan<span class="text-red-500">*</span></label>
+                                <input type="number" id="repairCost" name="repair_cost"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
                                     placeholder="Biaya dalam Rupiah">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perbaikan harus diisi</div>
                             </div>
 
                             <!-- Parts Replaced -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Komponen yang Diganti*</label>
-                                <input type="text" id="partsReplaced" name="parts_replaced" required
+                                <label class="block text-base font-semibold text-[#666666]">Komponen yang Diganti<span class="text-red-500">*</span></label>
+                                <input type="text" id="partsReplaced" name="parts_replaced"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
                                     placeholder="Daftar komponen yang diganti">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Komponen yang diganti harus diisi</div>
                             </div>
 
                             <!-- Image Upload -->
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Gambar Perbaikan*</label>
+                                <label class="block text-base font-semibold text-[#666666]">Gambar Perbaikan<span class="text-red-500">*</span></label>
                                 <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                     <!-- Image preview -->
                                     <div id="repairImagePreview" class="mt-2 mb-4 w-full hidden">
@@ -541,8 +548,9 @@
                                         <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png (Ukuran maks: 5MB)</p>
                                         <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk memilih file</p>
                                     </div>
-                                    <input id="repairImageFile" name="file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" required />
+                                    <input id="repairImageFile" name="file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*"/>
                                 </div>
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Gambar perbaikan harus diunggah</div>
                             </div>
 
                             <!-- Submit Button -->
@@ -724,6 +732,13 @@
             window.location.href = url.toString();
         }
 
+        // Function to change items per page - make it global to match other pages
+        window.changePerPage = function(limit) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', limit);
+            window.location.href = url.toString();
+        }
+
         imageFile?.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
@@ -787,6 +802,8 @@
             applyFilters();
         });
 
+        // Per page selection is handled via the onchange attribute
+
         // Export PDF functionality
         exportBtn?.addEventListener('click', () => {
             // Get current URL parameters
@@ -799,13 +816,6 @@
             // Open in a new window/tab, not replacing the current one
             window.open(exportUrl, '_blank', 'noopener,noreferrer');
         });
-
-        // Function to change items per page
-        window.changePerPage = function(limit) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('limit', limit);
-            window.location.href = url.toString();
-        }
 
         // ===== ASSET SEARCH FUNCTIONALITY WITH DEBOUNCE =====
         const assets = @json($assets ?? []);
@@ -935,42 +945,54 @@
 
         // ===== FORM SUBMISSION =====
         complaintForm?.addEventListener('submit', function(e) {
-            // Basic client-side validation
-            const formData = new FormData(complaintForm);
-            let isValid = true;
-            let errorMessage = '';
+            // Prevent default submission to validate first
+            e.preventDefault();
 
-            // Basic validation for required fields
-            if (!formData.get('asset_id')) {
-                isValid = false;
-                errorMessage = 'Aset wajib diisi';
+            // Validate all required fields
+            const assetSearchInput = document.getElementById('assetSearch');
+            const descriptionInput = document.getElementById('description');
+            const imageFileInput = document.getElementById('imageFile');
+
+            const isAssetValid = validateField(assetSearchInput, !!document.getElementById('assetId').value);
+            const isDescriptionValid = validateField(descriptionInput);
+            const isImageValid = validateField(imageFileInput, imageFileInput.files && imageFileInput.files.length > 0);
+
+            // If any validation fails, show error and stop submission
+            if (!isAssetValid || !isDescriptionValid || !isImageValid) {
+                // Focus on the first invalid field
+                if (!isAssetValid) assetSearchInput.focus();
+                else if (!isDescriptionValid) descriptionInput.focus();
+                else if (!isImageValid) imageFileInput.focus();
+
+                showToast('Silakan isi semua field yang diperlukan', 'error');
+                return false;
             }
 
-            if (!formData.get('description').trim()) {
-                isValid = false;
-                errorMessage = 'Deskripsi wajib diisi';
-            }
-
-            // Check for image file
-            if (!formData.get('image_file') || formData.get('image_file').size === 0) {
-                isValid = false;
-                errorMessage = 'Gambar wajib diunggah';
-            }
-
-            // If validation fails, prevent form submission and show error
-            if (!isValid) {
-                e.preventDefault();
-                errorMsgDiv.innerHTML = `
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                        <p class="font-bold">Error Validasi</p>
-                        <p>${errorMessage}</p>
+            // Find the submit button and show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span>Memproses...</span>
                     </div>
                 `;
-                errorMsgDiv.scrollIntoView({ behavior: 'smooth' });
-                return;
+
+                // Re-enable button after 10 seconds as a failsafe
+                setTimeout(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = originalText;
+                    }
+                }, 10000);
             }
 
-            // If validation passes, form will submit normally
+            // Continue with form submission
+            this.submit();
         });
 
         // Repair form submission validation
@@ -978,105 +1000,244 @@
         const repairErrorMsgDiv = document.getElementById('repairErrorMessages');
 
         repairForm?.addEventListener('submit', function(e) {
-            // Basic client-side validation
-            const formData = new FormData(repairForm);
-            let isValid = true;
-            let errorMessage = '';
+            e.preventDefault();
 
-            // Basic validation for required fields
-            if (!formData.get('complaint_id')) {
-                isValid = false;
-                errorMessage = 'ID Keluhan wajib diisi';
+            // Validate all required fields
+            const isDescriptionValid = validateField(document.getElementById('repairDescription'));
+            const isResultValid = validateField(document.getElementById('finalResult'));
+            const isCostValid = validateField(document.getElementById('repairCost'));
+            const isPartsValid = validateField(document.getElementById('partsReplaced'));
+            const isImageValid = validateField(document.getElementById('repairImageFile'), document.getElementById('repairImageFile').files && document.getElementById('repairImageFile').files.length > 0);
+
+            // If any validation fails, show error and stop submission
+            if (!isDescriptionValid || !isResultValid || !isCostValid || !isPartsValid || !isImageValid) {
+                showToast('Silakan isi semua field yang diperlukan', 'error');
+                return false;
             }
 
-            if (!formData.get('repair_description').trim()) {
-                isValid = false;
-                errorMessage = 'Deskripsi perbaikan wajib diisi';
-            }
-
-            if (!formData.get('final_result').trim()) {
-                isValid = false;
-                errorMessage = 'Hasil akhir wajib diisi';
-            }
-
-            if (!formData.get('repair_cost')) {
-                isValid = false;
-                errorMessage = 'Biaya perbaikan wajib diisi';
-            }
-
-            if (!formData.get('parts_replaced').trim()) {
-                isValid = false;
-                errorMessage = 'Komponen yang diganti wajib diisi';
-            }
-
-            // Check for image file
-            if (!formData.get('file') || formData.get('file').size === 0) {
-                isValid = false;
-                errorMessage = 'Gambar perbaikan wajib diunggah';
-            }
-
-            // If validation fails, prevent form submission and show error
-            if (!isValid) {
-                e.preventDefault();
-                repairErrorMsgDiv.innerHTML = `
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                        <p class="font-bold">Error Validasi</p>
-                        <p>${errorMessage}</p>
+            // Find the submit button and show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span>Memproses...</span>
                     </div>
                 `;
-                repairErrorMsgDiv.scrollIntoView({ behavior: 'smooth' });
-                return;
+
+                // Re-enable button after 10 seconds as a failsafe
+                setTimeout(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = originalText;
+                    }
+                }, 10000);
             }
 
-            // If validation passes, form will submit normally
+            // Continue with form submission
+            this.submit();
         });
 
-        // Delete complaint functionality
-        const deleteComplaintModal = document.getElementById('deleteComplaintModal');
-        const deleteComplaintModalContent = document.getElementById('deleteComplaintModalContent');
-        const deleteComplaintForm = document.getElementById('deleteComplaintForm');
-        const deleteComplaintId = document.getElementById('deleteComplaintId');
+        // Function to validate field and show error styling
+        function validateField(field, isValid = null) {
+            if (!field) return true;
 
-        // Repair complaint functionality
-        const repairComplaintModal = document.getElementById('repairComplaintModal');
-        const repairComplaintModalContent = document.getElementById('repairComplaintModalContent');
-        const repairComplaintId = document.getElementById('repairComplaintId');
-        const repairAssetName = document.getElementById('repairAssetName');
-        const repairImageFile = document.getElementById('repairImageFile');
-        const repairPreviewImg = document.getElementById('repairPreviewImg');
-        const repairImagePreview = document.getElementById('repairImagePreview');
-        const removeRepairImage = document.getElementById('removeRepairImage');
+            let errorElement = field.type === 'file'
+                ? field.parentElement.parentElement.querySelector('.error-message')
+                : field.parentElement.querySelector('.error-message');
 
-        // Image preview for repair
-        repairImageFile?.addEventListener('change', function() {
+            // If no explicit valid state is passed, check based on field type
+            if (isValid === null) {
+                if (field.type === 'select-one') {
+                    isValid = field.value !== '';
+                } else if (field.type === 'file') {
+                    isValid = field.files && field.files.length > 0;
+                } else if (field.id === 'assetSearch') {
+                    isValid = document.getElementById('assetId').value !== '';
+                } else {
+                    isValid = field.value.trim() !== '';
+                }
+            }
+
+            // Apply styling based on validation result
+            if (!isValid) {
+                field.classList.add('border-red-500');
+                if (errorElement) errorElement.classList.remove('hidden');
+                return false;
+            } else {
+                field.classList.remove('border-red-500');
+                if (errorElement) errorElement.classList.add('hidden');
+                return true;
+            }
+        }
+
+        // Add input event listeners to clear error styling when typing/changing
+        assetSearch?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.parentElement.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('description')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.parentElement.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('imageFile')?.addEventListener('change', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.parentElement.parentElement.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('repairDescription')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.parentElement.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('finalResult')?.addEventListener('change', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.parentElement.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('repairCost')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.parentElement.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('partsReplaced')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.parentElement.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+                document.getElementById('repairImageFile')?.addEventListener('change', function() {
+            // Clear error styling
+            this.classList.remove('border-red-500');
+            const errorElement = this.parentElement.parentElement.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+
+            // Handle image preview
             const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
 
                 reader.onload = function(e) {
-                    repairPreviewImg.src = e.target.result;
-                    repairImagePreview.classList.remove('hidden');
+                    document.getElementById('repairPreviewImg').src = e.target.result;
+                    document.getElementById('repairImagePreview').classList.remove('hidden');
                 }
 
                 reader.readAsDataURL(file);
             }
         });
 
-        removeRepairImage?.addEventListener('click', function() {
-            repairImageFile.value = '';
-            repairImagePreview.classList.add('hidden');
-            repairPreviewImg.src = '#';
+        document.getElementById('removeRepairImage')?.addEventListener('click', function() {
+            document.getElementById('repairImageFile').value = '';
+            document.getElementById('repairImagePreview').classList.add('hidden');
+            document.getElementById('repairPreviewImg').src = '#';
         });
 
         // Delete button click handlers
         document.querySelectorAll('.delete-complaint-btn').forEach(button => {
             button.addEventListener('click', () => {
                 const complaintId = button.getAttribute('data-id');
-                deleteComplaintForm.action = `{{ url('complaint/destroy') }}/${complaintId}`;
-                deleteComplaintId.value = complaintId;
+                const complaintName = button.getAttribute('data-name');
+
+                // Set the complaint ID for later use
+                document.getElementById('deleteComplaintForm').setAttribute('data-id', complaintId);
+
+                // Show asset name in confirmation modal if available
+                if (complaintName) {
+                    document.getElementById('deleteComplaintName').textContent = complaintName;
+                }
 
                 // Open delete modal
                 openModal(deleteComplaintModal, deleteComplaintModalContent);
+            });
+        });
+
+        // Form submission handler for delete
+        document.getElementById('deleteComplaintForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get the complaint ID from the data attribute
+            const complaintId = this.getAttribute('data-id');
+
+            if (!complaintId) {
+                showToast('ID keluhan tidak valid', 'error');
+                return;
+            }
+
+            // Find the submit button and show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                submitBtn.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span>Memproses...</span>
+                    </div>
+                `;
+            }
+
+            // Make the POST request to delete
+            fetch(`complaint-repair/complaints/${complaintId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ complaint_id: complaintId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || `Server responded with status ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Close the modal
+                closeModal(deleteComplaintModal, deleteComplaintModalContent);
+
+                if (data.success) {
+                    // Show success toast
+                    showToast(data.message || 'Keluhan berhasil dihapus', 'success');
+
+                    // Reload the page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showToast(data.message || 'Gagal menghapus keluhan', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Delete request failed:', error);
+
+                // Close the modal
+                closeModal(deleteComplaintModal, deleteComplaintModalContent);
+
+                // Show error toast
+                showToast(error.message || 'Gagal menghapus keluhan', 'error');
+
+                // Reset submit button
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+                }
             });
         });
 

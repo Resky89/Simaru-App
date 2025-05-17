@@ -157,8 +157,8 @@
                                                     </svg>
                                                 </a>
 
+                                                @if(!in_array(strtolower($maintenance['status'] ?? ''), ['finished', 'selesai']))
                                                 <!-- Edit Maintenance Icon (Pencil) -->
-                                                @if(!in_array(strtolower($maintenance['status'] ?? ''), ['finished']))
                                                 <button class="edit-maintenance-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                     data-id="{{ $maintenance['id'] }}"
                                                     title="Edit Pemeliharaan">
@@ -166,7 +166,6 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
-                                                @endif
 
                                                 <!-- Create Report Icon (Document) -->
                                                 <button class="create-report-btn p-2 bg-green-100 text-green-500 rounded-md hover:bg-green-200 transition-colors"
@@ -180,7 +179,6 @@
                                                 </button>
 
                                                 <!-- Delete Maintenance Icon (Trash) -->
-                                                @if(!in_array(strtolower($maintenance['status'] ?? ''), ['finished']))
                                                 <button class="delete-maintenance-btn p-2 bg-[#F9D2D2] text-[#8E2121] rounded-md hover:bg-red-200 transition-colors"
                                                     data-id="{{ $maintenance['id'] }}"
                                                     title="Hapus Pemeliharaan">
@@ -321,36 +319,10 @@
                                 </div>
 
                                 <!-- Schedule Dates -->
-                                <div class="bg-[#B0DAE5] p-4 rounded-lg space-y-4">
+                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-4">
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
-                                            <label class="block text-base font-semibold">
-                                                TANGGAL MULAI<span class="text-red-500">*</span>
-                                            </label>
-                                        </div>
-                                        <div class="flex-1">
-                                            <input type="date" name="start_date" id="start_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center gap-4">
-                                        <div class="min-w-[150px]">
-                                            <label class="block text-base font-semibold">
-                                                TANGGAL SELESAI<span class="text-red-500">*</span>
-                                            </label>
-                                        </div>
-                                        <div class="flex-1">
-                                            <input type="date" name="end_date" id="end_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center gap-4">
-                                        <div class="min-w-[150px]">
-                                            <label class="block text-base font-semibold">
+                                            <label class="block text-base font-semibold text-[#213268]">
                                                 INTERVAL<span class="text-red-500">*</span>
                                             </label>
                                         </div>
@@ -369,12 +341,41 @@
                                                 <option value="6 MONTHS">6 Bulan</option>
                                                 <option value="YEARLY">Tahunan</option>
                                             </select>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Interval harus dipilih</div>
                                         </div>
                                     </div>
 
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
-                                            <label class="block text-base font-semibold">
+                                            <label class="block text-base font-semibold text-[#213268]">
+                                                TANGGAL MULAI<span class="text-red-500">*</span>
+                                            </label>
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="date" name="start_date" id="start_date"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                >
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal mulai diperlukan</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-4">
+                                        <div class="min-w-[150px]">
+                                            <label class="block text-base font-semibold text-[#213268]">
+                                                TANGGAL SELESAI<span class="text-red-500">*</span>
+                                            </label>
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="date" name="end_date" id="end_date"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                >
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal selesai diperlukan</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-4">
+                                        <div class="min-w-[150px]">
+                                            <label class="block text-base font-semibold text-[#213268]">
                                                 DITUGASKAN KE<span class="text-red-500">*</span>
                                             </label>
                                         </div>
@@ -383,6 +384,7 @@
                                                 <input type="text" id="user_search" placeholder="Cari karyawan (nomor karyawan)..."
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200" autocomplete="off">
                                                 <input type="hidden" name="assigned_to" id="selected_user_id">
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Karyawan harus dipilih</div>
                                                 <div id="user_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                                                     <!-- Loading indicator -->
                                                     <div id="user_loading" class="flex justify-center py-2">
@@ -399,7 +401,7 @@
 
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
-                                            <label class="block text-base font-semibold">
+                                            <label class="block text-base font-semibold text-[#213268]">
                                                 VENDOR
                                             </label>
                                         </div>
@@ -413,7 +415,7 @@
                                         </div>
                                         <div>
                                             <button type="button" id="addAssetsBtn"
-                                                class="bg-[#4299e1] hover:bg-[#3182ce] text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
+                                                class="bg-[#213268] hover:bg-[#152349] text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
                                                 <span class="text-xl mr-1">+</span>
                                                 Tambah Aset
                                             </button>
@@ -427,19 +429,19 @@
                                         <thead>
                                             <tr>
                                                 <th
-                                                    class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center w-[40px]">
+                                                    class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
                                                     No</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
                                                     Kode Aset</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Nama
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama
                                                     Aset</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
                                                     Deskripsi</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Tipe
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe
                                                     Aset</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Nama
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama
                                                     Kategori</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center">Aksi
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Aksi
                                                 </th>
                                             </tr>
                                         </thead>
@@ -681,39 +683,11 @@
                           </div>
 
                                 <!-- Schedule Information -->
-                                <div class="bg-[#B0DAE5] p-4 rounded-lg space-y-4 mb-6">
-                                    <!-- Start Date -->
-                                    <div class="flex items-center gap-4">
-                                        <div class="min-w-[150px]">
-                                            <label for="edit_start_date" class="block text-base font-semibold">
-                                                TANGGAL MULAI<span class="text-red-500">*</span>
-                                            </label>
-                                        </div>
-                                        <div class="flex-1">
-                                            <input type="date" id="edit_start_date" name="start_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
-                                        </div>
-                                    </div>
-
-                                    <!-- End Date -->
-                                    <div class="flex items-center gap-4">
-                                        <div class="min-w-[150px]">
-                                            <label for="edit_end_date" class="block text-base font-semibold">
-                                                TANGGAL SELESAI<span class="text-red-500">*</span>
-                                            </label>
-                                        </div>
-                                        <div class="flex-1">
-                                            <input type="date" id="edit_end_date" name="end_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
-                                        </div>
-                                    </div>
-
+                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-4 mb-6">
                                     <!-- Interval -->
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
-                                            <label for="edit_interval" class="block text-base font-semibold">
+                                            <label for="edit_interval" class="block text-base font-semibold text-[#213268]">
                                                 INTERVAL<span class="text-red-500">*</span>
                                             </label>
                                         </div>
@@ -732,34 +706,71 @@
                                                 <option value="6 MONTHS">6 Bulan</option>
                                                 <option value="YEARLY">Tahunan</option>
                                             </select>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Interval harus dipilih</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Start Date -->
+                                    <div class="flex items-center gap-4">
+                                        <div class="min-w-[150px]">
+                                            <label for="edit_start_date" class="block text-base font-semibold text-[#213268]">
+                                                TANGGAL MULAI<span class="text-red-500">*</span>
+                                            </label>
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="date" id="edit_start_date" name="start_date"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                required>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal mulai diperlukan</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- End Date -->
+                                    <div class="flex items-center gap-4">
+                                        <div class="min-w-[150px]">
+                                            <label for="edit_end_date" class="block text-base font-semibold text-[#213268]">
+                                                TANGGAL SELESAI<span class="text-red-500">*</span>
+                                            </label>
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="date" id="edit_end_date" name="end_date"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                required>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal selesai diperlukan</div>
                                         </div>
                                     </div>
 
                                     <!-- Assigned To -->
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
-                                            <label for="edit_assigned_to" class="block text-base font-semibold">
+                                            <label for="edit_assigned_to" class="block text-base font-semibold text-[#213268]">
                                                 DITUGASKAN KE<span class="text-red-500">*</span>
                                             </label>
                                         </div>
                                         <div class="flex-1">
-                                            <select id="edit_assigned_to" name="assigned_to"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
-                                                <option value="" disabled selected>Pilih Karyawan</option>
-                                                @foreach($users ?? [] as $user)
-                                                    <option value="{{ $user['user_id'] }}">
-                                                        {{ $user['employee_number'] ?? '' }} {{ !empty($user['employee_number']) && !empty($user['name']) ? '-' : '' }} {{ $user['name'] ?? '' }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <div class="relative">
+                                                <input type="text" id="edit_user_search" placeholder="Cari karyawan (nomor karyawan)..."
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200" autocomplete="off">
+                                                <input type="hidden" id="edit_assigned_to" name="assigned_to">
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Karyawan harus dipilih</div>
+                                                <div id="edit_user_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                                                    <!-- Loading indicator -->
+                                                    <div id="edit_user_loading" class="flex justify-center py-2">
+                                                        <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                    </div>
+                                                    <ul id="edit_user_list" class="max-h-56 overflow-y-auto"></ul>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <!-- Vendor -->
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
-                                            <label for="edit_vendor_search" class="block text-base font-semibold">
+                                            <label for="edit_vendor_search" class="block text-base font-semibold text-[#213268]">
                                                 VENDOR
                                             </label>
                                         </div>
@@ -832,11 +843,11 @@
                                 </div>
 
                                 <!-- Report Information -->
-                                <div class="bg-[#B0DAE5] p-4 rounded-lg space-y-4 mb-6">
+                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-4 mb-6">
                                     <!-- Maintenance Date -->
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
-                                            <label for="maintenance_date" class="block text-base font-semibold">
+                                            <label for="maintenance_date" class="block text-base font-semibold text-[#213268]">
                                                 TANGGAL LAPORAN<span class="text-red-500">*</span>
                                             </label>
                                         </div>
@@ -844,13 +855,14 @@
                                             <input type="date" id="maintenance_date" name="maintenance_date"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                                 required>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal laporan diperlukan</div>
                                         </div>
                                     </div>
 
                                     <!-- Description -->
                                     <div class="flex items-start gap-4">
                                         <div class="min-w-[150px] pt-2">
-                                            <label for="description" class="block text-base font-semibold">
+                                            <label for="description" class="block text-base font-semibold text-[#213268]">
                                                 DESKRIPSI<span class="text-red-500">*</span>
                                             </label>
                                         </div>
@@ -858,13 +870,14 @@
                                             <textarea id="description" name="description" rows="4"
                                                 class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 resize-none"
                                                 required placeholder="Masukkan detail laporan pemeliharaan..."></textarea>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi diperlukan</div>
                                         </div>
                                     </div>
 
                                     <!-- Image Attachment -->
                                     <div class="flex items-start gap-4">
                                         <div class="min-w-[150px] pt-2">
-                                            <label for="attachment" class="block text-base font-semibold">
+                                            <label for="attachment" class="block text-base font-semibold text-[#213268]">
                                                 LAMPIRAN
                                             </label>
                                         </div>
@@ -913,8 +926,7 @@
 
     @push('scripts')
     <script>
-        // Store user data in a global variable
-        window.usersData = @json($users ?? []);
+        // No need for global variable anymore - users are loaded via AJAX
     </script>
 
     <script>
@@ -932,6 +944,45 @@
             if (endDateInput) {
                 endDateInput.setAttribute('min', today);
             }
+
+            // Helper function to prevent multiple form submissions
+            function preventMultipleSubmits(form, buttonSelector) {
+                if (!form) return;
+
+                form.addEventListener('submit', function(e) {
+                    // Find the submit button
+                    const submitBtn = this.querySelector(buttonSelector);
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable the button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        // Re-enable button after 10 seconds as a failsafe
+                        setTimeout(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+                });
+            }
+
+            // Apply to all forms that need prevention of multiple submissions
+            preventMultipleSubmits(document.getElementById('addMaintenanceForm'), 'button[type="submit"]');
+            preventMultipleSubmits(document.getElementById('editMaintenanceForm'), 'button[type="submit"]');
+            preventMultipleSubmits(document.getElementById('deleteMaintenanceForm'), 'button[type="submit"]');
+            preventMultipleSubmits(document.getElementById('createReportForm'), 'button[type="submit"]');
 
             // Add event listener to ensure end date is not before start date
             if (startDateInput && endDateInput) {
@@ -1452,11 +1503,94 @@
                         modal.classList.add('hidden');
                         document.body.classList.remove('overflow-hidden');
 
-                        // Reset asset search input when asset selection modal is closed
-                        if (modal.id === 'assetSelectionModal') {
+                        // Reset based on which modal is being closed
+                        const modalId = modal.id;
+
+                        if (modalId === 'addMaintenanceModal') {
+                            // Reset add maintenance form
+                            const form = document.getElementById('addMaintenanceForm');
+                            if (form) {
+                                form.reset();
+
+                                // Reset selected assets
+                                selectedAssets = [];
+                                updateSelectedAssetsList();
+
+                                // Clear any validation styles
+                                form.querySelectorAll('input, select, textarea').forEach(field => {
+                                    field.classList.remove('border-red-500');
+                                });
+                                form.querySelectorAll('.error-message').forEach(error => {
+                                    error.classList.add('hidden');
+                                });
+
+                                // Reset interval-based fields
+                                const endDateField = document.getElementById('end_date').closest('.flex.items-center.gap-4');
+                                if (endDateField) endDateField.style.display = 'flex';
+                            }
+                        }
+                        else if (modalId === 'assetSelectionModal') {
+                            // Clear asset search input
                             const assetSearchInput = document.getElementById('assetSearchInput');
                             if (assetSearchInput) {
                                 assetSearchInput.value = '';
+                            }
+
+                            // Reset "Select All" checkbox
+                            const selectAllCheckbox = document.getElementById('selectAllAssets');
+                            if (selectAllCheckbox) {
+                                selectAllCheckbox.checked = false;
+                            }
+                        }
+                        else if (modalId === 'editMaintenanceModal') {
+                            // Reset edit maintenance form
+                            const form = document.getElementById('editMaintenanceForm');
+                            if (form) {
+                                form.reset();
+
+                                // Clear any validation styles
+                                form.querySelectorAll('input, select, textarea').forEach(field => {
+                                    field.classList.remove('border-red-500');
+                                });
+                                form.querySelectorAll('.error-message').forEach(error => {
+                                    error.classList.add('hidden');
+                                });
+
+                                // Reset interval-based fields
+                                const endDateField = document.getElementById('edit_end_date').closest('.flex.items-center.gap-4');
+                                if (endDateField) endDateField.style.display = 'flex';
+                            }
+                        }
+                        else if (modalId === 'createReportModal') {
+                            // Reset report form
+                            const form = document.getElementById('createReportForm');
+                            if (form) {
+                                form.reset();
+
+                                // Reset file upload preview
+                                const imagePreview = document.getElementById('image-preview');
+                                if (imagePreview) imagePreview.classList.add('hidden');
+
+                                // Clear any validation styles
+                                form.querySelectorAll('input, textarea').forEach(field => {
+                                    field.classList.remove('border-red-500');
+                                });
+                                form.querySelectorAll('.error-message').forEach(error => {
+                                    error.classList.add('hidden');
+                                });
+
+                                // Set default date to today
+                                const todayDate = new Date().toISOString().split('T')[0];
+                                const maintenanceDate = document.getElementById('maintenance_date');
+                                if (maintenanceDate) maintenanceDate.value = todayDate;
+                            }
+                        }
+                        else if (modalId === 'deleteMaintenanceModal') {
+                            // Reset delete form
+                            const form = document.getElementById('deleteMaintenanceForm');
+                            if (form) {
+                                form.reset();
+                                form.removeAttribute('data-id');
                             }
                         }
                     }, 300);
@@ -2253,15 +2387,16 @@
             }
 
             // Initialize user search functionality
-            initUserSearch();
+            initUserSearch('user_search', 'user_dropdown', 'user_list', 'user_loading', 'selected_user_id');
+            initUserSearch('edit_user_search', 'edit_user_dropdown', 'edit_user_list', 'edit_user_loading', 'edit_assigned_to');
 
             // Function to initialize user search
-            function initUserSearch() {
-                const searchInput = document.getElementById('user_search');
-                const dropdown = document.getElementById('user_dropdown');
-                const userList = document.getElementById('user_list');
-                const loadingIndicator = document.getElementById('user_loading');
-                const selectedUserId = document.getElementById('selected_user_id');
+            function initUserSearch(searchInputId, dropdownId, userListId, loadingIndicatorId, selectedUserIdId) {
+                const searchInput = document.getElementById(searchInputId);
+                const dropdown = document.getElementById(dropdownId);
+                const userList = document.getElementById(userListId);
+                const loadingIndicator = document.getElementById(loadingIndicatorId);
+                const selectedUserId = document.getElementById(selectedUserIdId);
 
                 if (!searchInput || !dropdown || !userList) return;
 
@@ -2288,40 +2423,40 @@
                 searchInput.addEventListener('input', debouncedSearch);
 
                 // Function to load users
-                async function loadUsers(searchTerm) {
+                function loadUsers(searchTerm) {
                     // Show loading indicator
                     if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                     userList.innerHTML = '';
 
-                    try {
-                        // Use locally available data instead of fetching from server
-                        let users = window.usersData || [];
-
-                        // Filter users based on search term
+                    // Prepare query parameters
+                    let queryParams = new URLSearchParams();
                         if (searchTerm) {
-                            searchTerm = searchTerm.toLowerCase();
-                            users = users.filter(user => {
-                                return (user.employee_number && user.employee_number.toLowerCase().includes(searchTerm)) ||
-                                       (user.name && user.name.toLowerCase().includes(searchTerm)) ||
-                                       (user.user_id && user.user_id.toString().includes(searchTerm));
-                            });
+                        queryParams.append('search', searchTerm);
+                    }
+                    queryParams.append('limit', 10);
+
+                    // Fetch users from API
+                    fetch(`/user?${queryParams.toString()}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         }
-
-                        // Sort by relevance if search term exists
-                        if (searchTerm) {
-                            users.sort((a, b) => {
-                                const aStartsWithEmp = a.employee_number && a.employee_number.toLowerCase().startsWith(searchTerm);
-                                const bStartsWithEmp = b.employee_number && b.employee_number.toLowerCase().startsWith(searchTerm);
-                                if (aStartsWithEmp && !bStartsWithEmp) return -1;
-                                if (!aStartsWithEmp && bStartsWithEmp) return 1;
-
-                                const aStartsWithName = a.name && a.name.toLowerCase().startsWith(searchTerm);
-                                const bStartsWithName = b.name && b.name.toLowerCase().startsWith(searchTerm);
-                                if (aStartsWithName && !bStartsWithName) return -1;
-                                if (!aStartsWithName && bStartsWithName) return 1;
-
-                                return 0;
-                            });
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch users');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Handle different response formats
+                        let users = [];
+                        if (Array.isArray(data)) {
+                            users = data;
+                        } else if (data.users && Array.isArray(data.users)) {
+                            users = data.users;
+                        } else if (data.data && Array.isArray(data.data)) {
+                            users = data.data;
                         }
 
                         // Populate dropdown
@@ -2330,13 +2465,10 @@
                         if (users.length === 0) {
                             const noResults = document.createElement('li');
                             noResults.className = 'px-4 py-2 text-gray-500 italic';
-                            noResults.textContent = 'No users found';
+                            noResults.textContent = 'Tidak ada pengguna ditemukan';
                             userList.appendChild(noResults);
                         } else {
-                            // Limit to first 10 results for performance
-                            const limitedUsers = users.slice(0, 10);
-
-                            limitedUsers.forEach(user => {
+                            users.forEach(user => {
                                 const li = document.createElement('li');
                                 li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
@@ -2374,23 +2506,26 @@
                                 userList.appendChild(li);
                             });
 
-                            // Show count if limited
-                            if (users.length > 10) {
+                            // Show count if there might be more results
+                            const pagination = data.pagination || {};
+                            if (pagination.total_items > users.length) {
                                 const countDiv = document.createElement('li');
                                 countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
-                                countDiv.textContent = `Menampilkan 10 dari ${users.length} pengguna`;
+                                countDiv.textContent = `Menampilkan ${users.length} dari ${pagination.total_items} pengguna`;
                                 userList.appendChild(countDiv);
                             }
                         }
-                    } catch (error) {
+                    })
+                    .catch(error => {
                         console.error('Error loading users:', error);
                         const errorItem = document.createElement('li');
                         errorItem.className = 'px-4 py-2 text-red-500';
-                        errorItem.textContent = 'Gagal memproses data pengguna';
+                        errorItem.textContent = 'Gagal memuat data pengguna';
                         userList.appendChild(errorItem);
-                    } finally {
+                    })
+                    .finally(() => {
                         if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                    }
+                    });
                 }
             }
 
@@ -2399,35 +2534,41 @@
                 e.preventDefault();
 
                 // Validate required fields
-                const startDate = document.getElementById('start_date').value;
-                const endDate = document.getElementById('end_date').value;
-                const interval = document.getElementById('interval').value;
-                const assignedTo = document.getElementById('selected_user_id').value;
+                const intervalField = document.getElementById('interval');
+                const startDateField = document.getElementById('start_date');
+                const endDateField = document.getElementById('end_date');
+                const userSearchField = document.getElementById('user_search');
 
-                let errorMessages = [];
+                const isIntervalValid = validateField(intervalField);
+                const isStartDateValid = validateField(startDateField);
 
-                if (!startDate) {
-                    errorMessages.push('Tanggal mulai diperlukan');
+                // Only validate end date if it's visible (for non-ONCE, non-DAILY intervals)
+                let isEndDateValid = true;
+                if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') {
+                    isEndDateValid = validateField(endDateField);
                 }
 
-                if (!endDate) {
-                    errorMessages.push('Tanggal akhir diperlukan');
-                }
+                const isUserValid = validateField(userSearchField);
 
-                if (!interval) {
-                    errorMessages.push('Interval diperlukan');
-                }
-
-                if (!assignedTo) {
-                    errorMessages.push('Bidang yang ditugaskan diperlukan');
-                }
-
+                // Check if assets are selected
+                let isAssetsValid = true;
                 if (selectedAssets.length === 0) {
-                    errorMessages.push('Silakan pilih setidaknya satu aset');
+                    isAssetsValid = false;
+                    showToast('Silakan pilih setidaknya satu aset', 'error');
                 }
 
-                if (errorMessages.length > 0) {
-                    showToast(errorMessages, 'error');
+                // If any validation fails, stop form submission
+                if (!isIntervalValid || !isStartDateValid || !isEndDateValid || !isUserValid || !isAssetsValid) {
+                    showToast('Silakan isi semua field yang diperlukan', 'error');
+
+                    // Find the submit button and reset it
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = 'Simpan';
+                    }
+
                     return;
                 }
 
@@ -2581,6 +2722,20 @@
                 // Get the maintenance ID from the data attribute
                 const maintenanceId = this.getAttribute('data-id');
 
+                if (!maintenanceId) {
+                    showToast('ID pemeliharaan tidak ada', 'error');
+
+                    // Reset submit button if validation fails
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = 'Hapus';
+                    }
+
+                    return;
+                }
+
                 // Make the DELETE request directly to the ID-specific endpoint
                 fetch(`/maintenance/${maintenanceId}`, {
                     method: 'DELETE',
@@ -2684,9 +2839,26 @@
                             toggleEndDateVisibility(maintenance.interval, 'edit');
                         }
 
-                        // Set assigned_to
+                        // Set assigned_to (with username display)
                         if (maintenance.assigned_to) {
+                            // Set the hidden input value
                             document.getElementById('edit_assigned_to').value = maintenance.assigned_to;
+
+                            // Format employee data for display in the search input
+                            let displayText = '';
+                            if (maintenance.employee_number) {
+                                displayText = maintenance.employee_number;
+                                if (maintenance.employee_name) {
+                                    displayText += ` - ${maintenance.employee_name}`;
+                                }
+                            } else if (maintenance.employee_name) {
+                                displayText = maintenance.employee_name;
+                            } else {
+                                displayText = `User ID: ${maintenance.assigned_to}`;
+                            }
+
+                            // Set the search input display text
+                            document.getElementById('edit_user_search').value = displayText;
                         }
 
                         // Set vendor_id and vendor_name (if exists)
@@ -2715,20 +2887,61 @@
                 const maintenanceId = document.getElementById('edit_maintenance_id').value;
                 if (!maintenanceId) {
                     showToast('ID pemeliharaan tidak ada', 'error');
+
+                    // Reset the submit button if validation fails
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = 'Simpan Perubahan';
+                    }
+
+                    return;
+                }
+
+                // Validate required fields
+                const intervalField = document.getElementById('edit_interval');
+                const startDateField = document.getElementById('edit_start_date');
+                const endDateField = document.getElementById('edit_end_date');
+                const userSearchField = document.getElementById('edit_user_search');
+
+                const isIntervalValid = validateField(intervalField);
+                const isStartDateValid = validateField(startDateField);
+
+                // Only validate end date if it's visible (for non-ONCE, non-DAILY intervals)
+                let isEndDateValid = true;
+                if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') {
+                    isEndDateValid = validateField(endDateField);
+                }
+
+                const isUserValid = validateField(userSearchField);
+
+                // If any validation fails, stop form submission
+                if (!isIntervalValid || !isStartDateValid || !isEndDateValid || !isUserValid) {
+                    showToast('Silakan isi semua field yang diperlukan', 'error');
+
+                    // Reset the submit button if validation fails
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = 'Simpan Perubahan';
+                    }
+
                     return;
                 }
 
                 // Collect form data into JSON
                 const formData = {
-                    interval: document.getElementById('edit_interval').value,
-                    start_date: document.getElementById('edit_start_date').value,
+                    interval: intervalField.value,
+                    start_date: startDateField.value,
                     assigned_to: parseInt(document.getElementById('edit_assigned_to').value, 10),
                     vendor_id: document.getElementById('edit_vendor_id').value ? parseInt(document.getElementById('edit_vendor_id').value, 10) : null
                 };
 
                 // Only add end_date if interval is not ONCE or DAILY
                 if (formData.interval !== 'ONCE' && formData.interval !== 'DAILY') {
-                    formData.end_date = document.getElementById('edit_end_date').value;
+                    formData.end_date = endDateField.value;
                 }
 
                 // Make the PUT request to update the maintenance
@@ -2821,21 +3034,38 @@
                 e.preventDefault();
 
                 const maintenanceId = document.getElementById('report_maintenance_id').value;
-                const description = document.getElementById('description').value;
-                const maintenanceDate = document.getElementById('maintenance_date').value;
+                const description = document.getElementById('description');
+                const maintenanceDate = document.getElementById('maintenance_date');
 
                 if (!maintenanceId) {
                     showToast('ID pemeliharaan tidak ada', 'error');
+
+                    // Reset submit button if validation fails
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = 'Kirim Laporan';
+                    }
+
                     return;
                 }
 
-                if (!description) {
-                    showToast('Deskripsi diperlukan', 'error');
-                    return;
-                }
+                // Validate required fields
+                const isDateValid = validateField(maintenanceDate);
+                const isDescriptionValid = validateField(description);
 
-                if (!maintenanceDate) {
-                    showToast('Tanggal laporan diperlukan', 'error');
+                if (!isDateValid || !isDescriptionValid) {
+                    showToast('Silakan isi semua field yang diperlukan', 'error');
+
+                    // Reset submit button if validation fails
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = 'Kirim Laporan';
+                    }
+
                     return;
                 }
 
@@ -2957,6 +3187,120 @@
                 document.getElementById('maintenance_date').value = todayDate;
                 document.getElementById('maintenance_date').setAttribute('max', todayDate);
             }
+
+            // Function to validate field and show error styling
+            function validateField(field, isValid = null) {
+                let isFieldValid = isValid;
+                let fieldParent, errorElement;
+
+                // Find the appropriate error message element
+                if (field.id === 'user_search') {
+                    // For user search field, we need to target the parent relative div
+                    fieldParent = field.closest('.relative');
+                    errorElement = fieldParent.querySelector('.error-message');
+
+                    // Check if user is selected (hidden input has value)
+                    if (isFieldValid === null) {
+                        isFieldValid = document.getElementById('selected_user_id').value !== '';
+                    }
+                } else if (field.id === 'vendor_search') {
+                    // For vendor search (which is optional)
+                    return true;
+                } else if (field.tagName.toLowerCase() === 'select' || field.type === 'date') {
+                    // For select dropdowns and date fields
+                    fieldParent = field.parentElement;
+                    errorElement = fieldParent.querySelector('.error-message');
+
+                    // Check if the field has a value
+                    if (isFieldValid === null) {
+                        isFieldValid = field.value !== '';
+                    }
+                } else {
+                    fieldParent = field.parentElement;
+                    errorElement = fieldParent.querySelector('.error-message');
+
+                    // For other input types, check if value is not empty
+                    if (isFieldValid === null) {
+                        isFieldValid = field.value.trim() !== '';
+                    }
+                }
+
+                // Apply styling based on validation result
+                if (!isFieldValid) {
+                    field.classList.add('border-red-500');
+                    if (errorElement) errorElement.classList.remove('hidden');
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorElement) errorElement.classList.add('hidden');
+                    return true;
+                }
+            }
+
+            // Clear error styling when field is changed
+            document.getElementById('interval').addEventListener('change', function() {
+                validateField(this, true);
+            });
+
+            document.getElementById('start_date').addEventListener('input', function() {
+                validateField(this, true);
+
+                // If end date exists and is less than start date, validate end date
+                const endDateInput = document.getElementById('end_date');
+                if (endDateInput && endDateInput.value && endDateInput.value < this.value) {
+                    validateField(endDateInput, false);
+                }
+            });
+
+            document.getElementById('end_date').addEventListener('input', function() {
+                validateField(this, true);
+            });
+
+            document.getElementById('user_search').addEventListener('input', function() {
+                // Only clear error if there's text
+                if (this.value.trim()) {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.closest('.relative').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                }
+            });
+
+            // Setup event listeners to clear validation styling in edit form
+            document.getElementById('edit_interval')?.addEventListener('change', function() {
+                validateField(this, true);
+            });
+
+            document.getElementById('edit_start_date')?.addEventListener('input', function() {
+                validateField(this, true);
+
+                // If end date exists and is less than start date, validate end date
+                const endDateInput = document.getElementById('edit_end_date');
+                if (endDateInput && endDateInput.value && endDateInput.value < this.value) {
+                    validateField(endDateInput, false);
+                }
+            });
+
+            document.getElementById('edit_end_date')?.addEventListener('input', function() {
+                validateField(this, true);
+            });
+
+            document.getElementById('edit_user_search')?.addEventListener('input', function() {
+                // Only clear error if there's text
+                if (this.value.trim()) {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.closest('.relative').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                }
+            });
+
+            // Add form validation event listeners for report form
+            document.getElementById('maintenance_date')?.addEventListener('input', function() {
+                validateField(this, true);
+            });
+
+            document.getElementById('description')?.addEventListener('input', function() {
+                validateField(this, true);
+            });
         });
     </script>
     @endpush

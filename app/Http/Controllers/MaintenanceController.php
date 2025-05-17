@@ -129,8 +129,6 @@ class MaintenanceController extends Controller
                     'status' => $status,
                     'sort_by' => $sortBy,
                     'sort_order' => $sortOrder,
-                    'users' => [],
-                    'vendors' => [],
                     'error' => $errorMessage
                 ]);
             }
@@ -145,28 +143,6 @@ class MaintenanceController extends Controller
             // Parse data for view
             $maintenances = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
-
-            // Fetch all users for the dropdown
-            $usersResult = $this->apiService->request('GET', '/users', [
-                'query' => [
-                    'limit' => 1000, // Get only a minimal set of users for fallback, we now use lazy loading
-                    'sort_by' => 'employee_number',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-
-            // Fetch vendors for the dropdown
-            $vendorsResult = $this->apiService->request('GET', '/vendors', [
-                'query' => [
-                    'limit' => 1000,
-                    'sort_by' => 'vendor_name',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-
-            // Parse users and vendors data
-            $users = $usersResult['data'] ?? [];
-            $vendors = $vendorsResult['data'] ?? [];
 
             // For AJAX requests, return JSON response
             if ($request->ajax() || $request->wantsJson()) {
@@ -184,9 +160,7 @@ class MaintenanceController extends Controller
                 'search' => $search,
                 'status' => $status,
                 'sort_by' => $sortBy,
-                'sort_order' => $sortOrder,
-                'users' => $users,
-                'vendors' => $vendors
+                'sort_order' => $sortOrder
             ]);
 
         } catch (\Exception $e) {
@@ -209,8 +183,6 @@ class MaintenanceController extends Controller
                 'status' => $status,
                 'sort_by' => $sortBy,
                 'sort_order' => $sortOrder,
-                'users' => [],
-                'vendors' => [],
                 'error' => 'Failed to retrieve maintenance schedules: ' . $e->getMessage()
             ]);
         }

@@ -204,11 +204,11 @@
                         @csrf
                         <div class="space-y-4">
                             <!-- Document Title -->
-                            <div>
+                            <div class="space-y-2">
                                 <label for="document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
                                 <input type="text" id="document_title" name="document_title"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"
-                                    required>
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
                             </div>
 
                             <!-- File Upload -->
@@ -370,11 +370,11 @@
                         <input type="hidden" id="edit_document_id" name="document_id">
                         <div class="space-y-4">
                             <!-- Document Title -->
-                            <div>
+                            <div class="space-y-2">
                                 <label for="edit_document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
                                 <input type="text" id="edit_document_title" name="document_title"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"
-                                    required>
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
                             </div>
 
                             <!-- File Upload -->
@@ -1080,9 +1080,16 @@
                 // Form validation
                 const titleInput = this.querySelector('#document_title');
                 const fileInput = this.querySelector('#file');
+                const titleErrorElement = titleInput.closest('.space-y-2')?.querySelector('.error-message');
 
+                // Reset error state
+                titleInput.classList.remove('border-red-500');
+                if (titleErrorElement) titleErrorElement.classList.add('hidden');
+
+                // Validate title input
                 if (!titleInput.value.trim()) {
-                    alert('Judul dokumen harus diisi');
+                    titleInput.classList.add('border-red-500');
+                    if (titleErrorElement) titleErrorElement.classList.remove('hidden');
                     titleInput.focus();
                     return;
                 }
@@ -1279,9 +1286,16 @@
 
                 // Form validation
                 const titleInput = this.querySelector('#edit_document_title');
+                const titleErrorElement = titleInput.closest('.space-y-2')?.querySelector('.error-message');
 
+                // Reset error state
+                titleInput.classList.remove('border-red-500');
+                if (titleErrorElement) titleErrorElement.classList.add('hidden');
+
+                // Validate title input
                 if (!titleInput.value.trim()) {
-                    alert('Judul dokumen harus diisi');
+                    titleInput.classList.add('border-red-500');
+                    if (titleErrorElement) titleErrorElement.classList.remove('hidden');
                     titleInput.focus();
                     return;
                 }
@@ -1579,6 +1593,22 @@
                 });
             });
         }
+
+        // Add input event listener to clear error styling when typing in document title
+        document.getElementById('document_title')?.addEventListener('input', function() {
+            // Remove error highlighting when user types
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        // Add input event listener to clear error styling when typing in edit document title
+        document.getElementById('edit_document_title')?.addEventListener('input', function() {
+            // Remove error highlighting when user types
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
     });
 </script>
 

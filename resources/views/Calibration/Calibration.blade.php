@@ -36,7 +36,7 @@
                     <!-- Search and Filter -->
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="relative flex-grow">
-                            <input type="text" id="searchInput" placeholder="Cari berdasarkan kode tugas, nama aset, atau kode aset..."
+                            <input type="text" id="searchInput" placeholder="Cari kode tugas, nama aset, atau kode aset..."
                                 class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,9 +47,9 @@
                         </div>
                         <div class="flex gap-4">
                             <select id="statusFilter"
-                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                class="w-[140px] h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" disabled selected>Status</option>
-                                <option value="">Semua Status</option>
+                                <option value="">Semua</option>
                                 <option value="scheduled">Terjadwal</option>
                                 <option value="in_progress">Dalam Proses</option>
                                 <option value="completed">Selesai</option>
@@ -57,7 +57,7 @@
                                 <option value="cancelled">Dibatalkan</option>
                             </select>
                             <select id="resultFilter"
-                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                class="w-[160px] h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" disabled selected>Hasil</option>
                                 <option value="">Semua Hasil</option>
                                 <option value="pass">Lulus</option>
@@ -65,10 +65,10 @@
                                 <option value="unknown">Tidak Ditemukan</option>
                             </select>
                             <select id="sortOrder"
-                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                class="w-[150px] h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" disabled selected>Urutan</option>
-                                <option value="newest">Terbaru Dulu</option>
-                                <option value="oldest">Terlama Dulu</option>
+                                <option value="newest">Terbaru</option>
+                                <option value="oldest">Terlama</option>
                             </select>
                             <button id="bulkDeleteBtn" class="hidden px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200">
                                 Hapus Terpilih
@@ -104,8 +104,7 @@
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                                                     <input type="checkbox" class="calibration-checkbox checkbox checkbox-sm" data-id="{{ $calibration['id'] }}" />
                                                                 </td>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $calibration['task_code'] ?? '-' }}
-                                                                </td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $calibration['task_code'] ?? '-' }}</td>
                                                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                                                     <div class="flex flex-col">
                                                                         <span class="font-medium">{{ $calibration['asset_name'] ?? '-' }}</span>
@@ -228,38 +227,47 @@
                                                                     </span>
                                                                 </td>
                                                                 <td class="p-3 border-t border-[#EEF1F4]">
-                                                                    <div class="flex justify-center gap-2">
+                                        <div class="flex items-center space-x-2 justify-center">
                                                                         <!-- View Details Icon (Eye) -->
                                                                         <a href="{{ route('calibration.detail', ['id' => $calibration['id']]) }}"
                                                                            class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
                                                                            title="Lihat Detail">
-                                                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                                                <circle cx="12" cy="12" r="3"></circle>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                                             </svg>
                                                                         </a>
 
+                                            <!-- Edit Schedule Icon (Calendar) -->
+                                            @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
+                                                <button class="edit-schedule-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
+                                                    data-id="{{ $calibration['id'] }}"
+                                                    data-asset-name="{{ $calibration['asset_name'] ?? '' }}"
+                                                    data-asset-code="{{ $calibration['asset_code'] ?? '' }}"
+                                                    title="Ubah Jadwal">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                </button>
+                                            @endif
+
                                                                         <!-- Perform Calibration Icon (Pencil) -->
                                                                         @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
-                                                                        <button class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-calibration-btn"
+                                                <button class="edit-calibration-btn p-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
                                                                             data-id="{{ $calibration['id'] }}"
                                                                             title="Lakukan Kalibrasi">
-                                                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                                             </svg>
                                                                         </button>
                                                                         @endif
 
                                                                         <!-- Delete Icon (Trash) -->
-                                                                        <button class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-calibration-btn"
+                                            <button class="delete-calibration-btn p-2 bg-[#F9D2D2] text-[#8E2121] rounded-md hover:bg-red-200 transition-colors"
                                                                             data-id="{{ $calibration['id'] }}"
                                                                             title="Hapus Kalibrasi">
-                                                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                                <polyline points="3 6 5 6 21 6"></polyline>
-                                                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                                                <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                                             </svg>
                                                                         </button>
                                                                     </div>
@@ -717,10 +725,10 @@
                                 </div>
 
                                 <!-- Schedule Date -->
-                                <div class="bg-[#B0DAE5] p-4 rounded-lg">
+                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
                                     <div class="flex items-center gap-4">
                                         <div class="min-w-[150px]">
-                                            <label class="block text-base font-semibold">
+                                            <label class="block text-base font-semibold text-[#213268]">
                                                 JADWAL MULAI<span class="text-red-500">*</span>
                                             </label>
                                         </div>
@@ -732,7 +740,7 @@
                                         </div>
                                         <div>
                                             <button type="button" id="addAssetsBtn"
-                                                class="bg-[#4299e1] hover:bg-[#3182ce] text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center"
+                                                class="bg-[#213268] hover:bg-[#152349] text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center"
                                                 title="Tambahkan aset yang perlu dikalibrasi">
                                                 <span class="text-xl mr-1">+</span>
                                                 Tambah Aset
@@ -747,16 +755,16 @@
                                         <thead>
                                             <tr>
                                                 <th
-                                                    class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center w-[40px]">
+                                                    class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
                                                     No</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
                                                     Kode Aset</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Nama Aset</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset</th>
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
                                                     Deskripsi</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Tipe Aset</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-left">Nama Kategori</th>
-                                                <th class="bg-[#25B1FF] text-white p-3 font-bold text-xs text-center">Aksi
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset</th>
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Kategori</th>
+                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Aksi
                                                 </th>
                                             </tr>
                                         </thead>
@@ -914,6 +922,71 @@
         </div>
     </div>
 
+    <!-- Edit Calibration Schedule Modal -->
+    <div id="editScheduleModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+        <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                    id="editScheduleModalContent">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center p-6 pb-0">
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">UBAH JADWAL KALIBRASI</h2>
+                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                            data-modal="editScheduleModal">
+                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="editScheduleForm" method="POST">
+                        @csrf
+                        <input type="hidden" name="_method" value="PUT">
+                        <input type="hidden" id="edit_schedule_calibration_id" name="calibration_id">
+                        <div class="p-6">
+                            <div class="space-y-6 max-w-[450px] mx-auto">
+                                <!-- Asset Info -->
+                                <div class="bg-blue-50 p-4 rounded-lg mb-4 border border-blue-100">
+                                    <div class="space-y-3">
+                                        <div class="flex items-center">
+                                            <span class="font-semibold min-w-[120px] text-[#213268]">Kode Aset:</span>
+                                            <span id="edit_schedule_asset_code" class="text-gray-700"></span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="font-semibold min-w-[120px] text-[#213268]">Nama Aset:</span>
+                                            <span id="edit_schedule_asset_name" class="text-gray-700"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Planning Date -->
+                                <div class="space-y-2">
+                                    <label for="planning_calibration_date" class="block text-base font-semibold text-[#666666]">
+                                        Tanggal Rencana Kalibrasi<span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="date" id="edit_planning_calibration_date" name="planning_calibration_date"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                        required>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal rencana kalibrasi harus diisi</div>
+                                    <div class="date-error-message text-red-500 text-sm mt-1 hidden">Tanggal tidak boleh kurang dari hari ini</div>
+                                </div>
+
+                                <div class="pt-2">
+                                    <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                        Simpan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
     <script>
         // Flash messages from server
@@ -928,6 +1001,52 @@
             if (typeof flashError !== 'undefined' && flashError) {
                 showToast(flashError, 'error');
             }
+
+            // Prevent multiple form submissions
+            const addCalibrationForm = document.getElementById('addCalibrationForm');
+            const updateCalibrationForm = document.getElementById('updateCalibrationForm');
+            const deleteCalibrationForm = document.getElementById('deleteCalibrationForm');
+
+            // Helper function to prevent multiple submissions
+            function preventMultipleSubmits(form, buttonSelector) {
+                if (!form) return;
+
+                form.addEventListener('submit', function(e) {
+                    // Only proceed if validation passes
+                    if (this.checkValidity()) {
+                        // Find the submit button
+                        const submitBtn = this.querySelector(buttonSelector);
+                        if (submitBtn && !submitBtn.disabled) {
+                            // Save original button text
+                            const originalText = submitBtn.innerHTML;
+
+                            // Disable the button and show loading state
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
+
+                            // Re-enable button after 10 seconds as a failsafe
+                            setTimeout(() => {
+                                if (submitBtn) {
+                                    submitBtn.disabled = false;
+                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                    submitBtn.innerHTML = originalText;
+                                }
+                            }, 10000);
+                        }
+                    }
+                });
+            }
+
+            // Apply to all forms
+            preventMultipleSubmits(addCalibrationForm, 'button[type="submit"]');
+            preventMultipleSubmits(updateCalibrationForm, 'button[type="submit"]');
+            preventMultipleSubmits(deleteCalibrationForm, 'button[type="submit"]');
 
             // Debounce utility function to limit how often a function can be called
             function debounce(func, wait, immediate) {
@@ -1339,14 +1458,16 @@
                 view: document.getElementById('viewCalibrationModal'),
                 add: document.getElementById('addCalibrationModal'),
                 asset: document.getElementById('assetSelectionModal'),
-                delete: document.getElementById('deleteCalibrationModal')
+                delete: document.getElementById('deleteCalibrationModal'),
+                schedule: document.getElementById('editScheduleModal')
             };
 
             const modalContents = {
                 view: document.getElementById('viewCalibrationModalContent'),
                 add: document.getElementById('addCalibrationModalContent'),
                 asset: document.getElementById('assetSelectionModalContent'),
-                delete: document.getElementById('deleteCalibrationModalContent')
+                delete: document.getElementById('deleteCalibrationModalContent'),
+                schedule: document.getElementById('editScheduleModalContent')
             };
 
             // Function to open modal
@@ -1501,10 +1622,16 @@
 
                                             // Set current date as work date by default when modal opens
                                             const today = new Date().toISOString().split('T')[0];
-                                            document.getElementById('actual_calibration_date').value = today;
+                                            const actualCalibrationDateInput = document.getElementById('actual_calibration_date');
+                                            const nextCalibrationDateInput = document.getElementById('next_calibration_date');
+
+                                            // Set actual calibration date and ensure it can't be in the past
+                                            if (actualCalibrationDateInput) {
+                                                actualCalibrationDateInput.value = today;
+                                                actualCalibrationDateInput.setAttribute('min', today);
+                                            }
 
                                             // Set min date untuk next_calibration_date setiap kali modal dibuka
-                                            const nextCalibrationDateInput = document.getElementById('next_calibration_date');
                                             if (nextCalibrationDateInput) {
                                                 nextCalibrationDateInput.setAttribute('min', today);
                                             }
@@ -1566,9 +1693,9 @@
                                     document.getElementById('result_unknown').checked = true;
                                 }
 
-                                            // Always hide file previews when opening modal
-                                            const filePreview = document.getElementById('file-preview');
-                                            if (filePreview) filePreview.classList.add('hidden');
+                                // Always hide file previews when opening modal
+                                const filePreview = document.getElementById('file-preview');
+                                if (filePreview) filePreview.classList.add('hidden');
 
                                             const imagePreview = document.getElementById('image-preview');
                                             if (imagePreview) {
@@ -1843,7 +1970,7 @@
                 // Add _method field for PUT request
                 formData.append('_method', 'PUT');
 
-                fetch(`/calibrations/${calibrationId}`, {
+                fetch(`/calibrations/report/${calibrationId}`, {
                     method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -2601,6 +2728,196 @@
 
               // Initial load of vendors
               loadAllVendors();
+
+              // Handle Edit Schedule Button click events
+              document.querySelectorAll('.edit-schedule-btn').forEach(button => {
+                  button.addEventListener('click', function() {
+                      const calibrationId = this.getAttribute('data-id');
+                      const assetName = this.getAttribute('data-asset-name');
+                      const assetCode = this.getAttribute('data-asset-code');
+
+                      // Set values in the edit schedule modal
+                      document.getElementById('edit_schedule_calibration_id').value = calibrationId;
+                      document.getElementById('edit_schedule_asset_name').textContent = assetName;
+                      document.getElementById('edit_schedule_asset_code').textContent = assetCode;
+
+                      // Get today's date in ISO format (YYYY-MM-DD)
+                      const today = new Date().toISOString().split('T')[0];
+
+                      // Get the planning date input
+                      const planningDateInput = document.getElementById('edit_planning_calibration_date');
+
+                      // Set min date for the planning date input dynamically
+                      planningDateInput.setAttribute('min', today);
+
+                      // Reset any previous error messages
+                      const errorMessage = document.querySelector('#editScheduleModal .error-message');
+                      const dateErrorMessage = document.querySelector('#editScheduleModal .date-error-message');
+                      if (errorMessage) errorMessage.classList.add('hidden');
+                      if (dateErrorMessage) dateErrorMessage.classList.add('hidden');
+
+                      // Reset validation state
+                      planningDateInput.classList.remove('border-red-500');
+
+                      // Fetch current planning date from API
+                      fetch(`/calibrations/${calibrationId}`, {
+                          headers: {
+                              'Accept': 'application/json',
+                              'X-Requested-With': 'XMLHttpRequest'
+                          }
+                      })
+                      .then(response => {
+                          if (!response.ok) {
+                              throw new Error(`Server responded with status: ${response.status}`);
+                          }
+                          return response.json();
+                      })
+                      .then(data => {
+                          if (data.success && data.data) {
+                              const calibration = data.data;
+
+                              // Set the planning date in the input field
+                              if (calibration.planning_calibration_date) {
+                                  // Compare dates and ensure we don't set a date in the past
+                                  if (calibration.planning_calibration_date >= today) {
+                                      planningDateInput.value = calibration.planning_calibration_date;
+                                  } else {
+                                      // If date is in the past, set to today
+                                      planningDateInput.value = today;
+                                  }
+                              } else {
+                                  // If no planning date exists, set to today as default
+                                  planningDateInput.value = today;
+                              }
+                          } else {
+                              // Handle unsuccessful response
+                              console.error('Failed to get calibration data:', data);
+                              planningDateInput.value = today;
+                          }
+                      })
+                      .catch(error => {
+                          console.error('Error fetching calibration data:', error);
+                          // Set today's date as fallback
+                          planningDateInput.value = today;
+                          showToast(`Error loading calibration data: ${error.message}`, 'error');
+                      });
+
+                      // Open the edit schedule modal
+                      openModal(document.getElementById('editScheduleModal'), document.getElementById('editScheduleModalContent'));
+                  });
+              });
+
+              // Handle Edit Schedule Form submission
+              document.getElementById('editScheduleForm')?.addEventListener('submit', function(e) {
+                  e.preventDefault();
+
+                  // Validate form
+                  const planningDateInput = document.getElementById('edit_planning_calibration_date');
+                  const errorMessage = planningDateInput.closest('.space-y-2').querySelector('.error-message');
+                  const dateErrorMessage = planningDateInput.closest('.space-y-2').querySelector('.date-error-message');
+
+                  // Reset validation state
+                  planningDateInput.classList.remove('border-red-500');
+                  errorMessage.classList.add('hidden');
+                  dateErrorMessage.classList.add('hidden');
+
+                  // Check if planning date is provided
+                  if (!planningDateInput.value.trim()) {
+                      planningDateInput.classList.add('border-red-500');
+                      errorMessage.classList.remove('hidden');
+                      return;
+                  }
+
+                  // Validate that date is not before today
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0); // Reset time to start of day
+                  const selectedDate = new Date(planningDateInput.value);
+                  selectedDate.setHours(0, 0, 0, 0); // Reset time to start of day
+
+                  if (selectedDate < today) {
+                      planningDateInput.classList.add('border-red-500');
+                      dateErrorMessage.classList.remove('hidden');
+                      return;
+                  }
+
+                  // Get form data
+                  const calibrationId = document.getElementById('edit_schedule_calibration_id').value;
+                  const planningDate = planningDateInput.value;
+
+                  // Disable the submit button to prevent multiple submissions
+                  const submitBtn = this.querySelector('button[type="submit"]');
+                  const originalBtnText = submitBtn.innerHTML;
+                  submitBtn.disabled = true;
+                  submitBtn.innerHTML = `
+                      <div class="flex items-center justify-center">
+                          <div class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent mr-2"></div>
+                          <span>Memproses...</span>
+                      </div>
+                  `;
+
+                  // Send request to update schedule
+                  fetch(`/calibrations/schedule/${calibrationId}`, {
+                      method: 'PUT',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                          'Accept': 'application/json'
+                      },
+                      body: JSON.stringify({
+                          planning_calibration_date: planningDate
+                      })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      // Re-enable the submit button
+                      submitBtn.disabled = false;
+                      submitBtn.innerHTML = originalBtnText;
+
+                      if (data.success) {
+                          // Close the modal
+                          closeModal(document.getElementById('editScheduleModal'), document.getElementById('editScheduleModalContent'));
+
+                          // Show success toast
+                          showToast(data.message || 'Jadwal kalibrasi berhasil diperbarui', 'success');
+
+                          // Reload the page after a short delay
+                          setTimeout(() => {
+                              window.location.reload();
+                          }, 1000);
+                      } else {
+                          // Show error toast
+                          showToast(data.message || data.error || 'Gagal memperbarui jadwal kalibrasi', 'error');
+                      }
+                  })
+                  .catch(error => {
+                      // Re-enable the submit button
+                      submitBtn.disabled = false;
+                      submitBtn.innerHTML = originalBtnText;
+
+                      console.error('Error updating calibration schedule:', error);
+                      showToast('Terjadi kesalahan saat memperbarui jadwal kalibrasi', 'error');
+                  });
+              });
+
+              // Add input event listener for the planning date to clear validation errors
+              document.getElementById('edit_planning_calibration_date')?.addEventListener('input', function() {
+                  this.classList.remove('border-red-500');
+                  const errorMessage = this.closest('.space-y-2').querySelector('.error-message');
+                  const dateErrorMessage = this.closest('.space-y-2').querySelector('.date-error-message');
+                  if (errorMessage) errorMessage.classList.add('hidden');
+                  if (dateErrorMessage) dateErrorMessage.classList.add('hidden');
+
+                  // Revalidate date on input change
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const selectedDate = new Date(this.value);
+                  selectedDate.setHours(0, 0, 0, 0);
+
+                  if (selectedDate < today) {
+                      this.classList.add('border-red-500');
+                      dateErrorMessage.classList.remove('hidden');
+                  }
+              });
 
               // Show/hide vendor results
               vendorSearchInput?.addEventListener('focus', function() {

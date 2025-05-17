@@ -962,7 +962,7 @@ function formatCompactCurrency($number) {
                     data: [
                         {{ $dashboardData['assets_by_status']['available'] ?? 0 }},
                         {{ $dashboardData['assets_by_status']['under repair'] ?? 0 }},
-                        {{ $dashboardData['assets_by_status']['check out'] ?? 0 }},
+                        {{ $dashboardData['assets_by_status']['checked out'] ?? 0 }},
                         {{ $dashboardData['assets_by_status']['dispose'] ?? 0 }},
                         {{ $dashboardData['assets_by_status']['lost'] ?? 0 }}
                     ],
@@ -1323,7 +1323,7 @@ function formatCompactCurrency($number) {
         const getStatusBadgeClass = (statusType) => {
             const statusClasses = {
                 'Available': 'bg-[#659B09]',
-                'Check Out': 'bg-[#F59E0B]',
+                'Checked out': 'bg-[#F59E0B]',
                 'Under Repair': 'bg-[#25B1FF]',
                 'Dispose': 'bg-[#ACC3EF]',
                 'Lost': 'bg-[#FF4A2B]'
@@ -1335,7 +1335,7 @@ function formatCompactCurrency($number) {
         const getStatusLabel = (status) => {
             const statusLabels = {
                 'Available': 'TERSEDIA',
-                'Check Out': 'DIPINJAM',
+                'Checked out': 'DIPINJAM',
                 'Under Repair': 'PERBAIKAN',
                 'Dispose': 'DIHAPUSKAN',
                 'Lost': 'HILANG'
