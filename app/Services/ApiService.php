@@ -140,10 +140,51 @@ class ApiService
     {
         // If no access token, but refresh token exists, refresh
         if (!session('access_token') && (session('refresh_token') || request()->cookie('refresh_token'))) {
+            Log::info('No access token but refresh token exists, needs refresh');
             return true;
         }
 
-        // If we have access token, check if it's about to expire
+        // Check expiration time from JWT payload if available
+        $accessTokenExpiry = session('access_token_expiry');
+        if ($accessTokenExpiry) {
+            $currentTime = time();
+            $timeRemaining = $accessTokenExpiry - $currentTime;
+
+            // Define a threshold (20% of token lifetime or 2 minutes, whichever is greater)
+            $refreshThreshold = max(
+                (session('access_token_expires_in', 3600) * 0.2), // 20% of total lifetime
+                120 // 2 minutes minimum
+            );
+
+            // If token will expire soon, refresh it
+            if ($timeRemaining <= $refreshThreshold) {
+                Log::info('Access token approaching expiry based on JWT payload', [
+                    'expiry_timestamp' => $accessTokenExpiry,
+                    'current_time' => $currentTime,
+                    'time_remaining_seconds' => $timeRemaining,
+                    'refresh_threshold' => $refreshThreshold
+                ]);
+                return true;
+            }
+
+            // If token is already expired, definitely refresh
+            if ($timeRemaining <= 0) {
+                Log::warning('Access token is expired based on JWT payload', [
+                    'expiry_timestamp' => $accessTokenExpiry,
+                    'current_time' => $currentTime,
+                    'time_remaining_seconds' => $timeRemaining
+                ]);
+                return true;
+            }
+
+            Log::info('Access token still valid based on JWT payload', [
+                'time_remaining_seconds' => $timeRemaining,
+                'time_remaining_minutes' => round($timeRemaining / 60, 1)
+            ]);
+            return false;
+        }
+
+        // Fall back to session timestamp-based method if no JWT expiry is available
         if (session('access_token')) {
             $tokenRefreshedAt = session('token_refreshed_at', 0);
             $tokenLifetime = config('auth.token_lifetime', 3600); // 1 hour default
@@ -153,7 +194,7 @@ class ApiService
 
             // If token was refreshed more than threshold ago, refresh it
             if ($timeSinceRefresh > $refreshThreshold) {
-                Log::info('Token approaching expiry, needs refresh', [
+                Log::info('Token approaching expiry based on refresh timestamp', [
                     'refreshed_at' => $tokenRefreshedAt,
                     'time_since_refresh' => $timeSinceRefresh,
                     'threshold' => $refreshThreshold
@@ -233,6 +274,18 @@ class ApiService
             return false;
         }
 
+        // Check if refresh token is expired based on JWT payload
+        $refreshTokenExpiry = session('refresh_token_expiry');
+        if ($refreshTokenExpiry && time() >= $refreshTokenExpiry) {
+            Log::warning('Refresh token is expired based on JWT payload', [
+                'expiry_timestamp' => $refreshTokenExpiry,
+                'current_time' => time(),
+                'expired_by_seconds' => time() - $refreshTokenExpiry
+            ]);
+            $this->clearTokens();
+            return false;
+        }
+
         Log::info('Attempting to refresh token with refresh token from ApiService');
 
         try {
@@ -274,15 +327,79 @@ class ApiService
                     return false;
                 }
 
-                // Store in cookies with longer expiration
-                $this->storeTokensInCookies($accessToken, $newRefreshToken);
+                // Extract token payloads
+                $accessTokenPayload = $this->extractJwtPayload($accessToken);
+                $refreshTokenPayload = null;
 
-                // Also update session for current request handling
+                // Only extract refresh token payload if it was updated
+                if ($newRefreshToken !== $refreshToken) {
+                    $refreshTokenPayload = $this->extractJwtPayload($newRefreshToken);
+                } else {
+                    // Use existing refresh token payload from session
+                    $refreshTokenPayload = session('refresh_token_payload');
+                }
+
+                // Store in cookies with longer expiration
+                $this->storeTokensInCookies($accessToken, $newRefreshToken, $accessTokenPayload, $refreshTokenPayload);
+
+                // Update session for current request handling
                 session([
                     'access_token' => $accessToken,
                     'refresh_token' => $newRefreshToken,
                     'token_refreshed_at' => now()->timestamp
                 ]);
+
+                // Store access token payload in session
+                if ($accessTokenPayload) {
+                    // Extract expiration time and calculate remaining time
+                    $accessTokenExpiry = $accessTokenPayload['exp'] ?? null;
+                    $expiresIn = $accessTokenExpiry ? ($accessTokenExpiry - time()) : null;
+
+                    // Store user identity information
+                    session([
+                        'access_token_payload' => $accessTokenPayload,
+                        'user_id' => $accessTokenPayload['user_id'] ?? null,
+                        'is_active' => $accessTokenPayload['is_active'] ?? false,
+                        'user_roles' => $accessTokenPayload['roles'] ?? [],
+                        'access_token_expiry' => $accessTokenExpiry,
+                        'access_token_expires_in' => $expiresIn
+                    ]);
+
+                    // Store permissions in a way that's compatible with sidebar
+                    $permissions = $accessTokenPayload['permissions'] ?? [];
+                    session([
+                        'token_permissions' => $permissions,
+                        'user_permission_names' => $permissions // Important for sidebar compatibility
+                    ]);
+
+                    Log::info('Access token JWT payload extracted and stored during refresh', [
+                        'user_id' => $accessTokenPayload['user_id'] ?? null,
+                        'roles' => $accessTokenPayload['roles'] ?? [],
+                        'permissions' => $permissions,
+                        'permissions_count' => count($permissions),
+                        'expires_in_minutes' => $expiresIn ? round($expiresIn / 60, 1) : null
+                    ]);
+                }
+
+                // Store refresh token payload in session if we have a new one
+                if ($refreshTokenPayload) {
+                    // Extract refresh token expiration
+                    $refreshTokenExpiry = $refreshTokenPayload['exp'] ?? null;
+                    $refreshExpiresIn = $refreshTokenExpiry ? ($refreshTokenExpiry - time()) : null;
+
+                    session([
+                        'refresh_token_payload' => $refreshTokenPayload,
+                        'refresh_token_expiry' => $refreshTokenExpiry,
+                        'refresh_token_expires_in' => $refreshExpiresIn
+                    ]);
+
+                    Log::info('Refresh token JWT payload extracted and stored during refresh', [
+                        'expires_in_days' => $refreshExpiresIn ? round($refreshExpiresIn / 86400, 1) : null
+                    ]);
+                }
+
+                // Fetch updated permissions
+                $this->refreshPermissions($accessToken);
 
                 Log::info('Token refreshed successfully');
                 return true;
@@ -297,27 +414,212 @@ class ApiService
     }
 
     /**
+     * Extract payload from JWT token
+     */
+    protected function extractJwtPayload($token)
+    {
+        try {
+            $tokenParts = explode('.', $token);
+
+            if (count($tokenParts) !== 3) {
+                Log::warning('Invalid JWT token format');
+                return null;
+            }
+
+            $payload = base64_decode(str_replace(['-', '_'], ['+', '/'], $tokenParts[1]));
+            $decodedPayload = json_decode($payload, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Log::warning('Error decoding JWT payload', ['error' => json_last_error_msg()]);
+                return null;
+            }
+
+            Log::info('JWT payload decoded successfully');
+            return $decodedPayload;
+        } catch (\Exception $e) {
+            Log::error('Error extracting JWT payload', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    /**
+     * Refresh user permissions after token refresh
+     */
+    protected function refreshPermissions($accessToken)
+    {
+        try {
+            // First, try to get permissions from the token payload in session
+            $tokenPermissions = session('token_permissions', []);
+            if (!empty($tokenPermissions)) {
+                Log::info('Using permissions from refreshed JWT token payload', [
+                    'count' => count($tokenPermissions)
+                ]);
+
+                // Store JWT token permissions in session for use in views
+                session(['user_permissions' => $tokenPermissions]);
+                session(['user_permission_names' => $tokenPermissions]);
+
+                // Use access token expiry time for permissions cookie
+                $accessTokenExpiry = session('access_token_expiry');
+                $cookieLifetime = null;
+
+                // Calculate cookie lifetime in minutes based on JWT expiry
+                if ($accessTokenExpiry) {
+                    // Use the actual expiry time from the token, minus 1 minute for safety
+                    $cookieLifetime = max(1, ceil(($accessTokenExpiry - time() - 60) / 60));
+                    Log::info('Setting permissions cookie lifetime from JWT payload', [
+                        'minutes' => $cookieLifetime,
+                        'expires_at' => date('Y-m-d H:i:s', $accessTokenExpiry)
+                    ]);
+                } else {
+                    // Fallback only if JWT payload doesn't contain expiration
+                    $cookieLifetime = session('remember_user', false)
+                        ? config('auth.remembered_access_token_cookie_lifetime', 1440)
+                        : config('auth.access_token_cookie_lifetime', 60);
+                    Log::warning('Falling back to config for permissions cookie lifetime', [
+                        'minutes' => $cookieLifetime,
+                        'reason' => 'Missing JWT expiration'
+                    ]);
+                }
+
+                cookie()->queue(
+                    'user_permissions',
+                    json_encode($tokenPermissions),
+                    $cookieLifetime
+                );
+
+                return true;
+            }
+
+            // If no permissions in JWT token, fetch from API as fallback
+            $client = new Client();
+            $apiBaseUrl = config('services.api.base_url');
+
+            Log::info('Refreshing user permissions from API after token refresh');
+
+            $response = $client->get("{$apiBaseUrl}/permissions/by-roles", [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken
+                ],
+                'http_errors' => false
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            if ($statusCode === 200 && isset($responseData['success']) && $responseData['success']) {
+                $permissions = $responseData['data'] ?? [];
+
+                // Store permissions in session
+                session(['user_permissions' => $permissions]);
+
+                // Extract permission names for easier access checking
+                $permissionNames = array_map(function ($permission) {
+                    return $permission['permission_name'];
+                }, $permissions);
+
+                session(['user_permission_names' => $permissionNames]);
+
+                // Use access token expiry time for permissions cookie
+                $accessTokenExpiry = session('access_token_expiry');
+                $cookieLifetime = null;
+
+                // Calculate cookie lifetime in minutes based on JWT expiry
+                if ($accessTokenExpiry) {
+                    // Use the actual expiry time from the token, minus 1 minute for safety
+                    $cookieLifetime = max(1, ceil(($accessTokenExpiry - time() - 60) / 60));
+                    Log::info('Setting permissions cookie lifetime from JWT payload', [
+                        'minutes' => $cookieLifetime,
+                        'expires_at' => date('Y-m-d H:i:s', $accessTokenExpiry)
+                    ]);
+                } else {
+                    // Fallback only if JWT payload doesn't contain expiration
+                    $cookieLifetime = session('remember_user', false)
+                        ? config('auth.remembered_access_token_cookie_lifetime', 1440)
+                        : config('auth.access_token_cookie_lifetime', 60);
+                    Log::warning('Falling back to config for permissions cookie lifetime', [
+                        'minutes' => $cookieLifetime,
+                        'reason' => 'Missing JWT expiration'
+                    ]);
+                }
+
+                cookie()->queue(
+                    'user_permissions',
+                    json_encode($permissions),
+                    $cookieLifetime
+                );
+
+                Log::info('Permissions refreshed successfully', ['count' => count($permissions)]);
+                return true;
+            } else {
+                Log::warning('Failed to refresh permissions', [
+                    'status' => $statusCode,
+                    'response' => $responseData
+                ]);
+                return false;
+            }
+        } catch (\Exception $e) {
+            Log::error('Error refreshing permissions', [
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
      * Store tokens in cookies and session
      */
-    public function storeTokensInCookies($accessToken, $refreshToken)
+    public function storeTokensInCookies($accessToken, $refreshToken, $accessTokenPayload = null, $refreshTokenPayload = null)
     {
         // Check if user wants to be remembered
         $rememberUser = session('remember_user', false);
 
-        // Access token lifetime - longer if remembered
-        $accessTokenLifetime = $rememberUser
-            ? config('auth.remembered_access_token_cookie_lifetime', 1440) // 1 day for remembered users
-            : config('auth.access_token_cookie_lifetime', 60); // 1 hour default
+        // Calculate cookie lifetimes based on actual JWT token expiration times
+        $accessTokenLifetime = null;
+        $refreshTokenLifetime = null;
 
-        // Refresh token lifetime - longer if remembered
-        $refreshTokenLifetime = $rememberUser
-            ? config('auth.remembered_refresh_token_cookie_lifetime', 43200*7) // 7 months for remembered
-            : config('auth.refresh_token_cookie_lifetime', 43200); // 30 days default
+        // Extract access token expiration from payload
+        if ($accessTokenPayload && isset($accessTokenPayload['exp'])) {
+            // Use the actual expiry time from the token, minus 1 minute for safety
+            $accessTokenLifetime = max(1, ceil(($accessTokenPayload['exp'] - time() - 60) / 60));
+            Log::info('Setting access token cookie lifetime from JWT payload', [
+                'minutes' => $accessTokenLifetime,
+                'expires_at' => date('Y-m-d H:i:s', $accessTokenPayload['exp'])
+            ]);
+        } else {
+            // Fallback only if JWT payload doesn't contain expiration
+            $accessTokenLifetime = $rememberUser
+                ? config('auth.remembered_access_token_cookie_lifetime', 1440)
+                : config('auth.access_token_cookie_lifetime', 60);
+            Log::warning('Falling back to config for access token cookie lifetime', [
+                'minutes' => $accessTokenLifetime,
+                'reason' => 'Missing JWT expiration'
+            ]);
+        }
 
-        Log::info('Setting cookies with remember preference', [
+        // Extract refresh token expiration from payload
+        if ($refreshTokenPayload && isset($refreshTokenPayload['exp'])) {
+            // Use the actual expiry time from the token, minus 1 minute for safety
+            $refreshTokenLifetime = max(1, ceil(($refreshTokenPayload['exp'] - time() - 60) / 60));
+            Log::info('Setting refresh token cookie lifetime from JWT payload', [
+                'minutes' => $refreshTokenLifetime,
+                'expires_at' => date('Y-m-d H:i:s', $refreshTokenPayload['exp'])
+            ]);
+        } else {
+            // Fallback only if JWT payload doesn't contain expiration
+            $refreshTokenLifetime = $rememberUser
+                ? config('auth.remembered_refresh_token_cookie_lifetime', 43200*7)
+                : config('auth.refresh_token_cookie_lifetime', 43200);
+            Log::warning('Falling back to config for refresh token cookie lifetime', [
+                'minutes' => $refreshTokenLifetime,
+                'reason' => 'Missing JWT expiration'
+            ]);
+        }
+
+        Log::info('Setting cookies with expiration from JWT payload', [
             'remember_user' => $rememberUser,
-            'access_token_lifetime' => $accessTokenLifetime,
-            'refresh_token_lifetime' => $refreshTokenLifetime
+            'access_token_lifetime_minutes' => $accessTokenLifetime,
+            'refresh_token_lifetime_minutes' => $refreshTokenLifetime
         ]);
 
         // Set secure HTTP-only cookies for both tokens with proper configuration
@@ -345,16 +647,55 @@ class ApiService
             config('session.same_site', 'lax') // same site policy matching session config
         );
 
-        Log::info('Tokens stored in cookies successfully');
+        // Store access token payload in cookie if available
+        if ($accessTokenPayload) {
+            cookie()->queue(
+                'access_token_payload',
+                json_encode($accessTokenPayload),
+                $accessTokenLifetime,
+                null, // path
+                null, // domain
+                config('app.env') === 'production', // secure only in production
+                true, // http only
+                false, // raw
+                config('session.same_site', 'lax') // same site policy matching session config
+            );
+        }
+
+        // Store refresh token payload in cookie if available
+        if ($refreshTokenPayload) {
+            cookie()->queue(
+                'refresh_token_payload',
+                json_encode($refreshTokenPayload),
+                $refreshTokenLifetime,
+                null, // path
+                null, // domain
+                config('app.env') === 'production', // secure only in production
+                true, // http only
+                false, // raw
+                config('session.same_site', 'lax') // same site policy matching session config
+            );
+        }
+
+        Log::info('Tokens and payloads stored in cookies successfully');
     }
 
     private function clearTokens()
     {
         // Clear session data
-        session()->forget(['access_token', 'refresh_token', 'token_validated_at', 'token_refreshed_at']);
+        session()->forget([
+            'access_token', 'refresh_token', 'token_validated_at',
+            'token_refreshed_at', 'user_permissions', 'user_permission_names',
+            'access_token_payload', 'refresh_token_payload', 'user_id', 'is_active', 'user_roles',
+            'token_permissions', 'access_token_expiry', 'refresh_token_expiry',
+            'access_token_expires_in', 'refresh_token_expires_in'
+        ]);
 
         // Clear cookies
         cookie()->queue(cookie()->forget('access_token'));
         cookie()->queue(cookie()->forget('refresh_token'));
+        cookie()->queue(cookie()->forget('user_permissions'));
+        cookie()->queue(cookie()->forget('access_token_payload'));
+        cookie()->queue(cookie()->forget('refresh_token_payload'));
     }
 }

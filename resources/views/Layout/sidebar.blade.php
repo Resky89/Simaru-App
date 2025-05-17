@@ -1,3 +1,42 @@
+@php
+    // Define permission requirements for each menu using the exact permission format from API
+    $menuPermissions = [
+        'dashboard' => 'dashboard:view',
+        'masterdata' => ['brand:view', 'building:view', 'room:view', 'vendor:view'],
+        'asset' => 'asset:view',
+        'calibration' => 'calibration:view',
+        'maintenance' => 'maintenance:view',
+        'complaint' => 'complaint:view',
+        'procurement' => 'procurement:view',
+        'report' => 'report:view',
+        'account' => ['user:view', 'role:view']
+    ];
+
+    // Define permission requirements for each submenu using the exact format from API
+    $submenuPermissions = [
+        'brands' => 'brand:view',
+        'buildings' => 'building:view',
+        'rooms' => 'room:view',
+        'vendor' => 'vendor:view',
+
+        'asset-master' => 'asset-master:view',
+        'asset-unit' => 'asset:view',
+        'asset-documents' => 'document:view',
+
+        'procurement.request' => 'procurement:view',
+        'procurement.price-comparison' => 'price-comparison:view',
+        'procurement.purchase-order' => 'purchase-order:view',
+        'procurement.receipt' => 'procurement:view',
+
+        'report.opname' => 'report:opname',
+        'report.finance' => 'report:finance',
+        'report.depreciation' => 'report:depreciation',
+
+        'user' => 'user:view',
+        'roles' => 'role:view'
+    ];
+@endphp
+
 <div id="sidebar-container" class="w-[250px] h-screen bg-white rounded-r-[20px] flex flex-col relative overflow-hidden">
     <!-- Header with Logo -->
     <div class="h-[72px] relative">
@@ -22,6 +61,7 @@
             @endphp
 
             <!-- Dashboard -->
+            @if(hasPermission($menuPermissions['dashboard']))
             <div class="{{ $menuItemClass }}">
                 <a href="{{ route('dashboard') }}" class="block dashboard-link" data-menu="dashboard">
                     <div class="{{ $menuLinkClass }} {{ Request::routeIs('dashboard') ? 'bg-[#56C5F1]/20' : '' }}">
@@ -36,8 +76,10 @@
                     </div>
                 </a>
             </div>
+            @endif
 
             <!-- Master Data -->
+            @if(hasAnyPermission($menuPermissions['masterdata']))
             <div class="{{ $menuItemClass }}">
                 <button class="w-full focus:outline-none toggle-menu" data-menu="masterdata">
                     <div class="{{ $menuLinkClass }} menu-header">
@@ -59,36 +101,44 @@
                 <!-- Sub Menu -->
                 <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="masterdata"
                     style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
-                    <a href="{{ route('categories') }}" class="block">
-                        <div
-                            class="{{ $submenuLinkClass }} {{ Request::routeIs('categories') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Kategori</span>
-                        </div>
-                    </a>
+                    @if(hasPermission($submenuPermissions['brands']))
                     <a href="{{ route('brands') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('brands') ? 'bg-[#56C5F1]/20' : '' }}">
+                        <div
+                            class="{{ $submenuLinkClass }} {{ Request::routeIs('brands') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Merk</span>
                         </div>
                     </a>
+                    @endif
+
+                    @if(hasPermission($submenuPermissions['buildings']))
                     <a href="{{ route('buildings') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('buildings') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Gedung</span>
                         </div>
                     </a>
+                    @endif
+
+                    @if(hasPermission($submenuPermissions['rooms']))
                     <a href="{{ route('rooms') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('rooms') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Ruangan</span>
                         </div>
                     </a>
+                    @endif
+
+                    @if(hasPermission($submenuPermissions['vendor']))
                     <a href="{{ route('vendor') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('vendor') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Vendor</span>
                         </div>
                     </a>
+                    @endif
                 </div>
             </div>
+            @endif
 
             <!-- Asset (New Menu) -->
+            @if(hasPermission($menuPermissions['asset']))
             <div class="{{ $menuItemClass }}">
                 <button class="w-full focus:outline-none toggle-menu" data-menu="asset">
                     <div class="{{ $menuLinkClass }} menu-header">
@@ -110,28 +160,38 @@
                 <!-- Sub Menu -->
                 <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="asset"
                     style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                    @if(hasPermission($submenuPermissions['asset-master']))
                     <a href="{{ route('asset-master') }}" class="block">
                         <div
                             class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-master') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Master Aset</span>
                         </div>
                     </a>
+                    @endif
+
+                    @if(hasPermission($submenuPermissions['asset-unit']))
                     <a href="{{ route('asset-unit') }}" class="block">
                         <div
                             class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-unit') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Unit Aset</span>
                         </div>
                     </a>
+                    @endif
+
+                    @if(hasPermission($submenuPermissions['asset-documents']))
                     <a href="{{ route('asset-documents') }}" class="block">
                         <div
                             class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-documents') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Dokumen Aset</span>
                         </div>
                     </a>
+                    @endif
                 </div>
             </div>
+            @endif
 
             <!-- Calibration -->
+            @if(hasPermission($menuPermissions['calibration']))
             <div class="{{ $menuItemClass }}">
                 <a href="{{ route('calibration') }}" class="block calibration-link" data-menu="calibration">
                     <div class="{{ $menuLinkClass }} {{ Request::routeIs('calibration') ? 'bg-[#56C5F1]/20' : '' }}">
@@ -146,8 +206,10 @@
                     </div>
                 </a>
             </div>
+            @endif
 
             <!-- Maintenance -->
+            @if(hasPermission($menuPermissions['maintenance']))
             <div class="{{ $menuItemClass }}">
                 <a href="{{ route('maintenance') }}" class="block maintenance-link" data-menu="maintenance">
                     <div class="{{ $menuLinkClass }} {{ Request::routeIs('maintenance') ? 'bg-[#56C5F1]/20' : '' }}">
@@ -164,8 +226,10 @@
                     </div>
                 </a>
             </div>
+            @endif
 
             <!-- Complaint & Repair -->
+            @if(hasPermission($menuPermissions['complaint']))
             <div class="{{ $menuItemClass }}">
                 <a href="{{ route('complaint.index') }}" class="block complaint-link" data-menu="complaint">
                     <div class="{{ $menuLinkClass }} {{ Request::routeIs('complaint.*') ? 'bg-[#56C5F1]/20' : '' }}">
@@ -180,8 +244,10 @@
                     </div>
                 </a>
             </div>
+            @endif
 
             <!-- Procurement -->
+            @if(hasPermission($menuPermissions['procurement']))
             <div class="{{ $menuItemClass }}">
                 <button class="w-full focus:outline-none toggle-menu" data-menu="procurement">
                     <div class="{{ $menuLinkClass }} menu-header">
@@ -213,17 +279,21 @@
                     @endphp
 
                     @foreach($procurementSubmenuItems as $item)
+                        @if(hasPermission($submenuPermissions[$item['route']]))
                         <a href="{{ route($item['route']) }}" class="block">
                             <div
                                 class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
                                 <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
                             </div>
                         </a>
+                        @endif
                     @endforeach
                 </div>
             </div>
+            @endif
 
             <!-- Report -->
+            @if(hasPermission($menuPermissions['report']))
             <div class="{{ $menuItemClass }}">
                 <button class="w-full focus:outline-none toggle-menu" data-menu="report">
                     <div class="{{ $menuLinkClass }} menu-header">
@@ -254,17 +324,21 @@
                     @endphp
 
                     @foreach($reportSubmenuItems as $item)
+                        @if(hasPermission($submenuPermissions[$item['route']]))
                         <a href="{{ route($item['route']) }}" class="block">
                             <div
                                 class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
                                 <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
                             </div>
                         </a>
+                        @endif
                     @endforeach
                 </div>
             </div>
+            @endif
 
             <!-- Account -->
+            @if(hasAnyPermission($menuPermissions['account']))
             <div class="{{ $menuItemClass }}">
                 <button class="w-full focus:outline-none toggle-menu" data-menu="account">
                     <div class="{{ $menuLinkClass }} menu-header">
@@ -286,18 +360,24 @@
                 <!-- Sub Menu -->
                 <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="account"
                     style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                    @if(hasPermission($submenuPermissions['user']))
                     <a href="{{ route('user') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('user') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Pengguna</span>
                         </div>
                     </a>
+                    @endif
+
+                    @if(hasPermission($submenuPermissions['roles']))
                     <a href="{{ route('roles') }}" class="block">
                         <div class="{{ $submenuLinkClass }} {{ Request::routeIs('roles') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Role</span>
                         </div>
                     </a>
+                    @endif
                 </div>
             </div>
+            @endif
         </div>
     </div>
 

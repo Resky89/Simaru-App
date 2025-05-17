@@ -14,6 +14,7 @@
 
                     <!-- Button Add Brand -->
                     <div class="flex flex-wrap gap-3">
+                        @if(hasPermission('brand:create'))
                         <button id="importBrandBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-green-600 rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v8" />
@@ -27,6 +28,7 @@
                             </svg>
                             <span class="text-base">Tambah Merk Baru</span>
                         </button>
+                        @endif
                     </div>
                 </div>
 
@@ -61,7 +63,9 @@
                             <tr>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">ID</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Merk</th>
+                                @if(hasPermission('brand:edit') || hasPermission('brand:delete'))
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[88px]">Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -69,8 +73,10 @@
                                 <tr>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $brand['brand_id'] }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $brand['brand_name'] }}</td>
+                                    @if(hasPermission('brand:edit') || hasPermission('brand:delete'))
                                     <td class="p-3 border-t border-[#EEF1F4]">
                                         <div class="flex items-center space-x-2 justify-center">
+                                            @if(hasPermission('brand:edit'))
                                             <button class="edit-brand-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                     data-brand-id="{{ $brand['brand_id'] }}"
                                                     data-brand-name="{{ $brand['brand_name'] }}">
@@ -78,6 +84,8 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </button>
+                                            @endif
+                                            @if(hasPermission('brand:delete'))
                                             <button class="delete-brand-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                                                     data-brand-id="{{ $brand['brand_id'] }}"
                                                     data-brand-name="{{ $brand['brand_name'] }}">
@@ -85,12 +93,14 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
+                                            @endif
                                         </div>
                                     </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="p-3 text-xs text-center border-t border-[#EEF1F4]">Tidak ada merk ditemukan</td>
+                                    <td colspan="{{ (hasPermission('brand:edit') || hasPermission('brand:delete')) ? '3' : '2' }}" class="p-3 text-xs text-center border-t border-[#EEF1F4]">Tidak ada merk ditemukan</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -190,6 +200,7 @@
     </div>
 </div>
 
+@if(hasPermission('brand:create'))
 <!-- Modal Add Brand -->
 <div id="addBrandModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -234,7 +245,9 @@
         </div>
     </div>
 </div>
+@endif
 
+@if(hasPermission('brand:edit'))
 <!-- Modal Edit Brand -->
 <div id="editBrandModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -277,7 +290,9 @@
         </div>
     </div>
 </div>
+@endif
 
+@if(hasPermission('brand:delete'))
 <!-- Delete Brand Modal -->
 <div id="deleteBrandModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -323,7 +338,9 @@
         </div>
     </div>
 </div>
+@endif
 
+@if(hasPermission('brand:create'))
 <!-- Import Brand Modal -->
 <div id="importBrandModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -492,9 +509,42 @@
         </div>
     </div>
 </div>
+@endif
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Add JavaScript initialization here for permission awareness
+
+        @if(!hasPermission('brand:create'))
+        // Disable related elements if user doesn't have permission
+        const addButtons = document.querySelectorAll('#addBrandBtn, #importBrandBtn');
+        addButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('brand:edit'))
+        // Disable edit functionality if user doesn't have permission
+        const editButtons = document.querySelectorAll('.edit-brand-btn');
+        editButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('brand:delete'))
+        // Disable delete functionality if user doesn't have permission
+        const deleteButtons = document.querySelectorAll('.delete-brand-btn');
+        deleteButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
         // Define the showToast function first
         window.showToast = function(message, type = 'success') {
             // Create the notification element

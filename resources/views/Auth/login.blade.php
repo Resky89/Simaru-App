@@ -162,17 +162,25 @@
                         </div>
 
                         <form action="{{ route('auth.login') }}" method="POST" id="loginForm">
-                    @csrf
+                            @csrf
 
-                    @if ($errors->any())
-                                <div class="bg-red-50 text-red-600 p-3 rounded-lg mb-4 border-l-4 border-red-500 animate-pulse text-sm">
-                            <ul class="list-disc list-inside">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                            @if ($errors->any())
+                                <div class="bg-red-50 text-red-600 p-3 rounded-lg mb-4 border-l-4 border-red-500 text-sm">
+                                    <ul class="list-disc list-inside">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
+                            @if (session('error'))
+                                <div class="bg-red-50 text-red-600 p-3 rounded-lg mb-4 border-l-4 border-red-500 text-sm">
+                                    <ul class="list-disc list-inside">
+                                        <li>{{ session('error') }}</li>
+                                    </ul>
+                                </div>
+                            @endif
 
                             <!-- Employee Number -->
                             <div class="mb-4">
@@ -239,6 +247,59 @@
 
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
+                        // Check for token expiration info in cookie
+                        function checkTokenExpiration() {
+                            try {
+                                const payloadCookie = getCookie('access_token_payload');
+                                if (!payloadCookie) return false;
+
+                                const payload = JSON.parse(payloadCookie);
+                                if (!payload || !payload.exp) return false;
+
+                                const expiryTime = payload.exp;
+                                const currentTime = Math.floor(Date.now() / 1000);
+                                const timeRemaining = expiryTime - currentTime;
+
+                                if (timeRemaining <= 0) {
+                                    // Token has expired - display a message
+                                    const errorContainer = document.querySelector('.bg-red-50') ||
+                                        createErrorContainer();
+
+                                    errorContainer.innerHTML = `
+                                        <ul class="list-disc list-inside">
+                                            <li>Sesi login Anda telah berakhir. Silakan login kembali.</li>
+                                        </ul>
+                                    `;
+                                    return true;
+                                }
+
+                                return false;
+                            } catch (e) {
+                                console.error('Error checking token expiration:', e);
+                                return false;
+                            }
+                        }
+
+                        // Helper to get a cookie by name
+                        function getCookie(name) {
+                            const value = `; ${document.cookie}`;
+                            const parts = value.split(`; ${name}=`);
+                            if (parts.length === 2) return parts.pop().split(';').shift();
+                            return null;
+                        }
+
+                        // Helper to create error container if it doesn't exist
+                        function createErrorContainer() {
+                            const form = document.getElementById('loginForm');
+                            const container = document.createElement('div');
+                            container.className = 'bg-red-50 text-red-600 p-3 rounded-lg mb-4 border-l-4 border-red-500 animate-pulse text-sm';
+                            form.prepend(container);
+                            return container;
+                        }
+
+                        // Run the check when page loads
+                        checkTokenExpiration();
+
             // Toggle password visibility
                         const togglePassword = document.getElementById('togglePassword');
                         const password = document.getElementById('password');
