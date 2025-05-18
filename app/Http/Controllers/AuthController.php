@@ -27,7 +27,42 @@ class AuthController extends Controller
             try {
                 if ($apiService->refreshToken()) {
                     \Log::info('Auto-login successful via refresh token from login page');
-                    return redirect()->route('dashboard');
+
+                    // Check if user has dashboard permission
+                    if (hasPermission('dashboard:view')) {
+                        return redirect()->route('dashboard');
+                    } else {
+                        \Log::info('User does not have dashboard permission, looking for first accessible menu');
+
+                        // Define menu routes based on permissions
+                        $menuRoutes = [
+                            'brand:view' => 'brands',
+                            'building:view' => 'buildings',
+                            'room:view' => 'rooms',
+                            'vendor:view' => 'vendors',
+                            'asset:view' => 'assets',
+                            'calibration:view' => 'calibrations',
+                            'maintenance:view' => 'maintenances',
+                            'complaint:view' => 'complaints',
+                            'procurement:view' => 'procurements',
+                            'report:view' => 'reports',
+                            'user:view' => 'users',
+                            'role:view' => 'roles'
+                        ];
+
+                        // Loop through menu routes to find first accessible
+                        foreach ($menuRoutes as $permission => $route) {
+                            if (hasPermission($permission)) {
+                                \Log::info("Redirecting user to first accessible menu: {$route}");
+                                return redirect()->route($route);
+                            }
+                        }
+
+                        // If no accessible menus found
+                        \Log::warning('User has no accessible menus, logging out');
+                        $this->clearAuthSession($request);
+                        return redirect()->route('login')->with('error', 'Anda tidak memiliki akses ke menu apapun.');
+                    }
                 } else {
                     \Log::warning('Auto-login failed - invalid refresh token');
                     // If refresh token is invalid, forget the cookie
@@ -58,7 +93,42 @@ class AuthController extends Controller
                 try {
                     if ($apiService->refreshToken()) {
                         \Log::info('Auto-login successful via refresh token');
-                        return redirect()->route('dashboard');
+
+                        // Check if user has dashboard permission
+                        if (hasPermission('dashboard:view')) {
+                            return redirect()->route('dashboard');
+                        } else {
+                            \Log::info('User does not have dashboard permission, looking for first accessible menu');
+
+                            // Define menu routes based on permissions
+                            $menuRoutes = [
+                                'brand:view' => 'brands',
+                                'building:view' => 'buildings',
+                                'room:view' => 'rooms',
+                                'vendor:view' => 'vendors',
+                                'asset:view' => 'assets',
+                                'calibration:view' => 'calibrations',
+                                'maintenance:view' => 'maintenances',
+                                'complaint:view' => 'complaints',
+                                'procurement:view' => 'procurements',
+                                'report:view' => 'reports',
+                                'user:view' => 'users',
+                                'role:view' => 'roles'
+                            ];
+
+                            // Loop through menu routes to find first accessible
+                            foreach ($menuRoutes as $permission => $route) {
+                                if (hasPermission($permission)) {
+                                    \Log::info("Redirecting user to first accessible menu: {$route}");
+                                    return redirect()->route($route);
+                                }
+                            }
+
+                            // If no accessible menus found
+                            \Log::warning('User has no accessible menus, logging out');
+                            $this->clearAuthSession($request);
+                            return redirect()->route('login')->with('error', 'Anda tidak memiliki akses ke menu apapun.');
+                        }
                     } else {
                         \Log::warning('Auto-login failed - invalid refresh token during login attempt');
                         // If refresh token is invalid, forget the cookie

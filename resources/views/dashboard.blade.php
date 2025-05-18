@@ -250,12 +250,14 @@
                                     <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">{{ $dayLabel }}</p>
                             </div>
                         </div>
+                            @if(hasPermission('calibration:edit'))
                             <button data-id="{{ $calibration['task_code'] }}"class="edit-calibration-btn flex items-center px-3 py-1.5 {{ $isUrgent ? 'bg-[#213268]' : 'border border-[#213268]' }} rounded">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ $isUrgent ? 'white' : '#213268' }}" stroke-width="1.5">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
                         </button>
+                            @endif
                     </div>
                     @empty
                         <div class="text-center py-8">
@@ -444,6 +446,7 @@
 </div>
 
 <!-- Perform Calibration Modal -->
+@if(hasPermission('calibration:edit'))
 <div id="viewCalibrationModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -718,6 +721,7 @@
                 </div>
             </div>
         </div>
+@endif
 
 <!-- Add helper functions for the view -->
 @php
@@ -1679,7 +1683,7 @@ function formatCompactCurrency($number) {
                 const modalId = button.getAttribute('data-modal');
 
 
-                            // Use direct references for more reliability
+            // Use direct references for more reliability
             if (modalId === 'viewCalibrationModal') {
                 closeModal(modals.view, modalContents.view);
                 } else {
@@ -1809,11 +1813,7 @@ function formatCompactCurrency($number) {
                 // Hide file preview
                 const filePreview = document.getElementById('file-preview');
                 if (filePreview) filePreview.classList.add('hidden');
-
-
-                        // Open modal directly to avoid any issues with variables
-                                                                // Open modal
-                                        openModal(modals.view, modalContents.view);
+                        openModal(modals.view, modalContents.view);
                     } else {
                         // Show error toast (implement toast function if not already available)
                         alert('Failed to load calibration details: ' + (data.message || 'Unknown error'));

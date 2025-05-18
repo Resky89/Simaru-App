@@ -258,8 +258,10 @@ class ApiService
 
     /**
      * Refresh the access token using refresh token
+     *
+     * @return bool Whether token refresh was successful
      */
-    public function refreshToken()
+    public function refreshToken(): bool
     {
         // First try to get refresh token from cookie directly
         $refreshToken = request()->cookie('refresh_token');
