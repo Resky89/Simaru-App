@@ -2,7 +2,7 @@
     // Define permission requirements for each menu using the exact permission format from API
     $menuPermissions = [
         'dashboard' => 'dashboard:view',
-        'masterdata' => ['brand:view', 'building:view', 'room:view', 'vendor:view'],
+        'masterdata' => ['asset-subcategory:view', 'brand:view', 'building:view', 'room:view', 'vendor:view'],
         'asset' => 'asset:view',
         'calibration' => 'calibration:view',
         'maintenance' => 'maintenance:view',
@@ -14,6 +14,7 @@
 
     // Define permission requirements for each submenu using the exact format from API
     $submenuPermissions = [
+        'categories' => 'asset-subcategory:view',
         'brands' => 'brand:view',
         'buildings' => 'building:view',
         'rooms' => 'room:view',
@@ -101,6 +102,14 @@
                 <!-- Sub Menu -->
                 <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="masterdata"
                     style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                    @if(hasPermission($submenuPermissions['categories']))
+                    <a href="{{ route('categories') }}" class="block">
+                        <div
+                            class="{{ $submenuLinkClass }} {{ Request::routeIs('categories') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <span class="{{ $submenuTextClass }}">Kategori</span>
+                        </div>
+                    </a>
+                    @endif
                     @if(hasPermission($submenuPermissions['brands']))
                     <a href="{{ route('brands') }}" class="block">
                         <div

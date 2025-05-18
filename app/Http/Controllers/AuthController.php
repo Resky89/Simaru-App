@@ -36,6 +36,7 @@ class AuthController extends Controller
 
                         // Define menu routes based on permissions
                         $menuRoutes = [
+                            'asset-subcategory:view' => 'categories',
                             'brand:view' => 'brands',
                             'building:view' => 'buildings',
                             'room:view' => 'rooms',
@@ -102,6 +103,7 @@ class AuthController extends Controller
 
                             // Define menu routes based on permissions
                             $menuRoutes = [
+                                'asset-subcategory:view' => 'categories',
                                 'brand:view' => 'brands',
                                 'building:view' => 'buildings',
                                 'room:view' => 'rooms',
@@ -336,6 +338,7 @@ class AuthController extends Controller
 
                     // Define menu routes based on permissions
                     $menuRoutes = [
+                        'asset-subcategory:view' => 'categories',
                         'brand:view' => 'brands',
                         'building:view' => 'buildings',
                         'room:view' => 'rooms',

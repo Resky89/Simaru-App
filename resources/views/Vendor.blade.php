@@ -14,12 +14,15 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap gap-3">
+                        @if(hasPermission('vendor:import'))
                         <button id="importVendorBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-green-600 rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v8" />
                             </svg>
                             <span class="text-base">Impor Excel</span>
                         </button>
+                        @endif
+                        @if(hasPermission('vendor:create'))
                         <button id="addVendorBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -27,6 +30,7 @@
                             </svg>
                             <span class="text-base">Tambah Vendor</span>
                         </button>
+                        @endif
                     </div>
                 </div>
 
@@ -77,6 +81,7 @@
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['email'] }}</td>
                                     <td class="p-3 border-t border-[#EEF1F4]">
                                         <div class="flex items-center space-x-2 justify-center">
+                                            @if(hasPermission('vendor:edit'))
                                             <button class="edit-vendor-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                    data-vendor-id="{{ $vendor['vendor_id'] }}"
                                                    data-vendor-name="{{ $vendor['vendor_name'] }}"
@@ -89,12 +94,15 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </button>
+                                            @endif
+                                            @if(hasPermission('vendor:delete'))
                                             <button class="delete-vendor-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                                                    data-vendor-id="{{ $vendor['vendor_id'] }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -193,6 +201,7 @@
 @endsection
 
 <!-- Modal Add Vendor -->
+@if(hasPermission('vendor:create'))
 <div id="addVendorModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -281,8 +290,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Modal Edit Vendor -->
+@if(hasPermission('vendor:edit'))
 <div id="editVendorModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -376,8 +387,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Modal Delete Vendor -->
+@if(hasPermission('vendor:delete'))
 <div id="deleteVendorModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -422,8 +435,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Import Vendor Modal -->
+@if(hasPermission('vendor:import'))
 <div id="importVendorModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -596,10 +611,53 @@
         </div>
     </div>
 </div>
+@endif
+@endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Permission-aware initialization
+        @if(!hasPermission('vendor:create'))
+        // Disable related elements if user doesn't have permission
+        const addButtons = document.querySelectorAll('#addVendorBtn');
+        addButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('vendor:import'))
+        // Disable import functionality if user doesn't have permission
+        const importButtons = document.querySelectorAll('#importVendorBtn');
+        importButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('vendor:edit'))
+        // Disable edit functionality if user doesn't have permission
+        const editButtons = document.querySelectorAll('.edit-vendor-btn');
+        editButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('vendor:delete'))
+        // Disable delete functionality if user doesn't have permission
+        const deleteButtons = document.querySelectorAll('.delete-vendor-btn');
+        deleteButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
         const addVendorBtn = document.getElementById('addVendorBtn');
         const addVendorModal = document.getElementById('addVendorModal');
         const editVendorModal = document.getElementById('editVendorModal');

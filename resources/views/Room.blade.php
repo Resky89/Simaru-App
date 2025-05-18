@@ -14,6 +14,7 @@
 
                         <!-- Button Add Room -->
                         <div class="flex flex-wrap gap-3">
+                            @if(hasPermission('room:import'))
                             <button id="importRoomBtn"
                                 class="flex items-center justify-center gap-2 px-3 py-3 bg-green-600 rounded-lg text-white">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -21,6 +22,8 @@
                                 </svg>
                                 <span class="text-base">Impor Excel</span>
                             </button>
+                            @endif
+                            @if(hasPermission('room:create'))
                             <button id="addRoomBtn"
                                 class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                                 <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -31,6 +34,7 @@
                                 </svg>
                                 <span class="text-base">Tambah Ruangan</span>
                             </button>
+                            @endif
                         </div>
                     </div>
 
@@ -84,18 +88,22 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['description'] ?? '-' }}</td>
                                         <td class="p-3 border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">
+                                                @if(hasPermission('room:edit'))
                                                 <button class="edit-room-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                     data-id="{{ $room['room_id'] }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
+                                                @endif
+                                                @if(hasPermission('room:delete'))
                                                 <button class="delete-room-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                                                     data-id="{{ $room['room_id'] }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -205,6 +213,7 @@
         </div>
 
         <!-- Add Room Modal -->
+        @if(hasPermission('room:create'))
         <div id="addRoomModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -295,8 +304,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Edit Room Modal -->
+        @if(hasPermission('room:edit'))
         <div id="editRoomModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -391,8 +402,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Delete Room Confirmation Modal -->
+        @if(hasPermission('room:delete'))
         <div id="deleteRoomModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -444,6 +457,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <script>
             // Handle delete form submission with AJAX
@@ -541,6 +555,7 @@
         </script>
 
         <!-- Import Room Modal -->
+        @if(hasPermission('room:import'))
         <div id="importRoomModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -711,11 +726,53 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+                // Permission-aware initialization
+                @if(!hasPermission('room:create'))
+                // Disable related elements if user doesn't have permission
+                const addButtons = document.querySelectorAll('#addRoomBtn');
+                addButtons.forEach(btn => {
+                    if (btn) {
+                        btn.style.display = 'none';
+                    }
+                });
+                @endif
+
+                @if(!hasPermission('room:import'))
+                // Disable import functionality if user doesn't have permission
+                const importButtons = document.querySelectorAll('#importRoomBtn');
+                importButtons.forEach(btn => {
+                    if (btn) {
+                        btn.style.display = 'none';
+                    }
+                });
+                @endif
+
+                @if(!hasPermission('room:edit'))
+                // Disable edit functionality if user doesn't have permission
+                const editButtons = document.querySelectorAll('.edit-room-btn');
+                editButtons.forEach(btn => {
+                    if (btn) {
+                        btn.style.display = 'none';
+                    }
+                });
+                @endif
+
+                @if(!hasPermission('room:delete'))
+                // Disable delete functionality if user doesn't have permission
+                const deleteButtons = document.querySelectorAll('.delete-room-btn');
+                deleteButtons.forEach(btn => {
+                    if (btn) {
+                        btn.style.display = 'none';
+                    }
+                });
+                @endif
+
                 // Function to change items per page for rooms
                 window.changeRoomPerPage = function (limit) {
                     const url = new URL(window.location.href);

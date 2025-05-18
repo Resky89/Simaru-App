@@ -14,13 +14,15 @@
 
                     <!-- Button Add Brand -->
                     <div class="flex flex-wrap gap-3">
-                        @if(hasPermission('brand:create'))
+                        @if(hasPermission('brand:import'))
                         <button id="importBrandBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-green-600 rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v8" />
                             </svg>
                             <span class="text-base">Impor Excel</span>
                         </button>
+                        @endif
+                        @if(hasPermission('brand:create'))
                         <button id="addBrandBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -63,9 +65,7 @@
                             <tr>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">ID</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Merk</th>
-                                @if(hasPermission('brand:edit') || hasPermission('brand:delete'))
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[88px]">Aksi</th>
-                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -73,7 +73,6 @@
                                 <tr>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $brand['brand_id'] }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $brand['brand_name'] }}</td>
-                                    @if(hasPermission('brand:edit') || hasPermission('brand:delete'))
                                     <td class="p-3 border-t border-[#EEF1F4]">
                                         <div class="flex items-center space-x-2 justify-center">
                                             @if(hasPermission('brand:edit'))
@@ -96,11 +95,10 @@
                                             @endif
                                         </div>
                                     </td>
-                                    @endif
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ (hasPermission('brand:edit') || hasPermission('brand:delete')) ? '3' : '2' }}" class="p-3 text-xs text-center border-t border-[#EEF1F4]">Tidak ada merk ditemukan</td>
+                                    <td colspan="4" class="p-3 text-xs text-center border-t border-[#EEF1F4]">Tidak ada merk ditemukan</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -340,7 +338,7 @@
 </div>
 @endif
 
-@if(hasPermission('brand:create'))
+@if(hasPermission('brand:import'))
 <!-- Import Brand Modal -->
 <div id="importBrandModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -517,8 +515,18 @@
 
         @if(!hasPermission('brand:create'))
         // Disable related elements if user doesn't have permission
-        const addButtons = document.querySelectorAll('#addBrandBtn, #importBrandBtn');
+        const addButtons = document.querySelectorAll('#addBrandBtn');
         addButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('brand:import'))
+        // Disable import functionality if user doesn't have permission
+        const importButtons = document.querySelectorAll('#importBrandBtn');
+        importButtons.forEach(btn => {
             if (btn) {
                 btn.style.display = 'none';
             }

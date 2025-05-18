@@ -170,9 +170,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Role Management
     Route::middleware('permission:role:view')->group(function() {
-        Route::get('/roles', [RoleController::class, 'index'])->name('roles');
-        Route::get('/roles/permissions', [RoleController::class, 'getAllPermissions'])->name('roles.permissions');
-        Route::get('/roles/{id}', [RoleController::class, 'show'])->name('roles.show');
+    Route::get('/roles', [RoleController::class, 'index'])->name('roles');
+    Route::get('/roles/permissions', [RoleController::class, 'getAllPermissions'])->name('roles.permissions');
+    Route::get('/roles/{id}', [RoleController::class, 'show'])->name('roles.show');
         Route::post('/roles', [RoleController::class, 'store'])
             ->name('roles.store')
             ->middleware('permission:role:create');
@@ -231,15 +231,15 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // View Master Asset with linked assets
     Route::middleware('permission:asset-master:view')->group(function() {
-        Route::get('/view-asset-master/{id}', [ViewMasterAssetController::class, 'getMasterAssetById'])->name('view-asset-master');
-        Route::get('/view-asset-master/{id}/edit', [ViewMasterAssetController::class, 'editMasterAsset'])->name('asset-master.edit');
+    Route::get('/view-asset-master/{id}', [ViewMasterAssetController::class, 'getMasterAssetById'])->name('view-asset-master');
+    Route::get('/view-asset-master/{id}/edit', [ViewMasterAssetController::class, 'editMasterAsset'])->name('asset-master.edit');
         Route::get('/view-asset-master/{id}/export-pdf', [ViewMasterAssetController::class, 'exportMasterAssetPDF'])
             ->name('export-master-asset-pdf')
             ->middleware('permission:asset-master:export');
     });
 
     // Categories Management
-    Route::prefix('categories')->middleware('permission:asset:view')->group(function () {
+    Route::prefix('categories')->middleware('permission:asset-subcategory:view')->group(function () {
         Route::get('/', [CategoriesController::class, 'index'])->name('categories');
         Route::get('/by-asset-type', [CategoriesController::class, 'getByAssetType'])->name('categories.by-asset-type');
         Route::get('/{id}', [CategoriesController::class, 'show'])->name('categories.show');
@@ -247,16 +247,16 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         // Write operations
         Route::post('/store', [CategoriesController::class, 'store'])
             ->name('categories.store')
-            ->middleware('permission:asset:create');
+            ->middleware('permission:asset-subcategory:create');
         Route::put('/update/{id}', [CategoriesController::class, 'update'])
             ->name('categories.update')
-            ->middleware('permission:asset:edit');
+            ->middleware('permission:asset-subcategory:edit');
         Route::delete('/delete/{id}', [CategoriesController::class, 'destroy'])
             ->name('categories.destroy')
-            ->middleware('permission:asset:delete');
+            ->middleware('permission:asset-subcategory:delete');
         Route::post('/import', [CategoriesController::class, 'import'])
             ->name('categories.import')
-            ->middleware('permission:asset:import');
+            ->middleware('permission:asset-subcategory:import');
     });
 
     // Brand routes
@@ -282,10 +282,10 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Asset routes
     Route::middleware('permission:asset:view')->group(function() {
         // Read operations
-        Route::get('/assets', [UnitAssetController::class, 'index'])->name('assets');
-        Route::get('/assets/data', [UnitAssetController::class, 'getAssetData'])->name('assets.data');
-        Route::get('/assets/{id}', [UnitAssetController::class, 'getAsset'])->name('assets.get');
-        Route::get('assets/barcode/generate/{id}', [UnitAssetController::class, 'generateBarcode'])->name('assets.barcode.generate');
+    Route::get('/assets', [UnitAssetController::class, 'index'])->name('assets');
+    Route::get('/assets/data', [UnitAssetController::class, 'getAssetData'])->name('assets.data');
+    Route::get('/assets/{id}', [UnitAssetController::class, 'getAsset'])->name('assets.get');
+    Route::get('assets/barcode/generate/{id}', [UnitAssetController::class, 'generateBarcode'])->name('assets.barcode.generate');
         Route::get('/assets/export/pdf', [UnitAssetController::class, 'exportUnitAssetPDF'])
             ->name('assets.export.pdf')
             ->middleware('permission:asset:export');
@@ -345,8 +345,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::middleware('permission:document:view')->group(function() {
         // Read operations
         Route::get('/asset-documents', [AssetDocumentsController::class, 'index'])->name('asset-documents');
-        Route::get('/asset-documents/asset/{id}', [AssetDocumentsController::class, 'getAssetDocuments'])->name('asset-documents.get');
-        Route::get('/asset-documents/{id}', [AssetDocumentsController::class, 'getDocument'])->name('document.view');
+    Route::get('/asset-documents/asset/{id}', [AssetDocumentsController::class, 'getAssetDocuments'])->name('asset-documents.get');
+    Route::get('/asset-documents/{id}', [AssetDocumentsController::class, 'getDocument'])->name('document.view');
         Route::get('/asset-documents/asset/{assetId}/all-documents', [AssetDocumentsController::class, 'getAssetDocuments'])
             ->name('asset-documents.getAssetDocuments');
 
@@ -373,9 +373,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Asset Depreciation route
     Route::middleware('permission:depreciation:view')->group(function() {
-        Route::get('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'getAssetDepreciation'])
-            ->name('asset.depreciation.get');
-        Route::put('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'updateAssetDepreciation'])
+    Route::get('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'getAssetDepreciation'])
+        ->name('asset.depreciation.get');
+    Route::put('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'updateAssetDepreciation'])
             ->name('asset-depreciation.update')
             ->middleware('permission:depreciation:edit');
     });
@@ -494,7 +494,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/form-request', function () {
             return view('Procurement.Request.FormRequest');
         })->name('form-request');
-        Route::get('/detail-request/{id}', [ProcurementRequestController::class, 'show'])->name('detail-request');
+         Route::get('/detail-request/{id}', [ProcurementRequestController::class, 'show'])->name('detail-request');
         Route::get('/request/{id}', [ProcurementRequestController::class, 'getOne'])->name('getOne');
         Route::get('/procurement/request', [ProcurementRequestController::class, 'search'])->name('search');
 
@@ -633,8 +633,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Opname report routes
     Route::middleware('permission:asset:opname')->group(function() {
-        Route::get('/opnames', [OpnameReportController::class, 'getAllOpnames'])->name('opnames.getAll');
-        Route::get('/opname-detail/{id}', [OpnameReportController::class, 'showOpnameDetail'])->name('opnames.detail');
+    Route::get('/opnames', [OpnameReportController::class, 'getAllOpnames'])->name('opnames.getAll');
+    Route::get('/opname-detail/{id}', [OpnameReportController::class, 'showOpnameDetail'])->name('opnames.detail');
         Route::get('/opname-detail/{id}/export-pdf', [OpnameReportController::class, 'exportOpnameDetailPDF'])
             ->name('opnames.export.pdf');
     });
@@ -646,8 +646,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
 // Edit routes for master assets
 Route::middleware(['auth.api', 'permission:asset-master:edit'])->group(function() {
-    Route::get('/asset-master/{id}/edit', [ViewMasterAssetController::class, 'editMasterAsset']);
-    Route::put('/asset-master/{id}', [ViewMasterAssetController::class, 'updateMasterAsset'])->name('asset-master.update');
+Route::get('/asset-master/{id}/edit', [ViewMasterAssetController::class, 'editMasterAsset']);
+Route::put('/asset-master/{id}', [ViewMasterAssetController::class, 'updateMasterAsset'])->name('asset-master.update');
 });
 
 // Calibration detail routes

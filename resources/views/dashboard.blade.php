@@ -1683,7 +1683,7 @@ function formatCompactCurrency($number) {
                 const modalId = button.getAttribute('data-modal');
 
 
-            // Use direct references for more reliability
+                            // Use direct references for more reliability
             if (modalId === 'viewCalibrationModal') {
                 closeModal(modals.view, modalContents.view);
                 } else {
@@ -1813,7 +1813,11 @@ function formatCompactCurrency($number) {
                 // Hide file preview
                 const filePreview = document.getElementById('file-preview');
                 if (filePreview) filePreview.classList.add('hidden');
-                        openModal(modals.view, modalContents.view);
+
+
+                        // Open modal directly to avoid any issues with variables
+                                                                // Open modal
+                                        openModal(modals.view, modalContents.view);
                     } else {
                         // Show error toast (implement toast function if not already available)
                         alert('Failed to load calibration details: ' + (data.message || 'Unknown error'));

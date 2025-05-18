@@ -13,6 +13,7 @@
                         <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">ROLE</h1>
 
                         <!-- Button Add Role -->
+                        @if(hasPermission('role:create') || hasPermission('role:assign_permissions'))
                         <button id="addRoleBtn"
                             class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -23,6 +24,7 @@
                             </svg>
                             <span class="text-base">Tambah Role</span>
                         </button>
+                        @endif
                     </div>
 
                     <!-- Search and Sort -->
@@ -68,6 +70,7 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $role['description'] ?? '-' }}</td>
                                         <td class="p-3 border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">
+                                                @if(hasPermission('role:edit') || hasPermission('role:assign_permissions'))
                                                 <button class="edit-role-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                     data-role-id="{{ $role['role_id'] }}"
                                                     data-role-name="{{ $role['role_name'] }}"
@@ -76,12 +79,15 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
+                                                @endif
+                                                @if(hasPermission('role:delete'))
                                                 <button class="delete-role-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                                                     data-role-id="{{ $role['role_id'] }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -160,6 +166,7 @@
         </div>
 
         <!-- Add Role Modal -->
+        @if(hasPermission('role:create') || hasPermission('role:assign_permissions'))
         <div id="addRoleModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -203,6 +210,7 @@
                                     </div>
 
                                     <!-- Permissions Header -->
+                                    @if(hasPermission('role:assign_permissions'))
                                     <div class="pt-2">
                                         <div class="pb-4 border-b border-gray-200">
                                             <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
@@ -224,6 +232,23 @@
                                     <div id="add-permissions-container" class="space-y-6 pt-3">
                                         <p class="text-center text-gray-500 py-4">Memuat izin...</p>
                                     </div>
+                                    @else
+                                    <div class="pt-2">
+                                        <div class="pb-4 border-b border-gray-200">
+                                            <div class="bg-blue-50 text-blue-700 p-4 rounded-md">
+                                                <div class="flex">
+                                                    <svg class="h-5 w-5 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <div>
+                                                        <p class="font-medium">Izin tidak tersedia</p>
+                                                        <p class="text-sm mt-1">Anda tidak memiliki akses untuk menetapkan izin ke peran ini.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
 
                                     <!-- Button Group -->
                                     <div class="pt-6">
@@ -239,8 +264,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Edit Role Modal -->
+        @if(hasPermission('role:edit') || hasPermission('role:assign_permissions'))
         <div id="editRoleModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -285,6 +312,7 @@
                                     </div>
 
                                     <!-- Permissions Header -->
+                                    @if(hasPermission('role:assign_permissions'))
                                     <div class="pt-2">
                                         <div class="pb-4 border-b border-gray-200">
                                             <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
@@ -306,6 +334,23 @@
                                     <div id="edit-permissions-container" class="space-y-6 pt-3">
                                         <p class="text-center text-gray-500 py-4">Memuat izin...</p>
                                     </div>
+                                    @else
+                                    <div class="pt-2">
+                                        <div class="pb-4 border-b border-gray-200">
+                                            <div class="bg-blue-50 text-blue-700 p-4 rounded-md">
+                                                <div class="flex">
+                                                    <svg class="h-5 w-5 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <div>
+                                                        <p class="font-medium">Izin tidak tersedia</p>
+                                                        <p class="text-sm mt-1">Anda tidak memiliki akses untuk menetapkan izin ke peran ini.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
 
                                     <!-- Button Group -->
                                     <div class="pt-6">
@@ -321,8 +366,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Delete Role Modal -->
+        @if(hasPermission('role:delete'))
         <div id="deleteRoleModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -404,6 +451,7 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 
     <script>
@@ -536,6 +584,37 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Permission-aware initialization
+            @if(!hasPermission('role:create') && !hasPermission('role:assign_permissions'))
+            // Disable related elements if user doesn't have permission
+            const addButtons = document.querySelectorAll('#addRoleBtn');
+            addButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
+            @if(!hasPermission('role:edit') && !hasPermission('role:assign_permissions'))
+            // Disable edit functionality if user doesn't have permission
+            const editButtons = document.querySelectorAll('.edit-role-btn');
+            editButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
+            @if(!hasPermission('role:delete'))
+            // Disable delete functionality if user doesn't have permission
+            const deleteButtons = document.querySelectorAll('.delete-role-btn');
+            deleteButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
             // Show toast notifications for session messages on page load
             @if(session('success'))
                 showToast("{{ session('success') }}", 'success');
@@ -828,6 +907,20 @@
                 }
             }
 
+            // Add event listener for add role button to open the modal
+            document.getElementById('addRoleBtn').addEventListener('click', async () => {
+                @if(hasPermission('role:assign_permissions'))
+                const permissions = await fetchPermissions();
+                renderPermissionCheckboxes(permissions, [], 'add-permissions-container');
+                @endif
+
+                // Reset the form
+                document.getElementById('addRoleForm').reset();
+
+                // Open the add modal
+                openModal(addRoleModal, document.getElementById('addRoleModalContent'));
+            });
+
             // Update the edit role button event listener in Role.blade.php
             document.querySelectorAll('.edit-role-btn').forEach(button => {
                 button.addEventListener('click', async () => {
@@ -835,9 +928,11 @@
 
                     try {
                         // Show loading state
-                        document.getElementById('edit_role_name').value = "Loading...";
-                        document.getElementById('edit_description').value = "Loading...";
-                        document.getElementById('edit-permissions-container').innerHTML = '<p class="text-center text-gray-500 py-4">Loading role data...</p>';
+                        document.getElementById('edit_role_name').value = "Memuat...";
+                        document.getElementById('edit_description').value = "Memuat...";
+                        @if(hasPermission('role:assign_permissions'))
+                        document.getElementById('edit-permissions-container').innerHTML = '<p class="text-center text-gray-500 py-4">Memuat data izin...</p>';
+                        @endif
 
                         // Open the modal while loading
                         openModal(editRoleModal, document.getElementById('editRoleModalContent'));
@@ -864,47 +959,26 @@
                         document.getElementById('edit_role_name').value = role.role_name;
                         document.getElementById('edit_description').value = role.description || '';
 
+                        @if(hasPermission('role:assign_permissions'))
                         // Load all permissions then select the ones from our role
                         const permissions = await fetchPermissions();
                         const selectedPermissionIds = role.permissions?.map(p => p.permission_id) || [];
 
                         // Render the permissions with the correct ones selected
                         renderPermissionCheckboxes(permissions, selectedPermissionIds, 'edit-permissions-container');
+                        @endif
 
                     } catch (error) {
                         console.error('Error loading role:', error);
                         showToast(`Error loading role: ${error.message}`, 'error');
 
+                        @if(hasPermission('role:assign_permissions'))
                         // Load permissions with empty selection in case of error
                         const permissions = await fetchPermissions();
                         renderPermissionCheckboxes(permissions, [], 'edit-permissions-container');
+                        @endif
                     }
                 });
-            });
-
-            // Add event listener for delete role button
-            document.querySelectorAll('.delete-role-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const roleId = button.getAttribute('data-role-id');
-
-                    // Set the form action for delete
-                    document.getElementById('deleteRoleForm').action = `{{ url('roles') }}/${roleId}`;
-
-                    // Open the delete modal
-                    openModal(deleteRoleModal, document.getElementById('deleteRoleModalContent'));
-                });
-            });
-
-            // Add event listener for add role button to open the modal
-            document.getElementById('addRoleBtn').addEventListener('click', async () => {
-                const permissions = await fetchPermissions();
-                renderPermissionCheckboxes(permissions, [], 'add-permissions-container');
-
-                // Reset the form
-                document.getElementById('addRoleForm').reset();
-
-                // Open the add modal
-                openModal(addRoleModal, document.getElementById('addRoleModalContent'));
             });
 
             // Close Modal Handlers
@@ -1005,9 +1079,6 @@
                 }
 
                 try {
-                    // Get all checked checkboxes and hidden inputs with permission IDs
-                    const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
-
                     // Create a new form with the same action and method
                     const form = document.createElement('form');
                     form.action = this.action;
@@ -1041,6 +1112,10 @@
                         form.appendChild(descInput);
                     }
 
+                    @if(hasPermission('role:assign_permissions'))
+                    // Get all checked checkboxes and hidden inputs with permission IDs
+                    const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
+
                     // Add numeric permission IDs, avoiding duplicates
                     const uniqueIds = new Set();
                     permissionInputs.forEach(input => {
@@ -1054,6 +1129,7 @@
                         input.value = id; // This is now a number
                         form.appendChild(input);
                     });
+                    @endif
 
                     // Append form to body, submit it, then remove it
                     document.body.appendChild(form);
@@ -1113,9 +1189,6 @@
                 }
 
                 try {
-                    // Get all checked checkboxes and hidden inputs with permission IDs
-                    const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
-
                     // Create a new form with the same action and method
                     const form = document.createElement('form');
                     form.action = this.action;
@@ -1158,6 +1231,10 @@
                         form.appendChild(descInput);
                     }
 
+                    @if(hasPermission('role:assign_permissions'))
+                    // Get all checked checkboxes and hidden inputs with permission IDs
+                    const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
+
                     // Add numeric permission IDs, avoiding duplicates
                     const uniqueIds = new Set();
                     permissionInputs.forEach(input => {
@@ -1171,6 +1248,7 @@
                         input.value = id; // This is now a number
                         form.appendChild(input);
                     });
+                    @endif
 
                     // Append form to body, submit it, then remove it
                     document.body.appendChild(form);
@@ -1294,6 +1372,19 @@
                 this.classList.remove('border-red-500');
                 const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                 if (errorElement) errorElement.classList.add('hidden');
+            });
+
+            // Add event listener for delete role button
+            document.querySelectorAll('.delete-role-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const roleId = button.getAttribute('data-role-id');
+
+                    // Set the form action for delete
+                    document.getElementById('deleteRoleForm').action = `{{ url('roles') }}/${roleId}`;
+
+                    // Open the delete modal
+                    openModal(deleteRoleModal, document.getElementById('deleteRoleModalContent'));
+                });
             });
         });
     </script>
