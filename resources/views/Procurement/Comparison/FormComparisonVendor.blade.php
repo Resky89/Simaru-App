@@ -3,6 +3,9 @@
 @section('title', isset($vendorOffer) || request()->has('agreement_id') ? 'Edit Penawaran Vendor' : 'Tambah Penawaran Vendor')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="h-full space-y-4 md:space-y-6">
     <!-- Quotation Form Section -->
     <div class="card bg-base-100 shadow-xl">
@@ -34,11 +37,11 @@
 
                     <!-- Vendor -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Vendor</label>
+                        <label class="block text-base font-semibold text-[#666666]">Vendor <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input type="text" id="vendor_search"
                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                placeholder="Search vendor..." autocomplete="off"
+                                placeholder="Cari vendor..." autocomplete="off"
                                 value="{{ $vendorOffer->vendor->vendor_name ?? '' }}">
                             <input type="hidden" name="vendor_id" id="selected_vendor_id" value="{{ $vendorOffer->vendor->vendor_id ?? '' }}">
                             <div id="vendor_results" class="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md overflow-y-auto border border-gray-300 hidden"></div>
@@ -53,7 +56,7 @@
                             name="payment_terms"
                             id="payment_terms"
                             class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Payment Terms" rows="3">{{ $vendorOffer->payment_terms ?? '' }}</textarea>
+                            placeholder="Syarat Pembayaran" rows="3">{{ $vendorOffer->payment_terms ?? '' }}</textarea>
                         <div id="payment_terms_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
 
@@ -64,7 +67,7 @@
                             name="delivery_terms"
                             id="delivery_terms"
                             class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Delivery Terms" rows="3">{{ $vendorOffer->delivery_terms ?? '' }}</textarea>
+                            placeholder="Syarat Pengiriman" rows="3">{{ $vendorOffer->delivery_terms ?? '' }}</textarea>
                         <div id="delivery_terms_error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
 
@@ -75,7 +78,7 @@
                             name="notes"
                             id="notes"
                             class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Additional Notes" rows="2">{{ $vendorOffer->notes ?? '' }}</textarea>
+                            placeholder="Catatan Tambahan" rows="2">{{ $vendorOffer->notes ?? '' }}</textarea>
                     </div>
 
                     <!-- Item List -->
@@ -114,46 +117,10 @@
     </div>
 </div>
 
-<!-- Toast Container -->
+<!-- Toast Container (will be removed but kept for backwards compatibility) -->
 <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 
-<!-- Success Modal -->
-<div id="successModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-    <div class="fixed inset-0 bg-black opacity-50"></div>
-    <div class="bg-white p-6 rounded-lg shadow-xl z-10 w-full max-w-md">
-        <div class="text-center">
-            <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">Berhasil!</h3>
-            <p class="mt-2 text-sm text-gray-500" id="successMessage">Penawaran vendor Anda telah berhasil disimpan.</p>
-            <div class="mt-4">
-                <button id="successModalClose" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451]">
-                    OK
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Error Modal -->
-<div id="errorModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-    <div class="fixed inset-0 bg-black opacity-50"></div>
-    <div class="bg-white p-6 rounded-lg shadow-xl z-10 w-full max-w-md">
-        <div class="text-center">
-            <svg class="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-            </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">Error!</h3>
-            <p class="mt-2 text-sm text-gray-500" id="errorMessage">Terjadi kesalahan. Silakan coba lagi.</p>
-            <div class="mt-4">
-                <button id="errorModalClose" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                    Tutup
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Remove the success and error modals as they'll be replaced by SweetAlert -->
 @endsection
 
 @push('scripts')
@@ -164,11 +131,6 @@
         const vendorOfferId = document.getElementById('vendor_offer_id')?.value;
         const isEditMode = !!vendorOfferId;
         let comparisonItems = [];
-
-        // Toast notification
-        const toast = document.getElementById('toast');
-        const toastMessage = document.getElementById('toast_message');
-        const toastIcon = document.getElementById('toast_icon');
 
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -205,6 +167,107 @@
             loadComparisonData();
         }
 
+        // Function to show SweetAlert notifications
+        function showSweetAlert(message, type = 'success') {
+            const iconMap = {
+                success: 'success',
+                error: 'error',
+                warning: 'warning',
+                info: 'info',
+                question: 'question'
+            };
+
+            // Default options
+            const options = {
+                title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
+                html: message,
+                icon: iconMap[type] || 'info',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#213268',
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title',
+                    htmlContainer: 'swal-custom-content',
+                    confirmButton: 'swal-custom-confirm',
+                    cancelButton: 'swal-custom-cancel'
+                },
+                buttonsStyling: true,
+                showClass: {
+                    popup: 'animate__animated animate__fadeIn animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOut animate__faster'
+                }
+            };
+
+            // Add specific options based on alert type
+            if (type === 'success') {
+                // Auto close success messages after 2.5 seconds
+                options.timer = 2500;
+                options.timerProgressBar = true;
+            } else if (type === 'error') {
+                // Make error alerts more prominent
+                options.confirmButtonColor = '#d33';
+                options.showCloseButton = true;
+            }
+
+            // Add custom styles for SweetAlert
+            if (!document.getElementById('swal-custom-styles')) {
+                const styleTag = document.createElement('style');
+                styleTag.id = 'swal-custom-styles';
+                styleTag.innerHTML = `
+                    /* SweetAlert Custom Styles */
+                    .swal2-popup {
+                        border-radius: 15px;
+                        padding: 1.5rem;
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                    }
+                    .swal-custom-title {
+                        font-weight: 600;
+                        font-size: 1.5rem;
+                        color: #333;
+                    }
+                    .swal-custom-content {
+                        font-size: 1rem;
+                        color: #555;
+                        margin-top: 0.5rem;
+                    }
+                    .swal-custom-content ul {
+                        text-align: left;
+                        margin-top: 1rem;
+                        margin-bottom: 1rem;
+                    }
+                    .swal-custom-confirm {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal-custom-cancel {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal2-timer-progress-bar {
+                        background: rgba(33, 50, 104, 0.5);
+                    }
+                    .swal2-icon {
+                        margin: 1rem auto;
+                    }
+                `;
+                document.head.appendChild(styleTag);
+            }
+
+            // Add animate.css CDN for animations if not already loaded
+            if (!document.getElementById('animate-css')) {
+                const animateLink = document.createElement('link');
+                animateLink.id = 'animate-css';
+                animateLink.rel = 'stylesheet';
+                animateLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+                document.head.appendChild(animateLink);
+            }
+
+            // Fire the alert
+            Swal.fire(options);
+        }
+
         function loadVendorOfferData(agreementId, vendorOfferIdsMap) {
             fetch(`/procurement/price-comparison/vendor-offer/${agreementId}?use_agreement_id=true&detailed=true`, {
                 headers: {
@@ -239,7 +302,6 @@
                 // Create a map of price comparison item IDs to their unit prices and vendor_offer_id
                 const itemPrices = new Map();
 
-
                 // Process items directly from the response
                 if (vendorOffer.items && Array.isArray(vendorOffer.items) && vendorOffer.items.length > 0) {
                     vendorOffer.items.forEach(item => {
@@ -272,111 +334,16 @@
                 loadComparisonData(itemPrices, vendorOffer, parseInt(agreementId, 10));
             })
             .catch(error => {
-                showToast('Gagal memuat data penawaran vendor: ' + error.message, 'error');
+                showSweetAlert('Gagal memuat data penawaran vendor: ' + error.message, 'error');
 
                 // Still try to load comparison data even if vendor offer data failed
                 loadComparisonData(vendorOfferIdsMap);
             });
         }
 
-        // Show toast notification
+        // Replace the toast notification with SweetAlert
         function showToast(message, type = 'success') {
-            // Create toast container if it doesn't exist
-            let toastContainer = document.getElementById('toast-container');
-            if (!toastContainer) {
-                toastContainer = document.createElement('div');
-                toastContainer.id = 'toast-container';
-                toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
-                document.body.appendChild(toastContainer);
-            }
-
-            // Check if message contains HTML
-            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
-
-            // Create notification element
-            const toast = document.createElement('div');
-            toast.className = 'p-4 rounded shadow-md animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
-
-            if (type === 'success') {
-                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-
-                // Set content for success toast
-                toast.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
-            } else {
-                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
-
-                // Structure for error notification
-                const wrapper = document.createElement('div');
-                wrapper.className = 'flex items-start';
-
-                // Icon container
-                const iconContainer = document.createElement('div');
-                iconContainer.className = 'py-1 flex-shrink-0';
-                iconContainer.innerHTML = `
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                `;
-
-                // Content container
-                const contentContainer = document.createElement('div');
-                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                // Title
-                const title = document.createElement('p');
-                title.className = 'font-bold';
-                title.textContent = 'GAGAL!';
-                contentContainer.appendChild(title);
-
-                // Message container
-                const messageContainer = document.createElement('div');
-                messageContainer.className = 'error-message';
-
-                // Handle HTML content
-                if (hasHTML) {
-                    messageContainer.innerHTML = message;
-                } else {
-                    messageContainer.textContent = message;
-                }
-
-                contentContainer.appendChild(messageContainer);
-
-                // Close button
-                const closeBtn = document.createElement('span');
-                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                closeBtn.textContent = '×';
-                closeBtn.onclick = function() {
-                    toast.remove();
-                };
-
-                // Assemble the notification
-                wrapper.appendChild(iconContainer);
-                wrapper.appendChild(contentContainer);
-                wrapper.appendChild(closeBtn);
-                toast.appendChild(wrapper);
-            }
-
-            // Add to container
-            toastContainer.appendChild(toast);
-
-            // Auto-remove notification after 5 seconds
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => toast.remove(), 500);
-            }, 5000);
+            showSweetAlert(message, type);
         }
 
         // Function to validate a form field
@@ -534,7 +501,7 @@
                     const priceInput = document.createElement('input');
                     priceInput.type = 'text';
                     priceInput.className = 'w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200';
-                    priceInput.placeholder = 'Unit Price';
+                    priceInput.placeholder = 'Harga Satuan';
 
                     // Always set the price_comparison_item_id attribute
                     const itemId = parseInt(item.price_comparison_item_id);
@@ -620,7 +587,7 @@
 
                     if (missingIds.length > 0) {
                         console.warn(`Peringatan: ${missingIds.length} item tidak memiliki vendor_offer_id:`, missingIds);
-                        showToast(`Peringatan: ${missingIds.length} item tidak memiliki vendor_offer_id. Hal ini dapat menyebabkan masalah saat menyimpan.`, 'error');
+                        showSweetAlert(`Peringatan: ${missingIds.length} item tidak memiliki vendor_offer_id. Hal ini dapat menyebabkan masalah saat menyimpan.`, 'error');
                     } else {
                         console.log('Semua item memiliki vendor_offer_id yang ditetapkan dengan benar');
                     }
@@ -628,7 +595,7 @@
             })
             .catch(error => {
                 itemsContainer.innerHTML = `<tr class="border-t border-[#EEF1F4]"><td colspan="3" class="p-3 text-center text-red-500">Gagal memuat item: ${error.message}</td></tr>`;
-                showToast('Gagal memuat data perbandingan', 'error');
+                showSweetAlert('Gagal memuat data perbandingan: ' + error.message, 'error');
             });
         }
 
@@ -848,33 +815,17 @@
                     document.getElementById('vendor_search').classList.add('border-red-500', 'ring-1', 'ring-red-500');
                     document.getElementById('vendor_error').textContent = 'Silakan pilih vendor';
                     document.getElementById('vendor_error').classList.remove('hidden');
-                    showToast('Silakan pilih vendor sebelum mengirim.', 'error');
+                    showSweetAlert('Silakan pilih vendor sebelum mengirim.', 'error');
                     return;
                 }
 
                 // Collect payment and delivery terms
                 const paymentTerms = document.getElementById('payment_terms').value.trim();
-                if (!paymentTerms) {
-                    document.getElementById('payment_terms').classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                    document.getElementById('payment_terms_error').textContent = 'Silakan masukkan syarat pembayaran';
-                    document.getElementById('payment_terms_error').classList.remove('hidden');
-                    showToast('Silakan masukkan syarat pembayaran.', 'error');
-                    return;
-                }
-
                 const deliveryTerms = document.getElementById('delivery_terms').value.trim();
-                if (!deliveryTerms) {
-                    document.getElementById('delivery_terms').classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                    document.getElementById('delivery_terms_error').textContent = 'Silakan masukkan syarat pengiriman';
-                    document.getElementById('delivery_terms_error').classList.remove('hidden');
-                    showToast('Silakan masukkan syarat pengiriman.', 'error');
-                    return;
-                }
 
                 // Collect item prices
                 const itemPrices = [];
                 const priceInputs = document.querySelectorAll('table tbody tr input');
-                let hasEmptyPrice = false;
                 let hasErroredItem = false;
 
                 // Determine if we're creating or updating
@@ -883,12 +834,6 @@
 
                 priceInputs.forEach((input, index) => {
                     const value = input.value.trim().replace(/[^\d]/g, '');
-                    if (!value) {
-                        input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                        hasEmptyPrice = true;
-                        hasErroredItem = true;
-                        return;
-                    }
 
                     // Always get the price_comparison_item_id from data attribute
                     const priceComparisonItemId = input.getAttribute('data-price-comparison-item-id');
@@ -897,40 +842,39 @@
                         return;
                     }
 
-                    // Get the unit price, making sure to remove formatting
-                    const unitPrice = parseInt(value.replace(/[^\d]/g, ''), 10);
+                    // If there's a value, process it
+                    if (value) {
+                        // Get the unit price, making sure to remove formatting
+                        const unitPrice = parseInt(value.replace(/[^\d]/g, ''), 10);
 
-                    // Create item data object - include vendor_offer_id if it exists
-                    const itemData = {
-                        price_comparison_item_id: parseInt(priceComparisonItemId, 10),
-                        unit_price: unitPrice
-                    };
+                        // Create item data object - include vendor_offer_id if it exists
+                        const itemData = {
+                            price_comparison_item_id: parseInt(priceComparisonItemId, 10),
+                            unit_price: unitPrice
+                        };
 
-                    // Add vendor_offer_id if available
-                    const vendorOfferId = input.getAttribute('data-vendor-offer-id');
-                    if (vendorOfferId) {
-                        itemData.vendor_offer_id = parseInt(vendorOfferId, 10);
-                        console.log(`Including vendor_offer_id ${vendorOfferId} for item ${priceComparisonItemId} in request`);
-                    } else if (isUpdate) {
-                        // For update operations, vendor_offer_id is required
-                        console.error(`Missing vendor_offer_id for item ${priceComparisonItemId} during update`);
-                        input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                        hasErroredItem = true;
+                        // Add vendor_offer_id if available
+                        const vendorOfferId = input.getAttribute('data-vendor-offer-id');
+                        if (vendorOfferId) {
+                            itemData.vendor_offer_id = parseInt(vendorOfferId, 10);
+                            console.log(`Including vendor_offer_id ${vendorOfferId} for item ${priceComparisonItemId} in request`);
+                        } else if (isUpdate) {
+                            // For update operations, vendor_offer_id is required
+                            console.error(`Missing vendor_offer_id for item ${priceComparisonItemId} during update`);
+                            input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                            hasErroredItem = true;
+                        }
+
+                        itemPrices.push(itemData);
                     }
-
-                    itemPrices.push(itemData);
                 });
 
-                if (hasEmptyPrice) {
-                    showToast('Silakan masukkan harga untuk semua item.', 'error');
-                    return;
-                }
-
+                // Don't check for empty prices anymore
                 if (hasErroredItem) {
                     if (isUpdate) {
-                        showToast('Beberapa item tidak memiliki vendor_offer_id. Hal ini diperlukan untuk operasi update. Silakan refresh dan coba lagi.', 'error');
+                        showSweetAlert('Beberapa item tidak memiliki vendor_offer_id. Hal ini diperlukan untuk operasi update. Silakan refresh dan coba lagi.', 'error');
                     } else {
-                        showToast('Beberapa item tidak memiliki data yang diperlukan. Silakan coba lagi.', 'error');
+                        showSweetAlert('Beberapa item tidak memiliki data yang diperlukan. Silakan coba lagi.', 'error');
                     }
                     return;
                 }
@@ -939,19 +883,38 @@
                 const comparisonId = document.getElementById('comparison_id').value;
 
                 if (!comparisonId) {
-                    showToast('ID perbandingan tidak ditemukan. Silakan coba lagi atau hubungi dukungan.', 'error');
+                    showSweetAlert('ID perbandingan tidak ditemukan. Silakan coba lagi atau hubungi dukungan.', 'error');
                     return;
                 }
 
                 // Prepare request data
                 const requestData = {
                     comparison_id: parseInt(comparisonId, 10),
-                    vendor_id: parseInt(vendorId, 10),
-                    payment_terms: paymentTerms,
-                    delivery_terms: deliveryTerms,
-                    notes: document.getElementById('notes')?.value.trim(),
-                    items: itemPrices
+                    vendor_id: parseInt(vendorId, 10)
                 };
+
+                // Only add fields that have values
+                if (paymentTerms) {
+                    requestData.payment_terms = paymentTerms;
+                }
+
+                if (deliveryTerms) {
+                    requestData.delivery_terms = deliveryTerms;
+                }
+
+                const notes = document.getElementById('notes')?.value.trim();
+                if (notes) {
+                    requestData.notes = notes;
+                }
+
+                // Only include items if there are any
+                if (itemPrices.length > 0) {
+                    requestData.items = itemPrices;
+                } else {
+                    // If no items with prices were provided, create an empty array
+                    // This is needed because the backend requires the items field
+                    requestData.items = [];
+                }
 
                 // Get CSRF token
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -1001,8 +964,8 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        // Show success toast - don't reset button or submitting flag since we're redirecting
-                        showToast(data.message || 'Penawaran vendor berhasil disimpan!');
+                        // Show success alert - don't reset button or submitting flag since we're redirecting
+                        showSweetAlert(data.message || 'Penawaran vendor berhasil disimpan!');
 
                         // Set a flag to indicate we're intentionally navigating away
                         const isNavigatingAway = true;
@@ -1018,24 +981,64 @@
                         submitBtn.innerHTML = originalBtnText;
                         submitBtn.disabled = false;
 
-                        // Show error toast
-                        showToast(data.errors?.general || data.message || 'Gagal menyimpan penawaran vendor.', 'error');
-
                         // Handle validation errors
-                        if (data.errors && typeof data.errors === 'object') {
-                            Object.entries(data.errors).forEach(([field, messages]) => {
-                                const fieldElement = document.getElementById(field);
-                                if (fieldElement) {
-                                    fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                                }
+                        if (data.errors) {
+                            let errorMessage = '';
 
-                                // Display field error messages
-                                const errorElement = document.getElementById(`${field}_error`);
-                                if (errorElement) {
-                                    errorElement.textContent = Array.isArray(messages) ? messages[0] : messages;
-                                    errorElement.classList.remove('hidden');
-                                }
-                            });
+                            // Check if errors is an array with path and message format
+                            if (Array.isArray(data.errors)) {
+                                errorMessage = '<ul>';
+
+                                // Process each error in the array
+                                data.errors.forEach(err => {
+                                    const fieldPath = err.path || '';
+                                    const message = err.message || 'Unknown error';
+
+                                    errorMessage += `<li><strong>${fieldPath}</strong>: ${message}</li>`;
+
+                                    // Highlight the form field if it exists
+                                    const fieldElement = document.getElementById(fieldPath);
+                                    if (fieldElement) {
+                                        fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                                    }
+
+                                    // Also show error message below the field
+                                    const errorElement = document.getElementById(`${fieldPath}_error`);
+                                    if (errorElement) {
+                                        errorElement.textContent = message;
+                                        errorElement.classList.remove('hidden');
+                                    }
+                                });
+
+                                errorMessage += '</ul>';
+
+                                // Show error alert with consolidated message
+                                showSweetAlert(errorMessage, 'error');
+                            } else if (typeof data.errors === 'object') {
+                                // Handle object-style errors
+                                Object.entries(data.errors).forEach(([field, messages]) => {
+                                    const fieldElement = document.getElementById(field);
+                                    if (fieldElement) {
+                                        fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                                    }
+
+                                    // Display field error messages
+                                    const errorElement = document.getElementById(`${field}_error`);
+                                    if (errorElement) {
+                                        errorElement.textContent = Array.isArray(messages) ? messages[0] : messages;
+                                        errorElement.classList.remove('hidden');
+                                    }
+                                });
+
+                                // Show error alert
+                                showSweetAlert(data.errors?.general || data.message || 'Gagal menyimpan penawaran vendor.', 'error');
+                            } else {
+                                // Show error alert with generic or provided message
+                                showSweetAlert(data.errors?.general || data.message || 'Gagal menyimpan penawaran vendor.', 'error');
+                            }
+                        } else {
+                            // Show error alert
+                            showSweetAlert(data.message || 'Gagal menyimpan penawaran vendor.', 'error');
                         }
                     }
                 })
@@ -1048,9 +1051,35 @@
                     // Check if this is a structured error response
                     if (error.data && error.data.errors) {
                         const errorData = error.data.errors;
-                        let errorMessage = 'Validation errors occurred:';
+                        let errorMessage = '';
 
-                        if (typeof errorData === 'object') {
+                        // Check if errors is an array with path and message format
+                        if (Array.isArray(errorData)) {
+                            errorMessage = '<ul>';
+
+                            // Process each error in the array
+                            errorData.forEach(err => {
+                                const fieldPath = err.path || '';
+                                const message = err.message || 'Unknown error';
+
+                                errorMessage += `<li><strong>${fieldPath}</strong>: ${message}</li>`;
+
+                                // Highlight the form field if it exists
+                                const fieldElement = document.getElementById(fieldPath);
+                                if (fieldElement) {
+                                    fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                                }
+
+                                // Also show error message below the field
+                                const errorElement = document.getElementById(`${fieldPath}_error`);
+                                if (errorElement) {
+                                    errorElement.textContent = message;
+                                    errorElement.classList.remove('hidden');
+                                }
+                            });
+
+                            errorMessage += '</ul>';
+                        } else if (typeof errorData === 'object') {
                             errorMessage += '<ul>';
                             Object.entries(errorData).forEach(([field, messages]) => {
                                 const message = Array.isArray(messages) ? messages.join(', ') : messages;
@@ -1061,19 +1090,26 @@
                                 if (fieldElement) {
                                     fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
                                 }
+
+                                // Also show error message below the field
+                                const errorElement = document.getElementById(`${field}_error`);
+                                if (errorElement) {
+                                    errorElement.textContent = message;
+                                    errorElement.classList.remove('hidden');
+                                }
                             });
                             errorMessage += '</ul>';
                         } else {
                             errorMessage = typeof errorData === 'string' ? errorData : 'Terjadi kesalahan saat menyimpan penawaran vendor.';
                         }
 
-                        showToast(errorMessage, 'error');
+                        showSweetAlert(errorMessage, 'error');
                     } else if (error.message) {
                         // If we have a plain error message
-                        showToast(`Terjadi kesalahan: ${error.message}`, 'error');
+                        showSweetAlert(`Terjadi kesalahan: ${error.message}`, 'error');
                     } else {
                         // Generic error message
-                        showToast('Terjadi kesalahan saat menyimpan penawaran vendor. Silakan coba lagi.', 'error');
+                        showSweetAlert('Terjadi kesalahan saat menyimpan penawaran vendor. Silakan coba lagi.', 'error');
                     }
                 });
             });

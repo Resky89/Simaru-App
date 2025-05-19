@@ -3,6 +3,9 @@
 @section('title', 'Detail Perbandingan')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="h-full space-y-4 md:space-y-6">
     <!-- Comparison Detail Section -->
     <div class="card bg-base-100 shadow-xl">
@@ -142,7 +145,7 @@
                                             <div class="flex items-center justify-between">
                                                 <span>{{ $vendor['vendor_name'] }}</span>
                                                 @if(!isset($comparison['status']) || $comparison['status'] !== 'Completed')
-                                                <div class="flex gap-2">
+                                                <div class="flex items-center gap-2">
                                                     @php
                                                     // Find vendor_offer_id and agreement_id for this vendor
                                                     $vendorOfferId = null;
@@ -171,20 +174,20 @@
                                                     }
                                                     @endphp
 
-                                                    <form id="edit-vendor-form-{{ $vendor['vendor_id'] }}" action="{{ route('procurement.form-vendor-comparison', ['id' => $comparison['comparison_id']]) }}" method="get" style="display:inline;">
+                                                    <form id="edit-vendor-form-{{ $vendor['vendor_id'] }}" action="{{ route('procurement.form-vendor-comparison', ['id' => $comparison['comparison_id']]) }}" method="get" class="flex items-center">
                                                         <input type="hidden" name="agreement_id" value="{{ $agreementId }}">
 
                                                         @foreach($vendorOfferIds as $itemId => $offerId)
                                                             <input type="hidden" name="vo_{{ $itemId }}" value="{{ $offerId }}">
                                                         @endforeach
 
-                                                        <button type="submit" class="text-white hover:text-gray-200">
+                                                        <button type="submit" class="p-1 text-white hover:text-gray-200">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                             </svg>
                                                         </button>
                                                     </form>
-                                                    <button class="text-white hover:text-gray-200 delete-vendor-btn"
+                                                    <button class="p-1 text-white hover:text-gray-200 delete-vendor-btn"
                                                             data-vendor-offer-id="{{ $vendorOfferId }}"
                                                             data-vendor-name="{{ $vendor['vendor_name'] }}"
                                                             data-comparison-id="{{ $comparison['comparison_id'] }}"
@@ -358,12 +361,18 @@
                 <!-- Navigation Buttons -->
                 @if(!isset($comparison['status']) || $comparison['status'] !== 'Completed')
                 <div class="flex flex-wrap gap-4 mt-8">
-                        <!-- Complete button only shown when not yet completed -->
+                        <!-- Complete button only shown when not yet completed, has permission, and has vendors -->
+                        @if(hasPermission('price-comparison:complete') && $hasVendors)
                         <button id="completeBtn" type="button"
                                 class="px-6 py-3 bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200 uppercase"
                                 data-comparison-id="{{ $comparison['comparison_id'] ?? $id }}">
                         SELESAI
                         </button>
+                        @elseif(!$hasVendors)
+                        <div class="px-6 py-3 bg-gray-300 text-gray-600 rounded-lg text-base cursor-not-allowed">
+                            Tambahkan penawaran vendor terlebih dahulu
+                        </div>
+                        @endif
                 </div>
                     @endif
                 @else
@@ -381,134 +390,125 @@
     </div>
 </div>
 
-<!-- Toast container -->
-<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
-
-<!-- Delete Vendor Modal -->
-<div id="deleteVendorModal" class="fixed inset-0 z-50 hidden">
-    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-    <div class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                id="deleteVendorModalContent">
-                <!-- Header -->
-                <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS PENAWARAN VENDOR</h2>
-                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Form -->
-                <form id="deleteVendorForm" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <input type="hidden" name="comparison_id" id="delete_comparison_id">
-                    <div class="p-6">
-                        <div class="space-y-6 max-w-[400px] mx-auto">
-                            <div class="flex flex-col items-center">
-                                <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus penawaran dari vendor ini? Tindakan ini tidak dapat dibatalkan.</p>
-                                <p id="deleteVendorName" class="text-base font-semibold text-center mt-2"></p>
-                            </div>
-                            <div class="flex gap-3">
-                                <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                    Batal
-                                </button>
-                                <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                    Hapus
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Toast container (kept for compatibility) -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 hidden"></div>
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Function to display toast notifications
-        function showToast(message, type = 'success') {
-            // Create toast container if it doesn't exist
-            let toastContainer = document.getElementById('toast-container');
-            if (!toastContainer) {
-                toastContainer = document.createElement('div');
-                toastContainer.id = 'toast-container';
-                toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
-                document.body.appendChild(toastContainer);
-            }
+        @if(!hasPermission('price-comparison:complete'))
+        // Hide edit buttons if user doesn't have permission
+        const completeBtn = document.getElementById('completeBtn');
+        if (completeBtn) {
+            completeBtn.style.display = 'none';
+        }
+        @endif
 
-            // Create notification element
-            const toast = document.createElement('div');
-            toast.className = 'p-4 rounded shadow-md animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+        // Function to show SweetAlert notifications
+        function showSweetAlert(message, type = 'success') {
+            const iconMap = {
+                success: 'success',
+                error: 'error',
+                warning: 'warning',
+                info: 'info',
+                question: 'question'
+            };
 
+            // Default options
+            const options = {
+                title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
+                html: message,
+                icon: iconMap[type] || 'info',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#213268',
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title',
+                    htmlContainer: 'swal-custom-content',
+                    confirmButton: 'swal-custom-confirm',
+                    cancelButton: 'swal-custom-cancel'
+                },
+                buttonsStyling: true,
+                showClass: {
+                    popup: 'animate__animated animate__fadeIn animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOut animate__faster'
+                }
+            };
+
+            // Add specific options based on alert type
             if (type === 'success') {
-                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-                toast.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
-            } else {
-                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
-                toast.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="font-bold">Error!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
+                // Auto close success messages after 2.5 seconds
+                options.timer = 2500;
+                options.timerProgressBar = true;
+            } else if (type === 'error') {
+                // Make error alerts more prominent
+                options.confirmButtonColor = '#d33';
+                options.showCloseButton = true;
             }
 
-            // Add to container
-            toastContainer.appendChild(toast);
+            // Add custom styles for SweetAlert
+            if (!document.getElementById('swal-custom-styles')) {
+                const styleTag = document.createElement('style');
+                styleTag.id = 'swal-custom-styles';
+                styleTag.innerHTML = `
+                    /* SweetAlert Custom Styles */
+                    .swal2-popup {
+                        border-radius: 15px;
+                        padding: 1.5rem;
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                    }
+                    .swal-custom-title {
+                        font-weight: 600;
+                        font-size: 1.5rem;
+                        color: #333;
+                    }
+                    .swal-custom-content {
+                        font-size: 1rem;
+                        color: #555;
+                        margin-top: 0.5rem;
+                    }
+                    .swal-custom-content ul {
+                        text-align: left;
+                        margin-top: 1rem;
+                        margin-bottom: 1rem;
+                    }
+                    .swal-custom-confirm {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal-custom-cancel {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal2-timer-progress-bar {
+                        background: rgba(33, 50, 104, 0.5);
+                    }
+                    .swal2-icon {
+                        margin: 1rem auto;
+                    }
+                `;
+                document.head.appendChild(styleTag);
+            }
 
-            // Auto-remove notification after 5 seconds
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => toast.remove(), 500);
-            }, 5000);
+            // Add animate.css CDN for animations if not already loaded
+            if (!document.getElementById('animate-css')) {
+                const animateLink = document.createElement('link');
+                animateLink.id = 'animate-css';
+                animateLink.rel = 'stylesheet';
+                animateLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+                document.head.appendChild(animateLink);
+            }
+
+            // Fire the alert
+            Swal.fire(options);
         }
 
-        // Modal functions
-        function openModal(modal, content) {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-            }, 10);
-        }
-
-        function closeModal(modal, content) {
-            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
+        // Backward compatibility - map showToast to showSweetAlert
+        function showToast(message, type = 'success') {
+            showSweetAlert(message, type);
         }
 
         // Handle delete vendor button clicks
@@ -520,107 +520,59 @@
                 const comparisonId = this.getAttribute('data-comparison-id');
 
                 if (!agreementId) {
-                    showToast('Error: ID Perjanjian tidak ditemukan. Silakan hubungi administrator.', 'error');
+                    showSweetAlert('Error: ID Perjanjian tidak ditemukan. Silakan hubungi administrator.', 'error');
                     return;
                 }
 
-                // Get modal elements
-                const deleteModal = document.getElementById('deleteVendorModal');
-                const deleteContent = document.getElementById('deleteVendorModalContent');
-                const deleteForm = document.getElementById('deleteVendorForm');
-                const deleteVendorName = document.getElementById('deleteVendorName');
-                const deleteComparisonId = document.getElementById('delete_comparison_id');
+                // Use SweetAlert for confirmation
+                Swal.fire({
+                    title: 'Hapus Penawaran Vendor',
+                    html: `<p>Apakah Anda yakin ingin menghapus penawaran dari vendor <strong>${vendorName}</strong>?</p>
+                          <p class="mt-2 text-sm">Tindakan ini tidak dapat dibatalkan.</p>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#666',
+                    confirmButtonText: 'Hapus',
+                    cancelButtonText: 'Batal',
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Form data for deletion
+                        const formData = {
+                            comparison_id: comparisonId
+                        };
 
-                if (deleteModal && deleteContent && deleteForm) {
-                    // Set form action and vendor name
-                    deleteForm.action = `/procurement/price-comparison/vendor-offer/${agreementId}`;
-                    deleteVendorName.textContent = vendorName;
-                    deleteComparisonId.value = comparisonId;
-
-                    // Open modal
-                    openModal(deleteModal, deleteContent);
-                }
-            });
-        });
-
-        // Handle close modal events
-        document.querySelectorAll('.close-modal').forEach(button => {
-            button.addEventListener('click', function() {
-                const modal = this.closest('[id$="Modal"]');
-                const content = modal.querySelector('[id$="ModalContent"]');
-                if (modal && content) {
-                    closeModal(modal, content);
-                }
-            });
-        });
-
-        // Handle click outside modal
-        const modals = document.querySelectorAll('[id$="Modal"]');
-        modals.forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    const content = this.querySelector('[id$="ModalContent"]');
-                    if (content) {
-                        closeModal(this, content);
+                        // Send DELETE request
+                        fetch(`/procurement/price-comparison/vendor-offer/${agreementId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(formData)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showSweetAlert(data.message || 'Penawaran vendor berhasil dihapus', 'success');
+                                // Reload page after a short delay
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                showSweetAlert(data.errors?.general || 'Gagal menghapus penawaran vendor', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showSweetAlert('Terjadi kesalahan saat menghapus penawaran vendor', 'error');
+                        });
                     }
-                }
-            });
-        });
-
-        // Handle vendor deletion form submission
-        const deleteVendorForm = document.getElementById('deleteVendorForm');
-        if (deleteVendorForm) {
-            deleteVendorForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const comparisonId = document.getElementById('delete_comparison_id').value;
-                const formData = {
-                    comparison_id: comparisonId
-                };
-
-                fetch(this.action, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Close the modal
-                    const modal = document.getElementById('deleteVendorModal');
-                    const content = document.getElementById('deleteVendorModalContent');
-                    closeModal(modal, content);
-
-                    if (data.success) {
-                        showToast(data.message || 'Penawaran vendor berhasil dihapus', 'success');
-                        // Reload page after a short delay
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        showToast(data.errors?.general || 'Gagal menghapus penawaran vendor', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Terjadi kesalahan saat menghapus penawaran vendor', 'error');
-
-                    // Close the modal
-                    const modal = document.getElementById('deleteVendorModal');
-                    const content = document.getElementById('deleteVendorModalContent');
-                    closeModal(modal, content);
                 });
             });
-        }
-
-        // Success message should be hidden by default
-        const successMessage = document.getElementById('successMessage');
-        if (successMessage) {
-            successMessage.classList.add('hidden');
-        }
+        });
 
         // Handle Complete button
         const completeBtn = document.getElementById('completeBtn');
@@ -634,62 +586,72 @@
                     return;
                 }
 
-                if (!confirm('Apakah Anda yakin ingin menyelesaikan perbandingan harga ini? Tindakan ini tidak dapat dibatalkan.')) {
-                    return;
-                }
+                // Use SweetAlert for confirmation
+                Swal.fire({
+                    title: 'Konfirmasi',
+                    text: 'Apakah Anda yakin ingin menyelesaikan perbandingan harga ini? Tindakan ini tidak dapat dibatalkan.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#213268',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Selesaikan',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Set submitting flag and update button
+                        isSubmitting = true;
+                        const originalText = completeBtn.innerHTML;
+                        completeBtn.disabled = true;
+                        completeBtn.innerHTML = `
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            MENYELESAIKAN...
+                        `;
 
-                // Set submitting flag and update button
-                isSubmitting = true;
-                const originalText = completeBtn.innerHTML;
-                completeBtn.disabled = true;
-                completeBtn.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    MENYELESAIKAN...
-                `;
+                        // Get CSRF token
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-                // Get CSRF token
-                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                        // Send the request to complete the price comparison
+                        fetch('{{ url("procurement/price-comparison/{$id}/complete") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Show success message
+                                showSweetAlert(data.message || 'Perbandingan harga telah berhasil diselesaikan!', 'success');
 
-                // Send the request to complete the price comparison
-                fetch('{{ url("procurement/price-comparison/{$id}/complete") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
+                                // Reload the page after a short delay to show the updated status
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1500);
+                            } else {
+                                // Reset button and show error
+                                isSubmitting = false;
+                                completeBtn.disabled = false;
+                                completeBtn.innerHTML = originalText;
+
+                                showSweetAlert(data.errors?.general || 'Gagal menyelesaikan perbandingan harga', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error completing price comparison:', error);
+
+                            // Reset button and show error
+                            isSubmitting = false;
+                            completeBtn.disabled = false;
+                            completeBtn.innerHTML = originalText;
+
+                            showSweetAlert('Terjadi kesalahan saat menyelesaikan perbandingan harga', 'error');
+                        });
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Show success message
-                        showToast(data.message || 'Perbandingan harga telah berhasil diselesaikan!', 'success');
-
-                        // Reload the page after a short delay to show the updated status
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        // Reset button and show error
-                        isSubmitting = false;
-                        completeBtn.disabled = false;
-                        completeBtn.innerHTML = originalText;
-
-                        showToast(data.errors?.general || 'Gagal menyelesaikan perbandingan harga', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error completing price comparison:', error);
-
-                    // Reset button and show error
-                    isSubmitting = false;
-                    completeBtn.disabled = false;
-                    completeBtn.innerHTML = originalText;
-
-                    showToast('Terjadi kesalahan saat menyelesaikan perbandingan harga', 'error');
                 });
             });
         }

@@ -13,6 +13,7 @@
                     <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PERMINTAAN ASET</h1>
 
                     <!-- Button Request -->
+                    @if(hasPermission('procurement:create'))
                     <a href="{{ route('procurement.form-request') }}" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
                         <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -20,6 +21,7 @@
                         </svg>
                         <span class="text-base">Buat Permintaan</span>
                     </a>
+                    @endif
                 </div>
 
                 <!-- Search and Filter -->
@@ -117,16 +119,19 @@
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center gap-2">
                                         @if($procurement['status'] == 'Submitted')
+                                        @if(hasPermission('procurement:edit'))
                                         <button class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-request-btn"
                                                 data-id="{{ $procurement['procurement_id'] }}">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
+                                        @endif
                                         @else
                                         <span class="w-5 h-5 inline-block"></span>
                                         @endif
                                         @if($procurement['status'] == 'Submitted')
+                                        @if(hasPermission('procurement:delete'))
                                         <button class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-request-btn"
                                                 data-id="{{ $procurement['procurement_id'] }}"
                                                 data-title="{{ $procurement['title'] }}">
@@ -134,6 +139,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </button>
+                                        @endif
                                         @else
                                         <span class="w-5 h-5 inline-block"></span>
                                         @endif
@@ -345,6 +351,31 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Permission-based initialization
+        @if(!hasPermission('procurement:create'))
+        // Hide create button if user doesn't have permission
+        const createButtons = document.querySelectorAll('a[href*="procurement.form-request"]');
+        createButtons.forEach(btn => {
+            if (btn) btn.style.display = 'none';
+        });
+        @endif
+
+        @if(!hasPermission('procurement:edit'))
+        // Hide edit buttons if user doesn't have permission
+        const editButtons = document.querySelectorAll('.edit-request-btn');
+        editButtons.forEach(btn => {
+            if (btn) btn.style.display = 'none';
+        });
+        @endif
+
+        @if(!hasPermission('procurement:delete'))
+        // Hide delete buttons if user doesn't have permission
+        const deleteButtons = document.querySelectorAll('.delete-request-btn');
+        deleteButtons.forEach(btn => {
+            if (btn) btn.style.display = 'none';
+        });
+        @endif
+
         // Add toast container to the body
         const toastContainer = document.createElement('div');
         toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-4';

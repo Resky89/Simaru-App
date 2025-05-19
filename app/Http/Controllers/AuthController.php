@@ -42,11 +42,14 @@ class AuthController extends Controller
                             'room:view' => 'rooms',
                             'vendor:view' => 'vendors',
                             'asset:view' => 'assets',
+                            'asset-master:view' => 'asset-masters',
                             'calibration:view' => 'calibrations',
                             'maintenance:view' => 'maintenances',
                             'complaint:view' => 'complaints',
                             'procurement:view' => 'procurements',
-                            'report:view' => 'reports',
+                            'report:finance' => 'report.finance',
+                            'report:opname' => 'report.opname',
+                            'report:depreciation' => 'report.depreciation',
                             'user:view' => 'users',
                             'role:view' => 'roles'
                         ];
@@ -109,11 +112,14 @@ class AuthController extends Controller
                                 'room:view' => 'rooms',
                                 'vendor:view' => 'vendors',
                                 'asset:view' => 'assets',
+                                'asset-master:view' => 'asset-masters',
                                 'calibration:view' => 'calibrations',
                                 'maintenance:view' => 'maintenances',
                                 'complaint:view' => 'complaints',
                                 'procurement:view' => 'procurements',
-                                'report:view' => 'reports',
+                                'report:finance' => 'report.finance',
+                                'report:opname' => 'report.opname',
+                                'report:depreciation' => 'report.depreciation',
                                 'user:view' => 'users',
                                 'role:view' => 'roles'
                             ];
@@ -344,11 +350,14 @@ class AuthController extends Controller
                         'room:view' => 'rooms',
                         'vendor:view' => 'vendors',
                         'asset:view' => 'assets',
+                        'asset-master:view' => 'asset-masters',
                         'calibration:view' => 'calibrations',
                         'maintenance:view' => 'maintenances',
                         'complaint:view' => 'complaints',
                         'procurement:view' => 'procurements',
-                        'report:view' => 'reports',
+                        'report:finance' => 'report.finance',
+                        'report:opname' => 'report.opname',
+                        'report:depreciation' => 'report.depreciation',
                         'user:view' => 'users',
                         'role:view' => 'roles'
                     ];

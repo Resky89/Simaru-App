@@ -98,13 +98,13 @@
 
                         <!-- Action Buttons - Repositioned -->
                         <div class="flex flex-wrap gap-3">
-                            @if($procurement['status'] == 'Submitted')
+                            @if($procurement['status'] == 'Submitted' && hasPermission('procurement:approve:manager'))
                             <button id="managerApprovalBtn" type="button" class="px-6 py-2 border border-green-600 text-green-600 rounded-lg text-base hover:bg-green-50 transform active:scale-[0.98] transition-all duration-200">
                                 SETUJU
                             </button>
                             @endif
 
-                            @if($procurement['status'] == 'Under Review' && $procurement['estimated_grand_total'] > 50000000)
+                            @if($procurement['status'] == 'Under Review' && $procurement['estimated_grand_total'] > 50000000 && hasPermission('procurement:approve:director'))
                             <button id="directorApprovalBtn" type="button" class="px-6 py-2 border border-green-600 text-green-600 rounded-lg text-base hover:bg-green-50 transform active:scale-[0.98] transition-all duration-200">
                                 SETUJU
                             </button>
@@ -175,7 +175,7 @@
                         }
                     @endphp
 
-                    @if($hasIncompleteComparison)
+                    @if($hasIncompleteComparison && hasPermission('price-comparison:create'))
                     <!-- Comparison Title -->
                     <div class="space-y-2">
                         <label class="block text-base font-semibold text-[#666666]">Buat Perbandingan Harga</label>
@@ -258,156 +258,152 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Add animate.css CDN for SweetAlert animations if not already present
+    if (!document.getElementById('animate-css')) {
+        const animateLink = document.createElement('link');
+        animateLink.id = 'animate-css';
+        animateLink.rel = 'stylesheet';
+        animateLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+        document.head.appendChild(animateLink);
+    }
+    // Add custom SweetAlert styles if not already present
+    if (!document.getElementById('swal-custom-styles')) {
+        const styleTag = document.createElement('style');
+        styleTag.id = 'swal-custom-styles';
+        styleTag.innerHTML = `
+            .swal2-popup {
+                border-radius: 15px;
+                padding: 1.5rem;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            }
+            .swal-custom-title {
+                font-weight: 600;
+                font-size: 1.5rem;
+                color: #333;
+            }
+            .swal-custom-content {
+                font-size: 1rem;
+                color: #555;
+                margin-top: 0.5rem;
+            }
+            .swal-custom-content ul {
+                text-align: left;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            .swal-custom-confirm {
+                padding: 0.5rem 1.5rem;
+                font-weight: 500;
+            }
+            .swal-custom-cancel {
+                padding: 0.5rem 1.5rem;
+                font-weight: 500;
+            }
+            .swal2-timer-progress-bar {
+                background: rgba(33, 50, 104, 0.5);
+            }
+            .swal2-icon {
+                margin: 1rem auto;
+            }
+        `;
+        document.head.appendChild(styleTag);
+    }
+
+    function showSweetAlert(message, type = 'success') {
+        const iconMap = {
+            success: 'success',
+            error: 'error',
+            warning: 'warning',
+            info: 'info',
+            question: 'question'
+        };
+        const options = {
+            title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
+            html: message,
+            icon: iconMap[type] || 'info',
+            confirmButtonText: 'OK',
+            confirmButtonColor: type === 'error' ? '#d33' : '#213268',
+            customClass: {
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title',
+                htmlContainer: 'swal-custom-content',
+                confirmButton: 'swal-custom-confirm'
+            },
+            buttonsStyling: true,
+            showClass: {
+                popup: 'animate__animated animate__fadeIn animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOut animate__faster'
+            }
+        };
+        if (type === 'success') {
+            options.timer = 2500;
+            options.timerProgressBar = true;
+        } else if (type === 'error') {
+            options.showCloseButton = true;
+        }
+        Swal.fire(options);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const procurementId = {{ $procurement['procurement_id'] ?? 'null' }};
         if (!procurementId) {
             return; // Exit early if procurement ID is not available
         }
-
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        // Define the showToast function first
-        window.showToast = function(message, type = 'success') {
-            // Create the notification element
-            const notification = document.createElement('div');
-            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
-            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
-            notification.role = 'alert';
+        // Permission-based initialization
+        @if(!hasPermission('procurement:approve:manager'))
+        // Hide manager approval button if user doesn't have permission
+        const managerApprovalBtn = document.getElementById('managerApprovalBtn');
+        if (managerApprovalBtn) managerApprovalBtn.style.display = 'none';
+        @endif
 
-            // Check if message contains HTML
-            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+        @if(!hasPermission('procurement:approve:director'))
+        // Hide director approval button if user doesn't have permission
+        const directorApprovalBtn = document.getElementById('directorApprovalBtn');
+        if (directorApprovalBtn) directorApprovalBtn.style.display = 'none';
+        @endif
 
-            if (type === 'success') {
-                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-                notification.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
-            } else {
-                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
-
-                // Structure for the notification
-                const wrapper = document.createElement('div');
-                wrapper.className = 'flex items-start';
-
-                // Icon container
-                const iconContainer = document.createElement('div');
-                iconContainer.className = 'py-1 flex-shrink-0';
-                iconContainer.innerHTML = `
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                `;
-
-                // Content container
-                const contentContainer = document.createElement('div');
-                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                // Title
-                const title = document.createElement('p');
-                title.className = 'font-bold';
-                title.textContent = 'Gagal!';
-                contentContainer.appendChild(title);
-
-                // Message container
-                const messageContainer = document.createElement('div');
-                messageContainer.className = 'error-message';
-
-                // Handle HTML content
-                if (hasHTML) {
-                    messageContainer.innerHTML = message;
-                } else {
-                    messageContainer.textContent = message;
-                }
-
-                contentContainer.appendChild(messageContainer);
-
-                // Close button
-                const closeBtn = document.createElement('span');
-                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                closeBtn.textContent = '×';
-                closeBtn.onclick = function() {
-                    notification.remove();
-                };
-
-                // Assemble the notification
-                wrapper.appendChild(iconContainer);
-                wrapper.appendChild(contentContainer);
-                wrapper.appendChild(closeBtn);
-                notification.appendChild(wrapper);
-            }
-
-            // Add to document
-            document.body.appendChild(notification);
-
-            // Auto-remove notification after 5 seconds for success, 10 seconds for error
-            setTimeout(() => {
-                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => notification.remove(), 500);
-            }, type === 'success' ? 5000 : 10000);
-        };
-
-        // Add slide-in animation and styling for error messages to CSS
-        document.head.insertAdjacentHTML('beforeend', `
-            <style>
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); }
-                    to { transform: translateX(0); }
-                }
-                .animate-slide-in-right {
-                    animation: slideInRight 0.3s ease-out forwards;
-                }
-
-                /* Styling for error messages with HTML content */
-                .error-message ul {
-                    margin-top: 0.5rem;
-                    padding-left: 1.5rem;
-                }
-                .error-message ul li {
-                    margin-bottom: 0.25rem;
-                }
-                .error-message ul li:last-child {
-                    margin-bottom: 0;
-                }
-            </style>
-        `);
-
-        // Modal functionality
-        function openModal(modal, content) {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-            }, 10);
-        }
-
-        function closeModal(modal, content) {
-            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
+        @if(!hasPermission('price-comparison:create'))
+        // Hide create comparison button if user doesn't have permission
+        const createComparisonBtn = document.getElementById('createComparisonBtn');
+        if (createComparisonBtn) createComparisonBtn.style.display = 'none';
+        @endif
 
         // Manager Approval Button
         const managerApprovalBtn = document.getElementById('managerApprovalBtn');
         if (managerApprovalBtn) {
             managerApprovalBtn.addEventListener('click', function() {
-                if (confirm('Apakah Anda yakin ingin menyetujui pengadaan ini sebagai manajer?')) {
+                Swal.fire({
+                    title: 'Konfirmasi Persetujuan',
+                    text: 'Apakah Anda yakin ingin menyetujui pengadaan ini sebagai manajer?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#213268',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Setujui',
+                    cancelButtonText: 'Batal',
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title',
+                        htmlContainer: 'swal-custom-content',
+                        confirmButton: 'swal-custom-confirm',
+                        cancelButton: 'swal-custom-cancel'
+                    },
+                    buttonsStyling: true,
+                    showClass: {
+                        popup: 'animate__animated animate__fadeIn animate__faster'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOut animate__faster'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
                     const managerApprovalUrl = "{{ route('procurement.manager-approval', ['id' => ':id']) }}".replace(':id', procurementId);
-                    console.log('Sending manager approval request to:', managerApprovalUrl);
-
                     fetch(managerApprovalUrl, {
                         method: 'POST',
                         headers: {
@@ -418,20 +414,8 @@
                     })
                     .then(response => {
                         if (!response.ok) {
-                            if (response.status === 405) {
-                                console.error('Method Not Allowed Error: The server rejected the POST request. Route might be misconfigured.');
-                                throw new Error('Route not configured for POST method');
-                            }
-                            return response.text().then(text => {
-                                try {
-                                    // Try to parse as JSON
-                                    return JSON.parse(text);
-                                } catch (e) {
-                                    // If not JSON, log the response and throw error
-                                    console.error('Server response was not JSON:', text);
-                                    throw new Error('Invalid response format');
-                                }
-                            });
+                                if (response.status === 405) throw new Error('Route not configured for POST method');
+                                return response.text().then(text => { try { return JSON.parse(text); } catch (e) { throw new Error('Invalid response format'); } });
                         }
                         return response.json();
                     })
@@ -439,24 +423,21 @@
                         if (data.success) {
                             const grandTotal = {{ $procurement['estimated_grand_total'] ?? 0 }};
                             let message = data.message || 'Pengadaan telah disetujui oleh manajer';
-
-                            // If grand total is <= 50 million, auto-approve without director approval
                             if (grandTotal <= 50000000) {
                                 message += '. Persetujuan direktur tidak diperlukan karena total kurang dari atau sama dengan 50 juta.';
                             }
-
-                            showToast(message, 'success');
-                            window.location.reload();
+                                showSweetAlert(message, 'success');
+                                setTimeout(() => window.location.reload(), 1500);
                         } else {
-                            const errorMsg = data.errors ? Object.values(data.errors).flat().join('\n') : 'Gagal menyetujui pengadaan';
-                            showToast(errorMsg, 'error');
+                                const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal menyetujui pengadaan';
+                                showSweetAlert(errorMsg, 'error');
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        showToast('Terjadi kesalahan saat memproses permintaan Anda', 'error');
+                            showSweetAlert('Terjadi kesalahan saat memproses permintaan Anda', 'error');
                     });
                 }
+                });
             });
         }
 
@@ -464,10 +445,32 @@
         const directorApprovalBtn = document.getElementById('directorApprovalBtn');
         if (directorApprovalBtn) {
             directorApprovalBtn.addEventListener('click', function() {
-                if (confirm('Apakah Anda yakin ingin menyetujui pengadaan ini sebagai direktur?')) {
+                Swal.fire({
+                    title: 'Konfirmasi Persetujuan',
+                    text: 'Apakah Anda yakin ingin menyetujui pengadaan ini sebagai direktur?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#213268',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Setujui',
+                    cancelButtonText: 'Batal',
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title',
+                        htmlContainer: 'swal-custom-content',
+                        confirmButton: 'swal-custom-confirm',
+                        cancelButton: 'swal-custom-cancel'
+                    },
+                    buttonsStyling: true,
+                    showClass: {
+                        popup: 'animate__animated animate__fadeIn animate__faster'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOut animate__faster'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
                     const directorApprovalUrl = "{{ route('procurement.director-approval', ['id' => ':id']) }}".replace(':id', procurementId);
-                    console.log('Sending director approval request to:', directorApprovalUrl);
-
                     fetch(directorApprovalUrl, {
                         method: 'POST',
                         headers: {
@@ -478,140 +481,58 @@
                     })
                     .then(response => {
                         if (!response.ok) {
-                            if (response.status === 405) {
-                                console.error('Method Not Allowed Error: The server rejected the POST request. Route might be misconfigured.');
-                                throw new Error('Route not configured for POST method');
-                            }
-                            return response.text().then(text => {
-                                try {
-                                    // Try to parse as JSON
-                                    return JSON.parse(text);
-                                } catch (e) {
-                                    // If not JSON, log the response and throw error
-                                    console.error('Server response was not JSON:', text);
-                                    throw new Error('Invalid response format');
-                                }
-                            });
+                                if (response.status === 405) throw new Error('Route not configured for POST method');
+                                return response.text().then(text => { try { return JSON.parse(text); } catch (e) { throw new Error('Invalid response format'); } });
                         }
                         return response.json();
                     })
                     .then(data => {
                         if (data.success) {
-                            showToast(data.message || 'Pengadaan telah disetujui oleh direktur', 'success');
-                            window.location.reload();
+                                showSweetAlert(data.message || 'Pengadaan telah disetujui oleh direktur', 'success');
+                                setTimeout(() => window.location.reload(), 1500);
                         } else {
-                            const errorMsg = data.errors ? Object.values(data.errors).flat().join('\n') : 'Gagal menyetujui pengadaan';
-                            showToast(errorMsg, 'error');
+                                const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal menyetujui pengadaan';
+                                showSweetAlert(errorMsg, 'error');
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        showToast('Terjadi kesalahan saat memproses permintaan Anda', 'error');
+                            showSweetAlert('Terjadi kesalahan saat memproses permintaan Anda', 'error');
                     });
                 }
+                });
             });
         }
 
         // Rejection Modal
+        const rejectBtn = document.getElementById('rejectBtn');
         const rejectModal = document.getElementById('rejectModal');
         const rejectModalContent = document.getElementById('rejectModalContent');
-        const rejectBtn = document.getElementById('rejectBtn');
         const rejectForm = document.getElementById('rejectForm');
         const rejectionReasonField = document.getElementById('rejection_reason');
-        const closeModalBtns = document.querySelectorAll('.close-modal');
-
-        // Open modal
         if (rejectBtn) {
             rejectBtn.addEventListener('click', function() {
-                openModal(rejectModal, rejectModalContent);
+                rejectModal.classList.remove('hidden');
+                setTimeout(() => {
+                    rejectModalContent.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                    rejectModalContent.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                }, 10);
             });
         }
-
-        // Close modal
-        closeModalBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                closeModal(rejectModal, rejectModalContent);
-                // Reset form and validation state
-                if (rejectForm) {
-                    rejectForm.reset();
-                    resetValidation(rejectionReasonField);
-                }
-            });
-        });
-
-        // Close on escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && !rejectModal.classList.contains('hidden')) {
-                closeModal(rejectModal, rejectModalContent);
-                if (rejectForm) {
-                    rejectForm.reset();
-                    resetValidation(rejectionReasonField);
-                }
-            }
-        });
-
-        // Close when clicking on overlay
-        rejectModal.addEventListener('click', function(e) {
-            if (e.target === rejectModal || e.target === rejectModal.querySelector('.fixed.inset-0.z-50.overflow-y-auto')) {
-                closeModal(rejectModal, rejectModalContent);
-                if (rejectForm) {
-                    rejectForm.reset();
-                    resetValidation(rejectionReasonField);
-                }
-            }
-        });
-
-        // Form validation functions
-        function validateField(field) {
-            if (!field.value.trim()) {
-                field.classList.add('border-red-500');
-                field.nextElementSibling.classList.remove('hidden');
-                return false;
-            } else {
-                field.classList.remove('border-red-500');
-                field.nextElementSibling.classList.add('hidden');
-                return true;
-            }
-        }
-
-        function resetValidation(field) {
-            field.classList.remove('border-red-500');
-            field.nextElementSibling.classList.add('hidden');
-        }
-
-        // Add input event listener to clear error styling when typing
-        rejectionReasonField.addEventListener('input', function() {
-            resetValidation(this);
-        });
 
         // Submit rejection
         rejectForm.addEventListener('submit', function(e) {
             e.preventDefault();
-
             // Validate the rejection reason
-            const isValid = validateField(rejectionReasonField);
-            if (!isValid) {
-                showToast('Silakan berikan alasan penolakan', 'error');
+            if (!rejectionReasonField.value.trim()) {
+                showSweetAlert('Silakan berikan alasan penolakan', 'error');
                 return;
             }
-
             const rejectionReason = rejectionReasonField.value;
-
-            // Show loading state on button
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `
-                <div class="flex items-center justify-center">
-                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    <span>Memproses...</span>
-                </div>
-            `;
-
-            // Submit the rejection
+            submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Memproses...</span></div>`;
             const rejectUrl = "{{ route('procurement.reject', ['id' => ':id']) }}".replace(':id', procurementId);
-            console.log('Sending reject request to:', rejectUrl);
-
             fetch(rejectUrl, {
                 method: 'POST',
                 headers: {
@@ -619,55 +540,31 @@
                     'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({
-                    rejected_reason: rejectionReason
-                })
+                body: JSON.stringify({ rejected_reason: rejectionReason })
             })
             .then(response => {
                 if (!response.ok) {
-                    if (response.status === 405) {
-                        console.error('Method Not Allowed Error: The server rejected the POST request. Route might be misconfigured.');
-                        throw new Error('Route not configured for POST method');
-                    }
-                    return response.text().then(text => {
-                        try {
-                            // Try to parse as JSON
-                            return JSON.parse(text);
-                        } catch (e) {
-                            // If not JSON, log the response and throw error
-                            console.error('Server response was not JSON:', text);
-                            throw new Error('Invalid response format');
-                        }
-                    });
+                    if (response.status === 405) throw new Error('Route not configured for POST method');
+                    return response.text().then(text => { try { return JSON.parse(text); } catch (e) { throw new Error('Invalid response format'); } });
                 }
                 return response.json();
             })
             .then(data => {
-                // Reset button state
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
-
                 if (data.success) {
-                    // Close the modal
-                    closeModal(rejectModal, rejectModalContent);
-                    showToast(data.message || 'Pengadaan berhasil ditolak', 'success');
-
-                    // Reload after a short delay to allow toast to be seen
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
+                    rejectModal.classList.add('hidden');
+                    showSweetAlert(data.message || 'Pengadaan berhasil ditolak', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    const errorMsg = data.errors ? Object.values(data.errors).flat().join('\n') : 'Gagal menolak pengadaan';
-                    showToast(errorMsg, 'error');
+                    const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal menolak pengadaan';
+                    showSweetAlert(errorMsg, 'error');
                 }
             })
             .catch(error => {
-                // Reset button state
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
-
-                console.error('Error:', error);
-                showToast('Terjadi kesalahan saat memproses permintaan Anda', 'error');
+                showSweetAlert('Terjadi kesalahan saat memproses permintaan Anda', 'error');
             });
         });
 
@@ -679,7 +576,7 @@
             createComparisonBtn.addEventListener('click', function() {
                 // Validate input
                 if (!comparisonTitleInput.value.trim()) {
-                    showToast('Silakan masukkan judul perbandingan harga', 'error');
+                    showSweetAlert('Silakan masukkan judul perbandingan harga', 'error');
                     comparisonTitleInput.classList.add('border-red-500');
                     return;
                 }
@@ -731,7 +628,7 @@
                     createComparisonBtn.innerHTML = originalBtnText;
 
                     if (data.success) {
-                        showToast(data.message || 'Perbandingan harga berhasil dibuat', 'success');
+                        showSweetAlert(data.message || 'Perbandingan harga berhasil dibuat', 'success');
 
                         // If there's a redirect URL, navigate to it
                         if (data.redirect_url) {
@@ -743,8 +640,8 @@
                             }, 1000);
                         }
                     } else {
-                        const errorMsg = data.errors ? Object.values(data.errors).flat().join('\n') : 'Gagal membuat perbandingan harga';
-                        showToast(errorMsg, 'error');
+                        const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal membuat perbandingan harga';
+                        showSweetAlert(errorMsg, 'error');
                     }
                 })
                 .catch(error => {
@@ -753,7 +650,7 @@
                     createComparisonBtn.innerHTML = originalBtnText;
 
                     console.error('Error:', error);
-                    showToast('Terjadi kesalahan saat memproses permintaan Anda', 'error');
+                    showSweetAlert('Terjadi kesalahan saat memproses permintaan Anda', 'error');
                 });
             });
 
@@ -765,6 +662,3 @@
     });
 </script>
 @endpush
-
-
-

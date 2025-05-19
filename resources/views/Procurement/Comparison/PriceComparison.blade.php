@@ -13,12 +13,14 @@
                     <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PERBANDINGAN HARGA</h1>
 
                         <!-- Add Comparison Button -->
+                        @if(hasPermission('price-comparison:create'))
                         <a href="{{ route('procurement.form-comparison') }}" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             <span class="text-base">Buat Baru</span>
                         </a>
+                        @endif
                 </div>
 
                 <!-- Search and Filter -->
@@ -119,6 +121,13 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
+                                        @if(hasPermission('price-comparison:edit') && (!isset($comparison['status']) || strtolower($comparison['status']) != 'completed'))
+                                        <a href="{{ route('procurement.edit-comparison', ['id' => $comparison['comparison_id'] ?? '']) }}" class="p-2 bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition-colors" title="Edit">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </a>
+                                        @endif
                                         <span class="w-5 h-5 inline-block"></span>
                                     </div>
                                 </td>
@@ -276,6 +285,27 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Permission handling
+        @if(!hasPermission('price-comparison:create'))
+        // Hide create button if user doesn't have permission
+        const createButtons = document.querySelectorAll('a[href="{{ route('procurement.form-comparison') }}"]');
+        createButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('price-comparison:edit'))
+        // Hide edit buttons if user doesn't have permission
+        const editButtons = document.querySelectorAll('a[href^="{{ url('procurement/price-comparison') }}/"]');
+        editButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
         // Search and filter functionality
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
@@ -347,40 +377,6 @@
             urlParams.set('page', 1); // Reset to first page when changing limit
             window.location.href = '{{ route("procurement.price-comparison") }}?' + urlParams.toString();
         };
-
-        // Add click events for Delete buttons
-        const deleteBtns = document.querySelectorAll('.delete-comparison-btn');
-        deleteBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const comparisonId = btn.getAttribute('data-id');
-                const comparisonTitle = btn.getAttribute('data-title');
-                if (comparisonId) {
-                    // Implement delete confirmation dialog here
-                    if (confirm(`Apakah Anda yakin ingin menghapus perbandingan harga: ${comparisonTitle}?`)) {
-                        // Send delete request
-                        fetch(`/procurement/price-comparison/${comparisonId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                window.location.reload();
-                            } else {
-                                alert('Gagal menghapus: ' + (data.message || 'Kesalahan tidak diketahui'));
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Terjadi kesalahan saat menghapus');
-                        });
-                    }
-                }
-            });
-        });
     });
 </script>
 @endpush

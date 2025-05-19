@@ -122,7 +122,7 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             {{ isset($maintenance['end_date']) ? \Carbon\Carbon::parse($maintenance['end_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
                                         </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['assigned_to'] ?? '-' }}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['assigned_to_employee_number'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['vendor_name'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             @php
@@ -2839,26 +2839,21 @@
                             toggleEndDateVisibility(maintenance.interval, 'edit');
                         }
 
-                        // Set assigned_to (with username display)
+                        // Set assigned_to (with employee_number display)
                         if (maintenance.assigned_to) {
                             // Set the hidden input value
                             document.getElementById('edit_assigned_to').value = maintenance.assigned_to;
 
-                            // Format employee data for display in the search input
-                            let displayText = '';
-                            if (maintenance.employee_number) {
-                                displayText = maintenance.employee_number;
-                                if (maintenance.employee_name) {
-                                    displayText += ` - ${maintenance.employee_name}`;
-                                }
+                            // Set the search input display text to assigned_to_employee_number
+                            if (maintenance.assigned_to_employee_number) {
+                                document.getElementById('edit_user_search').value = maintenance.assigned_to_employee_number;
+                            } else if (maintenance.employee_number) {
+                                document.getElementById('edit_user_search').value = maintenance.employee_number;
                             } else if (maintenance.employee_name) {
-                                displayText = maintenance.employee_name;
+                                document.getElementById('edit_user_search').value = maintenance.employee_name;
                             } else {
-                                displayText = `User ID: ${maintenance.assigned_to}`;
+                                document.getElementById('edit_user_search').value = `User ID: ${maintenance.assigned_to}`;
                             }
-
-                            // Set the search input display text
-                            document.getElementById('edit_user_search').value = displayText;
                         }
 
                         // Set vendor_id and vendor_name (if exists)

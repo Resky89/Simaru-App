@@ -1,8 +1,11 @@
 @extends('Layout.app')
 
-@section('title', 'Formulir Perbandingan Harga')
+@section('title', isset($comparison) ? 'Edit Perbandingan Harga' : 'Formulir Perbandingan Harga')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="h-full space-y-4 md:space-y-6">
     <!-- Price Comparison Form Section -->
     <div class="card bg-base-100 shadow-xl">
@@ -16,7 +19,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
-                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORMULIR PERBANDINGAN HARGA</h1>
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">{{ isset($comparison) ? 'EDIT PERBANDINGAN HARGA' : 'FORMULIR PERBANDINGAN HARGA' }}</h1>
                     </div>
                 </div>
 
@@ -24,20 +27,21 @@
                 <div class="space-y-4">
                     <!-- Quotation Title -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Judul Penawaran</label>
-                        <input type="text" id="comparisonTitle" value=""
+                        <label class="block text-base font-semibold text-[#666666]">Judul Penawaran <span class="text-red-500">*</span></label>
+                        <input type="text" id="comparisonTitle" value="{{ $comparison['title'] ?? '' }}"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                             placeholder="Pembelian toner printer">
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Judul penawaran harus diisi</div>
                     </div>
 
                     <!-- Request Number -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Nomor Permintaan</label>
+                        <label class="block text-base font-semibold text-[#666666]">Nomor Permintaan <span class="text-red-500">*</span></label>
                         <div class="relative">
-                            <input type="text" id="requestNumber" value=""
+                            <input type="text" id="requestNumber" value="{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}"
                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-l-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                placeholder="Masukkan nomor permintaan yang disetujui" autocomplete="off">
-                            <input type="hidden" id="selected_request_id">
+                                placeholder="Masukkan nomor permintaan yang disetujui" autocomplete="off" {{ isset($comparison) ? 'readonly' : '' }}>
+                            <input type="hidden" id="selected_request_id" value="{{ $comparison['procurement_id'] ?? '' }}">
 
                             <div class="absolute inset-y-0 right-0 flex">
                             <button id="searchBtn" type="button" class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451]">
@@ -46,6 +50,7 @@
                                 </svg>
                             </button>
                             </div>
+                            <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor permintaan harus diisi</div>
 
                             <!-- Dropdown for search results -->
                             <div id="procurement_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
@@ -62,32 +67,36 @@
                     </div>
                 </div>
 
-                <!-- Request Details Section - Hidden by default -->
-                <div id="requestDetails" class="hidden">
+                <!-- Request Details Section - Hidden by default unless editing -->
+                <div id="requestDetails" class="{{ isset($comparison) ? '' : 'hidden' }}">
                     <!-- Request Details -->
                     <div class="grid grid-cols-1 gap-5">
                         <!-- Request Number -->
                         <div class="flex items-start gap-2">
                             <p class="w-40 text-[#666666] font-medium">Nomor Permintaan</p>
-                            <p class="text-[#666666]">: <span id="displayRequestNumber"></span></p>
+                            <p class="text-[#666666]">: <span id="displayRequestNumber">{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}</span></p>
                         </div>
 
                         <!-- Request Title -->
                         <div class="flex items-start gap-2">
                             <p class="w-40 text-[#666666] font-medium">Judul Permintaan</p>
-                            <p class="text-[#666666]">: <span id="displayRequestName"></span></p>
+                            <p class="text-[#666666]">: <span id="displayRequestName">{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_name'] ?? '' : '' }}</span></p>
                         </div>
 
                         <!-- Requester -->
                         <div class="flex items-start gap-2">
                             <p class="w-40 text-[#666666] font-medium">Pemohon</p>
-                            <p class="text-[#666666]">: <span id="displayUserInput"></span></p>
+                            <p class="text-[#666666]">: <span id="displayUserInput">{{ isset($comparison['procurement']) ? $comparison['procurement']['user_name'] ?? '' : '' }}</span></p>
                         </div>
 
                         <!-- Request Date -->
                         <div class="flex items-start gap-2">
                             <p class="w-40 text-[#666666] font-medium">Tanggal Permintaan</p>
-                            <p class="text-[#666666]">: <span id="displayInputDate"></span></p>
+                            <p class="text-[#666666]">: <span id="displayInputDate">
+                                @if(isset($comparison['procurement']['created_at']))
+                                    {{ \Carbon\Carbon::parse($comparison['procurement']['created_at'])->format('d F Y') }}
+                                @endif
+                            </span></p>
                         </div>
                     </div>
 
@@ -116,7 +125,7 @@
                     <!-- Navigation Buttons -->
                     <div class="flex gap-4 mt-8">
                         <button type="button" id="submitBtn" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
-                            KIRIM
+                            {{ isset($comparison) ? 'SIMPAN' : 'KIRIM' }}
                         </button>
                     </div>
                 </div>
@@ -142,6 +151,15 @@
         const procurementLoading = document.getElementById('procurement_loading');
         const selectedRequestId = document.getElementById('selected_request_id');
         const requestDetails = document.getElementById('requestDetails');
+
+        // Check if we're in edit mode
+        const isEditMode = {{ isset($comparison) ? 'true' : 'false' }};
+        const comparisonId = {{ $comparison['comparison_id'] ?? 'null' }};
+
+        // If in edit mode and there's a procurement ID, load its details
+        if (isEditMode && selectedRequestId.value) {
+            fetchProcurementDetails(parseInt(selectedRequestId.value, 10));
+        }
 
         // Function to format date in Indonesian
         function formatDateIndonesian(dateString) {
@@ -169,143 +187,149 @@
             }
         }
 
-        // Function to show toast notifications
-        function showToast(message, type = 'success') {
-            // Create the notification element
-            const notification = document.createElement('div');
-            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
-            notification.className = 'p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
-            notification.role = 'alert';
+        // Function to show SweetAlert notifications
+        function showSweetAlert(message, type = 'success') {
+            const iconMap = {
+                success: 'success',
+                error: 'error',
+                warning: 'warning',
+                info: 'info',
+                question: 'question'
+            };
 
-            // Check if message contains HTML
-            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
-
-            if (type === 'success') {
-                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-                notification.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
-            } else {
-                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
-
-                // Structure for the notification
-                const wrapper = document.createElement('div');
-                wrapper.className = 'flex items-start';
-
-                // Icon container
-                const iconContainer = document.createElement('div');
-                iconContainer.className = 'py-1 flex-shrink-0';
-                iconContainer.innerHTML = `
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                `;
-
-                // Content container
-                const contentContainer = document.createElement('div');
-                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                // Title
-                const title = document.createElement('p');
-                title.className = 'font-bold';
-                title.textContent = 'Error!';
-                contentContainer.appendChild(title);
-
-                // Message container
-                const messageContainer = document.createElement('div');
-                messageContainer.className = 'error-message';
-
-                // Handle HTML content or convert to nested list if it's an object
-                if (typeof message === 'object') {
-                    // Create an unordered list for nested errors
-                    const errorList = document.createElement('ul');
-                    errorList.className = 'list-disc pl-5 mt-2 space-y-1';
-
-                    // Process each error
-                    Object.entries(message).forEach(([key, value]) => {
-                        const listItem = document.createElement('li');
-
-                        if (Array.isArray(value)) {
-                            // If the value is an array, create a nested list
-                            const keyText = document.createElement('span');
-                            keyText.className = 'font-medium';
-                            keyText.textContent = key + ': ';
-                            listItem.appendChild(keyText);
-
-                            const nestedList = document.createElement('ul');
-                            nestedList.className = 'list-disc pl-5 mt-1';
-
-                            value.forEach(item => {
-                                const nestedItem = document.createElement('li');
-                                nestedItem.textContent = item;
-                                nestedList.appendChild(nestedItem);
-                            });
-
-                            listItem.appendChild(nestedList);
-                        } else {
-                            // Simple key-value pair
-                            listItem.textContent = `${key}: ${value}`;
-                        }
-
-                        errorList.appendChild(listItem);
-                    });
-
-                    messageContainer.appendChild(errorList);
-                } else if (hasHTML) {
-                    messageContainer.innerHTML = message;
-                } else {
-                    messageContainer.textContent = message;
+            // Default options
+            const options = {
+                title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
+                html: message,
+                icon: iconMap[type] || 'info',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#213268',
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title',
+                    htmlContainer: 'swal-custom-content',
+                    confirmButton: 'swal-custom-confirm',
+                    cancelButton: 'swal-custom-cancel'
+                },
+                buttonsStyling: true,
+                showClass: {
+                    popup: 'animate__animated animate__fadeIn animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOut animate__faster'
                 }
+            };
 
-                contentContainer.appendChild(messageContainer);
-
-                // Close button
-                const closeBtn = document.createElement('span');
-                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                closeBtn.textContent = '×';
-                closeBtn.onclick = function() {
-                    notification.remove();
-                };
-
-                // Assemble the notification
-                wrapper.appendChild(iconContainer);
-                wrapper.appendChild(contentContainer);
-                wrapper.appendChild(closeBtn);
-                notification.appendChild(wrapper);
+            // Add specific options based on alert type
+            if (type === 'success') {
+                // Auto close success messages after 2.5 seconds
+                options.timer = 2500;
+                options.timerProgressBar = true;
+            } else if (type === 'error') {
+                // Make error alerts more prominent
+                options.confirmButtonColor = '#d33';
+                options.showCloseButton = true;
             }
 
-            // Add to document
-            document.getElementById('toast-container').appendChild(notification);
+            // Add custom styles for SweetAlert
+            if (!document.getElementById('swal-custom-styles')) {
+                const styleTag = document.createElement('style');
+                styleTag.id = 'swal-custom-styles';
+                styleTag.innerHTML = `
+                    /* SweetAlert Custom Styles */
+                    .swal2-popup {
+                        border-radius: 15px;
+                        padding: 1.5rem;
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                    }
+                    .swal-custom-title {
+                        font-weight: 600;
+                        font-size: 1.5rem;
+                        color: #333;
+                    }
+                    .swal-custom-content {
+                        font-size: 1rem;
+                        color: #555;
+                        margin-top: 0.5rem;
+                    }
+                    .swal-custom-content ul {
+                        text-align: left;
+                        margin-top: 1rem;
+                        margin-bottom: 1rem;
+                    }
+                    .swal-custom-confirm {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal-custom-cancel {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal2-timer-progress-bar {
+                        background: rgba(33, 50, 104, 0.5);
+                    }
+                    .swal2-icon {
+                        margin: 1rem auto;
+                    }
+                `;
+                document.head.appendChild(styleTag);
+            }
 
-            // Auto-remove notification after 5 seconds
-            setTimeout(() => {
-                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => notification.remove(), 500);
-            }, 5000);
+            // Add animate.css CDN for animations if not already loaded
+            if (!document.getElementById('animate-css')) {
+                const animateLink = document.createElement('link');
+                animateLink.id = 'animate-css';
+                animateLink.rel = 'stylesheet';
+                animateLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+                document.head.appendChild(animateLink);
+            }
+
+            // Fire the alert
+            Swal.fire(options);
         }
+
+        // Function to validate field
+        function validateField(field) {
+            const errorElement = field.closest('.space-y-2').querySelector('.error-message');
+
+            if (!field.value.trim()) {
+                field.classList.add('border-red-500');
+                if (errorElement) errorElement.classList.remove('hidden');
+                return false;
+            } else {
+                field.classList.remove('border-red-500');
+                if (errorElement) errorElement.classList.add('hidden');
+                return true;
+            }
+        }
+
+        // Add input event listeners to clear error styling on fields
+        comparisonTitle.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        requestNumber.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
 
         // Search button click event
         searchBtn.addEventListener('click', function() {
             // Validate inputs
             if (!requestNumber.value.trim()) {
-                showToast('Mohon masukkan Nomor Pengajuan yang sudah disetujui', 'error');
+                requestNumber.classList.add('border-red-500');
+                const errorElement = requestNumber.closest('.space-y-2').querySelector('.error-message');
+                if (errorElement) errorElement.classList.remove('hidden');
+                showSweetAlert('Mohon masukkan Nomor Pengajuan yang sudah disetujui', 'error');
                 return;
             }
 
             // If a selected ID is available, ensure it's a valid number
             if (selectedRequestId.value && isNaN(parseInt(selectedRequestId.value, 10))) {
-                showToast('ID Pengajuan tidak valid', 'error');
+                showSweetAlert('ID Pengajuan tidak valid', 'error');
                 return;
             }
 
@@ -365,7 +389,7 @@
                     })
                     .catch(error => {
                         console.error('Error searching for procurement:', error);
-                        showToast(error.message || 'Terjadi kesalahan saat mencari data pengajuan', 'error');
+                        showSweetAlert(error.message || 'Terjadi kesalahan saat mencari data pengajuan', 'error');
 
                         // Hide details section if there was an error
                         requestDetails.classList.add('hidden');
@@ -396,9 +420,12 @@
 
         // Toggle dropdown visibility on focus
         requestNumber.addEventListener('focus', function() {
+            // Don't show dropdown in edit mode
+            if (!isEditMode) {
             procurementDropdown.classList.remove('hidden');
             if (procurementList.children.length === 0) {
                 loadProcurements(''); // Initial load on focus
+                }
             }
         });
 
@@ -411,7 +438,9 @@
 
         // Search input handler with debounce
         const debouncedSearch = debounce(function(e) {
+            if (!isEditMode) { // Only load in create mode
             loadProcurements(e.target.value);
+            }
         }, 300);
 
         requestNumber.addEventListener('input', debouncedSearch);
@@ -547,7 +576,7 @@
                 if (submitBtn) submitBtn.disabled = false;
             } catch (error) {
                 console.error('Error fetching procurement details:', error);
-                showToast('Gagal memuat detail permintaan: ' + error.message, 'error');
+                showSweetAlert('Gagal memuat detail permintaan: ' + error.message, 'error');
             }
         }
 
@@ -648,12 +677,12 @@
 
                 // Validate inputs
                 if (!comparisonTitle.value.trim()) {
-                    showToast('Mohon masukkan judul penawaran', 'error');
+                    showSweetAlert('Mohon masukkan judul penawaran', 'error');
                     return;
                 }
 
                 if (!selectedRequestId.value) {
-                    showToast('Mohon pilih permintaan pengadaan', 'error');
+                    showSweetAlert('Mohon pilih permintaan pengadaan', 'error');
                     return;
                 }
 
@@ -662,6 +691,11 @@
                 formData.append('title', comparisonTitle.value);
                 formData.append('procurement_id', parseInt(selectedRequestId.value, 10));
 
+                // If editing, add the comparison ID to the form data
+                if (isEditMode) {
+                    formData.append('_method', 'PUT'); // Laravel method spoofing for PUT requests
+                }
+
                 // Set submitting flag and disable button
                 isSubmitting = true;
 
@@ -669,12 +703,17 @@
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = `
                     <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Mengirim...
+                    ${isEditMode ? 'Menyimpan...' : 'Mengirim...'}
                 `;
 
+                // Determine the endpoint based on whether we're creating or editing
+                const endpoint = isEditMode
+                    ? `{{ url('procurement/price-comparison') }}/${comparisonId}`
+                    : '{{ route('procurement.store-price-comparison') }}';
+
                 // Submit the form via AJAX
-                fetch('{{ route('procurement.store-price-comparison') }}', {
-                    method: 'POST',
+                fetch(endpoint, {
+                    method: isEditMode ? 'POST' : 'POST', // Using POST with _method for PUT
                     body: formData,
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -691,7 +730,7 @@
                 .then(data => {
                     if (data.success) {
                         // Show success toast - don't reset button or submitting flag since we're redirecting
-                        showToast(data.message || 'Perbandingan harga berhasil dibuat!');
+                        showSweetAlert(data.message || (isEditMode ? 'Perbandingan harga berhasil diperbarui!' : 'Perbandingan harga berhasil dibuat!'));
 
                         // Set a flag to indicate we're intentionally navigating away
                         const isNavigatingAway = true;
@@ -705,27 +744,83 @@
                         // Reset submission flag and button on error
                         isSubmitting = false;
                         submitBtn.disabled = false;
-                        submitBtn.innerHTML = 'KIRIM';
+                        submitBtn.innerHTML = isEditMode ? 'SIMPAN' : 'KIRIM';
 
+                        // Handle structured errors
                         if (data.errors) {
-                            showToast(data.errors, 'error');
+                            let errorMessage = '';
+
+                            // Check if errors is an array of objects with path and message
+                            if (Array.isArray(data.errors)) {
+                                // Create an HTML list of error messages
+                                errorMessage = '<ul class="text-left">';
+                                data.errors.forEach(error => {
+                                    errorMessage += `<li>${error.message || error}</li>`;
+                                });
+                                errorMessage += '</ul>';
+                            }
+                            // Check if errors has a general key (common pattern)
+                            else if (data.errors.general) {
+                                errorMessage = data.errors.general;
+                            }
+                            // Object with error keys
+                            else {
+                                errorMessage = '<ul class="text-left">';
+                                Object.keys(data.errors).forEach(key => {
+                                    const errorItems = Array.isArray(data.errors[key]) ? data.errors[key] : [data.errors[key]];
+                                    errorItems.forEach(item => {
+                                        errorMessage += `<li>${item}</li>`;
+                                    });
+                                });
+                                errorMessage += '</ul>';
+                            }
+
+                            showSweetAlert(errorMessage, 'error');
                         } else {
-                            showToast(data.message || 'Terjadi kesalahan saat membuat perbandingan harga', 'error');
+                            showSweetAlert(data.message || `Terjadi kesalahan saat ${isEditMode ? 'memperbarui' : 'membuat'} perbandingan harga`, 'error');
                         }
                     }
                 })
                 .catch(error => {
-                    console.error('Error creating price comparison:', error);
+                    console.error(`Error ${isEditMode ? 'updating' : 'creating'} price comparison:`, error);
 
                     // Reset flag and button on error
                     isSubmitting = false;
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'KIRIM';
+                    submitBtn.innerHTML = isEditMode ? 'SIMPAN' : 'KIRIM';
 
+                    // Handle structured errors similar to above
                     if (error.errors) {
-                        showToast(error.errors, 'error');
+                        let errorMessage = '';
+
+                        // Check if errors is an array of objects with path and message
+                        if (Array.isArray(error.errors)) {
+                            // Create an HTML list of error messages
+                            errorMessage = '<ul class="text-left">';
+                            error.errors.forEach(err => {
+                                errorMessage += `<li>${err.message || err}</li>`;
+                            });
+                            errorMessage += '</ul>';
+                        }
+                        // Check if errors has a general key (common pattern)
+                        else if (error.errors.general) {
+                            errorMessage = error.errors.general;
+                        }
+                        // Object with error keys
+                        else {
+                            errorMessage = '<ul class="text-left">';
+                            Object.keys(error.errors).forEach(key => {
+                                const errorItems = Array.isArray(error.errors[key]) ? error.errors[key] : [error.errors[key]];
+                                errorItems.forEach(item => {
+                                    errorMessage += `<li>${item}</li>`;
+                                });
+                            });
+                            errorMessage += '</ul>';
+                        }
+
+                        showSweetAlert(errorMessage, 'error');
                     } else {
-                        showToast(error.message || 'Terjadi kesalahan saat membuat perbandingan harga', 'error');
+                        showSweetAlert(error.message || `Terjadi kesalahan saat ${isEditMode ? 'memperbarui' : 'membuat'} perbandingan harga`, 'error');
                     }
                 });
             });

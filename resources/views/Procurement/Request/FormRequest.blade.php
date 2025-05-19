@@ -3,6 +3,9 @@
 @section('title', 'Formulir Permintaan')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="h-full space-y-4 md:space-y-6">
     <!-- Request Form Section -->
     <div class="card bg-base-100 shadow-xl">
@@ -27,31 +30,33 @@
 
                     <!-- Title -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Judul Permintaan</label>
+                        <label class="block text-base font-semibold text-[#666666]">Judul Permintaan <span class="text-red-500">*</span></label>
                         <input type="text" id="title" name="title"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Judul Permintaan" required>
+                            placeholder="Judul Permintaan">
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Judul permintaan harus diisi</div>
                     </div>
 
                     <!-- Priority  -->
                     <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Prioritas</label>
+                        <label class="block text-base font-semibold text-[#666666]">Prioritas <span class="text-red-500">*</span></label>
                         <select id="priority" name="priority"
-                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            required>
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="" disabled selected>Pilih prioritas</option>
                             <option value="High">Tinggi</option>
                             <option value="Medium">Sedang</option>
                             <option value="Low">Rendah</option>
                         </select>
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Prioritas harus dipilih</div>
                     </div>
 
                      <!-- Justification -->
                      <div class="space-y-2">
-                        <label class="block text-base font-semibold text-[#666666]">Justifikasi</label>
+                        <label class="block text-base font-semibold text-[#666666]">Justifikasi <span class="text-red-500">*</span></label>
                         <textarea id="justification" name="justification"
                             class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Justifikasi" rows="3" required></textarea>
+                            placeholder="Justifikasi" rows="3"></textarea>
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Justifikasi harus diisi (minimal 10 karakter)</div>
                     </div>
 
                     <!-- Item List -->
@@ -70,28 +75,31 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <!-- Asset Selection Type -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tipe Aset</label>
+                                        <label class="block text-base font-medium text-[#666666]">Tipe Aset <span class="text-red-500">*</span></label>
                                         <select class="asset-type-selector w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                             <option value="new">Aset Baru</option>
                                             <option value="existing">Aset yang Ada</option>
                                         </select>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tipe aset harus dipilih</div>
                                     </div>
 
                                     <!-- Item Name (for new assets) -->
                                     <div class="space-y-2 asset-name-container">
-                                        <label class="block text-base font-medium text-[#666666]">Nama Aset</label>
+                                        <label class="block text-base font-medium text-[#666666]">Nama Aset <span class="text-red-500">*</span></label>
                                         <input type="text" name="details[0][asset_name]"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
-                                            placeholder="Nama Aset" required>
+                                            placeholder="Nama Aset">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nama aset harus diisi</div>
                                     </div>
 
                                     <!-- Asset Master Selection (for existing assets) - initially hidden -->
                                     <div class="space-y-2 asset-master-container hidden">
-                                        <label class="block text-base font-medium text-[#666666]">Pilih Aset yang Ada</label>
+                                        <label class="block text-base font-medium text-[#666666]">Pilih Aset yang Ada <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <input type="text" class="asset-master-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                                 placeholder="Cari aset..." autocomplete="off">
                                             <input type="hidden" name="details[0][asset_master_id]" class="asset-master-id">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus dipilih</div>
 
                                             <!-- Dropdown -->
                                             <div class="asset-master-dropdown absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
@@ -109,18 +117,20 @@
 
                                     <!-- Quantity -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Jumlah</label>
+                                        <label class="block text-base font-medium text-[#666666]">Jumlah <span class="text-red-500">*</span></label>
                                         <input type="number" name="details[0][quantity]"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 quantity"
-                                            placeholder="Jumlah" min="1" required>
+                                            placeholder="Jumlah" min="1">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Jumlah harus diisi</div>
                                     </div>
 
                                     <!-- Unit Price -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Harga Satuan</label>
+                                        <label class="block text-base font-medium text-[#666666]">Harga Satuan <span class="text-red-500">*</span></label>
                                         <input type="number" name="details[0][estimated_unit_price]"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 unit-price"
-                                            placeholder="Harga Satuan" min="0" required>
+                                            placeholder="Harga Satuan" min="0">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Harga satuan harus diisi</div>
                                     </div>
                                 </div>
 
@@ -167,43 +177,7 @@
 <!-- Toast Container - Will be populated dynamically -->
 <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 
-<!-- Success Modal -->
-<div id="successModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-    <div class="fixed inset-0 bg-black opacity-50"></div>
-    <div class="bg-white p-6 rounded-lg shadow-xl z-10 w-full max-w-md">
-        <div class="text-center">
-            <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">Berhasil!</h3>
-            <p class="mt-2 text-sm text-gray-500" id="successMessage">Permintaan Anda telah berhasil dikirim.</p>
-            <div class="mt-4">
-                <button id="successModalClose" class="px-4 py-2 bg-[#213268] text-white rounded-md hover:bg-[#152451]">
-                    OK
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Error Modal -->
-<div id="errorModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-    <div class="fixed inset-0 bg-black opacity-50"></div>
-    <div class="bg-white p-6 rounded-lg shadow-xl z-10 w-full max-w-md">
-        <div class="text-center">
-            <svg class="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-            </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">Kesalahan!</h3>
-            <p class="mt-2 text-sm text-gray-500" id="errorMessage">Terjadi kesalahan. Silakan coba lagi.</p>
-            <div class="mt-4">
-                <button id="errorModalClose" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                    Tutup
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Remove existing modals as they will be replaced by SweetAlert -->
 @endsection
 
 @push('scripts')
@@ -212,12 +186,6 @@
         const addItemBtn = document.getElementById('addItemBtn');
         const itemContainer = document.getElementById('itemContainer');
         const requestForm = document.getElementById('requestForm');
-        const successModal = document.getElementById('successModal');
-        const errorModal = document.getElementById('errorModal');
-        const successModalClose = document.getElementById('successModalClose');
-        const errorModalClose = document.getElementById('errorModalClose');
-        const successMessage = document.getElementById('successMessage');
-        const errorMessage = document.getElementById('errorMessage');
 
         // Function to format date in Indonesian
         function formatDateIndonesian(dateString) {
@@ -283,13 +251,13 @@
             return false;
         }
 
-        // Show toast notifications for session messages on page load
+        // Show SweetAlert notifications for session messages on page load
         @if(session('success'))
-            showToast("{{ session('success') }}", 'success');
+            showSweetAlert("{{ session('success') }}", 'success');
         @endif
 
         @if(session('error'))
-            showToast("{{ session('error') }}", 'error');
+            showSweetAlert("{{ session('error') }}", 'error');
         @endif
 
         // Array to store asset master data
@@ -299,8 +267,10 @@
         let selectedAssetMasterIds = new Set();
 
         // Preload asset masters when page loads
-        fetchAssetMasters().then(() => {
-            console.log('Asset masters preloaded');
+        fetchAssetMasters().then(data => {
+            console.log('Asset masters preloaded successfully:', data.length, 'items');
+        }).catch(error => {
+            console.error('Error preloading asset masters:', error);
         });
 
         // Initialize asset type selectors
@@ -330,8 +300,13 @@
                 loading.style.display = 'block';
             });
 
-            // Use the route that's working in UnitAsset.blade.php
-            return fetch('{{ route("asset-master.data") }}')
+            // Use the same API endpoint as in UnitAsset.blade.php
+            return fetch('{{ route("asset-master") }}', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -339,7 +314,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    // This format matches what's in UnitAsset.blade.php
+                    // Match the data structure from UnitAsset.blade.php
                     assetMasters = data.masterAssets || [];
                     console.log('Loaded', assetMasters.length, 'asset masters');
 
@@ -399,6 +374,12 @@
                 });
 
                 // Add options for each available asset master
+                if (availableAssets.length === 0) {
+                    const noResults = document.createElement('li');
+                    noResults.className = 'px-4 py-2 text-sm text-gray-500 italic no-results-item';
+                    noResults.textContent = 'Tidak ada aset tersedia';
+                    listElement.appendChild(noResults);
+                } else {
                 availableAssets.forEach(asset => {
                     const li = document.createElement('li');
                     li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
@@ -427,13 +408,6 @@
 
                     listElement.appendChild(li);
                 });
-
-                // Show "No results" if empty
-                if (availableAssets.length === 0) {
-                    const noResults = document.createElement('li');
-                    noResults.className = 'px-4 py-2 text-sm text-gray-500 italic no-results-item';
-                    noResults.textContent = 'Tidak ada aset tersedia';
-                    listElement.appendChild(noResults);
                 }
             });
         }
@@ -477,21 +451,26 @@
                 // Filter items on input
                 searchInput.addEventListener('input', function() {
                     const value = this.value.toLowerCase();
-                    const items = list.querySelectorAll('li');
+
+                    // Show dropdown if it's hidden and we're typing
+                    if (dropdown.classList.contains('hidden') && value.trim() !== '') {
+                        dropdown.classList.remove('hidden');
+                    }
+
+                    const items = list.querySelectorAll('li:not(.no-results-item)');
 
                     let hasVisibleItems = false;
 
+                    // Remove any previous "no results" item
+                    list.querySelectorAll('.no-results-item').forEach(el => el.remove());
+
                     items.forEach(item => {
-                        if (item.classList.contains('no-results-item')) {
-                            item.remove();
-                        } else {
                             const text = item.textContent.toLowerCase();
                             if (text.includes(value)) {
                                 item.style.display = '';
                                 hasVisibleItems = true;
                             } else {
                                 item.style.display = 'none';
-                            }
                         }
                     });
 
@@ -657,12 +636,12 @@
                     updateSelectedAssetMasterIds();
                     updateAssetMasterDropdowns();
                 } else {
-                    showToast('Gagal memuat data permintaan', 'error');
+                    showSweetAlert('Gagal memuat data permintaan', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('Gagal memuat data permintaan: ' + error.message, 'error');
+                showSweetAlert('Gagal memuat data permintaan: ' + error.message, 'error');
             });
         }
 
@@ -696,32 +675,35 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <!-- Asset Selection Type -->
                     <div class="space-y-2">
-                        <label class="block text-base font-medium text-[#666666]">Tipe Aset</label>
+                        <label class="block text-base font-medium text-[#666666]">Tipe Aset <span class="text-red-500">*</span></label>
                         <select class="asset-type-selector w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="new">Aset Baru</option>
                             <option value="existing">Aset yang Ada</option>
                         </select>
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tipe aset harus dipilih</div>
                     </div>
 
                     <!-- Item Name (for new assets) -->
                     <div class="space-y-2 asset-name-container">
-                        <label class="block text-base font-medium text-[#666666]">Nama Aset</label>
+                        <label class="block text-base font-medium text-[#666666]">Nama Aset <span class="text-red-500">*</span></label>
                         <input type="text" name="details[${index}][asset_name]"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
-                            placeholder="Nama Aset" required value="${data && data.asset_name ? data.asset_name : ''}">
+                            placeholder="Nama Aset" value="${data && data.asset_name ? data.asset_name : ''}">
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nama aset harus diisi</div>
                     </div>
 
                     <!-- Asset Master Selection (for existing assets) - initially hidden -->
                     <div class="space-y-2 asset-master-container hidden">
-                        <label class="block text-base font-medium text-[#666666]">Pilih Aset yang Ada</label>
+                        <label class="block text-base font-medium text-[#666666]">Pilih Aset yang Ada <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input type="text" class="asset-master-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                 placeholder="Cari aset..." autocomplete="off">
                             <input type="hidden" name="details[${index}][asset_master_id]" class="asset-master-id">
+                            <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus dipilih</div>
 
                             <!-- Dropdown -->
                             <div class="asset-master-dropdown absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
-                                <div class="asset-master-loading p-2 text-gray-500 text-center" style="display: none;">
+                                <div class="asset-master-loading p-2 text-gray-500 text-center">
                                     <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -735,18 +717,20 @@
 
                     <!-- Quantity -->
                     <div class="space-y-2">
-                        <label class="block text-base font-medium text-[#666666]">Jumlah</label>
+                        <label class="block text-base font-medium text-[#666666]">Jumlah <span class="text-red-500">*</span></label>
                         <input type="number" name="details[${index}][quantity]"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 quantity"
-                            placeholder="Jumlah" min="1" required value="${data ? data.quantity : ''}">
+                            placeholder="Jumlah" min="1" value="${data ? data.quantity : ''}">
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Jumlah harus diisi</div>
                     </div>
 
                     <!-- Unit Price -->
                     <div class="space-y-2">
-                        <label class="block text-base font-medium text-[#666666]">Harga Satuan</label>
+                        <label class="block text-base font-medium text-[#666666]">Harga Satuan <span class="text-red-500">*</span></label>
                         <input type="number" name="details[${index}][estimated_unit_price]"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 unit-price"
-                            placeholder="Harga Satuan" min="0" required value="${data ? data.estimated_unit_price : ''}">
+                            placeholder="Harga Satuan" min="0" value="${data ? data.estimated_unit_price : ''}">
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Harga satuan harus diisi</div>
                     </div>
                 </div>
 
@@ -856,143 +840,175 @@
             });
         }
 
-        // Show success modal
-        function showSuccess(message) {
-            successMessage.textContent = message;
-            successModal.classList.remove('hidden');
-        }
+        // Function to show SweetAlert notifications
+        function showSweetAlert(message, type = 'success') {
+            const iconMap = {
+                success: 'success',
+                error: 'error',
+                warning: 'warning',
+                info: 'info',
+                question: 'question'
+            };
 
-        // Show error modal
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorModal.classList.remove('hidden');
-        }
-
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            // Create toast container if it doesn't exist
-            let toastContainer = document.getElementById('toast-container');
-            if (!toastContainer) {
-                toastContainer = document.createElement('div');
-                toastContainer.id = 'toast-container';
-                toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
-                document.body.appendChild(toastContainer);
-            }
-
-            // Check if message contains HTML
-            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
-
-            // Create notification element
-            const toast = document.createElement('div');
-            toast.className = 'p-4 rounded shadow-md animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
-
-            if (type === 'success') {
-                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-
-                // Set content for success toast
-                toast.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
-            } else {
-                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
-
-                // Structure for error notification
-                const wrapper = document.createElement('div');
-                wrapper.className = 'flex items-start';
-
-                // Icon container
-                const iconContainer = document.createElement('div');
-                iconContainer.className = 'py-1 flex-shrink-0';
-                iconContainer.innerHTML = `
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                `;
-
-                // Content container
-                const contentContainer = document.createElement('div');
-                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                // Title
-                const title = document.createElement('p');
-                title.className = 'font-bold';
-                title.textContent = 'Gagal!';
-                contentContainer.appendChild(title);
-
-                // Message container
-                const messageContainer = document.createElement('div');
-                messageContainer.className = 'error-message';
-
-                // Handle HTML content
-                if (hasHTML) {
-                    messageContainer.innerHTML = message;
-                } else {
-                    messageContainer.textContent = message;
+            // Default options
+            const options = {
+                title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
+                html: message,
+                icon: iconMap[type] || 'info',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#213268',
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title',
+                    htmlContainer: 'swal-custom-content',
+                    confirmButton: 'swal-custom-confirm',
+                    cancelButton: 'swal-custom-cancel'
+                },
+                buttonsStyling: true,
+                showClass: {
+                    popup: 'animate__animated animate__fadeIn animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOut animate__faster'
                 }
+            };
 
-                contentContainer.appendChild(messageContainer);
-
-                // Close button
-                const closeBtn = document.createElement('span');
-                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                closeBtn.textContent = '×';
-                closeBtn.onclick = function() {
-                    toast.remove();
-                };
-
-                // Assemble the notification
-                wrapper.appendChild(iconContainer);
-                wrapper.appendChild(contentContainer);
-                wrapper.appendChild(closeBtn);
-                toast.appendChild(wrapper);
+            // Add specific options based on alert type
+            if (type === 'success') {
+                // Auto close success messages after 2.5 seconds
+                options.timer = 2500;
+                options.timerProgressBar = true;
+            } else if (type === 'error') {
+                // Make error alerts more prominent
+                options.confirmButtonColor = '#d33';
+                options.showCloseButton = true;
             }
 
-            // Add to container
-            toastContainer.appendChild(toast);
+            // Add custom styles for SweetAlert
+            if (!document.getElementById('swal-custom-styles')) {
+                const styleTag = document.createElement('style');
+                styleTag.id = 'swal-custom-styles';
+                styleTag.innerHTML = `
+                    /* SweetAlert Custom Styles */
+                    .swal2-popup {
+                        border-radius: 15px;
+                        padding: 1.5rem;
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                    }
+                    .swal-custom-title {
+                        font-weight: 600;
+                        font-size: 1.5rem;
+                        color: #333;
+                    }
+                    .swal-custom-content {
+                        font-size: 1rem;
+                        color: #555;
+                        margin-top: 0.5rem;
+                    }
+                    .swal-custom-content ul {
+                        text-align: left;
+                        margin-top: 1rem;
+                        margin-bottom: 1rem;
+                    }
+                    .swal-custom-confirm {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal-custom-cancel {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal2-timer-progress-bar {
+                        background: rgba(33, 50, 104, 0.5);
+                    }
+                    .swal2-icon {
+                        margin: 1rem auto;
+                    }
+                `;
+                document.head.appendChild(styleTag);
+            }
 
-            // Auto-remove notification after 5 seconds
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => toast.remove(), 500);
-            }, 5000);
+            // Add animate.css CDN for animations if not already loaded
+            if (!document.getElementById('animate-css')) {
+                const animateLink = document.createElement('link');
+                animateLink.id = 'animate-css';
+                animateLink.rel = 'stylesheet';
+                animateLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+                document.head.appendChild(animateLink);
+            }
+
+            // Fire the alert
+            Swal.fire(options);
         }
 
-        // Add slide-in animation and styling for error messages
+        // Function to validate a form field
+        function validateField(field) {
+            if (!field) return false;
+
+            const fieldContainer = field.closest('.space-y-2');
+            const errorMessage = fieldContainer ? fieldContainer.querySelector('.error-message') : null;
+
+            if (field.tagName.toLowerCase() === 'select') {
+                if (!field.value) {
+                    field.classList.add('border-red-500');
+                    if (errorMessage) errorMessage.classList.remove('hidden');
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorMessage) errorMessage.classList.add('hidden');
+                    return true;
+                }
+            } else if (field.tagName.toLowerCase() === 'textarea' && field.id === 'justification') {
+                // Special validation for justification - minimum 10 characters
+                if (!field.value.trim() || field.value.trim().length < 10) {
+                    field.classList.add('border-red-500');
+                    if (errorMessage) {
+                        errorMessage.textContent = field.value.trim() ? 'Justifikasi minimal 10 karakter' : 'Justifikasi harus diisi';
+                        errorMessage.classList.remove('hidden');
+                    }
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorMessage) errorMessage.classList.add('hidden');
+                    return true;
+                }
+            } else {
+                if (!field.value.trim()) {
+                    field.classList.add('border-red-500');
+                    if (errorMessage) errorMessage.classList.remove('hidden');
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorMessage) errorMessage.classList.add('hidden');
+                    return true;
+                }
+            }
+        }
+
+        // Add input/change event listeners to clear error styling on fields
+        document.getElementById('title').addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('priority').addEventListener('change', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('justification').addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        // CSS for validation styling
         document.head.insertAdjacentHTML('beforeend', `
             <style>
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); }
-                    to { transform: translateX(0); }
-                }
-                .animate-slide-in-right {
-                    animation: slideInRight 0.3s ease-out forwards;
-                }
-
-                /* Styling for error messages with HTML content */
-                .error-message ul {
-                    margin-top: 0.5rem;
-                    padding-left: 1.5rem;
-                }
-                .error-message ul li {
-                    margin-bottom: 0.25rem;
-                }
-                .error-message ul li:last-child {
-                    margin-bottom: 0;
-                }
-
                 /* Field validation */
-                .field-error {
+                .border-red-500 {
                     border-color: #f56565 !important;
                     box-shadow: 0 0 0 1px #f56565 !important;
                 }
@@ -1005,58 +1021,51 @@
             </style>
         `);
 
-        // Function to validate a form field
-        function validateField(field) {
-            if (field.tagName.toLowerCase() === 'select') {
-                if (!field.value) {
-                    field.classList.add('field-error');
-                    return false;
-                } else {
-                    field.classList.remove('field-error');
-                    return true;
-                }
-            } else {
-                if (!field.value.trim()) {
-                    field.classList.add('field-error');
-                    return false;
-                } else {
-                    field.classList.remove('field-error');
-                    return true;
-                }
-            }
-        }
-
-        // Add input/change event listeners to clear error styling on fields
-        document.getElementById('title').addEventListener('input', function() {
-            this.classList.remove('field-error');
-        });
-
-        document.getElementById('priority').addEventListener('change', function() {
-            this.classList.remove('field-error');
-        });
-
-        document.getElementById('justification').addEventListener('input', function() {
-            this.classList.remove('field-error');
-        });
-
-        // Close success modal and redirect
-        successModalClose.addEventListener('click', function() {
-            successModal.classList.add('hidden');
-            window.location.href = '{{ route("procurement.request") }}';
-        });
-
-        // Close error modal
-        errorModalClose.addEventListener('click', function() {
-            errorModal.classList.add('hidden');
-        });
-
-        // Initialize delete buttons visibility
-        updateDeleteButtons();
-
         // Handle form submission
         let isSubmitting = false; // Flag to track submission status
         requestForm.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Validate form before submitting
+            let isValid = true;
+
+            // Validate main form fields
+            if (!validateField(document.getElementById('title'))) isValid = false;
+            if (!validateField(document.getElementById('priority'))) isValid = false;
+            if (!validateField(document.getElementById('justification'))) isValid = false;
+
+            // Validate item entries
+            itemContainer.querySelectorAll('.item-entry').forEach((item, index) => {
+                const assetTypeSelector = item.querySelector('.asset-type-selector');
+                if (!validateField(assetTypeSelector)) isValid = false;
+
+                // Validate based on asset type
+                if (assetTypeSelector.value === 'new') {
+                    if (!validateField(item.querySelector('.asset-name'))) isValid = false;
+                } else {
+                    // For existing assets, validate asset_master_id
+                    const assetMasterId = item.querySelector('.asset-master-id');
+                    // Use the search field for UI validation but check the hidden input value
+                    const assetMasterSearch = item.querySelector('.asset-master-search');
+
+                    if (!assetMasterId.value) {
+                        assetMasterSearch.classList.add('border-red-500');
+                        const errorElement = assetMasterSearch.closest('.relative').querySelector('.error-message');
+                        if (errorElement) errorElement.classList.remove('hidden');
+                        isValid = false;
+                    }
+                }
+
+                // Validate quantity and price
+                if (!validateField(item.querySelector('.quantity'))) isValid = false;
+                if (!validateField(item.querySelector('.unit-price'))) isValid = false;
+            });
+
+            // If validation fails, don't proceed
+            if (!isValid) {
+                showSweetAlert('Silakan perbaiki semua kesalahan dalam formulir.', 'error');
+                return;
+            }
 
             // Prevent multiple submissions
             if (isSubmitting) {
@@ -1078,9 +1087,7 @@
 
             // Collect form data
             const formData = new FormData(requestForm);
-            const data = {
-                details: []
-            };
+            const data = {};
 
             // Simple fields
             data.title = formData.get('title');
@@ -1088,8 +1095,11 @@
             data.justification = formData.get('justification');
 
             // Process all item entries to create proper details array
-            const items = itemContainer.querySelectorAll('.item-entry');
-            items.forEach((item, index) => {
+            // Initialize details as an array, not an object property
+            data.details = [];
+
+            // Get all item entries from the container
+            itemContainer.querySelectorAll('.item-entry').forEach((item, index) => {
                 const detailObj = {};
                 const assetTypeSelector = item.querySelector('.asset-type-selector');
 
@@ -1143,7 +1153,7 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    showToast(isUpdate
+                    showSweetAlert(isUpdate
                         ? 'Pengadaan berhasil diperbarui'
                         : 'Pengadaan berhasil dibuat', 'success');
 
@@ -1167,80 +1177,69 @@
 
                     // Initialize error message
                     let errorMessage = 'Terjadi kesalahan saat memproses permintaan Anda:';
+                    let errorList = [];
 
-                    // Check if errors is an object with field-specific errors
-                    if (typeof errorData === 'object' && Object.keys(errorData).length > 0) {
-                        errorMessage += '<ul class="mt-2 list-disc pl-5">';
+                    // Handle array-formatted errors
+                    if (Array.isArray(errorData)) {
+                        errorData.forEach(error => {
+                            if (error.path && error.message) {
+                                errorList.push(`${error.message}`);
 
+                                // Highlight field with error
+                                if (error.path === 'title') {
+                                    highlightFieldError('title', error.message);
+                                } else if (error.path === 'priority') {
+                                    highlightFieldError('priority', error.message);
+                                } else if (error.path === 'justification') {
+                                    highlightFieldError('justification', error.message);
+                                } else if (error.path.startsWith('details')) {
+                                    // Handle details array errors
+                                    highlightDetailsFieldError(error.path, error.message);
+                                }
+                            } else if (typeof error === 'string') {
+                                errorList.push(error);
+                            }
+                        });
+                    }
+                    // Handle object-formatted errors (backward compatibility)
+                    else if (typeof errorData === 'object' && Object.keys(errorData).length > 0) {
                         // Process each error field and highlight form fields
                         Object.entries(errorData).forEach(([field, errors]) => {
                             // Highlight field with error
-                            const fieldElement = document.getElementById(field);
-                            if (fieldElement) {
-                                fieldElement.classList.add('field-error');
+                            if (field === 'title' || field === 'priority' || field === 'justification') {
+                                highlightFieldError(field, Array.isArray(errors) ? errors[0] : errors);
                             }
 
                             // Handle detail fields with array notation (e.g., details.0.asset_name)
                             if (field.includes('details.')) {
-                                const parts = field.split('.');
-                                if (parts.length >= 3) {
-                                    const index = parseInt(parts[1]);
-                                    const subField = parts[2];
-
-                                    // Find and highlight the field in the specific item entry
-                                    const items = itemContainer.querySelectorAll('.item-entry');
-                                    if (items[index]) {
-                                        let fieldSelector;
-
-                                        switch (subField) {
-                                            case 'asset_name':
-                                                fieldSelector = '.asset-name';
-                                                break;
-                                            case 'asset_master_id':
-                                                fieldSelector = '.asset-master-search';
-                                                break;
-                                            case 'quantity':
-                                                fieldSelector = '.quantity';
-                                                break;
-                                            case 'estimated_unit_price':
-                                                fieldSelector = '.unit-price';
-                                                break;
-                                            case 'specifications':
-                                                fieldSelector = '.specifications';
-                                                break;
-                                            case 'notes':
-                                                fieldSelector = '.notes';
-                                                break;
-                                        }
-
-                                        if (fieldSelector) {
-                                            const field = items[index].querySelector(fieldSelector);
-                                            if (field) {
-                                                field.classList.add('field-error');
-                                            }
-                                        }
-                                    }
-                                }
+                                highlightDetailsFieldError(field, Array.isArray(errors) ? errors[0] : errors);
                             }
 
                             if (Array.isArray(errors)) {
                                 // Multiple errors for this field
                                 errors.forEach(err => {
-                                    errorMessage += `<li>${err}</li>`;
+                                    errorList.push(`${err}`);
                                 });
                             } else if (typeof errors === 'string') {
                                 // Single error string
-                                errorMessage += `<li>${errors}</li>`;
+                                errorList.push(`${errors}`);
                             }
                         });
-
-                        errorMessage += '</ul>';
                     } else if (typeof errorData === 'string') {
                         // Single error string
                         errorMessage = errorData;
                     }
 
-                    showToast(errorMessage, 'error');
+                    // Format error message with list if we have specific errors
+                    if (errorList.length > 0) {
+                        errorMessage += '<ul class="mt-2 list-disc pl-5">';
+                        errorList.forEach(err => {
+                            errorMessage += `<li>${err}</li>`;
+                        });
+                        errorMessage += '</ul>';
+                    }
+
+                    showSweetAlert(errorMessage, 'error');
                 }
             })
             .catch(error => {
@@ -1251,14 +1250,107 @@
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonText;
 
-                showToast('Terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi.', 'error');
+                showSweetAlert('Terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi.', 'error');
             });
         });
 
+        // Helper function to highlight field errors
+        function highlightFieldError(fieldName, errorMessage) {
+            const field = document.getElementById(fieldName);
+            if (!field) return;
+
+            field.classList.add('border-red-500');
+
+            const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) {
+                errorElement.textContent = errorMessage;
+                errorElement.classList.remove('hidden');
+            }
+        }
+
+        // Helper function to highlight errors in the details array
+        function highlightDetailsFieldError(fieldPath, errorMessage) {
+            // Parse the path to get index and field name (e.g., details.0.asset_name)
+            const parts = fieldPath.split('.');
+                                if (parts.length >= 3) {
+                                    const index = parseInt(parts[1]);
+                                    const subField = parts[2];
+
+                                    // Find and highlight the field in the specific item entry
+                                    const items = itemContainer.querySelectorAll('.item-entry');
+                                    if (items[index]) {
+                    let field;
+                    let errorElement;
+
+                                        switch (subField) {
+                                            case 'asset_name':
+                            field = items[index].querySelector('.asset-name');
+                                                break;
+                                            case 'asset_master_id':
+                            field = items[index].querySelector('.asset-master-search');
+                                                break;
+                                            case 'quantity':
+                            field = items[index].querySelector('.quantity');
+                                                break;
+                                            case 'estimated_unit_price':
+                            field = items[index].querySelector('.unit-price');
+                                                break;
+                                            case 'specifications':
+                            field = items[index].querySelector('.specifications');
+                                                break;
+                                            case 'notes':
+                            field = items[index].querySelector('.notes');
+                                                break;
+                                        }
+
+                                            if (field) {
+                        field.classList.add('border-red-500');
+                        errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.textContent = errorMessage;
+                            errorElement.classList.remove('hidden');
+                        }
+                    }
+                }
+            } else if (fieldPath === 'details') {
+                // Generic error for the whole details section
+                showSweetAlert('Error: ' + errorMessage, 'error');
+            }
+        }
+
         // Add event handler for the back button
         document.getElementById('backButton').addEventListener('click', function(e) {
-            if (formHasChanges() && !confirm('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?')) {
+            if (formHasChanges()) {
                 e.preventDefault();
+                Swal.fire({
+                    title: 'Perubahan Belum Disimpan',
+                    text: 'Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#213268',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Tinggalkan',
+                    cancelButtonText: 'Batal',
+                    customClass: {
+                        popup: 'swal-custom-popup',
+                        title: 'swal-custom-title',
+                        htmlContainer: 'swal-custom-content',
+                        confirmButton: 'swal-custom-confirm',
+                        cancelButton: 'swal-custom-cancel'
+                    },
+                    buttonsStyling: true,
+                    showClass: {
+                        popup: 'animate__animated animate__fadeIn animate__faster'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOut animate__faster'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        isNavigatingAway = true;
+                        window.location.href = '{{ route("procurement.request") }}';
+                    }
+                });
             } else {
                 isNavigatingAway = true;
             }

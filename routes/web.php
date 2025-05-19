@@ -525,6 +525,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/form-comparison/{id?}', function ($id = null) {
             return view('Procurement.Comparison.FormComparison', ['id' => $id]);
         })->name('form-comparison')->middleware('permission:price-comparison:create');
+        Route::get('/edit-comparison/{id}', [ProcurementPriceComparisonController::class, 'edit'])
+            ->name('edit-comparison')
+            ->middleware('permission:price-comparison:edit');
         Route::get('/form-vendor-comparison/{id?}', function ($id = null) {
             return view('Procurement.Comparison.FormComparisonVendor', ['comparison_id' => $id]);
         })->name('form-vendor-comparison')->middleware('permission:price-comparison:create');
@@ -542,6 +545,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::post('/price-comparison', [ProcurementPriceComparisonController::class, 'store'])
             ->name('store-price-comparison')
             ->middleware('permission:price-comparison:create');
+        Route::put('/price-comparison/{id}', [ProcurementPriceComparisonController::class, 'update'])
+            ->name('update-comparison')
+            ->middleware('permission:price-comparison:edit');
         Route::post('/price-comparison/create-from-detail', [ProcurementPriceComparisonController::class, 'createFromDetail'])
             ->name('create-price-comparison-from-detail')
             ->middleware('permission:price-comparison:create');
@@ -595,20 +601,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     //-------------------------------------------------------------------------
 
     // Report Routes
-    Route::prefix('report')->name('report.')->middleware('permission:report:view')->group(function () {
-        // Complaint reports
-        Route::get('/complain', [ComplainRepairController::class, 'getAllComplaints'])
-            ->name('complain')
-            ->middleware('permission:complaint:view');
-        Route::get('/complain/export-pdf', [ComplainRepairController::class, 'exportComplaintPDF'])
-            ->name('complain.export.pdf')
-            ->middleware('permission:complaint:export');
-
-        // Maintenance report
-        Route::get('/maintenance', function () {
-            return view('Report.MaintenanceReport');
-        })->name('maintenance')->middleware('permission:maintenance:view');
-
+    Route::prefix('report')->name('report.')->group(function () {
         // Finance report
         Route::get('/finance', [FinanceReportController::class, 'getAllTransactions'])
             ->name('finance')

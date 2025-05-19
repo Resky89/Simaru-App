@@ -499,8 +499,8 @@ class ProcurementPriceComparisonController extends Controller
             $validated = $request->validate([
                 'comparison_id' => 'required|integer',
                 'vendor_id' => 'required|integer',
-                'payment_terms' => 'required|string',
-                'delivery_terms' => 'required|string',
+                'payment_terms' => 'nullable|string',
+                'delivery_terms' => 'nullable|string',
                 'notes' => 'nullable|string',
                 'items' => 'required|array|min:1',
                 'items.*.price_comparison_item_id' => 'required|integer',
@@ -609,8 +609,8 @@ class ProcurementPriceComparisonController extends Controller
             $validated = $request->validate([
                 'comparison_id' => 'required|integer',
                 'vendor_id' => 'required|integer',
-                'payment_terms' => 'required|string',
-                'delivery_terms' => 'required|string',
+                'payment_terms' => 'nullable|string',
+                'delivery_terms' => 'nullable|string',
                 'notes' => 'nullable|string',
                 'items' => 'required|array|min:1',
                 'items.*.price_comparison_item_id' => 'required|integer',
@@ -1003,6 +1003,157 @@ class ProcurementPriceComparisonController extends Controller
                 'success' => false,
                 'errors' => ['exception' => ['Failed to complete price comparison: ' . $e->getMessage()]],
             ], 500);
+        }
+    }
+
+    /**
+     * Update a price comparison
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update($id, Request $request)
+    {
+        try {
+            // Log the incoming request
+            \Log::info('Received price comparison update request data:', [
+                'comparison_id' => $id,
+                'all_data' => $request->all()
+            ]);
+
+            // Validate request
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+            ]);
+
+            // Send request to API service
+            $result = $this->apiService->request('PUT', "/price-comparison/{$id}", [
+                'json' => $validated
+            ]);
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during price comparison update:', [
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['authentication' => 'Authentication failed']
+                ], 401);
+            }
+
+            // Check for API errors or unsuccessful responses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Failed to update price comparison';
+
+                \Log::warning('Error during price comparison update:', [
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData,
+                    'comparison_id' => $id
+                ]);
+
+                // Format error message for better display in toast notifications
+                $formattedErrors = [];
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $formattedErrors[$field] = $messages;
+                        } else {
+                            $formattedErrors[$field] = [$messages];
+                        }
+                    }
+                } else {
+                    $formattedErrors['general'] = [$errorData];
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $formattedErrors,
+                ], 400);
+            }
+
+            // Return successful response
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'] ?? 'Perbandingan harga berhasil diperbarui',
+                'data' => $result['data'] ?? null,
+                'redirect_url' => route('procurement.price-comparison')
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning('Validation error during price comparison update:', [
+                'errors' => $e->errors(),
+                'comparison_id' => $id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Exception during price comparison update:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'comparison_id' => $id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'errors' => ['exception' => ['Failed to update price comparison: ' . $e->getMessage()]],
+            ], 500);
+        }
+    }
+
+    /**
+     * Show edit form for price comparison
+     *
+     * @param int $id
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
+    public function edit($id)
+    {
+        try {
+            // Check permission
+            if (!hasPermission('price-comparison:edit')) {
+                return redirect()->route('procurement.price-comparison')
+                    ->with('error', 'Anda tidak memiliki izin untuk mengedit perbandingan harga');
+            }
+
+            // Get the price comparison data
+            $result = $this->apiService->request('GET', "/price-comparison/{$id}");
+
+            // Check for auth errors
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                return redirect()->route('login')
+                    ->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
+            }
+
+            // Check if data is found
+            if (!isset($result['success']) || $result['success'] !== true || !isset($result['data'])) {
+                return redirect()->route('procurement.price-comparison')
+                    ->with('error', 'Data perbandingan harga tidak ditemukan');
+            }
+
+            // Get the comparison data
+            $comparison = $result['data'];
+
+            // Return the form view with edit mode enabled
+            return view('Procurement.Comparison.FormComparison', [
+                'editMode' => true,
+                'comparison' => $comparison
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Exception during price comparison edit form load:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'comparison_id' => $id
+            ]);
+
+            return redirect()->route('procurement.price-comparison')
+                ->with('error', 'Terjadi kesalahan saat memuat form edit: ' . $e->getMessage());
         }
     }
 }
