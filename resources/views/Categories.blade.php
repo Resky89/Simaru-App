@@ -591,7 +591,7 @@
         // Add JavaScript initialization here for permission awareness
         @if(!hasPermission('asset-subcategory:create'))
         // Disable related elements if user doesn't have permission
-        const addButtons = document.querySelectorAll('#addSubCategoryBtn, #importCategoryBtn');
+        const addButtons = document.querySelectorAll('#addSubCategoryBtn');
         addButtons.forEach(btn => {
             if (btn) {
                 btn.style.display = 'none';
@@ -601,7 +601,7 @@
 
         @if(!hasPermission('asset-subcategory:import'))
         // Disable related elements if user doesn't have permission
-        const addButtons = document.querySelectorAll('#importCategoryBtn');
+        const addButtons = document.querySelectorAll('#importCategoryBtn, #preview-btn');
         addButtons.forEach(btn => {
             if (btn) {
                 btn.style.display = 'none';

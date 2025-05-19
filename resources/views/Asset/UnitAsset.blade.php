@@ -14,30 +14,36 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap gap-3">
+                        @if(hasPermission('asset:import'))
                         <button id="importAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-green-600 rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v8" />
                             </svg>
                             <span class="text-base">Impor Excel</span>
                         </button>
+                        @endif
                         <button id="printQRBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
                             <span class="text-base">Cetak QR</span>
                         </button>
+                        @if(hasPermission('asset:export'))
                         <button id="exportBtn" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             <span class="text-base">Ekspor PDF</span>
                         </button>
+                        @endif
+                        @if(hasPermission('asset:create'))
                         <button id="addAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             <span class="text-base">Tambah Aset</span>
                         </button>
+                        @endif
                     </div>
                 </div>
 
@@ -174,6 +180,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                             </button>
+                                            @if(hasPermission('asset:edit'))
                                             <button class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-asset-btn"
                                                 data-id="{{ $asset['asset_id'] ?? '' }}"
                                                 data-name="{{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '' }}"
@@ -190,6 +197,8 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </button>
+                                            @endif
+                                            @if(hasPermission('asset:delete'))
                                             <button class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-asset-btn"
                                                 data-id="{{ $asset['asset_id'] ?? '' }}"
                                                 data-name="{{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '' }}">
@@ -197,6 +206,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -276,6 +286,7 @@
 </div>
 
 <!-- Add Asset Modal -->
+@if(hasPermission('asset:create'))
 <div id="addAssetModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -456,8 +467,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Edit Asset Modal -->
+@if(hasPermission('asset:edit'))
 <div id="editAssetModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -682,8 +695,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Delete Asset Modal -->
+@if(hasPermission('asset:delete'))
 <div id="deleteAssetModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -728,6 +743,7 @@
         </div>
     </div>
 </div>
+@endif
 
 @if(session('success'))
 <div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
@@ -865,6 +881,7 @@
 </div>
 
 <!-- Import Asset Modal -->
+@if(hasPermission('asset:import'))
 <div id="importAssetModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -1045,10 +1062,54 @@
         </div>
     </div>
 </div>
+@endif
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Permission-aware JavaScript initialization
+        @if(!hasPermission('asset:create'))
+        // Hide add asset button if user doesn't have permission
+        const addButtons = document.querySelectorAll('#addAssetBtn');
+        addButtons.forEach(btn => {
+            if (btn) btn.style.display = 'none';
+        });
+        @endif
+
+        @if(!hasPermission('asset:import'))
+        // Hide import button if user doesn't have permission
+        const importButtons = document.querySelectorAll('#importAssetBtn');
+        importButtons.forEach(btn => {
+            if (btn) btn.style.display = 'none';
+        });
+        @endif
+
+        @if(!hasPermission('asset:export'))
+        // Hide export button if user doesn't have permission
+        const exportButtons = document.querySelectorAll('#exportBtn');
+        exportButtons.forEach(btn => {
+            if (btn) btn.style.display = 'none';
+        });
+        @endif
+
+        @if(!hasPermission('asset:edit'))
+        // Hide edit buttons if user doesn't have permission
+        const editButtons = document.querySelectorAll('.edit-asset-btn');
+        editButtons.forEach(btn => {
+            if (btn) btn.style.display = 'none';
+        });
+        @endif
+
+        @if(!hasPermission('asset:delete'))
+        // Hide delete buttons if user doesn't have permission
+        const deleteButtons = document.querySelectorAll('.delete-asset-btn');
+        deleteButtons.forEach(btn => {
+            if (btn) btn.style.display = 'none';
+        });
+        @endif
+
+        // Custom select dropdown functionality
+
         // Form validation for Add Asset
         document.getElementById('addAssetForm')?.addEventListener('submit', function(event) {
             const assetMasterSearch = document.getElementById('asset_master_search');

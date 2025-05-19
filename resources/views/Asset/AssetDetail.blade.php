@@ -23,6 +23,7 @@
                         <div class="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto justify-start md:justify-end">
                             @if($asset['current_status'] === 'dispose')
                                 <!-- When status is disposed, show only Edit button -->
+                                @if(hasPermission('asset:edit'))
                                 <a href="javascript:void(0)" id="editAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,8 +32,10 @@
                                     </svg>
                                     <span>Ubah</span>
                                 </a>
+                                @endif
                             @elseif($asset['current_status'] === 'available')
                                 <!-- When status is available: Check Out, Dispose, Lost, Edit buttons -->
+                                @if(hasPermission('asset:checkout'))
                                 <a href="javascript:void(0)" id="checkoutAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,6 +44,8 @@
                                     </svg>
                                     <span>Pinjam</span>
                                 </a>
+                                @endif
+                                @if(hasPermission('asset:dispose'))
                                 <a href="javascript:void(0)" id="disposeAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,6 +54,8 @@
                                     </svg>
                                     <span>Hapuskan</span>
                                 </a>
+                                @endif
+                                @if(hasPermission('asset:report-loss'))
                                 <a href="javascript:void(0)" id="lostAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,6 +64,8 @@
                                     </svg>
                                     <span>Hilang</span>
                                 </a>
+                                @endif
+                                @if(hasPermission('asset:edit'))
                                 <a href="javascript:void(0)" id="editAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,8 +74,10 @@
                                     </svg>
                                     <span>Ubah</span>
                                 </a>
+                                @endif
                             @elseif($asset['current_status'] === 'check out')
                                 <!-- When status is check out: Check In, Dispose, Lost, Edit buttons -->
+                                @if(hasPermission('asset:return'))
                                 <a href="javascript:void(0)" id="checkinAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,6 +86,8 @@
                                     </svg>
                                     <span>Kembalikan</span>
                                 </a>
+                                @endif
+                                @if(hasPermission('asset:dispose'))
                                 <a href="#"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,6 +96,8 @@
                                     </svg>
                                     <span>Hapuskan</span>
                                 </a>
+                                @endif
+                                @if(hasPermission('asset:report-loss'))
                                 <a href="javascript:void(0)" id="lostAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,6 +106,8 @@
                                     </svg>
                                     <span>Hilang</span>
                                 </a>
+                                @endif
+                                @if(hasPermission('asset:edit'))
                                 <a href="javascript:void(0)" id="editAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,8 +116,10 @@
                                     </svg>
                                     <span>Ubah</span>
                                 </a>
+                                @endif
                             @elseif($asset['current_status'] === 'lost')
                                 <!-- When status is lost: Found, Edit buttons -->
+                                @if(hasPermission('asset:report-found'))
                                 <a href="javascript:void(0)" id="foundAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,6 +128,8 @@
                                     </svg>
                                     <span>Ditemukan</span>
                                 </a>
+                                @endif
+                                @if(hasPermission('asset:edit'))
                                 <a href="javascript:void(0)" id="editAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,6 +138,7 @@
                                     </svg>
                                     <span>Ubah</span>
                                 </a>
+                                @endif
                             @endif
                             <!-- Add this button alongside the other action buttons -->
                             <a href="{{ route('asset.export-pdf', ['id' => $asset['asset_id'] ?? '']) }}"
@@ -466,6 +488,7 @@
     </div>
 
     <!-- Edit Asset Modal -->
+    @if(hasPermission('asset:edit'))
     <div id="editAssetModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
         <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -670,8 +693,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Checkout Asset Modal -->
+    @if(hasPermission('asset:checkout'))
     <div id="checkoutAssetModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
         <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -810,8 +835,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Checkin Asset Modal -->
+    @if(hasPermission('asset:return'))
     <div id="checkinAssetModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
         <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -876,8 +903,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Report Asset as Lost Modal -->
+    @if(hasPermission('asset:report-loss'))
     <div id="reportLostModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
         <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -931,8 +960,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Found Asset Modal -->
+    @if(hasPermission('asset:report-found'))
     <div id="foundAssetModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
         <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -978,8 +1009,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Dispose Asset Modal -->
+    @if(hasPermission('asset:dispose'))
     <div id="disposeAssetModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
         <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -1055,6 +1088,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <style>
         /* Flip card styling */
@@ -1111,6 +1145,58 @@
 @push('scripts')
 <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Permission-based initialization
+            const assetId = '{{ $asset['asset_id'] ?? "" }}';
+            const currentStatus = '{{ $asset['current_status'] ?? "" }}';
+
+            // Function to initialize buttons based on permissions
+            function initializeButtons() {
+                @if(!hasPermission('asset:edit'))
+                // Hide edit buttons if user doesn't have edit permission
+                document.querySelectorAll('#editAssetBtn').forEach(btn => {
+                    if (btn) btn.style.display = 'none';
+                });
+                @endif
+
+                @if(!hasPermission('asset:checkout'))
+                // Hide checkout buttons if user doesn't have checkout permission
+                document.querySelectorAll('#checkoutAssetBtn').forEach(btn => {
+                    if (btn) btn.style.display = 'none';
+                });
+                @endif
+
+                @if(!hasPermission('asset:return'))
+                // Hide checkin buttons if user doesn't have return permission
+                document.querySelectorAll('#checkinAssetBtn').forEach(btn => {
+                    if (btn) btn.style.display = 'none';
+                });
+                @endif
+
+                @if(!hasPermission('asset:dispose'))
+                // Hide dispose buttons if user doesn't have dispose permission
+                document.querySelectorAll('#disposeAssetBtn').forEach(btn => {
+                    if (btn) btn.style.display = 'none';
+                });
+                @endif
+
+                @if(!hasPermission('asset:report-loss'))
+                // Hide lost buttons if user doesn't have report-loss permission
+                document.querySelectorAll('#lostAssetBtn').forEach(btn => {
+                    if (btn) btn.style.display = 'none';
+                });
+                @endif
+
+                @if(!hasPermission('asset:report-found'))
+                // Hide found buttons if user doesn't have report-found permission
+                document.querySelectorAll('#foundAssetBtn').forEach(btn => {
+                    if (btn) btn.style.display = 'none';
+                });
+                @endif
+            }
+
+            // Call initialization function
+            initializeButtons();
+
             // Function to show toast notifications
             function showToast(message, type = 'success') {
                 // Create the notification element

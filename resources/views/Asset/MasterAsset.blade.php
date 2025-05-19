@@ -14,24 +14,30 @@
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap gap-3">
+                        @if(hasPermission('asset-master:import'))
                         <button id="importMasterAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-green-600 rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v8" />
                             </svg>
                             <span class="text-base">Impor Excel</span>
                         </button>
+                        @endif
+                        @if(hasPermission('asset-master:export'))
                         <button id="exportBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             <span class="text-base">Ekspor PDF</span>
                         </button>
+                        @endif
+                        @if(hasPermission('asset-master:create'))
                         <button id="addMasterAssetBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             <span class="text-base">Tambah Aset Master</span>
                         </button>
+                        @endif
                     </div>
                 </div>
 
@@ -126,12 +132,15 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                             </a>
+                                            @if(hasPermission('asset-master:edit'))
                                             <button class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-asset-btn"
                                                 data-id="{{ $asset['asset_master_id'] ?? '' }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </button>
+                                            @endif
+                                            @if(hasPermission('asset-master:delete'))
                                             <button class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-asset-btn"
                                                 data-id="{{ $asset['asset_master_id'] ?? '' }}"
                                                 data-name="{{ $asset['asset_name'] ?? '' }}">
@@ -139,6 +148,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -218,6 +228,7 @@
 </div>
 
 <!-- Add Master Asset Modal -->
+@if(hasPermission('asset-master:create'))
 <div id="addMasterAssetModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -374,8 +385,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Edit Master Asset Modal -->
+@if(hasPermission('asset-master:edit'))
 <div id="editMasterAssetModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -539,8 +552,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Delete Confirmation Modal -->
+@if(hasPermission('asset-master:delete'))
 <div id="deleteModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -585,8 +600,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Import Master Asset Modal -->
+@if(hasPermission('asset-master:import'))
 <div id="importMasterAssetModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -739,6 +756,7 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- All notifications are handled by JavaScript -->
 
@@ -749,6 +767,47 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+    // Add JavaScript initialization here for permission awareness
+        @if(!hasPermission('asset-master:create'))
+        // Disable related elements if user doesn't have permission
+        const addButtons = document.querySelectorAll('#addMasterAssetBtn');
+        addButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('asset-master:import'))
+        // Disable related elements if user doesn't have permission
+        const addButtons = document.querySelectorAll('#importMasterAssetBtn, #preview-btn');
+        addButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('asset-master:edit'))
+        // Disable edit functionality if user doesn't have permission
+            const editButtons = document.querySelectorAll('.edit-asset-btn');
+        editButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('asset-master:delete'))
+        // Disable delete functionality if user doesn't have permission
+        const deleteButtons = document.querySelectorAll('.delete-asset-btn');
+        deleteButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
         // Display session notifications using the showNotification function
         @if(session('success'))
             showNotification('success', '{{ session('success') }}');
@@ -1373,7 +1432,6 @@
 
         // Load brands when form opens
         document.getElementById('addMasterAssetBtn')?.addEventListener('click', function() {
-            // Load brands when the add modal is opened
             loadBrands('brand_id', 'brand-loading-message');
         });
 
