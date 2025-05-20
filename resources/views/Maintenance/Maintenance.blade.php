@@ -168,15 +168,27 @@
                                                 </button>
 
                                                 <!-- Create Report Icon (Document) -->
+                                                @php
+                                                    $canCreateReport = false;
+                                                    $loggedInUserId = session('user_id');
+                                                    $assignedUserId = $maintenance['assigned_to'] ?? null;
+
+                                                    // Compare logged-in user ID with assigned user ID
+                                                    $canCreateReport = ($loggedInUserId && $assignedUserId && $loggedInUserId == $assignedUserId);
+                                                @endphp
+
+                                                @if($canCreateReport)
                                                 <button class="create-report-btn p-2 bg-green-100 text-green-500 rounded-md hover:bg-green-200 transition-colors"
                                                     data-id="{{ $maintenance['id'] }}"
                                                     data-asset-name="{{ $maintenance['asset_name'] ?? '' }}"
                                                     data-asset-code="{{ $maintenance['asset_code'] ?? '' }}"
+                                                    data-assigned-to="{{ $maintenance['assigned_to'] ?? '' }}"
                                                     title="Buat Laporan">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                     </svg>
                                                 </button>
+                                                @endif
 
                                                 <!-- Delete Maintenance Icon (Trash) -->
                                                 <button class="delete-maintenance-btn p-2 bg-[#F9D2D2] text-[#8E2121] rounded-md hover:bg-red-200 transition-colors"
@@ -693,8 +705,7 @@
                                         </div>
                                         <div class="flex-1">
                                             <select id="edit_interval" name="interval"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                                 <option value="ONCE">Sekali</option>
                                                 <option value="DAILY">Harian</option>
                                                 <option value="WEEKLY">Mingguan</option>
@@ -719,8 +730,7 @@
                                         </div>
                                         <div class="flex-1">
                                             <input type="date" id="edit_start_date" name="start_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal mulai diperlukan</div>
                                         </div>
                                     </div>
@@ -734,8 +744,7 @@
                                         </div>
                                         <div class="flex-1">
                                             <input type="date" id="edit_end_date" name="end_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal selesai diperlukan</div>
                                         </div>
                                     </div>
@@ -853,8 +862,7 @@
                                         </div>
                                         <div class="flex-1">
                                             <input type="date" id="maintenance_date" name="maintenance_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal laporan diperlukan</div>
                                         </div>
                                     </div>
@@ -869,7 +877,7 @@
                                         <div class="flex-1">
                                             <textarea id="description" name="description" rows="4"
                                                 class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 resize-none"
-                                                required placeholder="Masukkan detail laporan pemeliharaan..."></textarea>
+                                                placeholder="Masukkan detail laporan pemeliharaan..."></textarea>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi diperlukan</div>
                                         </div>
                                     </div>
@@ -1121,7 +1129,6 @@
                 notification.setAttribute('role', 'alert');
 
                 // Check if message is an object or array (for detailed error messages)
-                let messageContent = '';
                 if (typeof message === 'object' && message !== null) {
                     // If it's an error object with nested errors
                     if (message.errors && typeof message.errors === 'object') {
@@ -2984,6 +2991,11 @@
                 });
             });
 
+                        // Global security check for report creation
+            @php
+                echo "const currentLoggedInUserId = " . json_encode(session('user_id')) . ";";
+            @endphp
+
             // Create Report buttons
             document.querySelectorAll('.create-report-btn').forEach(button => {
                 button.addEventListener('click', function() {
@@ -2991,6 +3003,15 @@
                     // Coba ambil dari atribut data dulu
                     let assetName = this.getAttribute('data-asset-name');
                     let assetCode = this.getAttribute('data-asset-code');
+
+                    // Get assigned user ID and enforce security
+                    const assignedUserId = this.getAttribute('data-assigned-to');
+
+                    // Double security check to prevent unauthorized access through direct script execution
+                    if (!currentLoggedInUserId || !assignedUserId || currentLoggedInUserId != assignedUserId) {
+                        showToast('Akses ditolak. Hanya petugas yang ditugaskan yang dapat membuat laporan pemeliharaan.', 'error');
+                        return;
+                    }
 
                     // Jika tidak ada di data attributes, ambil dari row
                     if (!assetName || !assetCode) {
@@ -3039,6 +3060,37 @@
                         submitBtn.innerHTML = 'Kirim Laporan';
                     }
 
+                    return;
+                }
+
+                                // Security check: ensure current user is authorized to submit this report
+                const maintenanceReportId = document.getElementById('report_maintenance_id').value;
+
+                // We already have currentLoggedInUserId from the global scope
+                if (!currentLoggedInUserId) {
+                    showToast('Sesi pengguna tidak valid. Silakan login kembali.', 'error');
+                    return;
+                }
+
+                // Additional verification that form wasn't tampered with
+                const reportBtns = document.querySelectorAll('.create-report-btn');
+                let isAuthorized = false;
+                let correctAssignedUserId = null;
+
+                // Find the maintenance item to verify authorization
+                reportBtns.forEach(btn => {
+                    if (btn.getAttribute('data-id') === maintenanceReportId) {
+                        correctAssignedUserId = btn.getAttribute('data-assigned-to');
+                        if (correctAssignedUserId && correctAssignedUserId == currentLoggedInUserId) {
+                            isAuthorized = true;
+                        }
+                    }
+                });
+
+                if (!isAuthorized) {
+                    showToast('Akses ditolak. Anda tidak memiliki wewenang untuk membuat laporan ini.', 'error');
+                    // Close the modal
+                    closeModal(modals.report, modalContents.report);
                     return;
                 }
 
