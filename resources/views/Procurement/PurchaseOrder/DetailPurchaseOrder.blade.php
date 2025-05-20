@@ -20,15 +20,18 @@
                 </div>
 
                     @if(isset($purchaseOrder) && !empty($purchaseOrder))
+                    @if(hasPermission('purchase-order:export'))
                     <a href="{{ route('procurement.purchase-order.detail.export-pdf', ['id' => $purchaseOrder['purchase_order_id']]) }}"
                        target="_blank"
                        rel="noopener noreferrer"
+                       id="exportPdfBtn"
                        class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         Export PDF
                     </a>
+                    @endif
                     @endif
                 </div>
 
@@ -181,3 +184,20 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check permissions and hide elements if needed
+        @if(!hasPermission('purchase-order:export'))
+        // Hide export PDF button if user doesn't have permission
+        const exportButtons = document.querySelectorAll('#exportPdfBtn');
+        exportButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+    });
+</script>
+@endpush

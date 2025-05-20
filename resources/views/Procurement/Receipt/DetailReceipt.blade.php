@@ -3,6 +3,9 @@
 @section('title', 'Detail Penerimaan')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="h-full space-y-4 md:space-y-6">
     <!-- Receipt Detail Section -->
     <div class="card bg-base-100 shadow-xl">
@@ -136,7 +139,130 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // No additional JavaScript needed as we're using a direct link for PDF export
+        // Function to show SweetAlert notifications
+        function showSweetAlert(message, type = 'success', options = {}) {
+            const iconMap = {
+                success: 'success',
+                error: 'error',
+                warning: 'warning',
+                info: 'info',
+                question: 'question'
+            };
+
+            // Default options
+            const defaultOptions = {
+                title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
+                html: message,
+                icon: iconMap[type] || 'info',
+                confirmButtonText: options.confirmButtonText || 'OK',
+                confirmButtonColor: options.confirmButtonColor || '#213268',
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title',
+                    htmlContainer: 'swal-custom-content',
+                    confirmButton: 'swal-custom-confirm',
+                    cancelButton: 'swal-custom-cancel'
+                },
+                buttonsStyling: true,
+                showClass: {
+                    popup: 'animate__animated animate__fadeIn animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOut animate__faster'
+                }
+            };
+
+            // Merge with custom options
+            const mergedOptions = { ...defaultOptions, ...options };
+
+            // Add specific options based on alert type
+            if (type === 'success' && options.timer === undefined) {
+                // Auto close success messages after 2.5 seconds
+                mergedOptions.timer = 2500;
+                mergedOptions.timerProgressBar = true;
+            } else if (type === 'error' && options.showCloseButton === undefined) {
+                // Make error alerts more prominent
+                mergedOptions.confirmButtonColor = '#d33';
+                mergedOptions.showCloseButton = true;
+            }
+
+            // Add custom styles for SweetAlert
+            if (!document.getElementById('swal-custom-styles')) {
+                const styleTag = document.createElement('style');
+                styleTag.id = 'swal-custom-styles';
+                styleTag.innerHTML = `
+                    /* SweetAlert Custom Styles */
+                    .swal2-popup {
+                        border-radius: 15px;
+                        padding: 1.5rem;
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                    }
+                    .swal-custom-title {
+                        font-weight: 600;
+                        font-size: 1.5rem;
+                        color: #333;
+                    }
+                    .swal-custom-content {
+                        font-size: 1rem;
+                        color: #555;
+                        margin-top: 0.5rem;
+                    }
+                    .swal-custom-content ul {
+                        text-align: left;
+                        margin-top: 1rem;
+                        margin-bottom: 1rem;
+                    }
+                    .swal-custom-confirm {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal-custom-cancel {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal2-timer-progress-bar {
+                        background: rgba(33, 50, 104, 0.5);
+                    }
+                    .swal2-icon {
+                        margin: 1rem auto;
+                    }
+                `;
+                document.head.appendChild(styleTag);
+            }
+
+            // Add animate.css CDN for animations if not already loaded
+            if (!document.getElementById('animate-css')) {
+                const animateLink = document.createElement('link');
+                animateLink.id = 'animate-css';
+                animateLink.rel = 'stylesheet';
+                animateLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+                document.head.appendChild(animateLink);
+            }
+
+            // Fire the alert and return the Promise for chaining
+            return Swal.fire(mergedOptions);
+        }
+
+        // Show SweetAlert notifications for session messages on page load
+        @if(session('success'))
+            showSweetAlert("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showSweetAlert("{{ session('error') }}", 'error');
+        @endif
+
+        // Add event listener for PDF export button
+        const exportPdfBtn = document.getElementById('exportPdfBtn');
+        if (exportPdfBtn) {
+            exportPdfBtn.addEventListener('click', function() {
+                showSweetAlert('Mengunduh file PDF...', 'info', {
+                    timer: 1500,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+            });
+        }
     });
 </script>
 @endpush

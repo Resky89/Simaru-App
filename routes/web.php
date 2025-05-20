@@ -430,7 +430,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::delete('/{id}', [MaintenanceController::class, 'destroy'])
             ->name('maintenance.destroy')
             ->middleware('permission:maintenance:delete');
-        Route::post('/maintenance-reports', [MaintenanceController::class, 'createMaintenanceReport'])
+        Route::post('/reports', [MaintenanceController::class, 'createMaintenanceReport'])
             ->name('maintenance.reports.create')
             ->middleware('permission:maintenance-report:medical|maintenance-report:non-medical');
     });
@@ -638,13 +638,13 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 //=============================================================================
 
 // Edit routes for master assets
-Route::middleware(['auth.api', 'permission:asset-master:edit'])->group(function() {
+Route::middleware(['permission:asset-master:edit'])->group(function() {
 Route::get('/asset-master/{id}/edit', [ViewMasterAssetController::class, 'editMasterAsset']);
 Route::put('/asset-master/{id}', [ViewMasterAssetController::class, 'updateMasterAsset'])->name('asset-master.update');
 });
 
 // Calibration detail routes
-Route::middleware(['auth.api', 'permission:calibration:view'])->group(function() {
+Route::middleware(['permission:calibration:view'])->group(function() {
     Route::get('/calibration/detail/{id}', [CalibrationController::class, 'showCalibrationDetail'])->name('calibration.detail');
     Route::get('/calibration/edit/{id}', [CalibrationController::class, 'update'])
         ->name('calibration.edit')

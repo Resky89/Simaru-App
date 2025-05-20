@@ -24,6 +24,7 @@
                 </div>
 
                 <!-- Form -->
+                @if((request()->has('id') && hasPermission('procurement:request:edit')) || (!request()->has('id') && hasPermission('procurement:request:create')))
                 <form id="requestForm" class="w-full space-y-6">
                     @csrf
                     <input type="hidden" id="procurement_id" name="procurement_id">
@@ -169,16 +170,16 @@
                         </button>
                     </div>
                 </form>
+                @else
+                <!-- No permission message -->
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
+                    <p>Maaf, Anda tidak memiliki izin untuk {{ request()->has('id') ? 'mengedit' : 'membuat' }} permintaan pengadaan.</p>
+                </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
-
-<!-- Toast Container - Will be populated dynamically -->
-<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
-
-<!-- Remove existing modals as they will be replaced by SweetAlert -->
-@endsection
 
 @push('scripts')
 <script>
@@ -217,14 +218,67 @@
         // Add a flag to track if we're currently submitting/redirecting to prevent unwanted navigation
         let isNavigatingAway = false;
 
-        // Show warning when attempting to leave the page with unsaved changes
+        // Improve navigation handling with SweetAlert for internal links
+        document.addEventListener('click', function(e) {
+            // Skip if we're already navigating away or submitting
+            if (isSubmitting || isNavigatingAway) {
+                return;
+            }
+
+            // Find closest anchor tag if the click was on a child element
+            const anchor = e.target.closest('a');
+            if (!anchor) return; // Not clicking on a link
+
+            // Skip links without href or with href="#" or javascript:void(0)
+            if (!anchor.href ||
+                anchor.href === window.location.href ||
+                anchor.href === window.location.href + '#' ||
+                anchor.href.startsWith('javascript:')) {
+                return;
+            }
+
+            // Skip links with specific data attributes (e.g., download links, modals)
+            if (anchor.hasAttribute('data-skip-confirm') ||
+                anchor.hasAttribute('download') ||
+                anchor.target === '_blank') {
+                return;
+            }
+
+            // Skip if the form has no changes
+            if (!formHasChanges()) {
+                return;
+            }
+
+            // Prevent the default navigation
+            e.preventDefault();
+
+            // Show SweetAlert confirmation
+            showSweetAlert('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?', 'warning', {
+                title: 'Perubahan Belum Disimpan',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Tinggalkan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#213268',
+                cancelButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // User confirmed leaving, set flag and navigate
+                    isNavigatingAway = true;
+                    window.location.href = anchor.href;
+                }
+                // If not confirmed, do nothing - user stays on page
+            });
+        });
+
+        // Keep a limited beforeunload for cases like tab closing, refreshing or external navigation
+        // This cannot use SweetAlert due to browser security restrictions
         window.addEventListener('beforeunload', function(e) {
             // Only show if there are form changes and we're not already submitting or redirecting
             if (!isSubmitting && !isNavigatingAway && formHasChanges()) {
-                // Standard text (browsers may override this message)
-                const message = 'Perubahan yang Anda buat mungkin tidak disimpan.';
-                e.returnValue = message;
-                return message;
+                // Modern browsers will show a generic message regardless of what we set here
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
             }
         });
 
@@ -332,7 +386,7 @@
                     return assetMasters;
                 })
                 .catch(error => {
-                    console.error('Error fetching asset masters:', error);
+                    console.error('Error loading asset masters:', error);
 
                     // Hide all loading indicators on error
                     document.querySelectorAll('.asset-master-loading').forEach(loading => {
@@ -346,6 +400,9 @@
                         errorItem.textContent = 'Gagal memuat daftar aset';
                         list.appendChild(errorItem);
                     });
+
+                    // Also show SweetAlert for the error
+                    showSweetAlert('Gagal memuat daftar aset master. Silakan coba lagi.', 'error');
 
                     return [];
                 });
@@ -503,6 +560,11 @@
 
             // Load procurement data
             loadProcurementData(procurementId);
+        } else {
+            // Initialize with at least one item entry in create mode
+            if (itemContainer.querySelectorAll('.item-entry').length === 0) {
+                addItemEntry(0);
+            }
         }
 
         // Function to handle asset type selection change
@@ -562,14 +624,26 @@
 
         // Function to load existing procurement data
         function loadProcurementData(id) {
+            // Show loading indicator
+            const submitButton = document.getElementById('submitButton');
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                MEMUAT DATA...
+            `;
+
             fetch(`/procurement/request/${id}`, {
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
                 }
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Gagal mengambil data permintaan');
+                    throw new Error(`Gagal mengambil data permintaan (${response.status})`);
                 }
                 return response.json();
             })
@@ -586,9 +660,14 @@
                     itemContainer.innerHTML = '';
 
                     // Add item entries for each detail
-                    procurement.details.forEach((detail, index) => {
-                        addItemEntry(index, detail);
-                    });
+                    if (procurement.details && procurement.details.length > 0) {
+                        procurement.details.forEach((detail, index) => {
+                            addItemEntry(index, detail);
+                        });
+                    } else {
+                        // If no details, add at least one empty item row
+                        addItemEntry(0);
+                    }
 
                     // Update delete buttons visibility
                     updateDeleteButtons();
@@ -638,10 +717,21 @@
                 } else {
                     showSweetAlert('Gagal memuat data permintaan', 'error');
                 }
+
+                // Restore button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'KIRIM';
             })
             .catch(error => {
                 console.error('Error:', error);
-                showSweetAlert('Gagal memuat data permintaan: ' + error.message, 'error');
+                showSweetAlert('Gagal memuat data permintaan: ' + error.message, 'error', {
+                    title: 'Gagal Memuat Data',
+                    footer: 'Silakan coba muat ulang halaman'
+                });
+
+                // Restore button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'KIRIM';
             });
         }
 
@@ -841,7 +931,7 @@
         }
 
         // Function to show SweetAlert notifications
-        function showSweetAlert(message, type = 'success') {
+        function showSweetAlert(message, type = 'success', options = {}) {
             const iconMap = {
                 success: 'success',
                 error: 'error',
@@ -851,12 +941,12 @@
             };
 
             // Default options
-            const options = {
+            const defaultOptions = {
                 title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
                 html: message,
                 icon: iconMap[type] || 'info',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#213268',
+                confirmButtonText: options.confirmButtonText || 'OK',
+                confirmButtonColor: options.confirmButtonColor || '#213268',
                 customClass: {
                     popup: 'swal-custom-popup',
                     title: 'swal-custom-title',
@@ -873,15 +963,18 @@
                 }
             };
 
+            // Merge with custom options
+            const mergedOptions = { ...defaultOptions, ...options };
+
             // Add specific options based on alert type
-            if (type === 'success') {
+            if (type === 'success' && !options.timer === undefined) {
                 // Auto close success messages after 2.5 seconds
-                options.timer = 2500;
-                options.timerProgressBar = true;
-            } else if (type === 'error') {
+                mergedOptions.timer = 2500;
+                mergedOptions.timerProgressBar = true;
+            } else if (type === 'error' && !options.showCloseButton) {
                 // Make error alerts more prominent
-                options.confirmButtonColor = '#d33';
-                options.showCloseButton = true;
+                mergedOptions.confirmButtonColor = '#d33';
+                mergedOptions.showCloseButton = true;
             }
 
             // Add custom styles for SweetAlert
@@ -937,8 +1030,8 @@
                 document.head.appendChild(animateLink);
             }
 
-            // Fire the alert
-            Swal.fire(options);
+            // Fire the alert and return the Promise for chaining
+            return Swal.fire(mergedOptions);
         }
 
         // Function to validate a form field
@@ -964,6 +1057,36 @@
                     field.classList.add('border-red-500');
                     if (errorMessage) {
                         errorMessage.textContent = field.value.trim() ? 'Justifikasi minimal 10 karakter' : 'Justifikasi harus diisi';
+                        errorMessage.classList.remove('hidden');
+                    }
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorMessage) errorMessage.classList.add('hidden');
+                    return true;
+                }
+            } else if (field.classList.contains('quantity')) {
+                // Specific validation for quantity fields
+                const value = parseInt(field.value, 10);
+                if (isNaN(value) || value <= 0) {
+                    field.classList.add('border-red-500');
+                    if (errorMessage) {
+                        errorMessage.textContent = 'Jumlah harus lebih dari 0';
+                        errorMessage.classList.remove('hidden');
+                    }
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorMessage) errorMessage.classList.add('hidden');
+                    return true;
+                }
+            } else if (field.classList.contains('unit-price')) {
+                // Specific validation for price fields
+                const value = parseFloat(field.value);
+                if (isNaN(value) || value < 0) {
+                    field.classList.add('border-red-500');
+                    if (errorMessage) {
+                        errorMessage.textContent = 'Harga tidak boleh negatif';
                         errorMessage.classList.remove('hidden');
                     }
                     return false;
@@ -1153,20 +1276,24 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    showSweetAlert(isUpdate
-                        ? 'Pengadaan berhasil diperbarui'
-                        : 'Pengadaan berhasil dibuat', 'success');
-
-                    // Use single flag to control redirection
-                    // Don't re-enable button on success, we're redirecting
-
-                    // Set flag to indicate we're navigating away intentionally
-                    isNavigatingAway = true;
-
-                    // Redirect after a short delay to allow for toast to be seen
-                    setTimeout(() => {
-                        window.location.href = '{{ route("procurement.request") }}';
-                    }, 1500);
+                    // Show success message with automatic redirect
+                    showSweetAlert(
+                        isUpdate ? 'Pengadaan berhasil diperbarui' : 'Pengadaan berhasil dibuat',
+                        'success',
+                        {
+                            timer: 1500,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                // Set flag to indicate we're navigating away intentionally
+                                isNavigatingAway = true;
+                            },
+                            willClose: () => {
+                                // Redirect after toast closes
+                                window.location.href = '{{ route("procurement.request") }}';
+                            }
+                        }
+                    );
                 } else {
                     // Reset submission status and re-enable the button
                     isSubmitting = false;
@@ -1318,33 +1445,17 @@
             }
         }
 
-        // Add event handler for the back button
+        // Add event handler for the back button - keep this specific handling
         document.getElementById('backButton').addEventListener('click', function(e) {
             if (formHasChanges()) {
                 e.preventDefault();
-                Swal.fire({
+                showSweetAlert('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?', 'warning', {
                     title: 'Perubahan Belum Disimpan',
-                    text: 'Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?',
-                    icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#213268',
-                    cancelButtonColor: '#d33',
                     confirmButtonText: 'Ya, Tinggalkan',
                     cancelButtonText: 'Batal',
-                    customClass: {
-                        popup: 'swal-custom-popup',
-                        title: 'swal-custom-title',
-                        htmlContainer: 'swal-custom-content',
-                        confirmButton: 'swal-custom-confirm',
-                        cancelButton: 'swal-custom-cancel'
-                    },
-                    buttonsStyling: true,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeIn animate__faster'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOut animate__faster'
-                    }
+                    confirmButtonColor: '#213268',
+                    cancelButtonColor: '#d33'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         isNavigatingAway = true;

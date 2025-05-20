@@ -3,10 +3,14 @@
 @section('title', 'Receipt Form')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- Toast container for notifications -->
 <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-4"></div>
 
 <div class="h-full space-y-4 md:space-y-6">
+    @if(hasPermission('receipt:create'))
     <!-- Receipt Form Section -->
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body p-4 md:p-7">
@@ -29,9 +33,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- Receipt Date -->
                         <div class="form-control">
-                            <label class="block text-base font-medium text-[#666666] mb-2">Tanggal Penerimaan</label>
+                            <label class="block text-base font-medium text-[#666666] mb-2">Tanggal Penerimaan <span class="text-red-500">*</span></label>
                             <input type="date" id="receipt_date" name="receipt_date" value="<?php echo date('Y-m-d'); ?>"
                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal penerimaan harus diisi</div>
                         </div>
 
                         <!-- Delivered by -->
@@ -41,21 +46,24 @@
                                 <input type="text" id="delivered_by" name="delivered_by"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             </div>
+                            <div class="error-message text-red-500 text-sm mt-1 hidden">Nama pengirim harus diisi</div>
                         </div>
 
                         <!-- Received by -->
                         <div class="form-control">
-                            <label class="block text-base font-medium text-[#666666] mb-2">Diterima oleh</label>
+                            <label class="block text-base font-medium text-[#666666] mb-2">Diterima oleh <span class="text-red-500">*</span></label>
                             <div class="relative">
-                                <input type="text" id="receivedByInput" placeholder="Cari penerima..."
+                                <div class="flex">
+                                    <input type="text" id="receivedByInput" placeholder="Cari pegawai..."
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                     autocomplete="off">
+                                </div>
                                 <input type="hidden" id="received_by" name="received_by" value="">
 
                                 <!-- Dropdown for search results -->
                                 <div id="users_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                                     <!-- Loading indicator -->
-                                    <div id="users_loading" class="flex justify-center py-2">
+                                    <div id="users_loading" class="flex justify-center py-2 hidden">
                                         <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -64,14 +72,15 @@
                                     <ul id="users_list" class="max-h-56 overflow-y-auto"></ul>
                                 </div>
                             </div>
+                            <div class="error-message text-red-500 text-sm mt-1 hidden">Penerima harus dipilih dari daftar pegawai</div>
                         </div>
                     </div>
 
                     <!-- Search Section -->
                     <div class="space-y-4">
-                        <label class="block text-base font-semibold text-[#666666]">Nomor Purchase Order</label>
+                        <label class="block text-base font-semibold text-[#666666]">Nomor Pemesanan</label>
                         <div class="relative">
-                            <input type="text" id="purchaseOrderNumber" placeholder="Masukkan nomor purchase order"
+                            <input type="text" id="purchaseOrderNumber" placeholder="Masukkan nomor pemesanan"
                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-l-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                 autocomplete="off">
                             <input type="hidden" id="selected_po_id" name="purchase_order_id">
@@ -105,7 +114,7 @@
                         <div class="grid grid-cols-1 gap-3">
                             <!-- PO Number -->
                             <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Nomor PO</p>
+                                <p class="w-40 text-[#666666] font-medium">Nomor Pemesanan</p>
                                 <p class="text-[#666666]">: <span id="displayPoCode"></span></p>
                             </div>
 
@@ -129,7 +138,7 @@
 
                             <!-- Input Date -->
                             <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Tanggal PO</p>
+                                <p class="w-40 text-[#666666] font-medium">Tanggal Pemesanan</p>
                                 <p class="text-[#666666]">: <span id="displayPoDate"></span></p>
                             </div>
                         </div>
@@ -172,6 +181,21 @@
         </div>
     </div>
 </div>
+@else
+<!-- Permission Denied Message -->
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body p-4 md:p-7">
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
+            <p>Maaf, Anda tidak memiliki izin untuk membuat penerimaan baru.</p>
+        </div>
+        <div class="flex justify-center mt-6">
+            <a href="{{ route('procurement.receipt') }}" class="px-6 py-3 bg-[#213268] text-white rounded-lg hover:bg-[#152451]">
+                Kembali ke Daftar Penerimaan
+            </a>
+        </div>
+    </div>
+</div>
+@endif
 
 @endsection
 
@@ -221,224 +245,113 @@
             }
         }
 
-        // Function to show toast notifications
-        function showToast(message, type = 'success') {
-            // Remove existing notifications with the same type
-            const existingNotification = document.getElementById(type === 'success' ? 'successNotification' : 'errorNotification');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
+        // Function to show SweetAlert notifications
+        function showSweetAlert(message, type = 'success', options = {}) {
+            const iconMap = {
+                success: 'success',
+                error: 'error',
+                warning: 'warning',
+                info: 'info',
+                question: 'question'
+            };
 
-            // Create the notification element
-            const notification = document.createElement('div');
-            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
-            notification.className = `p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]`;
-            notification.role = 'alert';
-
-            // Check if message contains HTML
-            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
-
-            if (type === 'success') {
-                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-                notification.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
-            } else {
-                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
-
-                // Structure for the notification
-                const wrapper = document.createElement('div');
-                wrapper.className = 'flex items-start';
-
-                // Icon container
-                const iconContainer = document.createElement('div');
-                iconContainer.className = 'py-1 flex-shrink-0';
-                iconContainer.innerHTML = `
-                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                `;
-
-                // Content container
-                const contentContainer = document.createElement('div');
-                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                // Title
-                const title = document.createElement('p');
-                title.className = 'font-bold';
-                title.textContent = 'Kesalahan!';
-                contentContainer.appendChild(title);
-
-                // Message container
-                const messageContainer = document.createElement('div');
-                messageContainer.className = 'error-message';
-
-                // Handle different types of message content
-                if (typeof message === 'object' && message !== null) {
-                    // Create an unordered list for nested errors
-                    const errorList = document.createElement('ul');
-                    errorList.className = 'list-disc pl-5 mt-2 space-y-1';
-
-                    // Process each error field
-                    Object.entries(message).forEach(([key, value]) => {
-                        const listItem = document.createElement('li');
-
-                        if (key === 'errors' && typeof value === 'object') {
-                            // Handle the errors object specially
-                            processErrorObject(value, errorList);
-                        } else if (Array.isArray(value)) {
-                            // If the value is an array, create a nested list
-                            const keyText = document.createElement('span');
-                            keyText.className = 'font-medium';
-                            keyText.textContent = key + ': ';
-                            listItem.appendChild(keyText);
-
-                            const nestedList = document.createElement('ul');
-                            nestedList.className = 'list-disc pl-5 mt-1';
-
-                            value.forEach(item => {
-                                const nestedItem = document.createElement('li');
-                                if (typeof item === 'object' && item !== null) {
-                                    if (item.message) {
-                                        nestedItem.textContent = item.message;
-                                    } else {
-                                        nestedItem.textContent = JSON.stringify(item);
-                                    }
-                                } else {
-                                    nestedItem.textContent = item;
-                                }
-                                nestedList.appendChild(nestedItem);
-                            });
-
-                            listItem.appendChild(nestedList);
-                            errorList.appendChild(listItem);
-                        } else if (typeof value === 'object' && value !== null) {
-                            // Handle nested objects
-                            const keyText = document.createElement('span');
-                            keyText.className = 'font-medium';
-                            keyText.textContent = key + ': ';
-                            listItem.appendChild(keyText);
-
-                            const nestedList = document.createElement('ul');
-                            nestedList.className = 'list-disc pl-5 mt-1';
-
-                            Object.entries(value).forEach(([nestedKey, nestedValue]) => {
-                                const nestedItem = document.createElement('li');
-                                if (Array.isArray(nestedValue)) {
-                                    nestedItem.innerHTML = `<span class="font-medium">${nestedKey}:</span> ${nestedValue.join(', ')}`;
-                                } else {
-                                    nestedItem.innerHTML = `<span class="font-medium">${nestedKey}:</span> ${nestedValue}`;
-                                }
-                                nestedList.appendChild(nestedItem);
-                            });
-
-                            listItem.appendChild(nestedList);
-                            errorList.appendChild(listItem);
-                        } else {
-                            // Simple key-value pair
-                            listItem.innerHTML = `<span class="font-medium">${key}:</span> ${value}`;
-                            errorList.appendChild(listItem);
-                        }
-                    });
-
-                    messageContainer.appendChild(errorList);
-                } else if (hasHTML) {
-                    messageContainer.innerHTML = message;
-                } else {
-                    messageContainer.textContent = message;
+            // Default options
+            const defaultOptions = {
+                title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
+                html: message,
+                icon: iconMap[type] || 'info',
+                confirmButtonText: options.confirmButtonText || 'OK',
+                confirmButtonColor: options.confirmButtonColor || '#213268',
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title',
+                    htmlContainer: 'swal-custom-content',
+                    confirmButton: 'swal-custom-confirm',
+                    cancelButton: 'swal-custom-cancel'
+                },
+                buttonsStyling: true,
+                showClass: {
+                    popup: 'animate__animated animate__fadeIn animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOut animate__faster'
                 }
+            };
 
-                contentContainer.appendChild(messageContainer);
+            // Merge with custom options
+            const mergedOptions = { ...defaultOptions, ...options };
 
-                // Close button
-                const closeBtn = document.createElement('span');
-                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                closeBtn.textContent = '×';
-                closeBtn.onclick = function() {
-                    notification.remove();
-                };
-
-                // Assemble the notification
-                wrapper.appendChild(iconContainer);
-                wrapper.appendChild(contentContainer);
-                wrapper.appendChild(closeBtn);
-                notification.appendChild(wrapper);
+            // Add specific options based on alert type
+            if (type === 'success' && options.timer === undefined) {
+                // Auto close success messages after 2.5 seconds
+                mergedOptions.timer = 2500;
+                mergedOptions.timerProgressBar = true;
+            } else if (type === 'error' && options.showCloseButton === undefined) {
+                // Make error alerts more prominent
+                mergedOptions.confirmButtonColor = '#d33';
+                mergedOptions.showCloseButton = true;
             }
 
-            // Helper function to process error objects recursively
-            function processErrorObject(errors, parentElement) {
-            if (typeof errors === 'string') {
-                    const item = document.createElement('li');
-                    item.textContent = errors;
-                    parentElement.appendChild(item);
-                    return;
-            }
-
-            if (Array.isArray(errors)) {
-                    errors.forEach(error => {
-                        if (typeof error === 'string') {
-                            const item = document.createElement('li');
-                            item.textContent = error;
-                            parentElement.appendChild(item);
-                        } else if (typeof error === 'object' && error !== null) {
-                            // Handle object errors
-                            processErrorObject(error, parentElement);
-                        }
-                    });
-                    return;
-                }
-
-                // Process object errors
-                Object.entries(errors).forEach(([field, messages]) => {
-                    const item = document.createElement('li');
-
-                    if (Array.isArray(messages)) {
-                        item.innerHTML = `<span class="font-medium">${field}:</span> ${messages.join(', ')}`;
-                    } else if (typeof messages === 'object' && messages !== null) {
-                        const fieldText = document.createElement('span');
-                        fieldText.className = 'font-medium';
-                        fieldText.textContent = field + ': ';
-                        item.appendChild(fieldText);
-
-                        const nestedList = document.createElement('ul');
-                        nestedList.className = 'list-disc pl-5 mt-1';
-                        processErrorObject(messages, nestedList);
-                        item.appendChild(nestedList);
-                    } else {
-                        item.innerHTML = `<span class="font-medium">${field}:</span> ${messages}`;
+            // Add custom styles for SweetAlert
+            if (!document.getElementById('swal-custom-styles')) {
+                const styleTag = document.createElement('style');
+                styleTag.id = 'swal-custom-styles';
+                styleTag.innerHTML = `
+                    /* SweetAlert Custom Styles */
+                    .swal2-popup {
+                        border-radius: 15px;
+                        padding: 1.5rem;
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
                     }
-
-                    parentElement.appendChild(item);
-                });
+                    .swal-custom-title {
+                        font-weight: 600;
+                        font-size: 1.5rem;
+                        color: #333;
+                    }
+                    .swal-custom-content {
+                        font-size: 1rem;
+                        color: #555;
+                        margin-top: 0.5rem;
+                    }
+                    .swal-custom-content ul {
+                        text-align: left;
+                        margin-top: 1rem;
+                        margin-bottom: 1rem;
+                    }
+                    .swal-custom-confirm {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal-custom-cancel {
+                        padding: 0.5rem 1.5rem;
+                        font-weight: 500;
+                    }
+                    .swal2-timer-progress-bar {
+                        background: rgba(33, 50, 104, 0.5);
+                    }
+                    .swal2-icon {
+                        margin: 1rem auto;
+                    }
+                `;
+                document.head.appendChild(styleTag);
             }
 
-            // Add to toast container
-            document.getElementById('toast-container').appendChild(notification);
+            // Add animate.css CDN for animations if not already loaded
+            if (!document.getElementById('animate-css')) {
+                const animateLink = document.createElement('link');
+                animateLink.id = 'animate-css';
+                animateLink.rel = 'stylesheet';
+                animateLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+                document.head.appendChild(animateLink);
+            }
 
-            // Auto-hide after 5 seconds
-            setTimeout(function() {
-                if (document.getElementById(notification.id)) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function() {
-                        if (document.getElementById(notification.id)) {
-                            notification.remove();
-                        }
-                    }, 500);
-                }
-            }, 5000);
+            // Fire the alert and return the Promise for chaining
+            return Swal.fire(mergedOptions);
+        }
 
-            return notification;
+        // Legacy toast function - keeping for backward compatibility but using SweetAlert internally
+        function showToast(message, type = 'success') {
+            return showSweetAlert(message, type);
         }
 
         // Debounce function to limit how often a function can be called
@@ -501,16 +414,57 @@
                 const result = await response.json();
                 let purchaseOrders = result.data || [];
 
+                // Now fetch all existing receipts to check which purchase orders to exclude
+                const receiptsResponse = await fetch('/procurement/receipt?json=true&limit=1000', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!receiptsResponse.ok) {
+                    throw new Error('Gagal mengambil data penerimaan');
+                }
+
+                const receiptsResult = await receiptsResponse.json();
+
+                // Create a Set of purchase order IDs that already have receipts
+                const purchaseOrdersWithReceipts = new Set();
+
+                // Get receipts from the response
+                let receipts = [];
+                if (receiptsResult && receiptsResult.success === true && Array.isArray(receiptsResult.data)) {
+                    receipts = receiptsResult.data;
+                } else if (receiptsResult && Array.isArray(receiptsResult.receipts)) {
+                    receipts = receiptsResult.receipts;
+                }
+
+                // Extract purchase order IDs that already have receipts
+                if (receipts && receipts.length > 0) {
+                    receipts.forEach(receipt => {
+                        if (receipt && receipt.purchase_order_id) {
+                            purchaseOrdersWithReceipts.add(receipt.purchase_order_id);
+                        }
+                    });
+                }
+
+                console.log('Found ' + purchaseOrdersWithReceipts.size + ' purchase orders with existing receipts');
+
+                // Filter purchase orders to only show those without existing receipts
+                const filteredPurchaseOrders = purchaseOrders.filter(po =>
+                    !purchaseOrdersWithReceipts.has(po.purchase_order_id)
+                );
+
                 // Populate dropdown
                 poList.innerHTML = '';
 
-                if (purchaseOrders.length === 0) {
+                if (filteredPurchaseOrders.length === 0) {
                     const noResults = document.createElement('li');
                     noResults.className = 'px-4 py-2 text-gray-500 italic';
-                    noResults.textContent = 'Tidak ada purchase order ditemukan';
+                    noResults.textContent = 'Tidak ada purchase order yang tersedia untuk penerimaan';
                     poList.appendChild(noResults);
                 } else {
-                    purchaseOrders.forEach(po => {
+                    filteredPurchaseOrders.forEach(po => {
                         const li = document.createElement('li');
                         li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
@@ -601,8 +555,49 @@
                                     item.purchase_order_code.toLowerCase() === poCode.toLowerCase());
 
                                 if (exactMatch) {
+                                    // Now check if this PO already has a receipt
+                                    return fetch('/procurement/receipt?json=true&limit=1000', {
+                                        headers: {
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        }
+                                    })
+                                    .then(receiptsResponse => {
+                                        if (!receiptsResponse.ok) {
+                                            throw new Error('Gagal mengambil data penerimaan');
+                                        }
+                                        return receiptsResponse.json();
+                                    })
+                                    .then(receiptsResult => {
+                                        // Extract purchase order IDs that already have receipts
+                                        const purchaseOrdersWithReceipts = new Set();
+
+                                        // Get receipts from the response
+                                        let receipts = [];
+                                        if (receiptsResult && receiptsResult.success === true && Array.isArray(receiptsResult.data)) {
+                                            receipts = receiptsResult.data;
+                                        } else if (receiptsResult && Array.isArray(receiptsResult.receipts)) {
+                                            receipts = receiptsResult.receipts;
+                                        }
+
+                                        // Extract purchase order IDs that already have receipts
+                                        if (receipts && receipts.length > 0) {
+                                            receipts.forEach(receipt => {
+                                                if (receipt && receipt.purchase_order_id) {
+                                                    purchaseOrdersWithReceipts.add(receipt.purchase_order_id);
+                                                }
+                                            });
+                                        }
+
+                                        // Check if this PO already has a receipt
+                                        if (purchaseOrdersWithReceipts.has(exactMatch.purchase_order_id)) {
+                                            throw new Error('Purchase order ini sudah memiliki penerimaan');
+                                        }
+
+                                        // If not, proceed with fetching details
                                     selectedPoId.value = exactMatch.purchase_order_id;
                                     return fetchPurchaseOrderDetails(parseInt(exactMatch.purchase_order_id, 10));
+                                    });
                                 } else {
                                     throw new Error('Nomor purchase order tidak ditemukan, silakan periksa kembali');
                                 }
@@ -769,6 +764,7 @@
         // Form submission
         if (form) {
             let isSubmitting = false; // Flag to track submission status
+        let isNavigatingAway = false; // Flag to track if we're intentionally navigating away
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
 
@@ -777,26 +773,45 @@
                     return;
                 }
 
-                // Validate required fields
+                // Validate all required fields
+                let isValid = true;
+
+                // Validate PO selection
                 if (!selectedPoId.value) {
-                    showToast('Mohon pilih purchase order terlebih dahulu', 'error');
+                    showSweetAlert('Mohon pilih purchase order terlebih dahulu', 'error');
                     return;
                 }
 
-                if (!document.getElementById('receipt_date').value) {
-                    showToast('Tanggal penerimaan harus diisi', 'error');
+                // Validate receipt date
+                const receiptDateField = document.getElementById('receipt_date');
+                if (!receiptDateField.value) {
+                    receiptDateField.classList.add('border-red-500');
+                    const errorElement = receiptDateField.closest('.form-control').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                // Delivered by is optional
+                const deliveredByField = document.getElementById('delivered_by');
+
+                // Validate received_by
+                if (!validateReceivedBy()) {
+                    receivedByInput.classList.add('border-red-500');
+                    const errorElement = receivedByInput.closest('.form-control').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                // If any validation failed, show an error and stop submission
+                if (!isValid) {
+                    showSweetAlert('Mohon lengkapi semua field yang wajib diisi', 'error');
                     return;
                 }
 
-                if (!document.getElementById('delivered_by').value) {
-                    showToast('Nama pengirim harus diisi', 'error');
-                    return;
-                }
-
-                const receivedById = document.getElementById('received_by').value;
-                if (!receivedById) {
-                    showToast('Penerima harus dipilih', 'error');
-                    console.log('Missing received_by value. Make sure to select a user from the dropdown.');
+                // Convert employee_id to number for API compatibility
+                receivedByField.value = parseInt(receivedByField.value, 10);
+                if (isNaN(receivedByField.value)) {
+                    showToast('ID pegawai tidak valid', 'error');
                     return;
                 }
 
@@ -804,7 +819,7 @@
                 console.log('Form values before submission:', {
                     purchase_order_id: selectedPoId.value,
                     receipt_date: document.getElementById('receipt_date').value,
-                    received_by: receivedById,
+                    received_by: receivedByField.value,
                     delivered_by: document.getElementById('delivered_by').value,
                     receivedByName: document.getElementById('receivedByInput').value
                 });
@@ -817,10 +832,18 @@
                     const item_id = input.value;
                     const notes_input = document.querySelector(`input[data-item_id="${item_id}"]`);
 
-                    items.push({
-                        purchase_order_item_id: parseInt(item_id),
-                        notes: notes_input ? notes_input.value : ''
-                    });
+                    // Only include notes if they're not empty
+                    const itemData = {
+                        purchase_order_item_id: parseInt(item_id)
+                    };
+
+                    // Add notes only if they exist and aren't empty
+                    const noteValue = notes_input ? notes_input.value.trim() : '';
+                    if (noteValue) {
+                        itemData.notes = noteValue;
+                    }
+
+                    items.push(itemData);
                 });
 
                 if (items.length === 0) {
@@ -829,24 +852,35 @@
                 }
 
                 // Make sure to convert received_by to a number
-                const receivedByValue = parseInt(receivedById, 10);
+                const receivedByValue = parseInt(receivedByField.value, 10);
                 if (isNaN(receivedByValue)) {
                     showToast('ID penerima tidak valid', 'error');
                     return;
                 }
 
-                // Get the notes value from the textarea
-                const notesValue = document.getElementById('notesField').value || '';
-
-                // Prepare receipt data
+                // Prepare receipt data (required fields)
                 const receiptData = {
                     purchase_order_id: parseInt(selectedPoId.value),
                     receipt_date: document.getElementById('receipt_date').value,
-                    received_by: receivedByValue, // Use the parsed integer value
-                    delivered_by: document.getElementById('delivered_by').value,
-                    notes: notesValue, // Use the value from the notes textarea
-                    items: items
+                    received_by: receivedByValue // Use the parsed integer value
                 };
+
+                // Add optional fields only if they have values
+
+                // Add delivered_by if not empty
+                const deliveredByValue = document.getElementById('delivered_by').value.trim();
+                if (deliveredByValue) {
+                    receiptData.delivered_by = deliveredByValue;
+                }
+
+                // Add notes if not empty
+                const notesValue = document.getElementById('notesField').value.trim();
+                if (notesValue) {
+                    receiptData.notes = notesValue;
+                }
+
+                // Add items
+                receiptData.items = items;
 
                 console.log('Submitting receipt:', receiptData);
 
@@ -875,10 +909,24 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showToast(data.message || 'Penerimaan barang berhasil dibuat!');
-                        setTimeout(() => {
+                                        // Show success message with automatic redirect
+                                        showSweetAlert(
+                                            data.message || 'Penerimaan barang berhasil dibuat!',
+                                            'success',
+                                            {
+                                                timer: 1500,
+                                                timerProgressBar: true,
+                                                showConfirmButton: false,
+                                                didOpen: () => {
+                                                    // Indicate we're navigating away intentionally
+                                                    isNavigatingAway = true;
+                                                },
+                                                willClose: () => {
+                                                    // Redirect after message closes
                 window.location.href = "{{ route('procurement.receipt') }}";
-                        }, 1500);
+                                                }
+                                            }
+                                        );
                     } else {
                         // Reset submission state
                         isSubmitting = false;
@@ -887,9 +935,37 @@
 
                         // Enhanced error handling
                         if (data.errors) {
-                            showToast({ errors: data.errors }, 'error');
+                                            const errorData = data.errors;
+
+                                            // Initialize error message
+                                            let errorMessage = 'Terjadi kesalahan saat memproses permintaan Anda:';
+                                            let errorList = [];
+
+                                            // Process error data
+                                            if (typeof errorData === 'object' && Object.keys(errorData).length > 0) {
+                                                Object.entries(errorData).forEach(([field, errors]) => {
+                                                    if (Array.isArray(errors)) {
+                                                        errors.forEach(err => {
+                                                            errorList.push(`${err}`);
+                                                        });
+                                                    } else if (typeof errors === 'string') {
+                                                        errorList.push(`${errors}`);
+                                                    }
+                                                });
+                                            }
+
+                                            // Format error message with list if we have specific errors
+                                            if (errorList.length > 0) {
+                                                errorMessage += '<ul class="mt-2 list-disc pl-5">';
+                                                errorList.forEach(err => {
+                                                    errorMessage += `<li>${err}</li>`;
+                                                });
+                                                errorMessage += '</ul>';
+                                            }
+
+                                            showSweetAlert(errorMessage, 'error');
                         } else {
-                            showToast(data.message || 'Gagal membuat penerimaan barang', 'error');
+                                            showSweetAlert(data.message || 'Gagal membuat penerimaan barang', 'error');
                         }
                     }
                 })
@@ -901,18 +977,53 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
 
-                    showToast('Terjadi kesalahan saat membuat penerimaan barang', 'error');
+                    showSweetAlert('Terjadi kesalahan saat membuat penerimaan barang', 'error');
                 });
             });
         }
 
         // User search functionality
+
+        // Function to validate and show/hide error for user selection
+        function validateReceivedBy() {
+            const errorElement = receivedByInput.closest('.form-control').querySelector('.error-message');
+
+            if (!receivedByField.value) {
+                if (errorElement) errorElement.classList.remove('hidden');
+                receivedByInput.classList.add('border-red-500');
+                return false;
+            } else {
+                if (errorElement) errorElement.classList.add('hidden');
+                receivedByInput.classList.remove('border-red-500');
+                return true;
+            }
+        }
+
+        // Listen for input changes to clear validation errors
+        receivedByInput.addEventListener('input', function() {
+            receivedByInput.classList.remove('border-red-500');
+            const errorElement = this.closest('.form-control').querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        // Clear validation errors when fields change
+        document.getElementById('receipt_date').addEventListener('change', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.form-control').querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        // Delivered by is optional, no validation needed
+
         // Toggle dropdown visibility on focus
         receivedByInput.addEventListener('focus', function() {
             usersDropdown.classList.remove('hidden');
-            if (usersList.children.length === 0) {
-                loadUsers(''); // Initial load on focus
-            }
+
+            // Show loading message first
+            usersList.innerHTML = '<li class="px-4 py-2 text-gray-500 italic">Mulai mengetik untuk mencari pengguna</li>';
+
+            // Load all users on focus
+            loadUsers('');
         });
 
         // Hide dropdown when clicking outside
@@ -924,22 +1035,42 @@
 
         // Search input handler with debounce
         const debouncedUserSearch = debounce(function(e) {
-            loadUsers(e.target.value);
+            const searchTerm = e.target.value.trim();
+            loadUsers(searchTerm);
+            usersDropdown.classList.remove('hidden');
         }, 300);
 
         receivedByInput.addEventListener('input', debouncedUserSearch);
 
+        // Search button has been removed
+
+        // Enable searching when Enter key is pressed in the input field
+        receivedByInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const searchTerm = receivedByInput.value.trim();
+                usersDropdown.classList.remove('hidden');
+                loadUsers(searchTerm);
+            }
+        });
+
         // Function to load users
         async function loadUsers(searchTerm) {
             // Show loading indicator
-            if (usersLoading) usersLoading.classList.remove('hidden');
+            if (usersLoading) {
+                usersLoading.classList.remove('hidden');
+            }
             usersList.innerHTML = '';
 
             try {
-                // Fetch users data from API
-                const response = await fetch(`{{ route('user.search') }}?query=${encodeURIComponent(searchTerm)}`, {
+                // Show loading spinner
+                usersLoading.classList.remove('hidden');
+
+                // Fetch users data using the same endpoint as in Maintenance.blade.php
+                const response = await fetch(`{{ route('user') }}?search=${encodeURIComponent(searchTerm)}`, {
                     headers: {
                         'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
@@ -949,7 +1080,16 @@
                 }
 
                 const result = await response.json();
-                let users = result.data || [];
+                // Handle both possible response structures
+                let users = [];
+                if (Array.isArray(result)) {
+                    users = result;
+                } else if (result.data && Array.isArray(result.data)) {
+                    users = result.data;
+                }
+
+                // Hide loading spinner
+                usersLoading.classList.add('hidden');
 
                 // Populate dropdown
                 usersList.innerHTML = '';
@@ -960,9 +1100,6 @@
                     noResults.textContent = 'Tidak ada pengguna ditemukan';
                     usersList.appendChild(noResults);
                 } else {
-                    // Debug output - check what fields are available in the user data
-                    console.log('User data structure:', users[0]);
-
                     users.forEach(user => {
                         const li = document.createElement('li');
                         li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
@@ -991,12 +1128,13 @@
                             receivedByField.value = this.getAttribute('data-id');
                             receivedByInput.value = this.getAttribute('data-name');
 
-                            // For debugging
-                            console.log('Selected user ID:', this.getAttribute('data-id'));
-                            console.log('Selected user name:', this.getAttribute('data-name'));
-
                             // Hide dropdown
                             usersDropdown.classList.add('hidden');
+
+                            // Clear any validation errors
+                            receivedByInput.classList.remove('border-red-500');
+                            const errorElement = receivedByInput.closest('.form-control').querySelector('.error-message');
+                            if (errorElement) errorElement.classList.add('hidden');
                         });
 
                         usersList.appendChild(li);
@@ -1004,12 +1142,16 @@
                 }
             } catch (error) {
                 console.error('Error loading users:', error);
+                usersList.innerHTML = '';
                 const errorItem = document.createElement('li');
                 errorItem.className = 'px-4 py-2 text-red-500';
-                errorItem.textContent = 'Gagal memuat daftar pengguna';
+                errorItem.textContent = 'Gagal memuat daftar pengguna: ' + (error.message || 'Unknown error');
                 usersList.appendChild(errorItem);
             } finally {
-                if (usersLoading) usersLoading.classList.add('hidden');
+                // Ensure loading indicator is hidden
+                if (usersLoading) {
+                    usersLoading.classList.add('hidden');
+                }
             }
         }
 

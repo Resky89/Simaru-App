@@ -14,7 +14,7 @@
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div class="flex items-center">
-                        <a href="{{ route('procurement.price-comparison') }}" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                        <a href="{{ route('procurement.price-comparison') }}" id="backButton" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                             <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
@@ -23,6 +23,8 @@
                     </div>
                 </div>
 
+                <!-- Check permission for create/edit -->
+                @if((isset($comparison) && hasPermission('price-comparison:edit')) || (!isset($comparison) && hasPermission('price-comparison:create')))
                 <!-- Search Section -->
                 <div class="space-y-4">
                     <!-- Quotation Title -->
@@ -129,13 +131,18 @@
                         </button>
                     </div>
                 </div>
+                @else
+                <!-- No permission message -->
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
+                    <p>Maaf, Anda tidak memiliki izin untuk {{ isset($comparison) ? 'mengedit' : 'membuat' }} perbandingan harga.</p>
+                </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
 
-<!-- Toast Notifications Container -->
-<div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+<!-- SweetAlert will be used instead of toast notifications -->
 
 @endsection
 
@@ -151,6 +158,11 @@
         const procurementLoading = document.getElementById('procurement_loading');
         const selectedRequestId = document.getElementById('selected_request_id');
         const requestDetails = document.getElementById('requestDetails');
+
+        // Add a flag to track if we're currently submitting/redirecting to prevent unwanted navigation
+        let isNavigatingAway = false;
+        let isSubmitting = false;
+        let formHasBeenFilled = false;
 
         // Check if we're in edit mode
         const isEditMode = {{ isset($comparison) ? 'true' : 'false' }};
@@ -188,7 +200,7 @@
         }
 
         // Function to show SweetAlert notifications
-        function showSweetAlert(message, type = 'success') {
+        function showSweetAlert(message, type = 'success', options = {}) {
             const iconMap = {
                 success: 'success',
                 error: 'error',
@@ -198,12 +210,12 @@
             };
 
             // Default options
-            const options = {
+            const defaultOptions = {
                 title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
                 html: message,
                 icon: iconMap[type] || 'info',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#213268',
+                confirmButtonText: options.confirmButtonText || 'OK',
+                confirmButtonColor: options.confirmButtonColor || '#213268',
                 customClass: {
                     popup: 'swal-custom-popup',
                     title: 'swal-custom-title',
@@ -220,15 +232,18 @@
                 }
             };
 
+            // Merge with custom options
+            const mergedOptions = { ...defaultOptions, ...options };
+
             // Add specific options based on alert type
-            if (type === 'success') {
+            if (type === 'success' && options.timer === undefined) {
                 // Auto close success messages after 2.5 seconds
-                options.timer = 2500;
-                options.timerProgressBar = true;
-            } else if (type === 'error') {
+                mergedOptions.timer = 2500;
+                mergedOptions.timerProgressBar = true;
+            } else if (type === 'error' && options.showCloseButton === undefined) {
                 // Make error alerts more prominent
-                options.confirmButtonColor = '#d33';
-                options.showCloseButton = true;
+                mergedOptions.confirmButtonColor = '#d33';
+                mergedOptions.showCloseButton = true;
             }
 
             // Add custom styles for SweetAlert
@@ -284,9 +299,86 @@
                 document.head.appendChild(animateLink);
             }
 
-            // Fire the alert
-            Swal.fire(options);
+            // Fire the alert and return the Promise for chaining
+            return Swal.fire(mergedOptions);
         }
+
+        // Show SweetAlert notifications for session messages on page load
+        @if(session('success'))
+            showSweetAlert("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showSweetAlert("{{ session('error') }}", 'error');
+        @endif
+
+        // Helper function to check if the form has any changes
+        function formHasChanges() {
+            return formHasBeenFilled ||
+                   document.getElementById('comparisonTitle').value.trim() ||
+                   document.getElementById('selected_request_id').value ||
+                   document.getElementById('requestNumber').value.trim();
+        }
+
+        // Improve navigation handling with SweetAlert for internal links
+        document.addEventListener('click', function(e) {
+            // Skip if we're already navigating away or submitting
+            if (isSubmitting || isNavigatingAway) {
+                return;
+            }
+
+            // Find closest anchor tag if the click was on a child element
+            const anchor = e.target.closest('a');
+            if (!anchor) return; // Not clicking on a link
+
+            // Skip links without href or with href="#" or javascript:void(0)
+            if (!anchor.href ||
+                anchor.href === window.location.href ||
+                anchor.href === window.location.href + '#' ||
+                anchor.href.startsWith('javascript:')) {
+                return;
+            }
+
+            // Skip links with specific data attributes (e.g., download links, modals)
+            if (anchor.hasAttribute('data-skip-confirm') ||
+                anchor.hasAttribute('download') ||
+                anchor.target === '_blank') {
+                return;
+            }
+
+            // Skip if the form has no changes
+            if (!formHasChanges()) {
+                return;
+            }
+
+            // Prevent the default navigation
+            e.preventDefault();
+
+            // Show SweetAlert confirmation
+            showSweetAlert('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?', 'warning', {
+                title: 'Perubahan Belum Disimpan',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Tinggalkan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#213268',
+                cancelButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // User confirmed leaving, set flag and navigate
+                    isNavigatingAway = true;
+                    window.location.href = anchor.href;
+                }
+                // If not confirmed, do nothing - user stays on page
+            });
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (!isSubmitting && !isNavigatingAway && formHasChanges()) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
 
         // Function to validate field
         function validateField(field) {
@@ -303,17 +395,19 @@
             }
         }
 
-        // Add input event listeners to clear error styling on fields
+        // Add input event listeners to clear error styling and track changes
         comparisonTitle.addEventListener('input', function() {
             this.classList.remove('border-red-500');
             const errorElement = this.closest('.space-y-2').querySelector('.error-message');
             if (errorElement) errorElement.classList.add('hidden');
+            formHasBeenFilled = true;
         });
 
         requestNumber.addEventListener('input', function() {
             this.classList.remove('border-red-500');
             const errorElement = this.closest('.space-y-2').querySelector('.error-message');
             if (errorElement) errorElement.classList.add('hidden');
+            formHasBeenFilled = true;
         });
 
         // Search button click event
@@ -360,8 +454,56 @@
                     })
                     .then(result => {
                         if (result.success && result.data && result.data.length > 0) {
+                            // Get all approved procurements
+                            let procurements = result.data;
+
+                            // Fetch price comparisons to check which procurements to exclude
+                            return fetch('{{ route("procurement.price-comparison") }}?json=true&limit=1000', {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(comparisonResponse => {
+                                if (!comparisonResponse.ok) {
+                                    throw new Error('Gagal mengambil data perbandingan harga');
+                                }
+                                return comparisonResponse.json();
+                            })
+                            .then(comparisonResult => {
+                                // Create a Set of procurement IDs that already have price comparisons
+                                const procurementsWithComparisons = new Set();
+
+                                // Get comparisons from the response
+                                let comparisons = [];
+                                if (comparisonResult && comparisonResult.success === true && Array.isArray(comparisonResult.data)) {
+                                    comparisons = comparisonResult.data;
+                                } else if (comparisonResult && Array.isArray(comparisonResult.comparisons)) {
+                                    comparisons = comparisonResult.comparisons;
+                                }
+
+                                // Extract procurement IDs that already have comparisons
+                                if (comparisons && comparisons.length > 0) {
+                                    comparisons.forEach(comparison => {
+                                        if (comparison && comparison.procurement_id) {
+                                            procurementsWithComparisons.add(comparison.procurement_id);
+                                        }
+                                    });
+                                }
+
+                                console.log('Found ' + procurementsWithComparisons.size + ' procurements with existing price comparisons');
+
+                                // Filter procurements to only show those without existing comparisons
+                                const filteredProcurements = procurements.filter(procurement =>
+                                    !procurementsWithComparisons.has(procurement.procurement_id)
+                                );
+
+                                if (filteredProcurements.length === 0) {
+                                    throw new Error('Tidak ada permintaan yang tersedia untuk perbandingan harga atau nomor permintaan sudah memiliki perbandingan harga');
+                                }
+
                             // Find exact match by code if possible
-                            const exactMatch = result.data.find(item =>
+                                const exactMatch = filteredProcurements.find(item =>
                                 item.procurement_code &&
                                 item.procurement_code.toLowerCase() === procurementCode.toLowerCase() &&
                                 item.status &&
@@ -372,7 +514,7 @@
                                 return fetchProcurementDetails(parseInt(exactMatch.procurement_id, 10));
                             } else {
                                 // Find the first approved result
-                                const approvedMatch = result.data.find(item =>
+                                    const approvedMatch = filteredProcurements.find(item =>
                                     item.status &&
                                     item.status.toLowerCase() === 'approved');
 
@@ -383,6 +525,7 @@
                                     throw new Error('Nomor pengajuan yang disetujui tidak ditemukan, silakan periksa kembali nomor pengajuan');
                                 }
                             }
+                            });
                         } else {
                             throw new Error('Nomor pengajuan yang disetujui tidak ditemukan, silakan periksa kembali nomor pengajuan');
                         }
@@ -462,16 +605,57 @@
                 const result = await response.json();
                 let procurements = result.data || [];
 
+                // Now fetch all existing price comparisons to check which procurements to exclude
+                const comparisonResponse = await fetch('{{ route("procurement.price-comparison") }}?json=true&limit=1000', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!comparisonResponse.ok) {
+                    throw new Error('Gagal mengambil data perbandingan harga');
+                }
+
+                const comparisonResult = await comparisonResponse.json();
+
+                // Create a Set of procurement IDs that already have price comparisons
+                const procurementsWithComparisons = new Set();
+
+                // Get comparisons from the response
+                let comparisons = [];
+                if (comparisonResult && comparisonResult.success === true && Array.isArray(comparisonResult.data)) {
+                    comparisons = comparisonResult.data;
+                } else if (comparisonResult && Array.isArray(comparisonResult.comparisons)) {
+                    comparisons = comparisonResult.comparisons;
+                }
+
+                // Extract procurement IDs that already have comparisons
+                if (comparisons && comparisons.length > 0) {
+                    comparisons.forEach(comparison => {
+                        if (comparison && comparison.procurement_id) {
+                            procurementsWithComparisons.add(comparison.procurement_id);
+                        }
+                    });
+                }
+
+                console.log('Found ' + procurementsWithComparisons.size + ' procurements with existing price comparisons');
+
+                // Filter procurements to only show those without existing comparisons
+                const filteredProcurements = procurements.filter(procurement =>
+                    !procurementsWithComparisons.has(procurement.procurement_id)
+                );
+
                 // Populate dropdown
                 procurementList.innerHTML = '';
 
-                if (procurements.length === 0) {
+                if (filteredProcurements.length === 0) {
                     const noResults = document.createElement('li');
                     noResults.className = 'px-4 py-2 text-gray-500 italic';
-                    noResults.textContent = 'Tidak ada permintaan yang disetujui ditemukan';
+                    noResults.textContent = 'Tidak ada permintaan yang tersedia untuk perbandingan harga';
                     procurementList.appendChild(noResults);
                 } else {
-                    procurements.forEach(procurement => {
+                    filteredProcurements.forEach(procurement => {
                         // Skip non-approved procurements (extra safety check)
                         if (procurement.status && procurement.status.toLowerCase() !== 'approved') {
                             return;
@@ -494,6 +678,9 @@
                             // Set the selected procurement values
                             selectedRequestId.value = this.getAttribute('data-id');
                             requestNumber.value = this.getAttribute('data-code');
+
+                            // Track that the form has been changed
+                            formHasBeenFilled = true;
 
                             // Hide dropdown
                             procurementDropdown.classList.add('hidden');
@@ -561,6 +748,7 @@
                 // If the title field is empty, use the procurement name
                 if (!comparisonTitle.value) {
                     comparisonTitle.value = procurement.title || procurement.procurement_name || '';
+                    formHasBeenFilled = true;
                 }
 
                 // Get items from the right property (either details or items)
@@ -571,6 +759,9 @@
 
             // Show the request details section
             requestDetails.classList.remove('hidden');
+
+            // Mark the form as having changes
+            formHasBeenFilled = true;
 
                 // Re-enable the submit button if it exists
                 if (submitBtn) submitBtn.disabled = false;
@@ -668,7 +859,6 @@
 
         // Submit button click event
         if (submitBtn) {
-            let isSubmitting = false; // Flag to track submission status
             submitBtn.addEventListener('click', function() {
                 // Prevent multiple submissions
                 if (isSubmitting) {
@@ -729,56 +919,75 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        // Show success toast - don't reset button or submitting flag since we're redirecting
-                        showSweetAlert(data.message || (isEditMode ? 'Perbandingan harga berhasil diperbarui!' : 'Perbandingan harga berhasil dibuat!'));
-
-                        // Set a flag to indicate we're intentionally navigating away
-                        const isNavigatingAway = true;
-
-                        // Redirect after success
-                        setTimeout(() => {
-                            window.location.href = data.redirect_url ||
-                                `{{ route('procurement.price-comparison') }}`;
-                        }, 1500);
+                        // Show success message with automatic redirect
+                        showSweetAlert(
+                            data.message || (isEditMode ? 'Perbandingan harga berhasil diperbarui!' : 'Perbandingan harga berhasil dibuat!'),
+                            'success',
+                            {
+                                timer: 1500,
+                                timerProgressBar: true,
+                                showConfirmButton: false,
+                                didOpen: () => {
+                                    // Set flag to indicate we're navigating away intentionally
+                                    isNavigatingAway = true;
+                                },
+                                willClose: () => {
+                                    // Redirect after toast closes
+                                    window.location.href = data.redirect_url || '{{ route("procurement.price-comparison") }}';
+                                }
+                            }
+                        );
                     } else {
-                        // Reset submission flag and button on error
+                        // Reset submission status and re-enable the button
                         isSubmitting = false;
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = isEditMode ? 'SIMPAN' : 'KIRIM';
 
-                        // Handle structured errors
-                        if (data.errors) {
-                            let errorMessage = '';
+                        const errorData = data.errors || {};
 
-                            // Check if errors is an array of objects with path and message
-                            if (Array.isArray(data.errors)) {
-                                // Create an HTML list of error messages
-                                errorMessage = '<ul class="text-left">';
-                                data.errors.forEach(error => {
-                                    errorMessage += `<li>${error.message || error}</li>`;
-                                });
-                                errorMessage += '</ul>';
+                        // Initialize error message
+                        let errorMessage = 'Terjadi kesalahan saat memproses permintaan Anda:';
+                        let errorList = [];
+
+                        // Handle array-formatted errors
+                        if (Array.isArray(errorData)) {
+                            errorData.forEach(error => {
+                                if (error.path && error.message) {
+                                    errorList.push(`${error.message}`);
+                                } else if (typeof error === 'string') {
+                                    errorList.push(error);
+                                }
+                            });
                             }
-                            // Check if errors has a general key (common pattern)
-                            else if (data.errors.general) {
-                                errorMessage = data.errors.general;
-                            }
-                            // Object with error keys
-                            else {
-                                errorMessage = '<ul class="text-left">';
-                                Object.keys(data.errors).forEach(key => {
-                                    const errorItems = Array.isArray(data.errors[key]) ? data.errors[key] : [data.errors[key]];
-                                    errorItems.forEach(item => {
-                                        errorMessage += `<li>${item}</li>`;
+                        // Handle object-formatted errors (backward compatibility)
+                        else if (typeof errorData === 'object' && Object.keys(errorData).length > 0) {
+                            // Process each error field
+                            Object.entries(errorData).forEach(([field, errors]) => {
+                                if (Array.isArray(errors)) {
+                                    // Multiple errors for this field
+                                    errors.forEach(err => {
+                                        errorList.push(`${err}`);
                                     });
+                                } else if (typeof errors === 'string') {
+                                    // Single error string
+                                    errorList.push(`${errors}`);
+                                }
+                            });
+                        } else if (typeof errorData === 'string') {
+                            // Single error string
+                            errorMessage = errorData;
+                        }
+
+                        // Format error message with list if we have specific errors
+                        if (errorList.length > 0) {
+                            errorMessage += '<ul class="mt-2 list-disc pl-5">';
+                            errorList.forEach(err => {
+                                errorMessage += `<li>${err}</li>`;
                                 });
                                 errorMessage += '</ul>';
                             }
 
                             showSweetAlert(errorMessage, 'error');
-                        } else {
-                            showSweetAlert(data.message || `Terjadi kesalahan saat ${isEditMode ? 'memperbarui' : 'membuat'} perbandingan harga`, 'error');
-                        }
                     }
                 })
                 .catch(error => {
@@ -790,41 +999,77 @@
                     submitBtn.innerHTML = isEditMode ? 'SIMPAN' : 'KIRIM';
 
                     // Handle structured errors similar to above
-                    if (error.errors) {
-                        let errorMessage = '';
+                    let errorMessage = 'Terjadi kesalahan saat memproses permintaan Anda:';
+                    let errorList = [];
 
-                        // Check if errors is an array of objects with path and message
+                    if (error.errors) {
+                        // Handle array-formatted errors
                         if (Array.isArray(error.errors)) {
-                            // Create an HTML list of error messages
-                            errorMessage = '<ul class="text-left">';
                             error.errors.forEach(err => {
-                                errorMessage += `<li>${err.message || err}</li>`;
+                                if (err.path && err.message) {
+                                    errorList.push(`${err.message}`);
+                                } else if (typeof err === 'string') {
+                                    errorList.push(err);
+                                }
                             });
-                            errorMessage += '</ul>';
                         }
-                        // Check if errors has a general key (common pattern)
-                        else if (error.errors.general) {
+                        // Handle object-formatted errors
+                        else if (typeof error.errors === 'object' && Object.keys(error.errors).length > 0) {
+                            Object.entries(error.errors).forEach(([field, errors]) => {
+                                if (Array.isArray(errors)) {
+                                    errors.forEach(err => {
+                                        errorList.push(`${err}`);
+                                    });
+                                } else if (typeof errors === 'string') {
+                                    errorList.push(`${errors}`);
+                                }
+                            });
+                        } else if (error.errors.general) {
                             errorMessage = error.errors.general;
                         }
-                        // Object with error keys
-                        else {
-                            errorMessage = '<ul class="text-left">';
-                            Object.keys(error.errors).forEach(key => {
-                                const errorItems = Array.isArray(error.errors[key]) ? error.errors[key] : [error.errors[key]];
-                                errorItems.forEach(item => {
-                                    errorMessage += `<li>${item}</li>`;
-                                });
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+
+                    // Format error message with list if we have specific errors
+                    if (errorList.length > 0) {
+                        errorMessage += '<ul class="mt-2 list-disc pl-5">';
+                        errorList.forEach(err => {
+                            errorMessage += `<li>${err}</li>`;
                             });
                             errorMessage += '</ul>';
                         }
 
                         showSweetAlert(errorMessage, 'error');
-                    } else {
-                        showSweetAlert(error.message || `Terjadi kesalahan saat ${isEditMode ? 'memperbarui' : 'membuat'} perbandingan harga`, 'error');
-                    }
                 });
             });
         }
+
+        // Add event handler for the back button
+        document.getElementById('backButton').addEventListener('click', function(e) {
+            if (formHasChanges()) {
+                e.preventDefault();
+                showSweetAlert(
+                    'Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?',
+                    'warning',
+                    {
+                        title: 'Perubahan Belum Disimpan',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Tinggalkan',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#213268',
+                        cancelButtonColor: '#d33'
+                    }
+                ).then((result) => {
+                    if (result.isConfirmed) {
+                        isNavigatingAway = true;
+                        window.location.href = '{{ route("procurement.price-comparison") }}';
+                    }
+                });
+            } else {
+                isNavigatingAway = true;
+            }
+        });
 
         // Add slide-in animation styling
         document.head.insertAdjacentHTML('beforeend', `

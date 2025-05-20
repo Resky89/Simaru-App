@@ -310,7 +310,7 @@ class ProcurementReceiptController extends Controller
                 'purchase_order_id' => 'required|integer',
                 'receipt_date' => 'required|date',
                 'received_by' => 'required|integer',
-                'delivered_by' => 'required|string',
+                'delivered_by' => 'nullable|string',
                 'notes' => 'nullable|string',
                 'items' => 'required|array',
                 'items.*.purchase_order_item_id' => 'required|integer',

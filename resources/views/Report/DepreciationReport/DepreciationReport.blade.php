@@ -85,18 +85,13 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Berdasarkan Tanggal</label>
                         <div class="relative">
                             <input type="date" name="as_of_date" class="w-full border border-[#D8DAE5] rounded-md py-2 px-3 text-[#213268]" value="{{ $as_of_date ?? now()->format('Y-m-d') }}">
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[#213268]">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cari Master Aset</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cari Master Aset <span class="text-xs text-gray-500">(hanya aset yang dapat disusutkan)</span></label>
                         <div class="relative">
-                            <input type="text" id="asset_master_search" class="w-full border border-[#D8DAE5] rounded-md py-2 px-3 text-[#213268] focus:outline-none focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" placeholder="Cari Berdasarkan Nama Master Aset" autocomplete="off">
+                            <input type="text" id="asset_master_search" class="w-full border border-[#D8DAE5] rounded-md py-2 px-3 text-[#213268] focus:outline-none focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20" placeholder="Cari aset yang dapat disusutkan" autocomplete="off">
                             <input type="hidden" name="search" id="selected_asset_master_id">
 
                             <!-- Dropdown -->
@@ -503,7 +498,7 @@
                 subcategorySearch.value = subcategoryValue;
                 selectedSubcategory.value = subcategoryValue;
                 subcategorySearch.disabled = false;
-                subcategorySearch.placeholder = 'Search subcategories';
+                subcategorySearch.placeholder = 'Cari subkategori';
             }
 
             // Load subcategories when asset type changes
@@ -516,6 +511,18 @@
 
                     // Pre-load subcategories when asset type is selected
                     loadSubcategories('', this.value);
+
+                    // Show a small notification that categories are being loaded
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed bottom-4 right-4 bg-blue-100 text-blue-800 px-4 py-2 rounded shadow-md z-50';
+                    toast.textContent = 'Memuat kategori berdasarkan tipe aset...';
+                    document.body.appendChild(toast);
+
+                    // Remove the notification after 2 seconds
+                    setTimeout(() => {
+                        toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(() => toast.remove(), 500);
+                    }, 2000);
                 } else {
                     subcategorySearch.disabled = true;
                     subcategorySearch.placeholder = 'Pilih tipe aset terlebih dahulu';
@@ -554,13 +561,21 @@
 
             subcategorySearch.addEventListener('input', debouncedSearch);
 
+            // Pre-load categories when asset type is selected to improve responsiveness
+            if (assetTypeSelect.value) {
+                // Load in the background without showing dropdown
+                setTimeout(() => {
+                    loadSubcategories('', assetTypeSelect.value);
+                }, 500);
+            }
+
             // Function to load subcategories based on asset type
             async function loadSubcategories(searchTerm, assetType) {
                 if (!assetType) {
                     return;
                 }
 
-                console.log('Loading subcategories for:', assetType);
+                console.log('Loading categories for:', assetType);
 
                 // Clear previous content and show loading state
                 subcategoryList.innerHTML = '';
@@ -570,23 +585,37 @@
                     loadingItem.className = 'flex justify-center py-2 items-center';
                     loadingItem.innerHTML = `
                         <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]"></div>
-                        <span class="ml-2 text-gray-600">Memuat subkategori...</span>
+                        <span class="ml-2 text-gray-600">Memuat kategori...</span>
                     `;
                     subcategoryList.appendChild(loadingItem);
 
                 try {
-                    // Use the direct API endpoint for subcategories with asset type filter
-                    const response = await fetch(`{{ route('categories.by-asset-type') }}?asset_type=${encodeURIComponent(assetType)}${searchTerm ? '&search=' + encodeURIComponent(searchTerm) : ''}`, {
+                    // Create a controller for request timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+                    // Build the URL with proper parameters
+                    const url = new URL(`{{ url('/categories') }}`);
+                    url.searchParams.append('asset_type', assetType);
+                    url.searchParams.append('json', 'true');
+                    if (searchTerm) {
+                        url.searchParams.append('search', searchTerm);
+                    }
+
+                    // Use the API endpoint with proper error handling
+                    const response = await fetch(url, {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Cache-Control': 'no-cache'
                         },
-                        credentials: 'same-origin' // Include cookies for authentication
-                    });
+                        credentials: 'same-origin', // Include cookies for authentication
+                        signal: controller.signal
+                    }).finally(() => clearTimeout(timeoutId));
 
                     if (!response.ok) {
-                        throw new Error(`Failed to fetch subcategories: ${response.status}`);
+                        throw new Error(`Failed to fetch categories: ${response.status}`);
                     }
 
                     // Try to parse JSON, but handle HTML responses gracefully
@@ -595,8 +624,16 @@
                         throw new Error('Server returned non-JSON response');
                     }
 
-                    const result = await response.json();
-                    const subcategories = result.data || [];
+                    let result;
+                    try {
+                        result = await response.json();
+                    } catch (jsonError) {
+                        console.error('JSON parse error:', jsonError);
+                        throw new Error('Server returned invalid JSON');
+                    }
+
+                    // Handle different response formats
+                    const subcategories = Array.isArray(result) ? result : (result.data || []);
 
                     console.log('Received subcategories:', subcategories.length);
 
@@ -606,9 +643,15 @@
                     if (subcategories.length === 0) {
                         const noResults = document.createElement('li');
                         noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'Tidak ada subkategori ditemukan';
+                        noResults.textContent = 'Tidak ada kategori ditemukan';
                         subcategoryList.appendChild(noResults);
                     } else {
+                        // Add search help message
+                        const searchHelpMsg = document.createElement('li');
+                        searchHelpMsg.className = 'px-4 py-2 text-gray-500 italic text-center';
+                        searchHelpMsg.textContent = 'Ketik untuk mencari...';
+                        subcategoryList.appendChild(searchHelpMsg);
+
                         // First find exact matches (starts with search term)
                         let hasExactMatches = false;
                         if (searchTerm) {
@@ -647,8 +690,23 @@
 
                                     const errorItem = document.createElement('li');
                 errorItem.className = 'px-4 py-2 text-red-500';
+
+                    // Check if it's a timeout error
+                    if (error.name === 'AbortError') {
+                        errorItem.textContent = 'Permintaan timeout. Server tidak merespon dalam waktu yang ditentukan.';
+                    } else {
                 errorItem.textContent = `Gagal memuat subkategori: ${error.message}`;
+                    }
                 subcategoryList.appendChild(errorItem);
+
+                    // Add retry button
+                    const retryOption = document.createElement('li');
+                    retryOption.className = 'px-4 py-2 text-center bg-blue-50 text-blue-700 cursor-pointer hover:bg-blue-100';
+                    retryOption.textContent = '🔄 Coba lagi';
+                    retryOption.addEventListener('click', function() {
+                        loadSubcategories(searchTerm, assetType);
+                    });
+                    subcategoryList.appendChild(retryOption);
 
                     // Add manual entry option if user typed something
                     if (searchTerm) {
@@ -1037,18 +1095,6 @@
                 selectedAssetId.value = searchValue;
             }
 
-            // Set a default error handler to show in the dropdown
-            const showError = (message) => {
-                const errorItem = document.createElement('li');
-                errorItem.className = 'px-4 py-2 text-red-500';
-                errorItem.textContent = message || 'Gagal memuat master aset';
-                assetList.innerHTML = '';
-                assetList.appendChild(errorItem);
-
-                // Also update the input placeholder to indicate the error
-                searchInput.placeholder = "Gagal memuat master aset";
-            };
-
             // Toggle dropdown visibility
             searchInput.addEventListener('focus', function() {
                 dropdown.classList.remove('hidden');
@@ -1078,25 +1124,38 @@
                 assetList.innerHTML = '';
 
                 try {
-                    // Fetch asset masters data from the API with proper headers
-                    const response = await fetch(`{{ route('asset-master.data') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                    // Fetch asset masters with proper error handling
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+                    // Use the same API endpoint as UnitAsset.blade.php but only get depreciable assets
+                    const url = new URL(`{{ url(route('asset-master')) }}`);
+                    // Add search parameter if provided
+                    if (searchTerm) url.searchParams.append('search', searchTerm);
+                    // Add parameter to filter only depreciable assets
+                    url.searchParams.append('is_depreciable', 'true');
+
+                    const response = await fetch(url, {
                         headers: {
                             'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Cache-Control': 'no-cache'
+                        },
+                        signal: controller.signal
+                    }).finally(() => clearTimeout(timeoutId));
 
                     if (!response.ok) {
-                        throw new Error('Failed to fetch asset masters');
+                        throw new Error(`Failed to fetch asset masters: ${response.status}`);
                     }
 
-                    // Try to parse JSON, but handle HTML responses gracefully
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        throw new Error('Server returned HTML instead of JSON');
+                    let result;
+                    try {
+                        result = await response.json();
+                    } catch (jsonError) {
+                        console.error('JSON parse error:', jsonError);
+                        throw new Error('Server returned invalid JSON');
                     }
 
-                    const result = await response.json();
                     let assetMasters = result.masterAssets || [];
 
                     // Populate dropdown
@@ -1105,7 +1164,7 @@
                     if (assetMasters.length === 0) {
                         const noResults = document.createElement('li');
                         noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'Tidak ada master aset ditemukan';
+                        noResults.textContent = 'Tidak ada aset yang dapat disusutkan ditemukan';
                         assetList.appendChild(noResults);
                     } else {
                         assetMasters.forEach(item => {
@@ -1115,22 +1174,19 @@
                             const assetMasterName = item.asset_name || 'Unknown';
                             const assetMasterCode = item.asset_master_code || '';
 
-                            // Only display the asset name in the dropdown
+                            // Display the asset name in the dropdown
                             li.textContent = assetMasterName;
                             li.setAttribute('data-id', item.asset_master_id);
                             li.setAttribute('data-name', assetMasterName);
                             li.setAttribute('data-code', assetMasterCode);
+                            li.setAttribute('data-depreciable', item.is_depreciable === true ? 'true' : 'false');
 
                             li.addEventListener('click', function() {
                                 // Set the selected asset master data
-                                // Only use the asset name for display
-                                const displayText = this.getAttribute('data-name');
-
-                                // Store just the name in the hidden field for search
                                 selectedAssetId.value = this.getAttribute('data-name');
 
-                                // Update the search input with the full display text for better UX
-                                searchInput.value = displayText;
+                                // Update the search input with the name
+                                searchInput.value = this.getAttribute('data-name');
 
                                 // Hide dropdown
                                 dropdown.classList.add('hidden');
@@ -1141,7 +1197,46 @@
                     }
                 } catch (error) {
                     console.error('Error loading asset masters:', error);
-                    showError(error.message);
+
+                    // Clear existing content
+                    assetList.innerHTML = '';
+
+                    // Show proper error message
+                    const errorItem = document.createElement('li');
+                    errorItem.className = 'px-4 py-2 text-red-500';
+
+                    // Check if it's a timeout error
+                    if (error.name === 'AbortError') {
+                        errorItem.textContent = 'Permintaan timeout. Server tidak merespon dalam waktu yang ditentukan.';
+                    } else {
+                        errorItem.textContent = `Gagal memuat aset yang dapat disusutkan: ${error.message}`;
+                    }
+                    assetList.appendChild(errorItem);
+
+                    // Add retry button
+                    const retryOption = document.createElement('li');
+                    retryOption.className = 'px-4 py-2 text-center bg-blue-50 text-blue-700 cursor-pointer hover:bg-blue-100';
+                    retryOption.textContent = '🔄 Coba lagi';
+                    retryOption.addEventListener('click', function() {
+                        loadAssetMasters(searchTerm);
+                    });
+                    assetList.appendChild(retryOption);
+
+                    // Add manual entry option if user typed something
+                    if (searchTerm) {
+                        const manualOption = document.createElement('li');
+                        manualOption.className = 'px-4 py-2 text-center bg-green-50 text-green-700 cursor-pointer hover:bg-green-100';
+                        manualOption.textContent = `➕ Gunakan "${searchTerm}" sebagai nama aset`;
+                        manualOption.addEventListener('click', function() {
+                            selectedAssetId.value = searchTerm;
+                            searchInput.value = searchTerm;
+                            dropdown.classList.add('hidden');
+                        });
+                        assetList.appendChild(manualOption);
+                    }
+
+                    // Also update the input placeholder to indicate the error
+                    searchInput.placeholder = "Gagal memuat aset yang dapat disusutkan";
                 } finally {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 }

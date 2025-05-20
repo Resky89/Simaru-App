@@ -273,6 +273,7 @@
         const styleTag = document.createElement('style');
         styleTag.id = 'swal-custom-styles';
         styleTag.innerHTML = `
+            /* SweetAlert Custom Styles */
             .swal2-popup {
                 border-radius: 15px;
                 padding: 1.5rem;
@@ -311,7 +312,7 @@
         document.head.appendChild(styleTag);
     }
 
-    function showSweetAlert(message, type = 'success') {
+    function showSweetAlert(message, type = 'success', options = {}) {
         const iconMap = {
             success: 'success',
             error: 'error',
@@ -319,17 +320,20 @@
             info: 'info',
             question: 'question'
         };
-        const options = {
+
+        // Default options
+        const defaultOptions = {
             title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
             html: message,
             icon: iconMap[type] || 'info',
-            confirmButtonText: 'OK',
-            confirmButtonColor: type === 'error' ? '#d33' : '#213268',
+            confirmButtonText: options.confirmButtonText || 'OK',
+            confirmButtonColor: options.confirmButtonColor || '#213268',
             customClass: {
                 popup: 'swal-custom-popup',
                 title: 'swal-custom-title',
                 htmlContainer: 'swal-custom-content',
-                confirmButton: 'swal-custom-confirm'
+                confirmButton: 'swal-custom-confirm',
+                cancelButton: 'swal-custom-cancel'
             },
             buttonsStyling: true,
             showClass: {
@@ -339,13 +343,23 @@
                 popup: 'animate__animated animate__fadeOut animate__faster'
             }
         };
-        if (type === 'success') {
-            options.timer = 2500;
-            options.timerProgressBar = true;
-        } else if (type === 'error') {
-            options.showCloseButton = true;
+
+        // Merge with custom options
+        const mergedOptions = { ...defaultOptions, ...options };
+
+        // Add specific options based on alert type
+        if (type === 'success' && options.timer === undefined) {
+            // Auto close success messages after 2.5 seconds
+            mergedOptions.timer = 2500;
+            mergedOptions.timerProgressBar = true;
+        } else if (type === 'error' && options.showCloseButton === undefined) {
+            // Make error alerts more prominent
+            mergedOptions.confirmButtonColor = '#d33';
+            mergedOptions.showCloseButton = true;
         }
-        Swal.fire(options);
+
+        // Fire the alert and return the Promise for chaining
+        return Swal.fire(mergedOptions);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -378,29 +392,13 @@
         const managerApprovalBtn = document.getElementById('managerApprovalBtn');
         if (managerApprovalBtn) {
             managerApprovalBtn.addEventListener('click', function() {
-                Swal.fire({
+                showSweetAlert('Apakah Anda yakin ingin menyetujui pengadaan ini sebagai manajer?', 'warning', {
                     title: 'Konfirmasi Persetujuan',
-                    text: 'Apakah Anda yakin ingin menyetujui pengadaan ini sebagai manajer?',
-                    icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#213268',
-                    cancelButtonColor: '#d33',
                     confirmButtonText: 'Ya, Setujui',
                     cancelButtonText: 'Batal',
-                    customClass: {
-                        popup: 'swal-custom-popup',
-                        title: 'swal-custom-title',
-                        htmlContainer: 'swal-custom-content',
-                        confirmButton: 'swal-custom-confirm',
-                        cancelButton: 'swal-custom-cancel'
-                    },
-                    buttonsStyling: true,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeIn animate__faster'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOut animate__faster'
-                    }
+                    confirmButtonColor: '#213268',
+                    cancelButtonColor: '#d33',
                 }).then((result) => {
                     if (result.isConfirmed) {
                     const managerApprovalUrl = "{{ route('procurement.manager-approval', ['id' => ':id']) }}".replace(':id', procurementId);
@@ -426,8 +424,14 @@
                             if (grandTotal <= 50000000) {
                                 message += '. Persetujuan direktur tidak diperlukan karena total kurang dari atau sama dengan 50 juta.';
                             }
-                                showSweetAlert(message, 'success');
-                                setTimeout(() => window.location.reload(), 1500);
+                                showSweetAlert(message, 'success', {
+                                    timer: 1500,
+                                    timerProgressBar: true,
+                                    showConfirmButton: false,
+                                    willClose: () => {
+                                        window.location.reload();
+                                    }
+                                });
                         } else {
                                 const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal menyetujui pengadaan';
                                 showSweetAlert(errorMsg, 'error');
@@ -445,29 +449,13 @@
         const directorApprovalBtn = document.getElementById('directorApprovalBtn');
         if (directorApprovalBtn) {
             directorApprovalBtn.addEventListener('click', function() {
-                Swal.fire({
+                showSweetAlert('Apakah Anda yakin ingin menyetujui pengadaan ini sebagai direktur?', 'warning', {
                     title: 'Konfirmasi Persetujuan',
-                    text: 'Apakah Anda yakin ingin menyetujui pengadaan ini sebagai direktur?',
-                    icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#213268',
-                    cancelButtonColor: '#d33',
                     confirmButtonText: 'Ya, Setujui',
                     cancelButtonText: 'Batal',
-                    customClass: {
-                        popup: 'swal-custom-popup',
-                        title: 'swal-custom-title',
-                        htmlContainer: 'swal-custom-content',
-                        confirmButton: 'swal-custom-confirm',
-                        cancelButton: 'swal-custom-cancel'
-                    },
-                    buttonsStyling: true,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeIn animate__faster'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOut animate__faster'
-                    }
+                    confirmButtonColor: '#213268',
+                    cancelButtonColor: '#d33',
                 }).then((result) => {
                     if (result.isConfirmed) {
                     const directorApprovalUrl = "{{ route('procurement.director-approval', ['id' => ':id']) }}".replace(':id', procurementId);
@@ -488,8 +476,14 @@
                     })
                     .then(data => {
                         if (data.success) {
-                                showSweetAlert(data.message || 'Pengadaan telah disetujui oleh direktur', 'success');
-                                setTimeout(() => window.location.reload(), 1500);
+                                showSweetAlert(data.message || 'Pengadaan telah disetujui oleh direktur', 'success', {
+                                    timer: 1500,
+                                    timerProgressBar: true,
+                                    showConfirmButton: false,
+                                    willClose: () => {
+                                        window.location.reload();
+                                    }
+                                });
                         } else {
                                 const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal menyetujui pengadaan';
                                 showSweetAlert(errorMsg, 'error');
@@ -554,8 +548,14 @@
                 submitBtn.innerHTML = originalBtnText;
                 if (data.success) {
                     rejectModal.classList.add('hidden');
-                    showSweetAlert(data.message || 'Pengadaan berhasil ditolak', 'success');
-                    setTimeout(() => window.location.reload(), 1500);
+                    showSweetAlert(data.message || 'Pengadaan berhasil ditolak', 'success', {
+                        timer: 1500,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                        willClose: () => {
+                            window.location.reload();
+                        }
+                    });
                 } else {
                     const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal menolak pengadaan';
                     showSweetAlert(errorMsg, 'error');
@@ -628,17 +628,20 @@
                     createComparisonBtn.innerHTML = originalBtnText;
 
                     if (data.success) {
-                        showSweetAlert(data.message || 'Perbandingan harga berhasil dibuat', 'success');
-
+                        showSweetAlert(data.message || 'Perbandingan harga berhasil dibuat', 'success', {
+                            timer: 1500,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            willClose: () => {
                         // If there's a redirect URL, navigate to it
                         if (data.redirect_url) {
                             window.location.href = data.redirect_url;
                         } else {
                             // Otherwise just reload the page
-                            setTimeout(() => {
                                 window.location.reload();
-                            }, 1000);
+                                }
                         }
+                        });
                     } else {
                         const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal membuat perbandingan harga';
                         showSweetAlert(errorMsg, 'error');
@@ -659,6 +662,15 @@
                 this.classList.remove('border-red-500');
             });
         }
+
+        // Show SweetAlert notifications for session messages on page load
+        @if(session('success'))
+            showSweetAlert("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showSweetAlert("{{ session('error') }}", 'error');
+        @endif
     });
 </script>
 @endpush

@@ -42,8 +42,10 @@
                             <option value="" disabled selected>Status</option>
                             <option value="">Semua Status</option>
                             <option value="Submitted">Diajukan</option>
+                            <option value="Under Review">Dalam Peninjauan</option>
                             <option value="Approved">Disetujui</option>
                             <option value="Rejected">Ditolak</option>
+                            <option value="Procured">Diadakan</option>
                         </select>
 
                         <select id="sortOrder"
@@ -102,15 +104,21 @@
                                 <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                     <span class="px-2 py-1 rounded-full text-xs
                                         @if($procurement['status'] == 'Submitted') bg-blue-100 text-blue-800
+                                        @elseif($procurement['status'] == 'Under Review') bg-yellow-100 text-yellow-800
                                         @elseif($procurement['status'] == 'Approved') bg-green-100 text-green-800
                                         @elseif($procurement['status'] == 'Rejected') bg-red-100 text-red-800
+                                        @elseif($procurement['status'] == 'Procured') bg-purple-100 text-purple-800
                                         @else bg-gray-100 text-gray-800 @endif">
                                         @if($procurement['status'] == 'Submitted')
                                             Diajukan
+                                        @elseif($procurement['status'] == 'Under Review')
+                                            Dalam Peninjauan
                                         @elseif($procurement['status'] == 'Approved')
                                             Disetujui
                                         @elseif($procurement['status'] == 'Rejected')
                                             Ditolak
+                                        @elseif($procurement['status'] == 'Procured')
+                                            Diadakan
                                         @else
                                             {{ $procurement['status'] }}
                                         @endif
@@ -118,6 +126,14 @@
                                 </td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center gap-2">
+                                        @if(hasPermission('procurement:view'))
+                                        <a href="{{ route('procurement.detail-request', ['id' => $procurement['procurement_id']]) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </a>
+                                        @endif
                                         @if($procurement['status'] == 'Submitted')
                                         @if(hasPermission('procurement:edit'))
                                         <button class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-request-btn"
@@ -143,12 +159,6 @@
                                         @else
                                         <span class="w-5 h-5 inline-block"></span>
                                         @endif
-                                        <a href="{{ route('procurement.detail-request', ['id' => $procurement['procurement_id']]) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                        </a>
                                     </div>
                                 </td>
                             </tr>

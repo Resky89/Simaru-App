@@ -24,6 +24,7 @@
 
                     <!-- Add Vendor Button -->
                     @if(isset($comparison) && !empty($comparison) && (!isset($comparison['status']) || $comparison['status'] !== 'Completed'))
+                        @if(hasPermission('price-comparison:vendor-offer:create'))
                     <a href="{{ route('procurement.form-vendor-comparison', ['id' => $comparison['comparison_id'] ?? $id]) }}"
                        class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -31,6 +32,7 @@
                         </svg>
                         <span>Tambah Vendor</span>
                     </a>
+                        @endif
                     @endif
                 </div>
 
@@ -174,6 +176,7 @@
                                                     }
                                                     @endphp
 
+                                                    @if(hasPermission('price-comparison:vendor-offer:edit'))
                                                     <form id="edit-vendor-form-{{ $vendor['vendor_id'] }}" action="{{ route('procurement.form-vendor-comparison', ['id' => $comparison['comparison_id']]) }}" method="get" class="flex items-center">
                                                         <input type="hidden" name="agreement_id" value="{{ $agreementId }}">
 
@@ -187,6 +190,9 @@
                                                             </svg>
                                                         </button>
                                                     </form>
+                                                    @endif
+
+                                                    @if(hasPermission('price-comparison:vendor-offer:delete'))
                                                     <button class="p-1 text-white hover:text-gray-200 delete-vendor-btn"
                                                             data-vendor-offer-id="{{ $vendorOfferId }}"
                                                             data-vendor-name="{{ $vendor['vendor_name'] }}"
@@ -196,6 +202,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
                                                     </button>
+                                                    @endif
                                                 </div>
                                                 @endif
                                             </div>
@@ -397,16 +404,45 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Show SweetAlert notifications for session messages on page load
+        @if(session('success'))
+            showSweetAlert("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showSweetAlert("{{ session('error') }}", 'error');
+        @endif
+
         @if(!hasPermission('price-comparison:complete'))
-        // Hide edit buttons if user doesn't have permission
+        // Hide complete button if user doesn't have permission
         const completeBtn = document.getElementById('completeBtn');
         if (completeBtn) {
             completeBtn.style.display = 'none';
         }
         @endif
 
+        @if(!hasPermission('price-comparison:vendor-offer:edit'))
+        // Hide edit buttons if user doesn't have permission
+        const editButtons = document.querySelectorAll('form[id^="edit-vendor-form-"]');
+        editButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('price-comparison:vendor-offer:delete'))
+        // Hide delete buttons if user doesn't have permission
+        const deleteButtons = document.querySelectorAll('.delete-vendor-btn');
+        deleteButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
         // Function to show SweetAlert notifications
-        function showSweetAlert(message, type = 'success') {
+        function showSweetAlert(message, type = 'success', options = {}) {
             const iconMap = {
                 success: 'success',
                 error: 'error',
@@ -416,12 +452,12 @@
             };
 
             // Default options
-            const options = {
+            const defaultOptions = {
                 title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
                 html: message,
                 icon: iconMap[type] || 'info',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#213268',
+                confirmButtonText: options.confirmButtonText || 'OK',
+                confirmButtonColor: options.confirmButtonColor || '#213268',
                 customClass: {
                     popup: 'swal-custom-popup',
                     title: 'swal-custom-title',
@@ -438,15 +474,18 @@
                 }
             };
 
+            // Merge with custom options
+            const mergedOptions = { ...defaultOptions, ...options };
+
             // Add specific options based on alert type
-            if (type === 'success') {
+            if (type === 'success' && options.timer === undefined) {
                 // Auto close success messages after 2.5 seconds
-                options.timer = 2500;
-                options.timerProgressBar = true;
-            } else if (type === 'error') {
+                mergedOptions.timer = 2500;
+                mergedOptions.timerProgressBar = true;
+            } else if (type === 'error' && options.showCloseButton === undefined) {
                 // Make error alerts more prominent
-                options.confirmButtonColor = '#d33';
-                options.showCloseButton = true;
+                mergedOptions.confirmButtonColor = '#d33';
+                mergedOptions.showCloseButton = true;
             }
 
             // Add custom styles for SweetAlert
@@ -502,8 +541,8 @@
                 document.head.appendChild(animateLink);
             }
 
-            // Fire the alert
-            Swal.fire(options);
+            // Fire the alert and return the Promise for chaining
+            return Swal.fire(mergedOptions);
         }
 
         // Backward compatibility - map showToast to showSweetAlert
@@ -520,7 +559,10 @@
                 const comparisonId = this.getAttribute('data-comparison-id');
 
                 if (!agreementId) {
-                    showSweetAlert('Error: ID Perjanjian tidak ditemukan. Silakan hubungi administrator.', 'error');
+                    showSweetAlert('Error: ID Perjanjian tidak ditemukan. Silakan hubungi administrator.', 'error', {
+                        title: 'Data Tidak Lengkap',
+                        showCloseButton: true
+                    });
                     return;
                 }
 
@@ -539,35 +581,46 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // Form data for deletion
-                        const formData = {
-                            comparison_id: comparisonId
-                        };
+                const formData = {
+                    comparison_id: comparisonId
+                };
 
                         // Send DELETE request
                         fetch(`/procurement/price-comparison/vendor-offer/${agreementId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(formData)
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                showSweetAlert(data.message || 'Penawaran vendor berhasil dihapus', 'success');
-                                // Reload page after a short delay
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1000);
-                            } else {
-                                showSweetAlert(data.errors?.general || 'Gagal menghapus penawaran vendor', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showSweetAlert('Terjadi kesalahan saat menghapus penawaran vendor', 'error');
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                                showSweetAlert(data.message || 'Penawaran vendor berhasil dihapus', 'success', {
+                                    timer: 1500,
+                                    timerProgressBar: true,
+                                    showConfirmButton: false,
+                                    willClose: () => {
+                            window.location.reload();
+                                    }
+                                });
+                    } else {
+                                showSweetAlert(data.errors?.general || 'Gagal menghapus penawaran vendor', 'error', {
+                                    title: 'Gagal Menghapus',
+                                    showCloseButton: true,
+                                    confirmButtonText: 'Coba Lagi'
+                                });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                            showSweetAlert('Terjadi kesalahan saat menghapus penawaran vendor', 'error', {
+                                title: 'Kesalahan Server',
+                                showCloseButton: true,
+                                footer: 'Harap periksa koneksi internet Anda dan coba lagi'
+                            });
                         });
                     }
                 });
@@ -598,58 +651,68 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Set submitting flag and update button
-                        isSubmitting = true;
-                        const originalText = completeBtn.innerHTML;
-                        completeBtn.disabled = true;
-                        completeBtn.innerHTML = `
-                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            MENYELESAIKAN...
-                        `;
+                // Set submitting flag and update button
+                isSubmitting = true;
+                const originalText = completeBtn.innerHTML;
+                completeBtn.disabled = true;
+                completeBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    MENYELESAIKAN...
+                `;
 
-                        // Get CSRF token
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-                        // Send the request to complete the price comparison
-                        fetch('{{ url("procurement/price-comparison/{$id}/complete") }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Show success message
-                                showSweetAlert(data.message || 'Perbandingan harga telah berhasil diselesaikan!', 'success');
+                // Send the request to complete the price comparison
+                fetch('{{ url("procurement/price-comparison/{$id}/complete") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message with automatic redirect
+                                showSweetAlert(data.message || 'Perbandingan harga telah berhasil diselesaikan!', 'success', {
+                                    timer: 1500,
+                                    timerProgressBar: true,
+                                    showConfirmButton: false,
+                                    willClose: () => {
+                            window.location.reload();
+                                    }
+                                });
+                    } else {
+                        // Reset button and show error
+                        isSubmitting = false;
+                        completeBtn.disabled = false;
+                        completeBtn.innerHTML = originalText;
 
-                                // Reload the page after a short delay to show the updated status
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1500);
-                            } else {
-                                // Reset button and show error
-                                isSubmitting = false;
-                                completeBtn.disabled = false;
-                                completeBtn.innerHTML = originalText;
+                                showSweetAlert(data.errors?.general || 'Gagal menyelesaikan perbandingan harga', 'error', {
+                                    title: 'Gagal Menyelesaikan',
+                                    showCloseButton: true,
+                                    confirmButtonText: 'Coba Lagi'
+                                });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error completing price comparison:', error);
 
-                                showSweetAlert(data.errors?.general || 'Gagal menyelesaikan perbandingan harga', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error completing price comparison:', error);
+                    // Reset button and show error
+                    isSubmitting = false;
+                    completeBtn.disabled = false;
+                    completeBtn.innerHTML = originalText;
 
-                            // Reset button and show error
-                            isSubmitting = false;
-                            completeBtn.disabled = false;
-                            completeBtn.innerHTML = originalText;
-
-                            showSweetAlert('Terjadi kesalahan saat menyelesaikan perbandingan harga', 'error');
+                            showSweetAlert('Terjadi kesalahan saat menyelesaikan perbandingan harga', 'error', {
+                                title: 'Kesalahan Server',
+                                showCloseButton: true,
+                                footer: 'Harap periksa koneksi internet Anda dan coba lagi'
+                            });
                         });
                     }
                 });

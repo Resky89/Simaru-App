@@ -13,6 +13,7 @@
                     <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PENERIMAAN</h1>
 
                     <div class="flex gap-3">
+                        @if(hasPermission('receipt:create'))
                         <!-- Add Receipt Button -->
                         <a href="{{ route('procurement.form-receipt') }}" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white hover:bg-[#152451] transition-all duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -20,6 +21,7 @@
                             </svg>
                             <span class="text-base">Tambah Penerimaan</span>
                         </a>
+                        @endif
                     </div>
                 </div>
 
@@ -274,6 +276,16 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Add JavaScript permission handling
+        @if(!hasPermission('receipt:create'))
+        // Hide elements that require create permission
+        const addButtons = document.querySelectorAll('a[href="{{ route('procurement.form-receipt') }}"]');
+        addButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
         // Search and filter functionality
         const searchForm = document.getElementById('searchForm');
         const searchInput = document.getElementById('searchInput');

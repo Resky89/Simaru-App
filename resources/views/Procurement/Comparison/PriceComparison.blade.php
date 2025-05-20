@@ -62,7 +62,7 @@
                         <thead>
                             <tr>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nomor Penawaran</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">ID Permintaan</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nomor Permintaan</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Judul</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Dibuat Oleh</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Penawaran</th>

@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Purchase Order')
+@section('title', 'Pemesanan')
 
 @section('content')
 <div class="h-full space-y-4 md:space-y-6">
@@ -10,23 +10,25 @@
             <div class="flex flex-col gap-6">
                 <!-- Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PURCHASE ORDER</h1>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PEMESANAN</h1>
 
                     <div class="flex gap-3">
                         <!-- Add Create Button -->
+                        @if(hasPermission('purchase-order:vendor-offers:select'))
                         <a href="{{ route('procurement.form-purchase-order') }}" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white hover:bg-[#152451] transition-all duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             <span class="text-base">Buat Baru</span>
                         </a>
+                        @endif
                     </div>
                 </div>
 
                 <!-- Search and Filter -->
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
-                        <input type="text" id="searchInput" placeholder="Cari PO berdasarkan nomor, vendor..."
+                        <input type="text" id="searchInput" placeholder="Cari Pemesanan berdasarkan nomor, vendor..."
                             class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         <div class="absolute right-3 top-1/2 -translate-y-1/2">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,7 +49,7 @@
 
                         <select id="sortOrder"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" disabled selected>Urutan</option>
+                            <option value="" disabled selected>Urutkan</option>
                             <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
                             <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
                             <option value="code_asc" {{ request('sort') == 'code_asc' ? 'selected' : '' }}>Kode PO (A-Z)</option>
@@ -61,14 +63,14 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">PO Number</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Quotation</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nomor Pemesanan</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Penawaran</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Vendor</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">PIC</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">User Input</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">PO Date</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Pengguna Input</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Pemesanan</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Status</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Action</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,7 +83,14 @@
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['created_by'] ?? '-' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                     @if(isset($po['created_at']))
-                                        {{ \Carbon\Carbon::parse($po['created_at'])->format('d M Y') }}
+                                        @php
+                                            $date = \Carbon\Carbon::parse($po['created_at']);
+                                            $indonesianMonths = [
+                                                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                                                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                                            ];
+                                            echo $date->format('d') . ' ' . $indonesianMonths[$date->month - 1] . ' ' . $date->format('Y');
+                                        @endphp
                                     @else
                                         -
                                     @endif
@@ -113,7 +122,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="p-3 text-center text-gray-500">Tidak ada data purchase order yang tersedia.</td>
+                                <td colspan="8" class="p-3 text-center text-gray-500">Tidak ada data pesanan pembelian yang tersedia.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -202,7 +211,7 @@
                 <!-- Error message display -->
                 @if(isset($error))
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">Error!</strong>
+                    <strong class="font-bold">Kesalahan!</strong>
                     <span class="block sm:inline">{{ $error }}</span>
                 </div>
                 @endif
@@ -273,6 +282,16 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Check permissions and hide elements if needed
+        @if(!hasPermission('purchase-order:vendor-offers:select'))
+        // Hide "Buat Baru" button if user doesn't have permission
+        const createButtons = document.querySelectorAll('a[href="{{ route("procurement.form-purchase-order") }}"]');
+        createButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
         // Search and filter functionality
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');

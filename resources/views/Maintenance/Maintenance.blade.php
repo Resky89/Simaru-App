@@ -820,7 +820,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="createReportForm" method="POST" enctype="multipart/form-data" action="{{ route('maintenance.reports.create') }}">
+                            <form id="createReportForm" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" id="report_maintenance_id" name="maintenance_id">
 
@@ -925,10 +925,6 @@
     </div>
 
     @push('scripts')
-    <script>
-        // No need for global variable anymore - users are loaded via AJAX
-    </script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Prevent selecting past dates for date inputs
@@ -3067,10 +3063,6 @@
                 // Create FormData object for file upload
                 const formData = new FormData(this);
 
-                // Make sure reporter_number is included
-                if (!formData.has('reporter_number')) {
-                    formData.append('reporter_number', '1234'); // Default value
-                }
 
                 // Log formData for debugging
                 console.log('Submitting maintenance report with data:');
@@ -3093,7 +3085,7 @@
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
                 // Make the POST request to create the report
-                fetch('/maintenance-reports', {
+                fetch('/maintenance/reports', {
                     method: 'POST',
                     body: formData,
                     headers: {

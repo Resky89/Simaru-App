@@ -26,6 +26,7 @@
                 </div>
 
                 <!-- Form -->
+                @if((isset($vendorOffer) || request()->has('agreement_id')) && hasPermission('price-comparison:vendor-offer:edit') || (!isset($vendorOffer) && !request()->has('agreement_id') && hasPermission('price-comparison:vendor-offer:create')))
                 <form id="vendorQuotationForm" class="w-full space-y-6">
                     @csrf
                     <!-- Hidden Fields -->
@@ -112,25 +113,37 @@
                         </button>
                     </div>
                 </form>
+                @else
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
+                    <p>Maaf, Anda tidak memiliki izin untuk {{ isset($vendorOffer) || request()->has('agreement_id') ? 'mengedit' : 'menambahkan' }} penawaran vendor.</p>
+                </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
 
-<!-- Toast Container (will be removed but kept for backwards compatibility) -->
-<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 
-<!-- Remove the success and error modals as they'll be replaced by SweetAlert -->
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Check if the form exists based on permissions
         const form = document.getElementById('vendorQuotationForm');
+        if (!form) {
+            return; // Exit early if no form due to permission restrictions
+        }
+
         const comparisonId = document.getElementById('comparison_id').value;
         const vendorOfferId = document.getElementById('vendor_offer_id')?.value;
         const isEditMode = !!vendorOfferId;
         let comparisonItems = [];
+
+        // Add flags for form tracking and navigation
+        let isSubmitting = false; // Flag to track submission status
+        let isNavigatingAway = false; // Flag to track intentional navigation
+        let formHasBeenFilled = false; // Flag to track form changes
 
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -168,7 +181,7 @@
         }
 
         // Function to show SweetAlert notifications
-        function showSweetAlert(message, type = 'success') {
+        function showSweetAlert(message, type = 'success', options = {}) {
             const iconMap = {
                 success: 'success',
                 error: 'error',
@@ -178,12 +191,12 @@
             };
 
             // Default options
-            const options = {
+            const defaultOptions = {
                 title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
                 html: message,
                 icon: iconMap[type] || 'info',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#213268',
+                confirmButtonText: options.confirmButtonText || 'OK',
+                confirmButtonColor: options.confirmButtonColor || '#213268',
                 customClass: {
                     popup: 'swal-custom-popup',
                     title: 'swal-custom-title',
@@ -200,15 +213,18 @@
                 }
             };
 
+            // Merge with custom options
+            const mergedOptions = { ...defaultOptions, ...options };
+
             // Add specific options based on alert type
-            if (type === 'success') {
+            if (type === 'success' && options.timer === undefined) {
                 // Auto close success messages after 2.5 seconds
-                options.timer = 2500;
-                options.timerProgressBar = true;
-            } else if (type === 'error') {
+                mergedOptions.timer = 2500;
+                mergedOptions.timerProgressBar = true;
+            } else if (type === 'error' && options.showCloseButton === undefined) {
                 // Make error alerts more prominent
-                options.confirmButtonColor = '#d33';
-                options.showCloseButton = true;
+                mergedOptions.confirmButtonColor = '#d33';
+                mergedOptions.showCloseButton = true;
             }
 
             // Add custom styles for SweetAlert
@@ -264,87 +280,96 @@
                 document.head.appendChild(animateLink);
             }
 
-            // Fire the alert
-            Swal.fire(options);
-        }
-
-        function loadVendorOfferData(agreementId, vendorOfferIdsMap) {
-            fetch(`/procurement/price-comparison/vendor-offer/${agreementId}?use_agreement_id=true&detailed=true`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Server responded with status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) {
-                    throw new Error(data.errors?.general || 'Gagal memuat data penawaran vendor');
-                }
-
-                const vendorOffer = data.data;
-
-                // Fill vendor data
-                if (vendorOffer.vendor) {
-                    document.getElementById('vendor_search').value = vendorOffer.vendor.vendor_name;
-                    document.getElementById('selected_vendor_id').value = vendorOffer.vendor.vendor_id;
-                }
-
-                // Fill form fields
-                document.getElementById('payment_terms').value = vendorOffer.payment_terms || '';
-                document.getElementById('delivery_terms').value = vendorOffer.delivery_terms || '';
-                document.getElementById('notes').value = vendorOffer.notes || '';
-
-                // Create a map of price comparison item IDs to their unit prices and vendor_offer_id
-                const itemPrices = new Map();
-
-                // Process items directly from the response
-                if (vendorOffer.items && Array.isArray(vendorOffer.items) && vendorOffer.items.length > 0) {
-                    vendorOffer.items.forEach(item => {
-                        if (item.price_comparison_item_id && item.unit_price !== undefined) {
-                            // Get vendor_offer_id from the URL params if available
-                            const itemId = parseInt(item.price_comparison_item_id, 10);
-                            const vendorOfferId = vendorOfferIdsMap.has(itemId)
-                                ? vendorOfferIdsMap.get(itemId)
-                                : (item.vendor_offer_id || null);
-
-                            if (vendorOfferId) {
-                                console.log(`Menggunakan vendor_offer_id ${vendorOfferId} untuk item ${itemId}`);
-                            } else {
-                                console.warn(`Tidak ada vendor_offer_id ditemukan untuk item ${itemId}`);
-                            }
-
-                            itemPrices.set(
-                                itemId,
-                                {
-                                    price: item.unit_price,
-                                    price_comparison_item_id: item.price_comparison_item_id,
-                                    vendor_offer_id: vendorOfferId
-                                }
-                            );
-                        }
-                    });
-                }
-
-                // After loading the vendor data, load the comparison data
-                loadComparisonData(itemPrices, vendorOffer, parseInt(agreementId, 10));
-            })
-            .catch(error => {
-                showSweetAlert('Gagal memuat data penawaran vendor: ' + error.message, 'error');
-
-                // Still try to load comparison data even if vendor offer data failed
-                loadComparisonData(vendorOfferIdsMap);
-            });
+            // Fire the alert and return the Promise for chaining
+            return Swal.fire(mergedOptions);
         }
 
         // Replace the toast notification with SweetAlert
         function showToast(message, type = 'success') {
             showSweetAlert(message, type);
         }
+
+        // Show SweetAlert notifications for session messages on page load
+        @if(session('success'))
+            showSweetAlert("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+            showSweetAlert("{{ session('error') }}", 'error');
+        @endif
+
+        // Helper function to check if the form has any changes
+        function formHasChanges() {
+            return formHasBeenFilled ||
+                document.getElementById('vendor_search').value.trim() ||
+                document.getElementById('payment_terms').value.trim() ||
+                document.getElementById('delivery_terms').value.trim() ||
+                document.getElementById('notes').value.trim();
+        }
+
+        // Improve navigation handling with SweetAlert for internal links
+        document.addEventListener('click', function(e) {
+            // Skip if we're already navigating away or submitting
+            if (isSubmitting || isNavigatingAway) {
+                return;
+            }
+
+            // Find closest anchor tag if the click was on a child element
+            const anchor = e.target.closest('a');
+            if (!anchor) return; // Not clicking on a link
+
+            // Skip links without href or with href="#" or javascript:void(0)
+            if (!anchor.href ||
+                anchor.href === window.location.href ||
+                anchor.href === window.location.href + '#' ||
+                anchor.href.startsWith('javascript:')) {
+                return;
+            }
+
+            // Skip links with specific data attributes (e.g., download links, modals)
+            if (anchor.hasAttribute('data-skip-confirm') ||
+                anchor.hasAttribute('download') ||
+                anchor.target === '_blank') {
+                return;
+            }
+
+            // Skip if the form has no changes
+            if (!formHasChanges()) {
+                return;
+            }
+
+            // Prevent the default navigation
+            e.preventDefault();
+
+            // Show SweetAlert confirmation
+            showSweetAlert('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?', 'warning', {
+                title: 'Perubahan Belum Disimpan',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Tinggalkan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#213268',
+                cancelButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // User confirmed leaving, set flag and navigate
+                    isNavigatingAway = true;
+                    window.location.href = anchor.href;
+                }
+                // If not confirmed, do nothing - user stays on page
+            });
+        });
+
+        // Keep a limited beforeunload for cases like tab closing, refreshing or external navigation
+        // This cannot use SweetAlert due to browser security restrictions
+        window.addEventListener('beforeunload', function(e) {
+            // Only show if there are form changes and we're not already submitting or redirecting
+            if (!isSubmitting && !isNavigatingAway && formHasChanges()) {
+                // Modern browsers will show a generic message regardless of what we set here
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
 
         // Function to validate a form field
         function validateField(field) {
@@ -844,28 +869,28 @@
 
                     // If there's a value, process it
                     if (value) {
-                        // Get the unit price, making sure to remove formatting
-                        const unitPrice = parseInt(value.replace(/[^\d]/g, ''), 10);
+                    // Get the unit price, making sure to remove formatting
+                    const unitPrice = parseInt(value.replace(/[^\d]/g, ''), 10);
 
-                        // Create item data object - include vendor_offer_id if it exists
-                        const itemData = {
-                            price_comparison_item_id: parseInt(priceComparisonItemId, 10),
-                            unit_price: unitPrice
-                        };
+                    // Create item data object - include vendor_offer_id if it exists
+                    const itemData = {
+                        price_comparison_item_id: parseInt(priceComparisonItemId, 10),
+                        unit_price: unitPrice
+                    };
 
-                        // Add vendor_offer_id if available
-                        const vendorOfferId = input.getAttribute('data-vendor-offer-id');
-                        if (vendorOfferId) {
-                            itemData.vendor_offer_id = parseInt(vendorOfferId, 10);
-                            console.log(`Including vendor_offer_id ${vendorOfferId} for item ${priceComparisonItemId} in request`);
-                        } else if (isUpdate) {
-                            // For update operations, vendor_offer_id is required
-                            console.error(`Missing vendor_offer_id for item ${priceComparisonItemId} during update`);
-                            input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                            hasErroredItem = true;
-                        }
+                    // Add vendor_offer_id if available
+                    const vendorOfferId = input.getAttribute('data-vendor-offer-id');
+                    if (vendorOfferId) {
+                        itemData.vendor_offer_id = parseInt(vendorOfferId, 10);
+                        console.log(`Including vendor_offer_id ${vendorOfferId} for item ${priceComparisonItemId} in request`);
+                    } else if (isUpdate) {
+                        // For update operations, vendor_offer_id is required
+                        console.error(`Missing vendor_offer_id for item ${priceComparisonItemId} during update`);
+                        input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                        hasErroredItem = true;
+                    }
 
-                        itemPrices.push(itemData);
+                    itemPrices.push(itemData);
                     }
                 });
 
@@ -964,17 +989,21 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        // Show success alert - don't reset button or submitting flag since we're redirecting
-                        showSweetAlert(data.message || 'Penawaran vendor berhasil disimpan!');
-
-                        // Set a flag to indicate we're intentionally navigating away
-                        const isNavigatingAway = true;
-
-                        // Redirect after success
-                        setTimeout(() => {
+                        // Show success alert with automatic redirect
+                        showSweetAlert(data.message || 'Penawaran vendor berhasil disimpan!', 'success', {
+                            timer: 1500,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                // Set flag to indicate we're navigating away intentionally
+                                isNavigatingAway = true;
+                            },
+                            willClose: () => {
+                                // Redirect after alert closes
                             window.location.href = data.redirect_url ||
                                 `{{ route('procurement.detail-comparison', ['id' => '_ID_']) }}`.replace('_ID_', comparisonId);
-                        }, 1500);
+                            }
+                        });
                     } else {
                         // Reset submission flag and button on error
                         isSubmitting = false;
@@ -1016,19 +1045,19 @@
                                 showSweetAlert(errorMessage, 'error');
                             } else if (typeof data.errors === 'object') {
                                 // Handle object-style errors
-                                Object.entries(data.errors).forEach(([field, messages]) => {
-                                    const fieldElement = document.getElementById(field);
-                                    if (fieldElement) {
-                                        fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                                    }
+                            Object.entries(data.errors).forEach(([field, messages]) => {
+                                const fieldElement = document.getElementById(field);
+                                if (fieldElement) {
+                                    fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                                }
 
-                                    // Display field error messages
-                                    const errorElement = document.getElementById(`${field}_error`);
-                                    if (errorElement) {
-                                        errorElement.textContent = Array.isArray(messages) ? messages[0] : messages;
-                                        errorElement.classList.remove('hidden');
-                                    }
-                                });
+                                // Display field error messages
+                                const errorElement = document.getElementById(`${field}_error`);
+                                if (errorElement) {
+                                    errorElement.textContent = Array.isArray(messages) ? messages[0] : messages;
+                                    errorElement.classList.remove('hidden');
+                                }
+                            });
 
                                 // Show error alert
                                 showSweetAlert(data.errors?.general || data.message || 'Gagal menyimpan penawaran vendor.', 'error');
@@ -1139,6 +1168,79 @@
                 }
             </style>
         `);
+
+        function loadVendorOfferData(agreementId, vendorOfferIdsMap) {
+            fetch(`/procurement/price-comparison/vendor-offer/${agreementId}?use_agreement_id=true&detailed=true`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.errors?.general || 'Gagal memuat data penawaran vendor');
+                }
+
+                const vendorOffer = data.data;
+
+                // Fill vendor data
+                if (vendorOffer.vendor) {
+                    document.getElementById('vendor_search').value = vendorOffer.vendor.vendor_name;
+                    document.getElementById('selected_vendor_id').value = vendorOffer.vendor.vendor_id;
+                }
+
+                // Fill form fields
+                document.getElementById('payment_terms').value = vendorOffer.payment_terms || '';
+                document.getElementById('delivery_terms').value = vendorOffer.delivery_terms || '';
+                document.getElementById('notes').value = vendorOffer.notes || '';
+
+                // Create a map of price comparison item IDs to their unit prices and vendor_offer_id
+                const itemPrices = new Map();
+
+                // Process items directly from the response
+                if (vendorOffer.items && Array.isArray(vendorOffer.items) && vendorOffer.items.length > 0) {
+                    vendorOffer.items.forEach(item => {
+                        if (item.price_comparison_item_id && item.unit_price !== undefined) {
+                            // Get vendor_offer_id from the URL params if available
+                            const itemId = parseInt(item.price_comparison_item_id, 10);
+                            const vendorOfferId = vendorOfferIdsMap.has(itemId)
+                                ? vendorOfferIdsMap.get(itemId)
+                                : (item.vendor_offer_id || null);
+
+                            if (vendorOfferId) {
+                                console.log(`Menggunakan vendor_offer_id ${vendorOfferId} untuk item ${itemId}`);
+                            } else {
+                                console.warn(`Tidak ada vendor_offer_id ditemukan untuk item ${itemId}`);
+                            }
+
+                            itemPrices.set(
+                                itemId,
+                                {
+                                    price: item.unit_price,
+                                    price_comparison_item_id: item.price_comparison_item_id,
+                                    vendor_offer_id: vendorOfferId
+                                }
+                            );
+                        }
+                    });
+                }
+
+                // After loading the vendor data, load the comparison data
+                loadComparisonData(itemPrices, vendorOffer, parseInt(agreementId, 10));
+            })
+            .catch(error => {
+                showSweetAlert('Gagal memuat data penawaran vendor: ' + error.message, 'error');
+
+                // Still try to load comparison data even if vendor offer data failed
+                loadComparisonData(vendorOfferIdsMap);
+            });
+        }
     });
 </script>
 

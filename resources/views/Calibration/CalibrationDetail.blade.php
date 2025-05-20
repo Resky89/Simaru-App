@@ -202,14 +202,15 @@
         <h2 class="text-lg font-semibold mb-2 text-[#213268]">Berkas Sertifikat</h2>
         <div class="flex flex-col p-4 bg-gray-50 rounded-lg border border-gray-200">
             @php
-                $fileName = basename($calibration['certificate_file_path']);
+                $filePath = $calibration['certificate_file_path'];
+                $fileName = basename($filePath);
                 $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
                 $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif']);
             @endphp
 
             @if($isImage)
                 <div class="mb-4 w-full flex justify-center">
-                    <img src="http://localhost:5000/public/images/{{ $fileName }}"
+                    <img src="http://localhost:5000/public{{ $filePath }}"
                          alt="Sertifikat"
                          class="max-w-md w-full object-contain rounded-lg shadow-md"
                          style="max-height: 350px;"
@@ -222,7 +223,7 @@
                     </svg>
                     <div>
                         <p class="font-medium">{{ $fileName }}</p>
-                        <a href="http://localhost:5000/public/documents/{{ $fileName }}"
+                        <a href="http://localhost:5000/public{{ $filePath }}"
                             target="_blank"
                             class="text-blue-600 hover:underline text-sm">
                             Lihat Dokumen

@@ -1212,14 +1212,6 @@ class MaintenanceController extends Controller
                 'contents' => $request->input('maintenance_date') ?: now()->format('Y-m-d')
             ];
 
-            // Add reporter_number if needed
-            if (!$request->has('reporter_number')) {
-                $multipart[] = [
-                    'name' => 'reporter_number',
-                    'contents' => '1234'  // Default reporter number
-                ];
-            }
-
             // Log the multipart request structure
             \Log::info('Sending multipart request for maintenance report', [
                 'multipart_fields' => array_map(function($item) {
@@ -1252,36 +1244,70 @@ class MaintenanceController extends Controller
 
             // Check for API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to create maintenance report';
+                $errorData = $result['errors'];
 
                 \Log::warning('Error during maintenance report creation:', [
                     'success' => $result['success'] ?? false,
                     'errors' => $errorData
                 ]);
 
-                // Format error message
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
+                // Format error data for JSON response
+                $formattedErrors = [];
+
+                // Handle different error formats
+                if (is_string($errorData)) {
+                    // Case: errors is a string
+                    $formattedErrors[] = [
+                        'path' => 'general',
+                        'message' => $errorData
+                    ];
+                } elseif (is_array($errorData)) {
+                    // Case: errors is already an array of objects with path and message
+                    if (isset($errorData[0]) && is_array($errorData[0]) && isset($errorData[0]['path'])) {
+                        $formattedErrors = $errorData;
+                    }
+                    // Case: errors is a key-value pair of field and message
+                    else {
+                        foreach ($errorData as $field => $messages) {
+                            if (is_array($messages)) {
+                                foreach ($messages as $message) {
+                                    $formattedErrors[] = [
+                                        'path' => $field,
+                                        'message' => $message
+                                    ];
+                                }
+                            } else {
+                                $formattedErrors[] = [
+                                    'path' => $field,
+                                    'message' => $messages
+                                ];
+                            }
                         }
                     }
-                } else {
-                    $errorMessage = $errorData;
                 }
 
-                return redirect()->back()
-                    ->with('error', $errorMessage);
+                // For AJAX/JSON requests, return formatted errors
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $formattedErrors
+                    ], 400);
+                }
+
+                // For regular requests, format error message for redirect
+                $errorMessage = '';
+                foreach ($formattedErrors as $error) {
+                    $errorMessage .= $error['message'] . '; ';
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
             }
 
             // Return response in the expected format
             return response()->json([
                 'success' =>  $result['success'] ?? true,
                 'message' => $result['message'] ?? 'Maintenance report created successfully',
-                'data' => $result['data'] ?? null
+                'data' => $result['data']
             ]);
 
         } catch (\Exception $e) {
@@ -1292,7 +1318,7 @@ class MaintenanceController extends Controller
 
             return response()->json([
                 'success' => false,
-                'errors' => ['general' => 'Failed to create maintenance report: ' . $e->getMessage()]
+                'errors' => ['me' => 'Failed to create maintenance report: ' . $e->getMessage()]
             ], status: 500);
         }
     }
