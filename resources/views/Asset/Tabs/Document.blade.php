@@ -1,12 +1,14 @@
 <div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-[#213268]">DOKUMEN</h2>
+        @if(hasPermission('asset:document:create'))
         <button id="addDocumentBtn" class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             DOKUMEN
         </button>
+        @endif
     </div>
 
     <!-- Loading indicator -->
@@ -34,6 +36,7 @@
     </div>
 
     <!-- Add Document Modal -->
+    @if(hasPermission('asset:document:create'))
     <div id="addDocumentModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
         <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -145,6 +148,7 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 
 <!-- Toast Notification Container -->
@@ -500,11 +504,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Add JavaScript to hide elements based on permissions
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hide elements if user doesn't have create permission
+        if (!{{ hasPermission('asset:document:create') ? 'true' : 'false' }}) {
+            const addButtons = document.querySelectorAll('#addDocumentBtn');
+            addButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+        }
+    });
+
     // Rest of your original code...
     const DocumentSystem = {
         initialized: false,
         assetId: {{ $asset['asset_id'] ?? 'null' }},
         apiBaseUrl: "{{ config('app.api_url', '') }}",
+        // Add permission flags
+        hasCreatePermission: {{ hasPermission('asset:document:create') ? 'true' : 'false' }},
+        hasDownloadPermission: {{ hasPermission('asset:document:download') ? 'true' : 'false' }},
         selectors: {
             addBtn: '#addDocumentBtn',
             addForm: '#addDocumentForm',
@@ -557,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setupEventListeners() {
             // Add Document Button - we already handled this above, so just ensure it works with the system
             const addBtn = document.querySelector(this.selectors.addBtn);
-            if (addBtn) {
+            if (this.hasCreatePermission && addBtn) {
                 // Ensure we don't duplicate click handlers
                 addBtn.onclick = null;
                 addBtn.addEventListener('click', () => {
@@ -849,11 +869,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${uploadDate}</td>
                         <td class="p-3 border-t border-[#EEF1F4] text-center">
                             <div class="flex justify-center items-center space-x-2">
+                                ${this.hasDownloadPermission ? `
                                 <a href="${previewUrl}" target="_blank" class="text-[#3D3D3D] bg-gray-100 hover:bg-[#213268] hover:text-white p-1.5 rounded-md transition-colors flex items-center" title="Unduh File">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
                                 </a>
+                                ` : ''}
                             </div>
                         </td>
                     </tr>

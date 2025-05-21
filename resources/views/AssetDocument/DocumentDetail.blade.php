@@ -13,7 +13,7 @@
                 </svg>
             </a>
             <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
-                DOKUMEN: {{ $document['document_title'] ?? 'Detail Dokumen' }}
+                DOKUMEN
             </h1>
         </div>
 
