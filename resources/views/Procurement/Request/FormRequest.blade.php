@@ -270,8 +270,6 @@
             });
         });
 
-        // Keep a limited beforeunload for cases like tab closing, refreshing or external navigation
-        // This cannot use SweetAlert due to browser security restrictions
         window.addEventListener('beforeunload', function(e) {
             // Only show if there are form changes and we're not already submitting or redirecting
             if (!isSubmitting && !isNavigatingAway && formHasChanges()) {
@@ -1469,3 +1467,4 @@
     });
 </script>
 @endpush
+@endsection

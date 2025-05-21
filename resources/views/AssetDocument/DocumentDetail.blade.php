@@ -46,7 +46,7 @@
                         <p class="text-sm text-gray-500">Tanggal Upload</p>
                         <p class="font-medium">
                             @if(isset($document['upload_date']))
-                                {{ \Carbon\Carbon::parse($document['upload_date'])->format('d M Y, H:i') }}
+                                {{ \Carbon\Carbon::parse($document['upload_date'])->locale('id')->isoFormat('D MMMM YYYY, HH:mm') }}
                             @else
                                 N/A
                             @endif
@@ -71,7 +71,7 @@
                         <p class="text-sm text-gray-500">Tanggal Dibuat</p>
                         <p class="font-medium">
                             @if(isset($document['created_at']))
-                                {{ \Carbon\Carbon::parse($document['created_at'])->locale('id')->format('d M Y') }}
+                                {{ \Carbon\Carbon::parse($document['created_at'])->locale('id')->isoFormat('D MMMM YYYY') }}
                             @else
                                 N/A
                             @endif
@@ -1313,11 +1313,13 @@
                 const originalText = linkButton.innerHTML;
                 linkButton.disabled = true;
                 linkButton.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Memuat...
+                    <div class="flex items-center justify-center w-full">
+                        <svg class="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Menautkan...</span>
+                    </div>
                 `;
 
                 // Make API request

@@ -1028,6 +1028,11 @@ function formatCompactCurrency($number) {
     window.fetchCalendarData = fetchCalendarData;
     window.generateCalendar = generateCalendar;
 
+    // Initialize calendar and fetch initial data here, within DOMContentLoaded
+    generateCalendar(currentMonth, currentYear);
+    fetchCalendarData(currentYear, currentMonth);
+    loadAssetActivities(); // Load initial asset activities
+
     // Function to populate year selector with options
     function populateYearSelector() {
         const yearSelector = document.getElementById('yearSelector');
@@ -1092,7 +1097,7 @@ function formatCompactCurrency($number) {
                     </svg>
                     <p class="mt-2 text-gray-500">Kesalahan jaringan, coba lagi nanti</p>
                 </div>
-            `; generateCalendar(currentMonth, currentYear)
+            `;
         }
     }
 
@@ -1558,10 +1563,7 @@ function formatCompactCurrency($number) {
         }
     });
 
-    // Initialize calendar and fetch initial data
-    generateCalendar(currentMonth, currentYear);
-    fetchCalendarData(currentYear, currentMonth);
-    loadAssetActivities(); // Load initial asset activities
+    // Calendar is now initialized inside the DOMContentLoaded event handler
 
     // Animations for asset category circles
     const animateCircles = () => {
@@ -1957,10 +1959,6 @@ function formatCompactCurrency($number) {
         });
     });
 
-    // Initialize calendar and fetch initial data
-    generateCalendar(currentMonth, currentYear);
-    fetchCalendarData(currentYear, currentMonth);
-    loadAssetActivities(); // Load initial asset activities
 
     // Animations for asset category circles
     const animateCircles = () => {

@@ -32,6 +32,7 @@ use App\Http\Controllers\DepreciationReportController;
 use App\Http\Controllers\ProcurementPriceComparisonController;
 use App\Http\Controllers\ProcurementPurchaseOrderController;
 use App\Http\Controllers\ProcurementReceiptController;
+use App\Http\Controllers\NotificationController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -632,6 +633,15 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::get('/opname-detail/{id}', [OpnameReportController::class, 'showOpnameDetail'])->name('opnames.detail');
         Route::get('/opname-detail/{id}/export-pdf', [OpnameReportController::class, 'exportOpnameDetailPDF'])
             ->name('opnames.export.pdf');
+    });
+
+    // Notification Routes
+    Route::middleware([AuthMiddleware::class])->group(function () {
+        // View all notifications
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+
+        // Mark notification as read
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     });
 });
 
