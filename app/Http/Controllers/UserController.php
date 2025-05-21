@@ -570,4 +570,111 @@ class UserController extends Controller
                 ->with('error', 'Failed to delete user: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Get users by permission name
+     *
+     * @param Request $request
+     * @param string $permissionName
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function getUsersByPermission(Request $request, $permissionName)
+    {
+        try {
+            $page = $request->input('page', 1);
+            $limit = $request->input('limit', 10);
+
+            // Call the API endpoint to get users with specific permission
+            $result = $this->apiService->request('GET', "/users/by-permission/{$permissionName}", [
+                'query' => [
+                    'page' => $page,
+                    'limit' => $limit
+                ]
+            ]);
+
+            // Check if we got an auth error response
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+                \Log::warning('Authentication error during users by permission retrieval:', [
+                    'permission' => $permissionName,
+                    'errors' => $result['errors'] ?? 'Authentication failed'
+                ]);
+
+                if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => is_string($result['errors']) ? $result['errors'] : 'Authentication failed'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            }
+
+            // Check for API errors based on success flag
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? "Failed to fetch users with permission: {$permissionName}";
+
+                \Log::warning('Error during users by permission retrieval:', [
+                    'permission' => $permissionName,
+                    'success' => $result['success'] ?? false,
+                    'errors' => $errorData
+                ]);
+
+                if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => is_string($errorData) ? $errorData : 'Failed to fetch users with permission',
+                        'errors' => $errorData
+                    ], 400);
+                }
+
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ], 400);
+            }
+
+            // Successfully retrieved data
+            $users = $result['data'] ?? [];
+            $pagination = $result['pagination'] ?? null;
+
+            \Log::info('Users by permission retrieved successfully', [
+                'permission' => $permissionName,
+                'count' => count($users)
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'] ?? 'Users with permission retrieved successfully',
+                'data' => $users,
+                'pagination' => $pagination
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Exception during users by permission retrieval:', [
+                'permission' => $permissionName,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch users with permission: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

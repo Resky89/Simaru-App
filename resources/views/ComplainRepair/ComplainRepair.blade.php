@@ -14,20 +14,24 @@
 
                     <div class="flex gap-3">
                         <!-- Create Complaint Button -->
+                        @if(hasPermission('complaint:create'))
                         <button id="createComplaintBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             <span class="text-base">Buat Keluhan</span>
                         </button>
+                        @endif
 
                         <!-- Button Export PDF -->
+                        @if(hasPermission('complaint:export'))
                         <button id="exportBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             <span class="text-base">Ekspor PDF</span>
                         </button>
+                        @endif
                     </div>
                 </div>
 
@@ -140,6 +144,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                             </button>
+                                            @if(hasPermission('repair:medical') && hasPermission('repair:non-medical'))
                                             <button
                                                 class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors repair-complaint-btn"
                                                 data-id="{{ $complaint['id'] }}"
@@ -149,6 +154,8 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                                                 </svg>
                                             </button>
+                                            @endif
+                                            @if(hasPermission('complaint:delete'))
                                             <button
                                                 class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-complaint-btn"
                                                 data-id="{{ $complaint['id'] }}"
@@ -158,6 +165,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -261,6 +269,7 @@
 
 
 <!-- Create Complaint Modal -->
+@if(hasPermission('complaint:create'))
 <div id="createComplaintModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -396,8 +405,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Delete Complaint Confirmation Modal -->
+@if(hasPermission('complaint:delete'))
 <div id="deleteComplaintModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -447,8 +458,10 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Repair Complaint Modal -->
+@if(hasPermission('repair:medical') || hasPermission('repair:non-medical'))
 <div id="repairComplaintModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -564,6 +577,7 @@
         </div>
     </div>
 </div>
+@endif
 
 @if(session('success'))
 <div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
@@ -633,6 +647,47 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Add JavaScript initialization for permission awareness
+        @if(!hasPermission('complaint:create'))
+        // Hide create complaint button if user doesn't have permission
+        const createButtons = document.querySelectorAll('#createComplaintBtn');
+        createButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('complaint:export'))
+        // Hide export button if user doesn't have permission
+        const exportButtons = document.querySelectorAll('#exportBtn');
+        exportButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('complaint:delete'))
+        // Hide delete buttons if user doesn't have permission
+        const deleteButtons = document.querySelectorAll('.delete-complaint-btn');
+        deleteButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('repair:medical') && !hasPermission('repair:non-medical'))
+        // Hide repair buttons if user doesn't have either permission
+        const repairButtons = document.querySelectorAll('.repair-complaint-btn');
+        repairButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
         // ===== VARIABLE DECLARATIONS =====
         // DOM Elements
         const imageFile = document.getElementById('imageFile');

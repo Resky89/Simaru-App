@@ -13,13 +13,16 @@
                         <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">KALIBRASI</h1>
 
                         <div class="flex gap-4">
+                            @if(hasPermission('calibration:export'))
                             <button id="exportBtn" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
                                 <span class="text-base">Ekspor PDF</span>
                             </button>
+                            @endif
 
+                            @if(hasPermission('calibration:create'))
                             <button id="addCalibrationBtn"
                                 class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                                 <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -30,6 +33,7 @@
                                 </svg>
                                 <span class="text-base">Tambah Kalibrasi</span>
                             </button>
+                            @endif
                         </div>
                     </div>
 
@@ -70,9 +74,11 @@
                                 <option value="newest">Terbaru</option>
                                 <option value="oldest">Terlama</option>
                             </select>
+                            @if(hasPermission('calibration:delete'))
                             <button id="bulkDeleteBtn" class="hidden px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200">
                                 Hapus Terpilih
                             </button>
+                            @endif
                         </div>
                     </div>
 
@@ -239,6 +245,7 @@
                                                                         </a>
 
                                             <!-- Edit Schedule Icon (Calendar) -->
+                                            @if(hasPermission('calibration:edit'))
                                             @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
                                                 <button class="edit-schedule-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                     data-id="{{ $calibration['id'] }}"
@@ -249,9 +256,11 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                     </svg>
                                                 </button>
+                                                @endif
                                             @endif
 
                                                                         <!-- Perform Calibration Icon (Pencil) -->
+                                            @if(hasPermission('calibration:edit'))
                                                                         @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
                                                 <button class="edit-calibration-btn p-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
                                                                             data-id="{{ $calibration['id'] }}"
@@ -260,9 +269,11 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                                             </svg>
                                                                         </button>
+                                                @endif
                                                                         @endif
 
                                                                         <!-- Delete Icon (Trash) -->
+                                            @if(hasPermission('calibration:delete'))
                                             <button class="delete-calibration-btn p-2 bg-[#F9D2D2] text-[#8E2121] rounded-md hover:bg-red-200 transition-colors"
                                                                             data-id="{{ $calibration['id'] }}"
                                                                             title="Hapus Kalibrasi">
@@ -270,6 +281,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                                             </svg>
                                                                         </button>
+                                            @endif
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -373,6 +385,7 @@
         </div>
 
         <!-- View Calibration Modal - Changed to Perform Calibration Modal -->
+        @if(hasPermission('calibration:edit'))
         <div id="viewCalibrationModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -642,6 +655,7 @@
                                     </button>
                                 </div>
                             </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -649,6 +663,7 @@
         </div>
 
         <!-- Delete Confirmation Modal -->
+        @if(hasPermission('calibration:delete'))
         <div id="deleteCalibrationModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -687,6 +702,7 @@
                                         <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
                                         Hapus
                                     </button>
+                                        </div>
                                 </div>
                             </div>
                         </div>
@@ -695,8 +711,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Add Calibration Modal -->
+        @if(hasPermission('calibration:create'))
         <div id="addCalibrationModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -808,8 +826,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Asset Selection Modal -->
+        @if(hasPermission('calibration:create'))
         <div id="assetSelectionModal" class="fixed inset-0 z-[60] hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -920,9 +940,11 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 
     <!-- Edit Calibration Schedule Modal -->
+    @if(hasPermission('calibration:edit'))
     <div id="editScheduleModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
         <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -986,6 +1008,8 @@
             </div>
         </div>
     </div>
+    @endif
+
 
     @push('scripts')
     <script>
@@ -994,6 +1018,47 @@
         const flashError = @json(session('error') ?? null);
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Apply permissions-based restrictions
+            @if(!hasPermission('calibration:create'))
+            // Hide/disable create-related elements
+            const createButtons = document.querySelectorAll('#addCalibrationBtn, #addAssetsBtn');
+            createButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
+            @if(!hasPermission('calibration:edit'))
+            // Hide/disable edit-related elements
+            const editButtons = document.querySelectorAll('.edit-calibration-btn, .edit-schedule-btn');
+            editButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
+            @if(!hasPermission('calibration:delete'))
+            // Hide/disable delete-related elements
+            const deleteButtons = document.querySelectorAll('.delete-calibration-btn, #bulkDeleteBtn');
+            deleteButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
+            @if(!hasPermission('calibration:export'))
+            // Hide/disable export-related elements
+            const exportButtons = document.querySelectorAll('#exportBtn');
+            exportButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
             // Check for flash messages on page load that didn't trigger the toast
             if (typeof flashSuccess !== 'undefined' && flashSuccess) {
                 showToast(flashSuccess, 'success');
@@ -3323,4 +3388,5 @@
         });
     </script>
     @endpush
+@endif
 @endsection

@@ -134,7 +134,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Vendor Management
-    Route::prefix('vendor')->middleware('permission:vendor:view')->group(function () {
+    Route::prefix('vendor')->middleware('permission:vendor:view|maintenance:create|maintenance:edit')->group(function () {
         Route::get('/', [VendorController::class, 'index'])->name('vendor');
         Route::post('/store', [VendorController::class, 'store'])
             ->name('vendor.store')
@@ -167,6 +167,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
             ->name('users.destroy')
             ->middleware('permission:user:delete');
     });
+    Route::get('/user/by-permission/{permissionName}', [UserController::class, 'getUsersByPermission'])
+            ->name('users.by-permission');
 
     // Role Management
     Route::middleware('permission:role:view')->group(function() {
@@ -409,7 +411,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     //-------------------------------------------------------------------------
 
     // Maintenance routes
-    Route::prefix('maintenance')->middleware('permission:maintenance:view')->group(function() {
+    Route::prefix('maintenance')->middleware('permission:maintenance:view|maintenance-report:medical|maintenance-report:non-medical')->group(function() {
         // Read operations
         Route::get('/', [MaintenanceController::class, 'index'])->name('maintenance');
         Route::get('/{id}', [MaintenanceController::class, 'getMaintenance']);

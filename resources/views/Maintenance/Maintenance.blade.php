@@ -13,13 +13,16 @@
                         <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">PEMELIHARAAN</h1>
 
                         <div class="flex gap-4">
+                            @if(hasPermission('maintenance:export'))
                             <button id="exportBtn" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
                                 <span class="text-base">Ekspor PDF</span>
                             </button>
+                            @endif
 
+                            @if(hasPermission('maintenance:create'))
                             <button id="addMaintenanceBtn"
                                 class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                                 <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -30,6 +33,7 @@
                                 </svg>
                                 <span class="text-base">Tambah Pemeliharaan</span>
                             </button>
+                            @endif
                         </div>
                     </div>
 
@@ -159,6 +163,7 @@
 
                                                 @if(!in_array(strtolower($maintenance['status'] ?? ''), ['finished', 'selesai']))
                                                 <!-- Edit Maintenance Icon (Pencil) -->
+                                                @if(hasPermission('maintenance:edit'))
                                                 <button class="edit-maintenance-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                     data-id="{{ $maintenance['id'] }}"
                                                     title="Edit Pemeliharaan">
@@ -166,6 +171,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
+                                                @endif
 
                                                 <!-- Create Report Icon (Document) -->
                                                 @php
@@ -175,9 +181,20 @@
 
                                                     // Compare logged-in user ID with assigned user ID
                                                     $canCreateReport = ($loggedInUserId && $assignedUserId && $loggedInUserId == $assignedUserId);
+
+                                                    // Check if it's a medical asset
+                                                    $isMedical = false;
+                                                    if (isset($maintenance['asset_type']) && stripos($maintenance['asset_type'], 'medical') !== false) {
+                                                        $isMedical = true;
+                                                    }
+
+                                                    // Check for appropriate permissions based on asset type
+                                                    $hasReportPermission = $isMedical ?
+                                                        hasPermission('maintenance-report:medical') :
+                                                        hasPermission('maintenance-report:non-medical');
                                                 @endphp
 
-                                                @if($canCreateReport)
+                                                @if($canCreateReport && $hasReportPermission)
                                                 <button class="create-report-btn p-2 bg-green-100 text-green-500 rounded-md hover:bg-green-200 transition-colors"
                                                     data-id="{{ $maintenance['id'] }}"
                                                     data-asset-name="{{ $maintenance['asset_name'] ?? '' }}"
@@ -191,6 +208,7 @@
                                                 @endif
 
                                                 <!-- Delete Maintenance Icon (Trash) -->
+                                                @if(hasPermission('maintenance:delete'))
                                                 <button class="delete-maintenance-btn p-2 bg-[#F9D2D2] text-[#8E2121] rounded-md hover:bg-red-200 transition-colors"
                                                     data-id="{{ $maintenance['id'] }}"
                                                     title="Hapus Pemeliharaan">
@@ -198,6 +216,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
+                                                @endif
                                                 @endif
                                             </div>
                                         </td>
@@ -303,6 +322,7 @@
         </div>
 
         <!-- Add Maintenance Modal -->
+        @if(hasPermission('maintenance:create'))
         <div id="addMaintenanceModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -498,8 +518,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Asset Selection Modal -->
+        @if(hasPermission('maintenance:create'))
         <div id="assetSelectionModal" class="fixed inset-0 z-[60] hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -601,8 +623,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Delete Confirmation Modal -->
+        @if(hasPermission('maintenance:delete'))
         <div id="deleteMaintenanceModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -649,8 +673,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Edit Maintenance Modal -->
+        @if(hasPermission('maintenance:edit'))
         <div id="editMaintenanceModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -807,7 +833,9 @@
                 </div>
             </div>
         </div>
+        @endif
 
+        @if(hasPermission('maintenance-report:medical') || hasPermission('maintenance-report:non-medical'))
         <!-- Create Maintenance Report Modal -->
         <div id="createReportModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -931,10 +959,75 @@
             </div>
         </div>
     </div>
+    @endif
 
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Apply permissions-based restrictions
+            @if(!hasPermission('maintenance:create'))
+            // Hide/disable create-related elements
+            const createButtons = document.querySelectorAll('#addMaintenanceBtn, #addAssetsBtn');
+            createButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
+            @if(!hasPermission('maintenance:edit'))
+            // Hide/disable edit-related elements
+            const editButtons = document.querySelectorAll('.edit-maintenance-btn');
+            editButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
+            @if(!hasPermission('maintenance:delete'))
+            // Hide/disable delete-related elements
+            const deleteButtons = document.querySelectorAll('.delete-maintenance-btn');
+            deleteButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
+            @if(!hasPermission('maintenance:export'))
+            // Hide/disable export-related elements
+            const exportButtons = document.querySelectorAll('#exportBtn');
+            exportButtons.forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                }
+            });
+            @endif
+
+            document.querySelectorAll('.create-report-btn').forEach(btn => {
+                const assetType = btn.closest('tr').querySelector('td:nth-child(5)');
+                let isMedical = false;
+
+                // Determine if it's a medical asset based on text in the asset type column
+                if (assetType && assetType.textContent.trim().toLowerCase().includes('medical')) {
+                    isMedical = true;
+                }
+
+                // Check if user has the appropriate permission
+                @if(!hasPermission('maintenance-report:medical'))
+                if (isMedical) {
+                    btn.style.display = 'none';
+                }
+                @endif
+
+                @if(!hasPermission('maintenance-report:non-medical'))
+                if (!isMedical) {
+                    btn.style.display = 'none';
+                }
+                @endif
+            });
+
             // Prevent selecting past dates for date inputs
             const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
 
@@ -2425,33 +2518,71 @@
 
                 searchInput.addEventListener('input', debouncedSearch);
 
-                // Function to load users
-                function loadUsers(searchTerm) {
-                    // Show loading indicator
-                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                    userList.innerHTML = '';
+                            // Function to load users with maintenance-report permissions
+            function loadUsers(searchTerm) {
+                // Show loading indicator
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                userList.innerHTML = '';
 
-                    // Prepare query parameters
-                    let queryParams = new URLSearchParams();
-                        if (searchTerm) {
-                        queryParams.append('search', searchTerm);
+                // Prepare query parameters
+                let queryParams = new URLSearchParams();
+                if (searchTerm) {
+                    queryParams.append('search', searchTerm);
+                }
+                queryParams.append('limit', 10);
+
+                // Determine which permissions to fetch based on what the current user has
+                const fetchPromises = [];
+
+                // Get the permissions the user has
+                const userPermissions = [];
+                if (@json(hasPermission('maintenance-report:medical'))) {
+                    userPermissions.push('maintenance-report:medical');
+                }
+                if (@json(hasPermission('maintenance-report:non-medical'))) {
+                    userPermissions.push('maintenance-report:non-medical');
+                }
+
+                // Create fetch promises based on user permissions
+                userPermissions.forEach(permission => {
+                    fetchPromises.push(
+                        fetch(`/user/by-permission/${permission}?${queryParams.toString()}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                    );
+                });
+
+                // If user doesn't have any relevant permissions, show an error
+                if (userPermissions.length === 0) {
+                    // Show message that user doesn't have permission
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                    const noPermission = document.createElement('li');
+                    noPermission.className = 'px-4 py-2 text-red-500';
+                    noPermission.textContent = 'Anda tidak memiliki izin untuk melihat pengguna dengan akses pemeliharaan';
+                    userList.appendChild(noPermission);
+                    return;
+                }
+
+                // Fetch permitted user types in parallel
+                Promise.all(fetchPromises)
+                .then(responses => {
+                    // Check if all responses are ok
+                    if (!responses.every(response => response.ok)) {
+                        throw new Error('Failed to fetch users with permissions');
                     }
-                    queryParams.append('limit', 10);
+                    // Parse all responses as JSON
+                    return Promise.all(responses.map(response => response.json()));
+                })
+                .then(dataArray => {
+                    // Combine and deduplicate users from both permission responses
+                    let combinedUsers = [];
+                    let userIds = new Set(); // To track unique user IDs
 
-                    // Fetch users from API
-                    fetch(`/user?${queryParams.toString()}`, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to fetch users');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
+                    // Process each response data
+                    dataArray.forEach(data => {
                         // Handle different response formats
                         let users = [];
                         if (Array.isArray(data)) {
@@ -2462,73 +2593,117 @@
                             users = data.data;
                         }
 
-                        // Populate dropdown
-                        userList.innerHTML = '';
+                        // Add unique users to combined list
+                        users.forEach(user => {
+                            if (!userIds.has(user.user_id)) {
+                                userIds.add(user.user_id);
+                                combinedUsers.push(user);
+                            }
+                        });
+                    });
 
-                        if (users.length === 0) {
-                            const noResults = document.createElement('li');
-                            noResults.className = 'px-4 py-2 text-gray-500 italic';
-                            noResults.textContent = 'Tidak ada pengguna ditemukan';
-                            userList.appendChild(noResults);
-                        } else {
-                            users.forEach(user => {
-                                const li = document.createElement('li');
-                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                                            // Populate dropdown with combined results
+                    userList.innerHTML = '';
 
-                                // Display employee_number with user's name if available
-                                let displayText = '';
-                                if (user.employee_number) {
-                                    displayText = user.employee_number;
-                                    if (user.name) {
-                                        displayText += ` - ${user.name}`;
-                                    }
+                    if (combinedUsers.length === 0) {
+                        const noResults = document.createElement('li');
+                        noResults.className = 'px-4 py-2 text-gray-500 italic';
+                        noResults.textContent = 'Tidak ada pengguna ditemukan dengan izin pemeliharaan';
+                        userList.appendChild(noResults);
+                    } else {
+                        // Sort users by employee_number or name for better readability
+                        combinedUsers.sort((a, b) => {
+                            if (a.employee_number && b.employee_number) {
+                                return a.employee_number.localeCompare(b.employee_number);
+                            } else if (a.name && b.name) {
+                                return a.name.localeCompare(b.name);
+                            }
+                            return 0;
+                        });
+
+                        combinedUsers.forEach(user => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                            // Display employee_number with user's name if available
+                            let displayText = '';
+                            if (user.employee_number) {
+                                displayText = user.employee_number;
+                                if (user.name) {
+                                    displayText += ` - ${user.name}`;
+                                }
+                            } else {
+                                displayText = user.name || `User ID: ${user.user_id}`;
+                            }
+
+                            li.textContent = displayText;
+                            li.setAttribute('data-id', user.user_id);
+                            li.setAttribute('data-employee-number', user.employee_number || '');
+
+                            li.addEventListener('click', function() {
+                                // Set the selected user ID
+                                selectedUserId.value = this.getAttribute('data-id');
+
+                                // Update the search input with employee number or name
+                                const employeeNumber = this.getAttribute('data-employee-number');
+                                if (employeeNumber) {
+                                    searchInput.value = employeeNumber;
                                 } else {
-                                    displayText = user.name || `User ID: ${user.user_id}`;
+                                    searchInput.value = this.textContent;
                                 }
 
-                                li.textContent = displayText;
-                                li.setAttribute('data-id', user.user_id);
-                                li.setAttribute('data-employee-number', user.employee_number || '');
-
-                                li.addEventListener('click', function() {
-                                    // Set the selected user ID
-                                    selectedUserId.value = this.getAttribute('data-id');
-
-                                    // Update the search input with employee number or name
-                                    const employeeNumber = this.getAttribute('data-employee-number');
-                                    if (employeeNumber) {
-                                        searchInput.value = employeeNumber;
-                                    } else {
-                                        searchInput.value = this.textContent;
-                                    }
-
-                                    // Hide dropdown
-                                    dropdown.classList.add('hidden');
-                                });
-
-                                userList.appendChild(li);
+                                // Hide dropdown
+                                dropdown.classList.add('hidden');
                             });
 
-                            // Show count if there might be more results
-                            const pagination = data.pagination || {};
-                            if (pagination.total_items > users.length) {
-                                const countDiv = document.createElement('li');
-                                countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
-                                countDiv.textContent = `Menampilkan ${users.length} dari ${pagination.total_items} pengguna`;
-                                userList.appendChild(countDiv);
-                            }
+                            userList.appendChild(li);
+                        });
+
+                        // Show count with permission context
+                        const countDiv = document.createElement('li');
+                        countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
+
+                                                // Reference the userPermissions array defined earlier
+                        let permissionText = '';
+
+                        if (userPermissions.includes('maintenance-report:medical') &&
+                            userPermissions.includes('maintenance-report:non-medical')) {
+                            permissionText = 'izin pemeliharaan medis dan non-medis';
+                        } else if (userPermissions.includes('maintenance-report:medical')) {
+                            permissionText = 'izin pemeliharaan medis';
+                        } else if (userPermissions.includes('maintenance-report:non-medical')) {
+                            permissionText = 'izin pemeliharaan non-medis';
+                        } else {
+                            permissionText = 'izin pemeliharaan';
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error loading users:', error);
-                        const errorItem = document.createElement('li');
-                        errorItem.className = 'px-4 py-2 text-red-500';
-                        errorItem.textContent = 'Gagal memuat data pengguna';
-                        userList.appendChild(errorItem);
-                    })
-                    .finally(() => {
-                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                    });
+
+                        countDiv.textContent = `Menampilkan ${combinedUsers.length} pengguna dengan ${permissionText}`;
+
+                        userList.appendChild(countDiv);
+                                            }
+                })
+                .catch(error => {
+                    console.error('Error loading users with permissions:', error);
+                    const errorItem = document.createElement('li');
+                    errorItem.className = 'px-4 py-2 text-red-500';
+
+                                        // Reference the userPermissions array defined earlier
+                    if (userPermissions.includes('maintenance-report:medical') &&
+                        userPermissions.includes('maintenance-report:non-medical')) {
+                        errorItem.textContent = 'Gagal memuat data pengguna dengan izin pemeliharaan medis dan non-medis';
+                    } else if (userPermissions.includes('maintenance-report:medical')) {
+                        errorItem.textContent = 'Gagal memuat data pengguna dengan izin pemeliharaan medis';
+                    } else if (userPermissions.includes('maintenance-report:non-medical')) {
+                        errorItem.textContent = 'Gagal memuat data pengguna dengan izin pemeliharaan non-medis';
+                    } else {
+                        errorItem.textContent = 'Gagal memuat data pengguna dengan izin pemeliharaan';
+                    }
+
+                    userList.appendChild(errorItem);
+                })
+                .finally(() => {
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                });
                 }
             }
 
