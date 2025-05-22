@@ -130,13 +130,13 @@
                                     </button>
                                 </div>
 
-                                    <!-- Upload Progress Indicator (initially hidden) -->
-                                    <div id="uploadProgressContainer" class="hidden mt-4">
-                                        <div class="flex items-center justify-between mb-1">
-                                            <span class="text-sm font-medium text-[#213268]">Mengupload dokumen...</span>
-                                            <span id="uploadProgressText" class="text-sm font-medium text-[#213268]">0%</span>
-                                </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <!-- Upload Progress Indicator (initially hidden) -->
+                                <div id="uploadProgressContainer" class="hidden mt-4">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-sm font-medium text-[#213268]">Mengupload dokumen...</span>
+                                        <span id="uploadProgressText" class="text-sm font-medium text-[#213268]">0%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
                                             <div id="uploadProgressBar" class="bg-[#213268] h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                                         </div>
                                         <div id="uploadStatusMessage" class="mt-2 text-sm text-gray-600"></div>
@@ -524,7 +524,7 @@ document.addEventListener('DOMContentLoaded', function() {
         apiBaseUrl: "{{ config('app.api_url', '') }}",
         // Add permission flags
         hasCreatePermission: {{ hasPermission('asset:document:create') ? 'true' : 'false' }},
-        hasDownloadPermission: {{ hasPermission('asset:document:download') ? 'true' : 'false' }},
+        hasDownloadPermission: {{ hasPermission('asset:document:download') ? 'true' : 'false' }}, // ID: 123 - Mengunduh dokumen aset
         selectors: {
             addBtn: '#addDocumentBtn',
             addForm: '#addDocumentForm',

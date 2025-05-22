@@ -117,7 +117,7 @@
 
                     <!-- Form Buttons -->
                     <div class="flex gap-4 mt-8">
-                        <button type="submit" id="submitOrderBtn" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
+                        <button type="button" id="submitOrderBtn" class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
                             KIRIM
                         </button>
                     </div>
@@ -929,9 +929,7 @@
 
         // Form submission handler
         if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
+            document.getElementById('submitOrderBtn').addEventListener('click', function(e) {
                 // Prevent multiple submissions
                 if (isSubmitting) {
                     return;
@@ -988,16 +986,18 @@
                 // Prepare data for submission - exactly match the required format
                 const purchaseOrderData = {
                     comparison_id: parseInt(selectedComparisonId.value),
-                    selections: selectedItems
+                    selections: selectedItems,
+                    notes: notes
                 };
 
                 console.log('Submitting purchase order:', purchaseOrderData);
 
                 // Set submission flag and disable submit button
                 isSubmitting = true;
-                const submitButton = this.querySelector('button[type="submit"]');
+                const submitButton = document.getElementById('submitOrderBtn');
                 const originalButtonText = submitButton.innerHTML;
                 submitButton.disabled = true;
+                submitButton.classList.add('opacity-70', 'cursor-not-allowed');
                 submitButton.innerHTML = `
                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -1036,6 +1036,7 @@
                         // Reset submission status if failed
                         isSubmitting = false;
                         submitButton.disabled = false;
+                        submitButton.classList.remove('opacity-70', 'cursor-not-allowed');
                         submitButton.innerHTML = originalButtonText;
 
                         let errorMessage = data.errors || 'Gagal membuat Pesanan Pembelian';
@@ -1061,6 +1062,7 @@
                     // Reset submission status on error
                     isSubmitting = false;
                     submitButton.disabled = false;
+                    submitButton.classList.remove('opacity-70', 'cursor-not-allowed');
                     submitButton.innerHTML = originalButtonText;
                     showSweetAlert('Terjadi kesalahan saat membuat Pesanan Pembelian', 'error', {
                         title: 'Gagal Terhubung ke Server',

@@ -306,7 +306,18 @@
                                     </div>
                                     <div class="flex flex-wrap items-center">
                                         <span class="w-[150px] font-semibold text-sm">Tipe Aset</span>
-                                        <span class="text-sm">{{ $asset['asset_master']['asset_type'] ?? '-' }}</span>
+                                        <span class="text-sm">
+                                            @php
+                                                $assetType = $asset['asset_master']['asset_type'] ?? '-';
+                                                if (strtolower($assetType) === 'medical') {
+                                                    echo 'Medis';
+                                                } elseif (strtolower($assetType) === 'non_medical') {
+                                                    echo 'Non Medis';
+                                                } else {
+                                                    echo $assetType;
+                                                }
+                                            @endphp
+                                        </span>
                                     </div>
                                     <div class="flex flex-wrap items-center">
                                         <span class="w-[150px] font-semibold text-sm">Kategori</span>
@@ -337,7 +348,20 @@
                                     </div>
                                     <div class="flex flex-wrap items-center">
                                         <span class="w-[150px] font-semibold text-sm">Kondisi</span>
-                                        <span class="text-sm">{{ ucfirst($asset['condition'] ?? '-') }}</span>
+                                        <span class="text-sm">
+                                            @php
+                                                $condition = $asset['condition'] ?? '-';
+                                                if (strtolower($condition) === 'good') {
+                                                    echo 'Baik';
+                                                } elseif (strtolower($condition) === 'slighly damage') {
+                                                    echo 'Sedikit Rusak';
+                                                } elseif (strtolower($condition) === 'high damage') {
+                                                    echo 'Sangat Rusak';
+                                                } else {
+                                                    echo ucfirst($condition);
+                                                }
+                                            @endphp
+                                        </span>
                                     </div>
                                     <div class="flex flex-wrap items-center">
                                         <span class="w-[150px] font-semibold text-sm">Garansi Berakhir</span>

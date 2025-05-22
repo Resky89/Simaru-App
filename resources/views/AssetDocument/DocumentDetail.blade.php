@@ -19,12 +19,14 @@
 
         <!-- Action Buttons -->
         <div class="flex gap-3">
+            @if(hasPermission('document:edit'))
             <button id="editDocumentBtn" class="flex items-center justify-center gap-2 px-3 py-2 border border-[#213268] text-[#213268] rounded-lg hover:bg-[#213268] hover:text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
                 <span class="text-sm md:text-base">Ubah</span>
             </button>
+            @endif
         </div>
     </div>
 
@@ -109,14 +111,16 @@
                     </div>
                     <p class="text-sm text-center mt-2 text-gray-600">{{ $fileName }}</p>
                     <div class="flex justify-center mt-3">
+                        @if(hasPermission('asset:document:download'))
                         <a href="{{ config('app.backend_url') }}/public{{ $filePath }}" class="bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors" target="_blank" download>
                             <span class="flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 8m4-4v12" />
                                 </svg>
                                 Unduh Gambar
                             </span>
                         </a>
+                        @endif
                     </div>
                 </div>
                 @else
@@ -130,31 +134,7 @@
                         <p class="font-medium">Dokumen PDF</p>
                         <p class="text-sm text-gray-600">{{ $fileName }}</p>
                     </div>
-                    @elseif(in_array($fileExtension, ['doc', 'docx']))
-                    <svg class="w-10 h-10 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                    <div>
-                        <p class="font-medium">Dokumen Word</p>
-                        <p class="text-sm text-gray-600">{{ $fileName }}</p>
-                    </div>
-                    @elseif(in_array($fileExtension, ['xls', 'xlsx', 'csv']))
-                    <svg class="w-10 h-10 text-green-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                    <div>
-                        <p class="font-medium">Spreadsheet Excel</p>
-                        <p class="text-sm text-gray-600">{{ $fileName }}</p>
-                    </div>
-                    @else
-                    <svg class="w-10 h-10 text-gray-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <div>
-                        <p class="font-medium">File Dokumen</p>
-                        <p class="text-sm text-gray-600">{{ $fileName }}</p>
-                    </div>
-                    @endif
+                    @if(hasPermission('asset:document:download'))
                     <a href="{{ config('app.backend_url') }}/public{{ $filePath }}" class="ml-auto bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors" target="_blank" download>
                         <span class="flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,6 +143,61 @@
                             Unduh
                         </span>
                     </a>
+                    @endif
+                    @elseif(in_array($fileExtension, ['doc', 'docx']))
+                    <svg class="w-10 h-10 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <div>
+                        <p class="font-medium">Dokumen Word</p>
+                        <p class="text-sm text-gray-600">{{ $fileName }}</p>
+                    </div>
+                    @if(hasPermission('asset:document:download'))
+                    <a href="{{ config('app.backend_url') }}/public{{ $filePath }}" class="ml-auto bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors" target="_blank" download>
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Unduh
+                        </span>
+                    </a>
+                    @endif
+                    @elseif(in_array($fileExtension, ['xls', 'xlsx', 'csv']))
+                    <svg class="w-10 h-10 text-green-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <div>
+                        <p class="font-medium">Spreadsheet Excel</p>
+                        <p class="text-sm text-gray-600">{{ $fileName }}</p>
+                    </div>
+                    @if(hasPermission('asset:document:download'))
+                    <a href="{{ config('app.backend_url') }}/public{{ $filePath }}" class="ml-auto bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors" target="_blank" download>
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Unduh
+                        </span>
+                    </a>
+                    @endif
+                    @else
+                    <svg class="w-10 h-10 text-gray-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <div>
+                        <p class="font-medium">File Dokumen</p>
+                        <p class="text-sm text-gray-600">{{ $fileName }}</p>
+                    </div>
+                    @if(hasPermission('asset:document:download'))
+                    <a href="{{ config('app.backend_url') }}/public{{ $filePath }}" class="ml-auto bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors" target="_blank" download>
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Unduh
+                        </span>
+                    </a>
+                    @endif
                 </div>
                 @endif
             </div>
@@ -174,6 +209,7 @@
     <div class="mb-6">
         <div class="bg-[#213268] rounded-t-lg p-4 flex justify-between items-center">
             <h2 class="text-white font-semibold">Asset Terkait</h2>
+            @if(hasPermission('document:assign'))
             <button id="link-document-btn" class="flex items-center justify-center gap-2 px-3 py-1.5 bg-white text-[#213268] rounded-lg hover:bg-gray-100 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
@@ -181,6 +217,7 @@
                 </svg>
                 <span class="text-sm">Hubungkan Asset</span>
             </button>
+            @endif
         </div>
         <div class="bg-white p-6 rounded-b-lg border border-t-0 border-gray-200">
             @if(isset($document['assets']) && count($document['assets']) > 0)
@@ -234,6 +271,7 @@
 </div>
 
 <!-- Edit Document Modal (Placeholder) -->
+@if(hasPermission('document:edit'))
 <div id="editDocumentModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -374,6 +412,7 @@
         </div>
     </div>
 </div>
+@endif
 
 @if(session('success'))
 <div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
@@ -410,6 +449,7 @@
 @endif
 
 <!-- Link Assets Modal -->
+ @if(hasPermission('asset:document:assign'))
 <div id="linkAssetsModal" class="fixed inset-0 z-[60] hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -519,12 +559,41 @@
         </div>
     </div>
 </div>
-
+@endif
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        @if(!hasPermission('document:edit'))
+        const editButtons = document.querySelectorAll('#editDocumentBtn');
+        editButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('document:assign'))
+        const assignButtons = document.querySelectorAll('#linkAssetsModal');
+        assignButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+        @if(!hasPermission('asset:document:download'))
+        const downloadButtons = document.querySelectorAll('#downloadDocumentBtn');
+        downloadButtons.forEach(btn => {
+            if (btn) {
+                btn.style.display = 'none';
+            }
+        });
+        @endif
+
+
+
         // Modal functionality
         const openModal = function(modal, content) {
             modal.classList.remove('hidden');

@@ -171,8 +171,8 @@
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="addRoleModalContent">
+                                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[900px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                id="addRoleModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
                             <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH ROLE</h2>
@@ -229,9 +229,9 @@
                                     </div>
 
                                     <!-- Permission Groups Container -->
-                                    <div id="add-permissions-container" class="space-y-6 pt-3">
-                                        <p class="text-center text-gray-500 py-4">Memuat izin...</p>
-                                    </div>
+                                        <div id="add-permissions-container" class="space-y-6 pt-3">
+                                            <p class="text-center text-gray-500 py-4">Memuat data izin...</p>
+                                        </div>
                                     @else
                                     <div class="pt-2">
                                         <div class="pb-4 border-b border-gray-200">
@@ -272,7 +272,7 @@
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[900px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="editRoleModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
@@ -677,7 +677,7 @@
                 if (!container) return;
 
                 if (!permissions || permissions.length === 0) {
-                    container.innerHTML = '<p class="text-center text-gray-500 py-4">No permissions available</p>';
+                    container.innerHTML = '<p class="text-center text-gray-500 py-4">Tidak ada izin yang tersedia</p>';
                     return;
                 }
 
@@ -692,15 +692,54 @@
                         return;
                     }
 
-                    let group = 'Other';
+                    let group = 'Lainnya';
                     let action = '';
+                    let originalGroup = '';
 
                     if (permission.permission_name.includes(':')) {
                         const parts = permission.permission_name.split(':');
-                        group = parts[0];
+                        originalGroup = parts[0];
                         action = parts[1];
-                        // Capitalize first letter
-                        group = group.charAt(0).toUpperCase() + group.slice(1);
+
+                        // Combine maintenance report permissions with maintenance
+                        if (originalGroup === 'maintenance-report') {
+                            group = 'Perawatan';
+                        }
+                        // Combine repair permissions with complaint
+                        else if (originalGroup === 'repair') {
+                            group = 'Keluhan dan Perbaikan';
+                        }
+                        // For other groups, translate and format them
+                        else {
+                            // Map group names to Indonesian without hyphens
+                            switch (originalGroup) {
+                                case 'asset-master': group = 'Master Aset'; break;
+                                case 'asset-subcategory': group = 'Kategori'; break;
+                                case 'asset': group = 'Aset'; break;
+                                case 'brand': group = 'Merk'; break;
+                                case 'building': group = 'Gedung'; break;
+                                case 'calibration': group = 'Kalibrasi'; break;
+                                case 'complaint': group = 'Keluhan dan Perbaikan'; break;
+                                case 'dashboard': group = 'Dashboard'; break;
+                                case 'document': group = 'Dokumen'; break;
+                                case 'maintenance': group = 'Perawatan'; break;
+                                case 'mobile': group = 'Mobile'; break;
+                                case 'price-comparison': group = 'Perbandingan Harga'; break;
+                                case 'procurement': group = 'Pengadaan'; break;
+                                case 'purchase-order': group = 'Pemesanan'; break;
+                                case 'receipt': group = 'Penerimaan'; break;
+                                case 'report': group = 'Laporan'; break;
+                                case 'role': group = 'Peran'; break;
+                                case 'room': group = 'Ruangan'; break;
+                                case 'user': group = 'Pengguna'; break;
+                                case 'vendor': group = 'Vendor'; break;
+                                default:
+                                    // Default formatting for groups not explicitly mapped
+                                    group = originalGroup.charAt(0).toUpperCase() + originalGroup.slice(1).toLowerCase();
+                                    group = group.replace(/-/g, ' '); // Remove hyphens
+                                    break;
+                            }
+                        }
                     }
 
                     if (!groupedPermissions[group]) {
@@ -727,16 +766,11 @@
                     const groupId = group.toLowerCase().replace(/[^a-z0-9]/g, '_');
                     const groupContainerId = `${containerId}-${groupId}-container`;
 
-                    // Format the display name - replace underscores with spaces and capitalize each word
-                    const displayGroupName = group.replace(/_/g, ' ').replace(/\w\S*/g, function(txt) {
-                        return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
-                    });
-
                     html += `
                         <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
                             <div class="flex items-center justify-between mb-3">
                                 <div class="flex items-center gap-3">
-                                    <h4 class="text-[#213268] text-lg font-semibold capitalize">${displayGroupName}</h4>`;
+                                    <h4 class="text-[#213268] text-lg font-semibold">${group}</h4>`;
 
                     // Add View Only checkbox next to the group name if it exists
                     if (viewPermission) {
@@ -768,17 +802,33 @@
                         const isChecked = selectedIds.includes(permission.permission_id);
                         const permId = `${containerId}-perm-${permission.permission_id}`;
 
-                        // Map common actions to more user-friendly names
+                        // Map common actions to more user-friendly names in Indonesian
                         let displayName = permission.permission_name;
                         if (permission.permission_name.includes(':')) {
                             const action = permission.permission_name.split(':')[1];
 
                             switch (action) {
-                                case 'create': displayName = 'Add'; break;
-                                case 'edit': displayName = 'Edit'; break;
-                                case 'delete': displayName = 'Delete'; break;
-                                case 'export': displayName = 'Export'; break;
-                                default: displayName = action.charAt(0).toUpperCase() + action.slice(1);
+                                case 'create': displayName = 'Tambah'; break;
+                                case 'edit': displayName = 'Ubah'; break;
+                                case 'delete': displayName = 'Hapus'; break;
+                                case 'export': displayName = 'Ekspor'; break;
+                                case 'import': displayName = 'Impor'; break;
+                                case 'approve': displayName = 'Setujui'; break;
+                                case 'reject': displayName = 'Tolak'; break;
+                                case 'medical': displayName = 'Medis'; break;
+                                case 'non-medical': displayName = 'Non Medis'; break;
+                                case 'assign': displayName = 'Hubungkan'; break;
+                                case 'assign_permissions': displayName = 'Tetapkan Izin'; break;
+                                case 'checkout': displayName = 'Checkout'; break;
+                                case 'return': displayName = 'Pengembalian'; break;
+                                case 'dispose': displayName = 'Penghapusan'; break;
+                                case 'report-loss': displayName = 'Lapor Kehilangan'; break;
+                                case 'report-found': displayName = 'Lapor Ditemukan'; break;
+                                case 'opname': displayName = 'Stock Opname'; break;
+                                case 'complete': displayName = 'Selesaikan'; break;
+                                case 'depreciation': displayName = 'Depresiasi'; break;
+                                case 'finance': displayName = 'Keuangan'; break;
+                                default: displayName = action.charAt(0).toUpperCase() + action.slice(1).replace(/-/g, ' ');
                             }
                         }
 
