@@ -3,6 +3,7 @@
 @section('title', 'Kategori Aset')
 
 @section('content')
+@include('Layout.loading')
 <div class="h-full space-y-4 md:space-y-6">
     <!-- Sub Categories Section -->
     <div class="card bg-base-100 shadow-xl">

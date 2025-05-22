@@ -3,8 +3,8 @@
 @section('title', 'Pemesanan')
 
 @section('content')
+@include('Layout.loading')
 <div class="h-full space-y-4 md:space-y-6">
-    <!-- Purchase Order Section -->
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body p-4 md:p-7">
             <div class="flex flex-col gap-6">

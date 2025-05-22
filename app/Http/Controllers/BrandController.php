@@ -131,7 +131,7 @@ class BrandController extends Controller
                     ], 400);
                 }
 
-                return view('Brand.Brand', [
+                return view('Brand', [
                     'brands' => [],
                     'brands_pagination' => null,
                     'error' => $errorMessage
@@ -163,7 +163,7 @@ class BrandController extends Controller
                 ];
             }
 
-            return view('Brand.Brand', [
+            return view('Brand', [
                 'brands' => $brands,
                 'brands_pagination' => $brandsPagination
             ]);
@@ -180,7 +180,7 @@ class BrandController extends Controller
                 ], 500);
             }
 
-            return view('Brand.Brand', [
+            return view('Brand', [
                 'brands' => [],
                 'brands_pagination' => null,
                 'error' => 'Failed to fetch data: ' . $e->getMessage()
@@ -436,7 +436,7 @@ class BrandController extends Controller
                 return response()->json($brand);
             }
 
-            return view('Brand.EditBrand', ['brand' => $brand]);
+            return view('Brand', ['brand' => $brand]);
         } catch (\Exception $e) {
             $errorMessage = 'Failed to retrieve brand: ' . $e->getMessage();
 

@@ -3,6 +3,7 @@
 @section('title', 'Buildings')
 
 @section('content')
+@include('Layout.loading')
     <div class="h-full space-y-4 md:space-y-6">
         <!-- Building Section -->
         <div class="card bg-base-100 shadow-xl">
@@ -67,8 +68,6 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">ID Gedung
-                                    </th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Gedung</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Alamat</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi
@@ -78,7 +77,6 @@
                             <tbody>
                                 @forelse($buildings as $building)
                                     <tr>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $building['building_id'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $building['building_name'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $building['address'] }}</td>
                                         <td class="p-3 border-t border-[#EEF1F4]">

@@ -3,6 +3,7 @@
 @section('title', 'Manajemen Kalibrasi')
 
 @section('content')
+    @include('Layout.loading')
     <div class="h-full space-y-4 md:space-y-6">
         <!-- Calibration Section -->
         <div class="card bg-base-100 shadow-xl">
@@ -14,25 +15,28 @@
 
                         <div class="flex gap-4">
                             @if(hasPermission('calibration:export'))
-                            <button id="exportBtn" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                <span class="text-base">Ekspor PDF</span>
-                            </button>
+                                <button id="exportBtn"
+                                    class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    <span class="text-base">Ekspor PDF</span>
+                                </button>
                             @endif
 
                             @if(hasPermission('calibration:create'))
-                            <button id="addCalibrationBtn"
-                                class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
-                                <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6"
-                                        stroke-linecap="round" />
-                                    <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
-                                        stroke-linecap="round" />
-                                </svg>
-                                <span class="text-base">Tambah Kalibrasi</span>
-                            </button>
+                                <button id="addCalibrationBtn"
+                                    class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                                    <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" />
+                                        <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    <span class="text-base">Tambah Kalibrasi</span>
+                                </button>
                             @endif
                         </div>
                     </div>
@@ -75,9 +79,10 @@
                                 <option value="oldest">Terlama</option>
                             </select>
                             @if(hasPermission('calibration:delete'))
-                            <button id="bulkDeleteBtn" class="hidden px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200">
-                                Hapus Terpilih
-                            </button>
+                                <button id="bulkDeleteBtn"
+                                    class="hidden px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200">
+                                    Hapus Terpilih
+                                </button>
                             @endif
                         </div>
                     </div>
@@ -95,7 +100,8 @@
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Lokasi</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Rencana</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Aktual</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Berikutnya</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Berikutnya
+                                    </th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Sertifikat</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Hasil</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Biaya</th>
@@ -106,188 +112,232 @@
                             </thead>
                             <tbody>
                                 @forelse($calibrations ?? [] as $calibration)
-                                                            <tr>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                    <input type="checkbox" class="calibration-checkbox checkbox checkbox-sm" data-id="{{ $calibration['id'] }}" />
-                                                                </td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $calibration['task_code'] ?? '-' }}</td>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    <div class="flex flex-col">
-                                                                        <span class="font-medium">{{ $calibration['asset_name'] ?? '-' }}</span>
-                                                                        <span class="text-gray-500">{{ $calibration['asset_code'] ?? '-' }}</span>
-                                                                    </div>
-                                                                </td>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    @if(isset($calibration['location']))
-                                                                        <div class="flex flex-col">
-                                                                            <span>{{ $calibration['location']['room_name'] ?? '-' }}</span>
-                                                    <span class="text-gray-500">{{ $calibration['location']['building_name'] ?? '-' }}</span>
-                                                                        </div>
-                                                                    @else
-                                                                        -
-                                                                    @endif
-                                                                </td>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    @if($calibration['planning_calibration_date'])
-                                                                        @php
-                                                                            $date = \Carbon\Carbon::parse($calibration['planning_calibration_date']);
-                                                                            $indonesianMonths = [
-                                                                                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-                                                                                'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
-                                                                            ];
-                                                                            echo $date->format('d') . ' ' . $indonesianMonths[$date->month - 1] . ' ' . $date->format('Y');
-                                                                        @endphp
-                                                                    @else
-                                                                        -
-                                                                    @endif
-                                                                </td>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    @if(isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'])
-                                                                        @php
-                                                                            $date = \Carbon\Carbon::parse($calibration['actual_calibration_date']);
-                                                                            $indonesianMonths = [
-                                                                                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-                                                                                'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
-                                                                            ];
-                                                                            echo $date->format('d') . ' ' . $indonesianMonths[$date->month - 1] . ' ' . $date->format('Y');
-                                                                        @endphp
-                                                                    @else
-                                                                        -
-                                                                    @endif
-                                                                </td>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    @if(isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'])
-                                                                        @php
-                                                                            $date = \Carbon\Carbon::parse($calibration['next_calibration_date']);
-                                                                            $indonesianMonths = [
-                                                                                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-                                                                                'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
-                                                                            ];
-                                                                            echo $date->format('d') . ' ' . $indonesianMonths[$date->month - 1] . ' ' . $date->format('Y');
-                                                                        @endphp
-                                                                    @else
-                                                                        -
-                                                                    @endif
-                                                                </td>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    {{ $calibration['certificate_number'] ?? '-' }}
-                                                                </td>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    @php
-                                                                        $resultClass = '';
-                                                                        $resultText = $calibration['calibration_result'] ?? '-';
+                                    <tr>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                            <input type="checkbox" class="calibration-checkbox checkbox checkbox-sm"
+                                                data-id="{{ $calibration['id'] }}" />
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $calibration['task_code'] ?? '-' }}
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            <div class="flex flex-col">
+                                                <span class="font-medium">{{ $calibration['asset_name'] ?? '-' }}</span>
+                                                <span class="text-gray-500">{{ $calibration['asset_code'] ?? '-' }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            @if(isset($calibration['location']))
+                                                <div class="flex flex-col">
+                                                    <span>{{ $calibration['location']['room_name'] ?? '-' }}</span>
+                                                    <span
+                                                        class="text-gray-500">{{ $calibration['location']['building_name'] ?? '-' }}</span>
+                                                </div>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            @if($calibration['planning_calibration_date'])
+                                                @php
+                                                    $date = \Carbon\Carbon::parse($calibration['planning_calibration_date']);
+                                                    $indonesianMonths = [
+                                                        'Jan',
+                                                        'Feb',
+                                                        'Mar',
+                                                        'Apr',
+                                                        'Mei',
+                                                        'Jun',
+                                                        'Jul',
+                                                        'Agt',
+                                                        'Sep',
+                                                        'Okt',
+                                                        'Nov',
+                                                        'Des'
+                                                    ];
+                                                    echo $date->format('d') . ' ' . $indonesianMonths[$date->month - 1] . ' ' . $date->format('Y');
+                                                @endphp
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            @if(isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'])
+                                                @php
+                                                    $date = \Carbon\Carbon::parse($calibration['actual_calibration_date']);
+                                                    $indonesianMonths = [
+                                                        'Jan',
+                                                        'Feb',
+                                                        'Mar',
+                                                        'Apr',
+                                                        'Mei',
+                                                        'Jun',
+                                                        'Jul',
+                                                        'Agt',
+                                                        'Sep',
+                                                        'Okt',
+                                                        'Nov',
+                                                        'Des'
+                                                    ];
+                                                    echo $date->format('d') . ' ' . $indonesianMonths[$date->month - 1] . ' ' . $date->format('Y');
+                                                @endphp
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            @if(isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'])
+                                                @php
+                                                    $date = \Carbon\Carbon::parse($calibration['next_calibration_date']);
+                                                    $indonesianMonths = [
+                                                        'Jan',
+                                                        'Feb',
+                                                        'Mar',
+                                                        'Apr',
+                                                        'Mei',
+                                                        'Jun',
+                                                        'Jul',
+                                                        'Agt',
+                                                        'Sep',
+                                                        'Okt',
+                                                        'Nov',
+                                                        'Des'
+                                                    ];
+                                                    echo $date->format('d') . ' ' . $indonesianMonths[$date->month - 1] . ' ' . $date->format('Y');
+                                                @endphp
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ $calibration['certificate_number'] ?? '-' }}
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            @php
+                                                $resultClass = '';
+                                                $resultText = $calibration['calibration_result'] ?? '-';
 
-                                                                        if (strtolower($resultText) == 'pass') {
-                                                                            $resultClass = 'bg-green-100 text-green-800';
-                                                                            $resultText = 'Lulus';
-                                                                        } elseif (strtolower($resultText) == 'fail') {
-                                                                            $resultClass = 'bg-red-100 text-red-800';
-                                                                            $resultText = 'Gagal';
-                                                                        } elseif (strtolower($resultText) == 'unknown') {
-                                                                            $resultClass = 'bg-yellow-100 text-yellow-800';
-                                                                            $resultText = 'Tidak Ditemukan';
-                                                                        }
-                                                                    @endphp
-                                                                    @if($resultText != '-')
-                                                                        <span class="px-2 py-1 rounded text-xs {{ $resultClass }}">
-                                                                            {{ $resultText }}
-                                                                        </span>
-                                                                    @else
-                                                                        {{ $resultText }}
-                                                                    @endif
-                                                                </td>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    {{ isset($calibration['calibration_price']) && $calibration['calibration_price'] ? number_format((float)$calibration['calibration_price'], 0, ',', '.') : '-' }}
-                                                                </td>
-                                                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                    @php
-                                                                        $statusClass = '';
-                                                                        $status = $calibration['status_calibration'] ?? '';
+                                                if (strtolower($resultText) == 'pass') {
+                                                    $resultClass = 'bg-green-100 text-green-800';
+                                                    $resultText = 'Lulus';
+                                                } elseif (strtolower($resultText) == 'fail') {
+                                                    $resultClass = 'bg-red-100 text-red-800';
+                                                    $resultText = 'Gagal';
+                                                } elseif (strtolower($resultText) == 'unknown') {
+                                                    $resultClass = 'bg-yellow-100 text-yellow-800';
+                                                    $resultText = 'Tidak Ditemukan';
+                                                }
+                                            @endphp
+                                            @if($resultText != '-')
+                                                <span class="px-2 py-1 rounded text-xs {{ $resultClass }}">
+                                                    {{ $resultText }}
+                                                </span>
+                                            @else
+                                                {{ $resultText }}
+                                            @endif
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ isset($calibration['calibration_price']) && $calibration['calibration_price'] ? number_format((float) $calibration['calibration_price'], 0, ',', '.') : '-' }}
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            @php
+                                                $statusClass = '';
+                                                $status = $calibration['status_calibration'] ?? '';
 
-                                                                        if ($status == 'scheduled') {
-                                                                            $statusClass = 'bg-blue-100 text-blue-800';
-                                                                        } elseif ($status == 'in_progress') {
-                                                                            $statusClass = 'bg-yellow-100 text-yellow-800';
-                                                                        } elseif ($status == 'completed') {
-                                                                            $statusClass = 'bg-green-100 text-green-800';
-                                                                        } elseif ($status == 'overdue') {
-                                                                            $statusClass = 'bg-red-100 text-red-800';
-                                                                        } elseif ($status == 'cancelled') {
-                                                                            $statusClass = 'bg-red-100 text-red-800';
-                                                                        }
-                                                                    @endphp
-                                                                    <span class="px-2 py-1 rounded text-xs {{ $statusClass }}">
-                                                                        @if($status == 'scheduled')
-                                                                            Terjadwal
-                                                                        @elseif($status == 'in_progress')
-                                                                            Dalam Proses
-                                                                        @elseif($status == 'completed')
-                                                                            Selesai
-                                                                        @elseif($status == 'overdue')
-                                                                            Terlambat
-                                                                        @elseif($status == 'cancelled')
-                                                                            Dibatalkan
-                                                                        @else
-                                                                            {{ ucfirst($status) ?: '-' }}
-                                                                        @endif
-                                                                    </span>
-                                                                </td>
-                                                                <td class="p-3 border-t border-[#EEF1F4]">
-                                        <div class="flex items-center space-x-2 justify-center">
-                                                                        <!-- View Details Icon (Eye) -->
-                                                                        <a href="{{ route('calibration.detail', ['id' => $calibration['id']]) }}"
-                                                                           class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
-                                                                           title="Lihat Detail">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                                            </svg>
-                                                                        </a>
-
-                                            <!-- Edit Schedule Icon (Calendar) -->
-                                            @if(hasPermission('calibration:edit'))
-                                            @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
-                                                <button class="edit-schedule-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
-                                                    data-id="{{ $calibration['id'] }}"
-                                                    data-asset-name="{{ $calibration['asset_name'] ?? '' }}"
-                                                    data-asset-code="{{ $calibration['asset_code'] ?? '' }}"
-                                                    title="Ubah Jadwal">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                if ($status == 'scheduled') {
+                                                    $statusClass = 'bg-blue-100 text-blue-800';
+                                                } elseif ($status == 'in_progress') {
+                                                    $statusClass = 'bg-yellow-100 text-yellow-800';
+                                                } elseif ($status == 'completed') {
+                                                    $statusClass = 'bg-green-100 text-green-800';
+                                                } elseif ($status == 'overdue') {
+                                                    $statusClass = 'bg-red-100 text-red-800';
+                                                } elseif ($status == 'cancelled') {
+                                                    $statusClass = 'bg-red-100 text-red-800';
+                                                }
+                                            @endphp
+                                            <span class="px-2 py-1 rounded text-xs {{ $statusClass }}">
+                                                @if($status == 'scheduled')
+                                                    Terjadwal
+                                                @elseif($status == 'in_progress')
+                                                    Dalam Proses
+                                                @elseif($status == 'completed')
+                                                    Selesai
+                                                @elseif($status == 'overdue')
+                                                    Terlambat
+                                                @elseif($status == 'cancelled')
+                                                    Dibatalkan
+                                                @else
+                                                    {{ ucfirst($status) ?: '-' }}
+                                                @endif
+                                            </span>
+                                        </td>
+                                        <td class="p-3 border-t border-[#EEF1F4]">
+                                            <div class="flex items-center space-x-2 justify-center">
+                                                <!-- View Details Icon (Eye) -->
+                                                <a href="{{ route('calibration.detail', ['id' => $calibration['id']]) }}"
+                                                    class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
+                                                    title="Lihat Detail">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     </svg>
-                                                </button>
-                                                @endif
-                                            @endif
+                                                </a>
 
-                                                                        <!-- Perform Calibration Icon (Pencil) -->
-                                            @if(hasPermission('calibration:edit'))
-                                                                        @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
-                                                <button class="edit-calibration-btn p-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
-                                                                            data-id="{{ $calibration['id'] }}"
-                                                                            title="Lakukan Kalibrasi">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                                            </svg>
-                                                                        </button>
+                                                <!-- Edit Schedule Icon (Calendar) -->
+                                                @if(hasPermission('calibration:edit'))
+                                                    @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
+                                                        <button
+                                                            class="edit-schedule-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
+                                                            data-id="{{ $calibration['id'] }}"
+                                                            data-asset-name="{{ $calibration['asset_name'] ?? '' }}"
+                                                            data-asset-code="{{ $calibration['asset_code'] ?? '' }}"
+                                                            title="Ubah Jadwal">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                        </button>
+                                                    @endif
                                                 @endif
-                                                                        @endif
 
-                                                                        <!-- Delete Icon (Trash) -->
-                                            @if(hasPermission('calibration:delete'))
-                                            <button class="delete-calibration-btn p-2 bg-[#F9D2D2] text-[#8E2121] rounded-md hover:bg-red-200 transition-colors"
-                                                                            data-id="{{ $calibration['id'] }}"
-                                                                            title="Hapus Kalibrasi">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                            </svg>
-                                                                        </button>
-                                            @endif
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+                                                <!-- Perform Calibration Icon (Pencil) -->
+                                                @if(hasPermission('calibration:edit'))
+                                                    @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
+                                                        <button
+                                                            class="edit-calibration-btn p-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
+                                                            data-id="{{ $calibration['id'] }}" title="Lakukan Kalibrasi">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
+                                                        </button>
+                                                    @endif
+                                                @endif
+
+                                                <!-- Delete Icon (Trash) -->
+                                                @if(hasPermission('calibration:delete'))
+                                                    <button
+                                                        class="delete-calibration-btn p-2 bg-[#F9D2D2] text-[#8E2121] rounded-md hover:bg-red-200 transition-colors"
+                                                        data-id="{{ $calibration['id'] }}" title="Hapus Kalibrasi">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="12" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Data kalibrasi tidak ditemukan</td>
+                                        <td colspan="12" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Data
+                                            kalibrasi tidak ditemukan</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -365,7 +415,8 @@
                             <span class="text-sm text-gray-600">
                                 @if(isset($pagination) && isset($pagination['total_items']))
                                     Menampilkan {{ ($pagination['current_page'] - 1) * $pagination['limit'] + 1 }}
-                                    sampai {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
+                                    sampai
+                                    {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
                                     dari {{ $pagination['total_items'] }} data
                                 @else
                                     Menampilkan 0 sampai 0 dari 0 data
@@ -386,1294 +437,1340 @@
 
         <!-- View Calibration Modal - Changed to Perform Calibration Modal -->
         @if(hasPermission('calibration:edit'))
-        <div id="viewCalibrationModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[800px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="viewCalibrationModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">LAKUKAN KALIBRASI</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                data-modal="viewCalibrationModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Content -->
-                        <div class="p-6">
-                            <form id="updateCalibrationForm" class="space-y-6" enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" id="calibration_id" name="calibration_id">
-
-                                <!-- Required fields note -->
-                                <div class="text-sm text-gray-600 mb-4">
-                                    Bidang dengan tanda <span class="text-red-500">*</span> wajib diisi
+                <div id="viewCalibrationModal" class="fixed inset-0 z-50 hidden">
+                    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                    <div class="fixed inset-0 z-50 overflow-y-auto">
+                        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[800px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                                id="viewCalibrationModalContent">
+                                <!-- Header -->
+                                <div class="flex justify-between items-center p-6 pb-0">
+                                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">LAKUKAN KALIBRASI</h2>
+                                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                        data-modal="viewCalibrationModal">
+                                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
                                 </div>
 
-                                <!-- ASSET INFORMATION SECTION -->
-                                <div class="bg-blue-100 rounded-lg p-4 mb-6">
-                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Aset</h3>
+                                <!-- Content -->
+                                <div class="p-6">
+                                    <form id="updateCalibrationForm" class="space-y-6" enctype="multipart/form-data">
+                                        @csrf
+                                        <input type="hidden" id="calibration_id" name="calibration_id">
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <!-- Left Column -->
-                                        <div class="space-y-4">
-                                        <!-- Asset Code -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">KODE ASET</label>
-                                            <input type="text" id="asset_code_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
+                                        <!-- Required fields note -->
+                                        <div class="text-sm text-gray-600 mb-4">
+                                            Bidang dengan tanda <span class="text-red-500">*</span> wajib diisi
                                         </div>
 
-                                        <!-- Asset Name -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">NAMA ASET</label>
-                                            <input type="text" id="asset_name_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
+                                        <!-- ASSET INFORMATION SECTION -->
+                                        <div class="bg-blue-100 rounded-lg p-4 mb-6">
+                                            <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Aset</h3>
 
-                                        <!-- Serial Number -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">NOMOR SERI</label>
-                                            <input type="text" id="serial_number_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <!-- Left Column -->
+                                                <div class="space-y-4">
+                                                    <!-- Asset Code -->
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700">KODE ASET</label>
+                                                        <input type="text" id="asset_code_display"
+                                                            class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                            readonly>
+                                                    </div>
+
+                                                    <!-- Asset Name -->
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700">NAMA ASET</label>
+                                                        <input type="text" id="asset_name_display"
+                                                            class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                            readonly>
+                                                    </div>
+
+                                                    <!-- Serial Number -->
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700">NOMOR SERI</label>
+                                                        <input type="text" id="serial_number_display"
+                                                            class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                            readonly>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Right Column -->
+                                                <div class="space-y-4">
+                                                    <!-- Brand (Merk) -->
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700">MERK</label>
+                                                        <input type="text" id="brand_name_display"
+                                                            class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                            readonly>
+                                                    </div>
+
+                                                    <!-- Type -->
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700">TIPE</label>
+                                                        <input type="text" id="model_number_display"
+                                                            class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                            readonly>
+                                                    </div>
+
+                                                    <!-- Location -->
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700">LOKASI</label>
+                                                        <input type="text" id="location_display"
+                                                            class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                            readonly>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <!-- Right Column -->
-                                        <div class="space-y-4">
-                                        <!-- Brand (Merk) -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">MERK</label>
-                                            <input type="text" id="brand_name_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
+                                        <!-- CALIBRATION SCHEDULE SECTION -->
+                                        <div class="bg-yellow-100 rounded-lg p-4 mb-6">
+                                            <h3 class="text-[#213268] font-semibold text-lg mb-4">Jadwal Kalibrasi</h3>
 
-                                        <!-- Type -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">TIPE</label>
-                                            <input type="text" id="model_number_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
-
-                                        <!-- Location -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">LOKASI</label>
-                                            <input type="text" id="location_display"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- CALIBRATION SCHEDULE SECTION -->
-                                <div class="bg-yellow-100 rounded-lg p-4 mb-6">
-                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Jadwal Kalibrasi</h3>
-
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <!-- Planning Date -->
-                                        <div>
-                                            <label for="planning_calibration_date"
-                                                class="block text-sm font-medium text-gray-700">
-                                                TANGGAL RENCANA<span class="text-red-500">*</span>
-                                            </label>
-                                            <input type="date" id="planning_date_display" name="planning_calibration_date"
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
-                                        </div>
-
-                                        <!-- Work Date (Actual Calibration Date) -->
-                                        <div>
-                                            <label for="actual_calibration_date"
-                                                class="block text-sm font-medium text-gray-700">
-                                                TANGGAL KERJA<span class="text-red-500">*</span>
-                                            </label>
-                                            <input type="date" id="actual_calibration_date" name="actual_calibration_date"
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                required>
-                                        </div>
-
-                                        <!-- Next Calibration Date -->
-                                        <div>
-                                            <label for="next_calibration_date"
-                                                class="block text-sm font-medium text-gray-700">
-                                                KALIBRASI BERIKUTNYA<span class="text-red-500">*</span>
-                                            </label>
-                                            <input type="date" id="next_calibration_date" name="next_calibration_date"
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                required>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- CALIBRATION DETAILS SECTION -->
-                                <div class="bg-green-100 rounded-lg p-4 mb-6">
-                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Detail Kalibrasi</h3>
-
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <!-- Left Column -->
-                                        <div class="space-y-4">
-                                            <!-- Certificate Number -->
-                                            <div>
-                                                <label for="certificate_number" class="block text-sm font-medium text-gray-700">
-                                                    NOMOR SERTIFIKAT<span class="text-red-500">*</span>
-                                                </label>
-                                                <input type="text" id="certificate_number" name="certificate_number"
-                                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                    required>
-                                        </div>
-
-                                        <!-- Vendor -->
-                                        <div>
-                                            <label for="vendor_id" class="block text-sm font-medium text-gray-700">
-                                                VENDOR
-                                            </label>
-                                            <div class="relative">
-                                                <input type="text" id="vendor_search" placeholder="Cari vendor..."
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                                                <input type="hidden" id="vendor_id" name="vendor_id">
-                                                <div id="vendor_results" class="absolute z-10 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto border border-gray-300"></div>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                <!-- Planning Date -->
+                                                <div>
+                                                    <label for="planning_calibration_date"
+                                                        class="block text-sm font-medium text-gray-700">
+                                                        TANGGAL RENCANA<span class="text-red-500">*</span>
+                                                    </label>
+                                                    <input type="date" id="planning_date_display" name="planning_calibration_date"
+                                                        class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                        readonly>
                                                 </div>
-                                        </div>
-                                        </div>
 
-                                        <!-- Right Column -->
-                                        <div class="space-y-4">
-                                        <!-- Service Price -->
-                                        <div>
-                                            <label for="calibration_price" class="block text-sm font-medium text-gray-700">
-                                                BIAYA LAYANAN
-                                            </label>
-                                                <div class="relative mt-1">
-                                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                        <span class="text-gray-500 sm:text-sm">Rp</span>
-                                                    </div>
-                                            <input type="number" id="calibration_price" name="calibration_price" step="0.01"
-                                                        class="block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                                    </div>
-                                        </div>
-
-                                        <!-- Result -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">
-                                            HASIL<span class="text-red-500">*</span>
-                                            </label>
-                                        <div class="mt-2 flex flex-wrap gap-6">
-                                                <div class="flex items-center">
-                                                    <input type="radio" id="result_pass" name="calibration_result"
-                                                        value="pass" class="h-4 w-4 text-[#213268] focus:ring-[#213268]"
+                                                <!-- Work Date (Actual Calibration Date) -->
+                                                <div>
+                                                    <label for="actual_calibration_date"
+                                                        class="block text-sm font-medium text-gray-700">
+                                                        TANGGAL KERJA<span class="text-red-500">*</span>
+                                                    </label>
+                                                    <input type="date" id="actual_calibration_date" name="actual_calibration_date"
+                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
                                                         required>
-                                                <label for="result_pass" class="ml-2 text-sm text-gray-700">Lulus</label>
                                                 </div>
-                                                <div class="flex items-center">
-                                                    <input type="radio" id="result_fail" name="calibration_result"
-                                                        value="fail" class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
-                                                <label for="result_fail" class="ml-2 text-sm text-gray-700">Gagal</label>
-                                                </div>
-                                                <div class="flex items-center">
-                                                    <input type="radio" id="result_unknown" name="calibration_result"
-                                                        value="unknown" class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
-                                                <label for="result_unknown" class="ml-2 text-sm text-gray-700">Tidak
-                                                    Ditemukan</label>
-                                                    </div>
-                                                </div>
-                                            </div>
+
+                                                <!-- Next Calibration Date -->
+                                                <div>
+                                                    <label for="next_calibration_date"
+                                                        class="block text-sm font-medium text-gray-700">
+                                                        KALIBRASI BERIKUTNYA<span class="text-red-500">*</span>
+                                                    </label>
+                                                    <input type="date" id="next_calibration_date" name="next_calibration_date"
+                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                        required>
                                                 </div>
                                             </div>
                                         </div>
 
-                                <!-- DOCUMENTATION SECTION -->
-                                <div class="bg-blue-100 rounded-lg p-4 mb-6">
-                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Dokumentasi</h3>
+                                        <!-- CALIBRATION DETAILS SECTION -->
+                                        <div class="bg-green-100 rounded-lg p-4 mb-6">
+                                            <h3 class="text-[#213268] font-semibold text-lg mb-4">Detail Kalibrasi</h3>
 
-                                        <!-- Document File -->
-                                        <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">BERKAS TERUNGGAH</label>
-                                        <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
-                                            <!-- File preview container -->
-                                            <div id="file-preview" class="mt-2 mb-4 w-full hidden">
-                                                <div class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
-                                                    <!-- Image preview -->
-                                                    <img id="image-preview" class="w-full h-auto max-h-64 object-contain mx-auto rounded hidden" alt="Pratinjau file">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <!-- Left Column -->
+                                                <div class="space-y-4">
+                                                    <!-- Certificate Number -->
+                                                    <div>
+                                                        <label for="certificate_number"
+                                                            class="block text-sm font-medium text-gray-700">
+                                                            NOMOR SERTIFIKAT<span class="text-red-500">*</span>
+                                                        </label>
+                                                        <input type="text" id="certificate_number" name="certificate_number"
+                                                            class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                            required>
+                                                    </div>
 
-                                                    <!-- PDF/File preview -->
-                                                    <div id="file-info" class="flex items-center">
-                                                        <svg class="w-6 h-6 text-red-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    <!-- Vendor -->
+                                                    <div>
+                                                        <label for="vendor_id" class="block text-sm font-medium text-gray-700">
+                                                            VENDOR
+                                                        </label>
+                                                        <div class="relative">
+                                                            <input type="text" id="vendor_search" placeholder="Cari vendor..."
+                                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
+                                                            <input type="hidden" id="vendor_id" name="vendor_id">
+                                                            <div id="vendor_results"
+                                                                class="absolute z-10 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto border border-gray-300">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Right Column -->
+                                                <div class="space-y-4">
+                                                    <!-- Service Price -->
+                                                    <div>
+                                                        <label for="calibration_price"
+                                                            class="block text-sm font-medium text-gray-700">
+                                                            BIAYA LAYANAN
+                                                        </label>
+                                                        <div class="relative mt-1">
+                                                            <div
+                                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                                <span class="text-gray-500 sm:text-sm">Rp</span>
+                                                            </div>
+                                                            <input type="number" id="calibration_price" name="calibration_price"
+                                                                step="0.01"
+                                                                class="block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Result -->
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700">
+                                                            HASIL<span class="text-red-500">*</span>
+                                                        </label>
+                                                        <div class="mt-2 flex flex-wrap gap-6">
+                                                            <div class="flex items-center">
+                                                                <input type="radio" id="result_pass" name="calibration_result"
+                                                                    value="pass" class="h-4 w-4 text-[#213268] focus:ring-[#213268]"
+                                                                    required>
+                                                                <label for="result_pass"
+                                                                    class="ml-2 text-sm text-gray-700">Lulus</label>
+                                                            </div>
+                                                            <div class="flex items-center">
+                                                                <input type="radio" id="result_fail" name="calibration_result"
+                                                                    value="fail"
+                                                                    class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
+                                                                <label for="result_fail"
+                                                                    class="ml-2 text-sm text-gray-700">Gagal</label>
+                                                            </div>
+                                                            <div class="flex items-center">
+                                                                <input type="radio" id="result_unknown" name="calibration_result"
+                                                                    value="unknown"
+                                                                    class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
+                                                                <label for="result_unknown" class="ml-2 text-sm text-gray-700">Tidak
+                                                                    Ditemukan</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- DOCUMENTATION SECTION -->
+                                        <div class="bg-blue-100 rounded-lg p-4 mb-6">
+                                            <h3 class="text-[#213268] font-semibold text-lg mb-4">Dokumentasi</h3>
+
+                                            <!-- Document File -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">BERKAS TERUNGGAH</label>
+                                                <div
+                                                    class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                                    <!-- File preview container -->
+                                                    <div id="file-preview" class="mt-2 mb-4 w-full hidden">
+                                                        <div
+                                                            class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                                            <!-- Image preview -->
+                                                            <img id="image-preview"
+                                                                class="w-full h-auto max-h-64 object-contain mx-auto rounded hidden"
+                                                                alt="Pratinjau file">
+
+                                                            <!-- PDF/File preview -->
+                                                            <div id="file-info" class="flex items-center">
+                                                                <svg class="w-6 h-6 text-red-600 mr-2"
+                                                                    xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2"
+                                                                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                                </svg>
+                                                                <span id="file-name-text"
+                                                                    class="text-sm text-gray-700 truncate"></span>
+                                                                <button type="button" id="remove-file"
+                                                                    class="ml-auto text-red-500 hover:text-red-700">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                        viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="text-center">
+                                                        <svg class="mx-auto h-12 w-12 text-[#213268]"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                                         </svg>
-                                                        <span id="file-name-text" class="text-sm text-gray-700 truncate"></span>
-                                                        <button type="button" id="remove-file" class="ml-auto text-red-500 hover:text-red-700">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                            </svg>
+                                                        <p class="mt-1 text-sm text-gray-600">Seret berkas Anda atau <span
+                                                                class="text-[#213268] font-semibold">jelajahi berkas</span></p>
+                                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, JPG, JPEG,
+                                                            PNG (Maks: 10MB)</p>
+                                                        <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area
+                                                            ini untuk memilih berkas</p>
+                                                    </div>
+                                                    <input type="file" id="document_file" name="file" accept=".pdf,.jpg,.jpeg,.png"
+                                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                                </div>
+                                            </div>
+
+                                            <!-- Calibration Notes - Full Width -->
+                                            <div class="mt-4">
+                                                <label for="notes" class="block text-sm font-medium text-gray-700">CATATAN
+                                                    KALIBRASI</label>
+                                                <textarea id="notes" name="notes" rows="3"
+                                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                    placeholder="Tambahkan catatan atau keterangan tambahan tentang kalibrasi ini..."></textarea>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status -->
+                                        <input type="hidden" id="status_calibration" name="status_calibration" value="completed">
+
+                                        <div class="pt-4">
+                                            <button type="submit"
+                                                class="w-full py-3 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transition-colors duration-200 flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                Simpan Kalibrasi
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            @if(hasPermission('calibration:delete'))
+                <div id="deleteCalibrationModal" class="fixed inset-0 z-50 hidden">
+                    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                    <div class="fixed inset-0 z-50 overflow-y-auto">
+                        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                                id="deleteCalibrationModalContent">
+                                <!-- Header -->
+                                <div class="flex justify-between items-center p-6 pb-0">
+                                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS KALIBRASI</h2>
+                                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                        data-modal="deleteCalibrationModal">
+                                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Form -->
+                                <form id="deleteCalibrationForm" method="POST">
+                                    @csrf
+                                    <div class="p-6">
+                                        <div class="space-y-6 max-w-[400px] mx-auto">
+                                            <div class="flex flex-col items-center">
+                                                <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus data
+                                                    kalibrasi ini? Tindakan ini tidak dapat dibatalkan.</p>
+                                                <p id="deleteCalibrationName" class="text-base font-semibold text-center mt-2"></p>
+                                            </div>
+                                            <div class="flex gap-3">
+                                                <button type="button"
+                                                    class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
+                                                    data-modal="deleteCalibrationModal">
+                                                    Batal
+                                                </button>
+                                                <button type="submit"
+                                                    class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                                    Hapus
                                                 </button>
                                             </div>
                                         </div>
-                                            </div>
-
-                                            <div class="text-center">
-                                                <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                                </svg>
-                                                <p class="mt-1 text-sm text-gray-600">Seret berkas Anda atau <span class="text-[#213268] font-semibold">jelajahi berkas</span></p>
-                                                <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, JPG, JPEG, PNG (Maks: 10MB)</p>
-                                                <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih berkas</p>
-                                            </div>
-                                            <input type="file" id="document_file" name="file" accept=".pdf,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                     </div>
-                                </div>
-
-                                <!-- Calibration Notes - Full Width -->
-                                    <div class="mt-4">
-                                        <label for="notes" class="block text-sm font-medium text-gray-700">CATATAN KALIBRASI</label>
-                                    <textarea id="notes" name="notes" rows="3"
-                                            class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                            placeholder="Tambahkan catatan atau keterangan tambahan tentang kalibrasi ini..."></textarea>
-                                            </div>
-                                </div>
-
-                                <!-- Status -->
-                                <input type="hidden" id="status_calibration" name="status_calibration" value="completed">
-
-                                <div class="pt-4">
-                                    <button type="submit"
-                                        class="w-full py-3 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transition-colors duration-200 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        Simpan Kalibrasi
-                                    </button>
-                                </div>
+                            </div>
                             </form>
-                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Delete Confirmation Modal -->
-        @if(hasPermission('calibration:delete'))
-        <div id="deleteCalibrationModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="deleteCalibrationModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS KALIBRASI</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                data-modal="deleteCalibrationModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Form -->
-                        <form id="deleteCalibrationForm" method="POST">
-                            @csrf
-                        <div class="p-6">
-                                <div class="space-y-6 max-w-[400px] mx-auto">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                        <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus data kalibrasi ini? Tindakan ini tidak dapat dibatalkan.</p>
-                                        <p id="deleteCalibrationName" class="text-base font-semibold text-center mt-2"></p>
-                                    </div>
-                                    <div class="flex gap-3">
-                                        <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
-                                        data-modal="deleteCalibrationModal">
-                                        Batal
-                                    </button>
-                                        <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                        Hapus
-                                    </button>
-                                        </div>
-                                </div>
-                            </div>
-                        </div>
-                        </form>
-                    </div>
                 </div>
-            </div>
-        </div>
-        @endif
+            @endif
 
-        <!-- Add Calibration Modal -->
-        @if(hasPermission('calibration:create'))
-        <div id="addCalibrationModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[850px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="addCalibrationModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Tambah Jadwal Kalibrasi Baru</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                data-modal="addCalibrationModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Form -->
-                        <div class="p-6">
-                            <form id="addCalibrationForm" class="space-y-6">
-                                @csrf
-                                <!-- Required fields note -->
-                                <div class="text-sm text-gray-600">
-                                    Bidang dengan tanda <span class="text-red-500">*</span> wajib diisi
+            <!-- Add Calibration Modal -->
+            @if(hasPermission('calibration:create'))
+                <div id="addCalibrationModal" class="fixed inset-0 z-50 hidden">
+                    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                    <div class="fixed inset-0 z-50 overflow-y-auto">
+                        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[850px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                                id="addCalibrationModalContent">
+                                <!-- Header -->
+                                <div class="flex justify-between items-center p-6 pb-0">
+                                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Tambah Jadwal Kalibrasi Baru</h2>
+                                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                        data-modal="addCalibrationModal">
+                                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
                                 </div>
 
-                                <!-- Schedule Date -->
-                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                                    <div class="flex items-center gap-4">
-                                        <div class="min-w-[150px]">
-                                            <label class="block text-base font-semibold text-[#213268]">
-                                                JADWAL MULAI<span class="text-red-500">*</span>
-                                            </label>
+                                <!-- Form -->
+                                <div class="p-6">
+                                    <form id="addCalibrationForm" class="space-y-6">
+                                        @csrf
+                                        <!-- Required fields note -->
+                                        <div class="text-sm text-gray-600">
+                                            Bidang dengan tanda <span class="text-red-500">*</span> wajib diisi
                                         </div>
-                                        <div class="flex-1">
-                                            <input type="date" name="planning_calibration_date"
-                                                id="planning_calibration_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                required>
+
+                                        <!-- Schedule Date -->
+                                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                                            <div class="flex items-center gap-4">
+                                                <div class="min-w-[150px]">
+                                                    <label class="block text-base font-semibold text-[#213268]">
+                                                        JADWAL MULAI<span class="text-red-500">*</span>
+                                                    </label>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <input type="date" name="planning_calibration_date" id="planning_calibration_date"
+                                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                        required>
+                                                </div>
+                                                <div>
+                                                    <button type="button" id="addAssetsBtn"
+                                                        class="bg-[#213268] hover:bg-[#152349] text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center"
+                                                        title="Tambahkan aset yang perlu dikalibrasi">
+                                                        <span class="text-xl mr-1">+</span>
+                                                        Tambah Aset
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <button type="button" id="addAssetsBtn"
-                                                class="bg-[#213268] hover:bg-[#152349] text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center"
-                                                title="Tambahkan aset yang perlu dikalibrasi">
-                                                <span class="text-xl mr-1">+</span>
-                                                Tambah Aset
+
+                                        <!-- Selected Assets Table -->
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
+                                                            No</th>
+                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                                            Kode Aset</th>
+                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset
+                                                        </th>
+                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                                            Deskripsi</th>
+                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset
+                                                        </th>
+                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama
+                                                            Kategori</th>
+                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Aksi
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="selectedAssetsList">
+                                                    <tr>
+                                                        <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak
+                                                            ada data dalam tabel</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- Pagination for selected assets -->
+                                        <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+                                            <div class="flex items-center space-x-2" id="selectedAssetsPagination">
+                                                <!-- Pagination controls will be inserted here -->
+                                            </div>
+
+                                            <div class="flex items-center gap-2 mt-4 md:mt-0">
+                                                <span class="text-sm text-gray-600" id="selectedAssetsInfo">
+                                                    Menampilkan 0 sampai 0 dari 0 data
+                                                </span>
+                                                <select id="selectedAssetsPerPage"
+                                                    class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
+                                                    <option value="5" selected>5 per halaman</option>
+                                                    <option value="10">10 per halaman</option>
+                                                    <option value="20">20 per halaman</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Button Group -->
+                                        <div class="pt-4 flex justify-end gap-4">
+                                            <button type="submit"
+                                                class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                                Simpan
                                             </button>
                                         </div>
-                                    </div>
+                                    </form>
                                 </div>
-
-                                <!-- Selected Assets Table -->
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead>
-                                            <tr>
-                                                <th
-                                                    class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
-                                                    No</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
-                                                    Kode Aset</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
-                                                    Deskripsi</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Kategori</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Aksi
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="selectedAssetsList">
-                                            <tr>
-                                                <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data dalam tabel</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <!-- Pagination for selected assets -->
-                                <div class="flex flex-col md:flex-row justify-between items-center mt-4">
-                                    <div class="flex items-center space-x-2" id="selectedAssetsPagination">
-                                        <!-- Pagination controls will be inserted here -->
-                                    </div>
-
-                                    <div class="flex items-center gap-2 mt-4 md:mt-0">
-                                        <span class="text-sm text-gray-600" id="selectedAssetsInfo">
-                                            Menampilkan 0 sampai 0 dari 0 data
-                                        </span>
-                                        <select id="selectedAssetsPerPage"
-                                            class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
-                                            <option value="5" selected>5 per halaman</option>
-                                            <option value="10">10 per halaman</option>
-                                            <option value="20">20 per halaman</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Button Group -->
-                                <div class="pt-4 flex justify-end gap-4">
-                                    <button type="submit"
-                                        class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Simpan
-                                    </button>
-                                </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        @endif
+            @endif
 
-        <!-- Asset Selection Modal -->
-        @if(hasPermission('calibration:create'))
-        <div id="assetSelectionModal" class="fixed inset-0 z-[60] hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[1200px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="assetSelectionModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Pilih Aset untuk Kalibrasi</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                data-modal="assetSelectionModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Content -->
-                        <div class="p-6">
-                            <!-- Info Notice -->
-                            <div class="p-4 mb-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
-                                <div class="flex items-center">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <p>Hanya aset dengan 'Perlu Kalibrasi' ditandai sebagai benar yang akan muncul dalam daftar ini.</p>
-                                </div>
-                            </div>
-
-                            <!-- Search and Filter -->
-                            <div class="flex flex-col md:flex-row gap-4 mb-4">
-                                <div class="relative flex-grow">
-                                    <input type="text" id="assetSearchInput"
-                                        placeholder="Cari berdasarkan nama aset, kode, atau nomor seri..."
-                                        class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                    <div class="absolute right-3 top-1/2 -translate-y-1/2">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+            <!-- Asset Selection Modal -->
+            @if(hasPermission('calibration:create'))
+                <div id="assetSelectionModal" class="fixed inset-0 z-[60] hidden">
+                    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                    <div class="fixed inset-0 z-50 overflow-y-auto">
+                        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[1200px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                                id="assetSelectionModalContent">
+                                <!-- Header -->
+                                <div class="flex justify-between items-center p-6 pb-0">
+                                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Pilih Aset untuk Kalibrasi</h2>
+                                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                        data-modal="assetSelectionModal">
+                                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                d="M6 18L18 6M6 6l12 12" />
                                         </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Assets Table -->
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead>
-                                        <tr>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
-                                                <input type="checkbox" id="selectAllAssets" class="checkbox checkbox-sm">
-                                            </th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kode Aset
-                                            </th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset
-                                            </th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi
-                                            </th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type
-                                            </th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Kategori</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="assetSelectionList">
-                                        <tr>
-                                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                Memuat aset...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Pagination -->
-                            <div class="flex flex-col md:flex-row justify-between items-center mt-4">
-                                <div class="flex items-center space-x-2" id="assetPaginationControls">
-                                    <!-- Pagination will be inserted here -->
-                                </div>
-
-                                <div class="flex items-center gap-2 mt-4 md:mt-0">
-                                    <span class="text-sm text-gray-600" id="assetPaginationInfo">
-                                        Menampilkan 0 sampai 0 dari 0 data
-                                    </span>
-                                    <select id="assetPerPageSelect"
-                                        class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
-                                        <option value="10" selected>10 per halaman</option>
-                                        <option value="25">25 per halaman</option>
-                                        <option value="50">50 per halaman</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Button Group -->
-                            <div class="pt-4 flex justify-end gap-4">
-                                <button type="button"
-                                    class="close-modal px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
-                                    data-modal="assetSelectionModal">
-                                    Batal
-                                </button>
-                                <button type="button" id="selectAssetsBtn"
-                                    class="px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                    Pilih
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @endif
-    </div>
-
-    <!-- Edit Calibration Schedule Modal -->
-    @if(hasPermission('calibration:edit'))
-    <div id="editScheduleModal" class="fixed inset-0 z-50 hidden">
-        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-        <div class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                    id="editScheduleModalContent">
-                    <!-- Header -->
-                    <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">UBAH JADWAL KALIBRASI</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                            data-modal="editScheduleModal">
-                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Form -->
-                    <form id="editScheduleForm" method="POST">
-                        @csrf
-                        <input type="hidden" name="_method" value="PUT">
-                        <input type="hidden" id="edit_schedule_calibration_id" name="calibration_id">
-                        <div class="p-6">
-                            <div class="space-y-6 max-w-[450px] mx-auto">
-                                <!-- Asset Info -->
-                                <div class="bg-blue-50 p-4 rounded-lg mb-4 border border-blue-100">
-                                    <div class="space-y-3">
-                                        <div class="flex items-center">
-                                            <span class="font-semibold min-w-[120px] text-[#213268]">Kode Aset:</span>
-                                            <span id="edit_schedule_asset_code" class="text-gray-700"></span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <span class="font-semibold min-w-[120px] text-[#213268]">Nama Aset:</span>
-                                            <span id="edit_schedule_asset_name" class="text-gray-700"></span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Planning Date -->
-                                <div class="space-y-2">
-                                    <label for="planning_calibration_date" class="block text-base font-semibold text-[#666666]">
-                                        Tanggal Rencana Kalibrasi<span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="date" id="edit_planning_calibration_date" name="planning_calibration_date"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        required>
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal rencana kalibrasi harus diisi</div>
-                                    <div class="date-error-message text-red-500 text-sm mt-1 hidden">Tanggal tidak boleh kurang dari hari ini</div>
-                                </div>
-
-                                <div class="pt-2">
-                                    <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Simpan
                                     </button>
                                 </div>
+
+                                <!-- Content -->
+                                <div class="p-6">
+                                    <!-- Info Notice -->
+                                    <div class="p-4 mb-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <p>Hanya aset dengan 'Perlu Kalibrasi' ditandai sebagai benar yang akan muncul dalam daftar
+                                                ini.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Search and Filter -->
+                                    <div class="flex flex-col md:flex-row gap-4 mb-4">
+                                        <div class="relative flex-grow">
+                                            <input type="text" id="assetSearchInput"
+                                                placeholder="Cari berdasarkan nama aset, kode, atau nomor seri..."
+                                                class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Assets Table -->
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full">
+                                            <thead>
+                                                <tr>
+                                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[40px]">
+                                                        <input type="checkbox" id="selectAllAssets" class="checkbox checkbox-sm">
+                                                    </th>
+                                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kode Aset
+                                                    </th>
+                                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset
+                                                    </th>
+                                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi
+                                                    </th>
+                                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Asset Type
+                                                    </th>
+                                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Kategori
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="assetSelectionList">
+                                                <tr>
+                                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                        Memuat aset...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Pagination -->
+                                    <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+                                        <div class="flex items-center space-x-2" id="assetPaginationControls">
+                                            <!-- Pagination will be inserted here -->
+                                        </div>
+
+                                        <div class="flex items-center gap-2 mt-4 md:mt-0">
+                                            <span class="text-sm text-gray-600" id="assetPaginationInfo">
+                                                Menampilkan 0 sampai 0 dari 0 data
+                                            </span>
+                                            <select id="assetPerPageSelect"
+                                                class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
+                                                <option value="10" selected>10 per halaman</option>
+                                                <option value="25">25 per halaman</option>
+                                                <option value="50">50 per halaman</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Button Group -->
+                                    <div class="pt-4 flex justify-end gap-4">
+                                        <button type="button"
+                                            class="close-modal px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                                            data-modal="assetSelectionModal">
+                                            Batal
+                                        </button>
+                                        <button type="button" id="selectAssetsBtn"
+                                            class="px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                            Pilih
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
-
-    @push('scripts')
-    <script>
-        // Flash messages from server
-        const flashSuccess = @json(session('success') ?? null);
-        const flashError = @json(session('error') ?? null);
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // Apply permissions-based restrictions
-            @if(!hasPermission('calibration:create'))
-            // Hide/disable create-related elements
-            const createButtons = document.querySelectorAll('#addCalibrationBtn, #addAssetsBtn');
-            createButtons.forEach(btn => {
-                if (btn) {
-                    btn.style.display = 'none';
-                }
-            });
-            @endif
-
-            @if(!hasPermission('calibration:edit'))
-            // Hide/disable edit-related elements
-            const editButtons = document.querySelectorAll('.edit-calibration-btn, .edit-schedule-btn');
-            editButtons.forEach(btn => {
-                if (btn) {
-                    btn.style.display = 'none';
-                }
-            });
-            @endif
-
-            @if(!hasPermission('calibration:delete'))
-            // Hide/disable delete-related elements
-            const deleteButtons = document.querySelectorAll('.delete-calibration-btn, #bulkDeleteBtn');
-            deleteButtons.forEach(btn => {
-                if (btn) {
-                    btn.style.display = 'none';
-                }
-            });
-            @endif
-
-            @if(!hasPermission('calibration:export'))
-            // Hide/disable export-related elements
-            const exportButtons = document.querySelectorAll('#exportBtn');
-            exportButtons.forEach(btn => {
-                if (btn) {
-                    btn.style.display = 'none';
-                }
-            });
-            @endif
-
-            // Check for flash messages on page load that didn't trigger the toast
-            if (typeof flashSuccess !== 'undefined' && flashSuccess) {
-                showToast(flashSuccess, 'success');
-            }
-            if (typeof flashError !== 'undefined' && flashError) {
-                showToast(flashError, 'error');
-            }
-
-            // Prevent multiple form submissions
-            const addCalibrationForm = document.getElementById('addCalibrationForm');
-            const updateCalibrationForm = document.getElementById('updateCalibrationForm');
-            const deleteCalibrationForm = document.getElementById('deleteCalibrationForm');
-
-            // Helper function to prevent multiple submissions
-            function preventMultipleSubmits(form, buttonSelector) {
-                if (!form) return;
-
-                form.addEventListener('submit', function(e) {
-                    // Only proceed if validation passes
-                    if (this.checkValidity()) {
-                        // Find the submit button
-                        const submitBtn = this.querySelector(buttonSelector);
-                        if (submitBtn && !submitBtn.disabled) {
-                            // Save original button text
-                            const originalText = submitBtn.innerHTML;
-
-                            // Disable the button and show loading state
-                            submitBtn.disabled = true;
-                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = `
-                                <div class="flex items-center justify-center">
-                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                    <span>Memproses...</span>
-                                </div>
-                            `;
-
-                            // Re-enable button after 10 seconds as a failsafe
-                            setTimeout(() => {
-                                if (submitBtn) {
-                                    submitBtn.disabled = false;
-                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                    submitBtn.innerHTML = originalText;
-                                }
-                            }, 10000);
-                        }
-                    }
-                });
-            }
-
-            // Apply to all forms
-            preventMultipleSubmits(addCalibrationForm, 'button[type="submit"]');
-            preventMultipleSubmits(updateCalibrationForm, 'button[type="submit"]');
-            preventMultipleSubmits(deleteCalibrationForm, 'button[type="submit"]');
-
-            // Debounce utility function to limit how often a function can be called
-            function debounce(func, wait, immediate) {
-                let timeout;
-                return function() {
-                    const context = this, args = arguments;
-                    const later = function() {
-                        timeout = null;
-                        if (!immediate) func.apply(context, args);
-                    };
-                    const callNow = immediate && !timeout;
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                    if (callNow) func.apply(context, args);
-                };
-            }
-
-            // Mengatur tanggal minimum untuk input tanggal (tidak bisa memilih tanggal yang sudah lewat)
-            const today = new Date().toISOString().split('T')[0];
-
-            // Set min attribute untuk planning_calibration_date di modal add calibration
-            const planningDateInput = document.getElementById('planning_calibration_date');
-            if (planningDateInput) {
-                planningDateInput.setAttribute('min', today);
-            }
-
-            // Set min attribute untuk next_calibration_date di modal perform calibration
-            const nextCalibrationDateInput = document.getElementById('next_calibration_date');
-            if (nextCalibrationDateInput) {
-                nextCalibrationDateInput.setAttribute('min', today);
-            }
-
-            // Define a showToast function that creates notifications in the same style as the static ones
-            window.showToast = function(message, type = 'success') {
-                // Remove existing notifications with the same type
-                const existingNotification = document.getElementById(type === 'success' ? 'successNotification' : 'errorNotification');
-                if (existingNotification) {
-                    existingNotification.remove();
-                }
-
-                // Create the notification element
-                const notification = document.createElement('div');
-                notification.id = type === 'success' ? 'successNotification' : 'errorNotification';
-                notification.className = `fixed top-4 right-4 bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md z-50`;
-                notification.setAttribute('role', 'alert');
-
-                // Process message content
-                let messageContent = '';
-
-                // Simple string handling
-                if (typeof message === 'string') {
-                    messageContent = message;
-                }
-                // Array handling (convert to comma-separated string)
-                else if (Array.isArray(message)) {
-                    messageContent = message.join(', ');
-                }
-                // Object handling
-                else if (typeof message === 'object' && message !== null) {
-                    // Get the first available error message from the object
-                    if (message.errors) {
-                        if (typeof message.errors === 'string') {
-                            messageContent = message.errors;
-                        } else if (typeof message.errors === 'object') {
-                            const errorValues = [];
-
-                            // Extract all error values
-                            Object.values(message.errors).forEach(error => {
-                                if (Array.isArray(error)) {
-                                    errorValues.push(...error);
-                                } else if (typeof error === 'string') {
-                                    errorValues.push(error);
-                                }
-                            });
-
-                            messageContent = errorValues.join(', ');
-                        }
-                    } else if (message.message) {
-                        messageContent = message.message;
-                    } else if (message.error) {
-                        messageContent = message.error;
-                    } else {
-                        // No recognizable error format, just convert to string
-                        try {
-                            messageContent = JSON.stringify(message);
-                        } catch(e) {
-                            messageContent = "Error tidak dapat ditampilkan";
-                        }
-                    }
-                } else {
-                    // Fallback for other types
-                    messageContent = "Terjadi kesalahan";
-                }
-
-                // Set inner HTML with simplified content
-                notification.innerHTML = `
-                    <div class="flex items-center">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-${type === 'success' ? 'green' : 'red'}-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="${type === 'success' ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'}" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
-                            <div class="error-message">${messageContent}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                     </div>
-                `;
+                </div>
+            @endif
+            </div>
 
-                // Add to document
-                document.body.appendChild(notification);
+            <!-- Edit Calibration Schedule Modal -->
+            @if(hasPermission('calibration:edit'))
+                <div id="editScheduleModal" class="fixed inset-0 z-50 hidden">
+                    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                    <div class="fixed inset-0 z-50 overflow-y-auto">
+                        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                                id="editScheduleModalContent">
+                                <!-- Header -->
+                                <div class="flex justify-between items-center p-6 pb-0">
+                                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">UBAH JADWAL KALIBRASI</h2>
+                                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                        data-modal="editScheduleModal">
+                                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
 
-                // Auto-hide after 5 seconds
-                setTimeout(function() {
-                    if (document.getElementById(notification.id)) {
-                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                        setTimeout(function() {
-                            if (document.getElementById(notification.id)) {
-                                notification.remove();
-                            }
-                        }, 500);
-                    }
-                }, 5000);
+                                <!-- Form -->
+                                <form id="editScheduleForm" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="_method" value="PUT">
+                                    <input type="hidden" id="edit_schedule_calibration_id" name="calibration_id">
+                                    <div class="p-6">
+                                        <div class="space-y-6 max-w-[450px] mx-auto">
+                                            <!-- Asset Info -->
+                                            <div class="bg-blue-50 p-4 rounded-lg mb-4 border border-blue-100">
+                                                <div class="space-y-3">
+                                                    <div class="flex items-center">
+                                                        <span class="font-semibold min-w-[120px] text-[#213268]">Kode Aset:</span>
+                                                        <span id="edit_schedule_asset_code" class="text-gray-700"></span>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <span class="font-semibold min-w-[120px] text-[#213268]">Nama Aset:</span>
+                                                        <span id="edit_schedule_asset_name" class="text-gray-700"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                return notification;
-            };
+                                            <!-- Planning Date -->
+                                            <div class="space-y-2">
+                                                <label for="planning_calibration_date"
+                                                    class="block text-base font-semibold text-[#666666]">
+                                                    Tanggal Rencana Kalibrasi<span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="date" id="edit_planning_calibration_date" name="planning_calibration_date"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                    required>
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal rencana kalibrasi
+                                                    harus diisi</div>
+                                                <div class="date-error-message text-red-500 text-sm mt-1 hidden">Tanggal tidak boleh
+                                                    kurang dari hari ini</div>
+                                            </div>
 
-            // Show flash messages with the showToast function
-            @if(session('success'))
-            showToast("{{ session('success') }}", 'success');
+                                            <div class="pt-2">
+                                                <button type="submit"
+                                                    class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                                    Simpan
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             @endif
 
-            @if(session('error'))
-            showToast("{{ session('error') }}", 'error');
-            @endif
 
-            // Handle 'Select All' checkbox for calibrations table
-            const selectAllCalibrations = document.getElementById('selectAllCalibrations');
-            if (selectAllCalibrations) {
-                selectAllCalibrations.addEventListener('change', function() {
-                    const isChecked = this.checked;
-                    document.querySelectorAll('.calibration-checkbox').forEach(checkbox => {
-                        checkbox.checked = isChecked;
-                    });
-                    updateBulkDeleteButtonVisibility();
-                });
+            @push('scripts')
+                <script>
+                    // Flash messages from server
+                    const flashSuccess = @json(session('success') ?? null);
+                    const flashError = @json(session('error') ?? null);
 
-                // Update "Select All" checkbox state based on individual checkboxes
-                document.addEventListener('change', function(e) {
-                    if (e.target.classList.contains('calibration-checkbox')) {
-                        const allCheckboxes = document.querySelectorAll('.calibration-checkbox');
-                        const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
-                        selectAllCalibrations.checked = allCheckboxes.length === checkedCheckboxes.length;
-                        selectAllCalibrations.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
-                        updateBulkDeleteButtonVisibility();
-                    }
-                });
-            }
-
-            // Handle bulk delete button visibility and functionality
-            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-
-            function updateBulkDeleteButtonVisibility() {
-                const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
-                if (checkedCheckboxes.length > 0) {
-                    bulkDeleteBtn.classList.remove('hidden');
-                } else {
-                    bulkDeleteBtn.classList.add('hidden');
-                }
-            }
-
-            // Handle bulk delete action
-            if (bulkDeleteBtn) {
-                bulkDeleteBtn.addEventListener('click', function() {
-                    const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
-                    if (checkedCheckboxes.length === 0) {
-                        showToast('Tidak ada kalibrasi yang dipilih', 'error');
-                        return;
-                    }
-
-                    // Get the IDs of the selected calibrations
-                    const selectedIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.getAttribute('data-id'));
-
-                    // Open confirmation modal with count information
-                    const deleteCalibrationName = document.getElementById('deleteCalibrationName');
-                    if (deleteCalibrationName) {
-                        deleteCalibrationName.textContent = `${selectedIds.length} selected calibration records`;
-                    }
-
-                    // Set up the form for bulk delete
-                    const calibrationForm = document.getElementById('deleteCalibrationForm');
-                    if (calibrationForm) {
-                        // Set form action to the correct URL using the named route
-                        calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
-
-                        // Store the IDs in a hidden input - we'll use this in the submit handler
-                        let hiddenInput = document.getElementById('delete_calibration_id');
-                        if (!hiddenInput) {
-                            hiddenInput = document.createElement('input');
-                            hiddenInput.type = 'hidden';
-                            hiddenInput.id = 'delete_calibration_id';
-                            calibrationForm.appendChild(hiddenInput);
-                        }
-
-                        // Store as comma-separated string - the submit handler will convert to array
-                        hiddenInput.value = selectedIds.join(',');
-
-                        // Open delete confirmation modal
-                        openModal(modals.delete, modalContents.delete);
-                    }
-                });
-            }
-
-            // Function to change items per page
-            window.changePerPage = function (limit) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('limit', limit);
-                window.location.href = url.toString();
-            }
-
-            // Status filter - apply immediately on change
-            const statusFilterSelect = document.getElementById('statusFilter');
-            if (statusFilterSelect) {
-                statusFilterSelect.addEventListener('change', function() {
-                    applyFilters();
-                });
-            }
-
-            // Result filter - apply immediately on change
-            const resultFilterSelect = document.getElementById('resultFilter');
-            if (resultFilterSelect) {
-                resultFilterSelect.addEventListener('change', function() {
-                    applyFilters();
-                });
-            }
-
-            // Sort order - apply immediately on change
-            const sortOrderSelect = document.getElementById('sortOrder');
-            if (sortOrderSelect) {
-                sortOrderSelect.addEventListener('change', function() {
-                    applyFilters();
-                });
-            }
-
-            // Function to apply all filters and sorting
-            function applyFilters() {
-                const searchTerm = document.getElementById('searchInput').value;
-                const statusFilter = document.getElementById('statusFilter').value;
-                const resultFilter = document.getElementById('resultFilter').value;
-                const sortOrder = document.getElementById('sortOrder').value;
-
-                const url = new URL(window.location.href);
-
-                // Set search parameter
-                if (searchTerm) url.searchParams.set('search', searchTerm);
-                else url.searchParams.delete('search');
-
-                // Set status parameter
-                if (statusFilter) url.searchParams.set('status', statusFilter);
-                else url.searchParams.delete('status');
-
-                // Set result parameter
-                if (resultFilter) url.searchParams.set('result', resultFilter);
-                else url.searchParams.delete('result');
-
-                // Set sort parameter based on selected option
-                if (sortOrder) {
-                    // Map front-end sort values to backend expected values
-                    let sortBy, sortDirection;
-
-                    switch(sortOrder) {
-                        case 'newest':
-                            sortBy = 'created_at';
-                            sortDirection = 'desc';
-                            break;
-                        case 'oldest':
-                            sortBy = 'created_at';
-                            sortDirection = 'asc';
-                            break;
-                        default:
-                            sortBy = 'created_at';
-                            sortDirection = 'desc';
-                    }
-
-                    url.searchParams.set('sort_by', sortBy);
-                    url.searchParams.set('sort_order', sortDirection);
-
-                    // Keep the frontend sort value for the select element
-                    url.searchParams.set('sort', sortOrder);
-                } else {
-                    url.searchParams.delete('sort_by');
-                    url.searchParams.delete('sort_order');
-                    url.searchParams.delete('sort');
-                }
-
-                // Reset to first page on filter change
-                url.searchParams.set('page', 1);
-
-                // Redirect to new URL with filters
-                window.location.href = url.toString();
-            }
-
-            // Search input - apply filters on debounce
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                // Fill the search input with the value from URL if it exists
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.has('search')) {
-                    searchInput.value = urlParams.get('search');
-                }
-
-                // Add debounced event listener for input
-                searchInput.addEventListener('input', debounce(function() {
-                    applyFilters();
-                }, 500));
-
-                // Also handle Enter key press
-                searchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        applyFilters();
-                    }
-                });
-            }
-
-            // Set existing values from URL for filters
-            const urlParams = new URLSearchParams(window.location.search);
-
-            // Set sort value
-            const sortSelect = document.getElementById('sortOrder');
-            if (sortSelect) {
-                // Remove disabled and selected from all options first
-                Array.from(sortSelect.options).forEach(option => {
-                    option.removeAttribute('selected');
-                });
-
-                // Get the sort value from URL
-                if (urlParams.has('sort') && urlParams.get('sort')) {
-                    sortSelect.value = urlParams.get('sort');
-
-                    // If no matching option found, set to first non-placeholder option
-                    if (sortSelect.selectedIndex === -1) {
-                        sortSelect.selectedIndex = 1; // Index 1 is "Newest First"
-                    }
-                } else {
-                    // If there's no sort value but there is sort_by/sort_order, try to map back
-                    const sortBy = urlParams.get('sort_by');
-                    const sortOrder = urlParams.get('sort_order');
-
-                    if (sortBy && sortOrder) {
-                        if (sortBy === 'created_at' && sortOrder === 'desc') {
-                            sortSelect.value = 'newest';
-                        } else if (sortBy === 'created_at' && sortOrder === 'asc') {
-                            sortSelect.value = 'oldest';
-                        }
-                    } else {
-                        // Default to "Newest First" if no sort specified
-                        sortSelect.selectedIndex = 1;
-                    }
-                }
-            }
-
-            // Set status filter value
-            const statusSelect = document.getElementById('statusFilter');
-            if (statusSelect) {
-                // Remove selected from all options first
-                Array.from(statusSelect.options).forEach(option => {
-                    option.removeAttribute('selected');
-                });
-
-                if (urlParams.has('status') && urlParams.get('status')) {
-                    statusSelect.value = urlParams.get('status');
-
-                    // If no matching option found, set to first non-placeholder option
-                    if (statusSelect.selectedIndex === -1) {
-                        statusSelect.selectedIndex = 1; // Index 1 is "All Status"
-                    }
-                } else {
-                    // Default to "All Status" if no status specified
-                    statusSelect.selectedIndex = 1;
-                }
-            }
-
-            // Set result filter value
-            const resultSelect = document.getElementById('resultFilter');
-            if (resultSelect) {
-                // Remove selected from all options first
-                Array.from(resultSelect.options).forEach(option => {
-                    option.removeAttribute('selected');
-                });
-
-                if (urlParams.has('result') && urlParams.get('result')) {
-                    resultSelect.value = urlParams.get('result');
-
-                    // If no matching option found, set to first non-placeholder option
-                    if (resultSelect.selectedIndex === -1) {
-                        resultSelect.selectedIndex = 1; // Index 1 is "All Results"
-                    }
-                } else {
-                    // Default to "All Results" if no result specified
-                    resultSelect.selectedIndex = 1;
-                }
-            }
-
-            // Modal handling
-            const modals = {
-                view: document.getElementById('viewCalibrationModal'),
-                add: document.getElementById('addCalibrationModal'),
-                asset: document.getElementById('assetSelectionModal'),
-                delete: document.getElementById('deleteCalibrationModal'),
-                schedule: document.getElementById('editScheduleModal')
-            };
-
-            const modalContents = {
-                view: document.getElementById('viewCalibrationModalContent'),
-                add: document.getElementById('addCalibrationModalContent'),
-                asset: document.getElementById('assetSelectionModalContent'),
-                delete: document.getElementById('deleteCalibrationModalContent'),
-                schedule: document.getElementById('editScheduleModalContent')
-            };
-
-            // Function to open modal
-            function openModal(modal, content) {
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                }, 10);
-            }
-
-            // Function to close modal
-            function closeModal(modal, content) {
-                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-
-                    // Clear form fields when modal is closed
-                    if (modal.id === 'addCalibrationModal') {
-                        // Reset the add calibration form
-                        document.getElementById('addCalibrationForm')?.reset();
-                        // Clear selected assets list
-                        selectedAssets = [];
-                        updateSelectedAssetsList();
-                                        } else if (modal.id === 'viewCalibrationModal') {
-                        // Reset the update calibration form
-                        document.getElementById('updateCalibrationForm')?.reset();
-                        // Clear file preview
-                        const filePreview = document.getElementById('file-preview');
-                        if (filePreview) filePreview.classList.add('hidden');
-
-                        // Clear vendor search
-                        const vendorSearchInput = document.getElementById('vendor_search');
-                        if (vendorSearchInput) vendorSearchInput.value = '';
-                        const vendorIdInput = document.getElementById('vendor_id');
-                        if (vendorIdInput) vendorIdInput.value = '';
-                        const vendorResults = document.getElementById('vendor_results');
-                        if (vendorResults) vendorResults.style.display = 'none';
-
-                        // Remove any info messages
-                        const infoMessage = document.getElementById('completed-info-message');
-                        if (infoMessage) infoMessage.remove();
-                    } else if (modal.id === 'assetSelectionModal') {
-                        // Clear asset search
-                        const assetSearchInput = document.getElementById('assetSearchInput');
-                        if (assetSearchInput) assetSearchInput.value = '';
-                    }
-                }, 300);
-            }
-
-            // Close modal buttons
-            document.querySelectorAll('.close-modal').forEach(button => {
-                button.addEventListener('click', () => {
-                    const modalId = button.getAttribute('data-modal');
-                    const modal = document.getElementById(modalId);
-                    const content = modal.querySelector('[id$="ModalContent"]');
-                    closeModal(modal, content);
-                });
-            });
-
-            // Add Calibration Button Click Handler
-            document.getElementById('addCalibrationBtn')?.addEventListener('click', function() {
-                // Set min date untuk planning_calibration_date setiap kali modal dibuka
-                const today = new Date().toISOString().split('T')[0];
-                const planningDateInput = document.getElementById('planning_calibration_date');
-                if (planningDateInput) {
-                    planningDateInput.setAttribute('min', today);
-                }
-
-                // Initialize selected assets list with page 1
-                const selectedAssetsList = document.getElementById('selectedAssetsList');
-                if (selectedAssetsList) {
-                    selectedAssetsList.setAttribute('data-current-page', '1');
-                }
-
-                openModal(modals.add, modalContents.add);
-            });
-
-            // Load vendors for dropdown
-            function loadVendors() {
-                fetch('/vendor?json=true', {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                    .then(response => {
-                        return response.json();
-                    })
-                    .then(data => {
-                        const select = document.getElementById('vendor_id');
-                        select.innerHTML = '<option value="">Select Vendor</option>';
-
-                        if (Array.isArray(data)) {
-                            data.forEach(vendor => {
-                                const option = document.createElement('option');
-                                option.value = vendor.vendor_id;
-                                option.textContent = vendor.vendor_name;
-                                select.appendChild(option);
+                    document.addEventListener('DOMContentLoaded', function () {
+                        // Apply permissions-based restrictions
+                        @if(!hasPermission('calibration:create'))
+                            // Hide/disable create-related elements
+                            const createButtons = document.querySelectorAll('#addCalibrationBtn, #addAssetsBtn');
+                            createButtons.forEach(btn => {
+                                if (btn) {
+                                    btn.style.display = 'none';
+                                }
                             });
-                        } else if (data.vendors && Array.isArray(data.vendors)) {
-                            data.vendors.forEach(vendor => {
-                                const option = document.createElement('option');
-                                option.value = vendor.vendor_id;
-                                option.textContent = vendor.vendor_name;
-                                select.appendChild(option);
-                            });
-                        } else {
-                            console.error('Unexpected vendor data format:', data);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading vendors:', error);
-                    });
-            }
+                        @endif
 
-            // Edit calibration buttons
-            document.querySelectorAll('.edit-calibration-btn').forEach(button => {
-                button.addEventListener('click', function () {
-                    const calibrationId = this.getAttribute('data-id');
-                    document.getElementById('calibration_id').value = calibrationId;
-
-                    // Fetch calibration details
-                    fetch(`/calibrations/${calibrationId}`, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(data => {
-                                    throw data;
+                            @if(!hasPermission('calibration:edit'))
+                                // Hide/disable edit-related elements
+                                const editButtons = document.querySelectorAll('.edit-calibration-btn, .edit-schedule-btn');
+                                editButtons.forEach(btn => {
+                                    if (btn) {
+                                        btn.style.display = 'none';
+                                    }
                                 });
+                            @endif
+
+                            @if(!hasPermission('calibration:delete'))
+                                // Hide/disable delete-related elements
+                                const deleteButtons = document.querySelectorAll('.delete-calibration-btn, #bulkDeleteBtn');
+                                deleteButtons.forEach(btn => {
+                                    if (btn) {
+                                        btn.style.display = 'none';
+                                    }
+                                });
+                            @endif
+
+                            @if(!hasPermission('calibration:export'))
+                                // Hide/disable export-related elements
+                                const exportButtons = document.querySelectorAll('#exportBtn');
+                                exportButtons.forEach(btn => {
+                                    if (btn) {
+                                        btn.style.display = 'none';
+                                    }
+                                });
+                            @endif
+
+                            // Check for flash messages on page load that didn't trigger the toast
+                            if (typeof flashSuccess !== 'undefined' && flashSuccess) {
+                            showToast(flashSuccess, 'success');
+                        }
+                        if (typeof flashError !== 'undefined' && flashError) {
+                            showToast(flashError, 'error');
+                        }
+
+                        // Prevent multiple form submissions
+                        const addCalibrationForm = document.getElementById('addCalibrationForm');
+                        const updateCalibrationForm = document.getElementById('updateCalibrationForm');
+                        const deleteCalibrationForm = document.getElementById('deleteCalibrationForm');
+
+                        // Helper function to prevent multiple submissions
+                        function preventMultipleSubmits(form, buttonSelector) {
+                            if (!form) return;
+
+                            form.addEventListener('submit', function (e) {
+                                // Only proceed if validation passes
+                                if (this.checkValidity()) {
+                                    // Find the submit button
+                                    const submitBtn = this.querySelector(buttonSelector);
+                                    if (submitBtn && !submitBtn.disabled) {
+                                        // Save original button text
+                                        const originalText = submitBtn.innerHTML;
+
+                                        // Disable the button and show loading state
+                                        submitBtn.disabled = true;
+                                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                                        submitBtn.innerHTML = `
+                                                <div class="flex items-center justify-center">
+                                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                    <span>Memproses...</span>
+                                                </div>
+                                            `;
+
+                                        // Re-enable button after 10 seconds as a failsafe
+                                        setTimeout(() => {
+                                            if (submitBtn) {
+                                                submitBtn.disabled = false;
+                                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                                submitBtn.innerHTML = originalText;
+                                            }
+                                        }, 10000);
+                                    }
+                                }
+                            });
+                        }
+
+                        // Apply to all forms
+                        preventMultipleSubmits(addCalibrationForm, 'button[type="submit"]');
+                        preventMultipleSubmits(updateCalibrationForm, 'button[type="submit"]');
+                        preventMultipleSubmits(deleteCalibrationForm, 'button[type="submit"]');
+
+                        // Debounce utility function to limit how often a function can be called
+                        function debounce(func, wait, immediate) {
+                            let timeout;
+                            return function () {
+                                const context = this, args = arguments;
+                                const later = function () {
+                                    timeout = null;
+                                    if (!immediate) func.apply(context, args);
+                                };
+                                const callNow = immediate && !timeout;
+                                clearTimeout(timeout);
+                                timeout = setTimeout(later, wait);
+                                if (callNow) func.apply(context, args);
+                            };
+                        }
+
+                        // Mengatur tanggal minimum untuk input tanggal (tidak bisa memilih tanggal yang sudah lewat)
+                        const today = new Date().toISOString().split('T')[0];
+
+                        // Set min attribute untuk planning_calibration_date di modal add calibration
+                        const planningDateInput = document.getElementById('planning_calibration_date');
+                        if (planningDateInput) {
+                            planningDateInput.setAttribute('min', today);
+                        }
+
+                        // Set min attribute untuk next_calibration_date di modal perform calibration
+                        const nextCalibrationDateInput = document.getElementById('next_calibration_date');
+                        if (nextCalibrationDateInput) {
+                            nextCalibrationDateInput.setAttribute('min', today);
+                        }
+
+                        // Define a showToast function that creates notifications in the same style as the static ones
+                        window.showToast = function (message, type = 'success') {
+                            // Remove existing notifications with the same type
+                            const existingNotification = document.getElementById(type === 'success' ? 'successNotification' : 'errorNotification');
+                            if (existingNotification) {
+                                existingNotification.remove();
                             }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                const calibration = data.data;
+
+                            // Create the notification element
+                            const notification = document.createElement('div');
+                            notification.id = type === 'success' ? 'successNotification' : 'errorNotification';
+                            notification.className = `fixed top-4 right-4 bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md z-50`;
+                            notification.setAttribute('role', 'alert');
+
+                            // Process message content
+                            let messageContent = '';
+
+                            // Simple string handling
+                            if (typeof message === 'string') {
+                                messageContent = message;
+                            }
+                            // Array handling (convert to comma-separated string)
+                            else if (Array.isArray(message)) {
+                                messageContent = message.join(', ');
+                            }
+                            // Object handling
+                            else if (typeof message === 'object' && message !== null) {
+                                // Get the first available error message from the object
+                                if (message.errors) {
+                                    if (typeof message.errors === 'string') {
+                                        messageContent = message.errors;
+                                    } else if (typeof message.errors === 'object') {
+                                        const errorValues = [];
+
+                                        // Extract all error values
+                                        Object.values(message.errors).forEach(error => {
+                                            if (Array.isArray(error)) {
+                                                errorValues.push(...error);
+                                            } else if (typeof error === 'string') {
+                                                errorValues.push(error);
+                                            }
+                                        });
+
+                                        messageContent = errorValues.join(', ');
+                                    }
+                                } else if (message.message) {
+                                    messageContent = message.message;
+                                } else if (message.error) {
+                                    messageContent = message.error;
+                                } else {
+                                    // No recognizable error format, just convert to string
+                                    try {
+                                        messageContent = JSON.stringify(message);
+                                    } catch (e) {
+                                        messageContent = "Error tidak dapat ditampilkan";
+                                    }
+                                }
+                            } else {
+                                // Fallback for other types
+                                messageContent = "Terjadi kesalahan";
+                            }
+
+                            // Set inner HTML with simplified content
+                            notification.innerHTML = `
+                                    <div class="flex items-center">
+                                        <div class="py-1">
+                                            <svg class="h-6 w-6 text-${type === 'success' ? 'green' : 'red'}-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="${type === 'success' ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'}" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
+                                            <div class="error-message">${messageContent}</div>
+                                        </div>
+                                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                    </div>
+                                `;
+
+                            // Add to document
+                            document.body.appendChild(notification);
+
+                            // Auto-hide after 5 seconds
+                            setTimeout(function () {
+                                if (document.getElementById(notification.id)) {
+                                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                                    setTimeout(function () {
+                                        if (document.getElementById(notification.id)) {
+                                            notification.remove();
+                                        }
+                                    }, 500);
+                                }
+                            }, 5000);
+
+                            return notification;
+                        };
+
+                        // Show flash messages with the showToast function
+                        @if(session('success'))
+                            showToast("{{ session('success') }}", 'success');
+                        @endif
+
+                        @if(session('error'))
+                            showToast("{{ session('error') }}", 'error');
+                        @endif
+
+                            // Handle 'Select All' checkbox for calibrations table
+                            const selectAllCalibrations = document.getElementById('selectAllCalibrations');
+                        if (selectAllCalibrations) {
+                            selectAllCalibrations.addEventListener('change', function () {
+                                const isChecked = this.checked;
+                                document.querySelectorAll('.calibration-checkbox').forEach(checkbox => {
+                                    checkbox.checked = isChecked;
+                                });
+                                updateBulkDeleteButtonVisibility();
+                            });
+
+                            // Update "Select All" checkbox state based on individual checkboxes
+                            document.addEventListener('change', function (e) {
+                                if (e.target.classList.contains('calibration-checkbox')) {
+                                    const allCheckboxes = document.querySelectorAll('.calibration-checkbox');
+                                    const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
+                                    selectAllCalibrations.checked = allCheckboxes.length === checkedCheckboxes.length;
+                                    selectAllCalibrations.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+                                    updateBulkDeleteButtonVisibility();
+                                }
+                            });
+                        }
+
+                        // Handle bulk delete button visibility and functionality
+                        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+                        function updateBulkDeleteButtonVisibility() {
+                            const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
+                            if (checkedCheckboxes.length > 0) {
+                                bulkDeleteBtn.classList.remove('hidden');
+                            } else {
+                                bulkDeleteBtn.classList.add('hidden');
+                            }
+                        }
+
+                        // Handle bulk delete action
+                        if (bulkDeleteBtn) {
+                            bulkDeleteBtn.addEventListener('click', function () {
+                                const checkedCheckboxes = document.querySelectorAll('.calibration-checkbox:checked');
+                                if (checkedCheckboxes.length === 0) {
+                                    showToast('Tidak ada kalibrasi yang dipilih', 'error');
+                                    return;
+                                }
+
+                                // Get the IDs of the selected calibrations
+                                const selectedIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.getAttribute('data-id'));
+
+                                // Open confirmation modal with count information
+                                const deleteCalibrationName = document.getElementById('deleteCalibrationName');
+                                if (deleteCalibrationName) {
+                                    deleteCalibrationName.textContent = `${selectedIds.length} selected calibration records`;
+                                }
+
+                                // Set up the form for bulk delete
+                                const calibrationForm = document.getElementById('deleteCalibrationForm');
+                                if (calibrationForm) {
+                                    // Set form action to the correct URL using the named route
+                                    calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
+
+                                    // Store the IDs in a hidden input - we'll use this in the submit handler
+                                    let hiddenInput = document.getElementById('delete_calibration_id');
+                                    if (!hiddenInput) {
+                                        hiddenInput = document.createElement('input');
+                                        hiddenInput.type = 'hidden';
+                                        hiddenInput.id = 'delete_calibration_id';
+                                        calibrationForm.appendChild(hiddenInput);
+                                    }
+
+                                    // Store as comma-separated string - the submit handler will convert to array
+                                    hiddenInput.value = selectedIds.join(',');
+
+                                    // Open delete confirmation modal
+                                    openModal(modals.delete, modalContents.delete);
+                                }
+                            });
+                        }
+
+                        // Function to change items per page
+                        window.changePerPage = function (limit) {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set('limit', limit);
+                            window.location.href = url.toString();
+                        }
+
+                        // Status filter - apply immediately on change
+                        const statusFilterSelect = document.getElementById('statusFilter');
+                        if (statusFilterSelect) {
+                            statusFilterSelect.addEventListener('change', function () {
+                                applyFilters();
+                            });
+                        }
+
+                        // Result filter - apply immediately on change
+                        const resultFilterSelect = document.getElementById('resultFilter');
+                        if (resultFilterSelect) {
+                            resultFilterSelect.addEventListener('change', function () {
+                                applyFilters();
+                            });
+                        }
+
+                        // Sort order - apply immediately on change
+                        const sortOrderSelect = document.getElementById('sortOrder');
+                        if (sortOrderSelect) {
+                            sortOrderSelect.addEventListener('change', function () {
+                                applyFilters();
+                            });
+                        }
+
+                        // Function to apply all filters and sorting
+                        function applyFilters() {
+                            const searchTerm = document.getElementById('searchInput').value;
+                            const statusFilter = document.getElementById('statusFilter').value;
+                            const resultFilter = document.getElementById('resultFilter').value;
+                            const sortOrder = document.getElementById('sortOrder').value;
+
+                            const url = new URL(window.location.href);
+
+                            // Set search parameter
+                            if (searchTerm) url.searchParams.set('search', searchTerm);
+                            else url.searchParams.delete('search');
+
+                            // Set status parameter
+                            if (statusFilter) url.searchParams.set('status', statusFilter);
+                            else url.searchParams.delete('status');
+
+                            // Set result parameter
+                            if (resultFilter) url.searchParams.set('result', resultFilter);
+                            else url.searchParams.delete('result');
+
+                            // Set sort parameter based on selected option
+                            if (sortOrder) {
+                                // Map front-end sort values to backend expected values
+                                let sortBy, sortDirection;
+
+                                switch (sortOrder) {
+                                    case 'newest':
+                                        sortBy = 'created_at';
+                                        sortDirection = 'desc';
+                                        break;
+                                    case 'oldest':
+                                        sortBy = 'created_at';
+                                        sortDirection = 'asc';
+                                        break;
+                                    default:
+                                        sortBy = 'created_at';
+                                        sortDirection = 'desc';
+                                }
+
+                                url.searchParams.set('sort_by', sortBy);
+                                url.searchParams.set('sort_order', sortDirection);
+
+                                // Keep the frontend sort value for the select element
+                                url.searchParams.set('sort', sortOrder);
+                            } else {
+                                url.searchParams.delete('sort_by');
+                                url.searchParams.delete('sort_order');
+                                url.searchParams.delete('sort');
+                            }
+
+                            // Reset to first page on filter change
+                            url.searchParams.set('page', 1);
+
+                            // Redirect to new URL with filters
+                            window.location.href = url.toString();
+                        }
+
+                        // Search input - apply filters on debounce
+                        const searchInput = document.getElementById('searchInput');
+                        if (searchInput) {
+                            // Fill the search input with the value from URL if it exists
+                            const urlParams = new URLSearchParams(window.location.search);
+                            if (urlParams.has('search')) {
+                                searchInput.value = urlParams.get('search');
+                            }
+
+                            // Add debounced event listener for input
+                            searchInput.addEventListener('input', debounce(function () {
+                                applyFilters();
+                            }, 500));
+
+                            // Also handle Enter key press
+                            searchInput.addEventListener('keypress', function (e) {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    applyFilters();
+                                }
+                            });
+                        }
+
+                        // Set existing values from URL for filters
+                        const urlParams = new URLSearchParams(window.location.search);
+
+                        // Set sort value
+                        const sortSelect = document.getElementById('sortOrder');
+                        if (sortSelect) {
+                            // Remove disabled and selected from all options first
+                            Array.from(sortSelect.options).forEach(option => {
+                                option.removeAttribute('selected');
+                            });
+
+                            // Get the sort value from URL
+                            if (urlParams.has('sort') && urlParams.get('sort')) {
+                                sortSelect.value = urlParams.get('sort');
+
+                                // If no matching option found, set to first non-placeholder option
+                                if (sortSelect.selectedIndex === -1) {
+                                    sortSelect.selectedIndex = 1; // Index 1 is "Newest First"
+                                }
+                            } else {
+                                // If there's no sort value but there is sort_by/sort_order, try to map back
+                                const sortBy = urlParams.get('sort_by');
+                                const sortOrder = urlParams.get('sort_order');
+
+                                if (sortBy && sortOrder) {
+                                    if (sortBy === 'created_at' && sortOrder === 'desc') {
+                                        sortSelect.value = 'newest';
+                                    } else if (sortBy === 'created_at' && sortOrder === 'asc') {
+                                        sortSelect.value = 'oldest';
+                                    }
+                                } else {
+                                    // Default to "Newest First" if no sort specified
+                                    sortSelect.selectedIndex = 1;
+                                }
+                            }
+                        }
+
+                        // Set status filter value
+                        const statusSelect = document.getElementById('statusFilter');
+                        if (statusSelect) {
+                            // Remove selected from all options first
+                            Array.from(statusSelect.options).forEach(option => {
+                                option.removeAttribute('selected');
+                            });
+
+                            if (urlParams.has('status') && urlParams.get('status')) {
+                                statusSelect.value = urlParams.get('status');
+
+                                // If no matching option found, set to first non-placeholder option
+                                if (statusSelect.selectedIndex === -1) {
+                                    statusSelect.selectedIndex = 1; // Index 1 is "All Status"
+                                }
+                            } else {
+                                // Default to "All Status" if no status specified
+                                statusSelect.selectedIndex = 1;
+                            }
+                        }
+
+                        // Set result filter value
+                        const resultSelect = document.getElementById('resultFilter');
+                        if (resultSelect) {
+                            // Remove selected from all options first
+                            Array.from(resultSelect.options).forEach(option => {
+                                option.removeAttribute('selected');
+                            });
+
+                            if (urlParams.has('result') && urlParams.get('result')) {
+                                resultSelect.value = urlParams.get('result');
+
+                                // If no matching option found, set to first non-placeholder option
+                                if (resultSelect.selectedIndex === -1) {
+                                    resultSelect.selectedIndex = 1; // Index 1 is "All Results"
+                                }
+                            } else {
+                                // Default to "All Results" if no result specified
+                                resultSelect.selectedIndex = 1;
+                            }
+                        }
+
+                        // Modal handling
+                        const modals = {
+                            view: document.getElementById('viewCalibrationModal'),
+                            add: document.getElementById('addCalibrationModal'),
+                            asset: document.getElementById('assetSelectionModal'),
+                            delete: document.getElementById('deleteCalibrationModal'),
+                            schedule: document.getElementById('editScheduleModal')
+                        };
+
+                        const modalContents = {
+                            view: document.getElementById('viewCalibrationModalContent'),
+                            add: document.getElementById('addCalibrationModalContent'),
+                            asset: document.getElementById('assetSelectionModalContent'),
+                            delete: document.getElementById('deleteCalibrationModalContent'),
+                            schedule: document.getElementById('editScheduleModalContent')
+                        };
+
+                        // Function to open modal
+                        function openModal(modal, content) {
+                            modal.classList.remove('hidden');
+                            setTimeout(() => {
+                                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                            }, 10);
+                        }
+
+                        // Function to close modal
+                        function closeModal(modal, content) {
+                            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+                            setTimeout(() => {
+                                modal.classList.add('hidden');
+
+                                // Clear form fields when modal is closed
+                                if (modal.id === 'addCalibrationModal') {
+                                    // Reset the add calibration form
+                                    document.getElementById('addCalibrationForm')?.reset();
+                                    // Clear selected assets list
+                                    selectedAssets = [];
+                                    updateSelectedAssetsList();
+                                } else if (modal.id === 'viewCalibrationModal') {
+                                    // Reset the update calibration form
+                                    document.getElementById('updateCalibrationForm')?.reset();
+                                    // Clear file preview
+                                    const filePreview = document.getElementById('file-preview');
+                                    if (filePreview) filePreview.classList.add('hidden');
+
+                                    // Clear vendor search
+                                    const vendorSearchInput = document.getElementById('vendor_search');
+                                    if (vendorSearchInput) vendorSearchInput.value = '';
+                                    const vendorIdInput = document.getElementById('vendor_id');
+                                    if (vendorIdInput) vendorIdInput.value = '';
+                                    const vendorResults = document.getElementById('vendor_results');
+                                    if (vendorResults) vendorResults.style.display = 'none';
+
+                                    // Remove any info messages
+                                    const infoMessage = document.getElementById('completed-info-message');
+                                    if (infoMessage) infoMessage.remove();
+                                } else if (modal.id === 'assetSelectionModal') {
+                                    // Clear asset search
+                                    const assetSearchInput = document.getElementById('assetSearchInput');
+                                    if (assetSearchInput) assetSearchInput.value = '';
+                                }
+                            }, 300);
+                        }
+
+                        // Close modal buttons
+                        document.querySelectorAll('.close-modal').forEach(button => {
+                            button.addEventListener('click', () => {
+                                const modalId = button.getAttribute('data-modal');
+                                const modal = document.getElementById(modalId);
+                                const content = modal.querySelector('[id$="ModalContent"]');
+                                closeModal(modal, content);
+                            });
+                        });
+
+                        // Add Calibration Button Click Handler
+                        document.getElementById('addCalibrationBtn')?.addEventListener('click', function () {
+                            // Set min date untuk planning_calibration_date setiap kali modal dibuka
+                            const today = new Date().toISOString().split('T')[0];
+                            const planningDateInput = document.getElementById('planning_calibration_date');
+                            if (planningDateInput) {
+                                planningDateInput.setAttribute('min', today);
+                            }
+
+                            // Initialize selected assets list with page 1
+                            const selectedAssetsList = document.getElementById('selectedAssetsList');
+                            if (selectedAssetsList) {
+                                selectedAssetsList.setAttribute('data-current-page', '1');
+                            }
+
+                            openModal(modals.add, modalContents.add);
+                        });
+
+                        // Load vendors for dropdown
+                        function loadVendors() {
+                            fetch('/vendor?json=true', {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                                .then(response => {
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    const select = document.getElementById('vendor_id');
+                                    select.innerHTML = '<option value="">Select Vendor</option>';
+
+                                    if (Array.isArray(data)) {
+                                        data.forEach(vendor => {
+                                            const option = document.createElement('option');
+                                            option.value = vendor.vendor_id;
+                                            option.textContent = vendor.vendor_name;
+                                            select.appendChild(option);
+                                        });
+                                    } else if (data.vendors && Array.isArray(data.vendors)) {
+                                        data.vendors.forEach(vendor => {
+                                            const option = document.createElement('option');
+                                            option.value = vendor.vendor_id;
+                                            option.textContent = vendor.vendor_name;
+                                            select.appendChild(option);
+                                        });
+                                    } else {
+                                        console.error('Unexpected vendor data format:', data);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error loading vendors:', error);
+                                });
+                        }
+
+                        // Edit calibration buttons
+                        document.querySelectorAll('.edit-calibration-btn').forEach(button => {
+                            button.addEventListener('click', function () {
+                                const calibrationId = this.getAttribute('data-id');
+                                document.getElementById('calibration_id').value = calibrationId;
+
+                                // Fetch calibration details
+                                fetch(`/calibrations/${calibrationId}`, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            return response.json().then(data => {
+                                                throw data;
+                                            });
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        if (data.success) {
+                                            const calibration = data.data;
 
                                             // Check if status is completed or approved and prevent editing
                                             const status = (calibration.status_calibration || '').toLowerCase();
@@ -1701,26 +1798,26 @@
                                                 nextCalibrationDateInput.setAttribute('min', today);
                                             }
 
-                                // Set read-only display fields
-                                document.getElementById('planning_date_display').value = calibration.planning_calibration_date || '';
-                                document.getElementById('asset_code_display').value = calibration.asset_code || '-';
-                                document.getElementById('asset_name_display').value = calibration.asset_name || '-';
-                                document.getElementById('brand_name_display').value = calibration.brand_name || '-';
-                                document.getElementById('model_number_display').value = calibration.model_number || '-';
-                                document.getElementById('serial_number_display').value = calibration.serial_number || '-';
+                                            // Set read-only display fields
+                                            document.getElementById('planning_date_display').value = calibration.planning_calibration_date || '';
+                                            document.getElementById('asset_code_display').value = calibration.asset_code || '-';
+                                            document.getElementById('asset_name_display').value = calibration.asset_name || '-';
+                                            document.getElementById('brand_name_display').value = calibration.brand_name || '-';
+                                            document.getElementById('model_number_display').value = calibration.model_number || '-';
+                                            document.getElementById('serial_number_display').value = calibration.serial_number || '-';
 
-                                // Set location display
-                                let locationText = '-';
-                                if (calibration.location) {
-                                    const locationParts = [];
-                                    if (calibration.location.room_name) locationParts.push(calibration.location.room_name);
-                                    if (calibration.location.floor_number) locationParts.push(calibration.location.floor_number);
-                                    if (calibration.location.building_name) locationParts.push(calibration.location.building_name);
-                                    if (locationParts.length > 0) {
-                                        locationText = locationParts.join(' | ');
-                                    }
-                                }
-                                document.getElementById('location_display').value = locationText;
+                                            // Set location display
+                                            let locationText = '-';
+                                            if (calibration.location) {
+                                                const locationParts = [];
+                                                if (calibration.location.room_name) locationParts.push(calibration.location.room_name);
+                                                if (calibration.location.floor_number) locationParts.push(calibration.location.floor_number);
+                                                if (calibration.location.building_name) locationParts.push(calibration.location.building_name);
+                                                if (locationParts.length > 0) {
+                                                    locationText = locationParts.join(' | ');
+                                                }
+                                            }
+                                            document.getElementById('location_display').value = locationText;
 
                                             // Set vendor search value if vendor exists
                                             if (calibration.vendor_id) {
@@ -1731,36 +1828,36 @@
                                                 document.getElementById('vendor_search').value = '';
                                             }
 
-                                // Set next_calibration_date if it exists in the data
-                                if (calibration.next_calibration_date) {
-                                    document.getElementById('next_calibration_date').value = calibration.next_calibration_date;
-                                }
+                                            // Set next_calibration_date if it exists in the data
+                                            if (calibration.next_calibration_date) {
+                                                document.getElementById('next_calibration_date').value = calibration.next_calibration_date;
+                                            }
 
-                                // Set actual_calibration_date if it exists in the data
-                                if (calibration.actual_calibration_date) {
-                                    document.getElementById('actual_calibration_date').value = calibration.actual_calibration_date;
-                                } else {
-                                    // Set current date as default
-                                    const today = new Date().toISOString().split('T')[0];
-                                    document.getElementById('actual_calibration_date').value = today;
-                                }
+                                            // Set actual_calibration_date if it exists in the data
+                                            if (calibration.actual_calibration_date) {
+                                                document.getElementById('actual_calibration_date').value = calibration.actual_calibration_date;
+                                            } else {
+                                                // Set current date as default
+                                                const today = new Date().toISOString().split('T')[0];
+                                                document.getElementById('actual_calibration_date').value = today;
+                                            }
 
-                                document.getElementById('certificate_number').value = calibration.certificate_number || '';
-                                document.getElementById('calibration_price').value = calibration.calibration_price || '';
-                                document.getElementById('notes').value = calibration.notes || '';
+                                            document.getElementById('certificate_number').value = calibration.certificate_number || '';
+                                            document.getElementById('calibration_price').value = calibration.calibration_price || '';
+                                            document.getElementById('notes').value = calibration.notes || '';
 
-                                // Set radio button for result
-                                if (calibration.calibration_result === 'pass') {
-                                    document.getElementById('result_pass').checked = true;
-                                } else if (calibration.calibration_result === 'fail') {
-                                    document.getElementById('result_fail').checked = true;
-                                } else if (calibration.calibration_result === 'unknown') {
-                                    document.getElementById('result_unknown').checked = true;
-                                }
+                                            // Set radio button for result
+                                            if (calibration.calibration_result === 'pass') {
+                                                document.getElementById('result_pass').checked = true;
+                                            } else if (calibration.calibration_result === 'fail') {
+                                                document.getElementById('result_fail').checked = true;
+                                            } else if (calibration.calibration_result === 'unknown') {
+                                                document.getElementById('result_unknown').checked = true;
+                                            }
 
-                                // Always hide file previews when opening modal
-                                const filePreview = document.getElementById('file-preview');
-                                if (filePreview) filePreview.classList.add('hidden');
+                                            // Always hide file previews when opening modal
+                                            const filePreview = document.getElementById('file-preview');
+                                            if (filePreview) filePreview.classList.add('hidden');
 
                                             const imagePreview = document.getElementById('image-preview');
                                             if (imagePreview) {
@@ -1791,7 +1888,7 @@
                                                             element.classList.add('bg-gray-500');
                                                             element.classList.remove('bg-[#213268]', 'hover:bg-[#152349]');
                                                         }
-                                } else {
+                                                    } else {
                                                         element.removeAttribute('disabled');
                                                         if (element.tagName === 'BUTTON' && element.type === 'submit') {
                                                             element.classList.remove('bg-gray-500');
@@ -1814,42 +1911,42 @@
                                                 infoMessage.id = 'completed-info-message';
                                                 infoMessage.className = 'bg-blue-50 border-l-4 border-blue-500 p-4 mb-4';
                                                 infoMessage.innerHTML = `
-                                                    <div class="flex items-center">
-                                                        <div class="flex-shrink-0 text-blue-500">
-                                                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                                                            </svg>
-                                                        </div>
-                                                        <div class="ml-3">
-                                                            <p class="text-sm text-blue-700">
-                                                                Kalibrasi ini ditandai sebagai ${status === 'completed' ? 'SELESAI' : 'DISETUJUI'}. Formulir dalam mode hanya-baca.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                `;
+                                                                    <div class="flex items-center">
+                                                                        <div class="flex-shrink-0 text-blue-500">
+                                                                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                                                            </svg>
+                                                                        </div>
+                                                                        <div class="ml-3">
+                                                                            <p class="text-sm text-blue-700">
+                                                                                Kalibrasi ini ditandai sebagai ${status === 'completed' ? 'SELESAI' : 'DISETUJUI'}. Formulir dalam mode hanya-baca.
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                `;
                                                 infoMessageContainer.insertAdjacentElement('afterbegin', infoMessage);
-                                }
+                                            }
 
-                                // Open modal
-                                openModal(modals.view, modalContents.view);
-                            } else {
-                                showToast('Gagal memuat detail kalibrasi', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            // If error is an object with message or errors, use that
-                            if (typeof error === 'object' && error !== null) {
-                                showToast(error, 'error');
-                            } else {
-                                showToast('Terjadi kesalahan saat memuat detail kalibrasi', 'error');
-                            }
+                                            // Open modal
+                                            openModal(modals.view, modalContents.view);
+                                        } else {
+                                            showToast('Gagal memuat detail kalibrasi', 'error');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                        // If error is an object with message or errors, use that
+                                        if (typeof error === 'object' && error !== null) {
+                                            showToast(error, 'error');
+                                        } else {
+                                            showToast('Terjadi kesalahan saat memuat detail kalibrasi', 'error');
+                                        }
+                                    });
+                            });
                         });
-                });
-            });
 
                         // Add file upload functionality
-                        document.getElementById('document_file')?.addEventListener('change', function() {
+                        document.getElementById('document_file')?.addEventListener('change', function () {
                             const file = this.files[0];
                             if (file) {
                                 // Show preview container
@@ -1881,7 +1978,7 @@
                         });
 
                         // Remove selected file
-                        document.getElementById('remove-file')?.addEventListener('click', function(e) {
+                        document.getElementById('remove-file')?.addEventListener('click', function (e) {
                             e.preventDefault();
                             e.stopPropagation();
 
@@ -1899,1494 +1996,1494 @@
                                 URL.revokeObjectURL(imagePreview.src);
                                 imagePreview.src = '';
                             }
-            });
-
-            // Delete calibration buttons
-            document.querySelectorAll('.delete-calibration-btn').forEach(button => {
-                button.addEventListener('click', function () {
-                    const calibrationId = this.getAttribute('data-id');
-                    const calibrationForm = document.getElementById('deleteCalibrationForm');
-                    const deleteCalibrationName = document.getElementById('deleteCalibrationName');
-
-                    // Get calibration details to show in the confirmation modal
-                    const assetName = this.closest('tr').querySelector('td:nth-child(3) .font-medium').textContent;
-                    const assetCode = this.closest('tr').querySelector('td:nth-child(3) .text-gray-500').textContent;
-
-                    // Set form action to the correct URL using the named route
-                    calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
-
-                    // Add hidden input for the calibration ID - without setting the name attribute
-                    let hiddenInput = document.getElementById('delete_calibration_id');
-                    if (!hiddenInput) {
-                        hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.id = 'delete_calibration_id';
-                        calibrationForm.appendChild(hiddenInput);
-                    }
-                    hiddenInput.value = calibrationId;
-
-                    // Set calibration name in the modal
-                    deleteCalibrationName.textContent = `${assetName} (${assetCode})`;
-
-                    // Open delete confirmation modal
-                    openModal(modals.delete, modalContents.delete);
-                });
-            });
-
-            // Form submission handler for delete
-            document.getElementById('deleteCalibrationForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const form = this;
-                const calibrationIdInput = document.getElementById('delete_calibration_id').value;
-
-                // Check if the value contains a comma, which indicates multiple IDs
-                const isMultiple = calibrationIdInput.includes(',');
-                let ids = [];
-
-                if (isMultiple) {
-                    // For multiple calibrations, split the comma-separated string
-                    ids = calibrationIdInput.split(',').map(id => parseInt(id.trim()));
-                } else {
-                    // For single calibration, create array with one element
-                    ids = [parseInt(calibrationIdInput)];
-                }
-
-                // Make the DELETE request to the server
-                fetch("{{ route('calibrations.bulk.delete') }}", {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ ids }) // Simple payload with just the IDs array
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(data => {
-                            console.error('Server error response:', data);
-                            throw new Error(data.message || `Server merespons dengan status ${response.status}`);
                         });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Close the modal
-                    closeModal(modals.delete, modalContents.delete);
 
-                    if (data.success) {
-                        // Show toast notification first
-                        showToast(data.message || 'Kalibrasi berhasil dihapus', 'success');
+                        // Delete calibration buttons
+                        document.querySelectorAll('.delete-calibration-btn').forEach(button => {
+                            button.addEventListener('click', function () {
+                                const calibrationId = this.getAttribute('data-id');
+                                const calibrationForm = document.getElementById('deleteCalibrationForm');
+                                const deleteCalibrationName = document.getElementById('deleteCalibrationName');
 
-                        // Delay the redirect slightly to allow the toast to be seen
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        showToast(data.message || data.error || 'Gagal menghapus kalibrasi', 'error');
-                        console.error('Delete error:', data.errors);
-                    }
-                })
-                .catch(error => {
-                    console.error('Delete request failed:', error);
-                    closeModal(modals.delete, modalContents.delete);
+                                // Get calibration details to show in the confirmation modal
+                                const assetName = this.closest('tr').querySelector('td:nth-child(3) .font-medium').textContent;
+                                const assetCode = this.closest('tr').querySelector('td:nth-child(3) .text-gray-500').textContent;
 
-                    // Extract just the error message
-                    if (typeof error === 'object' && error !== null) {
-                        if (error.errors) {
-                            // Case: {errors: "Message"}
-                            if (typeof error.errors === 'string') {
-                                showToast(error.errors, 'error');
+                                // Set form action to the correct URL using the named route
+                                calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
+
+                                // Add hidden input for the calibration ID - without setting the name attribute
+                                let hiddenInput = document.getElementById('delete_calibration_id');
+                                if (!hiddenInput) {
+                                    hiddenInput = document.createElement('input');
+                                    hiddenInput.type = 'hidden';
+                                    hiddenInput.id = 'delete_calibration_id';
+                                    calibrationForm.appendChild(hiddenInput);
+                                }
+                                hiddenInput.value = calibrationId;
+
+                                // Set calibration name in the modal
+                                deleteCalibrationName.textContent = `${assetName} (${assetCode})`;
+
+                                // Open delete confirmation modal
+                                openModal(modals.delete, modalContents.delete);
+                            });
+                        });
+
+                        // Form submission handler for delete
+                        document.getElementById('deleteCalibrationForm').addEventListener('submit', function (e) {
+                            e.preventDefault();
+
+                            const form = this;
+                            const calibrationIdInput = document.getElementById('delete_calibration_id').value;
+
+                            // Check if the value contains a comma, which indicates multiple IDs
+                            const isMultiple = calibrationIdInput.includes(',');
+                            let ids = [];
+
+                            if (isMultiple) {
+                                // For multiple calibrations, split the comma-separated string
+                                ids = calibrationIdInput.split(',').map(id => parseInt(id.trim()));
+                            } else {
+                                // For single calibration, create array with one element
+                                ids = [parseInt(calibrationIdInput)];
                             }
-                            // Case: {errors: {field: ["Error 1", "Error 2"]}}
-                            else if (typeof error.errors === 'object') {
-                                const errorMessages = [];
-                                Object.values(error.errors).forEach(err => {
-                                    if (Array.isArray(err)) {
-                                        errorMessages.push(...err);
+
+                            // Make the DELETE request to the server
+                            fetch("{{ route('calibrations.bulk.delete') }}", {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({ ids }) // Simple payload with just the IDs array
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        return response.json().then(data => {
+                                            console.error('Server error response:', data);
+                                            throw new Error(data.message || `Server merespons dengan status ${response.status}`);
+                                        });
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    // Close the modal
+                                    closeModal(modals.delete, modalContents.delete);
+
+                                    if (data.success) {
+                                        // Show toast notification first
+                                        showToast(data.message || 'Kalibrasi berhasil dihapus', 'success');
+
+                                        // Delay the redirect slightly to allow the toast to be seen
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 1000);
                                     } else {
-                                        errorMessages.push(err);
+                                        showToast(data.message || data.error || 'Gagal menghapus kalibrasi', 'error');
+                                        console.error('Delete error:', data.errors);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Delete request failed:', error);
+                                    closeModal(modals.delete, modalContents.delete);
+
+                                    // Extract just the error message
+                                    if (typeof error === 'object' && error !== null) {
+                                        if (error.errors) {
+                                            // Case: {errors: "Message"}
+                                            if (typeof error.errors === 'string') {
+                                                showToast(error.errors, 'error');
+                                            }
+                                            // Case: {errors: {field: ["Error 1", "Error 2"]}}
+                                            else if (typeof error.errors === 'object') {
+                                                const errorMessages = [];
+                                                Object.values(error.errors).forEach(err => {
+                                                    if (Array.isArray(err)) {
+                                                        errorMessages.push(...err);
+                                                    } else {
+                                                        errorMessages.push(err);
+                                                    }
+                                                });
+                                                showToast(errorMessages.join(', '), 'error');
+                                            }
+                                        } else if (error.message) {
+                                            showToast(error.message, 'error');
+                                        } else {
+                                            showToast('Gagal menghapus kalibrasi', 'error');
+                                        }
+                                    } else {
+                                        showToast('Terjadi kesalahan saat menghapus kalibrasi', 'error');
                                     }
                                 });
-                                showToast(errorMessages.join(', '), 'error');
-                            }
-                        } else if (error.message) {
-                            showToast(error.message, 'error');
-                        } else {
-                            showToast('Gagal menghapus kalibrasi', 'error');
-                        }
-                    } else {
-                        showToast('Terjadi kesalahan saat menghapus kalibrasi', 'error');
-                    }
-                });
-            });
+                        });
 
-            // Update Calibration Form Submit
-            document.getElementById('updateCalibrationForm').addEventListener('submit', function (e) {
-                e.preventDefault();
+                        // Update Calibration Form Submit
+                        document.getElementById('updateCalibrationForm').addEventListener('submit', function (e) {
+                            e.preventDefault();
 
-                const calibrationId = document.getElementById('calibration_id').value;
-                const formData = new FormData(this);
+                            const calibrationId = document.getElementById('calibration_id').value;
+                            const formData = new FormData(this);
 
-                // Remove the calibration_id from form data since it's used in the URL
-                formData.delete('calibration_id');
+                            // Remove the calibration_id from form data since it's used in the URL
+                            formData.delete('calibration_id');
 
-                // Add _method field for PUT request
-                formData.append('_method', 'PUT');
+                            // Add _method field for PUT request
+                            formData.append('_method', 'PUT');
 
-                fetch(`/calibrations/report/${calibrationId}`, {
-                    method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw data;
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            // Close the modal
-                            closeModal(modals.view, modalContents.view);
+                            fetch(`/calibrations/report/${calibrationId}`, {
+                                method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json'
+                                },
+                                body: formData
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        return response.json().then(data => {
+                                            throw data;
+                                        });
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        // Close the modal
+                                        closeModal(modals.view, modalContents.view);
 
-                            // Show toast notification with server message
-                            showToast(data.message || 'Kalibrasi berhasil diperbarui', 'success');
+                                        // Show toast notification with server message
+                                        showToast(data.message || 'Kalibrasi berhasil diperbarui', 'success');
 
-                            // Delay the redirect slightly to allow the toast to be seen
-                            setTimeout(() => {
-                                window.location.href = "{{ route('calibration') }}";
-                            }, 1000);
-                        } else {
-                            showToast(data.message || data.error || 'Gagal memperbarui kalibrasi', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
+                                        // Delay the redirect slightly to allow the toast to be seen
+                                        setTimeout(() => {
+                                            window.location.href = "{{ route('calibration') }}";
+                                        }, 1000);
+                                    } else {
+                                        showToast(data.message || data.error || 'Gagal memperbarui kalibrasi', 'error');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
 
-                        // Extract just the error message
-                        if (typeof error === 'object' && error !== null) {
-                        if (error.errors) {
-                                // Simple string error
-                                if (typeof error.errors === 'string') {
-                                    showToast(error.errors, 'error');
-                                }
-                                // Object with error fields
-                                else if (typeof error.errors === 'object') {
-                                const errorMessages = [];
+                                    // Extract just the error message
+                                    if (typeof error === 'object' && error !== null) {
+                                        if (error.errors) {
+                                            // Simple string error
+                                            if (typeof error.errors === 'string') {
+                                                showToast(error.errors, 'error');
+                                            }
+                                            // Object with error fields
+                                            else if (typeof error.errors === 'object') {
+                                                const errorMessages = [];
 
-                                    Object.values(error.errors).forEach(err => {
-                                        if (Array.isArray(err)) {
-                                            errorMessages.push(...err);
-                                        } else if (typeof err === 'string') {
-                                            errorMessages.push(err);
+                                                Object.values(error.errors).forEach(err => {
+                                                    if (Array.isArray(err)) {
+                                                        errorMessages.push(...err);
+                                                    } else if (typeof err === 'string') {
+                                                        errorMessages.push(err);
+                                                    }
+                                                });
+
+                                                showToast(errorMessages.join(', '), 'error');
+                                            }
+                                        } else if (error.message) {
+                                            showToast(error.message, 'error');
+                                        } else {
+                                            showToast('Gagal memperbarui kalibrasi', 'error');
                                         }
+                                    } else {
+                                        showToast('Terjadi kesalahan saat memperbarui kalibrasi', 'error');
+                                    }
+                                });
+                        });
+
+                        // Selected Assets Management
+                        let selectedAssets = [];
+
+                        // Add Assets Button
+                        document.getElementById('addAssetsBtn')?.addEventListener('click', function () {
+                            // Open asset selection modal
+                            openModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
+                            // Load assets
+                            loadAssets();
+                        });
+
+                        // Debounce function to limit how often a function can be called
+                        function debounce(func, wait) {
+                            let timeout;
+                            return function () {
+                                const context = this;
+                                const args = arguments;
+                                clearTimeout(timeout);
+                                timeout = setTimeout(() => {
+                                    func.apply(context, args);
+                                }, wait);
+                            };
+                        }
+
+                        // Handle search input with debounce
+                        document.getElementById('assetSearchInput')?.addEventListener('input', debounce(function () {
+                            loadAssets(1);
+                        }, 500));
+
+                        // Load assets for selection
+                        function loadAssets(page = 1) {
+                            const searchTerm = document.getElementById('assetSearchInput').value;
+                            const limit = document.getElementById('assetPerPageSelect').value;
+
+                            // Show loading state
+                            document.getElementById('assetSelectionList').innerHTML = `
+                                    <tr>
+                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Memuat aset...</td>
+                                    </tr>
+                                `;
+
+                            // Debug pagination
+                            console.log(`Loading assets: page=${page}, limit=${limit}, search=${searchTerm}`);
+
+                            // Fetch assets from API - make sure to pass needs_calibration=true to filter only calibratable assets
+                            fetch(`/assets/data?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}&needs_calibration=true`, {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    // Get assets
+                                    const assets = data.success ? data.data : (data.assets || []);
+
+                                    // Now get existing calibrations to check which assets to exclude
+                                    fetch('/calibrations?json=true&limit=1000', {
+                                        headers: {
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        }
+                                    })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error(`Server merespon dengan status: ${response.status}`);
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(calibrationData => {
+                                            // Create a Set of asset IDs that have ongoing calibration schedules
+                                            const assetsWithActiveSchedules = new Set();
+
+                                            // Get calibrations from the response - ensure we have valid data before using forEach
+                                            let calibrations = [];
+
+                                            // Handle different possible response formats
+                                            if (calibrationData && calibrationData.success === true && Array.isArray(calibrationData.data)) {
+                                                calibrations = calibrationData.data;
+                                            } else if (calibrationData && Array.isArray(calibrationData.calibrations)) {
+                                                calibrations = calibrationData.calibrations;
+                                            } else if (calibrationData && Array.isArray(calibrationData)) {
+                                                calibrations = calibrationData;
+                                            }
+
+                                            // Now safely process the calibrations
+                                            if (calibrations && calibrations.length > 0) {
+                                                calibrations.forEach(calibration => {
+                                                    if (calibration && calibration.status_calibration !== 'completed' && calibration.asset_id) {
+                                                        assetsWithActiveSchedules.add(calibration.asset_id);
+                                                    }
+                                                });
+                                            }
+
+                                            console.log('Found ' + assetsWithActiveSchedules.size + ' assets with active calibration schedules');
+
+                                            // Filter assets to only show those without active schedules
+                                            const filteredAssets = assets.filter(asset => !assetsWithActiveSchedules.has(asset.asset_id));
+
+                                            if (filteredAssets.length === 0) {
+                                                document.getElementById('assetSelectionList').innerHTML = `
+                                                <tr>
+                                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                        Tidak ditemukan aset yang memerlukan kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diatur sebagai benar dan
+                                                        tanpa jadwal kalibrasi aktif yang akan muncul dalam daftar ini.
+                                                    </td>
+                                                </tr>
+                                            `;
+                                                // Still setup pagination with zero data to ensure UI consistency
+                                                const limit = document.getElementById('assetPerPageSelect').value;
+                                                const paginationData = data.success ? data.pagination : data.assets_pagination;
+                                                if (paginationData) {
+                                                    // Create pagination with zero items
+                                                    const zeroPagination = {
+                                                        ...paginationData,
+                                                        current_page: 1,
+                                                        total_items: 0,
+                                                        total_pages: 1
+                                                    };
+                                                    setupAssetPagination(zeroPagination);
+                                                }
+                                                return;
+                                            }
+
+                                            // Create a modified data object that preserves the original total but with filtered assets
+                                            const modifiedData = {
+                                                ...data,
+                                                pagination: {
+                                                    ...(data.success ? data.pagination : data.assets_pagination),
+                                                    total_items: data.success && data.pagination ? data.pagination.total_items :
+                                                        (data.assets_pagination ? data.assets_pagination.total_items : filteredAssets.length),
+                                                    total: data.success && data.pagination ? data.pagination.total :
+                                                        (data.assets_pagination ? data.assets_pagination.total : filteredAssets.length)
+                                                }
+                                            };
+
+                                            // Render filtered assets with modified data
+                                            renderAssets(filteredAssets, modifiedData);
+                                        })
+                                        .catch(error => {
+                                            console.error('Error fetching calibration data:', error);
+
+                                            // Show error notification with detailed error information
+                                            let errorMessage = 'Error fetching calibration data: ' + error.message;
+                                            showErrorNotification(errorMessage);
+
+                                            // Fallback to just showing the assets without filtering
+                                            renderAssets(assets, data);
+                                        });
+                                })
+                                .catch(error => {
+                                    console.error('Error loading assets:', error);
+                                    document.getElementById('assetSelectionList').innerHTML = `
+                                          <tr>
+                                              <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
+                                                  Gagal memuat aset yang memerlukan kalibrasi. Silakan coba lagi atau hubungi dukungan jika masalah tetap berlanjut.
+                                              </td>
+                                          </tr>
+                                      `;
+
+                                    // Show error notification
+                                    showToast('Gagal memuat aset: ' + error.message, 'error');
+                                });
+                        }
+
+                        // Add this function to show error notifications similar to UnitAsset.blade.php
+                        function showErrorNotification(message) {
+                            // Just use the enhanced showToast function
+                            showToast(message, 'error');
+                        }
+
+                        // Helper function to render assets with or without filtering
+                        function renderAssets(assets, data) {
+                            if (!assets || assets.length === 0) {
+                                document.getElementById('assetSelectionList').innerHTML = `
+                                          <tr>
+                                              <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                  Tidak ditemukan aset yang perlu kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diaktifkan yang akan muncul dalam daftar ini.
+                                              </td>
+                                          </tr>
+                                      `;
+                                return;
+                            }
+
+                            let html = '';
+                            assets.forEach(asset => {
+                                const isSelected = selectedAssets.some(selectedAsset => selectedAsset.asset_id === asset.asset_id);
+
+                                // Get asset name - check both direct property and nested structure
+                                const assetName = asset.asset_master_name ||
+                                    (asset.asset_master && asset.asset_master.asset_name) ||
+                                    '-';
+
+                                // Get asset code
+                                const assetCode = asset.asset_code || '-';
+
+                                // Get asset type based on asset_master_code pattern
+                                let assetType = 'Non Medis';
+                                if (asset.asset_master && asset.asset_master.asset_master_code) {
+                                    const code = asset.asset_master.asset_master_code;
+                                    if (code.startsWith('MED-')) {
+                                        assetType = 'Medis';
+                                    }
+                                }
+
+                                // Get category name from asset_master if it exists
+                                const categoryName = asset.asset_master && asset.asset_master.subcategory_name ?
+                                    asset.asset_master.subcategory_name : '-';
+
+                                // Get description
+                                const description = asset.description || '-';
+
+                                html += `
+                                          <tr>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                  <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}"
+                                                      data-id="${asset.asset_id}"
+                                                      data-code="${assetCode}"
+                                                      data-name="${assetName}"
+                                                      data-description="${description}"
+                                                      data-type="${assetType}"
+                                                      data-category="${categoryName}"
+                                                      ${isSelected ? 'checked' : ''}>
+                                              </td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetCode}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                  <div class="flex flex-col">
+                                                      <span class="font-medium">${assetName}</span>
+                                                  </div>
+                                              </td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${description}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetType}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
+                                          </tr>
+                                      `;
+                            });
+
+                            document.getElementById('assetSelectionList').innerHTML = html;
+
+                            // Setup pagination and event handlers
+                            if (data) {
+                                const limit = parseInt(document.getElementById('assetPerPageSelect').value, 10) || 10;
+                                const paginationData = data.success ? data.pagination : data.assets_pagination;
+                                if (paginationData) {
+                                    // Get the total items from the server response, not the filtered assets
+                                    const serverTotalItems = paginationData.total_items || paginationData.total || 0;
+
+                                    // For debugging
+                                    console.log('Pagination data:', {
+                                        serverTotalItems,
+                                        filteredAssetsCount: assets.length,
+                                        currentPage: paginationData.current_page || 1,
+                                        limit
                                     });
 
-                                    showToast(errorMessages.join(', '), 'error');
-                            }
-                        } else if (error.message) {
-                            showToast(error.message, 'error');
-                        } else {
-                                showToast('Gagal memperbarui kalibrasi', 'error');
-                        }
-                        } else {
-                            showToast('Terjadi kesalahan saat memperbarui kalibrasi', 'error');
-                        }
-                    });
-            });
+                                    // Use the server's total_items for pagination, not the filtered count
+                                    const updatedPagination = {
+                                        ...paginationData,
+                                        total_items: serverTotalItems,
+                                        total_pages: Math.max(1, Math.ceil(serverTotalItems / limit)),
+                                        // Make sure we don't exceed the total pages
+                                        current_page: Math.min(
+                                            paginationData.current_page || 1,
+                                            Math.max(1, Math.ceil(serverTotalItems / limit))
+                                        )
+                                    };
 
-            // Selected Assets Management
-            let selectedAssets = [];
+                                    // Log the updated pagination
+                                    console.log('Updated pagination:', updatedPagination);
 
-            // Add Assets Button
-            document.getElementById('addAssetsBtn')?.addEventListener('click', function () {
-                // Open asset selection modal
-                openModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
-                // Load assets
-                loadAssets();
-            });
-
-            // Debounce function to limit how often a function can be called
-            function debounce(func, wait) {
-                let timeout;
-                return function () {
-                    const context = this;
-                    const args = arguments;
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        func.apply(context, args);
-                    }, wait);
-                };
-            }
-
-            // Handle search input with debounce
-            document.getElementById('assetSearchInput')?.addEventListener('input', debounce(function () {
-                loadAssets(1);
-            }, 500));
-
-            // Load assets for selection
-            function loadAssets(page = 1) {
-                const searchTerm = document.getElementById('assetSearchInput').value;
-                const limit = document.getElementById('assetPerPageSelect').value;
-
-                // Show loading state
-                document.getElementById('assetSelectionList').innerHTML = `
-                    <tr>
-                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Memuat aset...</td>
-                    </tr>
-                `;
-
-                // Debug pagination
-                console.log(`Loading assets: page=${page}, limit=${limit}, search=${searchTerm}`);
-
-                // Fetch assets from API - make sure to pass needs_calibration=true to filter only calibratable assets
-                fetch(`/assets/data?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}&needs_calibration=true`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Get assets
-                    const assets = data.success ? data.data : (data.assets || []);
-
-                    // Now get existing calibrations to check which assets to exclude
-                    fetch('/calibrations?json=true&limit=1000', {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Server merespon dengan status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(calibrationData => {
-                        // Create a Set of asset IDs that have ongoing calibration schedules
-                        const assetsWithActiveSchedules = new Set();
-
-                        // Get calibrations from the response - ensure we have valid data before using forEach
-                        let calibrations = [];
-
-                        // Handle different possible response formats
-                        if (calibrationData && calibrationData.success === true && Array.isArray(calibrationData.data)) {
-                            calibrations = calibrationData.data;
-                        } else if (calibrationData && Array.isArray(calibrationData.calibrations)) {
-                            calibrations = calibrationData.calibrations;
-                        } else if (calibrationData && Array.isArray(calibrationData)) {
-                            calibrations = calibrationData;
-                        }
-
-                        // Now safely process the calibrations
-                        if (calibrations && calibrations.length > 0) {
-                            calibrations.forEach(calibration => {
-                                if (calibration && calibration.status_calibration !== 'completed' && calibration.asset_id) {
-                                    assetsWithActiveSchedules.add(calibration.asset_id);
+                                    // Set up the pagination with the correct total
+                                    setupAssetPagination(updatedPagination);
                                 }
+                            }
+                            attachCheckboxHandlers();
+                        }
+
+                        // Handle this separate function to handle checkbox events
+                        function attachCheckboxHandlers() {
+                            const checkboxes = document.querySelectorAll('.asset-checkbox');
+
+                            // First remove any existing event listeners
+                            checkboxes.forEach(checkbox => {
+                                const newCheckbox = checkbox.cloneNode(true);
+                                checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+                            });
+
+                            // Now add fresh event listeners
+                            document.querySelectorAll('.asset-checkbox').forEach(checkbox => {
+                                checkbox.onclick = function () {
+                                    const assetId = parseInt(this.getAttribute('data-id'));
+
+                                    // Always remove the asset first to avoid any potential duplicates
+                                    selectedAssets = selectedAssets.filter(asset => asset.id !== assetId);
+
+                                    // Then add it back if checked
+                                    if (this.checked) {
+                                        const assetName = this.getAttribute('data-name');
+                                        const assetCode = this.getAttribute('data-code');
+                                        const description = this.getAttribute('data-description');
+                                        const assetType = this.getAttribute('data-type');
+                                        const categoryName = this.getAttribute('data-category');
+
+                                        selectedAssets.push({
+                                            id: assetId,
+                                            asset_id: assetId,
+                                            asset_name: assetName,
+                                            asset_code: assetCode,
+                                            description: description,
+                                            asset_type: assetType,
+                                            category_name: categoryName,
+                                            // Add asset_master structure for compatibility with UnitAsset.blade.php
+                                            asset_master: {
+                                                asset_name: assetName,
+                                                asset_master_code: assetType === 'Medical' ? 'MED-' : 'NMED-',
+                                                subcategory_name: categoryName
+                                            }
+                                        });
+                                    }
+
+                                    updateSelectedAssetsList();
+                                };
+                            });
+
+                            // Handle Select All checkbox
+                            const selectAllCheckbox = document.getElementById('selectAllAssets');
+                            if (selectAllCheckbox) {
+                                const newSelectAll = selectAllCheckbox.cloneNode(true);
+                                selectAllCheckbox.parentNode.replaceChild(newSelectAll, selectAllCheckbox);
+
+                                document.getElementById('selectAllAssets').onclick = function () {
+                                    const checkboxes = document.querySelectorAll('.asset-checkbox');
+                                    checkboxes.forEach(checkbox => {
+                                        checkbox.checked = this.checked;
+
+                                        // Manually trigger the checkbox's onclick event
+                                        if (checkbox.onclick) checkbox.onclick();
+                                    });
+                                };
+                            }
+                        }
+
+                        // Setup asset pagination
+                        function setupAssetPagination(pagination) {
+                            if (!pagination) return;
+
+                            const paginationInfo = document.getElementById('assetPaginationInfo');
+                            const paginationControls = document.getElementById('assetPaginationControls');
+
+                            // Handle different pagination data structures
+                            const currentPage = pagination.current_page || 1;
+                            const totalPages = pagination.total_pages || pagination.last_page || 1;
+                            const totalItems = pagination.total_items || pagination.total || 0;
+                            const limit = pagination.limit || pagination.per_page || 10;
+                            const from = pagination.from || ((currentPage - 1) * limit + 1);
+                            const to = pagination.to || Math.min(currentPage * limit, totalItems);
+
+                            // Update pagination info
+                            if (paginationInfo) {
+                                paginationInfo.textContent = `Menampilkan ${from} sampai ${to} dari ${totalItems} data`;
+                            }
+
+                            // Generate pagination controls
+                            let controlsHtml = '';
+
+                            // Previous button
+                            controlsHtml += `
+                                      <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                                         ${currentPage > 1 ? 'data-page="' + (currentPage - 1) + '"' : ''}>
+                                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                          </svg>
+                                          Sebelumnya
+                                      </a>
+                                  `;
+
+                            // Only show pagination if there are items
+                            if (totalItems > 0) {
+                                // Page numbers
+                                controlsHtml += '<div class="flex gap-2">';
+
+                                const maxPagesShown = 5;
+                                let startPage = Math.max(1, currentPage - 2);
+                                let endPage = Math.min(totalPages, startPage + maxPagesShown - 1);
+
+                                if (endPage - startPage + 1 < maxPagesShown) {
+                                    startPage = Math.max(1, endPage - maxPagesShown + 1);
+                                }
+
+                                if (startPage > 1) {
+                                    controlsHtml += `
+                                              <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                                  data-page="1">1</a>
+                                          `;
+
+                                    if (startPage > 2) {
+                                        controlsHtml += '<span class="flex items-center justify-center">...</span>';
+                                    }
+                                }
+
+                                for (let i = startPage; i <= endPage; i++) {
+                                    controlsHtml += `
+                                              <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
+                                                 data-page="${i}">${i}</a>
+                                          `;
+                                }
+
+                                if (endPage < totalPages) {
+                                    if (endPage < totalPages - 1) {
+                                        controlsHtml += '<span class="flex items-center justify-center">...</span>';
+                                    }
+
+                                    controlsHtml += `
+                                              <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                                  data-page="${totalPages}">${totalPages}</a>
+                                          `;
+                                }
+
+                                controlsHtml += '</div>';
+                            }
+
+                            // Next button
+                            controlsHtml += `
+                                      <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
+                                         ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
+                                          Selanjutnya
+                                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                          </svg>
+                                      </a>
+                                  `;
+
+                            if (paginationControls) {
+                                paginationControls.innerHTML = controlsHtml;
+
+                                // Add event listeners to pagination links
+                                paginationControls.querySelectorAll('a[data-page]').forEach(link => {
+                                    link.addEventListener('click', function (e) {
+                                        e.preventDefault();
+                                        const page = parseInt(this.getAttribute('data-page'), 10);
+                                        if (!isNaN(page)) {
+                                            loadAssets(page);
+                                        }
+                                    });
+                                });
+                            }
+                        }
+
+                        // Select Assets Button
+                        document.getElementById('selectAssetsBtn')?.addEventListener('click', function () {
+                            // Check for duplicate assets and deduplicate the array
+                            const uniqueAssetIds = [...new Set(selectedAssets.map(asset => asset.id))];
+                            if (uniqueAssetIds.length < selectedAssets.length) {
+
+                                const uniqueAssets = [];
+                                const seenIds = new Set();
+
+                                // Keep only the first occurrence of each asset
+                                selectedAssets.forEach(asset => {
+                                    if (!seenIds.has(asset.id)) {
+                                        uniqueAssets.push(asset);
+                                        seenIds.add(asset.id);
+                                    }
+                                });
+
+                                // Update the selectedAssets array
+                                selectedAssets = uniqueAssets;
+                            }
+
+                            // Close the asset selection modal
+                            closeModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
+
+                            // Update the selected assets table with pagination
+                            updateSelectedAssetsList();
+                        });
+
+                        // Update the selected assets table
+                        function updateSelectedAssetsTable() {
+                            if (selectedAssets.length === 0) {
+                                document.getElementById('selectedAssetsList').innerHTML = `
+                                          <tr>
+                                              <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia</td>
+                                          </tr>
+                                      `;
+                                return;
+                            }
+
+                            let html = '';
+                            selectedAssets.forEach((asset, index) => {
+                                // Get asset name - using either the direct property or the one in asset_master
+                                const assetName = asset.asset_name ||
+                                    (asset.asset_master && asset.asset_master.asset_name) ||
+                                    '-';
+
+                                // Get category name - check both properties
+                                const categoryName = asset.category_name ||
+                                    (asset.asset_master && asset.asset_master.subcategory_name) ||
+                                    '-';
+
+                                html += `
+                                          <tr>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                  <div class="flex flex-col">
+                                                      <span class="font-medium">${assetName}</span>
+                                                  </div>
+                                              </td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                  <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
+                                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                      </svg>
+                                                  </button>
+                                              </td>
+                                          </tr>
+                                      `;
+                            });
+
+                            document.getElementById('selectedAssetsList').innerHTML = html;
+                        }
+
+                        // Handle selected assets per page change
+                        document.getElementById('selectedAssetsPerPage')?.addEventListener('change', function () {
+                            // Reset to page 1 when changing items per page
+                            const selectedAssetsList = document.getElementById('selectedAssetsList');
+                            if (selectedAssetsList) {
+                                selectedAssetsList.setAttribute('data-current-page', '1');
+                                updateSelectedAssetsList();
+                            }
+                        });
+
+                        // Make removeSelectedAsset available globally to be called from onclick
+                        window.removeSelectedAsset = function (assetId) {
+                            selectedAssets = selectedAssets.filter(asset => asset.id !== assetId);
+
+                            // If removing an asset might make the current page empty, check if we need to go to previous page
+                            const selectedAssetsList = document.getElementById('selectedAssetsList');
+                            const perPage = parseInt(document.getElementById('selectedAssetsPerPage').value, 10) || 5;
+                            const currentPage = parseInt(selectedAssetsList.getAttribute('data-current-page') || '1', 10);
+                            const newTotalPages = Math.ceil(selectedAssets.length / perPage);
+
+                            // If current page would be empty after removal, go to previous page
+                            if (currentPage > newTotalPages && newTotalPages > 0) {
+                                selectedAssetsList.setAttribute('data-current-page', newTotalPages);
+                            }
+
+                            updateSelectedAssetsList();
+                        }
+
+                        // Form submission
+                        document.getElementById('addCalibrationForm')?.addEventListener('submit', function (e) {
+                            e.preventDefault();
+
+                            if (selectedAssets.length === 0) {
+                                showToast('Silakan pilih minimal satu aset untuk kalibrasi.', 'error');
+                                return;
+                            }
+
+                            const planningDate = document.getElementById('planning_calibration_date').value;
+
+                            if (!planningDate) {
+                                showToast('Silakan pilih tanggal jadwal mulai.', 'error');
+                                return;
+                            }
+
+                            // Clear console and log what we're sending
+                            console.clear();
+
+                            // Ensure we have no duplicates in our selectedAssets array
+                            const uniqueAssetIds = [...new Set(selectedAssets.map(asset => asset.asset_id))];
+
+                            // If we detected duplicates, deduplicate the selectedAssets array
+                            if (uniqueAssetIds.length < selectedAssets.length) {
+                                const uniqueAssets = [];
+                                const seenIds = new Set();
+
+                                // Keep only the first occurrence of each asset
+                                selectedAssets.forEach(asset => {
+                                    if (!seenIds.has(asset.asset_id)) {
+                                        uniqueAssets.push(asset);
+                                        seenIds.add(asset.asset_id);
+                                    }
+                                });
+
+                                // Update the selectedAssets array
+                                selectedAssets = uniqueAssets;
+                                updateSelectedAssetsTable();
+
+                                // Show a notification that we removed duplicates
+                                showToast('Aset duplikat telah terdeteksi dan dihapus.', 'success');
+                            }
+
+                            // Prepare data for submission with unique IDs
+                            const formData = {
+                                asset_ids: uniqueAssetIds,
+                                planning_calibration_date: planningDate
+                            };
+
+                            // Send the request
+                            fetch('{{ route('calibrations.bulk.create') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify(formData)
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        return response.json().then(data => {
+                                            throw data; // Throw the response data for handling in the catch block
+                                        });
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        // Close the modal
+                                        closeModal(document.getElementById('addCalibrationModal'), document.getElementById('addCalibrationModalContent'));
+                                        showToast(data.message || 'Kalibrasi berhasil dibuat', 'success');
+                                        setTimeout(() => {
+                                            window.location.href = "{{ route('calibration') }}";
+                                        }, 1000);
+                                    } else {
+                                        // Show error message from server
+                                        showToast(data.message || data.error || 'Gagal membuat kalibrasi', 'error');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error creating calibrations:', error);
+                                    if (typeof error === 'object' && error !== null) {
+                                        // Extract just the error message
+                                        if (error.errors) {
+                                            // Case: {errors: "Duplikasi kode tugas kalibrasi tidak diizinkan"}
+                                            if (typeof error.errors === 'string') {
+                                                showToast(error.errors, 'error');
+                                            }
+                                            // Case: {errors: {field1: ["Error 1", "Error 2"], field2: "Error 3"}}
+                                            else if (typeof error.errors === 'object') {
+                                                const errorMessages = [];
+                                                Object.keys(error.errors).forEach(key => {
+                                                    const value = error.errors[key];
+                                                    if (Array.isArray(value)) {
+                                                        errorMessages.push(...value);
+                                                    } else {
+                                                        errorMessages.push(value);
+                                                    }
+                                                });
+                                                showToast(errorMessages.join(', '), 'error');
+                                            }
+                                        } else if (error.message) {
+                                            showToast(error.message, 'error');
+                                        } else {
+                                            showToast('Terjadi kesalahan saat membuat kalibrasi.', 'error');
+                                        }
+                                    } else {
+                                        showToast('Terjadi kesalahan saat membuat kalibrasi.', 'error');
+                                    }
+                                });
+                        });
+
+                        // Per page selection
+                        document.getElementById('assetPerPageSelect')?.addEventListener('change', function () {
+                            loadAssets(1);
+                        });
+
+                        function debounce(func, wait) {
+                            let timeout;
+                            return function () {
+                                const context = this;
+                                const args = arguments;
+                                clearTimeout(timeout);
+                                timeout = setTimeout(() => {
+                                    func.apply(context, args);
+                                }, wait);
+                            };
+                        }
+
+                        // Vendor search functionality with debounce
+                        let allVendors = []; // Store all vendors for client-side filtering
+                        const vendorSearchInput = document.getElementById('vendor_search');
+                        const vendorIdInput = document.getElementById('vendor_id');
+                        const vendorResults = document.getElementById('vendor_results');
+
+                        // Initial load of vendors
+                        loadAllVendors();
+
+                        // Handle Edit Schedule Button click events
+                        document.querySelectorAll('.edit-schedule-btn').forEach(button => {
+                            button.addEventListener('click', function () {
+                                const calibrationId = this.getAttribute('data-id');
+                                const assetName = this.getAttribute('data-asset-name');
+                                const assetCode = this.getAttribute('data-asset-code');
+
+                                // Set values in the edit schedule modal
+                                document.getElementById('edit_schedule_calibration_id').value = calibrationId;
+                                document.getElementById('edit_schedule_asset_name').textContent = assetName;
+                                document.getElementById('edit_schedule_asset_code').textContent = assetCode;
+
+                                // Get today's date in ISO format (YYYY-MM-DD)
+                                const today = new Date().toISOString().split('T')[0];
+
+                                // Get the planning date input
+                                const planningDateInput = document.getElementById('edit_planning_calibration_date');
+
+                                // Set min date for the planning date input dynamically
+                                planningDateInput.setAttribute('min', today);
+
+                                // Reset any previous error messages
+                                const errorMessage = document.querySelector('#editScheduleModal .error-message');
+                                const dateErrorMessage = document.querySelector('#editScheduleModal .date-error-message');
+                                if (errorMessage) errorMessage.classList.add('hidden');
+                                if (dateErrorMessage) dateErrorMessage.classList.add('hidden');
+
+                                // Reset validation state
+                                planningDateInput.classList.remove('border-red-500');
+
+                                // Fetch current planning date from API
+                                fetch(`/calibrations/${calibrationId}`, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error(`Server responded with status: ${response.status}`);
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        if (data.success && data.data) {
+                                            const calibration = data.data;
+
+                                            // Set the planning date in the input field
+                                            if (calibration.planning_calibration_date) {
+                                                // Compare dates and ensure we don't set a date in the past
+                                                if (calibration.planning_calibration_date >= today) {
+                                                    planningDateInput.value = calibration.planning_calibration_date;
+                                                } else {
+                                                    // If date is in the past, set to today
+                                                    planningDateInput.value = today;
+                                                }
+                                            } else {
+                                                // If no planning date exists, set to today as default
+                                                planningDateInput.value = today;
+                                            }
+                                        } else {
+                                            // Handle unsuccessful response
+                                            console.error('Failed to get calibration data:', data);
+                                            planningDateInput.value = today;
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error fetching calibration data:', error);
+                                        // Set today's date as fallback
+                                        planningDateInput.value = today;
+                                        showToast(`Error loading calibration data: ${error.message}`, 'error');
+                                    });
+
+                                // Open the edit schedule modal
+                                openModal(document.getElementById('editScheduleModal'), document.getElementById('editScheduleModalContent'));
+                            });
+                        });
+
+                        // Handle Edit Schedule Form submission
+                        document.getElementById('editScheduleForm')?.addEventListener('submit', function (e) {
+                            e.preventDefault();
+
+                            // Validate form
+                            const planningDateInput = document.getElementById('edit_planning_calibration_date');
+                            const errorMessage = planningDateInput.closest('.space-y-2').querySelector('.error-message');
+                            const dateErrorMessage = planningDateInput.closest('.space-y-2').querySelector('.date-error-message');
+
+                            // Reset validation state
+                            planningDateInput.classList.remove('border-red-500');
+                            errorMessage.classList.add('hidden');
+                            dateErrorMessage.classList.add('hidden');
+
+                            // Check if planning date is provided
+                            if (!planningDateInput.value.trim()) {
+                                planningDateInput.classList.add('border-red-500');
+                                errorMessage.classList.remove('hidden');
+                                return;
+                            }
+
+                            // Validate that date is not before today
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0); // Reset time to start of day
+                            const selectedDate = new Date(planningDateInput.value);
+                            selectedDate.setHours(0, 0, 0, 0); // Reset time to start of day
+
+                            if (selectedDate < today) {
+                                planningDateInput.classList.add('border-red-500');
+                                dateErrorMessage.classList.remove('hidden');
+                                return;
+                            }
+
+                            // Get form data
+                            const calibrationId = document.getElementById('edit_schedule_calibration_id').value;
+                            const planningDate = planningDateInput.value;
+
+                            // Disable the submit button to prevent multiple submissions
+                            const submitBtn = this.querySelector('button[type="submit"]');
+                            const originalBtnText = submitBtn.innerHTML;
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = `
+                                      <div class="flex items-center justify-center">
+                                          <div class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent mr-2"></div>
+                                          <span>Memproses...</span>
+                                      </div>
+                                  `;
+
+                            // Send request to update schedule
+                            fetch(`/calibrations/schedule/${calibrationId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    planning_calibration_date: planningDate
+                                })
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    // Re-enable the submit button
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerHTML = originalBtnText;
+
+                                    if (data.success) {
+                                        // Close the modal
+                                        closeModal(document.getElementById('editScheduleModal'), document.getElementById('editScheduleModalContent'));
+
+                                        // Show success toast
+                                        showToast(data.message || 'Jadwal kalibrasi berhasil diperbarui', 'success');
+
+                                        // Reload the page after a short delay
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 1000);
+                                    } else {
+                                        // Show error toast
+                                        showToast(data.message || data.error || 'Gagal memperbarui jadwal kalibrasi', 'error');
+                                    }
+                                })
+                                .catch(error => {
+                                    // Re-enable the submit button
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerHTML = originalBtnText;
+
+                                    console.error('Error updating calibration schedule:', error);
+                                    showToast('Terjadi kesalahan saat memperbarui jadwal kalibrasi', 'error');
+                                });
+                        });
+
+                        // Add input event listener for the planning date to clear validation errors
+                        document.getElementById('edit_planning_calibration_date')?.addEventListener('input', function () {
+                            this.classList.remove('border-red-500');
+                            const errorMessage = this.closest('.space-y-2').querySelector('.error-message');
+                            const dateErrorMessage = this.closest('.space-y-2').querySelector('.date-error-message');
+                            if (errorMessage) errorMessage.classList.add('hidden');
+                            if (dateErrorMessage) dateErrorMessage.classList.add('hidden');
+
+                            // Revalidate date on input change
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            const selectedDate = new Date(this.value);
+                            selectedDate.setHours(0, 0, 0, 0);
+
+                            if (selectedDate < today) {
+                                this.classList.add('border-red-500');
+                                dateErrorMessage.classList.remove('hidden');
+                            }
+                        });
+
+                        // Show/hide vendor results
+                        vendorSearchInput?.addEventListener('focus', function () {
+                            filterAndDisplayVendors(this.value.trim());
+                            vendorResults.style.display = 'block';
+                        });
+
+                        // Hide vendor results when clicking outside
+                        document.addEventListener('click', function (e) {
+                            if (e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
+                                vendorResults.style.display = 'none';
+                            }
+                        });
+
+                        // Search vendors with debounce
+                        vendorSearchInput?.addEventListener('input', debounce(function () {
+                            const searchTerm = this.value.trim();
+                            filterAndDisplayVendors(searchTerm);
+                        }, 300));
+
+                        // Load all vendors
+                        function loadAllVendors() {
+                            vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+                            vendorResults.style.display = 'block';
+
+                            // First try to get from localStorage to avoid delay
+                            const cachedVendors = localStorage.getItem('allVendors');
+                            if (cachedVendors) {
+                                try {
+                                    allVendors = JSON.parse(cachedVendors);
+
+                                    // Still load fresh data in the background
+                                    fetchAllVendors();
+
+                                    return; // Exit early with cached data
+                                } catch (e) {
+                                    console.error('Error parsing cached vendors:', e);
+                                }
+                            }
+
+                            // If no cache, fetch from API
+                            fetchAllVendors();
+                        }
+
+                        // Fetch all vendors with pagination
+                        function fetchAllVendors() {
+                            let page = 1;
+                            allVendors = []; // Reset array
+
+                            function fetchPage(page) {
+                                if (page === 1) {
+                                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+                                } else {
+                                    // Update loading message for subsequent pages
+                                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors (page ' + page + ')...</div>';
+                                }
+
+                                fetch(`/vendor?json=true&page=${page}&limit=100`, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error(`Server merespon dengan status: ${response.status}`);
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        let vendors = [];
+                                        let pagination = null;
+
+                                        // Handle different response formats
+                                        if (Array.isArray(data)) {
+                                            vendors = data;
+                                        } else if (data.vendors && Array.isArray(data.vendors)) {
+                                            vendors = data.vendors;
+                                            pagination = data.pagination;
+                                        } else if (data.data && Array.isArray(data.data)) {
+                                            vendors = data.data;
+                                            pagination = data.pagination;
+                                        }
+
+                                        // Add to our collection
+                                        allVendors = [...allVendors, ...vendors];
+
+                                        // Check if there are more pages
+                                        const hasNextPage = pagination && pagination.has_next;
+
+                                        if (hasNextPage) {
+                                            // Fetch next page
+                                            fetchPage(page + 1);
+                                        } else {
+                                            // Cache for future use
+                                            try {
+                                                localStorage.setItem('allVendors', JSON.stringify(allVendors));
+                                            } catch (e) {
+                                                console.error('Error caching vendors:', e);
+                                            }
+
+                                            // If the input has a value, filter and display
+                                            if (vendorSearchInput && vendorSearchInput.value.trim()) {
+                                                filterAndDisplayVendors(vendorSearchInput.value.trim());
+                                            } else {
+                                                vendorResults.style.display = 'none';
+                                            }
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error(`Error fetching vendors page ${page}:`, error);
+                                        vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
+
+                                        // If we got some vendors, still show them
+                                        if (allVendors.length > 0) {
+                                            filterAndDisplayVendors(vendorSearchInput?.value.trim() || '');
+                                        }
+
+                                        // Show toast notification with error details
+                                        if (typeof error === 'object' && error !== null) {
+                                            showToast(error, 'error');
+                                        } else {
+                                            showToast('Gagal memuat vendor: ' + error.message, 'error');
+                                        }
+                                    });
+                            }
+
+                            // Start fetching from page 1
+                            fetchPage(page);
+                        }
+
+                        // Filter and display vendors based on search term
+                        function filterAndDisplayVendors(searchTerm) {
+                            // Make sure dropdown is visible
+                            vendorResults.style.display = 'block';
+
+                            // Show loading message during search
+                            if (searchTerm && searchTerm.length > 0) {
+                                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Mencari vendor...</div>';
+                            }
+
+                            // If we have no vendors yet
+                            if (allVendors.length === 0) {
+                                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
+                                return;
+                            }
+
+                            // Filter vendors
+                            let filteredVendors = allVendors;
+                            if (searchTerm) {
+                                const term = searchTerm.toLowerCase();
+                                filteredVendors = allVendors.filter(vendor =>
+                                    vendor.vendor_name?.toLowerCase().includes(term)
+                                );
+                            }
+
+                            // Sort by relevance if we have a search term
+                            if (searchTerm) {
+                                filteredVendors.sort((a, b) => {
+                                    // Exact matches first
+                                    if (a.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return -1;
+                                    if (b.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return 1;
+
+                                    // Then starts-with matches
+                                    const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
+                                    const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
+                                    if (aStarts && !bStarts) return -1;
+                                    if (bStarts && !aStarts) return 1;
+
+                                    // Then alphabetical
+                                    return a.vendor_name.localeCompare(b.vendor_name);
+                                });
+                            }
+
+                            // Limit to first 20 for performance
+                            const displayVendors = filteredVendors.slice(0, 20);
+
+                            // Update DOM with animation delay
+                            vendorResults.innerHTML = '';
+
+                            if (displayVendors.length === 0) {
+                                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">No vendors found</div>';
+                                return;
+                            }
+
+                            // Add vendor items with staggered animation
+                            displayVendors.forEach((vendor, index) => {
+                                const div = document.createElement('div');
+                                div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
+                                div.textContent = vendor.vendor_name;
+                                div.setAttribute('data-id', vendor.vendor_id);
+                                div.style.animationDelay = `${index * 30}ms`; // Staggered animation
+
+                                div.addEventListener('click', function () {
+                                    vendorIdInput.value = this.getAttribute('data-id');
+                                    vendorSearchInput.value = this.textContent;
+                                    vendorResults.style.display = 'none';
+                                });
+
+                                vendorResults.appendChild(div);
+                            });
+
+                            // Show count if limited
+                            if (filteredVendors.length > 20) {
+                                const countDiv = document.createElement('div');
+                                countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
+                                countDiv.textContent = `Showing 20 of ${filteredVendors.length} vendors`;
+                                vendorResults.appendChild(countDiv);
+                            }
+                        }
+                        // Export PDF functionality
+                        document.getElementById('exportBtn')?.addEventListener('click', () => {
+                            // Get current URL parameters
+                            const url = new URL(window.location.href);
+                            const searchParams = url.searchParams;
+
+                            // Create the PDF export URL with the same parameters
+                            const exportUrl = "{{ route('calibrations.export.pdf') }}?" + searchParams.toString();
+
+                            // Redirect to the export URL
+                            window.open(exportUrl, '_blank');
+                        });
+
+                        // Function to update the selected assets table
+                        function updateSelectedAssetsList() {
+                            const selectedAssetsList = document.getElementById('selectedAssetsList');
+
+                            if (selectedAssets.length === 0) {
+                                document.getElementById('selectedAssetsList').innerHTML = `
+                                          <tr>
+                                              <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia</td>
+                                          </tr>
+                                      `;
+
+                                // Reset pagination
+                                const paginationContainer = document.getElementById('selectedAssetsPagination');
+                                if (paginationContainer) {
+                                    paginationContainer.innerHTML = '';
+                                }
+
+                                const infoContainer = document.getElementById('selectedAssetsInfo');
+                                if (infoContainer) {
+                                    infoContainer.textContent = 'Menampilkan 0 sampai 0 dari 0 data';
+                                }
+
+                                return;
+                            }
+
+                            // Get current page and per page settings
+                            const perPage = parseInt(document.getElementById('selectedAssetsPerPage').value, 10) || 5;
+                            const currentPage = parseInt(selectedAssetsList.getAttribute('data-current-page') || '1', 10);
+                            const totalPages = Math.ceil(selectedAssets.length / perPage);
+
+                            // Calculate indices for current page
+                            const startIndex = (currentPage - 1) * perPage;
+                            const endIndex = Math.min(startIndex + perPage, selectedAssets.length);
+
+                            // Generate table rows for current page
+                            let html = '';
+                            for (let i = startIndex; i < endIndex; i++) {
+                                const asset = selectedAssets[i];
+                                html += `
+                                          <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${i + 1}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                  <div class="flex flex-col">
+                                                      <span class="font-medium">${asset.asset_name || '-'}</span>
+                                                  </div>
+                                              </td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.category_name || '-'}</td>
+                                              <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                  <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
+                                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                      </svg>
+                                                  </button>
+                                              </td>
+                                          </tr>
+                                      `;
+                            }
+
+                            // Store current page in the table element
+                            selectedAssetsList.setAttribute('data-current-page', currentPage);
+                            selectedAssetsList.innerHTML = html;
+
+                            // Update pagination controls
+                            updateSelectedAssetsPagination(currentPage, totalPages, selectedAssets.length);
+                        }
+
+                        // Function to update pagination for selected assets
+                        function updateSelectedAssetsPagination(currentPage, totalPages, totalItems) {
+                            const perPage = parseInt(document.getElementById('selectedAssetsPerPage').value, 10) || 5;
+                            const paginationContainer = document.getElementById('selectedAssetsPagination');
+                            const infoContainer = document.getElementById('selectedAssetsInfo');
+
+                            if (!paginationContainer || !infoContainer) return;
+
+                            // Calculate from and to numbers
+                            const from = totalItems === 0 ? 0 : (currentPage - 1) * perPage + 1;
+                            const to = Math.min(currentPage * perPage, totalItems);
+
+                            // Update info text
+                            infoContainer.textContent = `Menampilkan ${from} sampai ${to} dari ${totalItems} data`;
+
+                            // Generate pagination controls
+                            let html = '';
+
+                            // Only show pagination if there are multiple pages
+                            if (totalPages <= 1) {
+                                paginationContainer.innerHTML = '';
+                                return;
+                            }
+
+                            // Previous button
+                            html += `
+                                      <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                                         ${currentPage > 1 ? 'data-page="' + (currentPage - 1) + '"' : ''}>
+                                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                          </svg>
+                                          Sebelumnya
+                                      </a>
+                                  `;
+
+                            // Page numbers
+                            html += '<div class="flex gap-2">';
+
+                            const maxPagesShown = 3;
+                            let startPage = Math.max(1, currentPage - 1);
+                            let endPage = Math.min(totalPages, startPage + maxPagesShown - 1);
+
+                            if (endPage - startPage + 1 < maxPagesShown) {
+                                startPage = Math.max(1, endPage - maxPagesShown + 1);
+                            }
+
+                            if (startPage > 1) {
+                                html += `
+                                          <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                             data-page="1">1</a>
+                                      `;
+
+                                if (startPage > 2) {
+                                    html += '<span class="flex items-center justify-center">...</span>';
+                                }
+                            }
+
+                            for (let i = startPage; i <= endPage; i++) {
+                                html += `
+                                          <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
+                                             data-page="${i}">${i}</a>
+                                      `;
+                            }
+
+                            if (endPage < totalPages) {
+                                if (endPage < totalPages - 1) {
+                                    html += '<span class="flex items-center justify-center">...</span>';
+                                }
+
+                                html += `
+                                          <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                              data-page="${totalPages}">${totalPages}</a>
+                                      `;
+                            }
+
+                            html += '</div>';
+
+                            // Next button
+                            html += `
+                                      <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
+                                         ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
+                                          Selanjutnya
+                                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                          </svg>
+                                      </a>
+                                  `;
+
+                            paginationContainer.innerHTML = html;
+
+                            // Add event listeners to pagination links
+                            paginationContainer.querySelectorAll('a[data-page]').forEach(link => {
+                                link.addEventListener('click', function (e) {
+                                    e.preventDefault();
+                                    const page = parseInt(this.getAttribute('data-page'), 10);
+                                    if (!isNaN(page)) {
+                                        changeSelectedAssetsPage(page);
+                                    }
+                                });
                             });
                         }
 
-                        console.log('Found ' + assetsWithActiveSchedules.size + ' assets with active calibration schedules');
-
-                        // Filter assets to only show those without active schedules
-                        const filteredAssets = assets.filter(asset => !assetsWithActiveSchedules.has(asset.asset_id));
-
-                        if (filteredAssets.length === 0) {
-                            document.getElementById('assetSelectionList').innerHTML = `
-                                <tr>
-                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                        Tidak ditemukan aset yang memerlukan kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diatur sebagai benar dan
-                                        tanpa jadwal kalibrasi aktif yang akan muncul dalam daftar ini.
-                                    </td>
-                                </tr>
-                            `;
-                            // Still setup pagination with zero data to ensure UI consistency
-                            const limit = document.getElementById('assetPerPageSelect').value;
-                            const paginationData = data.success ? data.pagination : data.assets_pagination;
-                            if (paginationData) {
-                                // Create pagination with zero items
-                                const zeroPagination = {
-                                    ...paginationData,
-                                    current_page: 1,
-                                    total_items: 0,
-                                    total_pages: 1
-                                };
-                                setupAssetPagination(zeroPagination);
+                        // Function to change page for selected assets
+                        function changeSelectedAssetsPage(page) {
+                            const selectedAssetsList = document.getElementById('selectedAssetsList');
+                            if (selectedAssetsList) {
+                                selectedAssetsList.setAttribute('data-current-page', page);
+                                updateSelectedAssetsList();
                             }
-                            return;
                         }
-
-                        // Create a modified data object that preserves the original total but with filtered assets
-                        const modifiedData = {
-                            ...data,
-                            pagination: {
-                                ...(data.success ? data.pagination : data.assets_pagination),
-                                total_items: data.success && data.pagination ? data.pagination.total_items :
-                                            (data.assets_pagination ? data.assets_pagination.total_items : filteredAssets.length),
-                                total: data.success && data.pagination ? data.pagination.total :
-                                      (data.assets_pagination ? data.assets_pagination.total : filteredAssets.length)
-                            }
-                        };
-
-                        // Render filtered assets with modified data
-                        renderAssets(filteredAssets, modifiedData);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching calibration data:', error);
-
-                          // Show error notification with detailed error information
-                          let errorMessage = 'Error fetching calibration data: ' + error.message;
-                          showErrorNotification(errorMessage);
-
-                          // Fallback to just showing the assets without filtering
-                          renderAssets(assets, data);
-                      });
-                  })
-                  .catch(error => {
-                      console.error('Error loading assets:', error);
-                      document.getElementById('assetSelectionList').innerHTML = `
-                          <tr>
-                              <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
-                                  Gagal memuat aset yang memerlukan kalibrasi. Silakan coba lagi atau hubungi dukungan jika masalah tetap berlanjut.
-                              </td>
-                          </tr>
-                      `;
-
-                      // Show error notification
-                      showToast('Gagal memuat aset: ' + error.message, 'error');
-                  });
-              }
-
-              // Add this function to show error notifications similar to UnitAsset.blade.php
-              function showErrorNotification(message) {
-                  // Just use the enhanced showToast function
-                  showToast(message, 'error');
-              }
-
-              // Helper function to render assets with or without filtering
-              function renderAssets(assets, data) {
-                  if (!assets || assets.length === 0) {
-                      document.getElementById('assetSelectionList').innerHTML = `
-                          <tr>
-                              <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                  Tidak ditemukan aset yang perlu kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diaktifkan yang akan muncul dalam daftar ini.
-                              </td>
-                          </tr>
-                      `;
-                      return;
-                  }
-
-                  let html = '';
-                  assets.forEach(asset => {
-                      const isSelected = selectedAssets.some(selectedAsset => selectedAsset.asset_id === asset.asset_id);
-
-                      // Get asset name - check both direct property and nested structure
-                      const assetName = asset.asset_master_name ||
-                                     (asset.asset_master && asset.asset_master.asset_name) ||
-                                     '-';
-
-                      // Get asset code
-                      const assetCode = asset.asset_code || '-';
-
-                      // Get asset type based on asset_master_code pattern
-                      let assetType = 'Non Medis';
-                      if (asset.asset_master && asset.asset_master.asset_master_code) {
-                          const code = asset.asset_master.asset_master_code;
-                          if (code.startsWith('MED-')) {
-                              assetType = 'Medis';
-                          }
-                      }
-
-                      // Get category name from asset_master if it exists
-                      const categoryName = asset.asset_master && asset.asset_master.subcategory_name ?
-                                          asset.asset_master.subcategory_name : '-';
-
-                      // Get description
-                      const description = asset.description || '-';
-
-                      html += `
-                          <tr>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                  <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}"
-                                      data-id="${asset.asset_id}"
-                                      data-code="${assetCode}"
-                                      data-name="${assetName}"
-                                      data-description="${description}"
-                                      data-type="${assetType}"
-                                      data-category="${categoryName}"
-                                      ${isSelected ? 'checked' : ''}>
-                              </td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetCode}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                  <div class="flex flex-col">
-                                      <span class="font-medium">${assetName}</span>
-                                  </div>
-                              </td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${description}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetType}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
-                          </tr>
-                      `;
-                  });
-
-                  document.getElementById('assetSelectionList').innerHTML = html;
-
-                  // Setup pagination and event handlers
-                  if (data) {
-                      const limit = parseInt(document.getElementById('assetPerPageSelect').value, 10) || 10;
-                      const paginationData = data.success ? data.pagination : data.assets_pagination;
-                      if (paginationData) {
-                          // Get the total items from the server response, not the filtered assets
-                          const serverTotalItems = paginationData.total_items || paginationData.total || 0;
-
-                          // For debugging
-                          console.log('Pagination data:', {
-                              serverTotalItems,
-                              filteredAssetsCount: assets.length,
-                              currentPage: paginationData.current_page || 1,
-                              limit
-                          });
-
-                          // Use the server's total_items for pagination, not the filtered count
-                          const updatedPagination = {
-                              ...paginationData,
-                              total_items: serverTotalItems,
-                              total_pages: Math.max(1, Math.ceil(serverTotalItems / limit)),
-                              // Make sure we don't exceed the total pages
-                              current_page: Math.min(
-                                  paginationData.current_page || 1,
-                                  Math.max(1, Math.ceil(serverTotalItems / limit))
-                              )
-                          };
-
-                          // Log the updated pagination
-                          console.log('Updated pagination:', updatedPagination);
-
-                          // Set up the pagination with the correct total
-                          setupAssetPagination(updatedPagination);
-                      }
-                  }
-                  attachCheckboxHandlers();
-              }
-
-              // Handle this separate function to handle checkbox events
-              function attachCheckboxHandlers() {
-                  const checkboxes = document.querySelectorAll('.asset-checkbox');
-
-                  // First remove any existing event listeners
-                  checkboxes.forEach(checkbox => {
-                      const newCheckbox = checkbox.cloneNode(true);
-                      checkbox.parentNode.replaceChild(newCheckbox, checkbox);
-                  });
-
-                  // Now add fresh event listeners
-                  document.querySelectorAll('.asset-checkbox').forEach(checkbox => {
-                      checkbox.onclick = function () {
-                          const assetId = parseInt(this.getAttribute('data-id'));
-
-                          // Always remove the asset first to avoid any potential duplicates
-                          selectedAssets = selectedAssets.filter(asset => asset.id !== assetId);
-
-                          // Then add it back if checked
-                          if (this.checked) {
-                              const assetName = this.getAttribute('data-name');
-                              const assetCode = this.getAttribute('data-code');
-                              const description = this.getAttribute('data-description');
-                              const assetType = this.getAttribute('data-type');
-                              const categoryName = this.getAttribute('data-category');
-
-                              selectedAssets.push({
-                                  id: assetId,
-                                  asset_id: assetId,
-                                  asset_name: assetName,
-                                  asset_code: assetCode,
-                                  description: description,
-                                  asset_type: assetType,
-                                  category_name: categoryName,
-                                  // Add asset_master structure for compatibility with UnitAsset.blade.php
-                                  asset_master: {
-                                      asset_name: assetName,
-                                      asset_master_code: assetType === 'Medical' ? 'MED-' : 'NMED-',
-                                      subcategory_name: categoryName
-                                  }
-                              });
-                          }
-
-                          updateSelectedAssetsList();
-                      };
-                  });
-
-                  // Handle Select All checkbox
-                  const selectAllCheckbox = document.getElementById('selectAllAssets');
-                  if (selectAllCheckbox) {
-                      const newSelectAll = selectAllCheckbox.cloneNode(true);
-                      selectAllCheckbox.parentNode.replaceChild(newSelectAll, selectAllCheckbox);
-
-                      document.getElementById('selectAllAssets').onclick = function () {
-                          const checkboxes = document.querySelectorAll('.asset-checkbox');
-                          checkboxes.forEach(checkbox => {
-                              checkbox.checked = this.checked;
-
-                              // Manually trigger the checkbox's onclick event
-                              if (checkbox.onclick) checkbox.onclick();
-                          });
-                      };
-                  }
-              }
-
-              // Setup asset pagination
-              function setupAssetPagination(pagination) {
-                  if (!pagination) return;
-
-                  const paginationInfo = document.getElementById('assetPaginationInfo');
-                  const paginationControls = document.getElementById('assetPaginationControls');
-
-                  // Handle different pagination data structures
-                  const currentPage = pagination.current_page || 1;
-                  const totalPages = pagination.total_pages || pagination.last_page || 1;
-                  const totalItems = pagination.total_items || pagination.total || 0;
-                  const limit = pagination.limit || pagination.per_page || 10;
-                  const from = pagination.from || ((currentPage - 1) * limit + 1);
-                  const to = pagination.to || Math.min(currentPage * limit, totalItems);
-
-                  // Update pagination info
-                  if (paginationInfo) {
-                      paginationInfo.textContent = `Menampilkan ${from} sampai ${to} dari ${totalItems} data`;
-                  }
-
-                  // Generate pagination controls
-                  let controlsHtml = '';
-
-                  // Previous button
-                  controlsHtml += `
-                      <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
-                         ${currentPage > 1 ? 'data-page="' + (currentPage - 1) + '"' : ''}>
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                          </svg>
-                          Sebelumnya
-                      </a>
-                  `;
-
-                  // Only show pagination if there are items
-                  if (totalItems > 0) {
-                      // Page numbers
-                      controlsHtml += '<div class="flex gap-2">';
-
-                      const maxPagesShown = 5;
-                      let startPage = Math.max(1, currentPage - 2);
-                      let endPage = Math.min(totalPages, startPage + maxPagesShown - 1);
-
-                      if (endPage - startPage + 1 < maxPagesShown) {
-                          startPage = Math.max(1, endPage - maxPagesShown + 1);
-                      }
-
-                      if (startPage > 1) {
-                          controlsHtml += `
-                              <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
-                                  data-page="1">1</a>
-                          `;
-
-                          if (startPage > 2) {
-                              controlsHtml += '<span class="flex items-center justify-center">...</span>';
-                          }
-                      }
-
-                      for (let i = startPage; i <= endPage; i++) {
-                          controlsHtml += `
-                              <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
-                                 data-page="${i}">${i}</a>
-                          `;
-                      }
-
-                      if (endPage < totalPages) {
-                          if (endPage < totalPages - 1) {
-                              controlsHtml += '<span class="flex items-center justify-center">...</span>';
-                          }
-
-                          controlsHtml += `
-                              <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
-                                  data-page="${totalPages}">${totalPages}</a>
-                          `;
-                      }
-
-                      controlsHtml += '</div>';
-                  }
-
-                  // Next button
-                  controlsHtml += `
-                      <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
-                         ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
-                          Selanjutnya
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                          </svg>
-                      </a>
-                  `;
-
-                  if (paginationControls) {
-                      paginationControls.innerHTML = controlsHtml;
-
-                      // Add event listeners to pagination links
-                      paginationControls.querySelectorAll('a[data-page]').forEach(link => {
-                          link.addEventListener('click', function(e) {
-                              e.preventDefault();
-                              const page = parseInt(this.getAttribute('data-page'), 10);
-                              if (!isNaN(page)) {
-                                  loadAssets(page);
-                              }
-                          });
-                      });
-                  }
-              }
-
-              // Select Assets Button
-              document.getElementById('selectAssetsBtn')?.addEventListener('click', function () {
-                  // Check for duplicate assets and deduplicate the array
-                  const uniqueAssetIds = [...new Set(selectedAssets.map(asset => asset.id))];
-                  if (uniqueAssetIds.length < selectedAssets.length) {
-
-                      const uniqueAssets = [];
-                      const seenIds = new Set();
-
-                      // Keep only the first occurrence of each asset
-                      selectedAssets.forEach(asset => {
-                          if (!seenIds.has(asset.id)) {
-                              uniqueAssets.push(asset);
-                              seenIds.add(asset.id);
-                          }
-                      });
-
-                      // Update the selectedAssets array
-                      selectedAssets = uniqueAssets;
-                  }
-
-                  // Close the asset selection modal
-                  closeModal(document.getElementById('assetSelectionModal'), document.getElementById('assetSelectionModalContent'));
-
-                  // Update the selected assets table with pagination
-                  updateSelectedAssetsList();
-              });
-
-              // Update the selected assets table
-              function updateSelectedAssetsTable() {
-                  if (selectedAssets.length === 0) {
-                      document.getElementById('selectedAssetsList').innerHTML = `
-                          <tr>
-                              <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia</td>
-                          </tr>
-                      `;
-                      return;
-                  }
-
-                  let html = '';
-                  selectedAssets.forEach((asset, index) => {
-                      // Get asset name - using either the direct property or the one in asset_master
-                      const assetName = asset.asset_name ||
-                                       (asset.asset_master && asset.asset_master.asset_name) ||
-                                       '-';
-
-                      // Get category name - check both properties
-                      const categoryName = asset.category_name ||
-                                          (asset.asset_master && asset.asset_master.subcategory_name) ||
-                                          '-';
-
-                      html += `
-                          <tr>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                  <div class="flex flex-col">
-                                      <span class="font-medium">${assetName}</span>
-                                  </div>
-                              </td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                  <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
-                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                      </svg>
-                                  </button>
-                              </td>
-                          </tr>
-                      `;
-                  });
-
-                  document.getElementById('selectedAssetsList').innerHTML = html;
-              }
-
-              // Handle selected assets per page change
-              document.getElementById('selectedAssetsPerPage')?.addEventListener('change', function() {
-                  // Reset to page 1 when changing items per page
-                  const selectedAssetsList = document.getElementById('selectedAssetsList');
-                  if (selectedAssetsList) {
-                      selectedAssetsList.setAttribute('data-current-page', '1');
-                      updateSelectedAssetsList();
-                  }
-              });
-
-              // Make removeSelectedAsset available globally to be called from onclick
-              window.removeSelectedAsset = function(assetId) {
-                  selectedAssets = selectedAssets.filter(asset => asset.id !== assetId);
-
-                  // If removing an asset might make the current page empty, check if we need to go to previous page
-                  const selectedAssetsList = document.getElementById('selectedAssetsList');
-                  const perPage = parseInt(document.getElementById('selectedAssetsPerPage').value, 10) || 5;
-                  const currentPage = parseInt(selectedAssetsList.getAttribute('data-current-page') || '1', 10);
-                  const newTotalPages = Math.ceil(selectedAssets.length / perPage);
-
-                  // If current page would be empty after removal, go to previous page
-                  if (currentPage > newTotalPages && newTotalPages > 0) {
-                      selectedAssetsList.setAttribute('data-current-page', newTotalPages);
-                  }
-
-                  updateSelectedAssetsList();
-              }
-
-              // Form submission
-              document.getElementById('addCalibrationForm')?.addEventListener('submit', function (e) {
-                  e.preventDefault();
-
-                  if (selectedAssets.length === 0) {
-                      showToast('Silakan pilih minimal satu aset untuk kalibrasi.', 'error');
-                      return;
-                  }
-
-                  const planningDate = document.getElementById('planning_calibration_date').value;
-
-                  if (!planningDate) {
-                      showToast('Silakan pilih tanggal jadwal mulai.', 'error');
-                      return;
-                  }
-
-                  // Clear console and log what we're sending
-                  console.clear();
-
-                  // Ensure we have no duplicates in our selectedAssets array
-                  const uniqueAssetIds = [...new Set(selectedAssets.map(asset => asset.asset_id))];
-
-                  // If we detected duplicates, deduplicate the selectedAssets array
-                  if (uniqueAssetIds.length < selectedAssets.length) {
-                      const uniqueAssets = [];
-                      const seenIds = new Set();
-
-                      // Keep only the first occurrence of each asset
-                      selectedAssets.forEach(asset => {
-                          if (!seenIds.has(asset.asset_id)) {
-                              uniqueAssets.push(asset);
-                              seenIds.add(asset.asset_id);
-                          }
-                      });
-
-                      // Update the selectedAssets array
-                      selectedAssets = uniqueAssets;
-                      updateSelectedAssetsTable();
-
-                      // Show a notification that we removed duplicates
-                      showToast('Aset duplikat telah terdeteksi dan dihapus.', 'success');
-                  }
-
-                  // Prepare data for submission with unique IDs
-                  const formData = {
-                      asset_ids: uniqueAssetIds,
-                      planning_calibration_date: planningDate
-                  };
-
-                  // Send the request
-                  fetch('{{ route('calibrations.bulk.create') }}', {
-                      method: 'POST',
-                      headers: {
-                          'Content-Type': 'application/json',
-                          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                          'Accept': 'application/json'
-                      },
-                      body: JSON.stringify(formData)
-                  })
-                  .then(response => {
-                      if (!response.ok) {
-                          return response.json().then(data => {
-                              throw data; // Throw the response data for handling in the catch block
-                          });
-                      }
-                      return response.json();
-                  })
-                  .then(data => {
-                      if (data.success) {
-                          // Close the modal
-                          closeModal(document.getElementById('addCalibrationModal'), document.getElementById('addCalibrationModalContent'));
-                          showToast(data.message || 'Kalibrasi berhasil dibuat', 'success');
-                          setTimeout(() => {
-                              window.location.href = "{{ route('calibration') }}";
-                          }, 1000);
-                      } else {
-                          // Show error message from server
-                          showToast(data.message || data.error || 'Gagal membuat kalibrasi', 'error');
-                      }
-                  })
-                  .catch(error => {
-                      console.error('Error creating calibrations:', error);
-                      if (typeof error === 'object' && error !== null) {
-                          // Extract just the error message
-                          if (error.errors) {
-                              // Case: {errors: "Duplikasi kode tugas kalibrasi tidak diizinkan"}
-                              if (typeof error.errors === 'string') {
-                                  showToast(error.errors, 'error');
-                              }
-                              // Case: {errors: {field1: ["Error 1", "Error 2"], field2: "Error 3"}}
-                              else if (typeof error.errors === 'object') {
-                                  const errorMessages = [];
-                                  Object.keys(error.errors).forEach(key => {
-                                      const value = error.errors[key];
-                                      if (Array.isArray(value)) {
-                                          errorMessages.push(...value);
-                                      } else {
-                                          errorMessages.push(value);
-                                      }
-                                  });
-                                  showToast(errorMessages.join(', '), 'error');
-                              }
-                          } else if (error.message) {
-                              showToast(error.message, 'error');
-                          } else {
-                              showToast('Terjadi kesalahan saat membuat kalibrasi.', 'error');
-                          }
-                      } else {
-                          showToast('Terjadi kesalahan saat membuat kalibrasi.', 'error');
-                      }
-                  });
-              });
-
-              // Per page selection
-              document.getElementById('assetPerPageSelect')?.addEventListener('change', function () {
-                  loadAssets(1);
-              });
-
-              function debounce(func, wait) {
-                  let timeout;
-                  return function () {
-                      const context = this;
-                      const args = arguments;
-                      clearTimeout(timeout);
-                      timeout = setTimeout(() => {
-                          func.apply(context, args);
-                      }, wait);
-                  };
-              }
-
-              // Vendor search functionality with debounce
-              let allVendors = []; // Store all vendors for client-side filtering
-              const vendorSearchInput = document.getElementById('vendor_search');
-              const vendorIdInput = document.getElementById('vendor_id');
-              const vendorResults = document.getElementById('vendor_results');
-
-              // Initial load of vendors
-              loadAllVendors();
-
-              // Handle Edit Schedule Button click events
-              document.querySelectorAll('.edit-schedule-btn').forEach(button => {
-                  button.addEventListener('click', function() {
-                      const calibrationId = this.getAttribute('data-id');
-                      const assetName = this.getAttribute('data-asset-name');
-                      const assetCode = this.getAttribute('data-asset-code');
-
-                      // Set values in the edit schedule modal
-                      document.getElementById('edit_schedule_calibration_id').value = calibrationId;
-                      document.getElementById('edit_schedule_asset_name').textContent = assetName;
-                      document.getElementById('edit_schedule_asset_code').textContent = assetCode;
-
-                      // Get today's date in ISO format (YYYY-MM-DD)
-                      const today = new Date().toISOString().split('T')[0];
-
-                      // Get the planning date input
-                      const planningDateInput = document.getElementById('edit_planning_calibration_date');
-
-                      // Set min date for the planning date input dynamically
-                      planningDateInput.setAttribute('min', today);
-
-                      // Reset any previous error messages
-                      const errorMessage = document.querySelector('#editScheduleModal .error-message');
-                      const dateErrorMessage = document.querySelector('#editScheduleModal .date-error-message');
-                      if (errorMessage) errorMessage.classList.add('hidden');
-                      if (dateErrorMessage) dateErrorMessage.classList.add('hidden');
-
-                      // Reset validation state
-                      planningDateInput.classList.remove('border-red-500');
-
-                      // Fetch current planning date from API
-                      fetch(`/calibrations/${calibrationId}`, {
-                          headers: {
-                              'Accept': 'application/json',
-                              'X-Requested-With': 'XMLHttpRequest'
-                          }
-                      })
-                      .then(response => {
-                          if (!response.ok) {
-                              throw new Error(`Server responded with status: ${response.status}`);
-                          }
-                          return response.json();
-                      })
-                      .then(data => {
-                          if (data.success && data.data) {
-                              const calibration = data.data;
-
-                              // Set the planning date in the input field
-                              if (calibration.planning_calibration_date) {
-                                  // Compare dates and ensure we don't set a date in the past
-                                  if (calibration.planning_calibration_date >= today) {
-                                      planningDateInput.value = calibration.planning_calibration_date;
-                                  } else {
-                                      // If date is in the past, set to today
-                                      planningDateInput.value = today;
-                                  }
-                              } else {
-                                  // If no planning date exists, set to today as default
-                                  planningDateInput.value = today;
-                              }
-                          } else {
-                              // Handle unsuccessful response
-                              console.error('Failed to get calibration data:', data);
-                              planningDateInput.value = today;
-                          }
-                      })
-                      .catch(error => {
-                          console.error('Error fetching calibration data:', error);
-                          // Set today's date as fallback
-                          planningDateInput.value = today;
-                          showToast(`Error loading calibration data: ${error.message}`, 'error');
-                      });
-
-                      // Open the edit schedule modal
-                      openModal(document.getElementById('editScheduleModal'), document.getElementById('editScheduleModalContent'));
-                  });
-              });
-
-              // Handle Edit Schedule Form submission
-              document.getElementById('editScheduleForm')?.addEventListener('submit', function(e) {
-                  e.preventDefault();
-
-                  // Validate form
-                  const planningDateInput = document.getElementById('edit_planning_calibration_date');
-                  const errorMessage = planningDateInput.closest('.space-y-2').querySelector('.error-message');
-                  const dateErrorMessage = planningDateInput.closest('.space-y-2').querySelector('.date-error-message');
-
-                  // Reset validation state
-                  planningDateInput.classList.remove('border-red-500');
-                  errorMessage.classList.add('hidden');
-                  dateErrorMessage.classList.add('hidden');
-
-                  // Check if planning date is provided
-                  if (!planningDateInput.value.trim()) {
-                      planningDateInput.classList.add('border-red-500');
-                      errorMessage.classList.remove('hidden');
-                      return;
-                  }
-
-                  // Validate that date is not before today
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0); // Reset time to start of day
-                  const selectedDate = new Date(planningDateInput.value);
-                  selectedDate.setHours(0, 0, 0, 0); // Reset time to start of day
-
-                  if (selectedDate < today) {
-                      planningDateInput.classList.add('border-red-500');
-                      dateErrorMessage.classList.remove('hidden');
-                      return;
-                  }
-
-                  // Get form data
-                  const calibrationId = document.getElementById('edit_schedule_calibration_id').value;
-                  const planningDate = planningDateInput.value;
-
-                  // Disable the submit button to prevent multiple submissions
-                  const submitBtn = this.querySelector('button[type="submit"]');
-                  const originalBtnText = submitBtn.innerHTML;
-                  submitBtn.disabled = true;
-                  submitBtn.innerHTML = `
-                      <div class="flex items-center justify-center">
-                          <div class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent mr-2"></div>
-                          <span>Memproses...</span>
-                      </div>
-                  `;
-
-                  // Send request to update schedule
-                  fetch(`/calibrations/schedule/${calibrationId}`, {
-                      method: 'PUT',
-                      headers: {
-                          'Content-Type': 'application/json',
-                          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                          'Accept': 'application/json'
-                      },
-                      body: JSON.stringify({
-                          planning_calibration_date: planningDate
-                      })
-                  })
-                  .then(response => response.json())
-                  .then(data => {
-                      // Re-enable the submit button
-                      submitBtn.disabled = false;
-                      submitBtn.innerHTML = originalBtnText;
-
-                      if (data.success) {
-                          // Close the modal
-                          closeModal(document.getElementById('editScheduleModal'), document.getElementById('editScheduleModalContent'));
-
-                          // Show success toast
-                          showToast(data.message || 'Jadwal kalibrasi berhasil diperbarui', 'success');
-
-                          // Reload the page after a short delay
-                          setTimeout(() => {
-                              window.location.reload();
-                          }, 1000);
-                      } else {
-                          // Show error toast
-                          showToast(data.message || data.error || 'Gagal memperbarui jadwal kalibrasi', 'error');
-                      }
-                  })
-                  .catch(error => {
-                      // Re-enable the submit button
-                      submitBtn.disabled = false;
-                      submitBtn.innerHTML = originalBtnText;
-
-                      console.error('Error updating calibration schedule:', error);
-                      showToast('Terjadi kesalahan saat memperbarui jadwal kalibrasi', 'error');
-                  });
-              });
-
-              // Add input event listener for the planning date to clear validation errors
-              document.getElementById('edit_planning_calibration_date')?.addEventListener('input', function() {
-                  this.classList.remove('border-red-500');
-                  const errorMessage = this.closest('.space-y-2').querySelector('.error-message');
-                  const dateErrorMessage = this.closest('.space-y-2').querySelector('.date-error-message');
-                  if (errorMessage) errorMessage.classList.add('hidden');
-                  if (dateErrorMessage) dateErrorMessage.classList.add('hidden');
-
-                  // Revalidate date on input change
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  const selectedDate = new Date(this.value);
-                  selectedDate.setHours(0, 0, 0, 0);
-
-                  if (selectedDate < today) {
-                      this.classList.add('border-red-500');
-                      dateErrorMessage.classList.remove('hidden');
-                  }
-              });
-
-              // Show/hide vendor results
-              vendorSearchInput?.addEventListener('focus', function() {
-                  filterAndDisplayVendors(this.value.trim());
-                  vendorResults.style.display = 'block';
-              });
-
-              // Hide vendor results when clicking outside
-              document.addEventListener('click', function(e) {
-                  if (e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
-                      vendorResults.style.display = 'none';
-                  }
-              });
-
-              // Search vendors with debounce
-              vendorSearchInput?.addEventListener('input', debounce(function() {
-                  const searchTerm = this.value.trim();
-                  filterAndDisplayVendors(searchTerm);
-              }, 300));
-
-              // Load all vendors
-              function loadAllVendors() {
-                  vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
-                  vendorResults.style.display = 'block';
-
-                  // First try to get from localStorage to avoid delay
-                  const cachedVendors = localStorage.getItem('allVendors');
-                  if (cachedVendors) {
-                      try {
-                          allVendors = JSON.parse(cachedVendors);
-
-                          // Still load fresh data in the background
-                          fetchAllVendors();
-
-                          return; // Exit early with cached data
-                      } catch (e) {
-                          console.error('Error parsing cached vendors:', e);
-                      }
-                  }
-
-                  // If no cache, fetch from API
-                  fetchAllVendors();
-              }
-
-              // Fetch all vendors with pagination
-              function fetchAllVendors() {
-                  let page = 1;
-                  allVendors = []; // Reset array
-
-                  function fetchPage(page) {
-                      if (page === 1) {
-                          vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
-                      } else {
-                          // Update loading message for subsequent pages
-                          vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors (page ' + page + ')...</div>';
-                      }
-
-                      fetch(`/vendor?json=true&page=${page}&limit=100`, {
-                          headers: {
-                              'Accept': 'application/json',
-                              'X-Requested-With': 'XMLHttpRequest'
-                          }
-                      })
-                      .then(response => {
-                          if (!response.ok) {
-                              throw new Error(`Server merespon dengan status: ${response.status}`);
-                          }
-                          return response.json();
-                      })
-                      .then(data => {
-                          let vendors = [];
-                          let pagination = null;
-
-                          // Handle different response formats
-                          if (Array.isArray(data)) {
-                              vendors = data;
-                          } else if (data.vendors && Array.isArray(data.vendors)) {
-                              vendors = data.vendors;
-                              pagination = data.pagination;
-                          } else if (data.data && Array.isArray(data.data)) {
-                              vendors = data.data;
-                              pagination = data.pagination;
-                          }
-
-                          // Add to our collection
-                          allVendors = [...allVendors, ...vendors];
-
-                          // Check if there are more pages
-                          const hasNextPage = pagination && pagination.has_next;
-
-                          if (hasNextPage) {
-                              // Fetch next page
-                              fetchPage(page + 1);
-                          } else {
-                              // Cache for future use
-                              try {
-                                  localStorage.setItem('allVendors', JSON.stringify(allVendors));
-                              } catch (e) {
-                                  console.error('Error caching vendors:', e);
-                              }
-
-                              // If the input has a value, filter and display
-                              if (vendorSearchInput && vendorSearchInput.value.trim()) {
-                                  filterAndDisplayVendors(vendorSearchInput.value.trim());
-                              } else {
-                                  vendorResults.style.display = 'none';
-                              }
-                          }
-                      })
-                      .catch(error => {
-                          console.error(`Error fetching vendors page ${page}:`, error);
-                          vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
-
-                          // If we got some vendors, still show them
-                          if (allVendors.length > 0) {
-                              filterAndDisplayVendors(vendorSearchInput?.value.trim() || '');
-                          }
-
-                          // Show toast notification with error details
-                          if (typeof error === 'object' && error !== null) {
-                              showToast(error, 'error');
-                          } else {
-                              showToast('Gagal memuat vendor: ' + error.message, 'error');
-                          }
-                      });
-                  }
-
-                  // Start fetching from page 1
-                  fetchPage(page);
-              }
-
-              // Filter and display vendors based on search term
-              function filterAndDisplayVendors(searchTerm) {
-                  // Make sure dropdown is visible
-                  vendorResults.style.display = 'block';
-
-                  // Show loading message during search
-                  if (searchTerm && searchTerm.length > 0) {
-                      vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Mencari vendor...</div>';
-                  }
-
-                  // If we have no vendors yet
-                  if (allVendors.length === 0) {
-                      vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-                      return;
-                  }
-
-                  // Filter vendors
-                  let filteredVendors = allVendors;
-                  if (searchTerm) {
-                      const term = searchTerm.toLowerCase();
-                      filteredVendors = allVendors.filter(vendor =>
-                          vendor.vendor_name?.toLowerCase().includes(term)
-                      );
-                  }
-
-                  // Sort by relevance if we have a search term
-                  if (searchTerm) {
-                      filteredVendors.sort((a, b) => {
-                          // Exact matches first
-                          if (a.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return -1;
-                          if (b.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return 1;
-
-                          // Then starts-with matches
-                          const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                          const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                          if (aStarts && !bStarts) return -1;
-                          if (bStarts && !aStarts) return 1;
-
-                          // Then alphabetical
-                          return a.vendor_name.localeCompare(b.vendor_name);
-                      });
-                  }
-
-                  // Limit to first 20 for performance
-                  const displayVendors = filteredVendors.slice(0, 20);
-
-                  // Update DOM with animation delay
-                  vendorResults.innerHTML = '';
-
-                  if (displayVendors.length === 0) {
-                      vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">No vendors found</div>';
-                      return;
-                  }
-
-                  // Add vendor items with staggered animation
-                  displayVendors.forEach((vendor, index) => {
-                      const div = document.createElement('div');
-                      div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
-                      div.textContent = vendor.vendor_name;
-                      div.setAttribute('data-id', vendor.vendor_id);
-                      div.style.animationDelay = `${index * 30}ms`; // Staggered animation
-
-                      div.addEventListener('click', function() {
-                          vendorIdInput.value = this.getAttribute('data-id');
-                          vendorSearchInput.value = this.textContent;
-                          vendorResults.style.display = 'none';
-                      });
-
-                      vendorResults.appendChild(div);
-                  });
-
-                  // Show count if limited
-                  if (filteredVendors.length > 20) {
-                      const countDiv = document.createElement('div');
-                      countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
-                      countDiv.textContent = `Showing 20 of ${filteredVendors.length} vendors`;
-                      vendorResults.appendChild(countDiv);
-                  }
-              }
-              // Export PDF functionality
-              document.getElementById('exportBtn')?.addEventListener('click', () => {
-                  // Get current URL parameters
-                  const url = new URL(window.location.href);
-                  const searchParams = url.searchParams;
-
-                  // Create the PDF export URL with the same parameters
-                  const exportUrl = "{{ route('calibrations.export.pdf') }}?" + searchParams.toString();
-
-                  // Redirect to the export URL
-                  window.open(exportUrl, '_blank');
-              });
-
-              // Function to update the selected assets table
-              function updateSelectedAssetsList() {
-                  const selectedAssetsList = document.getElementById('selectedAssetsList');
-
-                  if (selectedAssets.length === 0) {
-                      document.getElementById('selectedAssetsList').innerHTML = `
-                          <tr>
-                              <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia</td>
-                          </tr>
-                      `;
-
-                      // Reset pagination
-                      const paginationContainer = document.getElementById('selectedAssetsPagination');
-                      if (paginationContainer) {
-                          paginationContainer.innerHTML = '';
-                      }
-
-                      const infoContainer = document.getElementById('selectedAssetsInfo');
-                      if (infoContainer) {
-                          infoContainer.textContent = 'Menampilkan 0 sampai 0 dari 0 data';
-                      }
-
-                      return;
-                  }
-
-                  // Get current page and per page settings
-                  const perPage = parseInt(document.getElementById('selectedAssetsPerPage').value, 10) || 5;
-                  const currentPage = parseInt(selectedAssetsList.getAttribute('data-current-page') || '1', 10);
-                  const totalPages = Math.ceil(selectedAssets.length / perPage);
-
-                  // Calculate indices for current page
-                  const startIndex = (currentPage - 1) * perPage;
-                  const endIndex = Math.min(startIndex + perPage, selectedAssets.length);
-
-                  // Generate table rows for current page
-                  let html = '';
-                  for (let i = startIndex; i < endIndex; i++) {
-                      const asset = selectedAssets[i];
-                      html += `
-                          <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
-                              <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${i + 1}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                  <div class="flex flex-col">
-                                      <span class="font-medium">${asset.asset_name || '-'}</span>
-                                  </div>
-                              </td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.category_name || '-'}</td>
-                              <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                  <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
-                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                      </svg>
-                                  </button>
-                              </td>
-                          </tr>
-                      `;
-                  }
-
-                  // Store current page in the table element
-                  selectedAssetsList.setAttribute('data-current-page', currentPage);
-                  selectedAssetsList.innerHTML = html;
-
-                  // Update pagination controls
-                  updateSelectedAssetsPagination(currentPage, totalPages, selectedAssets.length);
-              }
-
-              // Function to update pagination for selected assets
-              function updateSelectedAssetsPagination(currentPage, totalPages, totalItems) {
-                  const perPage = parseInt(document.getElementById('selectedAssetsPerPage').value, 10) || 5;
-                  const paginationContainer = document.getElementById('selectedAssetsPagination');
-                  const infoContainer = document.getElementById('selectedAssetsInfo');
-
-                  if (!paginationContainer || !infoContainer) return;
-
-                  // Calculate from and to numbers
-                  const from = totalItems === 0 ? 0 : (currentPage - 1) * perPage + 1;
-                  const to = Math.min(currentPage * perPage, totalItems);
-
-                  // Update info text
-                  infoContainer.textContent = `Menampilkan ${from} sampai ${to} dari ${totalItems} data`;
-
-                  // Generate pagination controls
-                  let html = '';
-
-                  // Only show pagination if there are multiple pages
-                  if (totalPages <= 1) {
-                      paginationContainer.innerHTML = '';
-                      return;
-                  }
-
-                  // Previous button
-                  html += `
-                      <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
-                         ${currentPage > 1 ? 'data-page="' + (currentPage - 1) + '"' : ''}>
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                          </svg>
-                          Sebelumnya
-                      </a>
-                  `;
-
-                  // Page numbers
-                  html += '<div class="flex gap-2">';
-
-                  const maxPagesShown = 3;
-                  let startPage = Math.max(1, currentPage - 1);
-                  let endPage = Math.min(totalPages, startPage + maxPagesShown - 1);
-
-                  if (endPage - startPage + 1 < maxPagesShown) {
-                      startPage = Math.max(1, endPage - maxPagesShown + 1);
-                  }
-
-                  if (startPage > 1) {
-                      html += `
-                          <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
-                             data-page="1">1</a>
-                      `;
-
-                      if (startPage > 2) {
-                          html += '<span class="flex items-center justify-center">...</span>';
-                      }
-                  }
-
-                  for (let i = startPage; i <= endPage; i++) {
-                      html += `
-                          <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
-                             data-page="${i}">${i}</a>
-                      `;
-                  }
-
-                  if (endPage < totalPages) {
-                      if (endPage < totalPages - 1) {
-                          html += '<span class="flex items-center justify-center">...</span>';
-                      }
-
-                      html += `
-                          <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
-                              data-page="${totalPages}">${totalPages}</a>
-                      `;
-                  }
-
-                  html += '</div>';
-
-                  // Next button
-                  html += `
-                      <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
-                         ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
-                          Selanjutnya
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                          </svg>
-                      </a>
-                  `;
-
-                  paginationContainer.innerHTML = html;
-
-                  // Add event listeners to pagination links
-                  paginationContainer.querySelectorAll('a[data-page]').forEach(link => {
-                      link.addEventListener('click', function(e) {
-                          e.preventDefault();
-                          const page = parseInt(this.getAttribute('data-page'), 10);
-                          if (!isNaN(page)) {
-                              changeSelectedAssetsPage(page);
-                          }
-                      });
-                  });
-              }
-
-              // Function to change page for selected assets
-              function changeSelectedAssetsPage(page) {
-                  const selectedAssetsList = document.getElementById('selectedAssetsList');
-                  if (selectedAssetsList) {
-                      selectedAssetsList.setAttribute('data-current-page', page);
-                      updateSelectedAssetsList();
-                  }
-              }
-        });
-    </script>
-    @endpush
-@endif
+                    });
+                </script>
+            @endpush
+        @endif
 @endsection

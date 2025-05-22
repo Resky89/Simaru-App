@@ -3,8 +3,8 @@
 @section('title', 'Detail Kalibrasi')
 
 @section('content')
+@include('Layout.loading')
 <div class="bg-white p-6 rounded-lg shadow-md">
-    <!-- Header with back button -->
     <div class="flex justify-between items-center mb-6">
         <div class="flex items-center">
             <a href="{{ route('calibration') }}" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">

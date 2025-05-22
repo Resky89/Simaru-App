@@ -21,7 +21,7 @@
         'vendor' => 'vendor:view',
 
         'asset-master' => 'asset-master:view',
-        'asset-unit' => 'asset:view',
+        'assets' => 'asset:view',
         'asset-documents' => 'document:view',
 
         'procurement.request' => 'procurement:view',
@@ -178,10 +178,10 @@
                     </a>
                     @endif
 
-                    @if(hasPermission($submenuPermissions['asset-unit']))
-                    <a href="{{ route('asset-unit') }}" class="block">
+                    @if(hasPermission($submenuPermissions['assets']))
+                    <a href="{{ route('assets') }}" class="block">
                         <div
-                            class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-unit') ? 'bg-[#56C5F1]/20' : '' }}">
+                            class="{{ $submenuLinkClass }} {{ Request::routeIs('assets') ? 'bg-[#56C5F1]/20' : '' }}">
                             <span class="{{ $submenuTextClass }}">Unit Aset</span>
                         </div>
                     </a>

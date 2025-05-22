@@ -3,1343 +3,1423 @@
 @section('title', 'Keluhan & Perbaikan')
 
 @section('content')
-<div class="h-full space-y-4 md:space-y-6">
-    <!-- Complaint & Repair Section -->
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body p-4 md:p-7">
-            <div class="flex flex-col gap-6">
-                <!-- Header -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">KELUHAN & PERBAIKAN</h1>
+    @include('Layout.loading')
+    <div class="h-full space-y-4 md:space-y-6">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body p-4 md:p-7">
+                <div class="flex flex-col gap-6">
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">KELUHAN & PERBAIKAN</h1>
 
-                    <div class="flex gap-3">
-                        <!-- Create Complaint Button -->
-                        @if(hasPermission('complaint:create'))
-                        <button id="createComplaintBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                            <span class="text-base">Buat Keluhan</span>
-                        </button>
-                        @endif
-
-                        <!-- Button Export PDF -->
-                        @if(hasPermission('complaint:export'))
-                        <button id="exportBtn" class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            <span class="text-base">Ekspor PDF</span>
-                        </button>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Search and Filter -->
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="relative flex-grow">
-                        <input type="text" id="searchInput" placeholder="Cari berdasarkan nama aset atau deskripsi..." value="{{ $search ?? '' }}"
-                            class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                        <div class="absolute right-3 top-1/2 -translate-y-1/2">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="flex gap-4">
-                        <select id="sortOrder"
-                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="newest" {{ ($sort ?? 'newest') == 'newest' ? 'selected' : '' }}>Terbaru</option>
-                            <option value="oldest" {{ ($sort ?? 'newest') == 'oldest' ? 'selected' : '' }}>Terlama</option>
-                        </select>
-                        <select id="statusFilter"
-                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" {{ ($status ?? '') == '' ? 'selected' : '' }}>Semua Status</option>
-                            <option value="new" {{ ($status ?? '') == 'new' ? 'selected' : '' }}>Baru</option>
-                            <option value="in progress" {{ ($status ?? '') == 'in progress' ? 'selected' : '' }}>Sedang Diproses</option>
-                            <option value="finished" {{ ($status ?? '') == 'finished' ? 'selected' : '' }}>Selesai</option>
-                            <option value="approved" {{ ($status ?? '') == 'approved' ? 'selected' : '' }}>Disetujui</option>
-                        </select>
-                    </div>
-                </div>
-
-                @if (isset($error))
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
-                    <p class="font-bold">Error</p>
-                    <p>{{ $error }}</p>
-                </div>
-                @endif
-
-                <!-- Complaint & Repair Table -->
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Aset</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Status</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Keluhan</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Selesai</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Pelapor</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="complaintsTableBody">
-                            @forelse($complaints ?? [] as $complaint)
-                                <tr>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        <div class="flex flex-col">
-                                            <span class="font-medium">{{ $complaint['asset_name'] ?? '-' }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        {{ $complaint['description'] ?? '-' }}
-                                    </td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        @php
-                                            $statusClass = '';
-                                            $status = $complaint['status'] ?? '';
-
-                                            if ($status == 'new') {
-                                                $statusClass = 'bg-yellow-100 text-yellow-800';
-                                            } elseif ($status == 'in progress') {
-                                                $statusClass = 'bg-blue-100 text-blue-800';
-                                            } elseif ($status == 'finished') {
-                                                $statusClass = 'bg-emerald-100 text-emerald-800';
-                                            } elseif ($status == 'approved') {
-                                                $statusClass = 'bg-green-100 text-green-800';
-                                            } else {
-                                                $statusClass = 'bg-gray-100 text-gray-800';
-                                            }
-
-                                            // Translate status text to Indonesian
-                                            $statusText = 'Tidak Diketahui';
-                                            if ($status == 'new') $statusText = 'Baru';
-                                            elseif ($status == 'in progress') $statusText = 'Sedang Diproses';
-                                            elseif ($status == 'finished') $statusText = 'Selesai';
-                                            elseif ($status == 'approved') $statusText = 'Disetujui';
-                                        @endphp
-                                        <span class="px-3 py-1.5 rounded-full text-xs font-medium {{ $statusClass }} inline-block min-w-[90px] text-center whitespace-nowrap">
-                                            {{ $statusText }}
-                                        </span>
-                                    </td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        {{ isset($complaint['complaint_date']) ? \Carbon\Carbon::parse($complaint['complaint_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
-                                    </td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        {{ isset($complaint['finished_date']) && $complaint['finished_date'] ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
-                                    </td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        ID: {{ $complaint['reporter_number'] ?? '-' }}
-                                    </td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                        <div class="flex space-x-2">
-                                            <button
-                                                onclick="viewComplaintDetails({{ $complaint['id'] }})"
-                                                class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
-                                                title="Lihat Detail">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                            </button>
-                                            @if(hasPermission('repair:medical') && hasPermission('repair:non-medical'))
-                                            <button
-                                                class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors repair-complaint-btn"
-                                                data-id="{{ $complaint['id'] }}"
-                                                data-asset="{{ $complaint['asset_name'] ?? 'Unknown' }}"
-                                                title="Lakukan Perbaikan">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                                                </svg>
-                                            </button>
-                                            @endif
-                                            @if(hasPermission('complaint:delete'))
-                                            <button
-                                                class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-complaint-btn"
-                                                data-id="{{ $complaint['id'] }}"
-                                                data-name="{{ $complaint['asset_name'] ?? 'Unknown' }}"
-                                                title="Hapus Keluhan">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada keluhan ditemukan</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                @if(isset($pagination) && $pagination)
-                <div class="flex flex-col md:flex-row justify-between items-center mt-4">
-                    <div class="flex items-center space-x-2">
-                        <a href="{{ isset($pagination['has_prev']) && $pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] - 1]) : '#' }}"
-                            class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_prev']) || !$pagination['has_prev'] ? 'opacity-50 cursor-not-allowed' : '' }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 19l-7-7 7-7" />
-                            </svg>
-                            Sebelumnya
-                        </a>
-                        <div class="flex gap-2">
-                            @php
-                                $currentPage = $pagination['current_page'] ?? 1;
-                                $totalPages = isset($pagination['total_pages']) ? $pagination['total_pages'] : (isset($pagination['total_items']) && isset($pagination['limit']) && $pagination['limit'] > 0 ? ceil($pagination['total_items'] / $pagination['limit']) : 1);
-                                $maxPagesShown = 5; // Show max 5 pages at once
-                                $startPage = max(1, $currentPage - 2);
-                                $endPage = min($totalPages, $startPage + $maxPagesShown - 1);
-
-                                if ($endPage - $startPage + 1 < $maxPagesShown) {
-                                    $startPage = max(1, $endPage - $maxPagesShown + 1);
-                                }
-                            @endphp
-
-                            @if($startPage > 1)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
-                                    class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
-                                    1
-                                </a>
-                                @if($startPage > 2)
-                                    <span class="flex items-center justify-center">
-                                        ...
-                                    </span>
-                                @endif
+                        <div class="flex gap-3">
+                            <!-- Create Complaint Button -->
+                            @if(hasPermission('complaint:create'))
+                                <button id="createComplaintBtn"
+                                    class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span class="text-base">Buat Keluhan</span>
+                                </button>
                             @endif
 
-                            @for ($i = $startPage; $i <= $endPage; $i++)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
-                                    class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
-                                    {{ $i }}
-                                </a>
-                            @endfor
-
-                            @if($endPage < $totalPages)
-                                @if($endPage < $totalPages - 1)
-                                    <span class="flex items-center justify-center">
-                                        ...
-                                    </span>
-                                @endif
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $totalPages]) }}"
-                                    class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
-                                    {{ $totalPages }}
-                                </a>
+                            <!-- Button Export PDF -->
+                            @if(hasPermission('complaint:export'))
+                                <button id="exportBtn"
+                                    class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    <span class="text-base">Ekspor PDF</span>
+                                </button>
                             @endif
                         </div>
-                        <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
-                            class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
-                            Selanjutnya
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </a>
                     </div>
 
-                    <div class="flex items-center gap-2 mt-4 md:mt-0">
-                        <span class="text-sm text-gray-600">
-                            Menampilkan {{ ($pagination['current_page'] - 1) * $pagination['limit'] + 1 }}
-                            sampai {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
-                            dari {{ $pagination['total_items'] }} data
-                        </span>
-                        <select id="perPageSelect"
-                            class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
-                            onchange="changePerPage(this.value)">
-                            <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per halaman</option>
-                            <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per halaman</option>
-                            <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per halaman</option>
-                        </select>
+                    <!-- Search and Filter -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="relative flex-grow">
+                            <input type="text" id="searchInput" placeholder="Cari berdasarkan nama aset atau deskripsi..."
+                                value="{{ $search ?? '' }}"
+                                class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <select id="sortOrder"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="newest" {{ ($sort ?? 'newest') == 'newest' ? 'selected' : '' }}>Terbaru
+                                </option>
+                                <option value="oldest" {{ ($sort ?? 'newest') == 'oldest' ? 'selected' : '' }}>Terlama
+                                </option>
+                            </select>
+                            <select id="statusFilter"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" {{ ($status ?? '') == '' ? 'selected' : '' }}>Semua Status</option>
+                                <option value="new" {{ ($status ?? '') == 'new' ? 'selected' : '' }}>Baru</option>
+                                <option value="in progress" {{ ($status ?? '') == 'in progress' ? 'selected' : '' }}>Sedang
+                                    Diproses</option>
+                                <option value="finished" {{ ($status ?? '') == 'finished' ? 'selected' : '' }}>Selesai
+                                </option>
+                                <option value="approved" {{ ($status ?? '') == 'approved' ? 'selected' : '' }}>Disetujui
+                                </option>
+                            </select>
+                        </div>
                     </div>
+
+                    @if (isset($error))
+                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                            <p class="font-bold">Error</p>
+                            <p>{{ $error }}</p>
+                        </div>
+                    @endif
+
+                    <!-- Complaint & Repair Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Aset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Status</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Keluhan</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Selesai</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Pelapor</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="complaintsTableBody">
+                                @forelse($complaints ?? [] as $complaint)
+                                    <tr>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            <div class="flex flex-col">
+                                                <span class="font-medium">{{ $complaint['asset_name'] ?? '-' }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ $complaint['description'] ?? '-' }}
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            @php
+                                                $statusClass = '';
+                                                $status = $complaint['status'] ?? '';
+
+                                                if ($status == 'new') {
+                                                    $statusClass = 'bg-yellow-100 text-yellow-800';
+                                                } elseif ($status == 'in progress') {
+                                                    $statusClass = 'bg-blue-100 text-blue-800';
+                                                } elseif ($status == 'finished') {
+                                                    $statusClass = 'bg-emerald-100 text-emerald-800';
+                                                } elseif ($status == 'approved') {
+                                                    $statusClass = 'bg-green-100 text-green-800';
+                                                } else {
+                                                    $statusClass = 'bg-gray-100 text-gray-800';
+                                                }
+
+                                                // Translate status text to Indonesian
+                                                $statusText = 'Tidak Diketahui';
+                                                if ($status == 'new')
+                                                    $statusText = 'Baru';
+                                                elseif ($status == 'in progress')
+                                                    $statusText = 'Sedang Diproses';
+                                                elseif ($status == 'finished')
+                                                    $statusText = 'Selesai';
+                                                elseif ($status == 'approved')
+                                                    $statusText = 'Disetujui';
+                                            @endphp
+                                            <span
+                                                class="px-3 py-1.5 rounded-full text-xs font-medium {{ $statusClass }} inline-block min-w-[90px] text-center whitespace-nowrap">
+                                                {{ $statusText }}
+                                            </span>
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ isset($complaint['complaint_date']) ? \Carbon\Carbon::parse($complaint['complaint_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ isset($complaint['finished_date']) && $complaint['finished_date'] ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            ID: {{ $complaint['reporter_number'] ?? '-' }}
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            <div class="flex space-x-2">
+                                                <button onclick="viewComplaintDetails({{ $complaint['id'] }})"
+                                                    class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
+                                                    title="Lihat Detail">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                </button>
+                                                @if(hasPermission('repair:medical') && hasPermission('repair:non-medical'))
+                                                    <button
+                                                        class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors repair-complaint-btn"
+                                                        data-id="{{ $complaint['id'] }}"
+                                                        data-asset="{{ $complaint['asset_name'] ?? 'Unknown' }}"
+                                                        title="Lakukan Perbaikan">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                                        </svg>
+                                                    </button>
+                                                @endif
+                                                @if(hasPermission('complaint:delete'))
+                                                    <button
+                                                        class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-complaint-btn"
+                                                        data-id="{{ $complaint['id'] }}"
+                                                        data-name="{{ $complaint['asset_name'] ?? 'Unknown' }}"
+                                                        title="Hapus Keluhan">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada
+                                            keluhan ditemukan</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    @if(isset($pagination) && $pagination)
+                        <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+                            <div class="flex items-center space-x-2">
+                                <a href="{{ isset($pagination['has_prev']) && $pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] - 1]) : '#' }}"
+                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_prev']) || !$pagination['has_prev'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                    Sebelumnya
+                                </a>
+                                <div class="flex gap-2">
+                                    @php
+                                        $currentPage = $pagination['current_page'] ?? 1;
+                                        $totalPages = isset($pagination['total_pages']) ? $pagination['total_pages'] : (isset($pagination['total_items']) && isset($pagination['limit']) && $pagination['limit'] > 0 ? ceil($pagination['total_items'] / $pagination['limit']) : 1);
+                                        $maxPagesShown = 5; // Show max 5 pages at once
+                                        $startPage = max(1, $currentPage - 2);
+                                        $endPage = min($totalPages, $startPage + $maxPagesShown - 1);
+
+                                        if ($endPage - $startPage + 1 < $maxPagesShown) {
+                                            $startPage = max(1, $endPage - $maxPagesShown + 1);
+                                        }
+                                    @endphp
+
+                                    @if($startPage > 1)
+                                        <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                            class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                            1
+                                        </a>
+                                        @if($startPage > 2)
+                                            <span class="flex items-center justify-center">
+                                                ...
+                                            </span>
+                                        @endif
+                                    @endif
+
+                                    @for ($i = $startPage; $i <= $endPage; $i++)
+                                        <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                            class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
+                                            {{ $i }}
+                                        </a>
+                                    @endfor
+
+                                    @if($endPage < $totalPages)
+                                        @if($endPage < $totalPages - 1)
+                                            <span class="flex items-center justify-center">
+                                                ...
+                                            </span>
+                                        @endif
+                                        <a href="{{ request()->fullUrlWithQuery(['page' => $totalPages]) }}"
+                                            class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                            {{ $totalPages }}
+                                        </a>
+                                    @endif
+                                </div>
+                                <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
+                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                    Selanjutnya
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            </div>
+
+                            <div class="flex items-center gap-2 mt-4 md:mt-0">
+                                <span class="text-sm text-gray-600">
+                                    Menampilkan {{ ($pagination['current_page'] - 1) * $pagination['limit'] + 1 }}
+                                    sampai
+                                    {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
+                                    dari {{ $pagination['total_items'] }} data
+                                </span>
+                                <select id="perPageSelect"
+                                    class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
+                                    onchange="changePerPage(this.value)">
+                                    <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per halaman</option>
+                                    <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per halaman</option>
+                                    <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per halaman</option>
+                                </select>
+                            </div>
+                        </div>
+                    @endif
                 </div>
-                @endif
             </div>
         </div>
     </div>
-</div>
 
 
-<!-- Create Complaint Modal -->
-@if(hasPermission('complaint:create'))
-<div id="createComplaintModal" class="fixed inset-0 z-50 hidden">
-    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-    <div class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                id="createComplaintModalContent">
-                <!-- Header -->
-                <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">BUAT KELUHAN</h2>
-                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+    <!-- Create Complaint Modal -->
+    @if(hasPermission('complaint:create'))
+        <div id="createComplaintModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="createComplaintModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">BUAT KELUHAN</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
 
-                <!-- Error messages container -->
-                <div id="errorMessages" class="px-6 pt-4">
-                    @if ($errors->any())
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                        <p class="font-bold">Error validasi:</p>
-                        <ul class="list-disc pl-5">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @endif
-                </div>
-
-                <!-- Form -->
-                <form id="complaintForm" action="{{ route('complaint.create') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" name="handle_ajax" value="0">
-                    <div class="p-6">
-                        <div class="space-y-4">
-                            <!-- Complaint Information Section -->
-                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Keluhan</h3>
-
-                            <!-- Asset Selection -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Aset<span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <input type="text" id="assetSearch"
-                                        placeholder="Cari aset..."
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
-                                    />
-                                    <input type="hidden" id="assetId" name="asset_id"/>
-                                    <div class="absolute right-3 top-1/2 -translate-y-1/2">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                    </div>
-                                    <div id="assetDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-y-auto max-h-60 hidden">
-                                        <div class="p-2" id="assetDropdownContent">
-                                            <!-- Options will be populated dynamically -->
-                                        </div>
-                                        <div id="assetLoadingIndicator" class="p-2 text-center text-gray-500 hidden">
-                                            <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            <p class="mt-1">Memuat...</p>
-                                        </div>
-                                        <div id="assetNoResults" class="p-2 text-center text-gray-500 hidden">
-                                            Tidak ada aset ditemukan
-                                        </div>
-                                    </div>
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus dipilih</div>
+                        <!-- Error messages container -->
+                        <div id="errorMessages" class="px-6 pt-4">
+                            @if ($errors->any())
+                                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+                                    <p class="font-bold">Error validasi:</p>
+                                    <ul class="list-disc pl-5">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
                                 </div>
-                                <div id="selectedAssetInfo" class="mt-2 p-2 bg-gray-100 rounded-lg hidden">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <p class="font-medium" id="selectedAssetName"></p>
-                                            <p class="text-sm text-gray-500" id="selectedAssetId"></p>
+                            @endif
+                        </div>
+
+                        <!-- Form -->
+                        <form id="complaintForm" action="{{ route('complaint.create') }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="handle_ajax" value="0">
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <!-- Complaint Information Section -->
+                                    <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Keluhan</h3>
+
+                                    <!-- Asset Selection -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Aset<span
+                                                class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" id="assetSearch" placeholder="Cari aset..."
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20" />
+                                            <input type="hidden" id="assetId" name="asset_id" />
+                                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </div>
+                                            <div id="assetDropdown"
+                                                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-y-auto max-h-60 hidden">
+                                                <div class="p-2" id="assetDropdownContent">
+                                                    <!-- Options will be populated dynamically -->
+                                                </div>
+                                                <div id="assetLoadingIndicator" class="p-2 text-center text-gray-500 hidden">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                            stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                        </path>
+                                                    </svg>
+                                                    <p class="mt-1">Memuat...</p>
+                                                </div>
+                                                <div id="assetNoResults" class="p-2 text-center text-gray-500 hidden">
+                                                    Tidak ada aset ditemukan
+                                                </div>
+                                            </div>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus dipilih</div>
                                         </div>
-                                        <button type="button" id="clearAssetSelection" class="text-red-600 hover:text-red-800">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
+                                        <div id="selectedAssetInfo" class="mt-2 p-2 bg-gray-100 rounded-lg hidden">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <p class="font-medium" id="selectedAssetName"></p>
+                                                    <p class="text-sm text-gray-500" id="selectedAssetId"></p>
+                                                </div>
+                                                <button type="button" id="clearAssetSelection"
+                                                    class="text-red-600 hover:text-red-800">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Deskripsi<span
+                                                class="text-red-500">*</span></label>
+                                        <textarea id="description" name="description" rows="4"
+                                            class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
+                                            placeholder="Jelaskan masalahnya..."></textarea>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi harus diisi</div>
+                                    </div>
+
+                                    <!-- Image Upload -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Gambar<span
+                                                class="text-red-500">*</span></label>
+                                        <div
+                                            class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                            <!-- Image preview -->
+                                            <div id="imagePreview" class="mt-2 mb-4 w-full hidden">
+                                                <div
+                                                    class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                                    <img id="previewImg" src="#" alt="Pratinjau"
+                                                        class="w-full h-auto max-h-64 object-contain mx-auto rounded">
+                                                    <button type="button" id="removeImage"
+                                                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="text-center">
+                                                <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
+                                                <p class="mt-1 text-sm text-gray-600">Tarik gambar atau <span
+                                                        class="text-[#213268] font-semibold">pilih file</span></p>
+                                                <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png
+                                                    (Ukuran maks: 5MB)</p>
+                                                <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk
+                                                    memilih file</p>
+                                            </div>
+                                            <input id="imageFile" name="image_file" type="file"
+                                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                accept="image/*" />
+                                        </div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Gambar harus diunggah</div>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <button type="submit"
+                                        class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                        Buat Keluhan
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Delete Complaint Confirmation Modal -->
+    @if(hasPermission('complaint:delete'))
+        <div id="deleteComplaintModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="deleteComplaintModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Hapus Keluhan</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Content -->
+                        <form id="deleteComplaintForm">
+                            @csrf
+                            <input type="hidden" id="deleteComplaintId" name="complaint_id">
+                            <div class="p-6">
+                                <div class="space-y-6 max-w-[400px] mx-auto">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus keluhan
+                                            ini? Tindakan ini tidak dapat dibatalkan.</p>
+                                        <p id="deleteComplaintName" class="text-base font-semibold text-center mt-2"></p>
+                                    </div>
+                                    <div class="flex gap-3">
+                                        <button type="button"
+                                            class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                            Batal
+                                        </button>
+                                        <button type="submit"
+                                            class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                            Hapus
                                         </button>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Description -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Deskripsi<span class="text-red-500">*</span></label>
-                                <textarea id="description" name="description" rows="4"
-                                    class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
-                                    placeholder="Jelaskan masalahnya..."></textarea>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi harus diisi</div>
-                            </div>
-
-                            <!-- Image Upload -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Gambar<span class="text-red-500">*</span></label>
-                                <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
-                                    <!-- Image preview -->
-                                    <div id="imagePreview" class="mt-2 mb-4 w-full hidden">
-                                        <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
-                                            <img id="previewImg" src="#" alt="Pratinjau" class="w-full h-auto max-h-64 object-contain mx-auto rounded">
-                                            <button type="button" id="removeImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Tarik gambar atau <span class="text-[#213268] font-semibold">pilih file</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png (Ukuran maks: 5MB)</p>
-                                        <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk memilih file</p>
-                                    </div>
-                                    <input id="imageFile" name="image_file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*"/>
-                                </div>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Gambar harus diunggah</div>
-                            </div>
-
-                            <!-- Submit Button -->
-                            <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Buat Keluhan
-                            </button>
-                        </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-@endif
+    @endif
 
-<!-- Delete Complaint Confirmation Modal -->
-@if(hasPermission('complaint:delete'))
-<div id="deleteComplaintModal" class="fixed inset-0 z-50 hidden">
-    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-    <div class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                id="deleteComplaintModalContent">
-                <!-- Header -->
-                <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Hapus Keluhan</h2>
-                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Content -->
-                <form id="deleteComplaintForm">
-                    @csrf
-                    <input type="hidden" id="deleteComplaintId" name="complaint_id">
-                    <div class="p-6">
-                        <div class="space-y-6 max-w-[400px] mx-auto">
-                            <div class="flex flex-col items-center">
-                                <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+    <!-- Repair Complaint Modal -->
+    @if(hasPermission('repair:medical') || hasPermission('repair:non-medical'))
+        <div id="repairComplaintModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="repairComplaintModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">LAKUKAN PERBAIKAN</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus keluhan ini? Tindakan ini tidak dapat dibatalkan.</p>
-                                <p id="deleteComplaintName" class="text-base font-semibold text-center mt-2"></p>
-                            </div>
-                            <div class="flex gap-3">
-                                <button type="button"
-                                    class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                                    Batal
-                                </button>
-                                <button type="submit"
-                                    class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                    Hapus
-                                </button>
-                            </div>
+                            </button>
                         </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
 
-<!-- Repair Complaint Modal -->
-@if(hasPermission('repair:medical') || hasPermission('repair:non-medical'))
-<div id="repairComplaintModal" class="fixed inset-0 z-50 hidden">
-    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-    <div class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                id="repairComplaintModalContent">
-                <!-- Header -->
-                <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">LAKUKAN PERBAIKAN</h2>
-                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+                        <!-- Error messages container -->
+                        <div id="repairErrorMessages" class="px-6 pt-4"></div>
 
-                <!-- Error messages container -->
-                <div id="repairErrorMessages" class="px-6 pt-4"></div>
+                        <!-- Form -->
+                        <form id="repairForm" action="{{ route('complaint.repair.create') }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="complaint_id" id="repairComplaintId">
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <!-- Repair Information Section -->
+                                    <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Perbaikan</h3>
 
-                <!-- Form -->
-                <form id="repairForm" action="{{ route('complaint.repair.create') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" name="complaint_id" id="repairComplaintId">
-                    <div class="p-6">
-                        <div class="space-y-4">
-                            <!-- Repair Information Section -->
-                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Perbaikan</h3>
+                                    <!-- Asset Name Display -->
+                                    <div class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                        <p class="text-sm text-gray-500">Memperbaiki Aset:</p>
+                                        <p class="text-base font-medium" id="repairAssetName"></p>
+                                    </div>
 
-                            <!-- Asset Name Display -->
-                            <div class="mb-4 p-3 bg-gray-100 rounded-lg">
-                                <p class="text-sm text-gray-500">Memperbaiki Aset:</p>
-                                <p class="text-base font-medium" id="repairAssetName"></p>
-                            </div>
+                                    <!-- Repair Description -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Deskripsi Perbaikan<span
+                                                class="text-red-500">*</span></label>
+                                        <textarea id="repairDescription" name="repair_description" rows="3"
+                                            class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
+                                            placeholder="Jelaskan pekerjaan perbaikan..."></textarea>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi perbaikan harus
+                                            diisi</div>
+                                    </div>
 
-                            <!-- Repair Description -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Deskripsi Perbaikan<span class="text-red-500">*</span></label>
-                                <textarea id="repairDescription" name="repair_description" rows="3"
-                                    class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
-                                    placeholder="Jelaskan pekerjaan perbaikan..."></textarea>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi perbaikan harus diisi</div>
-                            </div>
-
-                             <!-- Final Result -->
-                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Hasil Akhir<span class="text-red-500">*</span></label>
-                                <select id="finalResult" name="final_result"
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20">
-                                    <option value="" disabled selected>Pilih hasil akhir</option>
-                                    <option value="Good">Baik</option>
-                                    <option value="Slightly Damage">Sedikit Rusak</option>
-                                    <option value="Heavy Damage">Rusak Parah</option>
-                                    <option value="Waiting for Part">Menunggu Spare Part</option>
-                                </select>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Hasil akhir harus dipilih</div>
-                            </div>
-
-                            <!-- Repair Cost -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Biaya Perbaikan<span class="text-red-500">*</span></label>
-                                <input type="number" id="repairCost" name="repair_cost"
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
-                                    placeholder="Biaya dalam Rupiah">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perbaikan harus diisi</div>
-                            </div>
-
-                            <!-- Parts Replaced -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Komponen yang Diganti<span class="text-red-500">*</span></label>
-                                <input type="text" id="partsReplaced" name="parts_replaced"
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
-                                    placeholder="Daftar komponen yang diganti">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Komponen yang diganti harus diisi</div>
-                            </div>
-
-                            <!-- Image Upload -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Gambar Perbaikan<span class="text-red-500">*</span></label>
-                                <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
-                                    <!-- Image preview -->
-                                    <div id="repairImagePreview" class="mt-2 mb-4 w-full hidden">
-                                        <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
-                                            <img id="repairPreviewImg" src="#" alt="Pratinjau" class="w-full h-auto max-h-64 object-contain mx-auto rounded">
-                                            <button type="button" id="removeRepairImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
+                                    <!-- Final Result -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Hasil Akhir<span
+                                                class="text-red-500">*</span></label>
+                                        <select id="finalResult" name="final_result"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20">
+                                            <option value="" disabled selected>Pilih hasil akhir</option>
+                                            <option value="Good">Baik</option>
+                                            <option value="Slightly Damage">Sedikit Rusak</option>
+                                            <option value="Heavy Damage">Rusak Parah</option>
+                                            <option value="Waiting for Part">Menunggu Spare Part</option>
+                                        </select>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Hasil akhir harus dipilih
                                         </div>
                                     </div>
 
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Tarik gambar atau <span class="text-[#213268] font-semibold">pilih file</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png (Ukuran maks: 5MB)</p>
-                                        <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk memilih file</p>
+                                    <!-- Repair Cost -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Biaya Perbaikan<span
+                                                class="text-red-500">*</span></label>
+                                        <input type="number" id="repairCost" name="repair_cost"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
+                                            placeholder="Biaya dalam Rupiah">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perbaikan harus diisi
+                                        </div>
                                     </div>
-                                    <input id="repairImageFile" name="file" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*"/>
+
+                                    <!-- Parts Replaced -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Komponen yang Diganti<span
+                                                class="text-red-500">*</span></label>
+                                        <input type="text" id="partsReplaced" name="parts_replaced"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
+                                            placeholder="Daftar komponen yang diganti">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Komponen yang diganti harus
+                                            diisi</div>
+                                    </div>
+
+                                    <!-- Image Upload -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Gambar Perbaikan<span
+                                                class="text-red-500">*</span></label>
+                                        <div
+                                            class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                            <!-- Image preview -->
+                                            <div id="repairImagePreview" class="mt-2 mb-4 w-full hidden">
+                                                <div
+                                                    class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                                    <img id="repairPreviewImg" src="#" alt="Pratinjau"
+                                                        class="w-full h-auto max-h-64 object-contain mx-auto rounded">
+                                                    <button type="button" id="removeRepairImage"
+                                                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="text-center">
+                                                <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
+                                                <p class="mt-1 text-sm text-gray-600">Tarik gambar atau <span
+                                                        class="text-[#213268] font-semibold">pilih file</span></p>
+                                                <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png
+                                                    (Ukuran maks: 5MB)</p>
+                                                <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk
+                                                    memilih file</p>
+                                            </div>
+                                            <input id="repairImageFile" name="file" type="file"
+                                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                accept="image/*" />
+                                        </div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Gambar perbaikan harus
+                                            diunggah</div>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <button type="submit"
+                                        class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                                        Kirim Perbaikan
+                                    </button>
                                 </div>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Gambar perbaikan harus diunggah</div>
                             </div>
-
-                            <!-- Submit Button -->
-                            <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                Kirim Perbaikan
-                            </button>
-                        </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-@endif
+    @endif
 
-@if(session('success'))
-<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Berhasil!</p>
-            <p>{{ session('success') }}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-
-<script>
-    setTimeout(function() {
-        const notification = document.getElementById('successNotification');
-        if (notification) {
-            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-            setTimeout(function() {
-                notification.remove();
-            }, 500);
-        }
-    }, 5000); // Hide after 5 seconds
-</script>
-@endif
-
-<script>
-    // Define showToast function first
-    function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
-
-        if (type === 'success') {
-            toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-        } else {
-            toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
-        }
-
-        toast.innerHTML = `
-            <div class="py-1">
-                <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    ${type === 'success'
-                        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
-                </svg>
+    @if(session('success'))
+        <div id="successNotification"
+            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
+            role="alert">
+            <div class="flex items-center">
+                <div class="py-1">
+                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">Berhasil!</p>
+                    <p>{{ session('success') }}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
             </div>
-            <div>
-                <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Error!'}</p>
-                <p>${message}</p>
-            </div>
-            <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
-        `;
+        </div>
 
-        document.body.appendChild(toast);
-
-        // Auto-remove the toast after 5 seconds
-        setTimeout(() => {
-            toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-            setTimeout(() => {
-                toast.remove();
-            }, 500);
-        }, 5000);
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add JavaScript initialization for permission awareness
-        @if(!hasPermission('complaint:create'))
-        // Hide create complaint button if user doesn't have permission
-        const createButtons = document.querySelectorAll('#createComplaintBtn');
-        createButtons.forEach(btn => {
-            if (btn) {
-                btn.style.display = 'none';
-            }
-        });
-        @endif
-
-        @if(!hasPermission('complaint:export'))
-        // Hide export button if user doesn't have permission
-        const exportButtons = document.querySelectorAll('#exportBtn');
-        exportButtons.forEach(btn => {
-            if (btn) {
-                btn.style.display = 'none';
-            }
-        });
-        @endif
-
-        @if(!hasPermission('complaint:delete'))
-        // Hide delete buttons if user doesn't have permission
-        const deleteButtons = document.querySelectorAll('.delete-complaint-btn');
-        deleteButtons.forEach(btn => {
-            if (btn) {
-                btn.style.display = 'none';
-            }
-        });
-        @endif
-
-        @if(!hasPermission('repair:medical') && !hasPermission('repair:non-medical'))
-        // Hide repair buttons if user doesn't have either permission
-        const repairButtons = document.querySelectorAll('.repair-complaint-btn');
-        repairButtons.forEach(btn => {
-            if (btn) {
-                btn.style.display = 'none';
-            }
-        });
-        @endif
-
-        // ===== VARIABLE DECLARATIONS =====
-        // DOM Elements
-        const imageFile = document.getElementById('imageFile');
-        const previewImg = document.getElementById('previewImg');
-        const imagePreview = document.getElementById('imagePreview');
-        const removeImage = document.getElementById('removeImage');
-        const complaintForm = document.getElementById('complaintForm');
-        const errorMsgDiv = document.getElementById('errorMessages');
-        const createComplaintBtn = document.getElementById('createComplaintBtn');
-        const createComplaintModal = document.getElementById('createComplaintModal');
-        const createComplaintModalContent = document.getElementById('createComplaintModalContent');
-        const closeModalBtns = document.querySelectorAll('.close-modal');
-        const exportBtn = document.getElementById('exportBtn');
-        const searchInput = document.getElementById('searchInput');
-        const sortOrder = document.getElementById('sortOrder');
-        const statusFilter = document.getElementById('statusFilter');
-        const perPageSelect = document.getElementById('perPageSelect');
-        const assetSearch = document.getElementById('assetSearch');
-        const assetDropdown = document.getElementById('assetDropdown');
-        const assetDropdownContent = document.getElementById('assetDropdownContent');
-        const assetLoadingIndicator = document.getElementById('assetLoadingIndicator');
-        const assetNoResults = document.getElementById('assetNoResults');
-        const assetId = document.getElementById('assetId');
-        const selectedAssetInfo = document.getElementById('selectedAssetInfo');
-        const selectedAssetName = document.getElementById('selectedAssetName');
-        const selectedAssetId = document.getElementById('selectedAssetId');
-        const clearAssetSelection = document.getElementById('clearAssetSelection');
-
-        // Check for flash messages from session and show toast notifications
-        @if(session('success'))
-            showToast("{{ session('success') }}", 'success');
-        @endif
-
-        @if(session('error'))
-            showToast("{{ session('error') }}", 'error');
-        @endif
-
-        // ===== UTILITY FUNCTIONS =====
-        // Modal functions
-        function openModal(modal, content) {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-            }, 10);
-        }
-
-        function closeModal(modal, content) {
-            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
-
-        // Debounce function to limit how often search is triggered
-        function debounce(func, wait) {
-            let timeout;
-            return function() {
-                const context = this;
-                const args = arguments;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    func.apply(context, args);
-                }, wait);
-            };
-        }
-
-        // Function to apply filters
-        function applyFilters() {
-            const searchTerm = searchInput.value;
-            const sort = sortOrder.value;
-            const status = statusFilter.value;
-            const limit = perPageSelect?.value || 10;
-
-            const url = new URL(window.location.href);
-
-            // Set search parameter
-            if (searchTerm) url.searchParams.set('search', searchTerm);
-            else url.searchParams.delete('search');
-
-            // Set sort parameter
-            if (sort) url.searchParams.set('sort', sort);
-            else url.searchParams.delete('sort');
-
-            // Set status parameter
-            if (status) url.searchParams.set('status', status);
-            else url.searchParams.delete('status');
-
-            // Set limit parameter
-            url.searchParams.set('limit', limit);
-
-            // Reset to first page when filters change
-            url.searchParams.set('page', 1);
-
-            // Redirect to new URL with filters
-            window.location.href = url.toString();
-        }
-
-        // Function to change items per page - make it global to match other pages
-        window.changePerPage = function(limit) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('limit', limit);
-            window.location.href = url.toString();
-        }
-
-        imageFile?.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    imagePreview.classList.remove('hidden');
+        <script>
+            setTimeout(function () {
+                const notification = document.getElementById('successNotification');
+                if (notification) {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(function () {
+                        notification.remove();
+                    }, 500);
                 }
+            }, 5000); // Hide after 5 seconds
+        </script>
+    @endif
 
-                reader.readAsDataURL(file);
-            }
-        });
+    <script>
+        // Define showToast function first
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
 
-        removeImage?.addEventListener('click', function() {
-            imageFile.value = '';
-            imagePreview.classList.add('hidden');
-            previewImg.src = '#';
-        });
-
-        // Modal Controls
-        createComplaintBtn?.addEventListener('click', function() {
-            openModal(createComplaintModal, createComplaintModalContent);
-
-            // Clear form and error messages
-            complaintForm?.reset();
-            if (errorMsgDiv) errorMsgDiv.innerHTML = '';
-
-            // Reset image preview
-            if (imagePreview) {
-                imagePreview.classList.add('hidden');
-            }
-        });
-
-        closeModalBtns?.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const modal = this.closest('[id$="Modal"]');
-                const content = modal.querySelector('[id$="ModalContent"]');
-                if (modal && content) {
-                    closeModal(modal, content);
-                }
-            });
-        });
-
-        createComplaintModal?.addEventListener('click', function(event) {
-            if (event.target === this) {
-                closeModal(createComplaintModal, createComplaintModalContent);
-            }
-        });
-
-        // Search and Filtering
-        searchInput?.addEventListener('input', debounce(function() {
-            applyFilters();
-        }, 500));
-
-        sortOrder?.addEventListener('change', function() {
-            applyFilters();
-        });
-
-        statusFilter?.addEventListener('change', function() {
-            applyFilters();
-        });
-
-        // Per page selection is handled via the onchange attribute
-
-        // Export PDF functionality
-        exportBtn?.addEventListener('click', () => {
-            // Get current URL parameters
-            const url = new URL(window.location.href);
-            const searchParams = url.searchParams;
-
-            // Create the PDF export URL with the same parameters
-            const exportUrl = "{{ route('complaint.export.pdf') }}?" + searchParams.toString();
-
-            // Open in a new window/tab, not replacing the current one
-            window.open(exportUrl, '_blank', 'noopener,noreferrer');
-        });
-
-        // ===== ASSET SEARCH FUNCTIONALITY WITH DEBOUNCE =====
-        const assets = @json($assets ?? []);
-        let assetSearchTimeout;
-
-        // Log available assets data to console for debugging
-        console.log('Assets loaded:', assets.length);
-        if (assets.length > 0) {
-            console.log('First asset sample:', assets[0]);
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (assetSearch && assetDropdown && !assetSearch.contains(e.target) && !assetDropdown.contains(e.target)) {
-                assetDropdown.classList.add('hidden');
-            }
-        });
-
-        // Open dropdown when focusing on search input
-        assetSearch?.addEventListener('focus', function() {
-            // Only show dropdown if we haven't selected an asset yet
-            if (!assetId.value) {
-                // Make sure we have assets data before showing dropdown
-                if (assets && assets.length > 0) {
-                    displayFilteredAssets(assets, '');
-                    assetDropdown.classList.remove('hidden');
-                } else {
-                    // No assets available
-                    assetNoResults.classList.remove('hidden');
-                    assetDropdown.classList.remove('hidden');
-                }
-            }
-        });
-
-        // Handle asset search with debounce
-        assetSearch?.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-
-            // Show loading indicator and dropdown
-            assetLoadingIndicator.classList.remove('hidden');
-            assetNoResults.classList.add('hidden');
-            assetDropdownContent.innerHTML = '';
-            assetDropdown.classList.remove('hidden');
-
-            // Clear any existing timeout
-            clearTimeout(assetSearchTimeout);
-
-            // Set new timeout for debounce (300ms)
-            assetSearchTimeout = setTimeout(function() {
-                // Filter assets client-side
-                filterAssets(searchTerm);
-            }, 300);
-        });
-
-        // Function to filter assets based on search term
-        function filterAssets(searchTerm) {
-            assetLoadingIndicator.classList.add('hidden');
-
-            if (!assets || assets.length === 0) {
-                assetNoResults.classList.remove('hidden');
-                return;
-            }
-
-            // Filter assets by name, code or ID
-            let filteredAssets = assets;
-            if (searchTerm) {
-                filteredAssets = assets.filter(asset =>
-                    (asset.asset_name && asset.asset_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                    (asset.asset_master_name && asset.asset_master_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                    (asset.asset_code && asset.asset_code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                    (asset.asset_id && asset.asset_id.toString().includes(searchTerm))
-                );
-            }
-
-            displayFilteredAssets(filteredAssets, searchTerm);
-        }
-
-        // Function to display filtered assets in dropdown
-        function displayFilteredAssets(filteredAssets, searchTerm) {
-            assetDropdownContent.innerHTML = '';
-
-            if (!filteredAssets || filteredAssets.length === 0) {
-                assetNoResults.classList.remove('hidden');
-                return;
-            }
-
-            assetNoResults.classList.add('hidden');
-            assetLoadingIndicator.classList.add('hidden');
-
-            // Limit to first 100 results for performance
-            const assetsToShow = filteredAssets.slice(0, 100);
-
-            assetsToShow.forEach(asset => {
-                const div = document.createElement('div');
-                div.className = 'p-2 hover:bg-gray-100 cursor-pointer rounded transition-colors';
-                div.innerHTML = `
-                    <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Aset Tidak Diketahui'}</div>
-                    <div class="text-xs text-gray-500">Kode: ${asset.asset_code || 'N/A'}</div>
-                `;
-
-                div.addEventListener('click', function() {
-                    selectAsset(asset);
-                });
-
-                assetDropdownContent.appendChild(div);
-            });
-        }
-
-        // Function to select an asset
-        function selectAsset(asset) {
-            assetId.value = asset.asset_id;
-            assetSearch.value = asset.asset_master_name || asset.asset_name;
-            assetDropdown.classList.add('hidden');
-
-            // Show selected asset info
-            selectedAssetName.textContent = asset.asset_master_name || asset.asset_name;
-            selectedAssetId.textContent = `Code: ${asset.asset_code || 'N/A'}`;
-            selectedAssetInfo.classList.remove('hidden');
-        }
-
-        // Clear asset selection
-        clearAssetSelection?.addEventListener('click', function() {
-            assetId.value = '';
-            assetSearch.value = '';
-            selectedAssetInfo.classList.add('hidden');
-        });
-
-        // ===== FORM SUBMISSION =====
-        complaintForm?.addEventListener('submit', function(e) {
-            // Prevent default submission to validate first
-            e.preventDefault();
-
-            // Validate all required fields
-            const assetSearchInput = document.getElementById('assetSearch');
-            const descriptionInput = document.getElementById('description');
-            const imageFileInput = document.getElementById('imageFile');
-
-            const isAssetValid = validateField(assetSearchInput, !!document.getElementById('assetId').value);
-            const isDescriptionValid = validateField(descriptionInput);
-            const isImageValid = validateField(imageFileInput, imageFileInput.files && imageFileInput.files.length > 0);
-
-            // If any validation fails, show error and stop submission
-            if (!isAssetValid || !isDescriptionValid || !isImageValid) {
-                // Focus on the first invalid field
-                if (!isAssetValid) assetSearchInput.focus();
-                else if (!isDescriptionValid) descriptionInput.focus();
-                else if (!isImageValid) imageFileInput.focus();
-
-                showToast('Silakan isi semua field yang diperlukan', 'error');
-                return false;
-            }
-
-            // Find the submit button and show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                const originalText = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                submitBtn.innerHTML = `
-                    <div class="flex items-center justify-center">
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Memproses...</span>
-                    </div>
-                `;
-
-                // Re-enable button after 10 seconds as a failsafe
-                setTimeout(() => {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = originalText;
-                    }
-                }, 10000);
-            }
-
-            // Continue with form submission
-            this.submit();
-        });
-
-        // Repair form submission validation
-        const repairForm = document.getElementById('repairForm');
-        const repairErrorMsgDiv = document.getElementById('repairErrorMessages');
-
-        repairForm?.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Validate all required fields
-            const isDescriptionValid = validateField(document.getElementById('repairDescription'));
-            const isResultValid = validateField(document.getElementById('finalResult'));
-            const isCostValid = validateField(document.getElementById('repairCost'));
-            const isPartsValid = validateField(document.getElementById('partsReplaced'));
-            const isImageValid = validateField(document.getElementById('repairImageFile'), document.getElementById('repairImageFile').files && document.getElementById('repairImageFile').files.length > 0);
-
-            // If any validation fails, show error and stop submission
-            if (!isDescriptionValid || !isResultValid || !isCostValid || !isPartsValid || !isImageValid) {
-                showToast('Silakan isi semua field yang diperlukan', 'error');
-                return false;
-            }
-
-            // Find the submit button and show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                const originalText = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                submitBtn.innerHTML = `
-                    <div class="flex items-center justify-center">
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Memproses...</span>
-                    </div>
-                `;
-
-                // Re-enable button after 10 seconds as a failsafe
-                setTimeout(() => {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = originalText;
-                    }
-                }, 10000);
-            }
-
-            // Continue with form submission
-            this.submit();
-        });
-
-        // Function to validate field and show error styling
-        function validateField(field, isValid = null) {
-            if (!field) return true;
-
-            let errorElement = field.type === 'file'
-                ? field.parentElement.parentElement.querySelector('.error-message')
-                : field.parentElement.querySelector('.error-message');
-
-            // If no explicit valid state is passed, check based on field type
-            if (isValid === null) {
-                if (field.type === 'select-one') {
-                    isValid = field.value !== '';
-                } else if (field.type === 'file') {
-                    isValid = field.files && field.files.length > 0;
-                } else if (field.id === 'assetSearch') {
-                    isValid = document.getElementById('assetId').value !== '';
-                } else {
-                    isValid = field.value.trim() !== '';
-                }
-            }
-
-            // Apply styling based on validation result
-            if (!isValid) {
-                field.classList.add('border-red-500');
-                if (errorElement) errorElement.classList.remove('hidden');
-                return false;
+            if (type === 'success') {
+                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
             } else {
-                field.classList.remove('border-red-500');
-                if (errorElement) errorElement.classList.add('hidden');
-                return true;
+                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
             }
+
+            toast.innerHTML = `
+                <div class="py-1">
+                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        ${type === 'success'
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Error!'}</p>
+                    <p>${message}</p>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Auto-remove the toast after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => {
+                    toast.remove();
+                }, 500);
+            }, 5000);
         }
 
-        // Add input event listeners to clear error styling when typing/changing
-        assetSearch?.addEventListener('input', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.parentElement.querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add JavaScript initialization for permission awareness
+            @if(!hasPermission('complaint:create'))
+                // Hide create complaint button if user doesn't have permission
+                const createButtons = document.querySelectorAll('#createComplaintBtn');
+                createButtons.forEach(btn => {
+                    if (btn) {
+                        btn.style.display = 'none';
+                    }
+                });
+            @endif
 
-        document.getElementById('description')?.addEventListener('input', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.parentElement.querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
-
-        document.getElementById('imageFile')?.addEventListener('change', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.parentElement.parentElement.querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
-
-        document.getElementById('repairDescription')?.addEventListener('input', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.parentElement.querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
-
-        document.getElementById('finalResult')?.addEventListener('change', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.parentElement.querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
-
-        document.getElementById('repairCost')?.addEventListener('input', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.parentElement.querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
-
-        document.getElementById('partsReplaced')?.addEventListener('input', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.parentElement.querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
-
-                document.getElementById('repairImageFile')?.addEventListener('change', function() {
-            // Clear error styling
-            this.classList.remove('border-red-500');
-            const errorElement = this.parentElement.parentElement.querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-
-            // Handle image preview
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    document.getElementById('repairPreviewImg').src = e.target.result;
-                    document.getElementById('repairImagePreview').classList.remove('hidden');
-                }
-
-                reader.readAsDataURL(file);
-            }
-        });
-
-        document.getElementById('removeRepairImage')?.addEventListener('click', function() {
-            document.getElementById('repairImageFile').value = '';
-            document.getElementById('repairImagePreview').classList.add('hidden');
-            document.getElementById('repairPreviewImg').src = '#';
-        });
-
-        // Delete button click handlers
-        document.querySelectorAll('.delete-complaint-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const complaintId = button.getAttribute('data-id');
-                const complaintName = button.getAttribute('data-name');
-
-                // Set the complaint ID for later use
-                document.getElementById('deleteComplaintForm').setAttribute('data-id', complaintId);
-
-                // Show asset name in confirmation modal if available
-                if (complaintName) {
-                    document.getElementById('deleteComplaintName').textContent = complaintName;
-                }
-
-                // Open delete modal
-                openModal(deleteComplaintModal, deleteComplaintModalContent);
-            });
-        });
-
-        // Form submission handler for delete
-        document.getElementById('deleteComplaintForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Get the complaint ID from the data attribute
-            const complaintId = this.getAttribute('data-id');
-
-            if (!complaintId) {
-                showToast('ID keluhan tidak valid', 'error');
-                return;
-            }
-
-            // Find the submit button and show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                const originalText = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                submitBtn.innerHTML = `
-                    <div class="flex items-center justify-center">
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Memproses...</span>
-                    </div>
-                `;
-            }
-
-            // Make the POST request to delete
-            fetch(`complaint-repair/complaints/${complaintId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ complaint_id: complaintId })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.message || `Server responded with status ${response.status}`);
+                @if(!hasPermission('complaint:export'))
+                    // Hide export button if user doesn't have permission
+                    const exportButtons = document.querySelectorAll('#exportBtn');
+                    exportButtons.forEach(btn => {
+                        if (btn) {
+                            btn.style.display = 'none';
+                        }
                     });
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Close the modal
-                closeModal(deleteComplaintModal, deleteComplaintModalContent);
+                @endif
 
-                if (data.success) {
-                    // Show success toast
-                    showToast(data.message || 'Keluhan berhasil dihapus', 'success');
+                @if(!hasPermission('complaint:delete'))
+                    // Hide delete buttons if user doesn't have permission
+                    const deleteButtons = document.querySelectorAll('.delete-complaint-btn');
+                    deleteButtons.forEach(btn => {
+                        if (btn) {
+                            btn.style.display = 'none';
+                        }
+                    });
+                @endif
 
-                    // Reload the page after a short delay
+                @if(!hasPermission('repair:medical') && !hasPermission('repair:non-medical'))
+                    // Hide repair buttons if user doesn't have either permission
+                    const repairButtons = document.querySelectorAll('.repair-complaint-btn');
+                    repairButtons.forEach(btn => {
+                        if (btn) {
+                            btn.style.display = 'none';
+                        }
+                    });
+                @endif
+
+            // ===== VARIABLE DECLARATIONS =====
+            // DOM Elements
+            const imageFile = document.getElementById('imageFile');
+            const previewImg = document.getElementById('previewImg');
+            const imagePreview = document.getElementById('imagePreview');
+            const removeImage = document.getElementById('removeImage');
+            const complaintForm = document.getElementById('complaintForm');
+            const errorMsgDiv = document.getElementById('errorMessages');
+            const createComplaintBtn = document.getElementById('createComplaintBtn');
+            const createComplaintModal = document.getElementById('createComplaintModal');
+            const createComplaintModalContent = document.getElementById('createComplaintModalContent');
+            const closeModalBtns = document.querySelectorAll('.close-modal');
+            const exportBtn = document.getElementById('exportBtn');
+            const searchInput = document.getElementById('searchInput');
+            const sortOrder = document.getElementById('sortOrder');
+            const statusFilter = document.getElementById('statusFilter');
+            const perPageSelect = document.getElementById('perPageSelect');
+            const assetSearch = document.getElementById('assetSearch');
+            const assetDropdown = document.getElementById('assetDropdown');
+            const assetDropdownContent = document.getElementById('assetDropdownContent');
+            const assetLoadingIndicator = document.getElementById('assetLoadingIndicator');
+            const assetNoResults = document.getElementById('assetNoResults');
+            const assetId = document.getElementById('assetId');
+            const selectedAssetInfo = document.getElementById('selectedAssetInfo');
+            const selectedAssetName = document.getElementById('selectedAssetName');
+            const selectedAssetId = document.getElementById('selectedAssetId');
+            const clearAssetSelection = document.getElementById('clearAssetSelection');
+
+            // Check for flash messages from session and show toast notifications
+            @if(session('success'))
+                showToast("{{ session('success') }}", 'success');
+            @endif
+
+            @if(session('error'))
+                showToast("{{ session('error') }}", 'error');
+            @endif
+
+                // ===== UTILITY FUNCTIONS =====
+                // Modal functions
+                function openModal(modal, content) {
+                    modal.classList.remove('hidden');
                     setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    showToast(data.message || 'Gagal menghapus keluhan', 'error');
+                        content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                        content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                    }, 10);
                 }
-            })
-            .catch(error => {
-                console.error('Delete request failed:', error);
 
-                // Close the modal
-                closeModal(deleteComplaintModal, deleteComplaintModalContent);
+            function closeModal(modal, content) {
+                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
 
-                // Show error toast
-                showToast(error.message || 'Gagal menghapus keluhan', 'error');
+            // Debounce function to limit how often search is triggered
+            function debounce(func, wait) {
+                let timeout;
+                return function () {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        func.apply(context, args);
+                    }, wait);
+                };
+            }
 
-                // Reset submit button
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = originalText;
+            // Function to apply filters
+            function applyFilters() {
+                const searchTerm = searchInput.value;
+                const sort = sortOrder.value;
+                const status = statusFilter.value;
+                const limit = perPageSelect?.value || 10;
+
+                const url = new URL(window.location.href);
+
+                // Set search parameter
+                if (searchTerm) url.searchParams.set('search', searchTerm);
+                else url.searchParams.delete('search');
+
+                // Set sort parameter
+                if (sort) url.searchParams.set('sort', sort);
+                else url.searchParams.delete('sort');
+
+                // Set status parameter
+                if (status) url.searchParams.set('status', status);
+                else url.searchParams.delete('status');
+
+                // Set limit parameter
+                url.searchParams.set('limit', limit);
+
+                // Reset to first page when filters change
+                url.searchParams.set('page', 1);
+
+                // Redirect to new URL with filters
+                window.location.href = url.toString();
+            }
+
+            // Function to change items per page - make it global to match other pages
+            window.changePerPage = function (limit) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('limit', limit);
+                window.location.href = url.toString();
+            }
+
+            imageFile?.addEventListener('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        previewImg.src = e.target.result;
+                        imagePreview.classList.remove('hidden');
+                    }
+
+                    reader.readAsDataURL(file);
                 }
             });
-        });
 
-        // Repair button click handlers
-        document.querySelectorAll('.repair-complaint-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const complaintId = button.getAttribute('data-id');
-                const assetName = button.getAttribute('data-asset');
+            removeImage?.addEventListener('click', function () {
+                imageFile.value = '';
+                imagePreview.classList.add('hidden');
+                previewImg.src = '#';
+            });
 
-                // Set form data
-                repairComplaintId.value = complaintId;
-                repairAssetName.textContent = assetName;
+            // Modal Controls
+            createComplaintBtn?.addEventListener('click', function () {
+                openModal(createComplaintModal, createComplaintModalContent);
 
-                // Reset form and error messages
-                repairForm?.reset();
-                if (repairErrorMsgDiv) repairErrorMsgDiv.innerHTML = '';
+                // Clear form and error messages
+                complaintForm?.reset();
+                if (errorMsgDiv) errorMsgDiv.innerHTML = '';
 
                 // Reset image preview
-                if (repairImagePreview) {
-                    repairImagePreview.classList.add('hidden');
+                if (imagePreview) {
+                    imagePreview.classList.add('hidden');
+                }
+            });
+
+            closeModalBtns?.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const modal = this.closest('[id$="Modal"]');
+                    const content = modal.querySelector('[id$="ModalContent"]');
+                    if (modal && content) {
+                        closeModal(modal, content);
+                    }
+                });
+            });
+
+            createComplaintModal?.addEventListener('click', function (event) {
+                if (event.target === this) {
+                    closeModal(createComplaintModal, createComplaintModalContent);
+                }
+            });
+
+            // Search and Filtering
+            searchInput?.addEventListener('input', debounce(function () {
+                applyFilters();
+            }, 500));
+
+            sortOrder?.addEventListener('change', function () {
+                applyFilters();
+            });
+
+            statusFilter?.addEventListener('change', function () {
+                applyFilters();
+            });
+
+            // Per page selection is handled via the onchange attribute
+
+            // Export PDF functionality
+            exportBtn?.addEventListener('click', () => {
+                // Get current URL parameters
+                const url = new URL(window.location.href);
+                const searchParams = url.searchParams;
+
+                // Create the PDF export URL with the same parameters
+                const exportUrl = "{{ route('complaint.export.pdf') }}?" + searchParams.toString();
+
+                // Open in a new window/tab, not replacing the current one
+                window.open(exportUrl, '_blank', 'noopener,noreferrer');
+            });
+
+            // ===== ASSET SEARCH FUNCTIONALITY WITH DEBOUNCE =====
+            const assets = @json($assets ?? []);
+            let assetSearchTimeout;
+
+            // Log available assets data to console for debugging
+            console.log('Assets loaded:', assets.length);
+            if (assets.length > 0) {
+                console.log('First asset sample:', assets[0]);
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                if (assetSearch && assetDropdown && !assetSearch.contains(e.target) && !assetDropdown.contains(e.target)) {
+                    assetDropdown.classList.add('hidden');
+                }
+            });
+
+            // Open dropdown when focusing on search input
+            assetSearch?.addEventListener('focus', function () {
+                // Only show dropdown if we haven't selected an asset yet
+                if (!assetId.value) {
+                    // Make sure we have assets data before showing dropdown
+                    if (assets && assets.length > 0) {
+                        displayFilteredAssets(assets, '');
+                        assetDropdown.classList.remove('hidden');
+                    } else {
+                        // No assets available
+                        assetNoResults.classList.remove('hidden');
+                        assetDropdown.classList.remove('hidden');
+                    }
+                }
+            });
+
+            // Handle asset search with debounce
+            assetSearch?.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase().trim();
+
+                // Show loading indicator and dropdown
+                assetLoadingIndicator.classList.remove('hidden');
+                assetNoResults.classList.add('hidden');
+                assetDropdownContent.innerHTML = '';
+                assetDropdown.classList.remove('hidden');
+
+                // Clear any existing timeout
+                clearTimeout(assetSearchTimeout);
+
+                // Set new timeout for debounce (300ms)
+                assetSearchTimeout = setTimeout(function () {
+                    // Filter assets client-side
+                    filterAssets(searchTerm);
+                }, 300);
+            });
+
+            // Function to filter assets based on search term
+            function filterAssets(searchTerm) {
+                assetLoadingIndicator.classList.add('hidden');
+
+                if (!assets || assets.length === 0) {
+                    assetNoResults.classList.remove('hidden');
+                    return;
                 }
 
-                // Open repair modal
-                openModal(repairComplaintModal, repairComplaintModalContent);
+                // Filter assets by name, code or ID
+                let filteredAssets = assets;
+                if (searchTerm) {
+                    filteredAssets = assets.filter(asset =>
+                        (asset.asset_name && asset.asset_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (asset.asset_master_name && asset.asset_master_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (asset.asset_code && asset.asset_code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (asset.asset_id && asset.asset_id.toString().includes(searchTerm))
+                    );
+                }
+
+                displayFilteredAssets(filteredAssets, searchTerm);
+            }
+
+            // Function to display filtered assets in dropdown
+            function displayFilteredAssets(filteredAssets, searchTerm) {
+                assetDropdownContent.innerHTML = '';
+
+                if (!filteredAssets || filteredAssets.length === 0) {
+                    assetNoResults.classList.remove('hidden');
+                    return;
+                }
+
+                assetNoResults.classList.add('hidden');
+                assetLoadingIndicator.classList.add('hidden');
+
+                // Limit to first 100 results for performance
+                const assetsToShow = filteredAssets.slice(0, 100);
+
+                assetsToShow.forEach(asset => {
+                    const div = document.createElement('div');
+                    div.className = 'p-2 hover:bg-gray-100 cursor-pointer rounded transition-colors';
+                    div.innerHTML = `
+                        <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Aset Tidak Diketahui'}</div>
+                        <div class="text-xs text-gray-500">Kode: ${asset.asset_code || 'N/A'}</div>
+                    `;
+
+                    div.addEventListener('click', function () {
+                        selectAsset(asset);
+                    });
+
+                    assetDropdownContent.appendChild(div);
+                });
+            }
+
+            // Function to select an asset
+            function selectAsset(asset) {
+                assetId.value = asset.asset_id;
+                assetSearch.value = asset.asset_master_name || asset.asset_name;
+                assetDropdown.classList.add('hidden');
+
+                // Show selected asset info
+                selectedAssetName.textContent = asset.asset_master_name || asset.asset_name;
+                selectedAssetId.textContent = `Code: ${asset.asset_code || 'N/A'}`;
+                selectedAssetInfo.classList.remove('hidden');
+            }
+
+            // Clear asset selection
+            clearAssetSelection?.addEventListener('click', function () {
+                assetId.value = '';
+                assetSearch.value = '';
+                selectedAssetInfo.classList.add('hidden');
+            });
+
+            // ===== FORM SUBMISSION =====
+            complaintForm?.addEventListener('submit', function (e) {
+                // Prevent default submission to validate first
+                e.preventDefault();
+
+                // Validate all required fields
+                const assetSearchInput = document.getElementById('assetSearch');
+                const descriptionInput = document.getElementById('description');
+                const imageFileInput = document.getElementById('imageFile');
+
+                const isAssetValid = validateField(assetSearchInput, !!document.getElementById('assetId').value);
+                const isDescriptionValid = validateField(descriptionInput);
+                const isImageValid = validateField(imageFileInput, imageFileInput.files && imageFileInput.files.length > 0);
+
+                // If any validation fails, show error and stop submission
+                if (!isAssetValid || !isDescriptionValid || !isImageValid) {
+                    // Focus on the first invalid field
+                    if (!isAssetValid) assetSearchInput.focus();
+                    else if (!isDescriptionValid) descriptionInput.focus();
+                    else if (!isImageValid) imageFileInput.focus();
+
+                    showToast('Silakan isi semua field yang diperlukan', 'error');
+                    return false;
+                }
+
+                // Find the submit button and show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `
+                        <div class="flex items-center justify-center">
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <span>Memproses...</span>
+                        </div>
+                    `;
+
+                    // Re-enable button after 10 seconds as a failsafe
+                    setTimeout(() => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                        }
+                    }, 10000);
+                }
+
+                // Continue with form submission
+                this.submit();
+            });
+
+            // Repair form submission validation
+            const repairForm = document.getElementById('repairForm');
+            const repairErrorMsgDiv = document.getElementById('repairErrorMessages');
+
+            repairForm?.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Validate all required fields
+                const isDescriptionValid = validateField(document.getElementById('repairDescription'));
+                const isResultValid = validateField(document.getElementById('finalResult'));
+                const isCostValid = validateField(document.getElementById('repairCost'));
+                const isPartsValid = validateField(document.getElementById('partsReplaced'));
+                const isImageValid = validateField(document.getElementById('repairImageFile'), document.getElementById('repairImageFile').files && document.getElementById('repairImageFile').files.length > 0);
+
+                // If any validation fails, show error and stop submission
+                if (!isDescriptionValid || !isResultValid || !isCostValid || !isPartsValid || !isImageValid) {
+                    showToast('Silakan isi semua field yang diperlukan', 'error');
+                    return false;
+                }
+
+                // Find the submit button and show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `
+                        <div class="flex items-center justify-center">
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <span>Memproses...</span>
+                        </div>
+                    `;
+
+                    // Re-enable button after 10 seconds as a failsafe
+                    setTimeout(() => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                        }
+                    }, 10000);
+                }
+
+                // Continue with form submission
+                this.submit();
+            });
+
+            // Function to validate field and show error styling
+            function validateField(field, isValid = null) {
+                if (!field) return true;
+
+                let errorElement = field.type === 'file'
+                    ? field.parentElement.parentElement.querySelector('.error-message')
+                    : field.parentElement.querySelector('.error-message');
+
+                // If no explicit valid state is passed, check based on field type
+                if (isValid === null) {
+                    if (field.type === 'select-one') {
+                        isValid = field.value !== '';
+                    } else if (field.type === 'file') {
+                        isValid = field.files && field.files.length > 0;
+                    } else if (field.id === 'assetSearch') {
+                        isValid = document.getElementById('assetId').value !== '';
+                    } else {
+                        isValid = field.value.trim() !== '';
+                    }
+                }
+
+                // Apply styling based on validation result
+                if (!isValid) {
+                    field.classList.add('border-red-500');
+                    if (errorElement) errorElement.classList.remove('hidden');
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorElement) errorElement.classList.add('hidden');
+                    return true;
+                }
+            }
+
+            // Add input event listeners to clear error styling when typing/changing
+            assetSearch?.addEventListener('input', function () {
+                this.classList.remove('border-red-500');
+                const errorElement = this.parentElement.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+
+            document.getElementById('description')?.addEventListener('input', function () {
+                this.classList.remove('border-red-500');
+                const errorElement = this.parentElement.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+
+            document.getElementById('imageFile')?.addEventListener('change', function () {
+                this.classList.remove('border-red-500');
+                const errorElement = this.parentElement.parentElement.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+
+            document.getElementById('repairDescription')?.addEventListener('input', function () {
+                this.classList.remove('border-red-500');
+                const errorElement = this.parentElement.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+
+            document.getElementById('finalResult')?.addEventListener('change', function () {
+                this.classList.remove('border-red-500');
+                const errorElement = this.parentElement.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+
+            document.getElementById('repairCost')?.addEventListener('input', function () {
+                this.classList.remove('border-red-500');
+                const errorElement = this.parentElement.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+
+            document.getElementById('partsReplaced')?.addEventListener('input', function () {
+                this.classList.remove('border-red-500');
+                const errorElement = this.parentElement.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+
+            document.getElementById('repairImageFile')?.addEventListener('change', function () {
+                // Clear error styling
+                this.classList.remove('border-red-500');
+                const errorElement = this.parentElement.parentElement.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+
+                // Handle image preview
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        document.getElementById('repairPreviewImg').src = e.target.result;
+                        document.getElementById('repairImagePreview').classList.remove('hidden');
+                    }
+
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            document.getElementById('removeRepairImage')?.addEventListener('click', function () {
+                document.getElementById('repairImageFile').value = '';
+                document.getElementById('repairImagePreview').classList.add('hidden');
+                document.getElementById('repairPreviewImg').src = '#';
+            });
+
+            // Delete button click handlers
+            document.querySelectorAll('.delete-complaint-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const complaintId = button.getAttribute('data-id');
+                    const complaintName = button.getAttribute('data-name');
+
+                    // Set the complaint ID for later use
+                    document.getElementById('deleteComplaintForm').setAttribute('data-id', complaintId);
+
+                    // Show asset name in confirmation modal if available
+                    if (complaintName) {
+                        document.getElementById('deleteComplaintName').textContent = complaintName;
+                    }
+
+                    // Open delete modal
+                    openModal(deleteComplaintModal, deleteComplaintModalContent);
+                });
+            });
+
+            // Form submission handler for delete
+            document.getElementById('deleteComplaintForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Get the complaint ID from the data attribute
+                const complaintId = this.getAttribute('data-id');
+
+                if (!complaintId) {
+                    showToast('ID keluhan tidak valid', 'error');
+                    return;
+                }
+
+                // Find the submit button and show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `
+                        <div class="flex items-center justify-center">
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <span>Memproses...</span>
+                        </div>
+                    `;
+                }
+
+                // Make the POST request to delete
+                fetch(`complaint-repair/complaints/${complaintId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ complaint_id: complaintId })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw new Error(data.message || `Server responded with status ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Close the modal
+                        closeModal(deleteComplaintModal, deleteComplaintModalContent);
+
+                        if (data.success) {
+                            // Show success toast
+                            showToast(data.message || 'Keluhan berhasil dihapus', 'success');
+
+                            // Reload the page after a short delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            showToast(data.message || 'Gagal menghapus keluhan', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Delete request failed:', error);
+
+                        // Close the modal
+                        closeModal(deleteComplaintModal, deleteComplaintModalContent);
+
+                        // Show error toast
+                        showToast(error.message || 'Gagal menghapus keluhan', 'error');
+
+                        // Reset submit button
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                        }
+                    });
+            });
+
+            // Repair button click handlers
+            document.querySelectorAll('.repair-complaint-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const complaintId = button.getAttribute('data-id');
+                    const assetName = button.getAttribute('data-asset');
+
+                    // Set form data
+                    repairComplaintId.value = complaintId;
+                    repairAssetName.textContent = assetName;
+
+                    // Reset form and error messages
+                    repairForm?.reset();
+                    if (repairErrorMsgDiv) repairErrorMsgDiv.innerHTML = '';
+
+                    // Reset image preview
+                    if (repairImagePreview) {
+                        repairImagePreview.classList.add('hidden');
+                    }
+
+                    // Open repair modal
+                    openModal(repairComplaintModal, repairComplaintModalContent);
+                });
+            });
+
+            // Close modal when clicking outside
+            deleteComplaintModal?.addEventListener('click', function (event) {
+                if (event.target === this) {
+                    closeModal(deleteComplaintModal, deleteComplaintModalContent);
+                }
+            });
+
+            // Close repair modal when clicking outside
+            repairComplaintModal?.addEventListener('click', function (event) {
+                if (event.target === this) {
+                    closeModal(repairComplaintModal, repairComplaintModalContent);
+                }
             });
         });
 
-        // Close modal when clicking outside
-        deleteComplaintModal?.addEventListener('click', function(event) {
-            if (event.target === this) {
-                closeModal(deleteComplaintModal, deleteComplaintModalContent);
-            }
-        });
-
-        // Close repair modal when clicking outside
-        repairComplaintModal?.addEventListener('click', function(event) {
-            if (event.target === this) {
-                closeModal(repairComplaintModal, repairComplaintModalContent);
-            }
-        });
-    });
-
-    // Function to view complaint details - defined globally
-    function viewComplaintDetails(id) {
-        // Redirect to the complaint detail page
-        window.location.href = "{{ url('complaint-repair/detail') }}/" + id;
-    }
-</script>
+        // Function to view complaint details - defined globally
+        function viewComplaintDetails(id) {
+            // Redirect to the complaint detail page
+            window.location.href = "{{ url('complaint-repair/detail') }}/" + id;
+        }
+    </script>
 @endsection
-

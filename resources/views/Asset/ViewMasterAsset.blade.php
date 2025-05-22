@@ -3,6 +3,7 @@
 @section('title', 'Detail Aset Master')
 
 @section('content')
+@include('Layout.loading')
 <div class="p-4 md:p-6">
     <!-- Header with title and back button -->
     <div class="flex justify-between items-center mb-6">

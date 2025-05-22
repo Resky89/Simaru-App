@@ -746,7 +746,7 @@ class UnitAssetController extends Controller
             }
 
             // Return full view with asset data for non-AJAX requests
-            return view('Asset.EditAsset', ['asset' => $asset]);
+            return view('Asset.AssetDetail', ['asset' => $asset]);
         } catch (\Exception $e) {
             $errorMessage = 'Failed to retrieve asset: ' . $e->getMessage();
 

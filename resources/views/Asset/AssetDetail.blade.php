@@ -3,6 +3,7 @@
 @section('title', 'Asset Detail')
 
 @section('content')
+@include('Layout.loading')
     <div class="h-full space-y-4 md:space-y-6">
         <!-- Asset Details Section -->
         <div class="card bg-base-100 shadow-xl">

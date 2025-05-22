@@ -3,6 +3,7 @@
 @section('title', 'Manajemen Pemeliharaan')
 
 @section('content')
+@include('Layout.loading')
     <div class="h-full space-y-4 md:space-y-6">
         <!-- Maintenance Section -->
         <div class="card bg-base-100 shadow-xl">

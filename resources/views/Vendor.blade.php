@@ -3,6 +3,7 @@
 @section('title', 'Vendor')
 
 @section('content')
+@include('Layout.loading')
 <div class="h-full space-y-4 md:space-y-6">
     <!-- Vendor Section -->
     <div class="card bg-base-100 shadow-xl">
@@ -63,7 +64,6 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">ID Vendor</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Vendor</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kontak Person</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">No. Telepon</th>
@@ -74,7 +74,7 @@
                         <tbody>
                             @forelse($vendors as $vendor)
                                 <tr>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['vendor_id'] }}</td>
+
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['vendor_name'] }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['contact_person'] }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['phone_number'] }}</td>
@@ -198,7 +198,6 @@
     </div>
 </div>
 
-@endsection
 
 <!-- Modal Add Vendor -->
 @if(hasPermission('vendor:create'))

@@ -3,6 +3,7 @@
 @section('title', 'Dokumen Aset')
 
 @section('content')
+@include('Layout.loading')
 <div class="h-full space-y-4 md:space-y-6">
     <!-- Asset Documents Section -->
     <div class="card bg-base-100 shadow-xl">
@@ -335,7 +336,7 @@
                                 <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="text-base text-gray-600 text-center">ApakahAAndayaikiniinginmmnng apuokumkn in ini? Akss  iidpidakadapatdaibatalkaakan.</p>
+                                <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus dokumen ini? Aksi ini tidak dapat dibatalkan.</p>
                                 <p id="delete-document-title" class="text-base font-semibold text-center mt-2"></p>
                             </div>
                             <div class="flex gap-3">
@@ -357,48 +358,77 @@
 
 <!-- Edit Document Modal -->
 @if(hasPermission('document:edit'))
-<div id="editDocumentModal" class="fixed inset-0 z-50 hidden">
-    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-    <div class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                id="editDocumentModalContent">
-                <!-- Header -->
-                <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">UBAH DOKUMEN</h2>
-                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+    <div id="editDocumentModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+        <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                    id="editDocumentModalContent">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center p-6 pb-0">
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">UBAH DOKUMEN</h2>
+                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
 
-                <!-- Form -->
-                <div class="p-6">
-                    <form id="editDocumentForm" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" id="edit_document_id" name="document_id">
-                        <div class="space-y-4">
-                            <!-- Document Title -->
-                            <div class="space-y-2">
-                                <label for="edit_document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
-                                <input type="text" id="edit_document_title" name="document_title"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
-                            </div>
+                    <!-- Form -->
+                    <div class="p-6">
+                        <form id="editDocumentForm" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" id="edit_document_id" name="document_id">
+                            <div class="space-y-4">
+                                <!-- Document Title -->
+                                <div class="space-y-2">
+                                    <label for="edit_document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
+                                    <input type="text" id="edit_document_title" name="document_title"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
+                                </div>
 
-                            <!-- File Upload -->
-                            <div>
-                                <label for="edit_file" class="block text-sm font-medium text-gray-700 mb-1">Ganti File (Opsional)</label>
-                                <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
-                                    <!-- Current File Info (if any) -->
-                                    <div id="edit_current_file" class="mb-4 w-full">
-                                        <!-- Current file is an image -->
-                                        <div id="edit_current_image" class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto hidden">
-                                            <div class="relative">
-                                                <img id="edit_current_img" src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Current Document Image">
-                                                <button type="button" id="edit_remove_current_file" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                <!-- File Upload -->
+                                <div>
+                                    <label for="edit_file" class="block text-sm font-medium text-gray-700 mb-1">Ganti File (Opsional)</label>
+                                    <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                        <!-- Current File Info (if any) -->
+                                        <div id="edit_current_file" class="mb-4 w-full">
+                                            <!-- Current file is an image -->
+                                            <div id="edit_current_image" class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto hidden">
+                                                <div class="relative">
+                                                    <img id="edit_current_img" src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Current Document Image">
+                                                    <button type="button" id="edit_remove_current_file" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Current file is not an image -->
+                                            <div id="edit_current_file_icon" class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto hidden">
+                                                <div class="flex items-center">
+                                                    <svg class="w-6 h-6 text-gray-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    <span id="edit_file_name" class="text-sm text-gray-700 truncate"></span>
+                                                    <button type="button" id="edit_remove_current_file_icon" class="ml-auto text-red-500 hover:text-red-700">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- New File preview -->
+                                        <!-- Image preview for new file -->
+                                        <div id="edit_image_preview" class="mt-2 mb-4 w-full hidden">
+                                            <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                                <img id="edit_preview_img" src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Selected Image">
+                                                <button type="button" id="edit_remove_image" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                     </svg>
@@ -406,106 +436,77 @@
                                             </div>
                                         </div>
 
-                                        <!-- Current file is not an image -->
-                                        <div id="edit_current_file_icon" class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto hidden">
-                                            <div class="flex items-center">
-                                                <svg class="w-6 h-6 text-gray-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                <span id="edit_file_name" class="text-sm text-gray-700 truncate"></span>
-                                                <button type="button" id="edit_remove_current_file_icon" class="ml-auto text-red-500 hover:text-red-700">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        <!-- File preview (non-image) for new file -->
+                                        <div id="edit_file_preview" class="mt-2 mb-4 w-full hidden">
+                                            <div class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                                <div class="flex items-center">
+                                                    <svg class="w-6 h-6 text-gray-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                     </svg>
-                                                </button>
+                                                    <span id="edit_file_preview_text" class="text-sm text-gray-700 truncate"></span>
+                                                    <button type="button" id="edit_remove_file" class="ml-auto text-red-500 hover:text-red-700">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- New File preview -->
-                                    <!-- Image preview for new file -->
-                                    <div id="edit_image_preview" class="mt-2 mb-4 w-full hidden">
-                                        <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
-                                            <img id="edit_preview_img" src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Selected Image">
-                                            <button type="button" id="edit_remove_image" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
+                                        <div class="text-center">
+                                            <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <p class="mt-1 text-sm text-gray-600">Seret file Anda atau <span class="text-[#213268] font-semibold">pilih file</span></p>
+                                            <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
+                                            <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih file</p>
                                         </div>
+                                        <input type="file" id="edit_file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                     </div>
+                                </div>
 
-                                    <!-- File preview (non-image) for new file -->
-                                    <div id="edit_file_preview" class="mt-2 mb-4 w-full hidden">
-                                        <div class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
-                                            <div class="flex items-center">
-                                                <svg class="w-6 h-6 text-gray-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                <span id="edit_file_preview_text" class="text-sm text-gray-700 truncate"></span>
-                                                <button type="button" id="edit_remove_file" class="ml-auto text-red-500 hover:text-red-700">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <!-- Notes -->
+                                <div>
+                                    <label for="edit_notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                                    <textarea id="edit_notes" name="notes" rows="3"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"></textarea>
+                                </div>
 
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <p class="mt-1 text-sm text-gray-600">Seret file Anda atau <span class="text-[#213268] font-semibold">pilih file</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
-                                        <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih file</p>
+                                <!-- Associated Assets (hidden for future use) -->
+                                <div class="hidden">
+                                    <label for="edit_asset_ids" class="block text-sm font-medium text-gray-700 mb-1">Aset Terkait</label>
+                                    <select id="edit_asset_ids" name="asset_ids[]" multiple class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
+                                        <!-- Options would be populated dynamically -->
+                                    </select>
+                                </div>
+
+                                <!-- Form Actions -->
+                                <div class="flex justify-end mt-6">
+                                    <button type="submit" class="w-full h-[45px] bg-[#28356B] text-white rounded-lg text-base hover:bg-[#1d2754]">
+                                        <span class="flex items-center justify-center">
+                                            Simpan
+                                        </span>
+                                    </button>
+                                </div>
+
+                                <!-- Upload Progress Indicator (initially hidden) -->
+                                <div id="editUploadProgressContainer" class="hidden mt-4">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-sm font-medium text-[#213268]">Mengupload dokumen...</span>
+                                        <span id="editUploadProgressText" class="text-sm font-medium text-[#213268]">0%</span>
                                     </div>
-                                    <input type="file" id="edit_file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="editUploadProgressBar" class="bg-green-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                    <div id="editUploadStatusMessage" class="mt-2 text-sm text-gray-600">Upload berhasil!</div>
                                 </div>
                             </div>
-
-                            <!-- Notes -->
-                            <div>
-                                <label for="edit_notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
-                                <textarea id="edit_notes" name="notes" rows="3"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"></textarea>
-                            </div>
-
-                            <!-- Associated Assets (hidden for future use) -->
-                            <div class="hidden">
-                                <label for="edit_asset_ids" class="block text-sm font-medium text-gray-700 mb-1">Aset Terkait</label>
-                                <select id="edit_asset_ids" name="asset_ids[]" multiple class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
-                                    <!-- Options would be populated dynamically -->
-                                </select>
-                            </div>
-
-                            <!-- Form Actions -->
-                            <div class="flex justify-end mt-6">
-                                <button type="submit" class="w-full h-[45px] bg-[#28356B] text-white rounded-lg text-base hover:bg-[#1d2754]">
-                                    <span class="flex items-center justify-center">
-                                        Simpan
-                                    </span>
-                                </button>
-                            </div>
-
-                            <!-- Upload Progress Indicator (initially hidden) -->
-                            <div id="editUploadProgressContainer" class="hidden mt-4">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="text-sm font-medium text-[#213268]">Mengupload dokumen...</span>
-                                    <span id="editUploadProgressText" class="text-sm font-medium text-[#213268]">0%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div id="editUploadProgressBar" class="bg-green-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                                </div>
-                                <div id="editUploadStatusMessage" class="mt-2 text-sm text-gray-600">Upload berhasil!</div>
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 @endif
 @endsection
 

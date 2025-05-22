@@ -193,7 +193,6 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     // Asset Management Routes
     Route::prefix('asset')->name('asset-')->middleware('permission:asset:view')->group(function () {
-        Route::get('/unit', [UnitAssetController::class, 'index'])->name('unit');
         Route::get('/detail/{id?}', [AssetDetailsController::class, 'show'])->name('details');
     });
 
@@ -283,7 +282,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Asset routes
-    Route::middleware('permission:asset:view')->group(function() {
+    Route::middleware('permission:asset:view|maintenance:create|maintenance:edit|calibration:create|calibration:edit|complaint:create|complaint:edit')->group(function() {
         // Read operations
     Route::get('/assets', [UnitAssetController::class, 'index'])->name('assets');
     Route::get('/assets/data', [UnitAssetController::class, 'getAssetData'])->name('assets.data');

@@ -3,6 +3,7 @@
 @section('title', 'Role Management')
 
 @section('content')
+    @include('Layout.loading')
     <div class="h-full space-y-4 md:space-y-6">
         <!-- Role Section -->
         <div class="card bg-base-100 shadow-xl">
@@ -14,16 +15,16 @@
 
                         <!-- Button Add Role -->
                         @if(hasPermission('role:create') || hasPermission('role:assign_permissions'))
-                        <button id="addRoleBtn"
-                            class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
-                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6"
-                                    stroke-linecap="round" />
-                                <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
-                                    stroke-linecap="round" />
-                            </svg>
-                            <span class="text-base">Tambah Role</span>
-                        </button>
+                            <button id="addRoleBtn"
+                                class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                                <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 3.33334V12.6667" stroke="currentColor" stroke-width="1.6"
+                                        stroke-linecap="round" />
+                                    <path d="M3.33331 8H12.6666" stroke="currentColor" stroke-width="1.6"
+                                        stroke-linecap="round" />
+                                </svg>
+                                <span class="text-base">Tambah Role</span>
+                            </button>
                         @endif
                     </div>
 
@@ -46,8 +47,10 @@
                                 <option value="" {{ ($sort ?? '') == '' ? 'selected' : '' }}>Default Order</option>
                                 <option value="id_asc" {{ ($sort ?? '') == 'id_asc' ? 'selected' : '' }}>Terbaru</option>
                                 <option value="id_desc" {{ ($sort ?? '') == 'id_desc' ? 'selected' : '' }}>Terlama</option>
-                                <option value="name_asc" {{ ($sort ?? '') == 'name_asc' ? 'selected' : '' }}>Nama (A-Z)</option>
-                                <option value="name_desc" {{ ($sort ?? '') == 'name_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
+                                <option value="name_asc" {{ ($sort ?? '') == 'name_asc' ? 'selected' : '' }}>Nama (A-Z)
+                                </option>
+                                <option value="name_desc" {{ ($sort ?? '') == 'name_desc' ? 'selected' : '' }}>Nama (Z-A)
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -71,29 +74,36 @@
                                         <td class="p-3 border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">
                                                 @if(hasPermission('role:edit') || hasPermission('role:assign_permissions'))
-                                                <button class="edit-role-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
-                                                    data-role-id="{{ $role['role_id'] }}"
-                                                    data-role-name="{{ $role['role_name'] }}"
-                                                    data-description="{{ $role['description'] ?? '' }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                    </svg>
-                                                </button>
+                                                    <button
+                                                        class="edit-role-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
+                                                        data-role-id="{{ $role['role_id'] }}"
+                                                        data-role-name="{{ $role['role_name'] }}"
+                                                        data-description="{{ $role['description'] ?? '' }}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                    </button>
                                                 @endif
                                                 @if(hasPermission('role:delete'))
-                                                <button class="delete-role-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
-                                                    data-role-id="{{ $role['role_id'] }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
+                                                    <button
+                                                        class="delete-role-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
+                                                        data-role-id="{{ $role['role_id'] }}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
                                                 @endif
                                             </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada role yang ditemukan
+                                        <td colspan="3" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada role
+                                            yang ditemukan
                                         </td>
                                     </tr>
                                 @endforelse
@@ -140,16 +150,17 @@
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-600">
                                 @if(isset($roles['pagination']) && is_array($roles['pagination']))
-                                                            @php
-                                                                $currentPage = $roles['pagination']['current_page'] ?? 1;
-                                                                $perPage = $roles['pagination']['per_page'] ?? 10;
-                                                                $total = $roles['pagination']['total'] ?? count($roles['data'] ?? []);
-                                                                $from = ($currentPage - 1) * $perPage + 1;
-                                                                $to = min($currentPage * $perPage, $total);
-                                                            @endphp
-                                                            Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
+                                    @php
+                                        $currentPage = $roles['pagination']['current_page'] ?? 1;
+                                        $perPage = $roles['pagination']['per_page'] ?? 10;
+                                        $total = $roles['pagination']['total'] ?? count($roles['data'] ?? []);
+                                        $from = ($currentPage - 1) * $perPage + 1;
+                                        $to = min($currentPage * $perPage, $total);
+                                    @endphp
+                                    Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
                                 @else
-                                    Menampilkan 1 sampai {{ count($roles['data'] ?? []) }} dari {{ count($roles['data'] ?? []) }} entri
+                                    Menampilkan 1 sampai {{ count($roles['data'] ?? []) }} dari
+                                    {{ count($roles['data'] ?? []) }} entri
                                 @endif
                             </span>
                             <select id="rolePerPageSelect"
@@ -167,296 +178,309 @@
 
         <!-- Add Role Modal -->
         @if(hasPermission('role:create') || hasPermission('role:assign_permissions'))
-        <div id="addRoleModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[900px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                id="addRoleModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH ROLE</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                data-modal="addRoleModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+            <div id="addRoleModal" class="fixed inset-0 z-50 hidden">
+                <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                <div class="fixed inset-0 z-50 overflow-y-auto">
+                    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                        <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[900px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                            id="addRoleModalContent">
+                            <!-- Header -->
+                            <div class="flex justify-between items-center p-6 pb-0">
+                                <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH ROLE</h2>
+                                <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                    data-modal="addRoleModal">
+                                    <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
 
-                        <!-- Form -->
-                        <div class="p-6">
-                            <form id="addRoleForm" action="{{ route('roles.store') }}" method="POST">
-                                @csrf
-                                <div class="space-y-5 mx-auto">
-                                    <!-- Role Name Input -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">
-                                            Nama Role <span class="text-red-500">*</span>
-                                        </label>
-                                        <input type="text" name="role_name"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Masukkan nama role">
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nama Role wajib diisi</div>
-                                    </div>
-
-                                    <!-- Description Input -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
-                                        <textarea name="description"
-                                            class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 resize-none"
-                                            placeholder="Masukkan deskripsi role"></textarea>
-                                    </div>
-
-                                    <!-- Permissions Header -->
-                                    @if(hasPermission('role:assign_permissions'))
-                                    <div class="pt-2">
-                                        <div class="pb-4 border-b border-gray-200">
-                                            <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
-                                            <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
-
-                                            <div class="flex flex-wrap gap-6 mt-3">
-                                                <div class="flex items-center gap-2">
-                                                    <input type="checkbox" id="add-all-permission"
-                                                        class="checkbox checkbox-primary" data-target="all">
-                                                    <label for="add-all-permission"
-                                                        class="font-semibold cursor-pointer select-none">
-                                                        Semua Izin</label>
-                                                </div>
+                            <!-- Form -->
+                            <div class="p-6">
+                                <form id="addRoleForm" action="{{ route('roles.store') }}" method="POST">
+                                    @csrf
+                                    <div class="space-y-5 mx-auto">
+                                        <!-- Role Name Input -->
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666]">
+                                                Nama Role <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" name="role_name"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                placeholder="Masukkan nama role">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Nama Role wajib diisi
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Permission Groups Container -->
-                                        <div id="add-permissions-container" class="space-y-6 pt-3">
-                                            <p class="text-center text-gray-500 py-4">Memuat data izin...</p>
+                                        <!-- Description Input -->
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
+                                            <textarea name="description"
+                                                class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 resize-none"
+                                                placeholder="Masukkan deskripsi role"></textarea>
                                         </div>
-                                    @else
-                                    <div class="pt-2">
-                                        <div class="pb-4 border-b border-gray-200">
-                                            <div class="bg-blue-50 text-blue-700 p-4 rounded-md">
-                                                <div class="flex">
-                                                    <svg class="h-5 w-5 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <div>
-                                                        <p class="font-medium">Izin tidak tersedia</p>
-                                                        <p class="text-sm mt-1">Anda tidak memiliki akses untuk menetapkan izin ke peran ini.</p>
+
+                                        <!-- Permissions Header -->
+                                        @if(hasPermission('role:assign_permissions'))
+                                            <div class="pt-2">
+                                                <div class="pb-4 border-b border-gray-200">
+                                                    <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
+                                                    <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa
+                                                        yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
+
+                                                    <div class="flex flex-wrap gap-6 mt-3">
+                                                        <div class="flex items-center gap-2">
+                                                            <input type="checkbox" id="add-all-permission"
+                                                                class="checkbox checkbox-primary" data-target="all">
+                                                            <label for="add-all-permission"
+                                                                class="font-semibold cursor-pointer select-none">
+                                                                Semua Izin</label>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <!-- Permission Groups Container -->
+                                            <div id="add-permissions-container" class="space-y-6 pt-3">
+                                                <p class="text-center text-gray-500 py-4">Memuat data izin...</p>
+                                            </div>
+                                        @else
+                                            <div class="pt-2">
+                                                <div class="pb-4 border-b border-gray-200">
+                                                    <div class="bg-blue-50 text-blue-700 p-4 rounded-md">
+                                                        <div class="flex">
+                                                            <svg class="h-5 w-5 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24"
+                                                                stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            <div>
+                                                                <p class="font-medium">Izin tidak tersedia</p>
+                                                                <p class="text-sm mt-1">Anda tidak memiliki akses untuk menetapkan
+                                                                    izin ke peran ini.</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        <!-- Button Group -->
+                                        <div class="pt-6">
+                                            <button type="submit"
+                                                class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                                Simpan
+                                            </button>
                                         </div>
                                     </div>
-                                    @endif
-
-                                    <!-- Button Group -->
-                                    <div class="pt-6">
-                                        <button type="submit"
-                                            class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                            Simpan
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         @endif
 
         <!-- Edit Role Modal -->
         @if(hasPermission('role:edit') || hasPermission('role:assign_permissions'))
-        <div id="editRoleModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[900px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="editRoleModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT ROLE</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                data-modal="editRoleModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+            <div id="editRoleModal" class="fixed inset-0 z-50 hidden">
+                <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                <div class="fixed inset-0 z-50 overflow-y-auto">
+                    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                        <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[900px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                            id="editRoleModalContent">
+                            <!-- Header -->
+                            <div class="flex justify-between items-center p-6 pb-0">
+                                <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT ROLE</h2>
+                                <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                    data-modal="editRoleModal">
+                                    <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
 
-                        <!-- Form -->
-                        <div class="p-6">
-                            <form id="editRoleForm" action="" method="POST">
-                                @csrf
-                                @method('PUT')
-                                <div class="space-y-5 mx-auto">
-                                    <!-- Role Name Input -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">
-                                            Nama Role <span class="text-red-500">*</span>
-                                        </label>
-                                        <input type="text" id="edit_role_name" name="role_name"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Masukkan nama role">
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nama Role wajib diisi</div>
-                                    </div>
-
-                                    <!-- Description Input -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
-                                        <textarea id="edit_description" name="description"
-                                            class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 resize-none"
-                                            placeholder="Masukkan deskripsi role"></textarea>
-                                    </div>
-
-                                    <!-- Permissions Header -->
-                                    @if(hasPermission('role:assign_permissions'))
-                                    <div class="pt-2">
-                                        <div class="pb-4 border-b border-gray-200">
-                                            <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
-                                            <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
-
-                                            <div class="flex flex-wrap gap-6 mt-3">
-                                                <div class="flex items-center gap-2">
-                                                    <input type="checkbox" id="edit-all-permission"
-                                                        class="checkbox checkbox-primary" data-target="all">
-                                                    <label for="edit-all-permission"
-                                                        class="font-semibold cursor-pointer select-none">
-                                                        Semua Izin</label>
-                                                </div>
+                            <!-- Form -->
+                            <div class="p-6">
+                                <form id="editRoleForm" action="" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="space-y-5 mx-auto">
+                                        <!-- Role Name Input -->
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666]">
+                                                Nama Role <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" id="edit_role_name" name="role_name"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                placeholder="Masukkan nama role">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Nama Role wajib diisi
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Permission Groups Container -->
-                                    <div id="edit-permissions-container" class="space-y-6 pt-3">
-                                        <p class="text-center text-gray-500 py-4">Memuat izin...</p>
-                                    </div>
-                                    @else
-                                    <div class="pt-2">
-                                        <div class="pb-4 border-b border-gray-200">
-                                            <div class="bg-blue-50 text-blue-700 p-4 rounded-md">
-                                                <div class="flex">
-                                                    <svg class="h-5 w-5 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <div>
-                                                        <p class="font-medium">Izin tidak tersedia</p>
-                                                        <p class="text-sm mt-1">Anda tidak memiliki akses untuk menetapkan izin ke peran ini.</p>
+                                        <!-- Description Input -->
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666]">Deskripsi</label>
+                                            <textarea id="edit_description" name="description"
+                                                class="w-full h-[100px] py-3 px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 resize-none"
+                                                placeholder="Masukkan deskripsi role"></textarea>
+                                        </div>
+
+                                        <!-- Permissions Header -->
+                                        @if(hasPermission('role:assign_permissions'))
+                                            <div class="pt-2">
+                                                <div class="pb-4 border-b border-gray-200">
+                                                    <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
+                                                    <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa
+                                                        yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
+
+                                                    <div class="flex flex-wrap gap-6 mt-3">
+                                                        <div class="flex items-center gap-2">
+                                                            <input type="checkbox" id="edit-all-permission"
+                                                                class="checkbox checkbox-primary" data-target="all">
+                                                            <label for="edit-all-permission"
+                                                                class="font-semibold cursor-pointer select-none">
+                                                                Semua Izin</label>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <!-- Permission Groups Container -->
+                                            <div id="edit-permissions-container" class="space-y-6 pt-3">
+                                                <p class="text-center text-gray-500 py-4">Memuat izin...</p>
+                                            </div>
+                                        @else
+                                            <div class="pt-2">
+                                                <div class="pb-4 border-b border-gray-200">
+                                                    <div class="bg-blue-50 text-blue-700 p-4 rounded-md">
+                                                        <div class="flex">
+                                                            <svg class="h-5 w-5 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24"
+                                                                stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            <div>
+                                                                <p class="font-medium">Izin tidak tersedia</p>
+                                                                <p class="text-sm mt-1">Anda tidak memiliki akses untuk menetapkan
+                                                                    izin ke peran ini.</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        <!-- Button Group -->
+                                        <div class="pt-6">
+                                            <button type="submit"
+                                                class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                                Perbarui
+                                            </button>
                                         </div>
                                     </div>
-                                    @endif
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
-                                    <!-- Button Group -->
-                                    <div class="pt-6">
-                                        <button type="submit"
-                                            class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                            Perbarui
-                                        </button>
+        <!-- Delete Role Modal -->
+        @if(hasPermission('role:delete'))
+            <div id="deleteRoleModal" class="fixed inset-0 z-50 hidden">
+                <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                <div class="fixed inset-0 z-50 overflow-y-auto">
+                    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                        <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                            id="deleteRoleModalContent">
+                            <!-- Header -->
+                            <div class="flex justify-between items-center p-6 pb-0">
+                                <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS ROLE</h2>
+                                <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                    data-modal="deleteRoleModal">
+                                    <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Content -->
+                            <form id="deleteRoleForm" action="" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <div class="p-6">
+                                    <div class="space-y-6 max-w-[400px] mx-auto">
+                                        <div class="flex flex-col items-center">
+                                            <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus
+                                                role ini? Aksi ini tidak dapat dibatalkan.</p>
+                                        </div>
+                                        <div class="flex gap-3">
+                                            <button type="button"
+                                                class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
+                                                data-modal="deleteRoleModal">
+                                                Batal
+                                            </button>
+                                            <button type="submit" id="delete-role-btn"
+                                                class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                                Hapus
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <script>
+                                    // Prevent multiple submit for delete form
+                                    document.getElementById('deleteRoleForm').addEventListener('submit', function (e) {
+                                        const submitBtn = document.getElementById('delete-role-btn');
+
+                                        if (submitBtn && !submitBtn.disabled) {
+                                            // Save original text
+                                            const originalText = submitBtn.innerHTML;
+
+                                            // Disable button and show loading state
+                                            submitBtn.disabled = true;
+                                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                                            submitBtn.innerHTML = `
+                                                    <div class="flex items-center justify-center">
+                                                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                        <span>Memproses...</span>
+                                                    </div>
+                                                `;
+
+                                            // Safety timeout to re-enable after 10 seconds
+                                            setTimeout(() => {
+                                                if (submitBtn) {
+                                                    submitBtn.disabled = false;
+                                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                                    submitBtn.innerHTML = originalText;
+                                                }
+                                            }, 10000);
+                                        }
+                                    });
+                                </script>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        @endif
-
-        <!-- Delete Role Modal -->
-        @if(hasPermission('role:delete'))
-        <div id="deleteRoleModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="deleteRoleModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS ROLE</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                data-modal="deleteRoleModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Content -->
-                        <form id="deleteRoleForm" action="" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <div class="p-6">
-                                <div class="space-y-6 max-w-[400px] mx-auto">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus role ini? Aksi ini tidak dapat dibatalkan.</p>
-                                    </div>
-                                    <div class="flex gap-3">
-                                        <button type="button"
-                                            class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
-                                            data-modal="deleteRoleModal">
-                                            Batal
-                                        </button>
-                                        <button type="submit" id="delete-role-btn"
-                                            class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                            Hapus
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <script>
-                                // Prevent multiple submit for delete form
-                                document.getElementById('deleteRoleForm').addEventListener('submit', function(e) {
-                                    const submitBtn = document.getElementById('delete-role-btn');
-
-                                    if (submitBtn && !submitBtn.disabled) {
-                                        // Save original text
-                                        const originalText = submitBtn.innerHTML;
-
-                                        // Disable button and show loading state
-                                        submitBtn.disabled = true;
-                                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                                        submitBtn.innerHTML = `
-                                            <div class="flex items-center justify-center">
-                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                                <span>Memproses...</span>
-                                            </div>
-                                        `;
-
-                                        // Safety timeout to re-enable after 10 seconds
-                                        setTimeout(() => {
-                                            if (submitBtn) {
-                                                submitBtn.disabled = false;
-                                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                                submitBtn.innerHTML = originalText;
-                                            }
-                                        }, 10000);
-                                    }
-                                });
-                            </script>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
         @endif
     </div>
 
     <script>
         // Function to show toast notifications
-        window.showToast = function(message, type = 'success') {
+        window.showToast = function (message, type = 'success') {
             // Create the notification element
             const notification = document.createElement('div');
             notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
@@ -470,19 +494,19 @@
             if (type === 'success') {
                 notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                 notification.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                        <div class="flex items-start">
+                            <div class="py-1">
+                                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">Berhasil!</p>
+                                <div>${message}</div>
+                            </div>
+                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                         </div>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
+                    `;
             } else {
                 notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
@@ -494,10 +518,10 @@
                 const iconContainer = document.createElement('div');
                 iconContainer.className = 'py-1 flex-shrink-0';
                 iconContainer.innerHTML = `
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                `;
+                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    `;
 
                 // Content container
                 const contentContainer = document.createElement('div');
@@ -534,7 +558,7 @@
                 const closeBtn = document.createElement('span');
                 closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
                 closeBtn.textContent = '×';
-                closeBtn.onclick = function() {
+                closeBtn.onclick = function () {
                     notification.remove();
                 };
 
@@ -556,73 +580,73 @@
         }
 
         // Add slide-in animation and styling for error messages to CSS
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             document.head.insertAdjacentHTML('beforeend', `
-                <style>
-                    @keyframes slideInRight {
-                        from { transform: translateX(100%); }
-                        to { transform: translateX(0); }
-                    }
-                    .animate-slide-in-right {
-                        animation: slideInRight 0.3s ease-out forwards;
-                    }
+                    <style>
+                        @keyframes slideInRight {
+                            from { transform: translateX(100%); }
+                            to { transform: translateX(0); }
+                        }
+                        .animate-slide-in-right {
+                            animation: slideInRight 0.3s ease-out forwards;
+                        }
 
-                    /* Styling for error messages with HTML content */
-                    .error-message ul {
-                        margin-top: 0.5rem;
-                        padding-left: 1.5rem;
-                        list-style-type: disc;
-                    }
-                    .error-message ul li {
-                        margin-bottom: 0.25rem;
-                    }
-                    .error-message ul li:last-child {
-                        margin-bottom: 0;
-                    }
-                </style>
-            `);
+                        /* Styling for error messages with HTML content */
+                        .error-message ul {
+                            margin-top: 0.5rem;
+                            padding-left: 1.5rem;
+                            list-style-type: disc;
+                        }
+                        .error-message ul li {
+                            margin-bottom: 0.25rem;
+                        }
+                        .error-message ul li:last-child {
+                            margin-bottom: 0;
+                        }
+                    </style>
+                `);
         });
 
         document.addEventListener('DOMContentLoaded', function () {
             // Permission-aware initialization
             @if(!hasPermission('role:create') && !hasPermission('role:assign_permissions'))
-            // Disable related elements if user doesn't have permission
-            const addButtons = document.querySelectorAll('#addRoleBtn');
-            addButtons.forEach(btn => {
-                if (btn) {
-                    btn.style.display = 'none';
-                }
-            });
+                // Disable related elements if user doesn't have permission
+                const addButtons = document.querySelectorAll('#addRoleBtn');
+                addButtons.forEach(btn => {
+                    if (btn) {
+                        btn.style.display = 'none';
+                    }
+                });
             @endif
 
-            @if(!hasPermission('role:edit') && !hasPermission('role:assign_permissions'))
-            // Disable edit functionality if user doesn't have permission
-            const editButtons = document.querySelectorAll('.edit-role-btn');
-            editButtons.forEach(btn => {
-                if (btn) {
-                    btn.style.display = 'none';
-                }
-            });
-            @endif
+                @if(!hasPermission('role:edit') && !hasPermission('role:assign_permissions'))
+                        // Disable edit functionality if user doesn't have permission
+                        const editButtons = document.querySelectorAll('.edit-role-btn');
+                    editButtons.forEach(btn => {
+                        if (btn) {
+                            btn.style.display = 'none';
+                        }
+                    });
+                @endif
 
-            @if(!hasPermission('role:delete'))
-            // Disable delete functionality if user doesn't have permission
-            const deleteButtons = document.querySelectorAll('.delete-role-btn');
-            deleteButtons.forEach(btn => {
-                if (btn) {
-                    btn.style.display = 'none';
-                }
-            });
-            @endif
+                @if(!hasPermission('role:delete'))
+                        // Disable delete functionality if user doesn't have permission
+                        const deleteButtons = document.querySelectorAll('.delete-role-btn');
+                    deleteButtons.forEach(btn => {
+                        if (btn) {
+                            btn.style.display = 'none';
+                        }
+                    });
+                @endif
 
-            // Show toast notifications for session messages on page load
-            @if(session('success'))
-                showToast("{{ session('success') }}", 'success');
-            @endif
+                // Show toast notifications for session messages on page load
+                @if(session('success'))
+                    showToast("{{ session('success') }}", 'success');
+                @endif
 
-            @if(session('error'))
-                showToast("{{ session('error') }}", 'error');
-            @endif
+                @if(session('error'))
+                    showToast("{{ session('error') }}", 'error');
+                @endif
 
             // Function to change items per page for roles
             window.changeRolePerPage = function (limit) {
@@ -767,10 +791,10 @@
                     const groupContainerId = `${containerId}-${groupId}-container`;
 
                     html += `
-                        <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center gap-3">
-                                    <h4 class="text-[#213268] text-lg font-semibold">${group}</h4>`;
+                            <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <h4 class="text-[#213268] text-lg font-semibold">${group}</h4>`;
 
                     // Add View Only checkbox next to the group name if it exists
                     if (viewPermission) {
@@ -778,24 +802,24 @@
                         const isViewChecked = selectedIds.includes(viewPermission.permission_id);
 
                         html += `
-                                    <input type="checkbox"
-                                        id="${viewPermId}"
-                                        name="permission_ids[]"
-                                        value="${parseInt(viewPermission.permission_id)}"
-                                        class="checkbox checkbox-primary view-permission-checkbox"
-                                        data-group="${groupId}"
-                                        ${isViewChecked ? 'checked' : ''}>
-                                `;
+                                        <input type="checkbox"
+                                            id="${viewPermId}"
+                                            name="permission_ids[]"
+                                            value="${parseInt(viewPermission.permission_id)}"
+                                            class="checkbox checkbox-primary view-permission-checkbox"
+                                            data-group="${groupId}"
+                                            ${isViewChecked ? 'checked' : ''}>
+                                    `;
                     }
 
                     html += `
+                                    </div>
                                 </div>
-                            </div>
 
-                            <p class="text-sm text-gray-500 mb-3">${viewPermission ? viewPermission.description : 'Manage permissions for this feature'}</p>
+                                <p class="text-sm text-gray-500 mb-3">${viewPermission ? viewPermission.description : 'Manage permissions for this feature'}</p>
 
-                            <!-- Other permissions container -->
-                            <div id="${groupContainerId}" class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3" ${viewPermission && !selectedIds.includes(viewPermission.permission_id) ? 'style="display:none;"' : ''}>`;
+                                <!-- Other permissions container -->
+                                <div id="${groupContainerId}" class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3" ${viewPermission && !selectedIds.includes(viewPermission.permission_id) ? 'style="display:none;"' : ''}>`;
 
                     // Add other permissions
                     otherPermissions.forEach(permission => {
@@ -833,24 +857,24 @@
                         }
 
                         html += `
-                                <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded">
-                                    <input type="checkbox"
-                                        id="${permId}"
-                                        name="permission_ids[]"
-                                        value="${parseInt(permission.permission_id)}"
-                                        class="checkbox checkbox-primary mt-1 permission-checkbox"
-                                        data-group="${groupId}"
-                                        ${isChecked ? 'checked' : ''}>
-                                    <label for="${permId}" class="cursor-pointer select-none">
-                                        <div class="font-medium">${displayName}</div>
-                                        <div class="text-xs text-gray-500">${permission.description}</div>
-                                    </label>
-                                </div>`;
+                                    <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded">
+                                        <input type="checkbox"
+                                            id="${permId}"
+                                            name="permission_ids[]"
+                                            value="${parseInt(permission.permission_id)}"
+                                            class="checkbox checkbox-primary mt-1 permission-checkbox"
+                                            data-group="${groupId}"
+                                            ${isChecked ? 'checked' : ''}>
+                                        <label for="${permId}" class="cursor-pointer select-none">
+                                            <div class="font-medium">${displayName}</div>
+                                            <div class="text-xs text-gray-500">${permission.description}</div>
+                                        </label>
+                                    </div>`;
                     });
 
                     html += `
-                            </div>
-                        </div>`;
+                                </div>
+                            </div>`;
                 }
 
                 // Add the HTML to the container
@@ -861,7 +885,7 @@
                     const groupId = checkbox.getAttribute('data-group');
                     const permissionsContainer = document.getElementById(`${containerId}-${groupId}-container`);
 
-                    checkbox.addEventListener('change', function() {
+                    checkbox.addEventListener('change', function () {
                         if (this.checked) {
                             // Show other permissions when view is checked
                             permissionsContainer.style.display = 'grid';
@@ -959,10 +983,10 @@
 
             // Add event listener for add role button to open the modal
             document.getElementById('addRoleBtn').addEventListener('click', async () => {
-                @if(hasPermission('role:assign_permissions'))
-                const permissions = await fetchPermissions();
-                renderPermissionCheckboxes(permissions, [], 'add-permissions-container');
-                @endif
+                    @if(hasPermission('role:assign_permissions'))
+                            const permissions = await fetchPermissions();
+                        renderPermissionCheckboxes(permissions, [], 'add-permissions-container');
+                    @endif
 
                 // Reset the form
                 document.getElementById('addRoleForm').reset();
@@ -980,9 +1004,9 @@
                         // Show loading state
                         document.getElementById('edit_role_name').value = "Memuat...";
                         document.getElementById('edit_description').value = "Memuat...";
-                        @if(hasPermission('role:assign_permissions'))
-                        document.getElementById('edit-permissions-container').innerHTML = '<p class="text-center text-gray-500 py-4">Memuat data izin...</p>';
-                        @endif
+                            @if(hasPermission('role:assign_permissions'))
+                                document.getElementById('edit-permissions-container').innerHTML = '<p class="text-center text-gray-500 py-4">Memuat data izin...</p>';
+                            @endif
 
                         // Open the modal while loading
                         openModal(editRoleModal, document.getElementById('editRoleModalContent'));
@@ -1009,25 +1033,25 @@
                         document.getElementById('edit_role_name').value = role.role_name;
                         document.getElementById('edit_description').value = role.description || '';
 
-                        @if(hasPermission('role:assign_permissions'))
-                        // Load all permissions then select the ones from our role
-                        const permissions = await fetchPermissions();
-                        const selectedPermissionIds = role.permissions?.map(p => p.permission_id) || [];
+                            @if(hasPermission('role:assign_permissions'))
+                                    // Load all permissions then select the ones from our role
+                                    const permissions = await fetchPermissions();
+                                const selectedPermissionIds = role.permissions?.map(p => p.permission_id) || [];
 
-                        // Render the permissions with the correct ones selected
-                        renderPermissionCheckboxes(permissions, selectedPermissionIds, 'edit-permissions-container');
-                        @endif
+                                // Render the permissions with the correct ones selected
+                                renderPermissionCheckboxes(permissions, selectedPermissionIds, 'edit-permissions-container');
+                            @endif
 
-                    } catch (error) {
+                        } catch (error) {
                         console.error('Error loading role:', error);
                         showToast(`Error loading role: ${error.message}`, 'error');
 
-                        @if(hasPermission('role:assign_permissions'))
-                        // Load permissions with empty selection in case of error
-                        const permissions = await fetchPermissions();
-                        renderPermissionCheckboxes(permissions, [], 'edit-permissions-container');
-                        @endif
-                    }
+                            @if(hasPermission('role:assign_permissions'))
+                                    // Load permissions with empty selection in case of error
+                                    const permissions = await fetchPermissions();
+                                renderPermissionCheckboxes(permissions, [], 'edit-permissions-container');
+                            @endif
+                        }
                 });
             });
 
@@ -1112,11 +1136,11 @@
                     submitBtn.disabled = true;
                     submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                     submitBtn.innerHTML = `
-                        <div class="flex items-center justify-center">
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Memproses...</span>
-                        </div>
-                    `;
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
 
                     // Re-enable button after 10 seconds as a failsafe
                     setTimeout(() => {
@@ -1162,24 +1186,24 @@
                         form.appendChild(descInput);
                     }
 
-                    @if(hasPermission('role:assign_permissions'))
-                    // Get all checked checkboxes and hidden inputs with permission IDs
-                    const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
+                        @if(hasPermission('role:assign_permissions'))
+                                // Get all checked checkboxes and hidden inputs with permission IDs
+                                const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
 
-                    // Add numeric permission IDs, avoiding duplicates
-                    const uniqueIds = new Set();
-                    permissionInputs.forEach(input => {
-                        uniqueIds.add(parseInt(input.value));
-                    });
+                            // Add numeric permission IDs, avoiding duplicates
+                            const uniqueIds = new Set();
+                            permissionInputs.forEach(input => {
+                                uniqueIds.add(parseInt(input.value));
+                            });
 
-                    uniqueIds.forEach(id => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'permission_ids[]';
-                        input.value = id; // This is now a number
-                        form.appendChild(input);
-                    });
-                    @endif
+                            uniqueIds.forEach(id => {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'permission_ids[]';
+                                input.value = id; // This is now a number
+                                form.appendChild(input);
+                            });
+                        @endif
 
                     // Append form to body, submit it, then remove it
                     document.body.appendChild(form);
@@ -1222,11 +1246,11 @@
                     submitBtn.disabled = true;
                     submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                     submitBtn.innerHTML = `
-                        <div class="flex items-center justify-center">
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Memproses...</span>
-                        </div>
-                    `;
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
 
                     // Re-enable button after 10 seconds as a failsafe
                     setTimeout(() => {
@@ -1281,24 +1305,24 @@
                         form.appendChild(descInput);
                     }
 
-                    @if(hasPermission('role:assign_permissions'))
-                    // Get all checked checkboxes and hidden inputs with permission IDs
-                    const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
+                        @if(hasPermission('role:assign_permissions'))
+                                // Get all checked checkboxes and hidden inputs with permission IDs
+                                const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
 
-                    // Add numeric permission IDs, avoiding duplicates
-                    const uniqueIds = new Set();
-                    permissionInputs.forEach(input => {
-                        uniqueIds.add(parseInt(input.value));
-                    });
+                            // Add numeric permission IDs, avoiding duplicates
+                            const uniqueIds = new Set();
+                            permissionInputs.forEach(input => {
+                                uniqueIds.add(parseInt(input.value));
+                            });
 
-                    uniqueIds.forEach(id => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'permission_ids[]';
-                        input.value = id; // This is now a number
-                        form.appendChild(input);
-                    });
-                    @endif
+                            uniqueIds.forEach(id => {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'permission_ids[]';
+                                input.value = id; // This is now a number
+                                form.appendChild(input);
+                            });
+                        @endif
 
                     // Append form to body, submit it, then remove it
                     document.body.appendChild(form);
@@ -1347,7 +1371,7 @@
 
             // Add event listeners with debounce for search
             let searchTimeout;
-            searchInput?.addEventListener('input', function() {
+            searchInput?.addEventListener('input', function () {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(applyFilters, 500);
             });
@@ -1366,14 +1390,14 @@
             }
 
             // Function to change page while preserving search and sort parameters
-            window.changePage = function(page) {
+            window.changePage = function (page) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('role_page', page);
                 window.location.href = url.toString();
             };
 
             // Form validation for Add Role
-            document.getElementById('addRoleForm').addEventListener('submit', function(event) {
+            document.getElementById('addRoleForm').addEventListener('submit', function (event) {
                 const roleNameInput = this.querySelector('[name="role_name"]');
 
                 const isRoleNameValid = validateField(roleNameInput);
@@ -1385,7 +1409,7 @@
             });
 
             // Form validation for Edit Role
-            document.getElementById('editRoleForm').addEventListener('submit', function(event) {
+            document.getElementById('editRoleForm').addEventListener('submit', function (event) {
                 const roleNameInput = document.getElementById('edit_role_name');
 
                 const isRoleNameValid = validateField(roleNameInput);
@@ -1412,13 +1436,13 @@
             }
 
             // Add input event listeners to clear error styling when typing
-            document.querySelector('[name="role_name"]').addEventListener('input', function() {
+            document.querySelector('[name="role_name"]').addEventListener('input', function () {
                 this.classList.remove('border-red-500');
                 const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                 if (errorElement) errorElement.classList.add('hidden');
             });
 
-            document.getElementById('edit_role_name').addEventListener('input', function() {
+            document.getElementById('edit_role_name').addEventListener('input', function () {
                 this.classList.remove('border-red-500');
                 const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                 if (errorElement) errorElement.classList.add('hidden');

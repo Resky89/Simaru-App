@@ -22,6 +22,7 @@
 @endsection
 
 @section('content')
+@include('Layout.loading')
 <div class="h-full space-y-4 md:space-y-6">
     <!-- Opname Detail Section -->
     <div class="card bg-base-100 shadow-xl">

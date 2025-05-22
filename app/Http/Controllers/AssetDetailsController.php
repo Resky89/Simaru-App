@@ -171,62 +171,6 @@ class AssetDetailsController extends Controller
                 }
             }
 
-            // Fetch subcategories for the dropdown
-            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
-            $subcategories = $subcategoriesResult['data'] ?? [];
-
-            // Fetch buildings directly from buildings endpoint
-            $buildingsResult = $this->apiService->request('GET', '/buildings', [
-                'query' => [
-                    'limit' => 1000,
-                    'sort_by' => 'building_id',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-            $buildings = $buildingsResult['data'] ?? [];
-
-            // Fetch rooms from rooms endpoint
-            $roomsResult = $this->apiService->request('GET', '/rooms', [
-                'query' => [
-                    'limit' => 1000,
-                    'sort_by' => 'room_id',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-            $rooms = $roomsResult['data'] ?? [];
-
-            // Fetch brands for brand dropdown
-            $brandsResult = $this->apiService->request('GET', '/brands',);
-            $brands = $brandsResult['data'] ?? [];
-
-            // Fetch users/karyawan for responsible employee dropdown
-            $usersResult = $this->apiService->request('GET', '/users', [
-                'query' => [
-                    'limit' => 1000, // Get a larger set of users
-                    'sort_by' => 'employee_number',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-            $users = $usersResult['data'] ?? [];
-
-            // If there's a user_id in the asset data, fetch the complete user details
-            if (isset($asset['user_id']) && $asset['user_id']) {
-                try {
-                    $userResult = $this->apiService->request('GET', "/users/{$asset['user_id']}");
-                    if (isset($userResult['success']) && $userResult['success'] === true && isset($userResult['data'])) {
-                        // Add complete user details to the asset
-                        $asset['user'] = $userResult['data'];
-                        \Log::info('Enhanced user data for asset:', [
-                            'asset_id' => $id,
-                            'user_id' => $asset['user_id'],
-                            'employee_number' => $asset['user']['employee_number'] ?? 'not available'
-                        ]);
-                    }
-                } catch (\Exception $e) {
-                    \Log::warning("Error fetching user details: {$e->getMessage()}");
-                }
-            }
-
             // Fetch asset masters for the asset master dropdown
             $assetMastersResult = $this->apiService->request('GET', '/asset-masters', [
                 'query' => [
@@ -276,11 +220,6 @@ class AssetDetailsController extends Controller
             // Return the view with asset details
             return view('Asset.AssetDetail', [
                 'asset' => $asset,
-                'subcategories' => $subcategories,
-                'rooms' => $rooms,
-                'buildings' => $buildings,
-                'brands' => $brands,
-                'users' => $users,
                 'assetMasters' => $assetMasters,
             ]);
 
