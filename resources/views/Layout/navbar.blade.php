@@ -13,7 +13,7 @@
                 </div>
 
                 <!-- Notification Dropdown -->
-                <div id="notification-menu" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 max-h-[80vh] overflow-y-auto">
+                <div id="notification-menu" class="hidden absolute right-0 mt-2 w-[350px] max-w-[95vw] bg-white rounded-lg shadow-xl z-50 max-h-[80vh] overflow-hidden">
                     <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
                         <h3 class="text-sm font-semibold text-[#232D42]">Notifikasi</h3>
                         <button id="refresh-notifications" class="text-[#213268] hover:text-[#182451]">
@@ -33,7 +33,7 @@
                         </button>
                     </div>
 
-                    <div id="notification-list" class="max-h-[60vh] overflow-y-auto custom-scrollbar" style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
+                    <div id="notification-list" class="max-h-[60vh] overflow-y-auto overflow-x-hidden custom-scrollbar" style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
                     </div>
                 </div>
             </div>
@@ -198,10 +198,8 @@
             // Show loading state
             showLoading(!isLazyLoad);
 
-            // Fetch notifications for the current tab
-            const isReadParam = currentTab === 'read' ? 'true' : 'false';
-
-            fetch(`/notifications?limit=15&page=${currentPage}&is_read=${isReadParam}`, {
+            // Fetch all notifications (both read and unread)
+            fetch(`/notifications?limit=15&page=${currentPage}`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
@@ -225,6 +223,9 @@
                     if (loadingMore) {
                         loadingMore.remove();
                     }
+                    
+                    // Ensure notification list has overflow-y-auto but not overflow-x
+                    notificationList.classList.add('overflow-y-auto', 'overflow-x-hidden');
 
                     // Handle pagination
                     if (data.pagination) {
@@ -234,19 +235,34 @@
                         hasMorePages[currentTab] = false;
                     }
 
-                    // Update notifications array
+                    // Separate notifications into read and unread
+                    const readNotifications = newNotifications.filter(n => n.is_read);
+                    const unreadNotifications = newNotifications.filter(n => !n.is_read);
+
+                    // Update notifications array based on current tab
                     if (isLazyLoad) {
-                        notifications[currentTab] = [...notifications[currentTab], ...newNotifications];
+                        if (currentTab === 'read') {
+                            notifications.read = [...notifications.read, ...readNotifications];
+                        } else {
+                            notifications.unread = [...notifications.unread, ...unreadNotifications];
+                        }
                     } else {
-                        notifications[currentTab] = newNotifications;
+                        notifications.read = readNotifications;
+                        notifications.unread = unreadNotifications;
                     }
 
                     // Render notifications for current tab
-                    renderNotifications(notifications[currentTab], !isLazyLoad);
+                    if (currentTab === 'read') {
+                        renderNotifications(notifications.read, !isLazyLoad);
+                    } else {
+                        renderNotifications(notifications.unread, !isLazyLoad);
+                    }
+                    
                     isNotificationsLoaded = true;
 
                     // If no notifications for current tab
-                    if (notifications[currentTab].length === 0) {
+                    if ((currentTab === 'unread' && notifications.unread.length === 0) || 
+                        (currentTab === 'read' && notifications.read.length === 0)) {
                         const emptyMessage = currentTab === 'unread' ?
                             'Tidak ada notifikasi baru' :
                             'Tidak ada notifikasi yang sudah dibaca';
@@ -348,25 +364,29 @@
                 }
 
                 const notificationItem = document.createElement('div');
-                notificationItem.className = `p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200
+                notificationItem.className = `p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200 break-words
                     ${notification.is_read ? 'bg-gray-50' : isNew ? 'bg-[rgba(33,50,104,0.05)]' : 'bg-white'}`;
                 notificationItem.setAttribute('data-id', notification.id);
 
                 notificationItem.innerHTML = `
-                    <div class="flex justify-between items-start mb-1.5">
-                        <div class="flex items-start gap-2 max-w-[75%]">
-                            <h4 class="text-sm font-semibold ${notification.is_read ? 'text-gray-500' : 'text-[#232D42]'} truncate">${notification.title}</h4>
-                            ${isNew && !notification.is_read ? '<span class="text-xs bg-[#213268] text-white px-1.5 py-0.5 rounded-full inline-flex items-center justify-center min-w-[36px]">Baru</span>' : ''}
+                    <div class="flex justify-between items-start mb-2 gap-1">
+                        <div class="flex-1 min-w-0 pr-1">
+                            <h4 class="text-sm font-semibold ${notification.is_read ? 'text-gray-500' : 'text-[#232D42]'} mb-0.5">${notification.title}</h4>
+                            <p class="text-xs text-gray-600 break-words">${notification.detail}</p>
                         </div>
-                        <span class="text-xs text-gray-400 whitespace-nowrap" title="${formattedDate}">${timeAgo}</span>
+                        <div class="flex flex-col items-end flex-shrink-0 ml-1">
+                            <span class="text-xs text-gray-400 whitespace-nowrap" title="${formattedDate}">${timeAgo}</span>
+                            ${isNew && !notification.is_read ? 
+                                '<span class="text-xs bg-[#213268] text-white px-1.5 py-0.5 rounded-full inline-flex items-center justify-center min-w-[36px] mt-1">Baru</span>' : 
+                                ''}
+                        </div>
                     </div>
-                    <p class="text-xs text-gray-600 mb-2.5 line-clamp-2">${notification.detail}</p>
                     ${!notification.is_read ? `
                     <button class="mark-as-read text-xs text-[#213268] hover:text-[#182451] font-medium flex items-center" data-id="${notification.id}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        Tandai sudah dibaca
+                        <span>Tandai sudah dibaca</span>
                     </button>
                     ` : ''}
                 `;
@@ -469,7 +489,7 @@
 
                         // If in unread tab, remove notification from view with animation
                         if (currentTab === 'unread') {
-                            const notificationElement = document.querySelector(`.p-4[data-id="${notificationId}"]`);
+                            const notificationElement = document.querySelector(`.p-3[data-id="${notificationId}"]`);
                             if (notificationElement) {
                                 notificationElement.style.transition = 'opacity 0.3s, transform 0.3s';
                                 notificationElement.style.opacity = '0';
@@ -521,7 +541,7 @@
 
         // Function to load unread count
         function loadUnreadCount() {
-            fetch('/notifications?limit=10&is_read=false', {
+            fetch('/notifications?limit=10', {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
@@ -538,8 +558,9 @@
                     // Store previous count to check for changes
                     const prevCount = parseInt(notificationBadge.textContent) || 0;
 
-                    // Count unread notifications
-                    const count = data.data.length;
+                    // Filter unread notifications and count them
+                    const unreadNotifications = data.data.filter(n => !n.is_read);
+                    const count = unreadNotifications.length;
 
                     // Update badge
                     if (count > 0) {
@@ -585,7 +606,7 @@
         setInterval(() => {
             if (!isDropdownOpen) {
                 // Silently update in the background if dropdown is closed
-                fetch('/notifications?limit=5&is_read=false', {
+                fetch('/notifications?limit=5', {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -594,18 +615,20 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // Filter for unread notifications
+                        const newUnreadNotifications = data.data.filter(n => !n.is_read);
+                        
                         // Check for new notifications
                         const oldNotifications = notifications.unread || [];
-                        const newNotifications = data.data;
 
                         // Store IDs to compare
                         const oldIds = oldNotifications.map(n => n.id);
-                        const hasNewNotifications = newNotifications.some(n => !oldIds.includes(n.id));
+                        const hasNewNotifications = newUnreadNotifications.some(n => !oldIds.includes(n.id));
 
                         // If we have new notifications and dropdown is closed, indicate it
                         if (hasNewNotifications && !isDropdownOpen) {
                             // Update our local cache with new data
-                            notifications.unread = newNotifications;
+                            notifications.unread = newUnreadNotifications;
 
                             // Flash the notification bell
                             const bell = notificationDropdown.querySelector('svg');
