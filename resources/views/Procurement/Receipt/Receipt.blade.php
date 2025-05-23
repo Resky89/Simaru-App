@@ -79,7 +79,7 @@
                         <thead>
                             <tr>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nomor Penerimaan</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nomor PO</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nomor Pemesanan</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Dikirim Oleh</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Diterima Oleh</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Penerimaan</th>
@@ -92,7 +92,7 @@
                             @forelse($receipts as $receipt)
                                 <tr>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['receipt_code'] ?? '-' }}</td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['purchase_order_id'] ?? '-' }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['purchase_order_code  '] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['delivered_by'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['receiver_name'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">

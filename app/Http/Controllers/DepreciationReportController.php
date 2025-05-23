@@ -27,19 +27,39 @@ class DepreciationReportController extends Controller
             // Get pagination parameters
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
-            $search = $request->input('search', '');
-            $sort = $request->input('sort', 'newest');
-            $asOfDate = $request->input('as_of_date', now()->format('Y-m-d'));
+
+            // Get filter parameters
+            $assetMasterName = $request->input('asset_master_name', '');
+            $buildingId = $request->input('building_id', '');
+            $roomId = $request->input('room_id', '');
             $assetType = $request->input('asset_type', '');
+            $subcategoryId = $request->input('subcategory_id', '');
+            $yearMonth = $request->input('year_month', '');
+            $bookValueEnd = $request->input('book_value_end', 'true');
+
+            $sort = $request->input('sort', 'newest');
+
+            // For backward compatibility
+            if (empty($assetMasterName)) {
+                $assetMasterName = $request->input('search', '');
+            }
+
+            if (empty($yearMonth)) {
+                $yearMonth = $request->input('as_of_date', now()->format('Y-m'));
+            }
 
             // Log request info
             \Log::info('Fetching depreciation report with parameters:', [
                 'page' => $page,
                 'limit' => $limit,
-                'search' => $search,
-                'sort' => $sort,
-                'as_of_date' => $asOfDate,
+                'asset_master_name' => $assetMasterName,
+                'building_id' => $buildingId,
+                'room_id' => $roomId,
                 'asset_type' => $assetType,
+                'subcategory_id' => $subcategoryId,
+                'year_month' => $yearMonth,
+                'book_value_end' => $bookValueEnd,
+                'sort' => $sort,
                 'request_url' => $request->fullUrl(),
                 'ajax' => $request->ajax()
             ]);
@@ -48,17 +68,29 @@ class DepreciationReportController extends Controller
             $queryParams = [
                 'page' => $page,
                 'limit' => $limit,
-                'as_of_date' => $asOfDate
+                'year_month' => $yearMonth,
+                'book_value_end' => $bookValueEnd
             ];
 
-            // Add search parameter if provided
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
+            // Add filter parameters if provided
+            if (!empty($assetMasterName)) {
+                $queryParams['asset_master_name'] = $assetMasterName;
             }
 
-            // Add asset type filter if provided
+            if (!empty($buildingId)) {
+                $queryParams['building_id'] = $buildingId;
+            }
+
+            if (!empty($roomId)) {
+                $queryParams['room_id'] = $roomId;
+            }
+
             if (!empty($assetType)) {
                 $queryParams['asset_type'] = $assetType;
+            }
+
+            if (!empty($subcategoryId)) {
+                $queryParams['subcategory_id'] = $subcategoryId;
             }
 
             // Handle sorting
@@ -156,9 +188,9 @@ class DepreciationReportController extends Controller
                     'items' => [],
                     'pagination' => null,
                     'summary' => null,
-                    'search' => $search,
+                    'search' => $assetMasterName,
                     'sort' => $sort,
-                    'as_of_date' => $asOfDate,
+                    'as_of_date' => $yearMonth,
                     'asset_type' => $assetType,
                     'error' => $errorMessage
                 ]);
@@ -174,7 +206,7 @@ class DepreciationReportController extends Controller
                 'total_acquisition_cost' => $result['data']['total_acquisition_cost'] ?? 0,
                 'total_book_value' => $result['data']['total_book_value'] ?? 0,
                 'total_depreciation' => $result['data']['total_depreciation'] ?? 0,
-                'as_of_date' => $result['data']['as_of_date'] ?? $asOfDate
+                'as_of_date' => $result['data']['as_of_date'] ?? $yearMonth
             ];
 
             // For AJAX requests, return JSON response
@@ -195,9 +227,9 @@ class DepreciationReportController extends Controller
                 'items' => $items,
                 'pagination' => $pagination,
                 'summary' => $summary,
-                'search' => $search,
+                'search' => $assetMasterName,
                 'sort' => $sort,
-                'as_of_date' => $asOfDate,
+                'as_of_date' => $yearMonth,
                 'asset_type' => $assetType
             ]);
 
@@ -218,9 +250,9 @@ class DepreciationReportController extends Controller
                 'items' => [],
                 'pagination' => null,
                 'summary' => null,
-                'search' => $search,
+                'search' => $assetMasterName,
                 'sort' => $sort,
-                'as_of_date' => $asOfDate ?? now()->format('Y-m-d'),
+                'as_of_date' => $yearMonth ?? now()->format('Y-m'),
                 'asset_type' => $assetType,
                 'error' => 'Failed to retrieve depreciation report: ' . $e->getMessage()
             ]);
@@ -238,27 +270,53 @@ class DepreciationReportController extends Controller
         try {
             \Log::info('Starting depreciation report PDF export');
 
-            // Get search, sort and filter parameters
-            $search = $request->input('search', '');
-            $sort = $request->input('sort', 'asset_name_asc');
-            $asOfDate = $request->input('as_of_date', now()->format('Y-m-d'));
+            // Get filter parameters
+            $assetMasterName = $request->input('asset_master_name', '');
+            $buildingId = $request->input('building_id', '');
+            $roomId = $request->input('room_id', '');
             $assetType = $request->input('asset_type', '');
+            $subcategoryId = $request->input('subcategory_id', '');
+            $yearMonth = $request->input('year_month', '');
+            $bookValueEnd = $request->input('book_value_end', 'true');
+
+            $sort = $request->input('sort', 'asset_name_asc');
+
+            // For backward compatibility
+            if (empty($assetMasterName)) {
+                $assetMasterName = $request->input('search', '');
+            }
+
+            if (empty($yearMonth)) {
+                $yearMonth = $request->input('as_of_date', now()->format('Y-m-'));
+            }
 
             // Build query parameters - use a large limit to get all data
             $queryParams = [
                 'page' => 1,
                 'limit' => 1000, // Large limit to get more data for PDF
-                'as_of_date' => $asOfDate
+                'year_month' => $yearMonth,
+                'book_value_end' => $bookValueEnd
             ];
 
-            // Add search parameter if provided
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
+            // Add filter parameters if provided
+            if (!empty($assetMasterName)) {
+                $queryParams['asset_master_name'] = $assetMasterName;
             }
 
-            // Add asset type filter if provided
+            if (!empty($buildingId)) {
+                $queryParams['building_id'] = $buildingId;
+            }
+
+            if (!empty($roomId)) {
+                $queryParams['room_id'] = $roomId;
+            }
+
             if (!empty($assetType)) {
                 $queryParams['asset_type'] = $assetType;
+            }
+
+            if (!empty($subcategoryId)) {
+                $queryParams['subcategory_id'] = $subcategoryId;
             }
 
             // Handle sorting
@@ -292,6 +350,8 @@ class DepreciationReportController extends Controller
                     $queryParams['sort_by'] = 'asset_name';
                     $queryParams['sort_order'] = 'asc';
             }
+
+            \Log::info('PDF export parameters:', $queryParams);
 
             // Fetch depreciation report data from API
             $result = $this->apiService->request('GET', '/depreciations/report', [
@@ -343,7 +403,7 @@ class DepreciationReportController extends Controller
                 'total_acquisition_cost' => $result['data']['total_acquisition_cost'] ?? 0,
                 'total_book_value' => $result['data']['total_book_value'] ?? 0,
                 'total_depreciation' => $result['data']['total_depreciation'] ?? 0,
-                'as_of_date' => $result['data']['as_of_date'] ?? $asOfDate
+                'as_of_date' => $result['data']['as_of_date'] ?? $yearMonth
             ];
 
             \Log::info('Data prepared for depreciation report PDF export', [
@@ -354,10 +414,13 @@ class DepreciationReportController extends Controller
             $pdf = Pdf::loadView('Report.DepreciationReport.DepreciationReportPDF', [
                 'items' => $items,
                 'summary' => $summary,
-                'search' => $search,
+                'asset_master_name' => $assetMasterName,
+                'building_id' => $buildingId,
+                'room_id' => $roomId,
                 'sort' => $sort,
-                'as_of_date' => $asOfDate,
-                'asset_type' => $assetType
+                'year_month' => $yearMonth,
+                'asset_type' => $assetType,
+                'subcategory_id' => $subcategoryId
             ]);
 
             // Set paper size and orientation

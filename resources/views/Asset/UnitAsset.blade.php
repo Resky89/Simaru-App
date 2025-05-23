@@ -173,14 +173,12 @@
                                     </td>
                                     <td class="p-3 border-t border-[#EEF1F4] text-center">
                                         <div class="flex justify-center items-center space-x-2">
-                                            <button class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors view-asset-btn"
-                                                data-id="{{ $asset['asset_id'] ?? '' }}"
-                                                onclick="window.location.href='{{ route('asset-details', ['id' => $asset['asset_id'] ?? '']) }}'">
+                                            <a href="{{ route('asset-details', $asset['asset_id']) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
-                                            </button>
+                                            </a>
                                             @if(hasPermission('asset:edit'))
                                             <button class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-asset-btn"
                                                 data-id="{{ $asset['asset_id'] ?? '' }}"

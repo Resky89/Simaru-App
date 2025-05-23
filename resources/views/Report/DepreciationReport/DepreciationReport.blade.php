@@ -101,9 +101,9 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Berdasarkan Tanggal</label>
                                 <div class="relative">
-                                    <input type="date" name="as_of_date"
+                                    <input type="month" name="as_of_date"
                                         class="w-full border border-[#D8DAE5] rounded-md py-2 px-3 text-[#213268]"
-                                        value="{{ $as_of_date ?? now()->format('Y-m-d') }}">
+                                        value="{{ $as_of_date ?? '' }}" placeholder="YYYY-MM">
                                 </div>
                             </div>
 
@@ -205,14 +205,6 @@
                         </div>
                     @endif
 
-                    <!-- Show error message if any -->
-                    @if(isset($error))
-                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                            <p class="font-bold">Kesalahan</p>
-                            <p>{{ $error }}</p>
-                        </div>
-                    @endif
-
                     <!-- Depreciation Report Table -->
                     <div class="overflow-x-auto">
                         <table class="w-full">
@@ -263,7 +255,7 @@
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Gedung</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Ruangan</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Subkategori</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kategori</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -438,11 +430,134 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                // Set default date if empty
-                const asOfDateInput = document.querySelector('input[name="as_of_date"]');
-                if (asOfDateInput && !asOfDateInput.value) {
-                    asOfDateInput.value = new Date().toISOString().split('T')[0];
+                // Show toast notifications for errors and success messages
+                @if(session('success'))
+                    showToast("{{ session('success') }}", 'success');
+                @endif
+
+                @if(session('error'))
+                    showToast("{{ session('error') }}", 'error');
+                @endif
+
+                @if(isset($error))
+                    showToast("{{ $error }}", 'error');
+                @endif
+
+                // Function to show toast notifications
+                function showToast(message, type = 'success') {
+                    // Create the notification element
+                    const notification = document.createElement('div');
+                    notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+                    notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+                    notification.role = 'alert';
+
+                    // Check if message contains HTML
+                    const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+
+                    if (type === 'success') {
+                        notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                        notification.innerHTML = `
+                            <div class="flex items-start">
+                                <div class="py-1">
+                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-bold">Berhasil!</p>
+                                    <div>${message}</div>
+                                </div>
+                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                            </div>
+                        `;
+                    } else {
+                        notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                        // Structure for the notification
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'flex items-start';
+
+                        // Icon container
+                        const iconContainer = document.createElement('div');
+                        iconContainer.className = 'py-1 flex-shrink-0';
+                        iconContainer.innerHTML = `
+                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        `;
+
+                        // Content container
+                        const contentContainer = document.createElement('div');
+                        contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                        // Title
+                        const title = document.createElement('p');
+                        title.className = 'font-bold';
+                        title.textContent = 'Kesalahan!';
+                        contentContainer.appendChild(title);
+
+                        // Message container
+                        const messageContainer = document.createElement('div');
+                        messageContainer.className = 'error-message';
+
+                        // Handle HTML content
+                        if (hasHTML) {
+                            messageContainer.innerHTML = message;
+                        } else {
+                            messageContainer.textContent = message;
+                        }
+
+                        contentContainer.appendChild(messageContainer);
+
+                        // Close button
+                        const closeBtn = document.createElement('span');
+                        closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                        closeBtn.textContent = '×';
+                        closeBtn.onclick = function() {
+                            notification.remove();
+                        };
+
+                        // Assemble the notification
+                        wrapper.appendChild(iconContainer);
+                        wrapper.appendChild(contentContainer);
+                        wrapper.appendChild(closeBtn);
+                        notification.appendChild(wrapper);
+                    }
+
+                    // Add to document
+                    document.body.appendChild(notification);
+
+                    // Auto-remove notification after 5 seconds
+                    setTimeout(() => {
+                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(() => notification.remove(), 500);
+                    }, 5000);
                 }
+
+                // Add slide-in animation and styling for error messages to CSS
+                document.head.insertAdjacentHTML('beforeend', `
+                    <style>
+                        @keyframes slideInRight {
+                            from { transform: translateX(100%); }
+                            to { transform: translateX(0); }
+                        }
+                        .animate-slide-in-right {
+                            animation: slideInRight 0.3s ease-out forwards;
+                        }
+
+                        /* Styling for error messages with HTML content */
+                        .error-message ul {
+                            margin-top: 0.5rem;
+                            padding-left: 1.5rem;
+                        }
+                        .error-message ul li {
+                            margin-bottom: 0.25rem;
+                        }
+                        .error-message ul li:last-child {
+                            margin-bottom: 0;
+                        }
+                    </style>
+                `);
 
                 // Percentage toggle functionality
                 const percentageToggle = document.getElementById('percentageToggle');
@@ -558,14 +673,14 @@
                         subcategorySearch.value = subcategoryValue;
                         selectedSubcategory.value = subcategoryValue;
                         subcategorySearch.disabled = false;
-                        subcategorySearch.placeholder = 'Cari subkategori';
+                        subcategorySearch.placeholder = 'Cari Kategori';
                     }
 
                     // Load subcategories when asset type changes
                     assetTypeSelect.addEventListener('change', function () {
                         if (this.value) {
                             subcategorySearch.disabled = false;
-                            subcategorySearch.placeholder = 'Cari subkategori';
+                            subcategorySearch.placeholder = 'Cari Kategori';
                             subcategorySearch.value = '';
                             selectedSubcategory.value = '';
 
@@ -738,7 +853,7 @@
                                 if (subcategories.length > 10) {
                                     const countItem = document.createElement('li');
                                     countItem.className = 'px-4 py-2 text-xs text-center text-gray-500 border-t';
-                                    countItem.textContent = `Menampilkan ${Math.min(subcategories.length, 50)} dari ${subcategories.length} subkategori`;
+                                    countItem.textContent = `Menampilkan ${Math.min(subcategories.length, 50)} dari ${subcategories.length} kategori`;
                                     subcategoryList.appendChild(countItem);
                                 }
                             }
@@ -755,7 +870,7 @@
                             if (error.name === 'AbortError') {
                                 errorItem.textContent = 'Permintaan timeout. Server tidak merespon dalam waktu yang ditentukan.';
                             } else {
-                                errorItem.textContent = `Gagal memuat subkategori: ${error.message}`;
+                                errorItem.textContent = `Gagal memuat kategori: ${error.message}`;
                             }
                             subcategoryList.appendChild(errorItem);
 
@@ -772,7 +887,7 @@
                             if (searchTerm) {
                                 const manualOption = document.createElement('li');
                                 manualOption.className = 'px-4 py-2 text-center bg-green-50 text-green-700 cursor-pointer hover:bg-green-100';
-                                manualOption.textContent = `➕ Gunakan "${searchTerm}" sebagai subkategori`;
+                                manualOption.textContent = `➕ Gunakan "${searchTerm}" sebagai kategori`;
                                 manualOption.addEventListener('click', function () {
                                     selectedSubcategory.value = searchTerm;
                                     subcategorySearch.value = searchTerm;
@@ -789,7 +904,7 @@
                             });
 
                             // Also update the input placeholder to indicate the error
-                            subcategorySearch.placeholder = "Gagal memuat subkategori";
+                            subcategorySearch.placeholder = "Gagal memuat kategori";
                         }
                     }
 
@@ -948,6 +1063,7 @@
                                         // Enable room search and reset it
                                         const roomSearchInput = document.getElementById('room_search');
                                         const selectedRoomId = document.getElementById('selected_room_id');
+
                                         if (roomSearchInput) {
                                             roomSearchInput.disabled = false;
                                             roomSearchInput.placeholder = 'Cari ruangan';
@@ -955,6 +1071,35 @@
                                         }
                                         if (selectedRoomId) {
                                             selectedRoomId.value = '';
+                                        }
+
+                                        // Show loading indicator in room search
+                                        const roomLoadingIndicator = document.getElementById('room_loading');
+                                        if (roomLoadingIndicator) {
+                                            roomLoadingIndicator.classList.remove('hidden');
+                                        }
+
+                                        // Load rooms for this building immediately
+                                        const roomList = document.getElementById('room_list');
+                                        const roomDropdown = document.getElementById('room_dropdown');
+                                        if (roomList && roomSearchInput && roomDropdown) {
+                                            // Clear any previous room selections
+                                            roomList.innerHTML = '';
+
+                                            // Load rooms for the selected building
+                                            loadRooms('', buildingId);
+
+                                            // Show a tooltip to indicate rooms are being loaded
+                                            const toast = document.createElement('div');
+                                            toast.className = 'fixed bottom-4 right-4 bg-blue-100 text-blue-800 px-4 py-2 rounded shadow-md z-50';
+                                            toast.textContent = 'Memuat ruangan untuk gedung yang dipilih...';
+                                            document.body.appendChild(toast);
+
+                                            // Remove the tooltip after 2 seconds
+                                            setTimeout(() => {
+                                                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                                                setTimeout(() => toast.remove(), 500);
+                                            }, 2000);
                                         }
                                     });
 
@@ -1054,34 +1199,68 @@
                     // Function to load rooms filtered by building
                     async function loadRooms(searchTerm, buildingId) {
                         if (!buildingId) {
+                            searchInput.value = '';
+                            searchInput.placeholder = 'Pilih gedung terlebih dahulu';
+                            searchInput.disabled = true;
                             return;
                         }
+
+                        // Enable input and set appropriate placeholder
+                        searchInput.disabled = false;
+                        searchInput.placeholder = "Cari ruangan...";
 
                         // Show loading indicator
                         if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                         roomList.innerHTML = '';
 
+                        // Show the dropdown while loading
+                        if (dropdown) dropdown.classList.remove('hidden');
+
                         try {
+                            // Build the API URL with proper parameters
+                            const apiUrl = `{{ route('rooms.data') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}`;
+                            console.log(`Fetching rooms from: ${apiUrl}`);
+
                             // Use the API endpoint with proper headers to ensure JSON response
-                            const response = await fetch(`{{ route('rooms.data') }}?building_id=${buildingId}${searchTerm ? '&search=' + encodeURIComponent(searchTerm) : ''}`, {
+                            const response = await fetch(apiUrl, {
                                 headers: {
                                     'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Cache-Control': 'no-cache'
+                                },
+                                credentials: 'same-origin' // Include cookies for authentication
                             });
 
                             if (!response.ok) {
-                                throw new Error('Failed to fetch rooms');
+                                throw new Error(`Failed to fetch rooms: ${response.status} ${response.statusText}`);
                             }
 
                             // Try to parse JSON, but handle HTML responses gracefully
                             const contentType = response.headers.get('content-type');
                             if (!contentType || !contentType.includes('application/json')) {
-                                throw new Error('Server returned HTML instead of JSON');
+                                throw new Error('Server returned non-JSON response');
                             }
 
                             const result = await response.json();
-                            let rooms = result.data || [];
+                            console.log('Room API response:', result);
+
+                            // Extract rooms based on response format
+                            let rooms = [];
+                            if (Array.isArray(result)) {
+                                rooms = result;
+                            } else if (result.data && Array.isArray(result.data)) {
+                                rooms = result.data;
+                            } else {
+                                console.error('Unexpected API response format:', result);
+                            }
+
+                            // Additional client-side filtering by building ID for safety
+                            rooms = rooms.filter(room => {
+                                const roomBuildingId = room.building_id ||
+                                                  (room.building && room.building.building_id) ||
+                                                  '';
+                                return roomBuildingId == buildingId; // Use == for type coercion
+                            });
 
                             // Populate dropdown
                             roomList.innerHTML = '';
@@ -1097,35 +1276,61 @@
                                     addFallbackOption();
                                 }
                             } else {
-                                rooms.forEach(item => {
-                                    const li = document.createElement('li');
-                                    li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                                // Add search help message if there are multiple results
+                                if (rooms.length > 5) {
+                                    const searchHelpMsg = document.createElement('li');
+                                    searchHelpMsg.className = 'px-4 py-2 text-gray-500 italic text-center';
+                                    searchHelpMsg.textContent = 'Ketik untuk mencari...';
+                                    roomList.appendChild(searchHelpMsg);
+                                }
 
-                                    const roomName = item.room_name || 'Tidak Diketahui';
-
-                                    li.textContent = roomName;
-                                    li.setAttribute('data-id', item.room_id);
-                                    li.setAttribute('data-name', roomName);
-
-                                    li.addEventListener('click', function () {
-                                        // Set the selected room data
-                                        const displayText = this.getAttribute('data-name');
-                                        const roomId = this.getAttribute('data-id');
-
-                                        // Store the room ID and display name
-                                        selectedRoomId.value = roomId;
-                                        searchInput.value = displayText;
-
-                                        // Hide dropdown
-                                        dropdown.classList.add('hidden');
+                                // First show exact matches if there's a search term
+                                let exactMatches = 0;
+                                if (searchTerm) {
+                                    rooms.forEach(item => {
+                                        const roomName = item.room_name || item.name || 'Tidak Diketahui';
+                                        if (roomName.toLowerCase().startsWith(searchTerm.toLowerCase())) {
+                                            addRoomOption(item, roomName);
+                                            exactMatches++;
+                                        }
                                     });
+                                }
 
-                                    roomList.appendChild(li);
+                                // Then show all other matches
+                                rooms.forEach(item => {
+                                    const roomName = item.room_name || item.name || 'Tidak Diketahui';
+                                    if (!searchTerm ||
+                                        (!roomName.toLowerCase().startsWith(searchTerm.toLowerCase()) &&
+                                         roomName.toLowerCase().includes(searchTerm.toLowerCase()))) {
+                                        addRoomOption(item, roomName);
+                                    }
                                 });
+
+                                // Add result count if there are many results
+                                if (rooms.length > 10) {
+                                    const countItem = document.createElement('li');
+                                    countItem.className = 'px-4 py-2 text-xs text-center text-gray-500 border-t';
+                                    countItem.textContent = `Menampilkan ${Math.min(rooms.length, 50)} dari ${rooms.length} ruangan`;
+                                    roomList.appendChild(countItem);
+                                }
                             }
                         } catch (error) {
                             console.error('Error loading rooms:', error);
-                            showError(error.message);
+                            roomList.innerHTML = '';
+
+                            const errorItem = document.createElement('li');
+                            errorItem.className = 'px-4 py-2 text-red-500';
+                            errorItem.textContent = `Error: ${error.message}`;
+                            roomList.appendChild(errorItem);
+
+                            // Add retry button
+                            const retryOption = document.createElement('li');
+                            retryOption.className = 'px-4 py-2 text-center bg-blue-50 text-blue-700 cursor-pointer hover:bg-blue-100';
+                            retryOption.textContent = '🔄 Coba lagi';
+                            retryOption.addEventListener('click', function() {
+                                loadRooms(searchTerm, buildingId);
+                            });
+                            roomList.appendChild(retryOption);
 
                             // Add fallback option when there's an API error
                             if (searchTerm) {
@@ -1134,6 +1339,35 @@
                         } finally {
                             if (loadingIndicator) loadingIndicator.classList.add('hidden');
                         }
+                    }
+
+                    // Helper function to add a room option to the list
+                    function addRoomOption(item, displayName) {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                        // Extract room properties with fallbacks
+                        const roomId = item.room_id || item.id || '';
+
+                        if (!roomId) {
+                            console.warn('Room missing required properties:', item);
+                            return; // Skip this room
+                        }
+
+                        li.textContent = displayName;
+                        li.setAttribute('data-id', roomId);
+                        li.setAttribute('data-name', displayName);
+
+                        li.addEventListener('click', function() {
+                            // Set the selected room data
+                            selectedRoomId.value = this.getAttribute('data-id');
+                            searchInput.value = this.getAttribute('data-name');
+
+                            // Hide dropdown
+                            dropdown.classList.add('hidden');
+                        });
+
+                        roomList.appendChild(li);
                     }
                 }
 
@@ -1322,14 +1556,42 @@
                 const depreciationFilterForm = document.getElementById('depreciationFilterForm');
                 if (depreciationFilterForm) {
                     depreciationFilterForm.addEventListener('submit', function (e) {
-                        // Make sure the search value is set from the asset search dropdown
+                        // Make sure the asset master name is set from the asset search dropdown
                         const searchInput = document.getElementById('asset_master_search');
                         const selectedAssetId = document.getElementById('selected_asset_master_id');
 
                         // If the user typed something but didn't select from dropdown,
                         // use the input value for search
-                        if (searchInput.value && !selectedAssetId.value) {
+                        if (searchInput && searchInput.value && selectedAssetId) {
                             selectedAssetId.value = searchInput.value;
+                        }
+
+                        // Update form field names to match API parameters
+                        const buildingIdInput = document.getElementById('selected_building_id');
+                        const roomIdInput = document.getElementById('selected_room_id');
+                        const subcategoryInput = document.getElementById('selected_subcategory');
+
+                        if (buildingIdInput && buildingIdInput.name !== 'building_id') {
+                            buildingIdInput.name = 'building_id';
+                        }
+
+                        if (roomIdInput && roomIdInput.name !== 'room_id') {
+                            roomIdInput.name = 'room_id';
+                        }
+
+                        if (subcategoryInput && subcategoryInput.name !== 'subcategory_id') {
+                            subcategoryInput.name = 'subcategory_id';
+                        }
+
+                        // Rename as_of_date to year_month for API consistency
+                        const asOfDateInput = document.querySelector('input[name="as_of_date"]');
+                        if (asOfDateInput) {
+                            // Create a hidden input with the correct parameter name
+                            const yearMonthInput = document.createElement('input');
+                            yearMonthInput.type = 'hidden';
+                            yearMonthInput.name = 'year_month';
+                            yearMonthInput.value = asOfDateInput.value;
+                            this.appendChild(yearMonthInput);
                         }
                     });
                 }
@@ -1340,13 +1602,13 @@
                     exportBtn.addEventListener('click', function () {
                         // Build the export URL with all current parameters
                         const exportUrl = "{{ route('report.depreciation.export-pdf') }}?" + new URLSearchParams({
-                            search: "{{ $search ?? '' }}",
-                            sort: "{{ $sort ?? 'asset_name_asc' }}",
-                            as_of_date: "{{ $as_of_date ?? now()->format('Y-m-d') }}",
-                            asset_type: "{{ $asset_type ?? '' }}",
-                            subcategory: document.getElementById('selected_subcategory')?.value || "",
-                            building: document.getElementById('selected_building_id')?.value || "",
-                            room: document.getElementById('selected_room_id')?.value || ""
+                            asset_master_name: document.getElementById('asset_master_search')?.value || "",
+                            building_id: document.getElementById('selected_building_id')?.value || "",
+                            room_id: document.getElementById('selected_room_id')?.value || "",
+                            asset_type: document.querySelector('select[name="asset_type"]')?.value || "",
+                            subcategory_id: document.getElementById('selected_subcategory')?.value || "",
+                            year_month: document.querySelector('input[name="as_of_date"]')?.value || "",
+                            book_value_end: "true" // Include book value at end of period
                         }).toString();
 
                         // Open in a new window

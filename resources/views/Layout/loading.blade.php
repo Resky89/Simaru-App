@@ -14,7 +14,8 @@
 <!-- JavaScript to control the loading screen -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Hide loading screen on initial page load - it's already hidden by default now
+        // Hide loading screen on initial page load
+        hideLoadingScreen();
 
         // Show loading screen when clicking on links that navigate to new pages
         document.addEventListener('click', function(e) {
@@ -48,11 +49,21 @@
         window.addEventListener('popstate', function() {
             showLoadingScreen();
         });
+
+        // Add event listener for the pageshow event
+        window.addEventListener('pageshow', function(event) {
+            // Hide loading screen when the page is shown, including from bfcache
+            if (event.persisted) {
+                hideLoadingScreen();
+            }
+        });
     });
 
     // Function to show the loading screen
     function showLoadingScreen() {
         const loadingScreen = document.getElementById('loading-screen');
+        if (!loadingScreen) return;
+
         loadingScreen.classList.remove('hidden');
         // Use a small timeout to allow the element to be in the DOM before adding opacity
         setTimeout(function() {
@@ -63,6 +74,8 @@
     // Function to hide the loading screen
     function hideLoadingScreen() {
         const loadingScreen = document.getElementById('loading-screen');
+        if (!loadingScreen) return;
+
         loadingScreen.classList.add('opacity-0');
         setTimeout(function() {
             loadingScreen.classList.add('hidden');
@@ -71,18 +84,15 @@
 
     // Hide loading when page has loaded (in case it was shown during navigation)
     window.addEventListener('load', function() {
-        setTimeout(hideLoadingScreen, 300);
+        hideLoadingScreen();
     });
 
-    // For AJAX requests, you can manually control the loading screen:
-    // Example: document.addEventListener('turbolinks:click', showLoadingScreen);
-    // Example: document.addEventListener('turbolinks:load', hideLoadingScreen);
-
-    // If using Laravel with Livewire, uncomment these lines:
-    // document.addEventListener('livewire:load', function() {
-    //     Livewire.hook('message.sent', () => showLoadingScreen());
-    //     Livewire.hook('message.received', () => hideLoadingScreen());
-    // });
+    // Additional safety measure: hide loading screen if the page is visible
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            hideLoadingScreen();
+        }
+    });
 </script>
 
 <style>

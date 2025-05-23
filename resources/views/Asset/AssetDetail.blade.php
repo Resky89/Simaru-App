@@ -37,108 +37,108 @@
                             @elseif($asset['current_status'] === 'available')
                                 <!-- When status is available: Check Out, Dispose, Lost, Edit buttons -->
                                 @if(hasPermission('asset:checkout'))
-                                <a href="javascript:void(0)" id="checkoutAssetBtn"
+                                <button type="button" id="checkoutAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
                                     <span>Pinjam</span>
-                                </a>
+                                </button>
                                 @endif
                                 @if(hasPermission('asset:dispose'))
-                                <a href="javascript:void(0)" id="disposeAssetBtn"
+                                <button type="button" id="disposeAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                     <span>Hapuskan</span>
-                                </a>
+                                </button>
                                 @endif
                                 @if(hasPermission('asset:report-loss'))
-                                <a href="javascript:void(0)" id="lostAssetBtn"
+                                <button type="button" id="lostAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
                                     <span>Hilang</span>
-                                </a>
+                                </button>
                                 @endif
                                 @if(hasPermission('asset:edit'))
-                                <a href="javascript:void(0)" id="editAssetBtn"
+                                <button type="button" id="editAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
                                     <span>Ubah</span>
-                                </a>
+                                </button>
                                 @endif
                             @elseif($asset['current_status'] === 'check out')
                                 <!-- When status is check out: Check In, Dispose, Lost, Edit buttons -->
                                 @if(hasPermission('asset:return'))
-                                <a href="javascript:void(0)" id="checkinAssetBtn"
+                                <button type="button" id="checkinAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                     </svg>
                                     <span>Kembalikan</span>
-                                </a>
+                                </button>
                                 @endif
                                 @if(hasPermission('asset:dispose'))
-                                <a href="#"
+                                <button type="button" id="disposeAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                     <span>Hapuskan</span>
-                                </a>
+                                </button>
                                 @endif
                                 @if(hasPermission('asset:report-loss'))
-                                <a href="javascript:void(0)" id="lostAssetBtn"
+                                <button type="button" id="lostAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
                                     <span>Hilang</span>
-                                </a>
+                                </button>
                                 @endif
                                 @if(hasPermission('asset:edit'))
-                                <a href="javascript:void(0)" id="editAssetBtn"
+                                <button type="button" id="editAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
                                     <span>Ubah</span>
-                                </a>
+                                </button>
                                 @endif
                             @elseif($asset['current_status'] === 'lost')
                                 <!-- When status is lost: Found, Edit buttons -->
                                 @if(hasPermission('asset:report-found'))
-                                <a href="javascript:void(0)" id="foundAssetBtn"
+                                <button type="button" id="foundAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                     <span>Ditemukan</span>
-                                </a>
+                                </button>
                                 @endif
                                 @if(hasPermission('asset:edit'))
-                                <a href="javascript:void(0)" id="editAssetBtn"
+                                <button type="button" id="editAssetBtn"
                                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
                                     <span>Ubah</span>
-                                </a>
+                                </button>
                                 @endif
                             @endif
                             <!-- Add this button alongside the other action buttons -->
@@ -375,22 +375,7 @@
                                     <!-- Add Employee Number for Responsible User -->
                                     <div class="flex flex-wrap items-center">
                                         <span class="w-[150px] font-semibold text-sm">Penanggung Jawab</span>
-                                        <span class="text-sm">
-                                            @if(isset($asset['user_id']) && $asset['user_id'])
-                                                @if(isset($asset['user']['employee_number']) && $asset['user']['employee_number'])
-                                                    {{ $asset['user']['employee_number'] }}
-                                                    @if(isset($asset['user']['name']) && $asset['user']['name'])
-                                                        - {{ $asset['user']['name'] }}
-                                                    @endif
-                                                @elseif(isset($asset['user']['name']) && $asset['user']['name'])
-                                                    {{ $asset['user']['name'] }}
-                                                @else
-                                                    User ID: {{ $asset['user_id'] }}
-                                                @endif
-                                            @else
-                                                -
-                                            @endif
-                                        </span>
+                                        <span class="text-sm">{{ $asset['employee_number'] ?? '-' }}</span>
                                     </div>
                                     <div class="flex flex-wrap items-center">
                                         <span class="w-[150px] font-semibold text-sm">Harga Beli</span>
@@ -2099,7 +2084,7 @@
                         employeeDropdown.classList.remove('hidden');
                         locationDropdown.classList.add('hidden');
                         document.getElementById('checkout_selected_user_id').setAttribute('required', '');
-                        document.getElementById('location_id').removeAttribute('required');
+                        document.getElementById('pinjam_selected_room_id').removeAttribute('required');
                     }
                 });
 
@@ -2107,7 +2092,7 @@
                     if (this.checked) {
                         employeeDropdown.classList.add('hidden');
                         locationDropdown.classList.remove('hidden');
-                        document.getElementById('location_id').setAttribute('required', '');
+                        document.getElementById('pinjam_selected_room_id').setAttribute('required', '');
                         document.getElementById('checkout_selected_user_id').removeAttribute('required');
                     }
                 });
@@ -2262,41 +2247,28 @@
                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                 buildingList.innerHTML = '';
 
-                // Cache buildings data
-                if (!window.buildingsCache) {
-                    window.buildingsCache = [];
-                }
-
                 try {
-                    let buildings = [];
-
-                    // Use cached data if available and no search term, otherwise fetch new data
-                    if (window.buildingsCache.length > 0 && !searchTerm) {
-                        buildings = window.buildingsCache;
-                    } else {
-                        const response = await fetch(`{{ route('buildings.data') }}?search=${encodeURIComponent(searchTerm || '')}`, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        });
-
-                        if (!response.ok) throw new Error('Failed to fetch buildings');
-
-                        const result = await response.json();
-                        buildings = result.data || [];
-
-                        // Cache the buildings data if we're not searching
-                        if (!searchTerm) {
-                            window.buildingsCache = buildings;
+                    const response = await fetch(`{{ route('buildings.data') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to load buildings');
                     }
 
+                    const data = await response.json();
+                    const buildings = data.data || [];
+
                     if (buildings.length === 0) {
-                        buildingList.appendChild(createDropdownItem('No buildings found', 'px-4 py-2 text-gray-500 italic'));
+                        buildingList.appendChild(createDropdownItem('Tidak ada gedung yang ditemukan', 'px-4 py-2 text-gray-500'));
                     } else {
                         buildings.forEach(building => {
-                            const li = createDropdownItem(building.building_name);
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                            li.textContent = building.building_name;
                             li.setAttribute('data-id', building.building_id);
                             li.setAttribute('data-name', building.building_name);
 
@@ -2306,12 +2278,33 @@
                                 searchInput.value = this.getAttribute('data-name');
 
                                 // Enable room search and update placeholder
-                                roomSearchInput.disabled = false;
-                                roomSearchInput.placeholder = "Search for room...";
+                                if (roomSearchInput) {
+                                    roomSearchInput.disabled = false;
+                                    roomSearchInput.placeholder = "Cari ruangan...";
+                                    // Clear room selection
+                                    document.getElementById('pinjam_selected_room_id').value = '';
+                                    document.getElementById('pinjam_room_search').value = '';
 
-                                // Clear room selection
-                                document.getElementById('pinjam_selected_room_id').value = '';
-                                document.getElementById('pinjam_room_search').value = '';
+                                    // Show loading indicator in room search
+                                    const roomLoadingIndicator = document.getElementById('pinjam_room_loading');
+                                    if (roomLoadingIndicator) {
+                                        roomLoadingIndicator.classList.remove('hidden');
+                                    }
+
+                                    // Load rooms for this building immediately
+                                    loadRoomsForBuilding(
+                                        '',
+                                        this.getAttribute('data-id'),
+                                        document.getElementById('pinjam_room_list'),
+                                        document.getElementById('pinjam_room_loading'),
+                                        document.getElementById('pinjam_selected_room_id'),
+                                        roomSearchInput,
+                                        document.getElementById('pinjam_room_dropdown')
+                                    );
+
+                                    // Show the room dropdown
+                                    document.getElementById('pinjam_room_dropdown').classList.remove('hidden');
+                                }
 
                                 // Hide dropdown
                                 dropdown.classList.add('hidden');
@@ -2322,65 +2315,127 @@
                     }
                 } catch (error) {
                     console.error('Error loading buildings:', error);
-                    buildingList.appendChild(createDropdownItem('Error loading buildings', 'px-4 py-2 text-red-500'));
+                    buildingList.appendChild(createDropdownItem('Galat memuat gedung', 'px-4 py-2 text-red-500'));
                 } finally {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 }
             }
 
-            // Initialize room search
-            initDropdown(
-                document.getElementById('pinjam_room_search'),
-                document.getElementById('pinjam_room_dropdown'),
-                document.getElementById('pinjam_room_list'),
-                function(searchTerm) {
-                    const buildingId = document.getElementById('pinjam_selected_building_id').value;
-                    if (buildingId) {
-                        loadRoomsForBuilding(
-                            searchTerm,
-                            buildingId,
-                            document.getElementById('pinjam_room_list'),
-                            document.getElementById('pinjam_room_loading'),
-                            document.getElementById('pinjam_selected_room_id'),
-                            document.getElementById('pinjam_room_search'),
-                            document.getElementById('pinjam_room_dropdown')
-                        );
+            // Initialize room search with debounce
+            const roomSearchInput = document.getElementById('pinjam_room_search');
+            if (roomSearchInput) {
+                // Initially disable room search
+                roomSearchInput.disabled = true;
+                roomSearchInput.placeholder = 'Pilih gedung terlebih dahulu';
+
+                initDropdown(
+                    roomSearchInput,
+                    document.getElementById('pinjam_room_dropdown'),
+                    document.getElementById('pinjam_room_list'),
+                    function(searchTerm) {
+                        const buildingId = document.getElementById('pinjam_selected_building_id').value;
+                        if (buildingId) {
+                            loadRoomsForBuilding(
+                                searchTerm,
+                                buildingId,
+                                document.getElementById('pinjam_room_list'),
+                                document.getElementById('pinjam_room_loading'),
+                                document.getElementById('pinjam_selected_room_id'),
+                                roomSearchInput,
+                                document.getElementById('pinjam_room_dropdown')
+                            );
+                        } else {
+                            // If no building selected, show message
+                            const roomList = document.getElementById('pinjam_room_list');
+                            if (roomList) {
+                                roomList.innerHTML = '';
+                                roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                            }
+                        }
                     }
-                }
-            );
+                );
+            }
 
             // Function to load rooms for the selected building
             async function loadRoomsForBuilding(searchTerm, buildingId, roomList, loadingIndicator, selectedRoomId, searchInput, dropdown) {
+                if (!buildingId) {
+                    searchInput.value = '';
+                    searchInput.placeholder = 'Pilih gedung terlebih dahulu';
+                    searchInput.disabled = true;
+                    return;
+                }
+
+                searchInput.disabled = false;
+                searchInput.placeholder = "Cari ruangan...";
+
                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                 roomList.innerHTML = '';
 
+                // Show the dropdown while loading
+                if (dropdown) dropdown.classList.remove('hidden');
+
                 try {
-                    const response = await fetch(`{{ route('rooms') }}?search=${encodeURIComponent(searchTerm || '')}&building_id=${buildingId}`, {
+                    const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}`;
+                    console.log(`Fetching rooms from: ${apiUrl}`);
+
+                    const response = await fetch(apiUrl, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     });
 
-                    if (!response.ok) throw new Error('Failed to fetch rooms');
+                    if (!response.ok) {
+                        throw new Error(`Failed to load rooms: ${response.status} ${response.statusText}`);
+                    }
 
-                    const result = await response.json();
-                    const rooms = result.rooms || result.data || [];
+                    const data = await response.json();
+                    console.log('Room API response:', data);
+
+                    // Determine where the rooms array is in the response
+                    let rooms = [];
+                    if (Array.isArray(data)) {
+                        rooms = data;
+                    } else if (data.data && Array.isArray(data.data)) {
+                        rooms = data.data;
+                    } else if (data.rooms && Array.isArray(data.rooms)) {
+                        rooms = data.rooms;
+                    } else {
+                        console.error('Unexpected API response format:', data);
+                        throw new Error('Invalid response format from server');
+                    }
+
+                    // Filter rooms by the selected building ID
+                    rooms = rooms.filter(room => {
+                        const roomBuildingId = room.building_id ||
+                                              (room.building && room.building.building_id) ||
+                                              '';
+                        return roomBuildingId == buildingId; // Use == for type coercion
+                    });
 
                     if (rooms.length === 0) {
-                        roomList.appendChild(createDropdownItem('No rooms found in this building', 'px-4 py-2 text-gray-500 italic'));
+                        roomList.appendChild(createDropdownItem('Tidak ada ruangan ditemukan untuk gedung ini', 'px-4 py-2 text-gray-500 italic'));
                     } else {
                         rooms.forEach(room => {
-                            const li = createDropdownItem(room.room_name);
-                            li.setAttribute('data-id', room.room_id);
-                            li.setAttribute('data-name', room.room_name);
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                            // Extract room properties with fallbacks
+                            const roomName = room.room_name || room.name || '';
+                            const roomId = room.room_id || room.id || '';
+
+                            if (!roomName || !roomId) {
+                                console.warn('Room missing required properties:', room);
+                                return; // Skip this room
+                            }
+
+                            li.textContent = roomName;
+                            li.setAttribute('data-id', roomId);
+                            li.setAttribute('data-name', roomName);
 
                             li.addEventListener('click', function() {
-                                // Set the selected room ID and name
                                 selectedRoomId.value = this.getAttribute('data-id');
                                 searchInput.value = this.getAttribute('data-name');
-
-                                // Hide dropdown
                                 dropdown.classList.add('hidden');
                             });
 
@@ -2389,7 +2444,8 @@
                     }
                 } catch (error) {
                     console.error('Error loading rooms:', error);
-                    roomList.appendChild(createDropdownItem('Error loading rooms', 'px-4 py-2 text-red-500'));
+                    roomList.innerHTML = '';
+                    roomList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
                 } finally {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 }

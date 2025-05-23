@@ -41,10 +41,22 @@
 
         <!-- User Profile - Now clickable -->
         <a href="{{ route('profile') }}" class="flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-90 transition-opacity">
-            <img src="https://ui-avatars.com/api/?name=Austin+Robertson" alt="User" class="w-8 h-8 md:w-10 md:h-10 rounded-full">
+            <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </div>
             <div class="text-white hidden md:block">
-                <p class="text-sm font-medium">Austin Robertson</p>
-                <p class="text-xs opacity-60">Super Admin</p>
+                @php
+                    $accessTokenPayload = session('access_token_payload', []);
+                    $employeeNumber = $accessTokenPayload['employee_number'] ?? 'N/A';
+                    $roles = $accessTokenPayload['roles'] ?? [];
+                    $roleText = !empty($roles) ? (is_array($roles) ? implode(', ', $roles) : $roles) : 'No Role';
+                @endphp
+                <div class="flex items-center gap-1">
+                    <p class="text-sm font-medium">{{ $employeeNumber }}</p>
+                </div>
+                <p class="text-xs opacity-60 mt-0.5">{{ $roleText }}</p>
             </div>
         </a>
     </div>
@@ -223,7 +235,7 @@
                     if (loadingMore) {
                         loadingMore.remove();
                     }
-                    
+
                     // Ensure notification list has overflow-y-auto but not overflow-x
                     notificationList.classList.add('overflow-y-auto', 'overflow-x-hidden');
 
@@ -257,11 +269,11 @@
                     } else {
                         renderNotifications(notifications.unread, !isLazyLoad);
                     }
-                    
+
                     isNotificationsLoaded = true;
 
                     // If no notifications for current tab
-                    if ((currentTab === 'unread' && notifications.unread.length === 0) || 
+                    if ((currentTab === 'unread' && notifications.unread.length === 0) ||
                         (currentTab === 'read' && notifications.read.length === 0)) {
                         const emptyMessage = currentTab === 'unread' ?
                             'Tidak ada notifikasi baru' :
@@ -364,32 +376,54 @@
                 }
 
                 const notificationItem = document.createElement('div');
-                notificationItem.className = `p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200 break-words
+                notificationItem.className = `p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200 break-words cursor-pointer
                     ${notification.is_read ? 'bg-gray-50' : isNew ? 'bg-[rgba(33,50,104,0.05)]' : 'bg-white'}`;
                 notificationItem.setAttribute('data-id', notification.id);
 
                 notificationItem.innerHTML = `
-                    <div class="flex justify-between items-start mb-2 gap-1">
+                    <div class="flex justify-between items-start gap-1">
                         <div class="flex-1 min-w-0 pr-1">
+                            <div class="notification-header flex items-center justify-between cursor-pointer group">
+                                <div class="flex-1 flex items-center gap-2">
                             <h4 class="text-sm font-semibold ${notification.is_read ? 'text-gray-500' : 'text-[#232D42]'} mb-0.5">${notification.title}</h4>
+                                    ${isNew && !notification.is_read ?
+                                        '<span class="text-xs bg-[#213268] text-white px-1.5 py-0.5 rounded-full inline-flex items-center justify-center min-w-[36px]">Baru</span>' :
+                                        ''}
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-gray-400 whitespace-nowrap" title="${formattedDate}">${timeAgo}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 ${notification.is_read ? 'text-gray-400 rotate-180' : 'text-[#213268] group-hover:text-[#182451]'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="notification-detail ${notification.is_read ? '' : 'hidden'} mt-2">
                             <p class="text-xs text-gray-600 break-words">${notification.detail}</p>
                         </div>
-                        <div class="flex flex-col items-end flex-shrink-0 ml-1">
-                            <span class="text-xs text-gray-400 whitespace-nowrap" title="${formattedDate}">${timeAgo}</span>
-                            ${isNew && !notification.is_read ? 
-                                '<span class="text-xs bg-[#213268] text-white px-1.5 py-0.5 rounded-full inline-flex items-center justify-center min-w-[36px] mt-1">Baru</span>' : 
-                                ''}
                         </div>
                     </div>
-                    ${!notification.is_read ? `
-                    <button class="mark-as-read text-xs text-[#213268] hover:text-[#182451] font-medium flex items-center" data-id="${notification.id}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>Tandai sudah dibaca</span>
-                    </button>
-                    ` : ''}
                 `;
+
+                // Add click event listener to toggle detail and mark as read
+                notificationItem.querySelector('.notification-header').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const detailElement = notificationItem.querySelector('.notification-detail');
+                    const chevronIcon = this.querySelector('svg');
+                    const notificationId = notificationItem.getAttribute('data-id');
+
+                    // Toggle detail visibility only for unread notifications
+                    if (!notification.is_read) {
+                        if (detailElement.classList.contains('hidden')) {
+                            detailElement.classList.remove('hidden');
+                            // Rotate chevron
+                            chevronIcon.classList.add('rotate-180');
+                            chevronIcon.classList.remove('text-[#213268]', 'group-hover:text-[#182451]');
+                            chevronIcon.classList.add('text-gray-400');
+                            // Mark as read
+                            markAsRead(notificationId);
+                        }
+                    }
+                });
 
                 fragment.appendChild(notificationItem);
             });
@@ -401,15 +435,6 @@
             if (hasMorePages[currentTab]) {
                 addLazyLoadTrigger();
             }
-
-            // Add event listeners to mark-as-read buttons
-            document.querySelectorAll('.mark-as-read').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const notificationId = this.getAttribute('data-id');
-                    markAsRead(notificationId);
-                });
-            });
         }
 
         // Add lazy load trigger at the bottom
@@ -433,15 +458,7 @@
 
             if (!csrf_token) {
                 console.error('CSRF token not found');
-                alert('Tidak dapat menandai notifikasi sebagai dibaca: CSRF token tidak ditemukan');
                 return;
-            }
-
-            // Find the button to update UI
-            const button = document.querySelector(`.mark-as-read[data-id="${notificationId}"]`);
-            if (button) {
-                button.innerHTML = `<span class="flex items-center"><div class="animate-spin h-3 w-3 border border-t-transparent border-[#213268] rounded-full mr-1"></div> Memproses...</span>`;
-                button.disabled = true;
             }
 
             fetch(`/notifications/${notificationId}/read`, {
@@ -452,26 +469,16 @@
                     'X-CSRF-TOKEN': csrf_token,
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                // Adding empty body for POST request
                 body: JSON.stringify({})
             })
             .then(response => {
-                // Check for different HTTP status codes
-                if (response.status === 401) {
-                    throw new Error('Unauthorized: Please login again');
-                } else if (response.status === 403) {
-                    throw new Error('Forbidden: You do not have permission');
-                } else if (response.status === 404) {
-                    throw new Error(`Notification #${notificationId} not found`);
-                } else if (!response.ok) {
+                if (!response.ok) {
                     throw new Error(`Failed with status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
                 if (data.success) {
-                    console.log('Notification marked as read:', data);
-
                     // Find the notification in the unread array
                     const notificationIndex = notifications.unread.findIndex(n => n.id == notificationId);
 
@@ -487,55 +494,34 @@
                         notifications.unread.splice(notificationIndex, 1);
                         notifications.read.unshift(updatedNotification);
 
-                        // If in unread tab, remove notification from view with animation
-                        if (currentTab === 'unread') {
+                        // Update UI to reflect read status
                             const notificationElement = document.querySelector(`.p-3[data-id="${notificationId}"]`);
                             if (notificationElement) {
-                                notificationElement.style.transition = 'opacity 0.3s, transform 0.3s';
-                                notificationElement.style.opacity = '0';
-                                notificationElement.style.transform = 'translateX(10px)';
-
-                                setTimeout(() => {
-                                    notificationElement.remove();
-
-                                    // Show empty message if no more unread notifications
-                                    if (notifications.unread.length === 0) {
-                                        notificationList.innerHTML = `
-                                            <div class="p-6 text-center text-gray-500">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                                </svg>
-                                                <p>Tidak ada notifikasi baru</p>
-                                            </div>
-                                        `;
-                                    }
-                                }, 300);
+                            notificationElement.classList.remove('bg-[rgba(33,50,104,0.05)]');
+                            notificationElement.classList.add('bg-gray-50');
+                            const titleElement = notificationElement.querySelector('h4');
+                            const chevronIcon = notificationElement.querySelector('.notification-header svg');
+                            if (titleElement) {
+                                titleElement.classList.remove('text-[#232D42]');
+                                titleElement.classList.add('text-gray-500');
+                            }
+                            if (chevronIcon) {
+                                chevronIcon.classList.remove('text-[#213268]', 'group-hover:text-[#182451]');
+                                chevronIcon.classList.add('text-gray-400', 'rotate-180');
+                            }
+                            // Remove 'New' badge if exists
+                            const newBadge = notificationElement.querySelector('.bg-[#213268]');
+                            if (newBadge) {
+                                newBadge.remove();
                             }
                         }
-                    }
 
-                    loadUnreadCount();
-                } else {
-                    // Handle API success: false case
-                    console.error('API returned success: false', data);
-                    throw new Error(data.errors || 'Failed to mark notification as read');
+                        loadUnreadCount();
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error marking notification as read:', error);
-
-                // Reset button state if it exists
-                if (button) {
-                    button.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Tandai sudah dibaca`;
-                    button.disabled = false;
-                }
-
-                // Show error to user
-                alert(`Gagal menandai notifikasi sebagai dibaca: ${error.message}`);
             });
         }
 
@@ -617,7 +603,7 @@
                     if (data.success) {
                         // Filter for unread notifications
                         const newUnreadNotifications = data.data.filter(n => !n.is_read);
-                        
+
                         // Check for new notifications
                         const oldNotifications = notifications.unread || [];
 
