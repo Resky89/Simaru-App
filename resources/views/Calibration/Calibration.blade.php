@@ -305,10 +305,10 @@
                                                 @endif
 
                                                 <!-- Perform Calibration Icon (Pencil) -->
-                                                @if(hasPermission('calibration:edit'))
+                                                @if(hasPermission('calibration:report'))
                                                     @if(!in_array(strtolower($calibration['status_calibration'] ?? ''), ['completed', 'approved']))
                                                         <button
-                                                            class="edit-calibration-btn p-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
+                                                            class="perform-calibration-btn p-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
                                                             data-id="{{ $calibration['id'] }}" title="Lakukan Kalibrasi">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -436,7 +436,7 @@
         </div>
 
         <!-- View Calibration Modal - Changed to Perform Calibration Modal -->
-        @if(hasPermission('calibration:edit'))
+    @if(hasPermission('calibration:report'))
                 <div id="viewCalibrationModal" class="fixed inset-0 z-50 hidden">
                     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
                     <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -1128,7 +1128,7 @@
 
                             @if(!hasPermission('calibration:edit'))
                                 // Hide/disable edit-related elements
-                                const editButtons = document.querySelectorAll('.edit-calibration-btn, .edit-schedule-btn');
+                                const editButtons = document.querySelectorAll('.edit-schedule-btn');
                                 editButtons.forEach(btn => {
                                     if (btn) {
                                         btn.style.display = 'none';
@@ -1150,6 +1150,16 @@
                                 // Hide/disable export-related elements
                                 const exportButtons = document.querySelectorAll('#exportBtn');
                                 exportButtons.forEach(btn => {
+                                    if (btn) {
+                                        btn.style.display = 'none';
+                                    }
+                                });
+                            @endif
+
+                            @if(!hasPermission('calibration:report'))
+                                // Hide/disable report-related elements
+                                const reportButtons = document.querySelectorAll('.perform-calibration-btn');
+                                reportButtons.forEach(btn => {
                                     if (btn) {
                                         btn.style.display = 'none';
                                     }
@@ -1748,7 +1758,7 @@
                         }
 
                         // Edit calibration buttons
-                        document.querySelectorAll('.edit-calibration-btn').forEach(button => {
+                        document.querySelectorAll('.perform-calibration-btn').forEach(button => {
                             button.addEventListener('click', function () {
                                 const calibrationId = this.getAttribute('data-id');
                                 document.getElementById('calibration_id').value = calibrationId;

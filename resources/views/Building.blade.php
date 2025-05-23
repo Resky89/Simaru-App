@@ -740,6 +740,10 @@
 
                 // Function to open modal
                 function openModal(modal, content) {
+                    if (!modal || !content) {
+                        console.error('Modal or content element not found');
+                        return;
+                    }
                     modal.classList.remove('hidden');
                     setTimeout(() => {
                         content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
@@ -749,6 +753,10 @@
 
                 // Function to close modal
                 function closeModal(modal, content) {
+                    if (!modal || !content) {
+                        console.error('Modal or content element not found');
+                        return;
+                    }
                     content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
                     content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
                     setTimeout(() => {
@@ -757,20 +765,40 @@
                 }
 
                 // Add Building Modal
-                document.getElementById('addBuildingBtn').addEventListener('click', () => {
-                    openModal(addBuildingModal, addBuildingModal.querySelector('[id$="ModalContent"]'));
-                });
+                const addBuildingBtn = document.getElementById('addBuildingBtn');
+                if (addBuildingBtn) {
+                    addBuildingBtn.addEventListener('click', () => {
+                        openModal(addBuildingModal, addBuildingModal.querySelector('[id$="ModalContent"]'));
+                    });
+                }
 
                 // Edit Building Modal
                 document.querySelectorAll('.edit-building-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const buildingId = button.getAttribute('data-id');
-                        document.getElementById('editBuildingForm').action = `{{ url('buildings/update') }}/${buildingId}`;
-                        document.getElementById('editBuildingId').value = buildingId;
-                        document.getElementById('editBuildingName').value = button.getAttribute('data-name');
-                        document.getElementById('editAddress').value = button.getAttribute('data-address');
+                        
+                        // Update form action with the correct route
+                        const formAction = `{{ url('buildings/update') }}/${buildingId}`;
+                        const editForm = document.getElementById('editBuildingForm');
+                        if (editForm) {
+                            editForm.action = formAction;
+                        }
+                        
+                        // Set form values with null checks
+                        const idField = document.getElementById('editBuildingId');
+                        const nameField = document.getElementById('editBuildingName');
+                        const addressField = document.getElementById('editAddress');
+                        
+                        if (idField) idField.value = buildingId;
+                        if (nameField) nameField.value = button.getAttribute('data-name');
+                        if (addressField) addressField.value = button.getAttribute('data-address');
 
-                        openModal(editBuildingModal, editBuildingModal.querySelector('[id$="ModalContent"]'));
+                        if (editBuildingModal) {
+                            const modalContent = editBuildingModal.querySelector('[id$="ModalContent"]');
+                            if (modalContent) {
+                                openModal(editBuildingModal, modalContent);
+                            }
+                        }
                     });
                 });
 
@@ -778,10 +806,26 @@
                 document.querySelectorAll('.delete-building-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const buildingId = button.getAttribute('data-id');
-                        document.getElementById('deleteBuildingForm').action = `{{ url('buildings/delete') }}/${buildingId}`;
-                        document.getElementById('deleteBuildingId').value = buildingId;
+                        
+                        // Update form action with the correct route
+                        const formAction = `{{ url('buildings/delete') }}/${buildingId}`;
+                        const deleteForm = document.getElementById('deleteBuildingForm');
+                        if (deleteForm) {
+                            deleteForm.action = formAction;
+                        }
+                        
+                        // Set building ID in hidden input
+                        const idField = document.getElementById('deleteBuildingId');
+                        if (idField) {
+                            idField.value = buildingId;
+                        }
 
-                        openModal(deleteBuildingModal, deleteBuildingModal.querySelector('[id$="ModalContent"]'));
+                        if (deleteBuildingModal) {
+                            const modalContent = deleteBuildingModal.querySelector('[id$="ModalContent"]');
+                            if (modalContent) {
+                                openModal(deleteBuildingModal, modalContent);
+                            }
+                        }
                     });
                 });
 
@@ -839,25 +883,31 @@
 
                 // Close on outside click
                 [addBuildingModal, editBuildingModal, deleteBuildingModal].forEach(modal => {
-                    modal.addEventListener('click', function (e) {
-                        // Check if the click is directly on the modal's overlay area
-                        if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
-                            e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
-                            const content = this.querySelector('[id$="ModalContent"]');
-                            closeModal(this, content);
-                            clearModalForms(this);
-                        }
-                    });
+                    if (modal) {
+                        modal.addEventListener('click', function (e) {
+                            // Check if the click is directly on the modal's overlay area
+                            if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
+                                e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
+                                const content = this.querySelector('[id$="ModalContent"]');
+                                if (content) {
+                                    closeModal(this, content);
+                                    clearModalForms(this);
+                                }
+                            }
+                        });
+                    }
                 });
 
                 // Close on Escape key
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {
                         [addBuildingModal, editBuildingModal, deleteBuildingModal].forEach(modal => {
-                            if (!modal.classList.contains('hidden')) {
+                            if (modal && !modal.classList.contains('hidden')) {
                                 const content = modal.querySelector('[id$="ModalContent"]');
-                                closeModal(modal, content);
-                                clearModalForms(modal);
+                                if (content) {
+                                    closeModal(modal, content);
+                                    clearModalForms(modal);
+                                }
                             }
                         });
                     }
@@ -955,7 +1005,7 @@
                 }
 
                 // Form validation for Add Building
-                document.getElementById('addBuildingForm').addEventListener('submit', function(event) {
+                document.getElementById('addBuildingForm')?.addEventListener('submit', function(event) {
                     const buildingNameInput = document.getElementById('add_building_name');
                     const buildingAddressInput = document.getElementById('add_building_address');
 
@@ -995,7 +1045,7 @@
                 });
 
                 // Form validation for Edit Building
-                document.getElementById('editBuildingForm').addEventListener('submit', function(event) {
+                document.getElementById('editBuildingForm')?.addEventListener('submit', function(event) {
                     const buildingNameInput = document.getElementById('editBuildingName');
                     const buildingAddressInput = document.getElementById('editAddress');
 
@@ -1035,37 +1085,42 @@
                 });
 
                 // Prevent multiple submissions for Delete Building form
-                document.getElementById('deleteBuildingForm').addEventListener('submit', function(event) {
-                    // Prevent multiple submissions by disabling the button
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
-                        const originalText = submitBtn.innerHTML;
+                const deleteBuildingForm = document.getElementById('deleteBuildingForm');
+                if (deleteBuildingForm) {
+                    deleteBuildingForm.addEventListener('submit', function(event) {
+                        // Prevent multiple submissions by disabling the button
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn && !submitBtn.disabled) {
+                            // Save original button text
+                            const originalText = submitBtn.innerHTML;
 
-                        // Disable the button and show loading state
-                        submitBtn.disabled = true;
-                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Menghapus...</span>
-                            </div>
-                        `;
+                            // Disable the button and show loading state
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Menghapus...</span>
+                                </div>
+                            `;
 
-                        // Re-enable button after 10 seconds as a failsafe
-                        setTimeout(() => {
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
-                            }
-                        }, 10000);
-                    }
-                });
+                            // Re-enable button after 10 seconds as a failsafe
+                            setTimeout(() => {
+                                if (submitBtn) {
+                                    submitBtn.disabled = false;
+                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                    submitBtn.innerHTML = originalText;
+                                }
+                            }, 10000);
+                        }
+                    });
+                }
 
                 // Function to validate field and show error styling
                 function validateField(field) {
-                    let errorElement = field.closest('.space-y-2').querySelector('.error-message');
+                    if (!field) return true; // Skip validation if element doesn't exist
+                    
+                    let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
 
                     if (!field.value.trim()) {
                         field.classList.add('border-red-500');
@@ -1079,29 +1134,41 @@
                 }
 
                 // Add input event listeners to clear error styling when typing
-                document.getElementById('add_building_name').addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-                    if (errorElement) errorElement.classList.add('hidden');
-                });
+                const add_building_name = document.getElementById('add_building_name');
+                if (add_building_name) {
+                    add_building_name.addEventListener('input', function() {
+                        this.classList.remove('border-red-500');
+                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    });
+                }
 
-                document.getElementById('add_building_address').addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-                    if (errorElement) errorElement.classList.add('hidden');
-                });
+                const add_building_address = document.getElementById('add_building_address');
+                if (add_building_address) {
+                    add_building_address.addEventListener('input', function() {
+                        this.classList.remove('border-red-500');
+                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    });
+                }
 
-                document.getElementById('editBuildingName').addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-                    if (errorElement) errorElement.classList.add('hidden');
-                });
+                const editBuildingName = document.getElementById('editBuildingName');
+                if (editBuildingName) {
+                    editBuildingName.addEventListener('input', function() {
+                        this.classList.remove('border-red-500');
+                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    });
+                }
 
-                document.getElementById('editAddress').addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-                    if (errorElement) errorElement.classList.add('hidden');
-                });
+                const editAddress = document.getElementById('editAddress');
+                if (editAddress) {
+                    editAddress.addEventListener('input', function() {
+                        this.classList.remove('border-red-500');
+                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    });
+                }
 
                 // ===== IMPORT BUILDING FUNCTIONALITY =====
                 // Import Building Modal

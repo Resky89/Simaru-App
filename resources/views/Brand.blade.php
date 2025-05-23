@@ -3,7 +3,7 @@
 @section('title', 'Manajemen Merk')
 
 @section('content')
-@include('Layout.loading')
+    @include('Layout.loading')
     <div class="h-full space-y-4 md:space-y-6">
         <!-- Brand Section -->
         <div class="card bg-base-100 shadow-xl">
@@ -631,19 +631,19 @@
                 if (type === 'success') {
                     notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                     notification.innerHTML = `
-                        <div class="flex items-start">
-            <div class="py-1">
-                                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                            <div class="flex items-start">
+                <div class="py-1">
+                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                                    <p class="font-bold">Berhasil!</p>
+                                    <div>${message}</div>
+                </div>
+                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
             </div>
-            <div class="flex-1">
-                                <p class="font-bold">Berhasil!</p>
-                                <div>${message}</div>
-            </div>
-            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-        </div>
-                    `;
+                        `;
                 } else {
                     notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
@@ -655,10 +655,10 @@
                     const iconContainer = document.createElement('div');
                     iconContainer.className = 'py-1 flex-shrink-0';
                     iconContainer.innerHTML = `
-                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    `;
+                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        `;
 
                     // Content container
                     const contentContainer = document.createElement('div');
@@ -710,40 +710,40 @@
 
             // Add slide-in animation and styling for error messages to CSS
             document.head.insertAdjacentHTML('beforeend', `
-                <style>
-                    @keyframes slideInRight {
-                        from { transform: translateX(100%); }
-                        to { transform: translateX(0); }
-                    }
-                    .animate-slide-in-right {
-                        animation: slideInRight 0.3s ease-out forwards;
-                    }
+                    <style>
+                        @keyframes slideInRight {
+                            from { transform: translateX(100%); }
+                            to { transform: translateX(0); }
+                        }
+                        .animate-slide-in-right {
+                            animation: slideInRight 0.3s ease-out forwards;
+                        }
 
-                    /* Styling for error messages with HTML content */
-                    .error-message ul {
-                        margin-top: 0.5rem;
-                        padding-left: 1.5rem;
-                    }
-                    .error-message ul li {
-                        margin-bottom: 0.25rem;
-                    }
-                    .error-message ul li:last-child {
-                        margin-bottom: 0;
-                    }
-                </style>
-            `);
+                        /* Styling for error messages with HTML content */
+                        .error-message ul {
+                            margin-top: 0.5rem;
+                            padding-left: 1.5rem;
+                        }
+                        .error-message ul li {
+                            margin-bottom: 0.25rem;
+                        }
+                        .error-message ul li:last-child {
+                            margin-bottom: 0;
+                        }
+                    </style>
+                `);
 
             // Now we can call the function with session data
             @if(session('success'))
                 showToast("{{ session('success') }}", 'success');
             @endif
 
-            @if(session('error'))
-                showToast({!! json_encode(session('error')) !!}, 'error');
-            @endif
+                @if(session('error'))
+                    showToast({!! json_encode(session('error')) !!}, 'error');
+                @endif
 
-            // Search and filter functionality
-            const searchInput = document.getElementById('searchInput');
+                // Search and filter functionality
+                const searchInput = document.getElementById('searchInput');
             const sortOrder = document.getElementById('sortOrder');
 
             // Function to handle search and filtering
@@ -911,11 +911,14 @@
             });
 
             // Handle Add Brand button click
-            document.getElementById('addBrandBtn').addEventListener('click', function () {
-                const modal = document.getElementById('addBrandModal');
-                const content = document.getElementById('addBrandModalContent');
-                if (modal && content) openModal(modal, content);
-            });
+            const addBrandBtn = document.getElementById('addBrandBtn');
+            if (addBrandBtn) {
+                addBrandBtn.addEventListener('click', function () {
+                    const modal = document.getElementById('addBrandModal');
+                    const content = document.getElementById('addBrandModalContent');
+                    if (modal && content) openModal(modal, content);
+                });
+            }
 
             // Import Brand button click
             const importBrandBtn = document.getElementById('importBrandBtn');
@@ -1245,11 +1248,11 @@
                 const originalBtnText = importBtn.innerHTML;
                 importBtn.disabled = true;
                 importBtn.innerHTML = `
-                    <div class="flex items-center justify-center">
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Mengimpor...</span>
-                    </div>
-                `;
+                        <div class="flex items-center justify-center">
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <span>Mengimpor...</span>
+                        </div>
+                    `;
 
                 // Send AJAX request
                 fetch('{{ route('brands.import') }}', {
@@ -1343,51 +1346,89 @@
             });
 
             // Form validation for Add Brand
-            document.getElementById('addBrandForm').addEventListener('submit', function (event) {
-                const brandNameInput = document.getElementById('add_brand_name');
-                const isValid = validateField(brandNameInput);
+            const addBrandForm = document.getElementById('addBrandForm');
+            if (addBrandForm) {
+                addBrandForm.addEventListener('submit', function (event) {
+                    const brandNameInput = document.getElementById('add_brand_name');
+                    const isValid = validateField(brandNameInput);
 
-                if (!isValid) {
-                    event.preventDefault();
-                    showToast('Silakan isi semua field yang diperlukan', 'error');
-                } else {
-                    // Prevent multiple submissions by disabling the button
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
-                        const originalText = submitBtn.innerHTML;
+                    if (!isValid) {
+                        event.preventDefault();
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                    } else {
+                        // Prevent multiple submissions by disabling the button
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn && !submitBtn.disabled) {
+                            // Save original button text
+                            const originalText = submitBtn.innerHTML;
 
-                        // Disable the button and show loading state
-                        submitBtn.disabled = true;
-                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        `;
+                            // Disable the button and show loading state
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
 
-                        // Re-enable button after 10 seconds as a failsafe
-                        setTimeout(() => {
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
-                            }
-                        }, 10000);
+                            // Re-enable button after 10 seconds as a failsafe
+                            setTimeout(() => {
+                                if (submitBtn) {
+                                    submitBtn.disabled = false;
+                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                    submitBtn.innerHTML = originalText;
+                                }
+                            }, 10000);
+                        }
                     }
-                }
-            });
+                });
+            }
 
             // Form validation for Edit Brand
-            document.getElementById('editBrandForm').addEventListener('submit', function (event) {
-                const brandNameInput = document.getElementById('edit_brand_name');
-                const isValid = validateField(brandNameInput);
+            const editBrandForm = document.getElementById('editBrandForm');
+            if (editBrandForm) {
+                editBrandForm.addEventListener('submit', function (event) {
+                    const brandNameInput = document.getElementById('edit_brand_name');
+                    const isValid = validateField(brandNameInput);
 
-                if (!isValid) {
-                    event.preventDefault();
-                    showToast('Silakan isi semua field yang diperlukan', 'error');
-                } else {
+                    if (!isValid) {
+                        event.preventDefault();
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                    } else {
+                        // Prevent multiple submissions by disabling the button
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn && !submitBtn.disabled) {
+                            // Save original button text
+                            const originalText = submitBtn.innerHTML;
+
+                            // Disable the button and show loading state
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
+
+                            // Re-enable button after 10 seconds as a failsafe
+                            setTimeout(() => {
+                                if (submitBtn) {
+                                    submitBtn.disabled = false;
+                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                    submitBtn.innerHTML = originalText;
+                                }
+                            }, 10000);
+                        }
+                    }
+                });
+            }
+
+            // Prevent multiple submissions for Delete Brand form
+            const deleteBrandForm = document.getElementById('deleteBrandForm');
+            if (deleteBrandForm) {
+                deleteBrandForm.addEventListener('submit', function (event) {
                     // Prevent multiple submissions by disabling the button
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn && !submitBtn.disabled) {
@@ -1400,7 +1441,7 @@
                         submitBtn.innerHTML = `
                             <div class="flex items-center justify-center">
                                 <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
+                                <span>Menghapus...</span>
                             </div>
                         `;
 
@@ -1413,61 +1454,48 @@
                             }
                         }, 10000);
                     }
-                }
-            });
-
-            // Prevent multiple submissions for Delete Brand form
-            document.getElementById('deleteBrandForm').addEventListener('submit', function (event) {
-                // Prevent multiple submissions by disabling the button
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
-                    // Save original button text
-                    const originalText = submitBtn.innerHTML;
-
-                    // Disable the button and show loading state
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = `
-                        <div class="flex items-center justify-center">
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Menghapus...</span>
-                        </div>
-                    `;
-
-                    // Re-enable button after 10 seconds as a failsafe
-                    setTimeout(() => {
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = originalText;
-                        }
-                    }, 10000);
-                }
-            });
+                });
+            }
 
             // Function to validate field and show error styling
             function validateField(field) {
+                if (!field) return false;
+
                 if (!field.value.trim()) {
                     field.classList.add('border-red-500');
-                    field.nextElementSibling.classList.remove('hidden');
+                    if (field.nextElementSibling) {
+                        field.nextElementSibling.classList.remove('hidden');
+                    }
                     return false;
                 } else {
                     field.classList.remove('border-red-500');
-                    field.nextElementSibling.classList.add('hidden');
+                    if (field.nextElementSibling) {
+                        field.nextElementSibling.classList.add('hidden');
+                    }
                     return true;
                 }
             }
 
             // Add input event listeners to clear error styling when typing
-            document.getElementById('add_brand_name').addEventListener('input', function () {
-                this.classList.remove('border-red-500');
-                this.nextElementSibling.classList.add('hidden');
-            });
+            const addBrandNameInput = document.getElementById('add_brand_name');
+            if (addBrandNameInput) {
+                addBrandNameInput.addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                    if (this.nextElementSibling) {
+                        this.nextElementSibling.classList.add('hidden');
+                    }
+                });
+            }
 
-            document.getElementById('edit_brand_name').addEventListener('input', function () {
-                this.classList.remove('border-red-500');
-                this.nextElementSibling.classList.add('hidden');
-            });
+            const editBrandNameInput = document.getElementById('edit_brand_name');
+            if (editBrandNameInput) {
+                editBrandNameInput.addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                    if (this.nextElementSibling) {
+                        this.nextElementSibling.classList.add('hidden');
+                    }
+                });
+            }
         });
     </script>
     <!-- Include XLSX.js library -->

@@ -200,7 +200,7 @@
                                                 </div>
                                                 <div class="flex flex-col">
                                                     <span class="text-xs font-medium text-gray-500">Teknisi</span>
-                                                    <span>ID: {{ $complaint['repair']['technician_number'] ?? 'N/A' }}</span>
+                                                    <span>{{ $complaint['repair']['technician_number'] ?? 'N/A' }}</span>
                                                 </div>
                                                 <div class="flex flex-col">
                                                     <span class="text-xs font-medium text-gray-500">Bagian yang Diganti</span>
@@ -224,11 +224,11 @@
                                                 </div>
                                                 <div class="flex flex-col">
                                                     <span class="text-xs font-medium text-gray-500">Tanggal Disetujui</span>
-                                                    <span>{{ isset($complaint['repair']['approval_date']) ? \Carbon\Carbon::parse($complaint['repair']['approval_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
+                                                    <span>{{ isset($complaint['repair']['approval_date']) ? \Carbon\Carbon::parse($complaint['repair']['approval_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'Belum disetujui' }}</span>
                                                 </div>
                                                 <div class="flex flex-col">
                                                     <span class="text-xs font-medium text-gray-500">Disetujui Oleh</span>
-                                                    <span>ID: {{ $complaint['repair']['approver_number'] ?? 'N/A' }}</span>
+                                                    <span> {{ $complaint['repair']['approver_number'] ?? 'Belum disetujui' }}</span>
                                                 </div>
                                             </div>
                                         </div>

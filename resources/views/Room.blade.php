@@ -1012,9 +1012,12 @@
                 }
 
                 // Add Room Modal
-                document.getElementById('addRoomBtn').addEventListener('click', () => {
-                    openModal(addRoomModal, addRoomModal.querySelector('[id$="ModalContent"]'));
-                });
+                const addRoomBtn = document.getElementById('addRoomBtn');
+                if (addRoomBtn) {
+                    addRoomBtn.addEventListener('click', () => {
+                        openModal(addRoomModal, addRoomModal.querySelector('[id$="ModalContent"]'));
+                    });
+                }
 
                 // Edit Room Modal
                 document.querySelectorAll('.edit-room-btn').forEach(button => {
@@ -1252,14 +1255,16 @@
 
                 // Close on outside click
                 [addRoomModal, editRoomModal, deleteRoomModal, importRoomModal].forEach(modal => {
-                    modal.addEventListener('click', function (e) {
-                        if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
-                            e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
-                            const content = this.querySelector('[id$="ModalContent"]');
-                            closeModal(this, content);
-                            clearModalForms(this);
-                        }
-                    });
+                    if (modal) {
+                        modal.addEventListener('click', function (e) {
+                            if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
+                                e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
+                                const content = this.querySelector('[id$="ModalContent"]');
+                                closeModal(this, content);
+                                clearModalForms(this);
+                            }
+                        });
+                    }
                 });
 
                 // Close on Escape key

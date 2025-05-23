@@ -602,8 +602,8 @@
 
         @if(!hasPermission('asset-subcategory:import'))
         // Disable related elements if user doesn't have permission
-        const addButtons = document.querySelectorAll('#importCategoryBtn, #preview-btn');
-        addButtons.forEach(btn => {
+        const importButtons = document.querySelectorAll('#importCategoryBtn, #preview-btn');
+        importButtons.forEach(btn => {
             if (btn) {
                 btn.style.display = 'none';
             }
@@ -630,6 +630,7 @@
         });
         @endif
 
+        // Initialize all modal references - regardless of permissions
         const addSubCategoryBtn = document.getElementById('addSubCategoryBtn');
         const addSubCategoryModal = document.getElementById('addSubCategoryModal');
         const editSubCategoryModal = document.getElementById('editSubCategoryModal');
@@ -700,7 +701,12 @@
             window.location.href = url.toString();
         }
 
+        // Modal handling functions - define before use
         function openModal(modal, content) {
+            if (!modal || !content) {
+                console.error('Modal or content element not found');
+                return;
+            }
             modal.classList.remove('hidden');
             setTimeout(() => {
                 content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
@@ -709,6 +715,10 @@
         }
 
         function closeModal(modal, content) {
+            if (!modal || !content) {
+                console.error('Modal or content element not found');
+                return;
+            }
             content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
             content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
             setTimeout(() => {
@@ -717,9 +727,11 @@
         }
 
         // Add Sub Category Modal
-        addSubCategoryBtn.addEventListener('click', () => {
-            openModal(addSubCategoryModal, addSubCategoryModal.querySelector('[id$="ModalContent"]'));
-        });
+        if (addSubCategoryBtn) {
+            addSubCategoryBtn.addEventListener('click', () => {
+                openModal(addSubCategoryModal, addSubCategoryModal.querySelector('[id$="ModalContent"]'));
+            });
+        }
 
         // Import Category Modal
         const importCategoryBtn = document.getElementById('importCategoryBtn');
@@ -739,16 +751,29 @@
 
                 // Update form action with the correct route and log it
                 const formAction = "{{ url('categories/update') }}/" + subcategoryId;
-                document.getElementById('editSubCategoryForm').action = formAction;
-                console.log('Edit form action set to:', formAction);
+                const editForm = document.getElementById('editSubCategoryForm');
+                if (editForm) {
+                    editForm.action = formAction;
+                    console.log('Edit form action set to:', formAction);
+                }
 
                 // Set form values
-                document.getElementById('editSubCategoryId').value = subcategoryId;
-                document.getElementById('editAssetType').value = assetType;
-                document.getElementById('editSubCategoryName').value = subcategoryName;
-                document.getElementById('editDescription').value = description || '';
+                const idField = document.getElementById('editSubCategoryId');
+                const typeField = document.getElementById('editAssetType');
+                const nameField = document.getElementById('editSubCategoryName');
+                const descField = document.getElementById('editDescription');
 
-                openModal(editSubCategoryModal, editSubCategoryModal.querySelector('[id$="ModalContent"]'));
+                if (idField) idField.value = subcategoryId;
+                if (typeField) typeField.value = assetType;
+                if (nameField) nameField.value = subcategoryName;
+                if (descField) descField.value = description || '';
+
+                if (editSubCategoryModal) {
+                    const modalContent = editSubCategoryModal.querySelector('[id$="ModalContent"]');
+                    if (modalContent) {
+                        openModal(editSubCategoryModal, modalContent);
+                    }
+                }
             });
         });
 
@@ -823,22 +848,24 @@
 
         // Close on outside click
         [addSubCategoryModal, editSubCategoryModal, deleteSubCategoryModal, importCategoryModal].forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                // Check if the click is directly on the modal's overlay area
-                if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
-                    e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
-                    const content = this.querySelector('[id$="ModalContent"]');
-                    closeModal(this, content);
-                    clearModalForms(this);
-                }
-            });
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    // Check if the click is directly on the modal's overlay area
+                    if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
+                        e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
+                        const content = this.querySelector('[id$="ModalContent"]');
+                        closeModal(this, content);
+                        clearModalForms(this);
+                    }
+                });
+            }
         });
 
         // Close on Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 [addSubCategoryModal, editSubCategoryModal, deleteSubCategoryModal, importCategoryModal].forEach(modal => {
-                    if (!modal.classList.contains('hidden')) {
+                    if (modal && !modal.classList.contains('hidden')) {
                         const content = modal.querySelector('[id$="ModalContent"]');
                         closeModal(modal, content);
                         clearModalForms(modal);
@@ -848,48 +875,54 @@
         });
 
         // Form validation for Add Sub Category
-        document.getElementById('createSubCategoryForm').addEventListener('submit', function(event) {
-            const assetTypeInput = document.getElementById('add_asset_type');
-            const subcategoryNameInput = document.getElementById('add_subcategory_name');
-            const descriptionInput = document.getElementById('add_description');
+        if (createSubCategoryForm) {
+            createSubCategoryForm.addEventListener('submit', function(event) {
+                const assetTypeInput = document.getElementById('add_asset_type');
+                const subcategoryNameInput = document.getElementById('add_subcategory_name');
+                const descriptionInput = document.getElementById('add_description');
 
-            const isAssetTypeValid = validateField(assetTypeInput);
-            const isSubcategoryNameValid = validateField(subcategoryNameInput);
+                const isAssetTypeValid = validateField(assetTypeInput);
+                const isSubcategoryNameValid = validateField(subcategoryNameInput);
 
-            // Ensure description is never NULL
-            if (descriptionInput && descriptionInput.value === null) {
-                descriptionInput.value = '';
-            }
+                // Ensure description is never NULL
+                if (descriptionInput && descriptionInput.value === null) {
+                    descriptionInput.value = '';
+                }
 
-            if (!isAssetTypeValid || !isSubcategoryNameValid) {
-                event.preventDefault();
-                showToast('Silakan isi semua field yang diperlukan', 'error');
-            }
-        });
+                if (!isAssetTypeValid || !isSubcategoryNameValid) {
+                    event.preventDefault();
+                    showToast('Silakan isi semua field yang diperlukan', 'error');
+                }
+            });
+        }
 
         // Form validation for Edit Sub Category
-        document.getElementById('editSubCategoryForm').addEventListener('submit', function(event) {
-            const assetTypeInput = document.getElementById('editAssetType');
-            const subcategoryNameInput = document.getElementById('editSubCategoryName');
-            const descriptionInput = document.getElementById('editDescription');
+        if (editSubCategoryForm) {
+            editSubCategoryForm.addEventListener('submit', function(event) {
+                const assetTypeInput = document.getElementById('editAssetType');
+                const subcategoryNameInput = document.getElementById('editSubCategoryName');
+                const descriptionInput = document.getElementById('editDescription');
 
-            const isAssetTypeValid = validateField(assetTypeInput);
-            const isSubcategoryNameValid = validateField(subcategoryNameInput);
+                const isAssetTypeValid = validateField(assetTypeInput);
+                const isSubcategoryNameValid = validateField(subcategoryNameInput);
 
-            // Ensure description is never NULL
-            if (descriptionInput && descriptionInput.value === null) {
-                descriptionInput.value = '';
-            }
+                // Ensure description is never NULL
+                if (descriptionInput && descriptionInput.value === null) {
+                    descriptionInput.value = '';
+                }
 
-            if (!isAssetTypeValid || !isSubcategoryNameValid) {
-                event.preventDefault();
-                showToast('Silakan isi semua field yang diperlukan', 'error');
-            }
-        });
+                if (!isAssetTypeValid || !isSubcategoryNameValid) {
+                    event.preventDefault();
+                    showToast('Silakan isi semua field yang diperlukan', 'error');
+                }
+            });
+        }
 
         // Function to validate field and show error styling
         function validateField(field) {
-            let errorElement = field.closest('.space-y-2').querySelector('.error-message');
+            if (!field) return true; // Skip validation if element doesn't exist
+            
+            let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
 
             if (field.tagName.toLowerCase() === 'select') {
                 if (!field.value) {
@@ -915,29 +948,41 @@
         }
 
         // Add input event listeners to clear error styling when typing
-        document.getElementById('add_asset_type').addEventListener('change', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
+        const add_asset_type = document.getElementById('add_asset_type');
+        if (add_asset_type) {
+            add_asset_type.addEventListener('change', function() {
+                this.classList.remove('border-red-500');
+                const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+        }
 
-        document.getElementById('add_subcategory_name').addEventListener('input', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
+        const add_subcategory_name = document.getElementById('add_subcategory_name');
+        if (add_subcategory_name) {
+            add_subcategory_name.addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+                const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+        }
 
-        document.getElementById('editAssetType').addEventListener('change', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
+        const editAssetType = document.getElementById('editAssetType');
+        if (editAssetType) {
+            editAssetType.addEventListener('change', function() {
+                this.classList.remove('border-red-500');
+                const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+        }
 
-        document.getElementById('editSubCategoryName').addEventListener('input', function() {
-            this.classList.remove('border-red-500');
-            const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
-        });
+        const editSubCategoryName = document.getElementById('editSubCategoryName');
+        if (editSubCategoryName) {
+            editSubCategoryName.addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+                const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+        }
 
         // Search and filter functionality
         const searchInput = document.getElementById('searchInput');

@@ -681,6 +681,10 @@
         }
 
         function openModal(modal, content) {
+            if (!modal || !content) {
+                console.error('Modal or content element not found');
+                return;
+            }
             modal.classList.remove('hidden');
             setTimeout(() => {
                 content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
@@ -696,6 +700,10 @@
         }
 
         function closeModal(modal, content) {
+            if (!modal || !content) {
+                console.error('Modal or content element not found');
+                return;
+            }
             content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
             content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
             setTimeout(() => {
@@ -786,29 +794,31 @@
         }
 
         // Add Vendor Modal
-        addVendorBtn.addEventListener('click', () => {
-            // Reset form and ensure submit button is enabled
-            const form = document.getElementById('createVendorForm');
-            if (form) {
-                form.reset();
-                // Clear any validation errors
-                const errorElements = form.querySelectorAll('.error-message');
-                errorElements.forEach(el => el.classList.add('hidden'));
+        if (addVendorBtn) {
+            addVendorBtn.addEventListener('click', () => {
+                // Reset form and ensure submit button is enabled
+                const form = document.getElementById('createVendorForm');
+                if (form) {
+                    form.reset();
+                    // Clear any validation errors
+                    const errorElements = form.querySelectorAll('.error-message');
+                    errorElements.forEach(el => el.classList.add('hidden'));
 
-                const inputs = form.querySelectorAll('input, textarea');
-                inputs.forEach(input => input.classList.remove('border-red-500'));
-            }
+                    const inputs = form.querySelectorAll('input, textarea');
+                    inputs.forEach(input => input.classList.remove('border-red-500'));
+                }
 
-            // Explicitly ensure the submit button is enabled
-            const submitBtn = document.getElementById('submitVendorBtn');
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                submitBtn.innerHTML = 'Simpan';
-            }
+                // Explicitly ensure the submit button is enabled
+                const submitBtn = document.getElementById('submitVendorBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = 'Simpan';
+                }
 
-            openModal(addVendorModal, addVendorModal.querySelector('[id$="ModalContent"]'));
-        });
+                openModal(addVendorModal, addVendorModal.querySelector('[id$="ModalContent"]'));
+            });
+        }
 
         // Edit Vendor Modal
         document.querySelectorAll('.edit-vendor-btn').forEach(button => {
@@ -823,18 +833,34 @@
 
                 // Update form action with the correct route and log it
                 const formAction = "{{ url('vendor/update') }}/" + vendorId;
-                document.getElementById('editVendorForm').action = formAction;
+                const editForm = document.getElementById('editVendorForm');
+                if (editForm) {
+                    editForm.action = formAction;
+                }
 
-                // Set form values
-                document.getElementById('editVendorId').value = vendorId;
-                document.getElementById('editVendorName').value = vendorName;
-                document.getElementById('editContactPerson').value = contactPerson;
-                document.getElementById('editPhoneNumber').value = phoneNumber;
-                document.getElementById('editEmail').value = email;
-                document.getElementById('editWebsite').value = website || '';
-                document.getElementById('editAddress').value = address || '';
+                // Set form values - add null checks
+                const idField = document.getElementById('editVendorId');
+                const nameField = document.getElementById('editVendorName');
+                const contactField = document.getElementById('editContactPerson');
+                const phoneField = document.getElementById('editPhoneNumber');
+                const emailField = document.getElementById('editEmail');
+                const websiteField = document.getElementById('editWebsite');
+                const addressField = document.getElementById('editAddress');
 
-                openModal(editVendorModal, editVendorModal.querySelector('[id$="ModalContent"]'));
+                if (idField) idField.value = vendorId;
+                if (nameField) nameField.value = vendorName;
+                if (contactField) contactField.value = contactPerson;
+                if (phoneField) phoneField.value = phoneNumber;
+                if (emailField) emailField.value = email;
+                if (websiteField) websiteField.value = website || '';
+                if (addressField) addressField.value = address || '';
+
+                if (editVendorModal) {
+                    const modalContent = editVendorModal.querySelector('[id$="ModalContent"]');
+                    if (modalContent) {
+                        openModal(editVendorModal, modalContent);
+                    }
+                }
             });
         });
 
@@ -843,42 +869,56 @@
             button.addEventListener('click', () => {
                 const vendorId = button.getAttribute('data-vendor-id');
 
-                // Update form action with the correct route and log it
+                // Update form action with the correct route
                 const formAction = "{{ url('vendor/delete') }}/" + vendorId;
-                document.getElementById('deleteVendorForm').action = formAction;
+                const deleteForm = document.getElementById('deleteVendorForm');
+                if (deleteForm) {
+                    deleteForm.action = formAction;
+                }
 
                 // Set vendor ID di hidden input
-                document.getElementById('deleteVendorId').value = vendorId;
+                const idField = document.getElementById('deleteVendorId');
+                if (idField) {
+                    idField.value = vendorId;
+                }
 
-                openModal(deleteVendorModal, deleteVendorModal.querySelector('[id$="ModalContent"]'));
+                if (deleteVendorModal) {
+                    const modalContent = deleteVendorModal.querySelector('[id$="ModalContent"]');
+                    if (modalContent) {
+                        openModal(deleteVendorModal, modalContent);
+                    }
+                }
             });
         });
 
         // Prevent multiple submissions for Delete Vendor
-        document.getElementById('deleteVendorForm').addEventListener('submit', function(event) {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn && !submitBtn.disabled) {
-                // Save original button text
-                const originalText = submitBtn.innerHTML;
+        const deleteVendorForm = document.getElementById('deleteVendorForm');
+        if (deleteVendorForm) {
+            deleteVendorForm.addEventListener('submit', function(event) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.disabled) {
+                    // Save original button text
+                    const originalText = submitBtn.innerHTML;
 
-                // Disable button and show loading state
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                submitBtn.innerHTML = `
-                    <div class="flex items-center justify-center">
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Memproses...</span>
-                    </div>
-                `;
+                    // Disable button and show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `
+                        <div class="flex items-center justify-center">
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <span>Memproses...</span>
+                        </div>
+                    `;
 
-                // Re-enable after 10 seconds as failsafe
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = originalText;
-                }, 10000);
-            }
-        });
+                    // Re-enable after 10 seconds as failsafe
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = originalText;
+                    }, 10000);
+                }
+            });
+        }
 
         // Close Modal Handlers
         closeButtons.forEach(button => {
@@ -890,22 +930,24 @@
         });
 
         // Close on outside click
-        [addVendorModal, editVendorModal, deleteVendorModal].forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                // Check if the click is directly on the modal's overlay area
-                if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
-                    e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
-                    const content = this.querySelector('[id$="ModalContent"]');
-                    closeModal(this, content);
-                }
-            });
+        [addVendorModal, editVendorModal, deleteVendorModal, importVendorModal].forEach(modal => {
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    // Check if the click is directly on the modal's overlay area
+                    if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
+                        e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
+                        const content = this.querySelector('[id$="ModalContent"]');
+                        closeModal(this, content);
+                    }
+                });
+            }
         });
 
         // Close on Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                [addVendorModal, editVendorModal, deleteVendorModal].forEach(modal => {
-                    if (!modal.classList.contains('hidden')) {
+                [addVendorModal, editVendorModal, deleteVendorModal, importVendorModal].forEach(modal => {
+                    if (modal && !modal.classList.contains('hidden')) {
                         const content = modal.querySelector('[id$="ModalContent"]');
                         closeModal(modal, content);
                     }
@@ -1019,7 +1061,9 @@
 
         // Function to validate required field
         function validateField(field) {
-            let errorElement = field.closest('.space-y-2').querySelector('.error-message');
+            if (!field) return true; // Skip validation if element doesn't exist
+            
+            let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
 
             if (!field.value.trim()) {
                 field.classList.add('border-red-500');
@@ -1034,7 +1078,10 @@
 
         // Function to validate email format
         function validateEmail(field) {
-            let errorElement = field.closest('.space-y-2').querySelector('.error-message');
+            if (!field) return true; // Skip validation if element doesn't exist
+            if (!field.value.trim()) return true; // Skip empty fields
+            
+            let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
             if (!emailRegex.test(field.value.trim())) {
@@ -1053,7 +1100,10 @@
 
         // Function to validate URL format
         function validateUrl(field) {
-            let errorElement = field.closest('.space-y-2').querySelector('.error-message');
+            if (!field) return true; // Skip validation if element doesn't exist
+            if (!field.value.trim()) return true; // Skip empty fields
+            
+            let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
             // Simple URL validation regex
             const urlRegex = /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
 
