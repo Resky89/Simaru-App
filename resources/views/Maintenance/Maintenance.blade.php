@@ -344,7 +344,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="addMaintenanceForm" class="space-y-6">
+                            <form id="addMaintenanceForm" class="space-y-6" data-no-loading>
                                 @csrf
                                 <!-- Required fields note -->
                                 <div class="text-sm text-gray-600">
@@ -647,7 +647,7 @@
                         </div>
 
                         <!-- Form -->
-                        <form id="deleteMaintenanceForm">
+                        <form id="deleteMaintenanceForm" data-no-loading>
                             @csrf
                             <div class="p-6">
                                 <div class="space-y-6 max-w-[400px] mx-auto">
@@ -698,7 +698,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="editMaintenanceForm" method="POST">
+                            <form id="editMaintenanceForm" method="POST" data-no-loading>
                                 @csrf
                                 <input type="hidden" name="_method" value="PUT">
                                 <input type="hidden" id="edit_maintenance_id" name="maintenance_id">
@@ -858,7 +858,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="createReportForm" method="POST" enctype="multipart/form-data">
+                            <form id="createReportForm" method="POST" enctype="multipart/form-data" data-no-loading>
                                 @csrf
                                 <input type="hidden" id="report_maintenance_id" name="maintenance_id">
 

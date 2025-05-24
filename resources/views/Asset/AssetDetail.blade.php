@@ -518,7 +518,7 @@
                     <!-- Form -->
                     <form id="editAssetForm" method="POST"
                         action="{{ route('asset.update', ['id' => $asset['asset_id'] ?? '']) }}"
-                        enctype="multipart/form-data">
+                        data-no-loading enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="p-6">
@@ -725,7 +725,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="checkoutAssetForm" method="POST" action="{{ route('asset.checkout') }}">
+                    <form id="checkoutAssetForm" method="POST" action="{{ route('asset.checkout') }}" data-no-loading>
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">
@@ -867,7 +867,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="checkinAssetForm" method="POST" action="{{ route('asset.checkin') }}">
+                    <form id="checkinAssetForm" method="POST" action="{{ route('asset.checkin') }}" data-no-loading>
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">
@@ -935,7 +935,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="reportLostForm" method="POST" action="{{ route('asset.lost') }}">
+                    <form id="reportLostForm" method="POST" action="{{ route('asset.lost') }}" data-no-loading>
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">
@@ -992,7 +992,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="foundAssetForm" method="POST" action="{{ route('asset.found') }}">
+                    <form id="foundAssetForm" method="POST" action="{{ route('asset.found') }}" data-no-loading>
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">
@@ -1041,7 +1041,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="disposeAssetForm" method="POST" action="{{ route('asset.dispose') }}">
+                    <form id="disposeAssetForm" method="POST" action="{{ route('asset.dispose') }}" data-no-loading>
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">

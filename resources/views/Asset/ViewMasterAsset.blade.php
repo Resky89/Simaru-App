@@ -271,7 +271,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="editMasterAssetForm" method="POST" action="{{ route('asset-master.update', $masterAsset['asset_master_id']) }}" enctype="multipart/form-data">
+                    <form id="editMasterAssetForm" method="POST" action="{{ route('asset-master.update', $masterAsset['asset_master_id']) }}" data-no-loading enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="p-6">

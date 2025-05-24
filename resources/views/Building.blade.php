@@ -228,7 +228,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="addBuildingForm" action="{{ route('buildings.store') }}" method="POST" novalidate>
+                            <form id="addBuildingForm" action="{{ route('buildings.store') }}" method="POST" data-no-loading novalidate>
                                 @csrf
                                 <div class="space-y-4 max-w-[400px] mx-auto">
                                     <!-- Building Name Input -->
@@ -290,7 +290,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="editBuildingForm" action="" method="POST" novalidate>
+                            <form id="editBuildingForm" action="" method="POST" data-no-loading novalidate>
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" id="editBuildingId" name="building_id">
@@ -353,7 +353,7 @@
                         </div>
 
                         <!-- Content -->
-                        <form id="deleteBuildingForm" action="" method="POST">
+                        <form id="deleteBuildingForm" action="" method="POST" data-no-loading>
                             @csrf
                             @method('DELETE')
                             <input type="hidden" id="deleteBuildingId" name="building_id">
@@ -588,7 +588,7 @@
                                         <button type="button" id="building-back-to-upload-btn" class="w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
                                             Kembali
                                         </button>
-                                        <form action="{{ route('buildings.import') }}" method="POST" id="building-import-form" class="w-2/3" enctype="multipart/form-data">
+                                        <form action="{{ route('buildings.import') }}" method="POST" id="building-import-form" class="w-2/3" data-no-loading enctype="multipart/form-data">
                                             @csrf
                                             <input type="hidden" name="excel_data" id="building_excel_data">
                                             <button type="submit" id="building-import-btn" class="w-full h-[45px] bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200">
@@ -776,19 +776,19 @@
                 document.querySelectorAll('.edit-building-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const buildingId = button.getAttribute('data-id');
-                        
+
                         // Update form action with the correct route
                         const formAction = `{{ url('buildings/update') }}/${buildingId}`;
                         const editForm = document.getElementById('editBuildingForm');
                         if (editForm) {
                             editForm.action = formAction;
                         }
-                        
+
                         // Set form values with null checks
                         const idField = document.getElementById('editBuildingId');
                         const nameField = document.getElementById('editBuildingName');
                         const addressField = document.getElementById('editAddress');
-                        
+
                         if (idField) idField.value = buildingId;
                         if (nameField) nameField.value = button.getAttribute('data-name');
                         if (addressField) addressField.value = button.getAttribute('data-address');
@@ -806,14 +806,14 @@
                 document.querySelectorAll('.delete-building-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const buildingId = button.getAttribute('data-id');
-                        
+
                         // Update form action with the correct route
                         const formAction = `{{ url('buildings/delete') }}/${buildingId}`;
                         const deleteForm = document.getElementById('deleteBuildingForm');
                         if (deleteForm) {
                             deleteForm.action = formAction;
                         }
-                        
+
                         // Set building ID in hidden input
                         const idField = document.getElementById('deleteBuildingId');
                         if (idField) {
@@ -1119,7 +1119,7 @@
                 // Function to validate field and show error styling
                 function validateField(field) {
                     if (!field) return true; // Skip validation if element doesn't exist
-                    
+
                     let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
 
                     if (!field.value.trim()) {

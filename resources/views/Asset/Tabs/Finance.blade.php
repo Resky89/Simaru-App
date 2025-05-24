@@ -120,7 +120,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="addTransactionForm" action="{{ route('asset-transactions.store') }}" method="POST">
+                    <form id="addTransactionForm" action="{{ route('asset-transactions.store') }}" method="POST" data-no-loading>
                         @csrf
                         <div class="p-6">
                             <div class="space-y-4">
@@ -241,7 +241,7 @@
 
                     <!-- Form -->
                     <form id="editTransactionForm"
-                        action="{{ route('asset-transactions.update', ['transactionId' => '_id_']) }}" method="POST">
+                        action="{{ route('asset-transactions.update', ['transactionId' => '_id_']) }}" method="POST" data-no-loading>
                         @csrf
                         @method('PUT')
                         <div class="p-6">
@@ -364,7 +364,7 @@
 
                     <!-- Content -->
                     <form id="deleteTransactionForm"
-                        action="{{ route('asset-transactions.destroy', ['transactionId' => '_id_']) }}" method="POST">
+                        action="{{ route('asset-transactions.destroy', ['transactionId' => '_id_']) }}" method="POST" data-no-loading>
                         @csrf
                         @method('DELETE')
                         <div class="p-6">

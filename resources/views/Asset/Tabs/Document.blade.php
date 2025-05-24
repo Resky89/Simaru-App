@@ -55,7 +55,7 @@
 
                     <!-- Form -->
                         <div class="p-6">
-                        <form id="addDocumentForm" action="{{ route('asset-documents.createAssetDocument', ['assetId' => $asset['asset_id'] ?? '']) }}" method="POST" enctype="multipart/form-data">
+                        <form id="addDocumentForm" action="{{ route('asset-documents.createAssetDocument', ['assetId' => $asset['asset_id'] ?? '']) }}" method="POST" data-no-loading enctype="multipart/form-data">
                             @csrf
                             <div class="space-y-4">
                                 <!-- Document Title -->

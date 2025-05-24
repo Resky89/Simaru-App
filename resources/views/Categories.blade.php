@@ -232,7 +232,7 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <form id="createSubCategoryForm" action="{{ route('categories.store') }}" method="POST" novalidate>
+                    <form id="createSubCategoryForm" action="{{ route('categories.store') }}" method="POST" data-no-loading novalidate>
                         @csrf
                         <div class="space-y-4 max-w-[400px] mx-auto">
                             <!-- Category Dropdown -->
@@ -308,7 +308,7 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <form id="editSubCategoryForm" action="" method="POST" novalidate>
+                    <form id="editSubCategoryForm" action="" method="POST" data-no-loading novalidate>
                         @csrf
                         @method('PUT')
                         <div class="space-y-4 max-w-[400px] mx-auto">
@@ -396,7 +396,7 @@
                             <button class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
                                 Batal
                             </button>
-                            <form id="deleteSubCategoryForm" action="" method="POST" class="w-1/2">
+                            <form id="deleteSubCategoryForm" action="" method="POST" data-no-loading class="w-1/2">
                                 @csrf
                                 @method('DELETE')
                                 <input type="hidden" id="deleteSubCategoryId" name="subcategory_id">
@@ -549,7 +549,7 @@
                                 <button type="button" id="category-back-to-upload-btn" class="w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
                                     Kembali
                                 </button>
-                                <form action="{{ route('categories.import') }}" method="POST" id="category-import-form" class="w-2/3" enctype="multipart/form-data">
+                                <form action="{{ route('categories.import') }}" method="POST" id="category-import-form" class="w-2/3" data-no-loading enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" name="excel_data" id="category_excel_data">
                                     <button type="submit" id="category-import-btn" class="w-full h-[45px] bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200">
@@ -921,7 +921,7 @@
         // Function to validate field and show error styling
         function validateField(field) {
             if (!field) return true; // Skip validation if element doesn't exist
-            
+
             let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
 
             if (field.tagName.toLowerCase() === 'select') {

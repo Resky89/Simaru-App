@@ -198,7 +198,7 @@
 
                             <!-- Form -->
                             <div class="p-6">
-                                <form id="addRoleForm" action="{{ route('roles.store') }}" method="POST">
+                                <form id="addRoleForm" action="{{ route('roles.store') }}" method="POST" data-no-loading>
                                     @csrf
                                     <div class="space-y-5 mx-auto">
                                         <!-- Role Name Input -->
@@ -305,7 +305,7 @@
 
                             <!-- Form -->
                             <div class="p-6">
-                                <form id="editRoleForm" action="" method="POST">
+                                <form id="editRoleForm" action="" method="POST" data-no-loading>
                                     @csrf
                                     @method('PUT')
                                     <div class="space-y-5 mx-auto">
@@ -412,7 +412,7 @@
                             </div>
 
                             <!-- Content -->
-                            <form id="deleteRoleForm" action="" method="POST">
+                            <form id="deleteRoleForm" action="" method="POST" data-no-loading>
                                 @csrf
                                 @method('DELETE')
                                 <div class="p-6">

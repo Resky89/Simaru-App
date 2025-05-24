@@ -231,7 +231,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="addRoomForm" action="{{ route('rooms.store') }}" method="POST" novalidate>
+                            <form id="addRoomForm" action="{{ route('rooms.store') }}" method="POST" data-no-loading novalidate>
                                 @csrf
                                 <div class="space-y-4 max-w-[400px] mx-auto">
                                     <!-- Room Name Input -->
@@ -326,7 +326,7 @@
                         <!-- Form -->
                         <div class="p-6 relative">
                             <div id="editRoomFormContent" class="relative">
-                                <form id="editRoomForm" action="" method="POST" novalidate>
+                                <form id="editRoomForm" action="" method="POST" data-no-loading novalidate>
                                     @csrf
                                     @method('PUT')
                                     <input type="hidden" id="editRoomId" name="room_id">
@@ -422,7 +422,7 @@
                         </div>
 
                         <!-- Content -->
-                        <form id="deleteRoomForm" action="" method="POST">
+                        <form id="deleteRoomForm" action="" method="POST" data-no-loading>
                             @csrf
                             @method('DELETE')
                             <input type="hidden" id="deleteRoomId" name="room_id">
@@ -689,7 +689,7 @@
                                         <button type="button" id="room-back-to-upload-btn" class="w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
                                             Kembali
                                         </button>
-                                        <form action="{{ route('rooms.import') }}" method="POST" id="room-import-form" class="w-2/3" enctype="multipart/form-data">
+                                        <form action="{{ route('rooms.import') }}" method="POST" id="room-import-form" class="w-2/3" data-no-loading enctype="multipart/form-data">
                                             @csrf
                                             <input type="hidden" name="excel_data" id="room_excel_data">
                                             <button type="submit" id="room-import-btn" class="w-full h-[45px] bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200">

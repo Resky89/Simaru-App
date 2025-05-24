@@ -94,7 +94,7 @@
                         </div>
 
                         <!-- Form - Hidden by default -->
-                        <form id="purchaseOrderForm" class="w-full space-y-6 hidden">
+                        <form id="purchaseOrderForm" class="w-full space-y-6 hidden" data-no-loading>
                             <!-- Item List -->
                             <div class="space-y-4">
                                 <label class="block text-base font-semibold text-[#666666]">DAFTAR ASET</label>

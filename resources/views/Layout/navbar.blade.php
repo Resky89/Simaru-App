@@ -50,7 +50,7 @@
                 @php
                     $accessTokenPayload = session('access_token_payload', []);
                     $employeeNumber = $accessTokenPayload['employee_number'] ?? 'N/A';
-                    $roles = $accessTokenPayload['roles'] ?? [];
+                    $roles = $accessTokenPayload['role_names'] ?? [];
                     $roleText = !empty($roles) ? (is_array($roles) ? implode(', ', $roles) : $roles) : 'No Role';
                 @endphp
                 <div class="flex items-center gap-1">

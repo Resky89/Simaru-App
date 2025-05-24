@@ -178,7 +178,7 @@
                                                     @endphp
 
                                                     @if(hasPermission('price-comparison:vendor-offer:edit'))
-                                                    <form id="edit-vendor-form-{{ $vendor['vendor_id'] }}" action="{{ route('procurement.form-vendor-comparison', ['id' => $comparison['comparison_id']]) }}" method="get" class="flex items-center">
+                                                    <form id="edit-vendor-form-{{ $vendor['vendor_id'] }}" action="{{ route('procurement.form-vendor-comparison', ['id' => $comparison['comparison_id']]) }}" method="get" class="flex items-center" data-no-loading>
                                                         <input type="hidden" name="agreement_id" value="{{ $agreementId }}">
 
                                                         @foreach($vendorOfferIds as $itemId => $offerId)

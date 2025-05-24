@@ -239,7 +239,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form action="{{ route('brands.store') }}" method="POST" id="addBrandForm" novalidate>
+                            <form action="{{ route('brands.store') }}" method="POST" id="addBrandForm" data-no-loading novalidate>
                                 @csrf
                                 <div class="space-y-4 max-w-[400px] mx-auto">
                                     <!-- Brand Input -->
@@ -289,7 +289,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="editBrandForm" method="POST" novalidate>
+                            <form id="editBrandForm" method="POST" data-no-loading novalidate>
                                 @csrf
                                 @method('PUT')
                                 <div class="space-y-4 max-w-[400px] mx-auto">
@@ -353,7 +353,7 @@
                                         class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
                                         Batal
                                     </button>
-                                    <form id="deleteBrandForm" action="" method="POST" class="w-1/2">
+                                    <form id="deleteBrandForm" action="" method="POST" data-no-loading class="w-1/2">
                                         @csrf
                                         @method('DELETE')
                                         <input type="hidden" id="deleteBrandId" name="brand_id">
@@ -532,7 +532,7 @@
                                             Kembali
                                         </button>
                                         <form action="{{ route('brands.import') }}" method="POST" id="brand-import-form"
-                                            class="w-2/3" enctype="multipart/form-data">
+                                            class="w-2/3" data-no-loading enctype="multipart/form-data">
                                             @csrf
                                             <input type="hidden" name="excel_data" id="brand_excel_data">
                                             <button type="submit" id="brand-import-btn"

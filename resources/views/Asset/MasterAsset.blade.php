@@ -247,7 +247,7 @@
                 </div>
 
                 <!-- Form -->
-                <form id="createMasterAssetForm" action="{{ route('asset-master.store') }}" method="POST" enctype="multipart/form-data">
+                <form id="createMasterAssetForm" action="{{ route('asset-master.store') }}" method="POST" data-no-loading enctype="multipart/form-data">
                     @csrf
                     <div class="p-6">
                         <div class="space-y-4">
@@ -407,7 +407,7 @@
                 </div>
 
                 <!-- Form -->
-                <form id="editMasterAssetForm" method="POST" enctype="multipart/form-data">
+                <form id="editMasterAssetForm" method="POST" data-no-loading enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="p-6">
@@ -574,7 +574,7 @@
                 </div>
 
                 <!-- Form -->
-                <form id="delete-form" method="POST">
+                <form id="delete-form" method="POST" data-no-loading>
                     @csrf
                     @method('DELETE')
                     <div class="p-6">
@@ -742,7 +742,7 @@
                                 <button type="button" id="back-to-upload-btn" class="w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
                                     Kembali
                                 </button>
-                                <form action="{{ route('asset-master.import') }}" method="POST" id="import-form" class="w-2/3" enctype="multipart/form-data">
+                                <form action="{{ route('asset-master.import') }}" method="POST" id="import-form" class="w-2/3" data-no-loading enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" name="excel_data" id="excel_data">
                                     <button type="submit" id="import-btn" class="w-full h-[45px] bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200">

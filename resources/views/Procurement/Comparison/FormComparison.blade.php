@@ -169,9 +169,6 @@
             </div>
         </div>
     </div>
-
-    <!-- SweetAlert will be used instead of toast notifications -->
-
 @endsection
 
 @push('scripts')

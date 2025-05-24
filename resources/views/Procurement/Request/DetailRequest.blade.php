@@ -246,7 +246,7 @@
 
                     <!-- Form -->
                     <div class="p-6">
-                        <form id="rejectForm" novalidate>
+                        <form id="rejectForm" novalidate data-no-loading>
                             <div class="space-y-4 max-w-[400px] mx-auto">
                                 <!-- Rejection Reason Input -->
                                 <div class="space-y-2">

@@ -118,13 +118,15 @@
                 <!-- Pagination -->
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div class="flex items-center space-x-2">
-                        <a href="{{ $pagination['prev_page_url'] ?? '#' }}"
-                           class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
+                        <button
+                           onclick="window.location.href='{{ $pagination['prev_page_url'] ?? '#' }}'"
+                           class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                           {{ ($pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                             Sebelumnya
-                        </a>
+                        </button>
                         <div class="flex gap-2">
                             @php
                                 $currentPage = $pagination['current_page'] ?? 1;
@@ -139,10 +141,11 @@
                             @endphp
 
                             @if($startPage > 1)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                <button
+                                    onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => 1]) }}'"
                                     class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                     1
-                                </a>
+                                </button>
                                 @if($startPage > 2)
                                     <span class="flex items-center justify-center">
                                         ...
@@ -151,10 +154,11 @@
                             @endif
 
                             @for ($i = $startPage; $i <= $endPage; $i++)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                <button
+                                    onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $i]) }}'"
                                     class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                     {{ $i }}
-                                </a>
+                                </button>
                             @endfor
 
                             @if($endPage < $lastPage)
@@ -163,19 +167,22 @@
                                         ...
                                     </span>
                                 @endif
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
+                                <button
+                                    onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}'"
                                     class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                     {{ $lastPage }}
-                                </a>
+                                </button>
                             @endif
                         </div>
-                        <a href="{{ $pagination['next_page_url'] ?? '#' }}"
-                           class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) >= ($pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
+                        <button
+                           onclick="window.location.href='{{ $pagination['next_page_url'] ?? '#' }}'"
+                           class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) >= ($pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                           {{ ($pagination['current_page'] ?? 1) >= ($pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
                             Selanjutnya
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
-                        </a>
+                        </button>
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -219,7 +226,7 @@
 
                 <!-- Form with JavaScript for debugging -->
                 <div class="p-6">
-                    <form id="createVendorForm" action="{{ route('vendor.store') }}" method="POST" novalidate>
+                    <form id="createVendorForm" action="{{ route('vendor.store') }}" method="POST" data-no-loading novalidate>
                         @csrf
                         <div class="space-y-4 max-w-[400px] mx-auto">
                             <!-- Vendor Name Input -->
@@ -311,7 +318,7 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <form id="editVendorForm" action="" method="POST" novalidate>
+                    <form id="editVendorForm" action="" method="POST" data-no-loading novalidate>
                         @csrf
                         @method('PUT')
                         <div class="space-y-4 max-w-[400px] mx-auto">
@@ -419,7 +426,7 @@
                             <button class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
                                 Batal
                             </button>
-                            <form id="deleteVendorForm" action="" method="POST" class="w-1/2">
+                            <form id="deleteVendorForm" action="" method="POST" class="w-1/2" data-no-loading>
                                 @csrf
                                 @method('DELETE')
                                 <input type="hidden" id="deleteVendorId" name="vendor_id">
@@ -468,12 +475,12 @@
                                     <li>Format file yang didukung: .xlsx, .xls, .csv</li>
                                 </ul>
                                 <div class="mt-3 flex justify-end">
-                                    <a href="{{ asset('docs/ImportVendorTemplate.xlsx') }}" download class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-[#213268] rounded-md hover:bg-[#152451] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <button type="button" onclick="window.location.href='{{ asset('docs/ImportVendorTemplate.xlsx') }}'" download class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-[#213268] rounded-md hover:bg-[#152451] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                         </svg>
                                         Unduh Template
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
 
@@ -575,7 +582,7 @@
                                 <button type="button" id="vendor-back-to-upload-btn" class="w-1/3 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
                                     Kembali
                                 </button>
-                                <form action="{{ route('vendor.import') }}" method="POST" id="vendor-import-form" class="w-2/3" enctype="multipart/form-data">
+                                <form action="{{ route('vendor.import') }}" method="POST" id="vendor-import-form" class="w-2/3" data-no-loading enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" name="excel_data" id="vendor_excel_data">
                                     <button type="submit" id="vendor-import-btn" class="w-full h-[45px] bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200">
@@ -661,6 +668,7 @@
         const addVendorModal = document.getElementById('addVendorModal');
         const editVendorModal = document.getElementById('editVendorModal');
         const deleteVendorModal = document.getElementById('deleteVendorModal');
+        const importVendorModal = document.getElementById('importVendorModal');
         const closeButtons = document.querySelectorAll('.close-modal');
 
         // Show toast notifications for session messages on page load
@@ -820,6 +828,51 @@
             });
         }
 
+        // Helper function to prevent multiple form submissions
+        function preventMultipleSubmits(form, buttonSelector) {
+            if (!form) return;
+
+            form.addEventListener('submit', function(event) {
+                // Proceed only if form validation passes
+                if (this.checkValidity()) {
+                    // Find the submit button
+                    const submitBtn = this.querySelector(buttonSelector);
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        // Re-enable after 10 seconds as failsafe
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                        }, 10000);
+                    }
+                }
+            });
+        }
+
+        // Apply the prevention to all forms
+        const createVendorForm = document.getElementById('createVendorForm');
+        const editVendorForm = document.getElementById('editVendorForm');
+        const deleteVendorForm = document.getElementById('deleteVendorForm');
+        const vendorImportForm = document.getElementById('vendor-import-form');
+
+        preventMultipleSubmits(createVendorForm, 'button[type="submit"]');
+        preventMultipleSubmits(editVendorForm, 'button[type="submit"]');
+        preventMultipleSubmits(deleteVendorForm, 'button[type="submit"]');
+        preventMultipleSubmits(vendorImportForm, 'button[type="submit"]');
+
         // Edit Vendor Modal
         document.querySelectorAll('.edit-vendor-btn').forEach(button => {
             button.addEventListener('click', () => {
@@ -891,35 +944,6 @@
             });
         });
 
-        // Prevent multiple submissions for Delete Vendor
-        const deleteVendorForm = document.getElementById('deleteVendorForm');
-        if (deleteVendorForm) {
-            deleteVendorForm.addEventListener('submit', function(event) {
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
-                    // Save original button text
-                    const originalText = submitBtn.innerHTML;
-
-                    // Disable button and show loading state
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = `
-                        <div class="flex items-center justify-center">
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Memproses...</span>
-                        </div>
-                    `;
-
-                    // Re-enable after 10 seconds as failsafe
-                    setTimeout(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = originalText;
-                    }, 10000);
-                }
-            });
-        }
-
         // Close Modal Handlers
         closeButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -930,24 +954,23 @@
         });
 
         // Close on outside click
-        [addVendorModal, editVendorModal, deleteVendorModal, importVendorModal].forEach(modal => {
-            if (modal) {
-                modal.addEventListener('click', function(e) {
-                    // Check if the click is directly on the modal's overlay area
-                    if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
-                        e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
-                        const content = this.querySelector('[id$="ModalContent"]');
-                        closeModal(this, content);
-                    }
-                });
-            }
+        const modals = [addVendorModal, editVendorModal, deleteVendorModal, importVendorModal].filter(modal => modal);
+        modals.forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                // Check if the click is directly on the modal's overlay area
+                if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
+                    e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
+                    const content = this.querySelector('[id$="ModalContent"]');
+                    closeModal(this, content);
+                }
+            });
         });
 
         // Close on Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                [addVendorModal, editVendorModal, deleteVendorModal, importVendorModal].forEach(modal => {
-                    if (modal && !modal.classList.contains('hidden')) {
+                modals.forEach(modal => {
+                    if (!modal.classList.contains('hidden')) {
                         const content = modal.querySelector('[id$="ModalContent"]');
                         closeModal(modal, content);
                     }
@@ -956,7 +979,6 @@
         });
 
         // Form validation for Add Vendor
-        const createVendorForm = document.getElementById('createVendorForm');
         const submitVendorBtn = document.getElementById('submitVendorBtn');
 
         function handleCreateVendorSubmit(event) {
@@ -973,30 +995,7 @@
                 return false;
             }
 
-            // Prevent multiple submissions
-            const submitBtn = event.target.type === 'submit' ? event.target : createVendorForm.querySelector('button[type="submit"]');
-            if (submitBtn && !submitBtn.disabled) {
-                // Save original button text
-                const originalText = submitBtn.innerHTML;
-
-                // Disable button and show loading state
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                submitBtn.innerHTML = `
-                    <div class="flex items-center justify-center">
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Memproses...</span>
-                    </div>
-                `;
-
-                // Re-enable after 10 seconds as failsafe
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = originalText;
-                }, 10000);
-            }
-
+            // Form is valid, submit it
             createVendorForm.submit();
         }
 
@@ -1015,54 +1014,30 @@
         }
 
         // Form validation for Edit Vendor
-        document.getElementById('editVendorForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+        if (editVendorForm) {
+            editVendorForm.addEventListener('submit', function(event) {
+                event.preventDefault();
 
-            const vendorNameInput = document.getElementById('editVendorName');
+                const vendorNameInput = document.getElementById('editVendorName');
+                let isValid = true;
 
+                // Only vendor name is mandatory
+                if (!validateField(vendorNameInput)) isValid = false;
 
-            let isValid = true;
+                if (!isValid) {
+                    showToast('Silakan isi nama vendor dengan benar', 'error');
+                    return false;
+                }
 
-            // Only vendor name is mandatory
-            if (!validateField(vendorNameInput)) isValid = false;
-
-
-            if (!isValid) {
-                showToast('Silakan isi nama vendor dengan benar', 'error');
-                return false;
-            }
-
-            // Prevent multiple submissions
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn && !submitBtn.disabled) {
-                // Save original button text
-                const originalText = submitBtn.innerHTML;
-
-                // Disable button and show loading state
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                submitBtn.innerHTML = `
-                    <div class="flex items-center justify-center">
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Memproses...</span>
-                    </div>
-                `;
-
-                // Re-enable after 10 seconds as failsafe
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = originalText;
-                }, 10000);
-            }
-
-            this.submit();
-        });
+                // Form is valid, submit it
+                this.submit();
+            });
+        }
 
         // Function to validate required field
         function validateField(field) {
             if (!field) return true; // Skip validation if element doesn't exist
-            
+
             let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
 
             if (!field.value.trim()) {
@@ -1080,7 +1055,7 @@
         function validateEmail(field) {
             if (!field) return true; // Skip validation if element doesn't exist
             if (!field.value.trim()) return true; // Skip empty fields
-            
+
             let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -1102,7 +1077,7 @@
         function validateUrl(field) {
             if (!field) return true; // Skip validation if element doesn't exist
             if (!field.value.trim()) return true; // Skip empty fields
-            
+
             let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
             // Simple URL validation regex
             const urlRegex = /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
@@ -1287,7 +1262,6 @@
 
         // Import Vendor functionality
         const importVendorBtn = document.getElementById('importVendorBtn');
-        const importVendorModal = document.getElementById('importVendorModal');
 
         if (importVendorBtn) {
             importVendorBtn.addEventListener('click', () => {
@@ -1568,7 +1542,6 @@
         }
 
         // Handle vendor import form submission with AJAX
-        const vendorImportForm = document.getElementById('vendor-import-form');
         vendorImportForm?.addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent traditional form submission
 

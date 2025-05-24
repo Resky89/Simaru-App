@@ -19,7 +19,8 @@
                     </div>
                     <div class="flex flex-col">
                         <div class="stat-value text-[28px] font-medium text-[#232D42]">
-                            {{ formatCompactNumber($dashboardData['total_assets'] ?? 0) }}</div>
+                            {{ formatCompactNumber($dashboardData['total_assets'] ?? 0) }}
+                        </div>
                         <div class="stat-title text-[14px] text-[#659B09] m-0 opacity-80">Aset</div>
                     </div>
                 </div>
@@ -38,7 +39,8 @@
                     </div>
                     <div class="flex flex-col">
                         <div class="stat-value text-[28px] font-medium text-[#232D42]">
-                            {{ formatCompactNumber($dashboardData['assets_by_status']['under repair'] ?? 0) }}</div>
+                            {{ formatCompactNumber($dashboardData['assets_by_status']['under repair'] ?? 0) }}
+                        </div>
                         <div class="stat-title text-[14px] text-[#DAAE0F] m-0 opacity-80">Dalam Perbaikan </div>
                     </div>
                 </div>
@@ -57,7 +59,8 @@
                     </div>
                     <div class="flex flex-col">
                         <div class="stat-value text-[28px] font-medium text-[#232D42]">
-                            {{ formatCompactCurrency($dashboardData['total_book_value'] ?? 0) }}</div>
+                            {{ formatCompactCurrency($dashboardData['total_book_value'] ?? 0) }}
+                        </div>
                         <div class="stat-title text-[14px] text-[#F16A1B] m-0 opacity-80">Nilai Buku</div>
                     </div>
                 </div>
@@ -76,7 +79,8 @@
                     </div>
                     <div class="flex flex-col">
                         <div class="stat-value text-[28px] font-medium text-[#232D42]">
-                            {{ formatCompactCurrency($dashboardData['total_acquisition_cost'] ?? 0) }}</div>
+                            {{ formatCompactCurrency($dashboardData['total_acquisition_cost'] ?? 0) }}
+                        </div>
                         <div class="stat-title text-[14px] text-[#6F43CD] m-0 opacity-80">Biaya Pengadaan</div>
                     </div>
                 </div>
@@ -97,7 +101,8 @@
                     </div>
                     <div class="flex flex-col">
                         <div class="stat-value text-[28px] font-medium text-[#232D42]">
-                            {{ formatCompactNumber($dashboardData['total_users'] ?? 0) }}</div>
+                            {{ formatCompactNumber($dashboardData['total_users'] ?? 0) }}
+                        </div>
                         <div class="stat-title text-[14px] text-[#1B8ADB] m-0 opacity-80">Pengguna</div>
                     </div>
                 </div>
@@ -182,30 +187,25 @@
                             @php
                                 $totalBySubcategory = array_sum(array_column($dashboardData['assets_by_subcategory'], 'count'));
                                 $percentage = $totalBySubcategory ? round(($category['count'] / $totalBySubcategory) * 100) : 0;
-                                $rotationDegrees = round(($percentage / 100) * 360);
-
-                                // Fix for circle display
-                                if ($category['count'] == 0) {
-                                    $borderClass = 'border-[rgba(117,117,117,0.31)]';
-                                } else if ($percentage == 100) {
-                                    // For 100%, show complete circle
-                                    $borderClass = 'border-[#213268]';
-                                } elseif ($rotationDegrees <= 180) {
-                                    // For 0-50%, adjust visibility of parts of the circle
-                                    $borderClass = 'border-[#213268] border-l-transparent border-t-transparent';
-                                } else {
-                                    // For 51-99%, adjust different parts of the circle
-                                    $borderClass = 'border-[#213268] border-r-transparent border-b-transparent';
-                                }
+                                $radius = 15.9;
+                                $circumference = 2 * 3.14159 * $radius;
                             @endphp
                             <div class="flex items-center gap-4 animate-fade-in">
                                 <div class="relative min-w-[64px] w-16 h-16 flex-shrink-0">
-                                    <div class="w-full h-full rounded-full border-[6px] border-[rgba(117,117,117,0.31)]">
-                                        <div class="absolute inset-0 rounded-full border-[6px] {{ $borderClass }} animate-loading-circle"
-                                            style="transform: rotate({{ $percentage > 0 ? 45 : 0 }}deg);"
-                                            data-rotation="{{ 45 + $rotationDegrees }}" data-percentage="{{ $percentage }}">
-                                        </div>
-                                    </div>
+                                    <!-- Progress Circle -->
+                                    <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                        <!-- Background Circle -->
+                                        <circle cx="18" cy="18" r="{{ $radius }}" fill="none" stroke="rgba(117,117,117,0.31)"
+                                            stroke-width="2.5" />
+
+                                        <!-- Progress Circle -->
+                                        @if($percentage > 0)
+                                            <circle cx="18" cy="18" r="{{ $radius }}" fill="none" stroke="#213268"
+                                                stroke-width="2.5" stroke-dasharray="{{ $circumference }}"
+                                                stroke-dashoffset="{{ $circumference - ($percentage / 100 * $circumference) }}"
+                                                class="progress-circle" data-percentage="{{ $percentage }}" />
+                                        @endif
+                                    </svg>
                                     <div class="absolute inset-0 flex items-center justify-center">
                                         <span
                                             class="number-value font-['Poppins'] font-medium text-xl text-[#232D42] animate-count-up"
@@ -216,7 +216,8 @@
                                     </div>
                                 </div>
                                 <div class="font-['Poppins'] font-medium text-lg text-[#232D42] truncate">
-                                    {{ $category['subcategory_name'] }}</div>
+                                    {{ $category['subcategory_name'] }}
+                                </div>
                             </div>
                         @empty
                             <div class="col-span-2 text-center py-4 text-gray-500">
@@ -247,9 +248,11 @@
                                 <div class="flex gap-4">
                                     <div class="flex flex-col w-[173px]">
                                         <h3 class="text-lg font-['Poppins'] font-medium text-[#232D42]">
-                                            {{ $calibration['asset_name'] ?? 'Aset Tidak Diketahui' }}</h3>
+                                            {{ $calibration['asset_name'] ?? 'Aset Tidak Diketahui' }}
+                                        </h3>
                                         <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">
-                                            {{ $calibration['room_name'] ?? 'Lokasi Tidak Diketahui' }}</p>
+                                            {{ $calibration['room_name'] ?? 'Lokasi Tidak Diketahui' }}
+                                        </p>
                                     </div>
                                     <div class="flex flex-col w-[82px]">
                                         @php
@@ -333,7 +336,8 @@
                             <div class="w-full animate-fade-in" style="animation-delay: {{ $loop->index * 150 }}ms">
                                 <div class="flex justify-between items-center mb-2">
                                     <div class="text-lg font-['Poppins'] font-medium text-[#232D42]">
-                                        {{ $location['room_name'] }}</div>
+                                        {{ $location['room_name'] }}
+                                    </div>
                                     <div class="text-lg font-['Poppins'] font-medium text-[#232D42] animate-count-up"
                                         data-target="{{ $percentage }}">0%</div>
                                 </div>
@@ -521,7 +525,7 @@
 
                         <!-- Content -->
                         <div class="p-6">
-                            <form id="updateCalibrationForm" class="space-y-6" enctype="multipart/form-data">
+                            <form id="updateCalibrationForm" class="space-y-6" data-no-loading enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" id="calibration_id" name="calibration_id">
 
@@ -831,6 +835,14 @@
             }
             return 'Rp ' . $number;
         }
+
+        // Helper function to convert degrees to radians if not already defined
+        if (!function_exists('deg2rad')) {
+            function deg2rad($degrees)
+            {
+                return $degrees * M_PI / 180;
+            }
+        }
     @endphp
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -849,7 +861,11 @@
 
         @keyframes rotateCircle {
             0% {
-                transform: rotate(45deg);
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(var(--rotation-angle, 180deg));
             }
         }
 
@@ -928,6 +944,17 @@
         .fade-in {
             animation: fadeIn 0.3s ease-out forwards;
         }
+
+        /* SVG Circle Progress Animation */
+        @keyframes fillProgress {
+            0% {
+                stroke-dashoffset: 100;
+            }
+        }
+
+        .progress-circle {
+            animation: fillProgress 1.5s ease-out forwards;
+        }
     </style>
 
     <script>
@@ -962,13 +989,13 @@
             // Check if we have events for this date
             if (!calendarEvents[dateStr] || calendarEvents[dateStr].length === 0) {
                 eventListHTML = `
-                    <div class="text-center py-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        <p class="mt-2 text-gray-500">Tidak ada jadwal untuk tanggal ini</p>
-                    </div>
-                `;
+                        <div class="text-center py-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <p class="mt-2 text-gray-500">Tidak ada jadwal untuk tanggal ini</p>
+                        </div>
+                    `;
             } else {
                 // Format each event
                 calendarEvents[dateStr].forEach(event => {
@@ -981,49 +1008,49 @@
                             'Garansi';
 
                     eventListHTML += `
-                        <div class="mb-3 p-4 ${bgColor} rounded-lg shadow-sm">
-                            <div class="flex justify-between items-start">
-                                <div class="font-medium text-lg mb-2">${event.title}</div>
-                                <span class="text-xs font-medium px-2 py-1 rounded-full ${event.type === 'info' ? 'bg-blue-100 text-blue-800' :
+                            <div class="mb-3 p-4 ${bgColor} rounded-lg shadow-sm">
+                                <div class="flex justify-between items-start">
+                                    <div class="font-medium text-lg mb-2">${event.title}</div>
+                                    <span class="text-xs font-medium px-2 py-1 rounded-full ${event.type === 'info' ? 'bg-blue-100 text-blue-800' :
                             event.type === 'urgent' ? 'bg-red-100 text-red-800' :
                                 'bg-yellow-100 text-yellow-800'
                         }">${typeLabel}</span>
-                            </div>
-                            ${event.assetName ? `<div class="text-sm mb-1"><span class="font-medium">Asset:</span> ${event.assetName}</div>` : ''}
-                            ${event.location ? `<div class="text-sm mb-1"><span class="font-medium">Lokasi:</span> ${event.location}</div>` : ''}
-                            ${event.url ? `
-                                <div class="mt-3 pt-2 border-t border-gray-200">
-                                    <a href="${event.url}" class="inline-flex items-center text-[#213268] hover:text-[#152349] text-sm">
-                                        <span>Lihat detail</span>
-                                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                                        </svg>
-                                    </a>
                                 </div>
-                            ` : ''}
-                        </div>
-                    `;
+                                ${event.assetName ? `<div class="text-sm mb-1"><span class="font-medium">Asset:</span> ${event.assetName}</div>` : ''}
+                                ${event.location ? `<div class="text-sm mb-1"><span class="font-medium">Lokasi:</span> ${event.location}</div>` : ''}
+                                ${event.url ? `
+                                    <div class="mt-3 pt-2 border-t border-gray-200">
+                                        <a href="${event.url}" class="inline-flex items-center text-[#213268] hover:text-[#152349] text-sm">
+                                            <span>Lihat detail</span>
+                                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
                 });
             }
 
             // Create modal HTML with improved styling
             const modalHTML = `
-                <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="document.getElementById('eventModal').remove()">
-                    <div class="bg-white rounded-lg shadow-xl p-0 max-w-md w-full max-h-[80vh] overflow-hidden" onclick="event.stopPropagation()">
-                        <div class="flex justify-between items-center p-4 bg-[#213268] text-white">
-                            <h3 class="text-xl font-bold">Jadwal: ${formattedDate}</h3>
-                            <button onclick="document.getElementById('eventModal').remove()" class="text-white hover:text-white/80 focus:outline-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="p-6 overflow-y-auto max-h-[60vh]">
-                            ${eventListHTML}
+                    <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="document.getElementById('eventModal').remove()">
+                        <div class="bg-white rounded-lg shadow-xl p-0 max-w-md w-full max-h-[80vh] overflow-hidden" onclick="event.stopPropagation()">
+                            <div class="flex justify-between items-center p-4 bg-[#213268] text-white">
+                                <h3 class="text-xl font-bold">Jadwal: ${formattedDate}</h3>
+                                <button onclick="document.getElementById('eventModal').remove()" class="text-white hover:text-white/80 focus:outline-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-6 overflow-y-auto max-h-[60vh]">
+                                ${eventListHTML}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
 
             // Append modal to body
             document.body.insertAdjacentHTML('beforeend', modalHTML);
@@ -1063,10 +1090,10 @@
                     labels: ['Tersedia', 'Perawatan', 'Pinjam', 'Dihapuskan', 'Hilang'],
                     datasets: [{
                         data: [
-                            {{ $dashboardData['assets_by_status']['available'] ?? 0 }},
-                            {{ $dashboardData['assets_by_status']['under repair'] ?? 0 }},
-                            {{ $dashboardData['assets_by_status']['checked out'] ?? 0 }},
-                            {{ $dashboardData['assets_by_status']['dispose'] ?? 0 }},
+                                {{ $dashboardData['assets_by_status']['available'] ?? 0 }},
+                                {{ $dashboardData['assets_by_status']['under repair'] ?? 0 }},
+                                {{ $dashboardData['assets_by_status']['checked out'] ?? 0 }},
+                                {{ $dashboardData['assets_by_status']['dispose'] ?? 0 }},
                             {{ $dashboardData['assets_by_status']['lost'] ?? 0 }}
                         ],
                         backgroundColor: [
@@ -1158,11 +1185,11 @@
 
                     // Show a loading state for calendar
                     document.getElementById('calendarDays').innerHTML = `
-                    <div class="col-span-7 text-center py-8">
-                        <span class="loading loading-spinner loading-md text-[#213268]"></span>
-                        <p class="text-gray-500 mt-2">Memuat data kalender...</p>
-                    </div>
-                `;
+                        <div class="col-span-7 text-center py-8">
+                            <span class="loading loading-spinner loading-md text-[#213268]"></span>
+                            <p class="text-gray-500 mt-2">Memuat data kalender...</p>
+                        </div>
+                    `;
 
 
 
@@ -1178,25 +1205,25 @@
                     } else {
                         // Handle API error
                         document.getElementById('calendarDays').innerHTML = `
-                        <div class="col-span-7 text-center py-8">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            <p class="text-gray-500 mt-2">Gagal memuat data kalender</p>
-                            <p class="text-xs text-gray-500 mt-1">${JSON.stringify(data.errors)}</p>
-                        </div>
-                    `;
+                            <div class="col-span-7 text-center py-8">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <p class="text-gray-500 mt-2">Gagal memuat data kalender</p>
+                                <p class="text-xs text-gray-500 mt-1">${JSON.stringify(data.errors)}</p>
+                            </div>
+                        `;
                     }
                 } catch (error) {
                     // Handle network error
                     document.getElementById('calendarDays').innerHTML = `
-                    <div class="col-span-7 text-center py-8">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        <p class="mt-2 text-gray-500">Kesalahan jaringan, coba lagi nanti</p>
-                    </div>
-                `;
+                        <div class="col-span-7 text-center py-8">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            <p class="mt-2 text-gray-500">Kesalahan jaringan, coba lagi nanti</p>
+                        </div>
+                    `;
                 }
             }
 
@@ -1317,10 +1344,10 @@
                 for (let i = startingDay - 1; i >= 0; i--) {
                     const day = prevMonthLastDay - i;
                     calendarDays.innerHTML += `
-                    <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
-                        <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
-                    </div>
-                `;
+                        <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
+                            <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
+                        </div>
+                    `;
                 }
 
                 // Current month's days
@@ -1358,10 +1385,10 @@
                         if (calendarEvents[dateStr].length > 3) {
                             const moreCount = calendarEvents[dateStr].length - 3;
                             dayEvents += `
-                                <div class="text-right">
-                                    <span class="text-[#213268] text-xs cursor-pointer font-medium hover:underline" onclick="showAllEvents('${dateStr}')">+${moreCount} lainnya</span>
-                                </div>
-                            `;
+                                    <div class="text-right">
+                                        <span class="text-[#213268] text-xs cursor-pointer font-medium hover:underline" onclick="showAllEvents('${dateStr}')">+${moreCount} lainnya</span>
+                                    </div>
+                                `;
                         }
                     }
 
@@ -1380,26 +1407,26 @@
                     ].join(' ');
 
                     calendarDays.innerHTML += `
-                        <div class="${dayClasses}" onclick="showAllEvents('${dateStr}')">
-                            <div class="flex justify-between items-center mb-2">
-                                <div class="text-sm font-['Poppins'] ${isToday ? 'font-bold' : ''}">${day}</div>
-                                ${hasEvents ? `<div class="w-2.5 h-2.5 rounded-full bg-[#213268] animate-pulse"></div>` : ''}
+                            <div class="${dayClasses}" onclick="showAllEvents('${dateStr}')">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-['Poppins'] ${isToday ? 'font-bold' : ''}">${day}</div>
+                                    ${hasEvents ? `<div class="w-2.5 h-2.5 rounded-full bg-[#213268] animate-pulse"></div>` : ''}
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    ${dayEvents}
+                                </div>
                             </div>
-                            <div class="flex flex-col gap-1">
-                                ${dayEvents}
-                            </div>
-                        </div>
-                    `;
+                        `;
                 }
 
                 // Next month's days
                 const remainingDays = 42 - (startingDay + totalDays);
                 for (let day = 1; day <= remainingDays; day++) {
                     calendarDays.innerHTML += `
-                    <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
-                        <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
-                    </div>
-                `;
+                        <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
+                            <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
+                        </div>
+                    `;
                 }
             }
 
@@ -1471,62 +1498,62 @@
                 let content = '';
                 if (activity.action_type === 'ASSET_STATUS_CHANGE') {
                     content = `
-                    <p class="text-lg font-normal font-['Poppins'] text-black">
-                        ${userName} mengubah status dari
-                        ${createStatusBadge(activity.old_status)} ke
-                        ${createStatusBadge(activity.new_status)}
-                    </p>
-                `;
+                        <p class="text-lg font-normal font-['Poppins'] text-black">
+                            ${userName} mengubah status dari
+                            ${createStatusBadge(activity.old_status)} ke
+                            ${createStatusBadge(activity.new_status)}
+                        </p>
+                    `;
                 } else if (activity.action_type === 'ASSET_LOCATION_CHANGE') {
                     content = `
-                    <p class="text-lg font-normal font-['Poppins'] text-black">
-                        ${userName} memindahkan dari
-                        <span class="font-medium text-[#213268]">${activity.old_location || 'Unknown'}</span> ke
-                        <span class="font-medium text-[#213268]">${activity.new_location || 'Unknown'}</span>
-                    </p>
-                `;
+                        <p class="text-lg font-normal font-['Poppins'] text-black">
+                            ${userName} memindahkan dari
+                            <span class="font-medium text-[#213268]">${activity.old_location || 'Unknown'}</span> ke
+                            <span class="font-medium text-[#213268]">${activity.new_location || 'Unknown'}</span>
+                        </p>
+                    `;
                 } else {
                     content = `
-                    <p class="text-lg font-normal font-['Poppins'] text-black">
-                        ${userName} ${activity.message || 'melakukan update'}
-                    </p>
-                `;
+                        <p class="text-lg font-normal font-['Poppins'] text-black">
+                            ${userName} ${activity.message || 'melakukan update'}
+                        </p>
+                    `;
                 }
 
                 return `
-                <div class="relative w-full bg-white shadow-sm border border-[#ECECEC] rounded-lg p-4 mb-3 hover:shadow-md transition-shadow duration-200">
-                    <!-- Blue Line -->
-                    <div class="absolute left-0 top-0 w-1.5 h-full bg-[#25B1FF] rounded-l-lg"></div>
+                    <div class="relative w-full bg-white shadow-sm border border-[#ECECEC] rounded-lg p-4 mb-3 hover:shadow-md transition-shadow duration-200">
+                        <!-- Blue Line -->
+                        <div class="absolute left-0 top-0 w-1.5 h-full bg-[#25B1FF] rounded-l-lg"></div>
 
-                    <div class="flex flex-col md:flex-row pl-4">
-                        <!-- Date & Time -->
-                        <div class="flex items-center md:flex-col md:items-start gap-2 md:gap-1 mb-3 md:mb-0 md:min-w-[120px] md:mr-6">
-                            <p class="text-lg font-medium font-['Poppins'] text-[#232D42]">${dateFormatted}</p>
-                            <p class="text-base font-medium font-['Poppins'] text-[#757575]">${timeFormatted}</p>
-                        </div>
-
-                        <!-- Content -->
-                        <div class="flex-1">
-                            <!-- Asset Information -->
-                            <div class="flex flex-wrap gap-2 mb-3">
-                                <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
-                                    <span class="text-sm font-medium text-[#213268]">Kode Aset: ${assetCode}</span>
-                                </div>
-                                ${assetName ? `
-                                <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
-                                    <span class="text-sm font-medium text-[#213268]">Aset: ${assetName}</span>
-                                </div>
-                                ` : ''}
+                        <div class="flex flex-col md:flex-row pl-4">
+                            <!-- Date & Time -->
+                            <div class="flex items-center md:flex-col md:items-start gap-2 md:gap-1 mb-3 md:mb-0 md:min-w-[120px] md:mr-6">
+                                <p class="text-lg font-medium font-['Poppins'] text-[#232D42]">${dateFormatted}</p>
+                                <p class="text-base font-medium font-['Poppins'] text-[#757575]">${timeFormatted}</p>
                             </div>
 
-                            <!-- Status Change -->
-                            <div class="text-base font-['Poppins'] text-[#232D42]">
-                                ${userName} mengubah status dari ${createStatusBadge(activity.old_status)} ke ${createStatusBadge(activity.new_status)}
+                            <!-- Content -->
+                            <div class="flex-1">
+                                <!-- Asset Information -->
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
+                                        <span class="text-sm font-medium text-[#213268]">Kode Aset: ${assetCode}</span>
+                                    </div>
+                                    ${assetName ? `
+                                    <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
+                                        <span class="text-sm font-medium text-[#213268]">Aset: ${assetName}</span>
+                                    </div>
+                                    ` : ''}
+                                </div>
+
+                                <!-- Status Change -->
+                                <div class="text-base font-['Poppins'] text-[#232D42]">
+                                    ${userName} mengubah status dari ${createStatusBadge(activity.old_status)} ke ${createStatusBadge(activity.new_status)}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
             }
 
             // Function to load asset activities
@@ -1540,23 +1567,23 @@
                 // Show loading state if not appending
                 if (!append) {
                     activitiesContainer.innerHTML = `
-                    <div class="text-center py-12">
-                        <div class="inline-block p-4 bg-[#213268]/5 rounded-full">
-                            <span class="loading loading-spinner loading-md text-[#213268]"></span>
+                        <div class="text-center py-12">
+                            <div class="inline-block p-4 bg-[#213268]/5 rounded-full">
+                                <span class="loading loading-spinner loading-md text-[#213268]"></span>
+                            </div>
+                            <p class="mt-3 text-gray-600 font-medium">Memuat aktivitas terakhir...</p>
                         </div>
-                        <p class="mt-3 text-gray-600 font-medium">Memuat aktivitas terakhir...</p>
-                    </div>
-                `;
+                    `;
                 } else {
                     // Add a loading indicator at the bottom when loading more
                     activitiesContainer.insertAdjacentHTML('beforeend', `
-                    <div id="activities-loading-more" class="text-center py-6 animate-pulse">
-                        <div class="inline-block p-2 bg-[#213268]/5 rounded-full">
-                            <span class="loading loading-spinner loading-sm text-[#213268]"></span>
+                        <div id="activities-loading-more" class="text-center py-6 animate-pulse">
+                            <div class="inline-block p-2 bg-[#213268]/5 rounded-full">
+                                <span class="loading loading-spinner loading-sm text-[#213268]"></span>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-600">Memuat lebih banyak aktivitas...</p>
                         </div>
-                        <p class="mt-2 text-sm text-gray-600">Memuat lebih banyak aktivitas...</p>
-                    </div>
-                `);
+                    `);
                 }
 
                 try {
@@ -1584,16 +1611,16 @@
                         // Display activities
                         if (activities.length === 0 && !append) {
                             activitiesContainer.innerHTML = `
-                            <div class="text-center py-12 bg-gray-50 rounded-lg border border-gray-100">
-                                <div class="inline-block p-3 bg-gray-100 rounded-full mb-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
+                                <div class="text-center py-12 bg-gray-50 rounded-lg border border-gray-100">
+                                    <div class="inline-block p-3 bg-gray-100 rounded-full mb-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-medium text-gray-700 mb-1">Tidak Ada Aktivitas</h3>
+                                    <p class="text-gray-500">Belum ada aktivitas aset yang tercatat</p>
                                 </div>
-                                <h3 class="text-lg font-medium text-gray-700 mb-1">Tidak Ada Aktivitas</h3>
-                                <p class="text-gray-500">Belum ada aktivitas aset yang tercatat</p>
-                            </div>
-                        `;
+                            `;
                         } else {
                             const activitiesHTML = activities.map(activity => createActivityItemHTML(activity)).join('');
 
@@ -1610,19 +1637,19 @@
                         // Show error message
                         if (!append) {
                             activitiesContainer.innerHTML = `
-                            <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
-                                <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
+                                <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
+                                    <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-medium text-red-700 mb-1">Gagal Memuat Data</h3>
+                                    <p class="text-red-500">${data.errors?.general || 'Terjadi kesalahan saat memuat aktivitas'}</p>
+                                    <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
+                                        Coba Lagi
+                                    </button>
                                 </div>
-                                <h3 class="text-lg font-medium text-red-700 mb-1">Gagal Memuat Data</h3>
-                                <p class="text-red-500">${data.errors?.general || 'Terjadi kesalahan saat memuat aktivitas'}</p>
-                                <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
-                                    Coba Lagi
-                                </button>
-                            </div>
-                        `;
+                            `;
                         }
                     }
                 } catch (error) {
@@ -1635,20 +1662,20 @@
                     } else {
                         // Show error message
                         activitiesContainer.innerHTML = `
-                        <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
-                            <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                </svg>
+                            <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
+                                <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-medium text-red-700 mb-1">Kesalahan Jaringan</h3>
+                                <p class="text-red-500">Gagal terhubung ke server, mohon periksa koneksi Anda</p>
+                                <p class="text-xs text-red-400 mt-1">${error.message}</p>
+                                <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
+                                    Coba Lagi
+                                </button>
                             </div>
-                            <h3 class="text-lg font-medium text-red-700 mb-1">Kesalahan Jaringan</h3>
-                            <p class="text-red-500">Gagal terhubung ke server, mohon periksa koneksi Anda</p>
-                            <p class="text-xs text-red-400 mt-1">${error.message}</p>
-                            <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
-                                Coba Lagi
-                            </button>
-                        </div>
-                    `;
+                        `;
                     }
                 } finally {
                     isLoadingActivities = false;
@@ -1666,17 +1693,16 @@
 
             // Animations for asset category circles
             const animateCircles = () => {
-                document.querySelectorAll('.animate-loading-circle').forEach(circle => {
-                    const targetRotation = circle.getAttribute('data-rotation');
+                document.querySelectorAll('.progress-circle').forEach(circle => {
                     const percentage = parseInt(circle.getAttribute('data-percentage') || '0');
 
                     // Don't animate if the percentage is 0
                     if (percentage === 0) {
-                        circle.style.display = 'none'; // Completely hide the circle
-                    } else if (parseInt(targetRotation) <= 45) {
-                        circle.style.transform = 'rotate(45deg)';
+                        circle.style.display = 'none'; // Hide the circle
                     } else {
-                        circle.style.transform = `rotate(${targetRotation}deg)`;
+                        // Make sure the circle is visible and has the correct offset
+                        circle.style.display = 'block';
+                        // The stroke-dashoffset value is set by PHP in the template
                     }
                 });
             };
@@ -2004,9 +2030,9 @@
                 const originalButtonText = submitButton.innerHTML;
                 submitButton.disabled = true;
                 submitButton.innerHTML = `
-                    <span class="loading loading-spinner loading-sm mr-2"></span>
-                    Memproses...
-                `;
+                        <span class="loading loading-spinner loading-sm mr-2"></span>
+                        Memproses...
+                    `;
 
                 fetch(`/calibrations/update-by-task`, {
                     method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
@@ -2068,10 +2094,9 @@
                 // Don't animate if the percentage is 0
                 if (percentage === 0) {
                     circle.style.display = 'none'; // Completely hide the circle
-                } else if (parseInt(targetRotation) <= 45) {
-                    circle.style.transform = 'rotate(45deg)';
                 } else {
-                    circle.style.transform = `rotate(${targetRotation}deg)`;
+                    // For transform-based animations (0-50%)
+                    circle.style.transform = `rotate(${percentage * 1.8}deg)`;
                 }
             });
         };

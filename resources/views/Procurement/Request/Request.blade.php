@@ -330,7 +330,7 @@
                 </div>
 
                 <!-- Form -->
-                <form id="deleteProcurementForm" method="POST">
+                <form id="deleteProcurementForm" method="POST" data-no-loading>
                     @csrf
                     @method('DELETE')
                     <div class="p-6">

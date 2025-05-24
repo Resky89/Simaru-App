@@ -27,7 +27,7 @@
 
                     <!-- Form -->
                     @if((request()->has('id') && hasPermission('procurement:request:edit')) || (!request()->has('id') && hasPermission('procurement:request:create')))
-                        <form id="requestForm" class="w-full space-y-6">
+                        <form id="requestForm" class="w-full space-y-6" data-no-loading>
                             @csrf
                             <input type="hidden" id="procurement_id" name="procurement_id">
 

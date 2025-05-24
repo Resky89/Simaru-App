@@ -274,7 +274,7 @@
                                         <td class="p-3 text-sm border-t border-gray-200 text-center">
                                             <form
                                                 action="{{ url('asset-documents/asset/' . $asset['asset_id'] . '/documents/' . $document['document_id']) }}?redirect={{ url()->current() }}"
-                                                method="POST" class="inline">
+                                                method="POST" class="inline" data-no-loading>
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
@@ -330,7 +330,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="editDocumentForm" method="POST" enctype="multipart/form-data">
+                            <form id="editDocumentForm" method="POST" data-no-loading enctype="multipart/form-data">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" id="edit_document_id" name="document_id"

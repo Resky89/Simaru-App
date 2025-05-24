@@ -457,7 +457,7 @@
 
                                 <!-- Content -->
                                 <div class="p-6">
-                                    <form id="updateCalibrationForm" class="space-y-6" enctype="multipart/form-data">
+                                    <form id="updateCalibrationForm" class="space-y-6" data-no-loading enctype="multipart/form-data">
                                         @csrf
                                         <input type="hidden" id="calibration_id" name="calibration_id">
 
@@ -766,7 +766,7 @@
                                 </div>
 
                                 <!-- Form -->
-                                <form id="deleteCalibrationForm" method="POST">
+                                <form id="deleteCalibrationForm" method="POST" data-no-loading>
                                     @csrf
                                     <div class="p-6">
                                         <div class="space-y-6 max-w-[400px] mx-auto">
@@ -823,7 +823,7 @@
 
                                 <!-- Form -->
                                 <div class="p-6">
-                                    <form id="addCalibrationForm" class="space-y-6">
+                                    <form id="addCalibrationForm" class="space-y-6" data-no-loading>
                                         @csrf
                                         <!-- Required fields note -->
                                         <div class="text-sm text-gray-600">
@@ -1057,7 +1057,7 @@
                                 </div>
 
                                 <!-- Form -->
-                                <form id="editScheduleForm" method="POST">
+                                <form id="editScheduleForm" method="POST" data-no-loading>
                                     @csrf
                                     <input type="hidden" name="_method" value="PUT">
                                     <input type="hidden" id="edit_schedule_calibration_id" name="calibration_id">

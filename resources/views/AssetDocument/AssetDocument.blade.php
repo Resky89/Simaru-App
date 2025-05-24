@@ -208,7 +208,7 @@
 
                 <!-- Form -->
                 <div class="p-6">
-                    <form id="addDocumentForm" action="{{ route('asset-documents.store') }}" method="POST" enctype="multipart/form-data">
+                    <form id="addDocumentForm" action="{{ route('asset-documents.store') }}" method="POST" data-no-loading enctype="multipart/form-data">
                         @csrf
                         <div class="space-y-4">
                             <!-- Document Title -->
@@ -327,7 +327,7 @@
                 </div>
 
                 <!-- Form -->
-                <form id="delete-form" method="POST">
+                <form id="delete-form" method="POST" data-no-loading>
                     @csrf
                     @method('DELETE')
                     <div class="p-6">
@@ -376,7 +376,7 @@
 
                     <!-- Form -->
                     <div class="p-6">
-                        <form id="editDocumentForm" method="POST" enctype="multipart/form-data">
+                        <form id="editDocumentForm" method="POST" data-no-loading enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <input type="hidden" id="edit_document_id" name="document_id">

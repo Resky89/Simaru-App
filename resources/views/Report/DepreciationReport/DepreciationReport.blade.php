@@ -15,7 +15,7 @@
                     </div>
 
                     <!-- Filter Form -->
-                    <form action="{{ route('report.depreciation') }}" method="GET" id="depreciationFilterForm">
+                    <form action="{{ route('report.depreciation') }}" method="GET" id="depreciationFilterForm" data-no-loading>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Gedung</label>

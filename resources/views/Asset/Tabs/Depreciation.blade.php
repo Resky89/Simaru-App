@@ -121,7 +121,7 @@
 
                     <!-- Form -->
                     <div class="p-6">
-                        <form id="updateDepreciationForm" action="{{ route('asset-depreciation.update', ['assetId' => $asset['asset_id'] ?? '']) }}" method="POST">
+                        <form id="updateDepreciationForm" action="{{ route('asset-depreciation.update', ['assetId' => $asset['asset_id'] ?? '']) }}" method="POST" data-no-loading>
                             @csrf
                             @method('PUT')
                             <div class="space-y-6">

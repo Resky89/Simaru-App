@@ -49,7 +49,7 @@
                     <div>
                         <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Peran</label>
                         <input type="text" id="role"
-                               value="{{ is_array($accessTokenPayload['roles'] ?? null) ? implode(', ', $accessTokenPayload['roles']) : ($accessTokenPayload['roles'] ?? 'Tidak tersedia') }}"
+                               value="{{ is_array($accessTokenPayload['role_names'] ?? null) ? implode(', ', $accessTokenPayload['role_names']) : ($accessTokenPayload['role_names'] ?? 'Tidak tersedia') }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed" disabled>
                     </div>
                 </div>

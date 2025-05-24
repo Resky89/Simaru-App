@@ -28,7 +28,7 @@
                 <!-- Search and Filter -->
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
-                        <form action="{{ route('procurement.receipt') }}" method="GET" id="searchForm">
+                        <form action="{{ route('procurement.receipt') }}" method="GET" id="searchForm" data-no-loading>
                             <input type="text" id="searchInput" name="search" placeholder="Cari penerimaan berdasarkan nomor, penerima..." value="{{ request('search') }}"
                                 class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer" id="searchBtn">

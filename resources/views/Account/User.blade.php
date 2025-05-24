@@ -244,7 +244,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="addUserForm" action="{{ route('users.store') }}" method="POST" novalidate>
+                            <form id="addUserForm" action="{{ route('users.store') }}" method="POST" novalidate data-no-loading>
                                 @csrf
                                 <div class="space-y-4 max-w-[400px] mx-auto">
                                     <!-- Employee Number Input -->
@@ -335,7 +335,7 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form id="editUserForm" action="" method="POST" novalidate>
+                            <form id="editUserForm" action="" method="POST" novalidate data-no-loading>
                                 @csrf
                                 @method('PUT')
                                 <div class="space-y-4 max-w-[400px] mx-auto">
@@ -415,7 +415,7 @@
                         </div>
 
                         <!-- Content -->
-                        <form id="deleteUserForm" action="" method="POST">
+                        <form id="deleteUserForm" action="" method="POST" data-no-loading>
                             @csrf
                             @method('DELETE')
                             <div class="p-6">

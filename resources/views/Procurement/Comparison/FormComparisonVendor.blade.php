@@ -30,7 +30,7 @@
 
                     <!-- Form -->
                     @if((isset($vendorOffer) || request()->has('agreement_id')) && hasPermission('price-comparison:vendor-offer:edit') || (!isset($vendorOffer) && !request()->has('agreement_id') && hasPermission('price-comparison:vendor-offer:create')))
-                        <form id="vendorQuotationForm" class="w-full space-y-6">
+                        <form id="vendorQuotationForm" class="w-full space-y-6" data-no-loading>
                             @csrf
                             <!-- Hidden Fields -->
                             <input type="hidden" name="comparison_id" id="comparison_id"

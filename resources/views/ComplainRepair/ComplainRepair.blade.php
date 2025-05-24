@@ -328,7 +328,7 @@
 
                         <!-- Form -->
                         <form id="complaintForm" action="{{ route('complaint.create') }}" method="POST"
-                            enctype="multipart/form-data">
+                            enctype="multipart/form-data" data-no-loading>
                             @csrf
                             <input type="hidden" name="handle_ajax" value="0">
                             <div class="p-6">
@@ -478,7 +478,7 @@
                         </div>
 
                         <!-- Content -->
-                        <form id="deleteComplaintForm">
+                        <form id="deleteComplaintForm" data-no-loading>
                             @csrf
                             <input type="hidden" id="deleteComplaintId" name="complaint_id">
                             <div class="p-6">
@@ -536,7 +536,7 @@
 
                         <!-- Form -->
                         <form id="repairForm" action="{{ route('complaint.repair.create') }}" method="POST"
-                            enctype="multipart/form-data">
+                            enctype="multipart/form-data" data-no-loading>
                             @csrf
                             <input type="hidden" name="complaint_id" id="repairComplaintId">
                             <div class="p-6">
