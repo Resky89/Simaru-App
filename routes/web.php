@@ -96,9 +96,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     //-------------------------------------------------------------------------
 
     // Building Management
-    Route::prefix('buildings')->middleware('permission:building:view|room:create|room:edit')->group(function () {
+    Route::prefix('buildings')->middleware('permission:building:view|room:create|room:edit|asset:checkout|report:depreciation')->group(function () {
         Route::get('/', [BuildingController::class, 'index'])->name('buildings');
-        Route::get('/data', [BuildingController::class, 'getData'])->name('buildings.data');
         Route::post('/store', [BuildingController::class, 'store'])
             ->name('buildings.store')
             ->middleware('permission:building:create');
@@ -116,7 +115,6 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Room Management
     Route::prefix('rooms')->middleware('permission:room:view')->group(function () {
         Route::get('/', [RoomController::class, 'index'])->name('rooms');
-        Route::get('/data', [RoomController::class, 'getData'])->name('rooms.data');
         Route::get('/{id}', [RoomController::class, 'getById'])
         ->name('rooms.getById')
         ->middleware('permission:room:view');

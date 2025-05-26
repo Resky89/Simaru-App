@@ -868,7 +868,7 @@
 
                     try {
                         // Use the API endpoint to fetch buildings
-                        const response = await fetch(`{{ route('buildings.data') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                        const response = await fetch(`{{ route('buildings') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
@@ -1104,7 +1104,7 @@
                                 console.log('Form populated successfully with room data');
 
                                 // Look up building name from building_id
-                                fetch(`{{ route('buildings.data') }}`, {
+                                fetch(`{{ route('buildings') }}`, {
                                     headers: {
                                         'Accept': 'application/json',
                                         'X-Requested-With': 'XMLHttpRequest'

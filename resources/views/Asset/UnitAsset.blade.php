@@ -293,8 +293,8 @@
             <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                 id="addAssetModalContent">
                 <!-- Header -->
-                <div class="flex justify-between items-center p-6 pb-0">
-                    <SSET class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH ASSET</SSET>
+                <div class="flex justify-between items-center p-6 pb-4 border-b">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH ASET</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -306,118 +306,159 @@
                 <form action="{{ route('assets.store') }}" method="POST" id="addAssetForm" data-no-loading novalidate>
                     @csrf
                     <div class="p-6">
-                        <div class="space-y-4">
+                        <div class="space-y-6">
                             <!-- Asset Information Section -->
-                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Aset</h3>
+                            <div>
+                                <h3 class="text-lg font-semibold text-[#213268] mb-4">Informasi Aset</h3>
 
-                            <!-- Basic Asset Details -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- Asset Master Dropdown -->
-                                <div class="mb-4">
-                                    <label for="asset_master_id" class="block text-gray-700 text-sm font-bold mb-2">Master Aset <span class="text-red-500">*</span></label>
+                                <!-- Master Asset selection -->
+                                <div class="mb-5">
+                                    <label for="asset_master_search" class="block text-base font-semibold text-[#666666] mb-2">Master Aset <span class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <input type="text" id="asset_master_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari master aset..." required>
+                                        <input type="text" id="asset_master_search"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="Cari master aset..." autocomplete="off" required>
                                         <input type="hidden" name="asset_master_id" id="selected_asset_master_id" required>
                                         <input type="hidden" id="selected_is_depreciable" value="false">
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Master aset harus dipilih</div>
 
                                         <!-- Dropdown -->
-                                        <div id="asset_master_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
-                                            <!-- Loading indicator -->
-                                            <div id="asset_master_loading" class="flex justify-center py-2">
-                                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <div id="asset_master_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                            <div id="asset_master_loading" class="p-2 text-gray-500 text-center">
+                                                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
+                                                <span>Memuat master aset...</span>
                                             </div>
-                                            <ul id="asset_master_list" class="max-h-56 overflow-y-auto"></ul>
-                                        </div>
-                            </div>
-                            </div>
-                                <div class="mb-4">
-                                    <label for="serial_number" class="block text-gray-700 text-sm font-bold mb-2">Nomor Seri</label>
-                                    <input type="text" name="serial_number" id="serial_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Nomor seri">
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor seri harus diisi</div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="mb-4">
-                                    <label for="purchase_date" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pembelian</label>
-                                    <input type="date" name="purchase_date" id="purchase_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian harus diisi</div>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="purchase_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pembelian</label>
-                                    <input type="number" name="purchase_cost" id="purchase_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00">
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="mb-4">
-                                    <label for="warranty_end_date" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Berakhir Garansi</label>
-                                    <input type="date" name="warranty_end_date" id="warranty_end_date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                </div>
-                                <!-- Room Dropdown -->
-                                <div class="mb-4">
-                                    <label for="room_id" class="block text-gray-700 text-sm font-bold mb-2">Ruangan <span class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <input type="text" id="room_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari ruangan..." required>
-                                        <input type="hidden" name="room_id" id="selected_room_id" required>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Ruangan harus dipilih</div>
-                                        <div id="room_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
-                                            <!-- Loading indicator -->
-                                            <div id="room_loading" class="flex justify-center py-2">
-                                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                            </div>
-                                            <ul id="room_list" class="max-h-56 overflow-y-auto"></ul>
+                                            <ul id="asset_master_list" class="py-1"></ul>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="mb-4">
-                                    <label for="condition" class="block text-gray-700 text-sm font-bold mb-2">Kondisi</label>
-                                    <select name="condition" id="condition" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                        <option value="">Pilih Kondisi</option>
-                                        <option value="good">Baik</option>
-                                        <option value="slighly damage">Sedikit Rusak</option>
-                                        <option value="high damage">Sangat Rusak</option>
-                                    </select>
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Kondisi harus dipilih</div>
+                                <!-- Serial Number -->
+                                <div class="mb-5">
+                                    <label for="serial_number" class="block text-base font-semibold text-[#666666] mb-2">Nomor Seri</label>
+                                    <input type="text" name="serial_number" id="serial_number"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                        placeholder="Masukkan nomor seri">
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor seri harus diisi</div>
                                 </div>
-                                <!-- User ID Field -->
-                                <div class="mb-4">
-                                    <label for="user_id" class="block text-gray-700 text-sm font-bold mb-2">Karyawan yang Bertanggung Jawab</label>
-                                    <div class="relative">
-                                        <input type="text" id="user_search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Cari karyawan (nomor karyawan)...">
-                                        <input type="hidden" name="user_id" id="selected_user_id">
-                                        <div id="user_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
-                                            <!-- Loading indicator -->
-                                            <div id="user_loading" class="flex justify-center py-2">
-                                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
+
+                                <!-- Purchase Information -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                    <div>
+                                        <label for="purchase_date" class="block text-base font-semibold text-[#666666] mb-2">Tanggal Pembelian</label>
+                                        <input type="date" name="purchase_date" id="purchase_date"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian harus diisi</div>
+                                    </div>
+                                    <div>
+                                        <label for="purchase_cost" class="block text-base font-semibold text-[#666666] mb-2">Biaya Pembelian</label>
+                                        <input type="number" name="purchase_cost" id="purchase_cost" step="0.01"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="0.00">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
+                                    </div>
+                                </div>
+
+                                <!-- Warranty -->
+                                <div class="mb-5">
+                                    <label for="warranty_end_date" class="block text-base font-semibold text-[#666666] mb-2">Tanggal Berakhir Garansi</label>
+                                    <input type="date" name="warranty_end_date" id="warranty_end_date"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                </div>
+
+                                <!-- Building and Room Selection -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                    <div>
+                                        <label for="building_search" class="block text-base font-semibold text-[#666666] mb-2">Gedung <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" id="building_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Cari gedung..." autocomplete="off" required>
+                                            <input type="hidden" name="building_id" id="selected_building_id">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Gedung harus dipilih</div>
+
+                                            <div id="building_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="building_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Memuat gedung...</span>
+                                                </div>
+                                                <ul id="building_list" class="py-1"></ul>
                                             </div>
-                                            <ul id="user_list" class="max-h-56 overflow-y-auto"></ul>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="room_search" class="block text-base font-semibold text-[#666666] mb-2">Ruangan <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" id="room_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled required>
+                                            <input type="hidden" name="room_id" id="selected_room_id" required>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Ruangan harus dipilih</div>
+
+                                            <div id="room_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="room_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Memuat ruangan...</span>
+                                                </div>
+                                                <ul id="room_list" class="py-1"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Condition and Responsible User -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label for="condition" class="block text-base font-semibold text-[#666666] mb-2">Kondisi</label>
+                                        <select name="condition" id="condition"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                            <option value="">Pilih Kondisi</option>
+                                            <option value="good">Baik</option>
+                                            <option value="slightly damage">Sedikit Rusak</option>
+                                            <option value="high damage">Sangat Rusak</option>
+                                        </select>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Kondisi harus dipilih</div>
+                                    </div>
+                                    <div>
+                                        <label for="user_search" class="block text-base font-semibold text-[#666666] mb-2">Karyawan yang Bertanggung Jawab</label>
+                                        <div class="relative">
+                                            <input type="text" id="user_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Cari karyawan (nomor karyawan)..." autocomplete="off">
+                                            <input type="hidden" name="user_id" id="selected_user_id">
+
+                                            <div id="user_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="user_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Memuat karyawan...</span>
+                                                </div>
+                                                <ul id="user_list" class="py-1"></ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Depreciation Fields Section -->
-                            <div id="depreciation_fields" class="space-y-4 border rounded-lg p-4 border-dashed border-gray-300 hidden">
-                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Penyusutan</h3>
+                            <div id="depreciation_fields" class="space-y-5 border rounded-lg p-5 border-dashed border-gray-300 hidden">
+                                <h3 class="text-lg font-semibold text-[#213268] mb-3">Informasi Penyusutan</h3>
 
                                 <div class="mb-4">
-                                    <label for="depreciation_method" class="block text-gray-700 text-sm font-bold mb-2">Metode Penyusutan <span class="text-red-500">*</span></label>
-                                    <select name="depreciation_method" id="depreciation_method" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" disabled>
+                                    <label for="depreciation_method" class="block text-base font-semibold text-[#666666] mb-2">Metode Penyusutan <span class="text-red-500">*</span></label>
+                                    <select name="depreciation_method" id="depreciation_method"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" disabled>
                                         <option value="">Pilih Metode</option>
                                         <option value="Straight Line">Garis Lurus</option>
                                         <option value="Declining Balance">Saldo Menurun</option>
@@ -428,28 +469,34 @@
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Metode penyusutan harus dipilih</div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="mb-4">
-                                        <label for="acquisition_cost" class="block text-gray-700 text-sm font-bold mb-2">Biaya Pengadaan <span class="text-red-500">*</span></label>
-                                        <input type="number" name="acquisition_cost" id="acquisition_cost" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00" disabled>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+                                    <div>
+                                        <label for="acquisition_cost" class="block text-base font-semibold text-[#666666] mb-2">Biaya Pengadaan <span class="text-red-500">*</span></label>
+                                        <input type="number" name="acquisition_cost" id="acquisition_cost" step="0.01"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="0.00" disabled>
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan harus diisi</div>
                                     </div>
-                                    <div class="mb-4">
-                                        <label for="salvage_value" class="block text-gray-700 text-sm font-bold mb-2">Nilai Sisa <span class="text-red-500">*</span></label>
-                                        <input type="number" name="salvage_value" id="salvage_value" step="0.01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="0.00" disabled>
+                                    <div>
+                                        <label for="salvage_value" class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa <span class="text-red-500">*</span></label>
+                                        <input type="number" name="salvage_value" id="salvage_value" step="0.01"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="0.00" disabled>
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus diisi</div>
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="mb-4">
-                                        <label for="asset_life_months" class="block text-gray-700 text-sm font-bold mb-2">Usia Aset (bulan) <span class="text-red-500">*</span></label>
-                                        <input type="number" name="asset_life_months" id="asset_life_months" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" disabled>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label for="asset_life_months" class="block text-base font-semibold text-[#666666] mb-2">Usia Aset (bulan) <span class="text-red-500">*</span></label>
+                                        <input type="number" name="asset_life_months" id="asset_life_months"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" disabled>
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Usia aset harus diisi</div>
                                     </div>
-                                    <div class="mb-4">
-                                        <label for="date_acquired" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Pengadaan <span class="text-red-500">*</span></label>
-                                        <input type="date" name="date_acquired" id="date_acquired" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" disabled>
+                                    <div>
+                                        <label for="date_acquired" class="block text-base font-semibold text-[#666666] mb-2">Tanggal Pengadaan <span class="text-red-500">*</span></label>
+                                        <input type="date" name="date_acquired" id="date_acquired"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" disabled>
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan harus diisi</div>
                                     </div>
                                 </div>
@@ -477,8 +524,8 @@
             <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                 id="editAssetModalContent">
                 <!-- Header -->
-                <div class="flex justify-between items-center p-6 pb-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT ASET</h2>
+                <div class="flex justify-between items-center p-6 pb-4 border-b">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">UBAH ASET</h2>
                     <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                         <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -491,145 +538,157 @@
                     @csrf
                     @method('PUT')
                     <div class="p-6">
-                        <div class="space-y-4">
+                        <div class="space-y-6">
                             <!-- Asset Information Section -->
-                            <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Aset</h3>
+                            <div>
+                                <h3 class="text-lg font-semibold text-[#213268] mb-4">Informasi Aset</h3>
 
-                            <!-- Basic Asset Details -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label for="edit_asset_master_id" class="block text-base font-semibold text-[#666666]">
-                                        Master Aset <span class="text-red-500">*</span>
-                                    </label>
+                                <!-- Master Asset selection -->
+                                <div class="mb-5">
+                                    <label for="edit_asset_master_search" class="block text-base font-semibold text-[#666666] mb-2">Master Aset <span class="text-red-500">*</span></label>
                                     <div class="relative">
-                                        <input type="text" id="edit_asset_master_search" class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" placeholder="Cari master aset..." required>
+                                        <input type="text" id="edit_asset_master_search"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="Cari master aset..." autocomplete="off" required>
                                         <input type="hidden" name="asset_master_id" id="edit_selected_asset_master_id" required>
                                         <input type="hidden" id="edit_selected_is_depreciable" value="false">
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Master aset harus dipilih</div>
 
                                         <!-- Dropdown -->
-                                        <div id="edit_asset_master_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
-                                            <!-- Loading indicator -->
-                                            <div id="edit_asset_master_loading" class="flex justify-center py-2">
-                                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                    </div>
-                                            <ul id="edit_asset_master_list" class="max-h-56 overflow-y-auto"></ul>
-                                    </div>
-                                </div>
-                                </div>
-                                <div class="space-y-2">
-                                    <label for="edit_serial_number" class="block text-base font-semibold text-[#666666]">
-                                        Nomor Seri
-                                    </label>
-                                    <input type="text" name="serial_number" id="edit_serial_number"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                        placeholder="Nomor seri">
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor seri harus diisi</div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label for="edit_purchase_date" class="block text-base font-semibold text-[#666666]">
-                                        Tanggal Pembelian
-                                    </label>
-                                    <input type="date" name="purchase_date" id="edit_purchase_date"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian harus diisi</div>
-                                </div>
-                                <div class="space-y-2">
-                                    <label for="edit_purchase_cost" class="block text-base font-semibold text-[#666666]">
-                                        Biaya Pembelian
-                                    </label>
-                                    <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                        placeholder="0.00">
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label for="edit_warranty_end_date" class="block text-base font-semibold text-[#666666]">
-                                        Tanggal Berakhir Garansi
-                                    </label>
-                                    <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                </div>
-                                <!-- Room Dropdown -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">
-                                        Ruangan <span class="text-red-500">*</span>
-                                    </label>
-                                    <div class="relative">
-                                        <input type="text" id="edit_room_search" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="Cari ruangan..." autocomplete="off">
-                                        <input type="hidden" name="room_id" id="edit_selected_room_id" required>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Ruangan harus dipilih</div>
-                                        <div id="edit_room_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
-                                            <div id="edit_room_loading" class="p-2 text-gray-500 text-center">
+                                        <div id="edit_asset_master_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                            <div id="edit_asset_master_loading" class="p-2 text-gray-500 text-center">
                                                 <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
-                                                <span>Memuat ruangan...</span>
+                                                <span>Memuat master aset...</span>
                                             </div>
-                                            <ul id="edit_room_list" class="py-1"></ul>
+                                            <ul id="edit_asset_master_list" class="py-1"></ul>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">
-                                        Kondisi
-                                    </label>
-                                    <select name="condition" id="edit_condition"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="">Pilih Kondisi</option>
-                                        <option value="good">Baik</option>
-                                        <option value="slightly damage">Sedikit Rusak</option>
-                                        <option value="high damage">Sangat Rusak</option>
-                                    </select>
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Kondisi harus dipilih</div>
-                                </div>
-                                <!-- User ID Field -->
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">
-                                        Karyawan yang Bertanggung Jawab
-                                    </label>
-                                    <div class="relative">
-                                        <input type="text" id="edit_user_search"
+                                <!-- Serial Number -->
+                                <div class="mb-5">
+                                    <label for="edit_serial_number" class="block text-base font-semibold text-[#666666] mb-2">Nomor Seri</label>
+                                    <input type="text" name="serial_number" id="edit_serial_number"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="Cari karyawan (nomor karyawan)..." autocomplete="off">
-                                        <input type="hidden" name="user_id" id="edit_selected_user_id">
-                                        <div id="edit_user_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
-                                            <div id="edit_user_loading" class="p-2 text-gray-500 text-center">
-                                                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                <span>Memuat karyawan...</span>
+                                        placeholder="Masukkan nomor seri">
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor seri harus diisi</div>
+                                </div>
+
+                                <!-- Purchase Information -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                    <div>
+                                        <label for="edit_purchase_date" class="block text-base font-semibold text-[#666666] mb-2">Tanggal Pembelian</label>
+                                        <input type="date" name="purchase_date" id="edit_purchase_date"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian harus diisi</div>
+                                    </div>
+                                    <div>
+                                        <label for="edit_purchase_cost" class="block text-base font-semibold text-[#666666] mb-2">Biaya Pembelian</label>
+                                        <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            placeholder="0.00">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
+                                    </div>
+                                </div>
+
+                                <!-- Warranty -->
+                                <div class="mb-5">
+                                    <label for="edit_warranty_end_date" class="block text-base font-semibold text-[#666666] mb-2">Tanggal Berakhir Garansi</label>
+                                    <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                </div>
+
+                                <!-- Building and Room Selection -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                    <div>
+                                        <label for="edit_building_search" class="block text-base font-semibold text-[#666666] mb-2">Gedung <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" id="edit_building_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Cari gedung..." autocomplete="off" required>
+                                            <input type="hidden" name="building_id" id="edit_selected_building_id">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Gedung harus dipilih</div>
+
+                                            <div id="edit_building_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="edit_building_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Memuat gedung...</span>
+                                                </div>
+                                                <ul id="edit_building_list" class="py-1"></ul>
                                             </div>
-                                            <ul id="edit_user_list" class="py-1"></ul>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="edit_room_search" class="block text-base font-semibold text-[#666666] mb-2">Ruangan <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" id="edit_room_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled required>
+                                            <input type="hidden" name="room_id" id="edit_selected_room_id" required>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Ruangan harus dipilih</div>
+
+                                            <div id="edit_room_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="edit_room_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Memuat ruangan...</span>
+                                                </div>
+                                                <ul id="edit_room_list" class="py-1"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Condition and Responsible User -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label for="edit_condition" class="block text-base font-semibold text-[#666666] mb-2">Kondisi</label>
+                                        <select name="condition" id="edit_condition"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                            <option value="">Pilih Kondisi</option>
+                                            <option value="good">Baik</option>
+                                            <option value="slightly damage">Sedikit Rusak</option>
+                                            <option value="high damage">Sangat Rusak</option>
+                                        </select>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Kondisi harus dipilih</div>
+                                    </div>
+                                    <div>
+                                        <label for="edit_user_search" class="block text-base font-semibold text-[#666666] mb-2">Karyawan yang Bertanggung Jawab</label>
+                                        <div class="relative">
+                                            <input type="text" id="edit_user_search"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Cari karyawan (nomor karyawan)..." autocomplete="off">
+                                            <input type="hidden" name="user_id" id="edit_selected_user_id">
+
+                                            <div id="edit_user_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div id="edit_user_loading" class="p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Memuat karyawan...</span>
+                                                </div>
+                                                <ul id="edit_user_list" class="py-1"></ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Depreciation Fields Section -->
-                            <div id="edit_depreciation_fields" class="space-y-4 border rounded-lg p-4 border-dashed border-gray-300 hidden">
-                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Penyusutan</h3>
+                            <div id="edit_depreciation_fields" class="space-y-5 border rounded-lg p-5 border-dashed border-gray-300 hidden">
+                                <h3 class="text-lg font-semibold text-[#213268] mb-3">Informasi Penyusutan</h3>
 
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">
-                                        Metode Penyusutan <span class="text-red-500">*</span>
-                                    </label>
+                                <div class="mb-4">
+                                    <label for="edit_depreciation_method" class="block text-base font-semibold text-[#666666] mb-2">Metode Penyusutan <span class="text-red-500">*</span></label>
                                     <select name="depreciation_method" id="edit_depreciation_method"
                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" disabled>
                                         <option value="">Pilih Metode</option>
@@ -642,20 +701,16 @@
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Metode penyusutan harus dipilih</div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">
-                                            Biaya Pengadaan <span class="text-red-500">*</span>
-                                        </label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+                                    <div>
+                                        <label for="edit_acquisition_cost" class="block text-base font-semibold text-[#666666] mb-2">Biaya Pengadaan <span class="text-red-500">*</span></label>
                                         <input type="number" step="0.01" name="acquisition_cost" id="edit_acquisition_cost"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="0.00" disabled>
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan harus diisi</div>
                                     </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">
-                                            Nilai Sisa <span class="text-red-500">*</span>
-                                        </label>
+                                    <div>
+                                        <label for="edit_salvage_value" class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa <span class="text-red-500">*</span></label>
                                         <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="0.00" disabled>
@@ -663,19 +718,15 @@
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">
-                                            Usia Aset (bulan) <span class="text-red-500">*</span>
-                                        </label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label for="edit_asset_life_months" class="block text-base font-semibold text-[#666666] mb-2">Usia Aset (bulan) <span class="text-red-500">*</span></label>
                                         <input type="number" name="asset_life_months" id="edit_asset_life_months"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" disabled>
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Usia aset harus diisi</div>
                                     </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">
-                                            Tanggal Pengadaan <span class="text-red-500">*</span>
-                                        </label>
+                                    <div>
+                                        <label for="edit_date_acquired" class="block text-base font-semibold text-[#666666] mb-2">Tanggal Pengadaan <span class="text-red-500">*</span></label>
                                         <input type="date" name="date_acquired" id="edit_date_acquired"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" disabled>
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan harus diisi</div>
@@ -1107,24 +1158,51 @@
         });
         @endif
 
-        // Custom select dropdown functionality
+        // Initialize everything
+        initAssetMasterListeners();
+        initSearchComponents();
+        initEventHandlers();
+        checkUrlParams();
+
+        // Initialize user search functionality
+        initUserSearch(
+            document.getElementById('user_search'),
+            document.getElementById('user_dropdown'),
+            document.getElementById('user_list'),
+            document.getElementById('user_loading'),
+            document.getElementById('selected_user_id')
+        );
+
+        // Initialize asset master search functionality
+        initAssetMasterSearch(
+            document.getElementById('asset_master_search'),
+            document.getElementById('asset_master_dropdown'),
+            document.getElementById('asset_master_list'),
+            document.getElementById('asset_master_loading'),
+            document.getElementById('selected_asset_master_id'),
+            document.getElementById('selected_is_depreciable'),
+            document.getElementById('depreciation_fields')
+        );
 
         // Form validation for Add Asset
         document.getElementById('addAssetForm')?.addEventListener('submit', function(event) {
             const assetMasterSearch = document.getElementById('asset_master_search');
             const selectedAssetMasterId = document.getElementById('selected_asset_master_id');
+            const buildingSearch = document.getElementById('building_search');
+            const selectedBuildingId = document.getElementById('selected_building_id');
             const roomSearch = document.getElementById('room_search');
             const selectedRoomId = document.getElementById('selected_room_id');
             const submitBtn = this.querySelector('button[type="submit"]');
 
             // Validate only mandatory fields
             const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
+            const isBuildingValid = validateField(buildingSearch, selectedBuildingId.value ? true : false);
             const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
 
             // If mandatory fields validation fails, prevent form submission
-            if (!isAssetMasterValid || !isRoomValid) {
+            if (!isAssetMasterValid || !isBuildingValid || !isRoomValid) {
                 event.preventDefault();
-                showToast('Silakan pilih master aset dan ruangan', 'error');
+                showToast('Silakan pilih master aset, gedung, dan ruangan', 'error');
                 return;
             }
 
@@ -1215,6 +1293,12 @@
         // Add input event listeners to clear error styling when typing
         // Add form fields
         document.getElementById('asset_master_search')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('building_search')?.addEventListener('input', function() {
             this.classList.remove('border-red-500');
             const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
             if (errorElement) errorElement.classList.add('hidden');
@@ -1719,213 +1803,280 @@
 
         // Single implementation of setupWithData for editing assets
         window.setupWithData = function(assetId) {
-        console.log('Setting up edit modal for asset ID:', assetId);
-
-        // Get the edit modal elements
-        const editModal = document.getElementById('editAssetModal');
-        const editModalContent = document.getElementById('editAssetModalContent');
+            // Get the edit modal elements
+            const editModal = document.getElementById('editAssetModal');
+            const editModalContent = document.getElementById('editAssetModalContent');
 
             // Reset form and show loading
-        const form = document.getElementById('editAssetForm');
-        if (form) {
-            form.reset();  // Clear previous values
-            form.action = `{{ url('assets') }}/${assetId}`; // Set form action URL
-        }
-
-        // Open the modal while loading
-        if (editModal && editModalContent) {
-            openModal(editModal, editModalContent);
-        }
-
-        // Fetch asset data from the server
-        fetch(`{{ url('assets') }}/${assetId}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(result => {
-            console.log('API response:', result);
-
-            if (!result.success) {
-                console.error('Error fetching asset data:', result.message);
-                alert('Gagal memuat data aset: ' + (result.message || 'Galat tidak diketahui'));
-                return;
+            const form = document.getElementById('editAssetForm');
+            if (form) {
+                form.reset();  // Clear previous values
+                form.action = `{{ url('assets') }}/${assetId}`; // Set form action URL
             }
 
-            const asset = result.data;
-            console.log('Asset data received:', asset);
+            // Open the modal while loading
+            if (editModal && editModalContent) {
+                openModal(editModal, editModalContent);
+            }
 
-            // Fill in basic fields
-            setFieldValue('edit_serial_number', asset.serial_number);
-            setFieldValue('edit_purchase_date', asset.purchase_date);
-            setFieldValue('edit_purchase_cost', asset.purchase_cost);
-            setFieldValue('edit_warranty_end_date', asset.warranty_end_date);
-
-            // Set the asset master information
-            const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
-            if (assetMasterId) {
-                document.getElementById('edit_selected_asset_master_id').value = assetMasterId;
-
-                // Set display name
-                const assetMasterName = asset.asset_master && asset.asset_master.asset_name
-                    ? asset.asset_master.asset_name
-                    : 'Asset Master ID: ' + assetMasterId;
-
-                document.getElementById('edit_asset_master_search').value = assetMasterName;
-
-                // Set depreciable flag
-                const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
-                document.getElementById('edit_selected_is_depreciable').value = isDepreciable ? 'true' : 'false';
-
-                // Show/hide depreciation fields
-                const depreciationFields = document.getElementById('edit_depreciation_fields');
-                if (depreciationFields) {
-                    toggleDepreciationFields(depreciationFields, isDepreciable);
+            // Fetch asset data from the server
+            fetch(`{{ url('assets') }}/${assetId}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-            }
+                return response.json();
+            })
+            .then(result => {
+                if (!result.success) {
+                    console.error('Error fetching asset data:', result.message);
+                    alert('Gagal memuat data aset: ' + (result.message || 'Galat tidak diketahui'));
+                    return;
+                }
 
-            // Set room information with proper checks
-            if (asset.room_id) {
-                // Set the hidden input for room ID
-                document.getElementById('edit_selected_room_id').value = asset.room_id;
+                const asset = result.data;
 
-                // Determine room name and building name
-                let roomName = '';
+                // Fill in basic fields
+                setFieldValue('edit_serial_number', asset.serial_number);
+                setFieldValue('edit_purchase_date', asset.purchase_date);
+                setFieldValue('edit_purchase_cost', asset.purchase_cost);
+                setFieldValue('edit_warranty_end_date', asset.warranty_end_date);
 
-                if (asset.room) {
-                    // If room data is available in the asset object
-                    const buildingName = asset.room.building ? asset.room.building.building_name :
-                                        (asset.room.building_name || 'Gedung Tidak Diketahui');
-                    roomName = `${asset.room.room_name} (${buildingName})`;
-                } else if (asset.room_name) {
-                    // If room_name is directly available in the asset object
-                    roomName = `${asset.room_name} (${asset.building_name || 'Gedung Tidak Diketahui'})`;
-                } else {
-                    // Try to find the room in the available rooms data
-                    const rooms = @json($rooms ?? []);
-                    const selectedRoom = rooms.find(room => room.room_id == asset.room_id);
+                // Set the asset master information
+                const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
+                if (assetMasterId) {
+                    document.getElementById('edit_selected_asset_master_id').value = assetMasterId;
 
-                    if (selectedRoom) {
-                        const buildingName = selectedRoom.building ? selectedRoom.building.building_name :
-                                           (selectedRoom.building_name || 'Gedung Tidak Diketahui');
-                        roomName = `${selectedRoom.room_name} (${buildingName})`;
-                    } else {
-                        roomName = `Ruangan ID: ${asset.room_id}`;
+                    // Set display name
+                    const assetMasterName = asset.asset_master && asset.asset_master.asset_name
+                        ? asset.asset_master.asset_name
+                        : 'Asset Master ID: ' + assetMasterId;
+
+                    document.getElementById('edit_asset_master_search').value = assetMasterName;
+
+                    // Set depreciable flag
+                    const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
+                    document.getElementById('edit_selected_is_depreciable').value = isDepreciable ? 'true' : 'false';
+
+                    // Show/hide depreciation fields
+                    const depreciationFields = document.getElementById('edit_depreciation_fields');
+                    if (depreciationFields) {
+                        toggleDepreciationFields(depreciationFields, isDepreciable);
                     }
                 }
 
-                // Update the search input with the room name
-                document.getElementById('edit_room_search').value = roomName;
+                // First set building information, then room information
+                let buildingId = '';
+                let buildingName = '';
 
-                // Hide loading indicator if it exists
-                const roomLoading = document.getElementById('edit_room_loading');
-                if (roomLoading) roomLoading.classList.add('hidden');
-            }
+                // Look for building info in various possible locations
+                if (asset.room && asset.room.building) {
+                    // If building info is available in the room object
+                    buildingId = asset.room.building.building_id;
+                    buildingName = asset.room.building.building_name;
+                } else if (asset.building_id) {
+                    // If building info is directly available in the asset
+                    buildingId = asset.building_id;
+                    buildingName = asset.building_name || 'Gedung ID: ' + buildingId;
+                } else if (asset.room && asset.room.building_id) {
+                    // If only building ID is available in the room
+                    buildingId = asset.room.building_id;
+                    buildingName = asset.room.building_name || 'Gedung ID: ' + buildingId;
+                } else if (asset.building_name) {
+                    // If only building_name is present without ID
+                    buildingName = asset.building_name;
+                }
 
-            // Set condition
-            setSelectValue('edit_condition', asset.condition || 'good');
+                // Handling untuk kasus format data yang terlihat di screenshot
+                // Dimana building_name dan room_name adalah properti langsung
+                if (!buildingName && typeof asset.building_name === 'string' && asset.building_name.trim() !== '') {
+                    buildingName = asset.building_name;
+                }
 
-            // Set user information
-            if (asset.user_id) {
-                document.getElementById('edit_selected_user_id').value = asset.user_id;
+                // Set building information if available
+                if (buildingId || buildingName) {
 
-                // Find user display information
-                let userDisplay = `User ID: ${asset.user_id}`;
-
-                if (asset.user) {
-                    if (asset.user.employee_number) {
-                        userDisplay = asset.user.employee_number;
-                        if (asset.user.name) userDisplay += ` - ${asset.user.name}`;
-                    } else if (asset.user.name) {
-                        userDisplay = asset.user.name;
+                    if (buildingId) {
+                        document.getElementById('edit_selected_building_id').value = buildingId;
                     }
-                } else {
-                    // Try to find user in global data
-                    const user = window.usersData.find(u => u.user_id == asset.user_id);
-                    if (user) {
-                        if (user.employee_number) {
-                            userDisplay = user.employee_number;
-                            if (user.name) userDisplay += ` - ${user.name}`;
-                        } else if (user.name) {
-                            userDisplay = user.name;
+
+                    // Pastikan nilai building_name selalu diisi ke field pencarian
+                    document.getElementById('edit_building_search').value = buildingName;
+
+                    // Enable room search field
+                    const roomSearch = document.getElementById('edit_room_search');
+                    if (roomSearch) {
+                        roomSearch.disabled = false;
+                        roomSearch.placeholder = "Cari ruangan...";
+                    }
+
+                    // Tangani room information
+                    let roomId = '';
+                    let roomName = '';
+
+                    // Cek room_id
+                    if (asset.room_id) {
+                        roomId = asset.room_id;
+                    } else if (asset.room && asset.room.room_id) {
+                        roomId = asset.room.room_id;
+                    }
+
+                    // Cek room_name
+                    if (asset.room && asset.room.room_name) {
+                        roomName = asset.room.room_name;
+                    } else if (asset.room_name) {
+                        roomName = asset.room_name;
+                    }
+
+                    // Prioritaskan mengisi roomName langsung dari properti
+                    if (typeof asset.room_name === 'string' && asset.room_name.trim() !== '') {
+                        roomName = asset.room_name;
+                    }
+
+                    // Set room ID jika ada
+                    if (roomId) {
+                        document.getElementById('edit_selected_room_id').value = roomId;
+                    }
+
+                    // Set room name ke field pencarian
+                    if (roomName) {
+                        document.getElementById('edit_room_search').value = roomName;
+                    } else if (roomId) {
+                        // Jika hanya punya ID tapi tidak punya nama
+                        document.getElementById('edit_room_search').value = 'Ruangan ID: ' + roomId;
+
+                        // Load rooms untuk mendapatkan nama ruangan
+                        if (buildingId) {
+                            loadRoomsForBuilding(
+                                '',
+                                buildingId,
+                                document.getElementById('edit_room_list'),
+                                document.getElementById('edit_room_loading'),
+                                document.getElementById('edit_selected_room_id'),
+                                document.getElementById('edit_room_search'),
+                                document.getElementById('edit_room_dropdown')
+                            );
                         }
                     }
+
+                    // Jika tidak ada room information, masih load rooms untuk building ini
+                    if (!roomId && !roomName && buildingId) {
+                        loadRoomsForBuilding(
+                            '',
+                            buildingId,
+                            document.getElementById('edit_room_list'),
+                            document.getElementById('edit_room_loading'),
+                            document.getElementById('edit_selected_room_id'),
+                            document.getElementById('edit_room_search'),
+                            document.getElementById('edit_room_dropdown')
+                        );
+                    }
                 }
 
-                document.getElementById('edit_user_search').value = userDisplay;
-            }
+                // Set condition
+                setSelectValue('edit_condition', asset.condition || 'good');
 
-            // Handle depreciation fields
-            const depreciationFields = document.getElementById('edit_depreciation_fields');
-            if (depreciationFields) {
-                // Check if the asset has depreciation data or is depreciable
-                const hasDepreciationData =
-                    asset.depreciation_method ||
-                    asset.acquisition_cost ||
-                    asset.salvage_value ||
-                    asset.asset_life_months ||
-                    asset.date_acquired ||
-                    (asset.depreciation && Object.keys(asset.depreciation).length > 0);
+                // Set user information
+                if (asset.user_id) {
+                    document.getElementById('edit_selected_user_id').value = asset.user_id;
 
-                const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
+                    // Find user display information
+                    let userDisplay = `User ID: ${asset.user_id}`;
 
-                if (hasDepreciationData || isDepreciable) {
-                    toggleDepreciationFields(depreciationFields, true);
-
-                    // Fill depreciation data from either direct properties or nested object
-                    const depData = asset.depreciation || asset;
-                    setFieldValue('edit_acquisition_cost', depData.acquisition_cost || '');
-                    setFieldValue('edit_salvage_value', depData.salvage_value || '');
-                    setFieldValue('edit_asset_life_months', depData.asset_life_months || '');
-                    setFieldValue('edit_date_acquired', depData.date_acquired || '');
-
-                    // Handle depreciation method dropdown
-                    const depMethodSelect = document.getElementById('edit_depreciation_method');
-                    const depreciationMethod = depData.depreciation_method || '';
-
-                    if (depMethodSelect && depreciationMethod) {
-                        // Try exact match first
-                        let found = false;
-                        for (let i = 0; i < depMethodSelect.options.length; i++) {
-                            if (depMethodSelect.options[i].value === depreciationMethod) {
-                                depMethodSelect.selectedIndex = i;
-                                found = true;
-                                break;
+                    if (asset.user) {
+                        if (asset.user.employee_number) {
+                            userDisplay = asset.user.employee_number;
+                            if (asset.user.name) userDisplay += ` - ${asset.user.name}`;
+                        } else if (asset.user.name) {
+                            userDisplay = asset.user.name;
+                        }
+                    } else {
+                        // Try to find user in global data
+                        const user = window.usersData?.find(u => u.user_id == asset.user_id);
+                        if (user) {
+                            if (user.employee_number) {
+                                userDisplay = user.employee_number;
+                                if (user.name) userDisplay += ` - ${user.name}`;
+                            } else if (user.name) {
+                                userDisplay = user.name;
                             }
                         }
+                    }
 
-                        // If no exact match, try fuzzy match
-                        if (!found) {
-                            const methodLower = depreciationMethod.toLowerCase();
+                    document.getElementById('edit_user_search').value = userDisplay;
+                } else if (asset.employee_number) {
+                    // If we have employee_number directly in the asset
+                    document.getElementById('edit_user_search').value = asset.employee_number;
+                }
+
+                // Handle depreciation fields
+                const depreciationFields = document.getElementById('edit_depreciation_fields');
+                if (depreciationFields) {
+                    // Check if the asset has depreciation data or is depreciable
+                    const hasDepreciationData =
+                        asset.depreciation_method ||
+                        asset.acquisition_cost ||
+                        asset.salvage_value ||
+                        asset.asset_life_months ||
+                        asset.date_acquired ||
+                        (asset.depreciation && Object.keys(asset.depreciation).length > 0);
+
+                    const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
+
+                    if (hasDepreciationData || isDepreciable) {
+                        toggleDepreciationFields(depreciationFields, true);
+
+                        // Fill depreciation data from either direct properties or nested object
+                        const depData = asset.depreciation || asset;
+                        setFieldValue('edit_acquisition_cost', depData.acquisition_cost || '');
+                        setFieldValue('edit_salvage_value', depData.salvage_value || '');
+                        setFieldValue('edit_asset_life_months', depData.asset_life_months || '');
+                        setFieldValue('edit_date_acquired', depData.date_acquired || '');
+
+                        // Handle depreciation method dropdown
+                        const depMethodSelect = document.getElementById('edit_depreciation_method');
+                        const depreciationMethod = depData.depreciation_method || '';
+
+                        if (depMethodSelect && depreciationMethod) {
+                            // Try exact match first
+                            let found = false;
                             for (let i = 0; i < depMethodSelect.options.length; i++) {
-                                const optionText = depMethodSelect.options[i].textContent.toLowerCase();
-                                if (optionText.includes(methodLower) || methodLower.includes(optionText)) {
+                                if (depMethodSelect.options[i].value === depreciationMethod) {
                                     depMethodSelect.selectedIndex = i;
+                                    found = true;
                                     break;
                                 }
                             }
+
+                            // If no exact match, try fuzzy match
+                            if (!found) {
+                                const methodLower = depreciationMethod.toLowerCase();
+                                for (let i = 0; i < depMethodSelect.options.length; i++) {
+                                    const optionText = depMethodSelect.options[i].textContent.toLowerCase();
+                                    if (optionText.includes(methodLower) || methodLower.includes(optionText)) {
+                                        depMethodSelect.selectedIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
                         }
+                    } else {
+                        toggleDepreciationFields(depreciationFields, false);
                     }
-                } else {
-                    toggleDepreciationFields(depreciationFields, false);
                 }
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching asset data:', error);
-            alert('Gagal memuat data aset: ' + error.message);
-        });
-    };
+            })
+            .catch(error => {
+                console.error('Error fetching asset data:', error);
+            });
+        };
 
         // Initialize the asset master dropdown handlers once
         function initAssetMasterListeners() {
@@ -2099,8 +2250,18 @@
                     form.action = `{{ url('assets') }}/${assetId}`;
                     form.style.display = 'none';
 
+                    // Add method spoofing for PUT request
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'PUT';
+                    form.appendChild(methodInput);
+
                     // Append all form data
                     for (const [key, value] of formData.entries()) {
+                        // Skip _method from formData if it exists since we already added it
+                        if (key === '_method') continue;
+
                         const input = document.createElement('input');
                         input.type = 'hidden';
                         input.name = key;
@@ -2210,8 +2371,7 @@
                     }
 
                     const data = await response.json();
-                    const rooms = data.rooms
-                     || [];
+                    const rooms = data.rooms || [];
 
                     // Populate dropdown
                     roomList.innerHTML = '';
@@ -2493,22 +2653,96 @@
 
         // Initialize all search components
         function initSearchComponents() {
-            // Room search for add modal
-            initRoomSearch(
-                document.getElementById('room_search'),
-                document.getElementById('room_dropdown'),
-                document.getElementById('room_list'),
-                document.getElementById('room_loading'),
-                document.getElementById('selected_room_id')
+            // Building search for edit modal
+            initDropdown(
+                document.getElementById('edit_building_search'),
+                document.getElementById('edit_building_dropdown'),
+                document.getElementById('edit_building_list'),
+                function(searchTerm) {
+                    loadBuildings(
+                        searchTerm,
+                        document.getElementById('edit_building_list'),
+                        document.getElementById('edit_building_loading'),
+                        document.getElementById('edit_selected_building_id'),
+                        document.getElementById('edit_building_search'),
+                        document.getElementById('edit_building_dropdown'),
+                        document.getElementById('edit_room_search')
+                    );
+                }
             );
 
-            // Room search for edit modal
-            initRoomSearch(
+            // Room search for edit modal - now depends on building selection first
+            initDropdown(
                 document.getElementById('edit_room_search'),
                 document.getElementById('edit_room_dropdown'),
                 document.getElementById('edit_room_list'),
-                document.getElementById('edit_room_loading'),
-                document.getElementById('edit_selected_room_id')
+                function(searchTerm) {
+                    const buildingId = document.getElementById('edit_selected_building_id').value;
+                    if (buildingId) {
+                        loadRoomsForBuilding(
+                            searchTerm,
+                            buildingId,
+                            document.getElementById('edit_room_list'),
+                            document.getElementById('edit_room_loading'),
+                            document.getElementById('edit_selected_room_id'),
+                            document.getElementById('edit_room_search'),
+                            document.getElementById('edit_room_dropdown')
+                        );
+                    } else {
+                        // If no building selected, show message
+                        const roomList = document.getElementById('edit_room_list');
+                        if (roomList) {
+                            roomList.innerHTML = '';
+                            roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                        }
+                    }
+                }
+            );
+
+            // Building search for add modal
+            initDropdown(
+                document.getElementById('building_search'),
+                document.getElementById('building_dropdown'),
+                document.getElementById('building_list'),
+                function(searchTerm) {
+                    loadBuildings(
+                        searchTerm,
+                        document.getElementById('building_list'),
+                        document.getElementById('building_loading'),
+                        document.getElementById('selected_building_id'),
+                        document.getElementById('building_search'),
+                        document.getElementById('building_dropdown'),
+                        document.getElementById('room_search')
+                    );
+                }
+            );
+
+            // Room search for add modal - depends on building selection first
+            initDropdown(
+                document.getElementById('room_search'),
+                document.getElementById('room_dropdown'),
+                document.getElementById('room_list'),
+                function(searchTerm) {
+                    const buildingId = document.getElementById('selected_building_id').value;
+                    if (buildingId) {
+                        loadRoomsForBuilding(
+                            searchTerm,
+                            buildingId,
+                            document.getElementById('room_list'),
+                            document.getElementById('room_loading'),
+                            document.getElementById('selected_room_id'),
+                            document.getElementById('room_search'),
+                            document.getElementById('room_dropdown')
+                        );
+                    } else {
+                        // If no building selected, show message
+                        const roomList = document.getElementById('room_list');
+                        if (roomList) {
+                            roomList.innerHTML = '';
+                            roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                        }
+                    }
+                }
             );
 
             // Asset master search for add modal
@@ -2552,6 +2786,227 @@
             );
         }
 
+        // Initialize dropdown functionality
+        function initDropdown(searchInput, dropdown, list, searchFunction) {
+            if (!searchInput || !dropdown || !list) return;
+
+            // Toggle dropdown visibility on focus
+            searchInput.addEventListener('focus', function() {
+                dropdown.classList.remove('hidden');
+                // If the list is empty, trigger a search
+                if (list.children.length === 0) {
+                    searchFunction(''); // Initial empty search
+                }
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            // Search input handler with debounce
+            const debouncedSearch = debounce(function(e) {
+                searchFunction(e.target.value);
+            }, 300);
+
+            searchInput.addEventListener('input', debouncedSearch);
+        }
+
+        // Helper function to create dropdown item
+        function createDropdownItem(text, className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer') {
+            const li = document.createElement('li');
+            li.className = className;
+            li.textContent = text;
+            return li;
+        }
+
+        // Function to load buildings
+        async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput) {
+            if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+            buildingList.innerHTML = '';
+
+            try {
+                const response = await fetch(`{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load buildings');
+                }
+
+                const data = await response.json();
+                const buildings = data.data || [];
+
+                if (buildings.length === 0) {
+                    buildingList.appendChild(createDropdownItem('Tidak ada gedung yang ditemukan', 'px-4 py-2 text-gray-500 italic'));
+                } else {
+                    buildings.forEach(building => {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                        li.textContent = building.building_name;
+                        li.setAttribute('data-id', building.building_id);
+                        li.setAttribute('data-name', building.building_name);
+
+                        li.addEventListener('click', function() {
+                            // Set the selected building ID and name
+                            selectedBuildingId.value = this.getAttribute('data-id');
+                            searchInput.value = this.getAttribute('data-name');
+
+                            // Enable room search and update placeholder
+                            if (roomSearchInput) {
+                                roomSearchInput.disabled = false;
+                                roomSearchInput.placeholder = "Cari ruangan...";
+
+                                // Determine if we're in add or edit modal
+                                const isEditModal = roomSearchInput.id === 'edit_room_search';
+
+                                // Clear previous room selection
+                                const roomIdField = isEditModal ? 'edit_selected_room_id' : 'selected_room_id';
+                                document.getElementById(roomIdField).value = '';
+                                roomSearchInput.value = '';
+
+                                // Show loading indicator in room search
+                                const roomLoadingId = isEditModal ? 'edit_room_loading' : 'room_loading';
+                                const roomLoadingIndicator = document.getElementById(roomLoadingId);
+                                if (roomLoadingIndicator) {
+                                    roomLoadingIndicator.classList.remove('hidden');
+                                }
+
+                                // Get the appropriate room list and dropdown elements
+                                const roomListId = isEditModal ? 'edit_room_list' : 'room_list';
+                                const roomDropdownId = isEditModal ? 'edit_room_dropdown' : 'room_dropdown';
+
+                                // Load rooms for this building immediately
+                                loadRoomsForBuilding(
+                                    '',
+                                    this.getAttribute('data-id'),
+                                    document.getElementById(roomListId),
+                                    document.getElementById(roomLoadingId),
+                                    document.getElementById(roomIdField),
+                                    roomSearchInput,
+                                    document.getElementById(roomDropdownId)
+                                );
+
+                                // Show the room dropdown
+                                document.getElementById(roomDropdownId).classList.remove('hidden');
+                            }
+
+                            // Hide dropdown
+                            dropdown.classList.add('hidden');
+                        });
+
+                        buildingList.appendChild(li);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading buildings:', error);
+                buildingList.innerHTML = '';
+                buildingList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
+            } finally {
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        // Function to load rooms for a specific building
+        async function loadRoomsForBuilding(searchTerm, buildingId, roomList, loadingIndicator, selectedRoomId, searchInput, dropdown) {
+            if (!buildingId) {
+                searchInput.value = '';
+                searchInput.placeholder = 'Pilih gedung terlebih dahulu';
+                searchInput.disabled = true;
+                return;
+            }
+
+            searchInput.disabled = false;
+            searchInput.placeholder = "Cari ruangan...";
+
+            if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+            roomList.innerHTML = '';
+
+            // Show the dropdown while loading
+            if (dropdown) dropdown.classList.remove('hidden');
+
+            try {
+                const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}`;
+                console.log(`Fetching rooms from: ${apiUrl}`);
+
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load rooms: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Room API response:', data);
+
+                // Determine where the rooms array is in the response
+                let rooms = [];
+                if (Array.isArray(data)) {
+                    rooms = data;
+                } else if (data.data && Array.isArray(data.data)) {
+                    rooms = data.data;
+                } else if (data.rooms && Array.isArray(data.rooms)) {
+                    rooms = data.rooms;
+                } else {
+                    console.error('Unexpected API response format:', data);
+                    throw new Error('Invalid response format from server');
+                }
+
+                // Filter rooms by the selected building ID
+                rooms = rooms.filter(room => {
+                    const roomBuildingId = room.building_id ||
+                                          (room.building && room.building.building_id) ||
+                                          '';
+                    return roomBuildingId == buildingId; // Use == for type coercion
+                });
+
+                if (rooms.length === 0) {
+                    roomList.appendChild(createDropdownItem('Tidak ada ruangan ditemukan untuk gedung ini', 'px-4 py-2 text-gray-500 italic'));
+                } else {
+                    rooms.forEach(room => {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                        // Extract room properties with fallbacks
+                        const roomName = room.room_name || room.name || '';
+                        const roomId = room.room_id || room.id || '';
+
+                        if (!roomName || !roomId) {
+                            console.warn('Room missing required properties:', room);
+                            return; // Skip this room
+                        }
+
+                        li.textContent = roomName;
+                        li.setAttribute('data-id', roomId);
+                        li.setAttribute('data-name', roomName);
+
+                        li.addEventListener('click', function() {
+                            selectedRoomId.value = this.getAttribute('data-id');
+                            searchInput.value = this.getAttribute('data-name');
+                            dropdown.classList.add('hidden');
+                        });
+
+                        roomList.appendChild(li);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading rooms:', error);
+                roomList.innerHTML = '';
+                roomList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
+            } finally {
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+            }
+        }
+
         // Function to check URL parameters
         function checkUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -2578,12 +3033,6 @@
             url.searchParams.set('page', 1); // Reset to first page
             window.location.href = url.toString();
         };
-
-        // Initialize everything
-        initAssetMasterListeners();
-        initEventHandlers();
-        initSearchComponents();
-        checkUrlParams();
 
         // Import functionality
         const importAssetBtn = document.getElementById('importAssetBtn');

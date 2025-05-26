@@ -1009,7 +1009,7 @@
 
                         try {
                             // Use the API endpoint with proper headers to ensure JSON response
-                            const response = await fetch(`{{ route('buildings.data') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                            const response = await fetch(`{{ route('buildings') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
                                 headers: {
                                     'Accept': 'application/json',
                                     'X-Requested-With': 'XMLHttpRequest'
@@ -1218,7 +1218,7 @@
 
                         try {
                             // Build the API URL with proper parameters
-                            const apiUrl = `{{ route('rooms.data') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}`;
+                            const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}`;
                             console.log(`Fetching rooms from: ${apiUrl}`);
 
                             // Use the API endpoint with proper headers to ensure JSON response

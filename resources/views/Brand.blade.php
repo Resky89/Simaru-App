@@ -667,7 +667,7 @@
                     // Title
                     const title = document.createElement('p');
                     title.className = 'font-bold';
-                    title.textContent = 'Error!';
+                    title.textContent = 'Gagal!';
                     contentContainer.appendChild(title);
 
                     // Message container

@@ -506,7 +506,7 @@
                 <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                     id="editAssetModalContent">
                     <!-- Header -->
-                    <div class="flex justify-between items-center p-6 pb-0">
+                    <div class="flex justify-between items-center p-6 pb-4 border-b">
                         <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">UBAH ASET</h2>
                         <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -518,22 +518,22 @@
                     <!-- Form -->
                     <form id="editAssetForm" method="POST"
                         action="{{ route('asset.update', ['id' => $asset['asset_id'] ?? '']) }}"
-                        data-no-loading enctype="multipart/form-data">
+                        enctype="multipart/form-data" data-no-loading novalidate>
                         @csrf
                         @method('PUT')
                         <div class="p-6">
-                            <div class="space-y-4">
+                            <div class="space-y-6">
                                 <!-- Asset Information Section -->
-                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Aset</h3>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-[#213268] mb-4">Informasi Aset</h3>
 
-                                <!-- Basic Asset Details -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="mb-4">
-                                        <label for="edit_asset_master_search" class="block text-base font-semibold text-[#666666]">Master Aset <span class="text-red-500">*</span></label>
+                                    <!-- Master Asset selection -->
+                                    <div class="mb-5">
+                                        <label for="edit_asset_master_search" class="block text-base font-semibold text-[#666666] mb-2">Master Aset <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <input type="text" id="edit_asset_master_search"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                placeholder="Cari master aset..." autocomplete="off" required>
+                                                placeholder="Cari master aset..." autocomplete="off">
                                             <input type="hidden" name="asset_master_id" id="edit_selected_asset_master_id" required>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Master aset harus dipilih</div>
                                             <input type="hidden" id="edit_selected_is_depreciable" value="false">
@@ -551,24 +551,26 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="mb-4">
-                                        <label for="edit_serial_number" class="block text-base font-semibold text-[#666666]">Nomor Seri</label>
+
+                                    <!-- Serial Number -->
+                                    <div class="mb-5">
+                                        <label for="edit_serial_number" class="block text-base font-semibold text-[#666666] mb-2">Nomor Seri</label>
                                         <input type="text" name="serial_number" id="edit_serial_number"
                                             value="{{ $asset['serial_number'] ?? '' }}"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="Serial number">
-                                    </div>
+                                            placeholder="Masukkan nomor seri">
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Tanggal Pembelian</label>
+                                    <!-- Purchase Information -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                        <div>
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Tanggal Pembelian</label>
                                         <input type="date" name="purchase_date" id="edit_purchase_date"
                                             value="{{ $asset['purchase_date'] ?? '' }}"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                     </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Biaya Pembelian</label>
+                                        <div>
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Biaya Pembelian</label>
                                         <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
                                             value="{{ $asset['purchase_cost'] ?? '0.00' }}"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
@@ -576,20 +578,41 @@
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Tanggal Berakhir Garansi</label>
+                                    <!-- Warranty -->
+                                    <div class="mb-5">
+                                        <label class="block text-base font-semibold text-[#666666] mb-2">Tanggal Berakhir Garansi</label>
                                         <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
                                             value="{{ $asset['warranty_end_date'] ?? '' }}"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                     </div>
-                                    <!-- Room Dropdown -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Ruangan <span class="text-red-500">*</span></label>
+
+                                    <!-- Location Information -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                        <div>
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Gedung <span class="text-red-500">*</span></label>
+                                            <div class="relative">
+                                                <input type="text" id="edit_building_search"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                    placeholder="Cari gedung..." autocomplete="off">
+                                                <input type="hidden" name="building_id" id="edit_selected_building_id">
+                                                <div id="edit_building_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                    <div id="edit_building_loading" class="p-2 text-gray-500 text-center">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                        <span>Memuat Gedung...</span>
+                                                    </div>
+                                                    <ul id="edit_building_list" class="py-1"></ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Ruangan <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <input type="text" id="edit_room_search"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                placeholder="Cari ruangan..." autocomplete="off" required>
+                                                    placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled>
                                             <input type="hidden" name="room_id" id="edit_selected_room_id" value="{{ $asset['room_id'] ?? '' }}" required>
                                             <div id="edit_room_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                 <div id="edit_room_loading" class="p-2 text-gray-500 text-center">
@@ -602,15 +625,13 @@
                                                 <ul id="edit_room_list" class="py-1"></ul>
                                             </div>
                                         </div>
-                                        <div id="edit_selected_room_display" class="hidden">
-                                            <span id="edit_selected_room_name"></span>
-                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Kondisi</label>
+                                    <!-- Condition and Responsibility -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Kondisi</label>
                                         <select name="condition" id="edit_condition" required
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                             <option value="good" {{ $asset['condition'] == 'good' ? 'selected' : '' }}>Baik</option>
@@ -618,9 +639,8 @@
                                             <option value="high damage" {{ $asset['condition'] == 'high damage' ? 'selected' : '' }}>Sangat Rusak</option>
                                         </select>
                                     </div>
-                                    <!-- User ID Field -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Karyawan yang Bertanggung Jawab</label>
+                                        <div>
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Karyawan yang Bertanggung Jawab</label>
                                         <div class="relative">
                                             <input type="text" id="edit_user_search"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
@@ -635,18 +655,19 @@
                                                     <span> Memuat Pengguna...</span>
                                                 </div>
                                                 <ul id="edit_user_list" class="py-1"></ul>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Depreciation Fields Section -->
-                                <div id="edit_depreciation_fields" class="space-y-4 border rounded-lg p-4 border-dashed border-gray-300 {{ $asset['asset_master']['is_depreciable'] ? '' : 'hidden' }}">
-                                    <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Penyusutan</h3>
+                                <div id="edit_depreciation_fields" class="space-y-5 border rounded-lg p-5 border-dashed border-gray-300 {{ $asset['asset_master']['is_depreciable'] ? '' : 'hidden' }}">
+                                    <h3 class="text-lg font-semibold text-[#213268] mb-3">Informasi Penyusutan</h3>
 
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Metode Penyusutan <span class="text-red-500">*</span></label>
-                                        <select name="depreciation_method" id="edit_depreciation_method" required
+                                    <div class="mb-4">
+                                        <label class="block text-base font-semibold text-[#666666] mb-2">Metode Penyusutan <span class="text-red-500">*</span></label>
+                                        <select name="depreciation_method" id="edit_depreciation_method"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                             <option value="Straight Line" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Straight Line' ? 'selected' : '' }}>Garis Lurus</option>
                                             <option value="Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Declining Balance' ? 'selected' : '' }}>Penyusutan Dua Kali</option>
@@ -657,36 +678,36 @@
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Metode penyusutan harus dipilih</div>
                                     </div>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Biaya Pengadaan <span class="text-red-500">*</span></label>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+                                        <div>
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Biaya Pengadaan <span class="text-red-500">*</span></label>
                                             <input type="number" step="0.01" name="acquisition_cost" id="edit_acquisition_cost"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                placeholder="0.00" value="{{ isset($asset['depreciation']) ? $asset['depreciation']['acquisition_cost'] : '' }}" required>
+                                                placeholder="0.00" value="{{ isset($asset['depreciation']) ? $asset['depreciation']['acquisition_cost'] : '' }}">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan harus diisi</div>
                                         </div>
-                                        <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Nilai Sisa <span class="text-red-500">*</span></label>
+                                        <div>
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa <span class="text-red-500">*</span></label>
                                             <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                placeholder="0.00" value="{{ isset($asset['depreciation']) ? $asset['depreciation']['salvage_value'] : '' }}" required>
+                                                placeholder="0.00" value="{{ isset($asset['depreciation']) ? $asset['depreciation']['salvage_value'] : '' }}">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus diisi</div>
                                         </div>
                                     </div>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Usia Aset (bulan) <span class="text-red-500">*</span></label>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Usia Aset (bulan) <span class="text-red-500">*</span></label>
                                             <input type="number" name="asset_life_months" id="edit_asset_life_months"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['asset_life_months'] : '' }}" required>
+                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['asset_life_months'] : '' }}">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Usia aset harus diisi</div>
                                         </div>
-                                        <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Tanggal Pengadaan <span class="text-red-500">*</span></label>
+                                        <div>
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Tanggal Pengadaan <span class="text-red-500">*</span></label>
                                             <input type="date" name="date_acquired" id="edit_date_acquired"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}" required>
+                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan harus diisi</div>
                                         </div>
                                     </div>
@@ -694,7 +715,7 @@
 
                                 <!-- Submit Button -->
                                 <button type="submit" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                    Update
+                                    Perbarui
                                 </button>
                             </div>
                         </div>
@@ -1643,15 +1664,50 @@
 
             // Initialize search components with a unified approach
             function initSearchComponents() {
-                // Room search
-                initRoomSearch(
+                // Building search for edit asset
+                initDropdown(
+                    document.getElementById('edit_building_search'),
+                    document.getElementById('edit_building_dropdown'),
+                    document.getElementById('edit_building_list'),
+                    function(searchTerm) {
+                        loadBuildings(
+                            searchTerm,
+                            document.getElementById('edit_building_list'),
+                            document.getElementById('edit_building_loading'),
+                            document.getElementById('edit_selected_building_id'),
+                            document.getElementById('edit_building_search'),
+                            document.getElementById('edit_building_dropdown'),
+                            document.getElementById('edit_room_search')
+                        );
+                    }
+                );
+
+                // Room search for edit asset - now depends on building selection first
+                initDropdown(
                     document.getElementById('edit_room_search'),
                     document.getElementById('edit_room_dropdown'),
                     document.getElementById('edit_room_list'),
+                    function(searchTerm) {
+                        const buildingId = document.getElementById('edit_selected_building_id').value;
+                        if (buildingId) {
+                            loadRoomsForBuilding(
+                                searchTerm,
+                                buildingId,
+                    document.getElementById('edit_room_list'),
                     document.getElementById('edit_room_loading'),
                     document.getElementById('edit_selected_room_id'),
-                    document.getElementById('edit_selected_room_name'),
-                    document.getElementById('edit_selected_room_display')
+                                document.getElementById('edit_room_search'),
+                                document.getElementById('edit_room_dropdown')
+                            );
+                        } else {
+                            // If no building selected, show message
+                            const roomList = document.getElementById('edit_room_list');
+                            if (roomList) {
+                                roomList.innerHTML = '';
+                                roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                            }
+                        }
+                    }
                 );
 
                 // User search
@@ -2113,8 +2169,6 @@
 
             // Global function to setup form with asset data
             window.setupWithData = function(asset) {
-                console.log('Setting up edit asset form with data:', asset);
-
                 const form = document.getElementById('editAssetForm');
                 if (!form) {
                     console.error('Edit asset form not found');
@@ -2156,18 +2210,21 @@
                     }
                 }
 
-                // Set room information
-                if (asset.room_id) {
-                    document.getElementById('edit_selected_room_id').value = asset.room_id;
+                // Set building and room information
+                // Directly set the building name from the current displayed asset data
+                document.getElementById('edit_selected_building_id').value = '{{ $asset["building_id"] ?? "" }}';
+                document.getElementById('edit_building_search').value = '{{ $asset["building_name"] ?? "" }}';
 
-                    let roomName = '';
-                    if (asset.room_name) {
-                        const buildingName = asset.building_name || 'Unknown Building';
-                        roomName = `${asset.room_name} (${buildingName})`;
-                    }
-
-                    document.getElementById('edit_room_search').value = roomName;
+                // Enable room search since we have a building
+                const roomSearch = document.getElementById('edit_room_search');
+                if (roomSearch) {
+                    roomSearch.disabled = false;
+                    roomSearch.placeholder = "Cari ruangan...";
                 }
+
+                // Set room information
+                document.getElementById('edit_selected_room_id').value = '{{ $asset["room_id"] ?? "" }}';
+                document.getElementById('edit_room_search').value = '{{ $asset["room_name"] ?? "" }}';
 
                 // Set user information
                 if (asset.user_id) {
@@ -2248,7 +2305,7 @@
                 buildingList.innerHTML = '';
 
                 try {
-                    const response = await fetch(`{{ route('buildings.data') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                    const response = await fetch(`{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -2376,8 +2433,6 @@
 
                 try {
                     const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}`;
-                    console.log(`Fetching rooms from: ${apiUrl}`);
-
                     const response = await fetch(apiUrl, {
                         headers: {
                             'Accept': 'application/json',
@@ -2390,9 +2445,7 @@
                     }
 
                     const data = await response.json();
-                    console.log('Room API response:', data);
 
-                    // Determine where the rooms array is in the response
                     let rooms = [];
                     if (Array.isArray(data)) {
                         rooms = data;
@@ -2466,16 +2519,11 @@
                         document.getElementById('editAssetForm').reset();
                         document.getElementById('editAssetForm').action = `{{ url('assets') }}/${assetId}`;
 
-                        // Show loading indicator
                         if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                         if (formContent) formContent.classList.add('hidden');
                         if (submitBtn) submitBtn.disabled = true;
 
-                        // Open the modal while loading
                         openModal(editModal, editContent);
-
-                        // Fetch asset data with proper error handling
-                        console.log(`Fetching asset data for ID: ${assetId}`);
 
                         fetch(`{{ route('asset.details', ['id' => $asset['asset_id']]) }}`, {
                             method: 'GET',
@@ -2492,8 +2540,6 @@
                             return response.json();
                         })
                         .then(data => {
-                            console.log('Asset data received:', data);
-
                             if (!data || !data.data) {
                                 throw new Error('Invalid response data structure');
                             }
@@ -2566,8 +2612,7 @@
                 });
             }
 
-            // Setup form submission handling for all asset action forms
-            setupFormSubmissionHandling('editAssetForm', 'Memperbarui...');
+            // Setup form submission handling for all asset action forms except editAssetForm
             setupFormSubmissionHandling('checkoutAssetForm', 'Meminjam...');
             setupFormSubmissionHandling('checkinAssetForm', 'Mengembalikan...');
             setupFormSubmissionHandling('reportLostForm', 'Melaporkan...');
@@ -2582,6 +2627,8 @@
                 // Fields to validate
                 const assetMasterId = document.getElementById('edit_selected_asset_master_id');
                 const assetMasterSearch = document.getElementById('edit_asset_master_search');
+                const buildingId = document.getElementById('edit_selected_building_id');
+                const buildingSearch = document.getElementById('edit_building_search');
                 const roomId = document.getElementById('edit_selected_room_id');
                 const roomSearch = document.getElementById('edit_room_search');
 
@@ -2595,11 +2642,15 @@
                     isValid = false;
                 }
 
+                // Check building
+                if (!buildingId.value) {
+                    buildingSearch.classList.add('border-red-500');
+                    isValid = false;
+                }
+
                 // Check room
                 if (!roomId.value) {
-                    const errorMsg = roomSearch.closest('.relative').querySelector('.error-message');
                     roomSearch.classList.add('border-red-500');
-                    if (errorMsg) errorMsg.classList.remove('hidden');
                     isValid = false;
                 }
 
@@ -2678,13 +2729,36 @@
             clearErrorOnInput('edit_asset_life_months');
             clearErrorOnInput('edit_date_acquired');
 
-            // Modify the editAssetForm submit handler
+            // Modify the editAssetForm submit handler with integrated validation and multiple submission prevention
             document.getElementById('editAssetForm')?.addEventListener('submit', function(event) {
                 // Prevent default submission to validate first
                 event.preventDefault();
 
                 // Validate the form
                 if (validateEditForm()) {
+                    // Get the submit button
+                    const submitBtn = this.querySelector('button[type="submit"]');
+
+                    // Prevent multiple submissions
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Memperbarui...</span></div>`;
+
+                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                        setTimeout(() => {
+                            if (submitBtn.disabled) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+
                     // If valid, submit the form
                     this.submit();
                 }

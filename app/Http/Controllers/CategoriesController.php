@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
-use Illuminate\Support\Facades\Log;
 
 class CategoriesController extends Controller
 {
@@ -80,28 +79,20 @@ class CategoriesController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                Log::warning('Authentication error while fetching asset subcategories:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => 'Authentication failed'
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to fetch asset subcategories';
-
-                Log::warning('Error while fetching asset subcategories:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil subkategori aset';
 
                 // Format error message
                 $errorMessage = '';
@@ -146,7 +137,11 @@ class CategoriesController extends Controller
 
             // If this is an AJAX or JSON request, return the subcategories as JSON
             if ($request->expectsJson() || $request->ajax()) {
-                return response()->json($subcategories);
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'],
+                    'data' => $subcategories
+                ]);
             }
 
             // For HTML view, continue with normal flow
@@ -186,15 +181,10 @@ class CategoriesController extends Controller
 
             return view('Categories', compact('subcategories', 'assetTypes', 'pagination'));
         } catch (\Exception $e) {
-            Log::error('Failed to fetch asset subcategories:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => 'Failed to load asset subcategories: ' . $e->getMessage()
+                    'errors' => 'Gagal memuat subkategori aset: ' . $e->getMessage()
                 ], 500);
             }
 
@@ -211,7 +201,7 @@ class CategoriesController extends Controller
                     'next_page_url' => null,
                     'prev_page_url' => null
                 ],
-                'error' => 'Failed to load asset subcategories: ' . $e->getMessage()
+                'error' => 'Gagal memuat subkategori aset: ' . $e->getMessage()
             ]);
         }
     }
@@ -233,35 +223,17 @@ class CategoriesController extends Controller
                 $validated['description'] = '';
             }
 
-            // Log the request data
-            Log::info('Attempting to create subcategory with data:', [
-                'request_data' => $validated
-            ]);
-
             $result = $this->apiService->request('POST', '/asset-subcategories', ['json' => $validated]);
-
-            // Log the API response
-            Log::info('API response for subcategory creation:', [
-                'api_response' => $result
-            ]);
 
             // Check if we got an auth error response
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                Log::warning('Authentication error during subcategory creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to create subcategory';
-
-                Log::warning('Error during subcategory creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal membuat subkategori';
 
                 // Format error message
                 $errorMessage = '';
@@ -283,19 +255,28 @@ class CategoriesController extends Controller
             }
 
             // Successfully created
-            Log::info('Subcategory created successfully');
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'],
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
             return redirect()->route('categories')
-                ->with('success', 'Subcategory added successfully');
+                ->with('success', $result['message']);
         } catch (\Exception $e) {
-            Log::error('Exception during subcategory creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'subcategory_data' => $request->except('_token')
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Gagal menambahkan subkategori: ' . $e->getMessage()],
+                    'data' => null
+                ], status: 500);
+            }
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to add subcategory: ' . $e->getMessage());
+                ->with('error', 'Gagal menambahkan subkategori: ' . $e->getMessage());
         }
     }
 
@@ -323,12 +304,12 @@ class CategoriesController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to update subcategory';
+                $errorData = $result['errors'] ?? 'Gagal memperbarui subkategori';
 
                 // Format error message
                 $errorMessage = '';
@@ -349,25 +330,35 @@ class CategoriesController extends Controller
                     ->with('error', $errorMessage);
             }
 
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'],
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
             return redirect()->route('categories')
-                ->with('success', 'Subcategory updated successfully');
+                ->with('success', $result['message']);
         } catch (\Exception $e) {
-            Log::error('Failed to update subcategory', [
-                'error' => $e->getMessage(),
-                'subcategory_id' => $id,
-                'subcategory_data' => $request->except(['_token', '_method'])
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Gagal memperbarui subkategori: ' . $e->getMessage()],
+                    'data' => null
+                ], status: 500);
+            }
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to update subcategory: ' . $e->getMessage());
+                ->with('error', 'Gagal memperbarui subkategori: ' . $e->getMessage());
         }
     }
 
     /**
      * Remove the specified subcategory.
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
         try {
             $result = $this->apiService->request('DELETE', "/asset-subcategories/{$id}");
@@ -375,12 +366,12 @@ class CategoriesController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to delete subcategory';
+                $errorData = $result['errors'] ?? 'Gagal menghapus subkategori';
 
                 // Format error message
                 $errorMessage = '';
@@ -401,16 +392,27 @@ class CategoriesController extends Controller
             }
 
             // Successfully deleted
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'],
+                    'data' => null
+                ]);
+            }
+
             return redirect()->route('categories')
-                ->with('success', 'Subcategory deleted successfully');
+                ->with('success', $result['message']);
         } catch (\Exception $e) {
-            Log::error('Failed to delete subcategory', [
-                'error' => $e->getMessage(),
-                'subcategory_id' => $id
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => 'Gagal menghapus subkategori: ' . $e->getMessage()],
+                    'data' => null
+                ], status: 500);
+            }
 
             return redirect()->back()
-                ->with('error', 'Failed to delete subcategory: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus subkategori: ' . $e->getMessage());
         }
     }
 
@@ -427,28 +429,20 @@ class CategoriesController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                Log::warning('Authentication error while fetching subcategory details:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                        'errors' => 'Authentication failed'
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to fetch subcategory details';
-
-                Log::warning('Error while fetching subcategory details:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil detail subkategori';
 
                 // Format error message
                 $errorMessage = '';
@@ -479,25 +473,24 @@ class CategoriesController extends Controller
 
             // If this is an AJAX or JSON request, return the subcategory as JSON
             if ($request->expectsJson() || $request->ajax()) {
-                return response()->json($subcategory);
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'],
+                    'data' => $subcategory
+                ]);
             }
 
             // For HTML view, return a view with the subcategory details
             return view('CategoryDetails', compact('subcategory'));
         } catch (\Exception $e) {
-            Log::error('Failed to fetch subcategory details:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => false,
-                    'errors' => 'Failed to load subcategory details: ' . $e->getMessage()
+                'errors' => $e->getMessage()
                 ], 500);
             }
 
-            return redirect()->back()->with('error', 'Failed to load subcategory details: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memuat detail subkategori: ' . $e->getMessage());
         }
     }
 
@@ -510,12 +503,6 @@ class CategoriesController extends Controller
             // Validate the request
             $validated = $request->validate([
                 'excel_file' => 'required|file|mimes:xlsx,xls,csv',
-            ]);
-
-            // Log the import attempt
-            Log::info('Attempting to import subcategories', [
-                'file_name' => $request->file('excel_file')->getClientOriginalName(),
-                'file_size' => $request->file('excel_file')->getSize()
             ]);
 
             // Create multipart form data for the API request
@@ -532,36 +519,23 @@ class CategoriesController extends Controller
                 'multipart' => $multipart
             ]);
 
-            // Log the API response
-            Log::info('API response for subcategory import:', [
-                'api_response' => $result
-            ]);
-
             // Check for authentication errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                Log::warning('Authentication error during subcategory import:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 if ($request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], status: 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to import subcategories';
-
-                Log::warning('Error during subcategory import:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengimpor subkategori';
 
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -589,12 +563,7 @@ class CategoriesController extends Controller
             }
 
             // Successfully imported
-            $successMessage = $result['message'] ?? 'Subcategories imported successfully';
-            Log::info('Subcategories imported successfully', [
-                'total' => $result['data']['total'] ?? 0,
-                'success' => $result['data']['success'] ?? 0,
-                'failed' => $result['data']['failed'] ?? 0
-            ]);
+            $successMessage = $result['message'];
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -606,19 +575,14 @@ class CategoriesController extends Controller
 
             return redirect()->route('categories')->with('success', $successMessage);
         } catch (\Exception $e) {
-            Log::error('Exception during subcategory import:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to import subcategories: ' . $e->getMessage()]
+                    'errors' => ['exception' => 'Gagal mengimpor subkategori: ' . $e->getMessage()]
                 ], status: 500);
             }
 
-            return redirect()->back()->with('error', 'Failed to import subcategories: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengimpor subkategori: ' . $e->getMessage());
         }
     }
 }

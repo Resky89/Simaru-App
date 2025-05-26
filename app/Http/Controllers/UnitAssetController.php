@@ -17,142 +17,86 @@ class UnitAssetController extends Controller
     }
 
     /**
-     * Display a listing of assets.
+     * Menampilkan halaman daftar aset.
      */
     public function index(Request $request)
     {
         try {
-            $page = $request->input('page', 1);
-            $limit = $request->input('limit', 10);
-            $search = $request->input('search', '');
-            $statusFilter = $request->input('current_status', '');
-            $typeFilter = $request->input('type', '');
-            $sortOrder = $request->input('sort', '');
+            // Mendapatkan parameter kueri
+            $page = $request->query('page', 1);
+            $limit = $request->query('limit', 10);
+            $search = $request->query('search', '');
+            $statusFilter = $request->query('current_status', '');
+            $typeFilter = $request->query('type', '');
+            $sortOrder = $request->query('sort', '');
 
-            // Log request info
-            \Log::info('Fetching assets with parameters:', [
-                'page' => $page,
-                'limit' => $limit,
-                'search' => $search,
-                'current_status' => $statusFilter,
-                'type' => $typeFilter,
-                'sort' => $sortOrder,
-                'request_url' => $request->fullUrl()
-            ]);
-
-            // Build query parameters
-            $query = [
+            // Membangun parameter kueri
+            $queryParams = [
                 'page' => $page,
                 'limit' => $limit,
             ];
 
-            // Set sort parameters based on user selection
+            // Pengaturan pengurutan
             if (!empty($sortOrder)) {
                 switch ($sortOrder) {
                     case 'newest':
-                        $query['sort_by'] = 'created_at';
-                        $query['sort_order'] = 'desc';
+                        $queryParams['sort_by'] = 'created_at';
+                        $queryParams['sort_order'] = 'desc';
                         break;
                     case 'oldest':
-                        $query['sort_by'] = 'created_at';
-                        $query['sort_order'] = 'asc';
+                        $queryParams['sort_by'] = 'created_at';
+                        $queryParams['sort_order'] = 'asc';
                         break;
                     case 'name_asc':
-                        // Try using the frontend sort parameter directly
-                        $query['sort'] = 'name_asc';
-
-                        unset($query['sort_by']);
-                        unset($query['sort_order']);
+                        $queryParams['sort'] = 'name_asc';
+                        unset($queryParams['sort_by']);
+                        unset($queryParams['sort_order']);
                         break;
                     case 'name_desc':
-                        // Try using the frontend sort parameter directly
-                        $query['sort'] = 'name_desc';
-
-                        // Remove standard sort params that might interfere
-                        unset($query['sort_by']);
-                        unset($query['sort_order']);
+                        $queryParams['sort'] = 'name_desc';
+                        unset($queryParams['sort_by']);
+                        unset($queryParams['sort_order']);
                         break;
                     default:
-                        $query['sort_by'] = 'asset_id';
-                        $query['sort_order'] = 'desc';
+                        $queryParams['sort_by'] = 'asset_id';
+                        $queryParams['sort_order'] = 'desc';
                 }
             } else {
-                $query['sort_by'] = 'asset_id';
-                $query['sort_order'] = 'desc';
+                $queryParams['sort_by'] = 'asset_id';
+                $queryParams['sort_order'] = 'desc';
             }
 
-            // Add search filter if provided
+            // Menambahkan parameter pencarian jika disediakan
             if (!empty($search)) {
-                $query['search'] = $search;
+                $queryParams['search'] = $search;
             }
 
-            // Add status filter if provided
+            // Menambahkan filter status jika disediakan
             if (!empty($statusFilter)) {
-                $query['current_status'] = $statusFilter;
+                $queryParams['current_status'] = $statusFilter;
             }
 
-            // Add asset type filter if provided
+            // Menambahkan filter tipe aset jika disediakan
             if (!empty($typeFilter)) {
-                $query['type'] = $typeFilter;
+                $queryParams['type'] = $typeFilter;
             }
 
-            // Fetch assets
-            \Log::debug('Sending API request to /assets with query parameters:', [
-                'query' => $query,
-                'sort_by' => $query['sort_by'] ?? 'none',
-                'sort_order' => $query['sort_order'] ?? 'none'
-            ]);
-
+            // Mengambil aset dari API
             $assetsResult = $this->apiService->request('GET', '/assets', [
-                'query' => $query
+                'query' => $queryParams
             ]);
 
-            // Comprehensive debug logging of the API response
-            \Log::debug('Complete API response for assets', [
-                'sortOrder' => $sortOrder,
-                'query_params' => $query,
-                'success' => $assetsResult['success'] ?? false,
-                'error' => $assetsResult['error'] ?? null,
-                'message' => $assetsResult['message'] ?? null,
-                'data_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0,
-                'pagination' => $assetsResult['pagination'] ?? null,
-                'request_url' => $request->fullUrl()
-            ]);
-
-            // If we have data, log a sample for debugging
-            if (!empty($assetsResult['data'])) {
-                \Log::debug('Sample data from response', [
-                    'first_item' => reset($assetsResult['data'])
-                ]);
-            }
-
-            // Log API responses for debugging
-            \Log::info('API response for assets list:', [
-                'assets_success' => $assetsResult['success'] ?? null,
-                'assets_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0
-            ]);
-
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
-                in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])
-            ) {
-                $errorMessage = $assetsResult['errors'] ?? 'Authentication failed';
-                \Log::warning('Authentication error during assets index retrieval:', [
-                    'errors' => $errorMessage
-                ]);
-                return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Authentication failed');
+                in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])) {
+                return redirect()->route('login')->with('error', is_string($assetsResult['errors']) ? $assetsResult['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors based on success flag
+            // Memeriksa kesalahan API berdasarkan flag sukses
             if (!isset($assetsResult['success']) || $assetsResult['success'] !== true) {
-                $errorData = $assetsResult['errors'] ?? 'Failed to fetch data';
+                $errorData = $assetsResult['errors'] ?? 'Gagal mengambil data aset';
 
-                \Log::warning('Error during data retrieval:', [
-                    'assets_success' => $assetsResult['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                // Format error message for view
+                // Format pesan kesalahan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -173,10 +117,10 @@ class UnitAssetController extends Controller
                 ]);
             }
 
-            // Parse assets data
+            // Memproses data aset
             $assets = $assetsResult['data'] ?? [];
 
-            // Format pagination for assets
+            // Format pagination untuk aset
             $assetsPagination = null;
             if (isset($assetsResult['pagination'])) {
                 $pagination = $assetsResult['pagination'];
@@ -192,38 +136,26 @@ class UnitAssetController extends Controller
                 ];
             }
 
-            // No preprocessing needed for assets now
-
             return view('Asset.UnitAsset', [
                 'assets' => $assets,
                 'assets_pagination' => $assetsPagination
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during data retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return view('Asset.UnitAsset', [
                 'assets' => [],
                 'assets_pagination' => null,
-                'error' => 'Failed to fetch data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data aset: ' . $e->getMessage()
             ]);
         }
     }
 
     /**
-     * Store a newly created asset.
+     * Menyimpan aset baru.
      */
     public function storeAsset(Request $request)
     {
         try {
-            // Log the request data
-            \Log::info('Attempting to create asset with data:', [
-                'request_data' => $request->all()
-            ]);
-
-            // Prepare asset data with the new format that uses asset_master_id
+            // Menyiapkan data aset
             $assetData = [
                 'asset_master_id' => (int) $request->input('asset_master_id'),
                 'serial_number' => $request->input('serial_number'),
@@ -236,7 +168,7 @@ class UnitAssetController extends Controller
                 'room_id' => (int) $request->input('room_id')
             ];
 
-            // Add depreciation data if present - now directly from the request without checking is_depreciable
+            // Menambahkan data depresiasi jika ada
             if ($request->has('depreciation_method')) {
                 $assetData['depreciation_method'] = $request->input('depreciation_method');
                 $assetData['acquisition_cost'] = (float) $request->input('acquisition_cost');
@@ -245,30 +177,25 @@ class UnitAssetController extends Controller
                 $assetData['date_acquired'] = $request->input('date_acquired');
             }
 
-            // Log structured data yang akan dikirim ke API
-            \Log::info('Sending to API:', [
-                'asset_data' => $assetData
-            ]);
-
-            // Handle image upload if present
+            // Menangani unggahan gambar jika ada
             if ($request->hasFile('image_file')) {
                 $multipartData = [];
 
-                // Add asset data as form fields
+                // Menambahkan data aset sebagai field form
                 foreach ($assetData as $key => $value) {
-                    // Convert values appropriately for multipart
+                    // Mengkonversi nilai dengan tepat untuk multipart
                     if (is_bool($value)) {
                         $value = $value ? 'true' : 'false';
                     } elseif (is_array($value)) {
                         $value = json_encode($value);
                     } elseif ($value === null) {
-                        $value = ''; // Convert null to empty string for multipart
+                        $value = ''; // Mengkonversi null ke string kosong untuk multipart
                     }
 
                     $multipartData[] = ['name' => $key, 'contents' => $value];
                 }
 
-                // Add the image file
+                // Menambahkan file gambar
                 $multipartData[] = [
                     'name' => 'image_file',
                     'contents' => fopen($request->file('image_file')->getPathname(), 'r'),
@@ -278,35 +205,22 @@ class UnitAssetController extends Controller
                 $options = ['multipart' => $multipartData];
                 $result = $this->apiService->request('POST', '/assets', $options);
             } else {
-                // Standard JSON request if no file is uploaded
+                // Permintaan JSON standar jika tidak ada file yang diunggah
                 $options = ['json' => $assetData];
                 $result = $this->apiService->request('POST', '/assets', $options);
             }
 
-            // Log the API response
-            \Log::info('API response for asset creation:', [
-                'api_response' => $result
-            ]);
-
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during asset creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for other API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to create asset';
+                $errorData = $result['errors'] ?? 'Gagal membuat aset';
 
-                \Log::warning('Error during asset creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                // Format error message properly before passing to session
+                // Format pesan kesalahan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -325,40 +239,26 @@ class UnitAssetController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Successfully created
-            \Log::info('Asset created successfully', [
-                'asset_id' => $result['data']['asset_id'] ?? 'unknown',
-                'asset_code' => $result['data']['asset_code'] ?? 'unknown'
-            ]);
+            // Berhasil dibuat
             return redirect()->route('assets')
-                ->with('success', 'Asset created successfully');
+                ->with('success', 'Aset berhasil dibuat');
         } catch (\Exception $e) {
-            \Log::error('Exception during asset creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to create asset: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat aset: ' . $e->getMessage());
         }
     }
 
     /**
-     * Update the specified asset.
+     * Memperbarui aset yang ditentukan.
      */
     public function updateAsset(Request $request, $id)
     {
         try {
-            // Log request data untuk debugging
-            \Log::info('Attempting to update asset with data:', [
-                'asset_id' => $id,
-                'request_data' => $request->all()
-            ]);
-
-            // Prepare asset data with new format
+            // Menyiapkan data aset
             $assetData = [
                 'asset_id' => $id,
+                'asset_master_id' => (int) $request->input('asset_master_id'),
                 'serial_number' => $request->input('serial_number'),
                 'purchase_date' => $request->input('purchase_date'),
                 'purchase_cost' => (float) $request->input('purchase_cost'),
@@ -369,7 +269,7 @@ class UnitAssetController extends Controller
                 'room_id' => (int) $request->input('room_id')
             ];
 
-            // Add depreciation fields directly without checking is_depreciable
+            // Menambahkan data depresiasi jika ada
             if ($request->has('depreciation_method')) {
                 $assetData['depreciation_method'] = $request->input('depreciation_method');
                 $assetData['acquisition_cost'] = (float) $request->input('acquisition_cost');
@@ -378,24 +278,19 @@ class UnitAssetController extends Controller
                 $assetData['date_acquired'] = $request->input('date_acquired');
             }
 
-            // Log structured data yang akan dikirim ke API
-            \Log::info('Sending to API:', [
-                'asset_data' => $assetData
-            ]);
-
-            // Handle image upload if present
+            // Menangani unggahan gambar jika ada
             if ($request->hasFile('image_file')) {
                 $multipartData = [];
 
-                // Kirim setiap field asset data secara individual dalam multipart
+                // Menambahkan data aset sebagai field form
                 foreach ($assetData as $key => $value) {
-                    // Convert values appropriately for multipart
+                    // Mengkonversi nilai dengan tepat untuk multipart
                     if (is_bool($value)) {
                         $value = $value ? 'true' : 'false';
                     } elseif (is_array($value)) {
                         $value = json_encode($value);
                     } elseif ($value === null) {
-                        $value = ''; // Convert null to empty string for multipart
+                        $value = ''; // Mengkonversi null ke string kosong untuk multipart
                     }
 
                     $multipartData[] = [
@@ -404,7 +299,7 @@ class UnitAssetController extends Controller
                     ];
                 }
 
-                // Add file upload
+                // Menambahkan file gambar
                 $multipartData[] = [
                     'name' => 'image_file',
                     'contents' => fopen($request->file('image_file')->getPathname(), 'r'),
@@ -414,36 +309,22 @@ class UnitAssetController extends Controller
                 $options = ['multipart' => $multipartData];
                 $result = $this->apiService->request('PUT', "/assets/{$id}", $options);
             } else {
-                // No file upload, just send JSON data
+                // Permintaan JSON standar jika tidak ada file yang diunggah
                 $options = ['json' => $assetData];
                 $result = $this->apiService->request('PUT', "/assets/{$id}", $options);
             }
 
-            // Log the API response
-            \Log::info('API response for asset update:', [
-                'asset_id' => $id,
-                'api_response' => $result
-            ]);
-
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during asset update:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for other API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to update asset';
+                $errorData = $result['errors'] ?? 'Gagal memperbarui aset';
 
-                \Log::warning('Error during asset update:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                // Format error message properly before passing to session
+                // Format pesan kesalahan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -462,61 +343,35 @@ class UnitAssetController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Successfully updated
-            \Log::info('Asset updated successfully', ['asset_id' => $id]);
+            // Berhasil diperbarui
             return redirect()->route('assets')
-                ->with('success', 'Asset updated successfully');
+                ->with('success', 'Aset berhasil diperbarui');
         } catch (\Exception $e) {
-            \Log::error('Exception during asset update:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $id
-            ]);
-
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to update asset: ' . $e->getMessage());
+                ->with('error', 'Gagal memperbarui aset: ' . $e->getMessage());
         }
     }
 
     /**
-     * Remove the specified asset.
+     * Menghapus aset yang ditentukan.
      */
     public function destroyAsset($id)
     {
         try {
-            \Log::info('Attempting to delete asset:', [
-                'asset_id' => $id,
-                'url' => request()->url()
-            ]);
-
             $result = $this->apiService->request('DELETE', "/assets/{$id}");
 
-            // Log the API response
-            \Log::info('API response for asset deletion:', [
-                'asset_id' => $id,
-                'api_response' => $result
-            ]);
-
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during asset deletion:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for other API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to delete asset';
+                $errorData = $result['errors'] ?? 'Gagal menghapus aset';
 
-                \Log::warning('Error during asset deletion:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                // Format error message for redirect
+                // Format pesan kesalahan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -534,37 +389,24 @@ class UnitAssetController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Successfully deleted
-            \Log::info('Asset deleted successfully', ['asset_id' => $id]);
+            // Berhasil dihapus
             return redirect()->route('assets')
-                ->with('success', 'Asset deleted successfully');
+                ->with('success', 'Aset berhasil dihapus');
         } catch (\Exception $e) {
-            \Log::error('Exception during asset deletion:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $id
-            ]);
-
             return redirect()->back()
-                ->with('error', 'Failed to delete asset: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus aset: ' . $e->getMessage());
         }
     }
 
     /**
-     * Get a single asset for editing.
+     * Mendapatkan data aset untuk diedit.
      */
     public function getAsset($id)
     {
         try {
-            // Check if this is a user search request - this lets us use the same endpoint for user search without adding a new route
+            // Memeriksa apakah ini adalah permintaan pencarian pengguna
             if ($id === 'search' && request()->ajax() && request()->wantsJson()) {
-                \Log::info('Processing users search request:', [
-                    'search' => request()->input('search'),
-                    'limit' => request()->input('limit', 10),
-                    'offset' => request()->input('offset', 0)
-                ]);
-
-                // Build query parameters for users API
+                // Membangun parameter kueri untuk API pengguna
                 $searchTerm = request()->input('search');
                 $limit = request()->input('limit', 10);
                 $offset = request()->input('offset', 0);
@@ -572,7 +414,7 @@ class UnitAssetController extends Controller
                 $queryParams = [
                     'limit' => $limit,
                     'offset' => $offset,
-                    'sort_by' => 'employee_number', // Sort by employee number for easier searching
+                    'sort_by' => 'employee_number',
                     'sort_order' => 'asc'
                 ];
 
@@ -580,18 +422,14 @@ class UnitAssetController extends Controller
                     $queryParams['search'] = $searchTerm;
                 }
 
-                // Call the API to get users
+                // Memanggil API untuk mendapatkan pengguna
                 $usersResult = $this->apiService->request('GET', '/users', [
                     'query' => $queryParams
                 ]);
 
-                // Check for errors
+                // Memeriksa kesalahan
                 if (isset($usersResult['errors']) || !isset($usersResult['success']) || $usersResult['success'] !== true) {
-                    $errorMessage = $usersResult['errors'] ?? 'Failed to fetch users';
-                    \Log::warning('Error fetching users:', [
-                        'error' => $usersResult['errors'] ?? 'unknown',
-                        'message' => $errorMessage
-                    ]);
+                    $errorMessage = $usersResult['errors'] ?? 'Gagal mendapatkan data pengguna';
 
                     return response()->json([
                         'success' => false,
@@ -599,7 +437,7 @@ class UnitAssetController extends Controller
                     ], 401);
                 }
 
-                // Return the users data
+                // Mengembalikan data pengguna
                 return response()->json([
                     'success' => true,
                     'data' => $usersResult['data'] ?? [],
@@ -607,49 +445,25 @@ class UnitAssetController extends Controller
                 ]);
             }
 
-            // Regular asset fetch logic continues below
-            // Log request info
-            \Log::info('Fetching single asset with ID:', [
-                'asset_id' => $id,
-                'request_url' => request()->fullUrl(),
-                'ajax' => request()->ajax() ? 'Yes' : 'No'
-            ]);
-
-            // Fetch the asset with the given ID
+            // Mengambil aset dengan ID yang diberikan
             $result = $this->apiService->request('GET', "/assets/{$id}");
 
-            // Log API response for debugging
-            \Log::info('API response for single asset:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'asset_id' => $id
-            ]);
-
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during asset retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-
                 if (request()->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
+                        'errors' => ['authentication' => 'Autentikasi gagal']
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors based on success flag
+            // Memeriksa kesalahan API berdasarkan flag sukses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve asset';
-
-                \Log::warning('Error during asset retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mendapatkan data aset';
 
                 if (request()->ajax()) {
                     return response()->json([
@@ -658,7 +472,7 @@ class UnitAssetController extends Controller
                     ], 500);
                 }
 
-                // Format error message for redirect
+                // Format pesan kesalahan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -678,7 +492,7 @@ class UnitAssetController extends Controller
             $asset = $result['data'] ?? null;
 
             if (!$asset) {
-                $errorMessage = 'Asset not found or response data is invalid';
+                $errorMessage = 'Aset tidak ditemukan atau data respons tidak valid';
 
                 if (request()->ajax()) {
                     return response()->json(['success' => false, 'errors' => ['general' => $errorMessage]], 404);
@@ -687,74 +501,31 @@ class UnitAssetController extends Controller
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // For AJAX requests, also fetch subcategories, rooms, and brands
+            // Untuk permintaan AJAX, kembalikan hanya data aset
             if (request()->ajax()) {
-                // Fetch subcategories
-                $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
-                $subcategories = $subcategoriesResult['data'] ?? [];
-
-                // Fetch rooms
-                $roomsResult = $this->apiService->request('GET', '/rooms');
-                $rooms = $roomsResult['data'] ?? [];
-
-                // Fetch brands
-                $brandsResult = $this->apiService->request('GET', '/brands', [
-                    'query' => [
-                        'sort_by' => 'brand_id',
-                        'sort_order' => 'asc'
-                    ]
-                ]);
-                $brands = $brandsResult['data'] ?? [];
-
-                // Fetch asset masters
-                $assetMastersResult = $this->apiService->request('GET', '/asset-masters', [
-                    'query' => [
-                        'limit' => 100,
-                        'sort_by' => 'asset_master_id',
-                        'sort_order' => 'asc'
-                    ]
-                ]);
-                $assetMasters = $assetMastersResult['data'] ?? [];
-
-                // If we have a user_id, fetch user details to ensure we have complete information
+                // Jika kita memiliki user_id, ambil detail pengguna
                 if (isset($asset['user_id']) && $asset['user_id']) {
                     try {
                         $userResult = $this->apiService->request('GET', "/users/{$asset['user_id']}");
                         if (isset($userResult['success']) && $userResult['success'] === true && isset($userResult['data'])) {
-                            // Enhance the user object with complete details
                             $asset['user'] = $userResult['data'];
-                            \Log::info('Enhanced user data for asset:', [
-                                'asset_id' => $id,
-                                'user_id' => $asset['user_id'],
-                                'employee_number' => $asset['user']['employee_number'] ?? 'not available'
-                            ]);
                         }
                     } catch (\Exception $e) {
-                        \Log::warning("Error fetching user details: {$e->getMessage()}");
+                        // Lanjutkan meskipun gagal mengambil detail pengguna
                     }
                 }
 
-                // Return complete data set for the modal
+                // Mengembalikan hanya data aset
                 return response()->json([
                     'success' => true,
-                    'data' => $asset,
-                    'subcategories' => $subcategories,
-                    'rooms' => $rooms,
-                    'brands' => $brands,
-                    'assetMasters' => $assetMasters
+                    'data' => $asset
                 ]);
             }
 
-            // Return full view with asset data for non-AJAX requests
+            // Mengembalikan tampilan lengkap dengan data aset untuk permintaan non-AJAX
             return view('Asset.AssetDetail', ['asset' => $asset]);
         } catch (\Exception $e) {
-            $errorMessage = 'Failed to retrieve asset: ' . $e->getMessage();
-
-            \Log::error('Exception during asset retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $id
-            ]);
+            $errorMessage = 'Gagal mendapatkan data aset: ' . $e->getMessage();
 
             if (request()->ajax()) {
                 return response()->json(['success' => false, 'errors' => ['exception' => $errorMessage]], 500);
@@ -1441,62 +1212,48 @@ class UnitAssetController extends Controller
     }
 
     /**
-     * Import assets from Excel/CSV file
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Mengimpor aset dari file Excel/CSV.
      */
     public function importAssets(Request $request)
     {
         try {
-            \Log::info('Attempting to import assets from Excel', [
-                'has_file' => $request->hasFile('excel_file_upload'),
-                'has_excel_data' => $request->has('excel_data'),
-                'is_ajax' => $request->ajax()
-            ]);
-
             if ($request->hasFile('excel_file_upload')) {
-                // Use multipart form data to send the actual file
+                // Menggunakan data formulir multipart untuk mengirim file
                 $multipartData = [];
 
-                // Add the Excel file
+                // Menambahkan file Excel
                 $multipartData[] = [
                     'name' => 'excel_file',
                     'contents' => fopen($request->file('excel_file_upload')->getPathname(), 'r'),
                     'filename' => $request->file('excel_file_upload')->getClientOriginalName()
                 ];
 
-                // Send the actual file to API
+                // Mengirim file ke API
                 $result = $this->apiService->request('POST', '/assets/import', [
                     'multipart' => $multipartData
                 ]);
             } else if ($request->has('excel_data')) {
-                // Fallback to the previous method if no file but has parsed data
-                // Get the JSON data from the form
+                // Data Excel dalam bentuk JSON
                 $excelData = $request->input('excel_data');
 
                 if (empty($excelData)) {
                     if ($request->ajax()) {
-                        return response()->json(['success' => false, 'errors' => ['import' => 'No valid data found for import']], 400);
+                        return response()->json(['success' => false, 'errors' => ['import' => 'Tidak ada data valid untuk diimpor']], 400);
                     }
-                    return redirect()->back()->with('error', 'No valid data found for import');
+                    return redirect()->back()->with('error', 'Tidak ada data valid untuk diimpor');
                 }
 
-                // Decode the JSON data
+                // Mendekode data JSON
                 $parsedData = json_decode($excelData, true);
 
                 if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsedData) || empty($parsedData)) {
                     if ($request->ajax()) {
-                        return response()->json(['success' => false, 'errors' => ['import' => 'Invalid data format for import']], 400);
+                        return response()->json(['success' => false, 'errors' => ['import' => 'Format data tidak valid untuk diimpor']], 400);
                     }
-                    return redirect()->back()->with('error', 'Invalid data format for import');
+                    return redirect()->back()->with('error', 'Format data tidak valid untuk diimpor');
                 }
 
-                \Log::info('Parsed Excel data for import', [
-                    'record_count' => count($parsedData)
-                ]);
-
-                // Send data to API
+                // Mengirim data ke API
                 $result = $this->apiService->request('POST', '/assets/import', [
                     'json' => [
                         'data' => $parsedData
@@ -1504,56 +1261,41 @@ class UnitAssetController extends Controller
                 ]);
             } else {
                 if ($request->ajax()) {
-                    return response()->json(['success' => false, 'errors' => ['import' => 'No Excel file or data provided']], 400);
+                    return response()->json(['success' => false, 'errors' => ['import' => 'Tidak ada file Excel atau data yang disediakan']], 400);
                 }
-                return redirect()->back()->with('error', 'No Excel file or data provided');
+                return redirect()->back()->with('error', 'Tidak ada file Excel atau data yang disediakan');
             }
 
-            // Log the API response
-            \Log::info('API response for asset import:', [
-                'api_response' => $result
-            ]);
-
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during asset import:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-
                 if ($request->ajax()) {
-                    return response()->json(['success' => false, 'errors' => ['auth' => $result['message'] ?? 'Authentication failed']], 401);
+                    return response()->json(['success' => false, 'errors' => ['auth' => $result['message'] ?? 'Autentikasi gagal']], 401);
                 }
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Authentication failed');
+                return redirect()->route('login')->with('error', $result['message'] ?? 'Autentikasi gagal');
             }
 
-            // Check for other API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (
                 isset($result['errors']) ||
                 (isset($result['success']) && $result['success'] === false)
             ) {
-                \Log::warning('Error during asset import:', [
-                    'error' => $result['errors'] ?? null,
-                    'success' => $result['success'] ?? null,
-                    'message' => $result['errors'] ?? 'Failed to import assets'
-                ]);
+                // Format pesan kesalahan termasuk detail kesalahan dari respons
+                $errorMessage = $result['errors'] ?? 'Gagal mengimpor aset';
 
-                // Format error message including detailed errors from the response
-                $errorMessage = $result['errors'] ?? 'Failed to import assets';
-
-                // Extract and format detailed error information if available
+                // Ekstrak dan format informasi kesalahan detail jika tersedia
                 if (isset($result['data']['errors']) && is_array($result['data']['errors']) && count($result['data']['errors']) > 0) {
                     $errorDetails = [];
 
                     foreach ($result['data']['errors'] as $error) {
                         if (isset($error['row']) && isset($error['reason'])) {
-                            $errorDetailMsg = "Row {$error['row']}: ";
+                            $errorDetailMsg = "Baris {$error['row']}: ";
 
-                            // Include asset_master_code if available
+                            // Sertakan asset_master_code jika tersedia
                             if (isset($error['asset_master_code'])) {
                                 $errorDetailMsg .= "{$error['asset_master_code']} - ";
                             }
-                            // Include asset_name if available
+                            // Sertakan asset_name jika tersedia
                             elseif (isset($error['asset_name'])) {
                                 $errorDetailMsg .= "{$error['asset_name']} - ";
                             }
@@ -1574,7 +1316,7 @@ class UnitAssetController extends Controller
                         ], 400);
                     }
 
-                    // For non-AJAX, format as HTML
+                    // Untuk non-AJAX, format sebagai HTML
                     $errorMessage .= "<ul class='list-disc pl-4 mt-2'>";
                     foreach ($errorDetails as $detail) {
                         $errorMessage .= "<li>{$detail}</li>";
@@ -1589,18 +1331,18 @@ class UnitAssetController extends Controller
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Extract import results
+            // Ekstrak hasil impor
             $totalImported = $result['data']['total'] ?? 0;
             $successCount = $result['data']['success'] ?? 0;
             $failedCount = $result['data']['failed'] ?? 0;
 
-            // Prepare success message
-            $successMessage = "Successfully imported {$successCount} assets";
+            // Menyiapkan pesan sukses
+            $successMessage = "Berhasil mengimpor {$successCount} aset";
             if ($failedCount > 0) {
-                $successMessage .= " ({$failedCount} failed)";
+                $successMessage .= " ({$failedCount} gagal)";
             }
 
-            // Return response based on request type
+            // Mengembalikan respons berdasarkan jenis permintaan
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -1613,22 +1355,17 @@ class UnitAssetController extends Controller
                 ]);
             }
 
-            // Redirect back with success message for non-AJAX requests
+            // Mengalihkan kembali dengan pesan sukses untuk permintaan non-AJAX
             return redirect()->route('assets')->with('success', $successMessage);
         } catch (\Exception $e) {
-            \Log::error('Exception during asset import:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to import assets: ' . $e->getMessage()]
+                    'errors' => ['exception' => 'Gagal mengimpor aset: ' . $e->getMessage()]
                 ], 500);
             }
 
-            return redirect()->back()->with('error', 'Failed to import assets: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengimpor aset: ' . $e->getMessage());
         }
     }
 
