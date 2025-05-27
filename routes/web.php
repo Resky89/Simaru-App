@@ -450,7 +450,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
             ->middleware('permission:calibration:create');
         Route::put('/report/{id}', [CalibrationController::class, 'reportCalibration'])
             ->name('calibration.report')
-            ->middleware('permission:calibration:edit');
+            ->middleware('permission:calibration:report');
         Route::put('/schedule/{id}', [CalibrationController::class, 'updateCalibrationSchedule'])
             ->name('calibration.schedule.update')
             ->middleware('permission:calibration:edit');

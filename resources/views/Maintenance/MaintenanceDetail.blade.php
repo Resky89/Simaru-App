@@ -19,8 +19,6 @@
                         <div>
                             <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DETAIL PEMELIHARAAN</h1>
                             <div class="flex items-center gap-3 mt-1">
-                                <p class="text-gray-500">ID: {{ $maintenance['id'] ?? 'N/A' }}</p>
-
                                 @php
                                     $statusClass = '';
                                     $status = $maintenance['status'] ?? '';
@@ -139,11 +137,11 @@
                                 <div class="space-y-4">
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Ditugaskan Kepada</span>
-                                        <span class="font-medium">{{ $maintenance['assigned_to'] ?? 'N/A' }}</span>
+                                        <span class="font-medium">{{ $maintenance['assigned_to_employee_number'] ?? 'N/A' }}</span>
                                     </div>
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Dijadwalkan Oleh</span>
-                                        <span>{{ $maintenance['scheduled_by'] ?? 'N/A' }}</span>
+                                        <span>{{ $maintenance['scheduled_by_employee_number'] ?? 'N/A' }}</span>
                                     </div>
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Vendor</span>

@@ -86,17 +86,17 @@
                     <div class="flex items-start gap-2">
                         <p class="w-40 text-[#666666] font-medium">Status</p>
                         <p class="text-[#666666]">:
-                            <span class="px-2 py-1 rounded-full text-xs inline-block ml-1
-                                @if(isset($comparison['status']) && strtolower($comparison['status']) == 'completed') bg-green-100 text-green-800
-                                @elseif(isset($comparison['status']) && strtolower($comparison['status']) == 'in progress') bg-blue-100 text-blue-800
-                                @elseif(isset($comparison['status']) && strtolower($comparison['status']) == 'draft') bg-yellow-100 text-yellow-800
+                            <span class="px-2 py-1 rounded-full text-xs
+                                @if(isset($comparison['status']) && $comparison['status'] == 'Completed') bg-green-100 text-green-800
+                                @elseif(isset($comparison['status']) && $comparison['status'] == 'In Progress') bg-blue-100 text-blue-800
+                                @elseif(isset($comparison['status']) && $comparison['status'] == 'Draft') bg-yellow-100 text-yellow-800
                                 @else bg-gray-100 text-gray-800 @endif">
                                 @if(isset($comparison['status']))
-                                    @if(strtolower($comparison['status']) == 'completed')
+                                    @if($comparison['status'] == 'Completed')
                                         Selesai
-                                    @elseif(strtolower($comparison['status']) == 'in progress')
+                                    @elseif($comparison['status'] == 'In Progress')
                                         Dalam Proses
-                                    @elseif(strtolower($comparison['status']) == 'draft')
+                                    @elseif($comparison['status'] == 'Draft')
                                         Draft
                                     @else
                                         {{ $comparison['status'] }}

@@ -457,7 +457,7 @@
 
                                 <!-- Content -->
                                 <div class="p-6">
-                                    <form id="updateCalibrationForm" class="space-y-6" data-no-loading enctype="multipart/form-data">
+                                    <form id="performCalibrationForm" class="space-y-6" data-no-loading enctype="multipart/form-data">
                                         @csrf
                                         <input type="hidden" id="calibration_id" name="calibration_id">
 
@@ -550,8 +550,7 @@
                                                         TANGGAL KERJA<span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="date" id="actual_calibration_date" name="actual_calibration_date"
-                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                        required>
+                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
                                                 </div>
 
                                                 <!-- Next Calibration Date -->
@@ -561,8 +560,7 @@
                                                         KALIBRASI BERIKUTNYA<span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="date" id="next_calibration_date" name="next_calibration_date"
-                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                        required>
+                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
                                                 </div>
                                             </div>
                                         </div>
@@ -581,8 +579,7 @@
                                                             NOMOR SERTIFIKAT<span class="text-red-500">*</span>
                                                         </label>
                                                         <input type="text" id="certificate_number" name="certificate_number"
-                                                            class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                            required>
+                                                            class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
                                                     </div>
 
                                                     <!-- Vendor -->
@@ -628,8 +625,7 @@
                                                         <div class="mt-2 flex flex-wrap gap-6">
                                                             <div class="flex items-center">
                                                                 <input type="radio" id="result_pass" name="calibration_result"
-                                                                    value="pass" class="h-4 w-4 text-[#213268] focus:ring-[#213268]"
-                                                                    required>
+                                                                    value="pass" class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
                                                                 <label for="result_pass"
                                                                     class="ml-2 text-sm text-gray-700">Lulus</label>
                                                             </div>
@@ -1176,7 +1172,7 @@
 
                         // Prevent multiple form submissions
                         const addCalibrationForm = document.getElementById('addCalibrationForm');
-                        const updateCalibrationForm = document.getElementById('updateCalibrationForm');
+                        const performCalibrationForm = document.getElementById('performCalibrationForm');
                         const deleteCalibrationForm = document.getElementById('deleteCalibrationForm');
 
                         // Helper function to prevent multiple submissions
@@ -1217,7 +1213,7 @@
 
                         // Apply to all forms
                         preventMultipleSubmits(addCalibrationForm, 'button[type="submit"]');
-                        preventMultipleSubmits(updateCalibrationForm, 'button[type="submit"]');
+                        preventMultipleSubmits(performCalibrationForm, 'button[type="submit"]');
                         preventMultipleSubmits(deleteCalibrationForm, 'button[type="submit"]');
 
                         // Debounce utility function to limit how often a function can be called
@@ -1253,100 +1249,235 @@
 
                         // Define a showToast function that creates notifications in the same style as the static ones
                         window.showToast = function (message, type = 'success') {
-                            // Remove existing notifications with the same type
-                            const existingNotification = document.getElementById(type === 'success' ? 'successNotification' : 'errorNotification');
-                            if (existingNotification) {
-                                existingNotification.remove();
-                            }
-
                             // Create the notification element
                             const notification = document.createElement('div');
-                            notification.id = type === 'success' ? 'successNotification' : 'errorNotification';
-                            notification.className = `fixed top-4 right-4 bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md z-50`;
+                            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+                            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
                             notification.setAttribute('role', 'alert');
 
-                            // Process message content
-                            let messageContent = '';
+                            // Helper function to process error object to HTML
+                            function processErrorObject(errorObj) {
+                                // Special format seen in screenshot: {success: false, errors: [{path, message}]}
+                                if (errorObj.success === false && Array.isArray(errorObj.errors) && errorObj.errors.length > 0) {
+                                    // Check if it's the path/message format
+                                    const firstError = errorObj.errors[0];
+                                    if (typeof firstError === 'object' && firstError !== null &&
+                                        firstError.path && firstError.message) {
 
-                            // Simple string handling
-                            if (typeof message === 'string') {
-                                messageContent = message;
-                            }
-                            // Array handling (convert to comma-separated string)
-                            else if (Array.isArray(message)) {
-                                messageContent = message.join(', ');
-                            }
-                            // Object handling
-                            else if (typeof message === 'object' && message !== null) {
-                                // Get the first available error message from the object
-                                if (message.errors) {
-                                    if (typeof message.errors === 'string') {
-                                        messageContent = message.errors;
-                                    } else if (typeof message.errors === 'object') {
-                                        const errorValues = [];
-
-                                        // Extract all error values
-                                        Object.values(message.errors).forEach(error => {
-                                            if (Array.isArray(error)) {
-                                                errorValues.push(...error);
-                                            } else if (typeof error === 'string') {
-                                                errorValues.push(error);
-                                            }
+                                        console.log('✓ Found specific error format with path/message properties');
+                                        let errorList = '<ul>';
+                                        errorObj.errors.forEach(err => {
+                                            errorList += `<li><strong>${err.path}</strong>: ${err.message}</li>`;
                                         });
+                                        errorList += '</ul>';
+                                        return errorList;
+                                    }
 
-                                        messageContent = errorValues.join(', ');
-                                    }
-                                } else if (message.message) {
-                                    messageContent = message.message;
-                                } else if (message.error) {
-                                    messageContent = message.error;
-                                } else {
-                                    // No recognizable error format, just convert to string
-                                    try {
-                                        messageContent = JSON.stringify(message);
-                                    } catch (e) {
-                                        messageContent = "Error tidak dapat ditampilkan";
-                                    }
+                                    // Regular array errors
+                                    console.log('Found error array format:', errorObj.errors);
+                                    return processErrorArray(errorObj.errors);
                                 }
-                            } else {
-                                // Fallback for other types
-                                messageContent = "Terjadi kesalahan";
+
+                                // Laravel validation errors format
+                                if (errorObj.errors && typeof errorObj.errors === 'object') {
+                                    console.log('Found Laravel validation errors format');
+                                    let errorList = '<ul>';
+                                    Object.entries(errorObj.errors).forEach(([field, errors]) => {
+                                        if (Array.isArray(errors)) {
+                                            errors.forEach(error => {
+                                                errorList += `<li><strong>${field}</strong>: ${error}</li>`;
+                                            });
+                                        } else if (typeof errors === 'string') {
+                                            errorList += `<li><strong>${field}</strong>: ${errors}</li>`;
+                                        }
+                                    });
+                                    errorList += '</ul>';
+                                    return errorList;
+                                }
+
+                                // Single error message
+                                if (errorObj.message) {
+                                    return errorObj.message;
+                                }
+
+                                if (errorObj.error) {
+                                    return errorObj.error;
+                                }
+
+                                // Fallback: stringify the object
+                                try {
+                                    return JSON.stringify(errorObj);
+                                    } catch (e) {
+                                    return "Error tidak dapat ditampilkan";
+                                }
                             }
 
-                            // Set inner HTML with simplified content
+                            // Helper function to process error arrays
+                            function processErrorArray(errArray) {
+                                // If it's array of objects with path/message
+                                if (errArray.length > 0 && typeof errArray[0] === 'object' &&
+                                    errArray[0] !== null && errArray[0].path && errArray[0].message) {
+
+                                    let errorList = '<ul>';
+                                    errArray.forEach(err => {
+                                        errorList += `<li><strong>${err.path}</strong>: ${err.message}</li>`;
+                                    });
+                                    errorList += '</ul>';
+                                    return errorList;
+                                }
+
+                                // If it's just an array of strings
+                                if (typeof errArray[0] === 'string') {
+                                    let errorList = '<ul>';
+                                    errArray.forEach(err => {
+                                        errorList += `<li>${err}</li>`;
+                                    });
+                                    errorList += '</ul>';
+                                    return errorList;
+                                }
+
+                                // Fallback: join as comma-separated list
+                                return errArray.join(', ');
+                            }
+
+                            if (type === 'success') {
+                                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                             notification.innerHTML = `
-                                    <div class="flex items-center">
+                                    <div class="flex items-start">
                                         <div class="py-1">
-                                            <svg class="h-6 w-6 text-${type === 'success' ? 'green' : 'red'}-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="${type === 'success' ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'}" />
+                                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
-                                            <div class="error-message">${messageContent}</div>
+                                            <p class="font-bold">Berhasil!</p>
+                                            <div>${message}</div>
                                         </div>
                                         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                                     </div>
                                 `;
+                            } else {
+                                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                                // Process error message for proper display
+                                let processedMessage = '';
+
+                                // Handle different error message formats
+                                if (typeof message === 'string') {
+                                    processedMessage = message;
+                                } else if (Array.isArray(message)) {
+                                    processedMessage = processErrorArray(message);
+                                } else if (typeof message === 'object' && message !== null) {
+                                    processedMessage = processErrorObject(message);
+                                } else {
+                                    processedMessage = "Terjadi kesalahan";
+                                }
+
+                                // Structure for the notification
+                                const wrapper = document.createElement('div');
+                                wrapper.className = 'flex items-start';
+
+                                // Icon container
+                                const iconContainer = document.createElement('div');
+                                iconContainer.className = 'py-1 flex-shrink-0';
+                                iconContainer.innerHTML = `
+                                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                `;
+
+                                // Content container
+                                const contentContainer = document.createElement('div');
+                                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                                // Title
+                                const title = document.createElement('p');
+                                title.className = 'font-bold';
+                                title.textContent = 'Error!';
+                                contentContainer.appendChild(title);
+
+                                // Message container
+                                const messageContainer = document.createElement('div');
+                                messageContainer.className = 'error-message';
+
+                                // Always use innerHTML for processedMessage as it may contain HTML
+                                messageContainer.innerHTML = processedMessage;
+
+                                contentContainer.appendChild(messageContainer);
+
+                                // Close button
+                                const closeBtn = document.createElement('span');
+                                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                                closeBtn.textContent = '×';
+                                closeBtn.onclick = function() {
+                                    notification.remove();
+                                };
+
+                                // Assemble the notification
+                                wrapper.appendChild(iconContainer);
+                                wrapper.appendChild(contentContainer);
+                                wrapper.appendChild(closeBtn);
+                                notification.appendChild(wrapper);
+                            }
 
                             // Add to document
                             document.body.appendChild(notification);
 
-                            // Auto-hide after 5 seconds
-                            setTimeout(function () {
-                                if (document.getElementById(notification.id)) {
+                            // Auto-remove notification after 5 seconds
+                            setTimeout(() => {
                                     notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                                    setTimeout(function () {
-                                        if (document.getElementById(notification.id)) {
-                                            notification.remove();
-                                        }
-                                    }, 500);
-                                }
+                                setTimeout(() => notification.remove(), 500);
                             }, 5000);
 
                             return notification;
                         };
+
+                        // Add slide-in animation and styling for error messages to CSS
+                        document.head.insertAdjacentHTML('beforeend', `
+                            <style>
+                                @keyframes slideInRight {
+                                    from { transform: translateX(100%); }
+                                    to { transform: translateX(0); }
+                                }
+                                .animate-slide-in-right {
+                                    animation: slideInRight 0.3s ease-out forwards;
+                                }
+
+                                /* Styling for error messages with HTML content */
+                                .error-message ul {
+                                    margin-top: 0.5rem;
+                                    padding-left: 1.5rem;
+                                    list-style-type: disc;
+                                }
+                                .error-message ul li {
+                                    margin-bottom: 0.5rem;
+                                    line-height: 1.4;
+                                }
+                                .error-message ul li:last-child {
+                                    margin-bottom: 0;
+                                }
+                                .error-message ul li strong {
+                                    font-weight: 600;
+                                    color: #991b1b;
+                                    display: inline-block;
+                                    min-width: 100px;
+                                }
+                                .error-message ul li::marker {
+                                    color: #991b1b;
+                                }
+                                /* Toast notification fade effect */
+                                .opacity-0 {
+                                    opacity: 0;
+                                }
+                                .transition-opacity {
+                                    transition-property: opacity;
+                                    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                                }
+                                .duration-500 {
+                                    transition-duration: 500ms;
+                                }
+                            </style>
+                        `);
 
                         // Show flash messages with the showToast function
                         @if(session('success'))
@@ -1667,7 +1798,7 @@
                                     updateSelectedAssetsList();
                                 } else if (modal.id === 'viewCalibrationModal') {
                                     // Reset the update calibration form
-                                    document.getElementById('updateCalibrationForm')?.reset();
+                                    document.getElementById('performCalibrationForm')?.reset();
                                     // Clear file preview
                                     const filePreview = document.getElementById('file-preview');
                                     if (filePreview) filePreview.classList.add('hidden');
@@ -1880,7 +2011,7 @@
 
                                             // If status is completed or approved, disable form fields
                                             const isCompleted = status === 'completed' || status === 'approved';
-                                            const form = document.getElementById('updateCalibrationForm');
+                                            const form = document.getElementById('performCalibrationForm');
                                             const formElements = form.querySelectorAll('input, select, textarea, button[type="submit"]');
 
                                             formElements.forEach(element => {
@@ -2130,17 +2261,60 @@
                         });
 
                         // Update Calibration Form Submit
-                        document.getElementById('updateCalibrationForm').addEventListener('submit', function (e) {
+                        document.getElementById('performCalibrationForm').addEventListener('submit', function (e) {
                             e.preventDefault();
 
                             const calibrationId = document.getElementById('calibration_id').value;
-                            const formData = new FormData(this);
 
-                            // Remove the calibration_id from form data since it's used in the URL
-                            formData.delete('calibration_id');
+                            // Create a new FormData object instead of using the form directly
+                            const formData = new FormData();
+
+                            // Get all form fields
+                            const formElements = this.elements;
+
+                            // Only add non-empty fields to the FormData
+                            for (let i = 0; i < formElements.length; i++) {
+                                const element = formElements[i];
+
+                                // Skip buttons, fieldsets, and hidden calibration_id field
+                                if (element.type === 'button' || element.type === 'submit' ||
+                                    element.tagName === 'FIELDSET' || element.name === 'calibration_id') {
+                                    continue;
+                                }
+
+                                // Handle different input types
+                                if (element.type === 'radio' || element.type === 'checkbox') {
+                                    // Only include checked radio/checkbox values
+                                    if (element.checked) {
+                                        formData.append(element.name, element.value);
+                                    }
+                                }
+                                // Handle file inputs
+                                else if (element.type === 'file') {
+                                    // Only include files if they exist
+                                    if (element.files && element.files.length > 0) {
+                                        formData.append(element.name, element.files[0]);
+                                    }
+                                }
+                                // Handle all other input types
+                                else if (element.value.trim() !== '') {
+                                    formData.append(element.name, element.value.trim());
+
+                                    // Log for debugging
+                                    console.log(`Adding field: ${element.name} = ${element.value.trim()}`);
+                                } else {
+                                    console.log(`Skipping empty field: ${element.name}`);
+                                }
+                            }
 
                             // Add _method field for PUT request
                             formData.append('_method', 'PUT');
+
+                            // Log all form data that will be sent
+                            console.log('Form data to be sent:');
+                            for (const pair of formData.entries()) {
+                                console.log(`${pair[0]}: ${pair[1]}`);
+                            }
 
                             fetch(`/calibrations/report/${calibrationId}`, {
                                 method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
@@ -2177,35 +2351,9 @@
                                 .catch(error => {
                                     console.error('Error:', error);
 
-                                    // Extract just the error message
-                                    if (typeof error === 'object' && error !== null) {
-                                        if (error.errors) {
-                                            // Simple string error
-                                            if (typeof error.errors === 'string') {
-                                                showToast(error.errors, 'error');
-                                            }
-                                            // Object with error fields
-                                            else if (typeof error.errors === 'object') {
-                                                const errorMessages = [];
-
-                                                Object.values(error.errors).forEach(err => {
-                                                    if (Array.isArray(err)) {
-                                                        errorMessages.push(...err);
-                                                    } else if (typeof err === 'string') {
-                                                        errorMessages.push(err);
-                                                    }
-                                                });
-
-                                                showToast(errorMessages.join(', '), 'error');
-                                            }
-                                        } else if (error.message) {
-                                            showToast(error.message, 'error');
-                                        } else {
-                                            showToast('Gagal memperbarui kalibrasi', 'error');
-                                        }
-                                    } else {
-                                        showToast('Terjadi kesalahan saat memperbarui kalibrasi', 'error');
-                                    }
+                                    // Pass the error object directly to showToast
+                                    // Our enhanced showToast function will handle the specific error format
+                                    showToast(error, 'error');
                                 });
                         });
 

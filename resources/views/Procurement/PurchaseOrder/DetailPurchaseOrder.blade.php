@@ -100,7 +100,6 @@
                                     <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">JUMLAH</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-sm text-right">HARGA SATUAN</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-sm text-right">TOTAL</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">STATUS</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -120,16 +119,11 @@
                                             <td class="p-3 text-sm text-right text-[#666666]">
                                                 <div class="text-sm font-medium">{{ isset($item['total_price']) ? number_format((float)$item['total_price'], 0, ',', '.') : 'N/A' }}</div>
                                             </td>
-                                            <td class="p-3 text-sm text-center">
-                                                <span class="px-2 py-1 rounded-full text-sm {{ isset($purchaseOrder['completed_at']) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-500' }}">
-                                                    {{ isset($purchaseOrder['completed_at']) ? 'Diterima' : 'Belum Diterima' }}
-                                                </span>
-                                            </td>
                                         </tr>
                                     @endforeach
                                 @else
                                     <tr>
-                                        <td colspan="5" class="p-3 text-center text-gray-500">Tidak ada item yang ditemukan untuk purchase order ini.</td>
+                                        <td colspan="4" class="p-3 text-center text-gray-500">Tidak ada item yang ditemukan untuk purchase order ini.</td>
                                     </tr>
                                 @endif
 
@@ -139,13 +133,12 @@
                                     <td class="p-3 text-sm text-right text-[#666666]">
                                         <div class="text-sm font-medium">{{ number_format($grandTotal, 0, ',', '.') }}</div>
                                     </td>
-                                    <td></td>
                                 </tr>
 
                                 <!-- Payment Terms Row -->
                                 <tr class="border-t border-[#EEF1F4] bg-[#E9ECF6]">
                                     <td class="p-3 text-sm font-medium text-left text-[#213268]">Syarat Pembayaran</td>
-                                    <td colspan="4" class="p-3 text-sm text-[#666666]">
+                                    <td colspan="3" class="p-3 text-sm text-[#666666]">
                                         {{ $purchaseOrder['payment_terms'] ?? 'Tidak ada data' }}
                                     </td>
                                 </tr>
@@ -153,7 +146,7 @@
                                 <!-- Delivery Terms Row -->
                                 <tr class="border-t border-[#EEF1F4] bg-[#E9ECF6]">
                                     <td class="p-3 text-sm font-medium text-left text-[#213268]">Syarat Pengiriman</td>
-                                    <td colspan="4" class="p-3 text-sm text-[#666666]">
+                                    <td colspan="3" class="p-3 text-sm text-[#666666]">
                                         {{ $purchaseOrder['delivery_terms'] ?? 'Tidak ada data' }}
                                     </td>
                                 </tr>
@@ -161,7 +154,7 @@
                                 <!-- Notes Row -->
                                 <tr class="border-t border-[#EEF1F4] bg-[#E9ECF6]">
                                     <td class="p-3 text-sm font-medium text-left text-[#213268]">Catatan</td>
-                                    <td colspan="4" class="p-3 text-sm text-[#666666]">
+                                    <td colspan="3" class="p-3 text-sm text-[#666666]">
                                         {{ $purchaseOrder['notes'] ?? 'Tidak ada data' }}
                                     </td>
                                 </tr>

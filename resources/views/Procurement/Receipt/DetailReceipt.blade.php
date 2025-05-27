@@ -58,8 +58,8 @@
 
                             <!-- Order Number -->
                             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor PO</p>
-                                <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['purchase_order_id'] ?? 'N/A' }}
+                                <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor Pemesanan</p>
+                                <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['purchase_order_code'] ?? 'N/A' }}
                                 </p>
                             </div>
 

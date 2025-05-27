@@ -43,15 +43,6 @@
                         </form>
                     </div>
                     <div class="flex flex-wrap gap-4">
-                        <select id="statusFilter" name="status" form="searchForm"
-                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" disabled {{ request('status') ? '' : 'selected' }}>Status</option>
-                            <option value="">Semua Status</option>
-                            <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Diterima</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Tertunda</option>
-                            <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Sebagian</option>
-                        </select>
-
                         <select id="sortOrder" name="sort" form="searchForm"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="" disabled {{ request('sort') ? '' : 'selected' }}>Urutan</option>
@@ -92,7 +83,7 @@
                             @forelse($receipts as $receipt)
                                 <tr>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['receipt_code'] ?? '-' }}</td>
-                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['purchase_order_code  '] ?? '-' }}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['purchase_order_code'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['delivered_by'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $receipt['receiver_name'] ?? '-' }}</td>
                                     <td class="p-3 text-xs border-t border-[#EEF1F4]">
@@ -290,7 +281,6 @@
         const searchForm = document.getElementById('searchForm');
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
-        const statusFilter = document.getElementById('statusFilter');
         const sortOrder = document.getElementById('sortOrder');
         const perPageSelect = document.getElementById('perPageSelect');
 
@@ -308,10 +298,6 @@
         });
 
         // Form submission on filter change
-        statusFilter?.addEventListener('change', function() {
-            searchForm?.submit();
-        });
-
         sortOrder?.addEventListener('change', function() {
             searchForm?.submit();
         });

@@ -1819,7 +1819,7 @@
                 userList.innerHTML = '';
 
                 try {
-                    const response = await fetch(`{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                    const response = await fetch(`{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}&status=active`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'

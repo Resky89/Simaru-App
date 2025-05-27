@@ -46,9 +46,10 @@
 
                                     <!-- Delivered by -->
                                     <div class="form-control">
-                                        <label class="block text-base font-medium text-[#666666] mb-2">Dikirim oleh</label>
+                                        <label class="block text-base font-medium text-[#666666] mb-2">Dikirim oleh <span
+                                                class="text-red-500">*</span></label>
                                         <div class="flex">
-                                            <input type="text" id="delivered_by" name="delivered_by"
+                                            <input type="text" id="delivered_by" name="delivered_by" placeholder="Ketik nama"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                         </div>
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Nama pengirim harus diisi</div>
@@ -1095,7 +1096,7 @@
                     usersLoading.classList.remove('hidden');
 
                     // Fetch users data using the same endpoint as in Maintenance.blade.php
-                    const response = await fetch(`{{ route('user') }}?search=${encodeURIComponent(searchTerm)}`, {
+                    const response = await fetch(`{{ route('user') }}?search=${encodeURIComponent(searchTerm)}&status=active`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',

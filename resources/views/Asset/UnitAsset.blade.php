@@ -2577,7 +2577,7 @@
                 userList.innerHTML = '';
 
                 try {
-                    const response = await fetch(`{{ url('/user') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                    const response = await fetch(`{{ url('/user') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) + '&status=active' : '?status=active'}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'

@@ -29,7 +29,6 @@ class ProcurementPurchaseOrderController extends Controller
 
             // Mendapatkan parameter pencarian dan filter
             $search = $request->input('search');
-            $status = $request->input('status');
             $sort = $request->input('sort');
 
             // Membangun parameter query
@@ -41,11 +40,6 @@ class ProcurementPurchaseOrderController extends Controller
             // Menambahkan parameter pencarian jika disediakan
             if ($search) {
                 $queryParams['search'] = $search;
-            }
-
-            // Menambahkan filter status jika disediakan
-            if ($status) {
-                $queryParams['status'] = $status;
             }
 
             // Mengatur parameter pengurutan berdasarkan pilihan

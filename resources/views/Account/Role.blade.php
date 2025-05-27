@@ -14,7 +14,7 @@
                         <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">ROLE</h1>
 
                         <!-- Button Add Role -->
-                        @if(hasPermission('role:create') || hasPermission('role:assign_permissions'))
+                        @if(hasPermission('role:create'))
                             <button id="addRoleBtn"
                                 class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
                                 <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -45,12 +45,10 @@
                             <select id="sortOrder"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" {{ ($sort ?? '') == '' ? 'selected' : '' }}>Default Order</option>
-                                <option value="id_asc" {{ ($sort ?? '') == 'id_asc' ? 'selected' : '' }}>Terbaru</option>
-                                <option value="id_desc" {{ ($sort ?? '') == 'id_desc' ? 'selected' : '' }}>Terlama</option>
-                                <option value="name_asc" {{ ($sort ?? '') == 'name_asc' ? 'selected' : '' }}>Nama (A-Z)
-                                </option>
-                                <option value="name_desc" {{ ($sort ?? '') == 'name_desc' ? 'selected' : '' }}>Nama (Z-A)
-                                </option>
+                                <option value="id_desc" {{ ($sort ?? '') == 'id_desc' ? 'selected' : '' }}>Terbaru</option>
+                                <option value="id_asc" {{ ($sort ?? '') == 'id_asc' ? 'selected' : '' }}>Terlama</option>
+                                <option value="name_asc" {{ ($sort ?? '') == 'name_asc' ? 'selected' : '' }}>Nama (A-Z)</option>
+                                <option value="name_desc" {{ ($sort ?? '') == 'name_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
                             </select>
                         </div>
                     </div>
@@ -73,7 +71,7 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $role['description'] ?? '-' }}</td>
                                         <td class="p-3 border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">
-                                                @if(hasPermission('role:edit') || hasPermission('role:assign_permissions'))
+                                                @if(hasPermission('role:edit'))
                                                     <button
                                                         class="edit-role-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                         data-role-id="{{ $role['role_id'] }}"
@@ -177,7 +175,7 @@
         </div>
 
         <!-- Add Role Modal -->
-        @if(hasPermission('role:create') || hasPermission('role:assign_permissions'))
+        @if(hasPermission('role:create'))
             <div id="addRoleModal" class="fixed inset-0 z-50 hidden">
                 <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
                 <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -222,50 +220,28 @@
                                         </div>
 
                                         <!-- Permissions Header -->
-                                        @if(hasPermission('role:assign_permissions'))
-                                            <div class="pt-2">
-                                                <div class="pb-4 border-b border-gray-200">
-                                                    <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
-                                                    <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa
-                                                        yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
+                                        <div class="pt-2">
+                                            <div class="pb-4 border-b border-gray-200">
+                                                <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
+                                                <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa
+                                                    yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
 
-                                                    <div class="flex flex-wrap gap-6 mt-3">
-                                                        <div class="flex items-center gap-2">
-                                                            <input type="checkbox" id="add-all-permission"
-                                                                class="checkbox checkbox-primary" data-target="all">
-                                                            <label for="add-all-permission"
-                                                                class="font-semibold cursor-pointer select-none">
-                                                                Semua Izin</label>
-                                                        </div>
+                                                <div class="flex flex-wrap gap-6 mt-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <input type="checkbox" id="add-all-permission"
+                                                            class="checkbox checkbox-primary" data-target="all">
+                                                        <label for="add-all-permission"
+                                                            class="font-semibold cursor-pointer select-none">
+                                                            Semua Izin</label>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            <!-- Permission Groups Container -->
-                                            <div id="add-permissions-container" class="space-y-6 pt-3">
-                                                <p class="text-center text-gray-500 py-4">Memuat data izin...</p>
-                                            </div>
-                                        @else
-                                            <div class="pt-2">
-                                                <div class="pb-4 border-b border-gray-200">
-                                                    <div class="bg-blue-50 text-blue-700 p-4 rounded-md">
-                                                        <div class="flex">
-                                                            <svg class="h-5 w-5 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24"
-                                                                stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                            </svg>
-                                                            <div>
-                                                                <p class="font-medium">Izin tidak tersedia</p>
-                                                                <p class="text-sm mt-1">Anda tidak memiliki akses untuk menetapkan
-                                                                    izin ke peran ini.</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
+                                        <!-- Permission Groups Container -->
+                                        <div id="add-permissions-container" class="space-y-6 pt-3">
+                                            <p class="text-center text-gray-500 py-4">Memuat data izin...</p>
+                                        </div>
 
                                         <!-- Button Group -->
                                         <div class="pt-6">
@@ -284,7 +260,7 @@
         @endif
 
         <!-- Edit Role Modal -->
-        @if(hasPermission('role:edit') || hasPermission('role:assign_permissions'))
+        @if(hasPermission('role:edit'))
             <div id="editRoleModal" class="fixed inset-0 z-50 hidden">
                 <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
                 <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -330,50 +306,28 @@
                                         </div>
 
                                         <!-- Permissions Header -->
-                                        @if(hasPermission('role:assign_permissions'))
-                                            <div class="pt-2">
-                                                <div class="pb-4 border-b border-gray-200">
-                                                    <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
-                                                    <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa
-                                                        yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
+                                        <div class="pt-2">
+                                            <div class="pb-4 border-b border-gray-200">
+                                                <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
+                                                <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa
+                                                    yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
 
-                                                    <div class="flex flex-wrap gap-6 mt-3">
-                                                        <div class="flex items-center gap-2">
-                                                            <input type="checkbox" id="edit-all-permission"
-                                                                class="checkbox checkbox-primary" data-target="all">
-                                                            <label for="edit-all-permission"
-                                                                class="font-semibold cursor-pointer select-none">
-                                                                Semua Izin</label>
-                                                        </div>
+                                                <div class="flex flex-wrap gap-6 mt-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <input type="checkbox" id="edit-all-permission"
+                                                            class="checkbox checkbox-primary" data-target="all">
+                                                        <label for="edit-all-permission"
+                                                            class="font-semibold cursor-pointer select-none">
+                                                            Semua Izin</label>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            <!-- Permission Groups Container -->
-                                            <div id="edit-permissions-container" class="space-y-6 pt-3">
-                                                <p class="text-center text-gray-500 py-4">Memuat izin...</p>
-                                            </div>
-                                        @else
-                                            <div class="pt-2">
-                                                <div class="pb-4 border-b border-gray-200">
-                                                    <div class="bg-blue-50 text-blue-700 p-4 rounded-md">
-                                                        <div class="flex">
-                                                            <svg class="h-5 w-5 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24"
-                                                                stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                            </svg>
-                                                            <div>
-                                                                <p class="font-medium">Izin tidak tersedia</p>
-                                                                <p class="text-sm mt-1">Anda tidak memiliki akses untuk menetapkan
-                                                                    izin ke peran ini.</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
+                                        <!-- Permission Groups Container -->
+                                        <div id="edit-permissions-container" class="space-y-6 pt-3">
+                                            <p class="text-center text-gray-500 py-4">Memuat izin...</p>
+                                        </div>
 
                                         <!-- Button Group -->
                                         <div class="pt-6">
@@ -609,7 +563,7 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             // Permission-aware initialization
-            @if(!hasPermission('role:create') && !hasPermission('role:assign_permissions'))
+            @if(!hasPermission('role:create'))
                 // Disable related elements if user doesn't have permission
                 const addButtons = document.querySelectorAll('#addRoleBtn');
                 addButtons.forEach(btn => {
@@ -619,34 +573,34 @@
                 });
             @endif
 
-                @if(!hasPermission('role:edit') && !hasPermission('role:assign_permissions'))
-                        // Disable edit functionality if user doesn't have permission
-                        const editButtons = document.querySelectorAll('.edit-role-btn');
-                    editButtons.forEach(btn => {
-                        if (btn) {
-                            btn.style.display = 'none';
-                        }
-                    });
-                @endif
+            @if(!hasPermission('role:edit'))
+                    // Disable edit functionality if user doesn't have permission
+                    const editButtons = document.querySelectorAll('.edit-role-btn');
+                editButtons.forEach(btn => {
+                    if (btn) {
+                        btn.style.display = 'none';
+                    }
+                });
+            @endif
 
-                @if(!hasPermission('role:delete'))
-                        // Disable delete functionality if user doesn't have permission
-                        const deleteButtons = document.querySelectorAll('.delete-role-btn');
-                    deleteButtons.forEach(btn => {
-                        if (btn) {
-                            btn.style.display = 'none';
-                        }
-                    });
-                @endif
+            @if(!hasPermission('role:delete'))
+                    // Disable delete functionality if user doesn't have permission
+                    const deleteButtons = document.querySelectorAll('.delete-role-btn');
+                deleteButtons.forEach(btn => {
+                    if (btn) {
+                        btn.style.display = 'none';
+                    }
+                });
+            @endif
 
-                // Show toast notifications for session messages on page load
-                @if(session('success'))
-                    showToast("{{ session('success') }}", 'success');
-                @endif
+            // Show toast notifications for session messages on page load
+            @if(session('success'))
+                showToast("{{ session('success') }}", 'success');
+            @endif
 
-                @if(session('error'))
-                    showToast("{{ session('error') }}", 'error');
-                @endif
+            @if(session('error'))
+                showToast("{{ session('error') }}", 'error');
+            @endif
 
             // Function to change items per page for roles
             window.changeRolePerPage = function (limit) {
@@ -983,10 +937,8 @@
 
             // Add event listener for add role button to open the modal
             document.getElementById('addRoleBtn').addEventListener('click', async () => {
-                    @if(hasPermission('role:assign_permissions'))
-                            const permissions = await fetchPermissions();
-                        renderPermissionCheckboxes(permissions, [], 'add-permissions-container');
-                    @endif
+                const permissions = await fetchPermissions();
+                renderPermissionCheckboxes(permissions, [], 'add-permissions-container');
 
                 // Reset the form
                 document.getElementById('addRoleForm').reset();
@@ -1004,9 +956,7 @@
                         // Show loading state
                         document.getElementById('edit_role_name').value = "Memuat...";
                         document.getElementById('edit_description').value = "Memuat...";
-                            @if(hasPermission('role:assign_permissions'))
-                                document.getElementById('edit-permissions-container').innerHTML = '<p class="text-center text-gray-500 py-4">Memuat data izin...</p>';
-                            @endif
+                        document.getElementById('edit-permissions-container').innerHTML = '<p class="text-center text-gray-500 py-4">Memuat data izin...</p>';
 
                         // Open the modal while loading
                         openModal(editRoleModal, document.getElementById('editRoleModalContent'));
@@ -1033,25 +983,21 @@
                         document.getElementById('edit_role_name').value = role.role_name;
                         document.getElementById('edit_description').value = role.description || '';
 
-                            @if(hasPermission('role:assign_permissions'))
-                                    // Load all permissions then select the ones from our role
-                                    const permissions = await fetchPermissions();
-                                const selectedPermissionIds = role.permissions?.map(p => p.permission_id) || [];
+                        // Load all permissions then select the ones from our role
+                        const permissions = await fetchPermissions();
+                        const selectedPermissionIds = role.permissions?.map(p => p.permission_id) || [];
 
-                                // Render the permissions with the correct ones selected
-                                renderPermissionCheckboxes(permissions, selectedPermissionIds, 'edit-permissions-container');
-                            @endif
+                        // Render the permissions with the correct ones selected
+                        renderPermissionCheckboxes(permissions, selectedPermissionIds, 'edit-permissions-container');
 
-                        } catch (error) {
+                    } catch (error) {
                         console.error('Error loading role:', error);
                         showToast(`Error loading role: ${error.message}`, 'error');
 
-                            @if(hasPermission('role:assign_permissions'))
-                                    // Load permissions with empty selection in case of error
-                                    const permissions = await fetchPermissions();
-                                renderPermissionCheckboxes(permissions, [], 'edit-permissions-container');
-                            @endif
-                        }
+                        // Load permissions with empty selection in case of error
+                        const permissions = await fetchPermissions();
+                        renderPermissionCheckboxes(permissions, [], 'edit-permissions-container');
+                    }
                 });
             });
 
@@ -1186,24 +1132,22 @@
                         form.appendChild(descInput);
                     }
 
-                        @if(hasPermission('role:assign_permissions'))
-                                // Get all checked checkboxes and hidden inputs with permission IDs
-                                const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
+                    // Get all checked checkboxes and hidden inputs with permission IDs
+                    const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
 
-                            // Add numeric permission IDs, avoiding duplicates
-                            const uniqueIds = new Set();
-                            permissionInputs.forEach(input => {
-                                uniqueIds.add(parseInt(input.value));
-                            });
+                    // Add numeric permission IDs, avoiding duplicates
+                    const uniqueIds = new Set();
+                    permissionInputs.forEach(input => {
+                        uniqueIds.add(parseInt(input.value));
+                    });
 
-                            uniqueIds.forEach(id => {
-                                const input = document.createElement('input');
-                                input.type = 'hidden';
-                                input.name = 'permission_ids[]';
-                                input.value = id; // This is now a number
-                                form.appendChild(input);
-                            });
-                        @endif
+                    uniqueIds.forEach(id => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'permission_ids[]';
+                        input.value = id; // This is now a number
+                        form.appendChild(input);
+                    });
 
                     // Append form to body, submit it, then remove it
                     document.body.appendChild(form);
@@ -1305,24 +1249,22 @@
                         form.appendChild(descInput);
                     }
 
-                        @if(hasPermission('role:assign_permissions'))
-                                // Get all checked checkboxes and hidden inputs with permission IDs
-                                const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
+                    // Get all checked checkboxes and hidden inputs with permission IDs
+                    const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
 
-                            // Add numeric permission IDs, avoiding duplicates
-                            const uniqueIds = new Set();
-                            permissionInputs.forEach(input => {
-                                uniqueIds.add(parseInt(input.value));
-                            });
+                    // Add numeric permission IDs, avoiding duplicates
+                    const uniqueIds = new Set();
+                    permissionInputs.forEach(input => {
+                        uniqueIds.add(parseInt(input.value));
+                    });
 
-                            uniqueIds.forEach(id => {
-                                const input = document.createElement('input');
-                                input.type = 'hidden';
-                                input.name = 'permission_ids[]';
-                                input.value = id; // This is now a number
-                                form.appendChild(input);
-                            });
-                        @endif
+                    uniqueIds.forEach(id => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'permission_ids[]';
+                        input.value = id; // This is now a number
+                        form.appendChild(input);
+                    });
 
                     // Append form to body, submit it, then remove it
                     document.body.appendChild(form);

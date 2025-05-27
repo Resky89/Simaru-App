@@ -43,9 +43,9 @@
                         <div class="flex flex-wrap gap-4">
                             <select id="statusFilter"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                <option value="" selected>Semua Status</option>
-                                <option value="active">Aktif</option>
-                                <option value="inactive">Tidak Aktif</option>
+                                <option value="" {{ !isset($filters['status']) || $filters['status'] === '' ? 'selected' : '' }}>Semua Status</option>
+                                <option value="active" {{ isset($filters['status']) && $filters['status'] === 'active' ? 'selected' : '' }}>Aktif</option>
+                                <option value="inactive" {{ isset($filters['status']) && $filters['status'] === 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
                             </select>
 
                             <select id="sortOrder"
@@ -523,8 +523,11 @@
                 else url.searchParams.delete('search');
 
                 // Set status parameter
-                if (statusFilter) url.searchParams.set('status', statusFilter);
-                else url.searchParams.delete('status');
+                if (statusFilter) {
+                    url.searchParams.set('status', statusFilter);
+                } else {
+                    url.searchParams.delete('status');
+                }
 
                 // Set sort parameter
                 if (sortOrder) url.searchParams.set('sort', sortOrder);

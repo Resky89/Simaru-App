@@ -46,7 +46,12 @@ class UserController extends Controller
 
             // Add status filter if provided
             if (!empty($status)) {
-                $userQueryParams['is_active'] = $status === 'active' ? true : false;
+                if ($status === 'active') {
+                    $userQueryParams['is_active'] = "true";
+                } else if ($status === 'inactive') {
+                    $userQueryParams['is_active'] = "false";
+                }
+                // If status is any other value, don't add the is_active filter
             }
 
             // Apply custom sorting
@@ -231,7 +236,12 @@ class UserController extends Controller
 
             // Add status filter if provided
             if (!empty($status)) {
-                $queryParams['is_active'] = $status === 'active' ? true : false;
+                if ($status === 'active') {
+                    $queryParams['is_active'] = "true";
+                } else if ($status === 'inactive') {
+                    $queryParams['is_active'] = "false";
+                }
+                // If status is any other value, don't add the is_active filter
             }
 
             // Apply custom sorting

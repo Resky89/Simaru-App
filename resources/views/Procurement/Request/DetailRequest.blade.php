@@ -526,6 +526,22 @@
             const rejectModalContent = document.getElementById('rejectModalContent');
             const rejectForm = document.getElementById('rejectForm');
             const rejectionReasonField = document.getElementById('rejection_reason');
+
+            // Function to close the modal and reset form
+            function closeRejectModal() {
+                rejectModalContent.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                rejectModalContent.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+                setTimeout(() => {
+                    rejectModal.classList.add('hidden');
+                    // Reset the form
+                    rejectForm.reset();
+                    // Clear any validation styling
+                    rejectionReasonField.classList.remove('border-red-500');
+                    const errorField = rejectForm.querySelector('.invalid-feedback');
+                    if (errorField) errorField.classList.add('hidden');
+                }, 300);
+            }
+
             if (rejectBtn) {
                 rejectBtn.addEventListener('click', function () {
                     rejectModal.classList.remove('hidden');
@@ -535,6 +551,27 @@
                     }, 10);
                 });
             }
+
+            // Add event listeners to all close buttons
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', closeRejectModal);
+            });
+
+            // Close on outside click
+            rejectModal.addEventListener('click', function(e) {
+                const overlayArea = this.querySelector('.fixed.inset-0.z-50.overflow-y-auto');
+                const bgOverlay = this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50');
+                if (e.target === overlayArea || e.target === bgOverlay) {
+                    closeRejectModal();
+                }
+            });
+
+            // Close on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !rejectModal.classList.contains('hidden')) {
+                    closeRejectModal();
+                }
+            });
 
             // Submit rejection
             rejectForm.addEventListener('submit', function (e) {
@@ -570,7 +607,7 @@
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalBtnText;
                         if (data.success) {
-                            rejectModal.classList.add('hidden');
+                            closeRejectModal(); // Use the closeRejectModal function here too
                             showSweetAlert(data.message || 'Pengadaan berhasil ditolak', 'success', {
                                 timer: 1500,
                                 timerProgressBar: true,
@@ -580,7 +617,33 @@
                                 }
                             });
                         } else {
-                            const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal menolak pengadaan';
+                            let errorMsg = 'Gagal menolak pengadaan';
+
+                            // Handle different error formats from the server
+                            if (data.errors) {
+                                if (Array.isArray(data.errors)) {
+                                    // New format: array of objects with path and message properties
+                                    errorMsg = data.errors.map(err => err.message).join('<br>');
+
+                                    // If there's validation error for rejection reason, highlight the field
+                                    const reasonError = data.errors.find(err => err.path === 'rejected_reason');
+                                    if (reasonError) {
+                                        rejectionReasonField.classList.add('border-red-500');
+                                        const errorElement = rejectForm.querySelector('.invalid-feedback');
+                                        if (errorElement) {
+                                            errorElement.textContent = reasonError.message;
+                                            errorElement.classList.remove('hidden');
+                                        }
+                                    }
+                                } else if (typeof data.errors === 'object') {
+                                    // Old format: object with field names as keys
+                                    errorMsg = Object.values(data.errors).flat().join('<br>');
+                                } else if (typeof data.errors === 'string') {
+                                    // Simple string error
+                                    errorMsg = data.errors;
+                                }
+                            }
+
                             showSweetAlert(errorMsg, 'error');
                         }
                     })

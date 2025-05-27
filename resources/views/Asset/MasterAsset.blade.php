@@ -2298,9 +2298,26 @@
                 }
             });
 
+            // Check for missing required headers
+            const requiredFields = ['asset_name', 'asset_type', 'subcategory_name', 'brand_name'];
+            const missingHeaders = [];
+            requiredFields.forEach(field => {
+                if (headerIndexes[field] === undefined) {
+                    const readableField = field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    missingHeaders.push(`Kolom ${readableField} tidak ditemukan di file Excel`);
+                }
+            });
+
+            if (missingHeaders.length > 0) {
+                // Show warnings for missing headers
+                showWarnings(missingHeaders);
+                return [];
+            }
+
             // Process data rows
             const processedData = [];
             const warnings = [];
+            const validAssetTypes = ['medical', 'medis', 'non_medical', 'non medis'];
 
             // Skip header row, process data rows
             for (let i = 1; i < nonEmptyRows.length; i++) {
@@ -2338,33 +2355,49 @@
                 }
 
                 // Validate required fields
+                let hasErrors = false;
+
                 if (!rowData.asset_name) {
-                    warnings.push(`Baris ${i+1}: Nama aset tidak ditemukan`);
+                    warnings.push(`Baris ${i+1}: Missing Asset Name`);
+                    hasErrors = true;
                 }
 
                 if (!rowData.asset_type) {
-                    warnings.push(`Baris ${i+1}: Tipe aset tidak ditemukan`);
+                    warnings.push(`Baris ${i+1}: Missing Asset Type`);
+                    hasErrors = true;
+                } else {
+                    // Normalize and validate asset_type
+                    const lowerType = rowData.asset_type.toLowerCase();
+                    if (!validAssetTypes.some(type => lowerType.includes(type))) {
+                        warnings.push(`Baris ${i+1}: Invalid Asset Type "${rowData.asset_type}" (harus Medical/Medis atau Non-Medical/Non-Medis)`);
+                        hasErrors = true;
                 } else {
                     // Normalize asset_type
-                    if (rowData.asset_type.toLowerCase().includes('medical')) {
+                        if (lowerType.includes('medical') || lowerType.includes('medis')) {
                         rowData.asset_type = 'medical';
                     } else {
                         rowData.asset_type = 'non_medical';
+                        }
                     }
                 }
 
                 if (!rowData.subcategory_name) {
-                    warnings.push(`Baris ${i+1}: Kategori tidak ditemukan`);
+                    warnings.push(`Baris ${i+1}: Missing Subcategory`);
+                    hasErrors = true;
                 }
 
                 if (!rowData.brand_name) {
-                    warnings.push(`Baris ${i+1}: Merk tidak ditemukan`);
+                    warnings.push(`Baris ${i+1}: Missing Brand`);
+                    hasErrors = true;
                 }
 
                 // Add row number for display
                 rowData._rowNum = i;
 
+                // Only add valid rows to the processed data
+                if (!hasErrors) {
                 processedData.push(rowData);
+                }
             }
 
             // Store warnings for display
@@ -2388,6 +2421,19 @@
             // Find duplicate entries if any
             const duplicates = findDuplicates(data);
             const hasDuplicates = Object.keys(duplicates).length > 0;
+
+            // Initialize warnings array
+            const warnings = [];
+
+            // Add duplicate warnings if any found
+            if (hasDuplicates) {
+                for (const [key, indexes] of Object.entries(duplicates)) {
+                    if (indexes.length > 1) {
+                        const item = data[indexes[0]];
+                        warnings.push(`Duplikat ditemukan: "${item.asset_name}" (${formatAssetType(item.asset_type)}, ${item.subcategory_name}, ${item.brand_name})`);
+                    }
+                }
+            }
 
             // Add rows
             data.forEach((item, index) => {
@@ -2417,15 +2463,8 @@
                 previewTableBody.appendChild(row);
             });
 
-            // Show duplicate warnings if any found
-            if (hasDuplicates) {
-                const warnings = [];
-                for (const [key, indexes] of Object.entries(duplicates)) {
-                    if (indexes.length > 1) {
-                        const item = data[indexes[0]];
-                        warnings.push(`Duplikat ditemukan: "${item.asset_name}" (${formatAssetType(item.asset_type)}, ${item.subcategory_name}, ${item.brand_name})`);
-                    }
-                }
+            // Show warnings if any
+            if (warnings.length > 0) {
                 showWarnings(warnings);
             }
         }
@@ -2484,6 +2523,24 @@
 
             // Show warnings container
             previewWarnings.classList.remove('hidden');
+
+            // Disable import button if there are critical warnings
+            const importBtn = document.getElementById('import-btn');
+            const hasCriticalWarnings = warnings.some(warning =>
+                warning.includes('Missing Asset Type') ||
+                warning.includes('Missing Asset Name') ||
+                warning.includes('Invalid Asset Type') ||
+                warning.includes('Missing Subcategory') ||
+                warning.includes('Missing Brand')
+            );
+
+            if (importBtn && hasCriticalWarnings) {
+                importBtn.disabled = true;
+                importBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else if (importBtn) {
+                importBtn.disabled = false;
+                importBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
         }
 
         // Hide warnings
@@ -2563,7 +2620,7 @@
                 importBtn.disabled = false;
                 importBtn.innerHTML = originalBtnText;
 
-                if (data.status >= 200 && data.status < 300) {
+                if (data.success === true || (data.status >= 200 && data.status < 300)) {
                     // Success response
                     console.log('Import successful:', data);
 
@@ -2583,14 +2640,84 @@
                     // Error response
                     console.error('Import error:', data);
 
-                    // Show error notification toast (outside the modal)
-                    let errorMessage = data.message || 'An error occurred during import.';
-                    if (data.errors) {
-                        const errorList = Object.values(data.errors);
-                        if (errorList.length > 0) {
-                            errorMessage += ': ' + errorList.join(', ');
+                    // Show error notification toast
+                    console.error('Import error details:', data);
+
+                    let errorMessage = data.message || 'Terjadi kesalahan selama pengimporan.';
+                    let errorDetails = [];
+
+                    // Process different error formats
+                    // Case 1: data.errors as object with field keys
+                    if (data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
+                        Object.entries(data.errors).forEach(([field, messages]) => {
+                            if (Array.isArray(messages)) {
+                                messages.forEach(msg => errorDetails.push(`${field}: ${msg}`));
+                            } else if (typeof messages === 'string') {
+                                errorDetails.push(`${field}: ${messages}`);
+                            }
+                        });
+                    }
+                    // Case 2: data.errors as array
+                    else if (data.errors && Array.isArray(data.errors)) {
+                        data.errors.forEach(error => {
+                            if (typeof error === 'string') {
+                                errorDetails.push(error);
+                            } else if (typeof error === 'object') {
+                                if (error.message) {
+                                    errorDetails.push(error.message);
+                                } else if (error.row && error.reason) {
+                                    errorDetails.push(`Baris ${error.row}: ${error.reason}`);
+                                } else if (error.reason) {
+                                    errorDetails.push(error.reason);
+                                } else {
+                                    // Try to extract any property as a fallback
+                                    const values = Object.values(error).filter(v => typeof v === 'string');
+                                    if (values.length > 0) {
+                                        errorDetails.push(values.join(', '));
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    // Case 3: data.data.errors (nested structure)
+                    else if (data.data && data.data.errors) {
+                        console.log('Server returned detailed errors:', data.data.errors);
+
+                        if (Array.isArray(data.data.errors)) {
+                            data.data.errors.forEach(error => {
+                                if (typeof error === 'string') {
+                                    errorDetails.push(error);
+                                } else if (error.message) {
+                                    errorDetails.push(error.message);
+                                } else if (error.asset_name && error.reason) {
+                                    errorDetails.push(`"${error.asset_name}" - ${error.reason}`);
+                                } else if (error.row && error.reason) {
+                                    errorDetails.push(`Baris ${error.row}: ${error.reason}`);
+                                } else if (error.reason) {
+                                    errorDetails.push(error.reason);
+                                }
+                            });
+                        } else if (typeof data.data.errors === 'object') {
+                            Object.entries(data.data.errors).forEach(([field, messages]) => {
+                                if (Array.isArray(messages)) {
+                                    messages.forEach(msg => errorDetails.push(`${field}: ${msg}`));
+                                } else if (typeof messages === 'string') {
+                                    errorDetails.push(`${field}: ${messages}`);
+                                }
+                            });
                         }
                     }
+
+                    // Format the error message with details if available
+                    if (errorDetails.length > 0) {
+                        errorMessage = `${errorMessage}<ul class="mt-2 ml-4 list-disc">`;
+                        errorDetails.forEach(detail => {
+                            errorMessage += `<li>${detail}</li>`;
+                        });
+                        errorMessage += '</ul>';
+                    }
+
+                    // Create and show the toast notification
                     showNotification('error', errorMessage);
                 }
             })
@@ -2601,8 +2728,46 @@
 
                 console.error('Import fetch error:', error);
 
-                // Show error notification toast
-                showNotification('error', 'An unexpected error occurred. Please try again.');
+                // Try to get more detailed error if available
+                let errorMessage = 'Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.';
+
+                if (error.response) {
+                    // The server responded with a status code outside the 2xx range
+                    try {
+                        // Try to parse the error response
+                        error.response.json().then(data => {
+                            if (data.message) {
+                                errorMessage = data.message;
+
+                                // Add details if available
+                                if (data.errors) {
+                                    errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+                                    if (typeof data.errors === 'object') {
+                                        Object.values(data.errors).flat().forEach(err => {
+                                            errorMessage += `<li>${err}</li>`;
+                                        });
+                                    } else if (Array.isArray(data.errors)) {
+                                        data.errors.forEach(err => {
+                                            errorMessage += `<li>${err}</li>`;
+                                        });
+                                    }
+                                    errorMessage += '</ul>';
+                                }
+
+                                showNotification('error', errorMessage);
+                            }
+                        }).catch(() => {
+                            // If we can't parse the JSON, just show the status text
+                            showNotification('error', `Error: ${error.response.statusText || errorMessage}`);
+                        });
+                    } catch (e) {
+                        // If any error in parsing, use default message
+                        showNotification('error', errorMessage);
+                    }
+                } else {
+                    // Network error or something prevented the request
+                    showNotification('error', error.message || errorMessage);
+                }
             });
         });
 

@@ -55,7 +55,6 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">ID Dokumen</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Judul Dokumen</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Tanggal Upload</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Ditambahkan Oleh</th>
@@ -67,7 +66,6 @@
                             @if(isset($documents) && count($documents) > 0)
                                 @foreach($documents as $document)
                                 <tr data-document-id="{{ $document['document_id'] ?? '' }}">
-                                    <td class="p-3 text-sm border-t border-[#EEF1F4]">{{ $document['document_id'] ?? 'N/A' }}</td>
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">{{ $document['document_title'] ?? '-' }}</td>
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">
                                         @if(isset($document['upload_date']))

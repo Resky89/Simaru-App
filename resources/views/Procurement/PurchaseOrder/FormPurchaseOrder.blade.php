@@ -358,7 +358,7 @@
 
                 try {
                     // Fetch comparison data from API with proper headers for JSON
-                    const response = await fetch(`{{ route('procurement.price-comparison-data') }}?search=${encodeURIComponent(searchTerm)}`, {
+                    const response = await fetch(`{{ route('procurement.price-comparison-data') }}?search=${encodeURIComponent(searchTerm)}&status=completed`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -499,7 +499,7 @@
                             });
                     } else {
                         // Search by code with proper headers for JSON
-                        fetch(`{{ route('procurement.price-comparison-data') }}?search=${encodeURIComponent(comparisonCode)}`, {
+                        fetch(`{{ route('procurement.price-comparison-data') }}?search=${encodeURIComponent(comparisonCode)}&status=completed`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'

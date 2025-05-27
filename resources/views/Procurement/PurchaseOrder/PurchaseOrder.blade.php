@@ -38,15 +38,6 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-4">
-                        <select id="statusFilter"
-                            class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" disabled selected>Status</option>
-                            <option value="">Semua Status</option>
-                            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
-                            <option value="sent" {{ request('status') == 'sent' ? 'selected' : '' }}>Terkirim</option>
-                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
-                        </select>
-
                         <select id="sortOrder"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <option value="" disabled selected>Urutkan</option>
@@ -69,7 +60,6 @@
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">PIC</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Pengguna Input</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Pemesanan</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Status</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -95,20 +85,6 @@
                                         -
                                     @endif
                                 </td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                    <span class="px-2 py-1 rounded-full text-xs
-                                        @if(isset($po['completed_at'])) bg-green-100 text-green-800
-                                        @elseif(isset($po['sent_at'])) bg-blue-100 text-blue-800
-                                        @else bg-yellow-100 text-yellow-800 @endif">
-                                        @if(isset($po['completed_at']))
-                                            Selesai
-                                        @elseif(isset($po['sent_at']))
-                                            Terkirim
-                                        @else
-                                            Draft
-                                        @endif
-                                    </span>
-                                </td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center">
                                         <a href="{{ route('procurement.detail-purchase-order', ['id' => $po['purchase_order_id']]) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
@@ -122,7 +98,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="p-3 text-center text-gray-500">Tidak ada data pesanan pembelian yang tersedia.</td>
+                                <td colspan="7" class="p-3 text-center text-gray-500">Tidak ada data pesanan pembelian yang tersedia.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -294,26 +270,23 @@
         @endif
         // Search and filter functionality
         const searchInput = document.getElementById('searchInput');
-        const statusFilter = document.getElementById('statusFilter');
         const sortOrder = document.getElementById('sortOrder');
 
         // Function to handle search and filtering
         function applyFilters() {
             const searchValue = searchInput?.value.trim() || '';
-            const statusValue = statusFilter?.value || '';
             const sortValue = sortOrder?.value || '';
 
             // Create URL with filter parameters
             const url = new URL(window.location.href);
 
             // Clear existing parameters we're going to set
-            ['search', 'status', 'sort', 'page'].forEach(param => {
+            ['search', 'sort', 'page'].forEach(param => {
                 url.searchParams.delete(param);
             });
 
             // Add new parameters if they have values
             if (searchValue) url.searchParams.set('search', searchValue);
-            if (statusValue) url.searchParams.set('status', statusValue);
             if (sortValue) url.searchParams.set('sort', sortValue);
 
             // Reset to page 1 when filters change
@@ -331,18 +304,11 @@
         });
 
         // Add event listeners for select filters
-        statusFilter?.addEventListener('change', applyFilters);
         sortOrder?.addEventListener('change', applyFilters);
 
         // Set initial values from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         if (searchInput) searchInput.value = urlParams.get('search') || '';
-        if (statusFilter) {
-            const statusValue = urlParams.get('status');
-            if (statusValue) {
-                statusFilter.value = statusValue;
-            }
-        }
         if (sortOrder) {
             const sortValue = urlParams.get('sort');
             if (sortValue) {

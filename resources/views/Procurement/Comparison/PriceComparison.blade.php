@@ -38,11 +38,10 @@
                     <div class="flex flex-wrap gap-4">
                         <select id="statusFilter"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" disabled selected>Status</option>
-                            <option value="">Semua Status</option>
-                            <option value="Submitted">Diajukan</option>
-                            <option value="Approved">Disetujui</option>
-                            <option value="Rejected">Ditolak</option>
+                            <option value="" selected>Semua Status</option>
+                            <option value="Draft">Draft</option>
+                            <option value="In Progress">Dalam Proses</option>
+                            <option value="Completed">Selesai</option>
                         </select>
 
                         <select id="sortOrder"
@@ -94,16 +93,16 @@
                                 </td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                     <span class="px-2 py-1 rounded-full text-xs
-                                        @if(isset($comparison['status']) && strtolower($comparison['status']) == 'completed') bg-green-100 text-green-800
-                                        @elseif(isset($comparison['status']) && strtolower($comparison['status']) == 'in progress') bg-blue-100 text-blue-800
-                                        @elseif(isset($comparison['status']) && strtolower($comparison['status']) == 'draft') bg-yellow-100 text-yellow-800
+                                        @if(isset($comparison['status']) && $comparison['status'] == 'Completed') bg-green-100 text-green-800
+                                        @elseif(isset($comparison['status']) && $comparison['status'] == 'In Progress') bg-blue-100 text-blue-800
+                                        @elseif(isset($comparison['status']) && $comparison['status'] == 'Draft') bg-yellow-100 text-yellow-800
                                         @else bg-gray-100 text-gray-800 @endif">
                                         @if(isset($comparison['status']))
-                                            @if(strtolower($comparison['status']) == 'completed')
+                                            @if($comparison['status'] == 'Completed')
                                                 Selesai
-                                            @elseif(strtolower($comparison['status']) == 'in progress')
+                                            @elseif($comparison['status'] == 'In Progress')
                                                 Dalam Proses
-                                            @elseif(strtolower($comparison['status']) == 'draft')
+                                            @elseif($comparison['status'] == 'Draft')
                                                 Draft
                                             @else
                                                 {{ $comparison['status'] }}

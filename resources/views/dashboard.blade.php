@@ -18,7 +18,7 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <div class="stat-value text-[28px] font-medium text-[#232D42]">
+                        <div class="stat-value text-[28px] font-medium text-[#213268]">
                             {{ formatCompactNumber($dashboardData['total_assets'] ?? 0) }}
                         </div>
                         <div class="stat-title text-[14px] text-[#659B09] m-0 opacity-80">Aset</div>
@@ -38,7 +38,7 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <div class="stat-value text-[28px] font-medium text-[#232D42]">
+                        <div class="stat-value text-[28px] font-medium text-[#213268]">
                             {{ formatCompactNumber($dashboardData['assets_by_status']['under repair'] ?? 0) }}
                         </div>
                         <div class="stat-title text-[14px] text-[#DAAE0F] m-0 opacity-80">Dalam Perbaikan </div>
@@ -58,7 +58,7 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <div class="stat-value text-[28px] font-medium text-[#232D42]">
+                        <div class="stat-value text-[28px] font-medium text-[#213268]">
                             {{ formatCompactCurrency($dashboardData['total_book_value'] ?? 0) }}
                         </div>
                         <div class="stat-title text-[14px] text-[#F16A1B] m-0 opacity-80">Nilai Buku</div>
@@ -78,7 +78,7 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <div class="stat-value text-[28px] font-medium text-[#232D42]">
+                        <div class="stat-value text-[28px] font-medium text-[#213268]">
                             {{ formatCompactCurrency($dashboardData['total_acquisition_cost'] ?? 0) }}
                         </div>
                         <div class="stat-title text-[14px] text-[#6F43CD] m-0 opacity-80">Biaya Pengadaan</div>
@@ -100,7 +100,7 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <div class="stat-value text-[28px] font-medium text-[#232D42]">
+                        <div class="stat-value text-[28px] font-medium text-[#213268]">
                             {{ formatCompactNumber($dashboardData['total_users'] ?? 0) }}
                         </div>
                         <div class="stat-title text-[14px] text-[#1B8ADB] m-0 opacity-80">Pengguna</div>
@@ -115,7 +115,7 @@
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body p-4">
                     <!-- Title -->
-                    <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Aset Berdasarkan Status</h2>
+                    <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Berdasarkan Status</h2>
 
                     <!-- Divider -->
                     <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -168,7 +168,7 @@
                 <div class="card-body p-4">
                     <!-- Title and Toggle -->
                     <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins']">Aset Berdasarkan Kategori</h2>
+                        <h2 class="text-2xl font-medium text-[#213268] font-['Poppins']">Aset Berdasarkan Kategori</h2>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="displayToggle" class="sr-only peer">
                             <div
@@ -208,14 +208,14 @@
                                     </svg>
                                     <div class="absolute inset-0 flex items-center justify-center">
                                         <span
-                                            class="number-value font-['Poppins'] font-medium text-xl text-[#232D42] animate-count-up"
+                                            class="number-value font-['Poppins'] font-medium text-xl text-[#213268] animate-count-up"
                                             data-target="{{ $category['count'] }}">0</span>
                                         <span
-                                            class="percent-value hidden font-['Poppins'] font-medium text-xl text-[#232D42] animate-count-up"
+                                            class="percent-value hidden font-['Poppins'] font-medium text-xl text-[#213268] animate-count-up"
                                             data-target="{{ $percentage }}">0%</span>
                                     </div>
                                 </div>
-                                <div class="font-['Poppins'] font-medium text-lg text-[#232D42] truncate">
+                                <div class="font-['Poppins'] font-medium text-lg text-[#213268] truncate">
                                     {{ $category['subcategory_name'] }}
                                 </div>
                             </div>
@@ -235,7 +235,7 @@
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body p-4">
                     <!-- Title -->
-                    <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Aset Yang Akan Disetel</h2>
+                    <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Yang Akan Dikalibrasi</h2>
 
                     <!-- Divider -->
                     <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -247,7 +247,7 @@
                             <div class="flex justify-between items-center">
                                 <div class="flex gap-4">
                                     <div class="flex flex-col w-[173px]">
-                                        <h3 class="text-lg font-['Poppins'] font-medium text-[#232D42]">
+                                        <h3 class="text-lg font-['Poppins'] font-medium text-[#213268]">
                                             {{ $calibration['asset_name'] ?? 'Aset Tidak Diketahui' }}
                                         </h3>
                                         <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">
@@ -286,7 +286,7 @@
                                         <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">{{ $dayLabel }}</p>
                                     </div>
                                 </div>
-                                @if(hasPermission('calibration:edit'))
+                                @if(hasPermission('calibration:report'))
                                     <button data-id="{{ $calibration['task_code'] }}"
                                         class="edit-calibration-btn flex items-center px-3 py-1.5 {{ $isUrgent ? 'bg-[#213268]' : 'border border-[#213268]' }} rounded">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -315,7 +315,7 @@
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body p-4">
                     <!-- Title -->
-                    <h2 class="text-2xl font-medium text-[#232D42] font-['Poppins'] mb-3">Aset Berdasarkan Lokasi</h2>
+                    <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Berdasarkan Lokasi</h2>
 
                     <!-- Divider -->
                     <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
@@ -335,10 +335,10 @@
                             @endphp
                             <div class="w-full animate-fade-in" style="animation-delay: {{ $loop->index * 150 }}ms">
                                 <div class="flex justify-between items-center mb-2">
-                                    <div class="text-lg font-['Poppins'] font-medium text-[#232D42]">
+                                    <div class="text-lg font-['Poppins'] font-medium text-[#213268]">
                                         {{ $location['room_name'] }}
                                     </div>
-                                    <div class="text-lg font-['Poppins'] font-medium text-[#232D42] animate-count-up"
+                                    <div class="text-lg font-['Poppins'] font-medium text-[#213268] animate-count-up"
                                         data-target="{{ $percentage }}">0%</div>
                                 </div>
                                 <div class="relative" x-data="{ showTooltip: false }">
@@ -405,7 +405,7 @@
                     <div class="flex items-center gap-3">
                         <div class="relative">
                             <select id="monthSelector" onchange="goToSelectedDate()"
-                                class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[150px] bg-white text-[#232D42] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
+                                class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[150px] bg-white text-[#213268] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
                                 <option value="0">Januari</option>
                                 <option value="1">Februari</option>
                                 <option value="2">Maret</option>
@@ -430,7 +430,7 @@
 
                         <div class="relative">
                             <select id="yearSelector" onchange="goToSelectedDate()"
-                                class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[100px] bg-white text-[#232D42] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
+                                class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[100px] bg-white text-[#213268] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
                                 <!-- Years will be added via JavaScript -->
                             </select>
                             <div
@@ -504,7 +504,7 @@
     </div>
 
     <!-- Perform Calibration Modal -->
-    @if(hasPermission('calibration:edit'))
+    @if(hasPermission('calibration:report'))
         <div id="viewCalibrationModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -525,7 +525,7 @@
 
                         <!-- Content -->
                         <div class="p-6">
-                            <form id="updateCalibrationForm" class="space-y-6" data-no-loading enctype="multipart/form-data">
+                            <form id="performCalibrationForm" class="space-y-6" data-no-loading enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" id="calibration_id" name="calibration_id">
 
@@ -977,6 +977,252 @@
         let hasMoreActivities = false;
         let isLoadingActivities = false;
 
+        // Helper function to prevent multiple submissions
+        function preventMultipleSubmits(form, buttonSelector) {
+            if (!form) return;
+
+            form.addEventListener('submit', function (e) {
+                // Only proceed if validation passes
+                if (this.checkValidity()) {
+                    // Find the submit button
+                    const submitBtn = this.querySelector(buttonSelector);
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable the button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        // Re-enable button after 10 seconds as a failsafe
+                        setTimeout(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+                }
+            });
+        }
+
+        // Toast notification function
+        window.showToast = function (message, type = 'success') {
+            // Create the notification element
+            const notification = document.createElement('div');
+            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+            notification.setAttribute('role', 'alert');
+
+            // Helper function to process error object to HTML
+            function processErrorObject(errorObj) {
+                // Special format seen in screenshot: {success: false, errors: [{path, message}]}
+                if (errorObj.success === false && Array.isArray(errorObj.errors) && errorObj.errors.length > 0) {
+                    // Check if it's the path/message format
+                    const firstError = errorObj.errors[0];
+                    if (typeof firstError === 'object' && firstError !== null &&
+                        firstError.path && firstError.message) {
+
+                        console.log('✓ Found specific error format with path/message properties');
+                        let errorList = '<ul>';
+                        errorObj.errors.forEach(err => {
+                            errorList += `<li><strong>${err.path}</strong>: ${err.message}</li>`;
+                        });
+                        errorList += '</ul>';
+                        return errorList;
+                    }
+
+                    // Regular array errors
+                    console.log('Found error array format:', errorObj.errors);
+                    return processErrorArray(errorObj.errors);
+                }
+
+                // Laravel validation errors format
+                if (errorObj.errors && typeof errorObj.errors === 'object') {
+                    console.log('Found Laravel validation errors format');
+                    let errorList = '<ul>';
+                    Object.entries(errorObj.errors).forEach(([field, errors]) => {
+                        if (Array.isArray(errors)) {
+                            errors.forEach(error => {
+                                errorList += `<li><strong>${field}</strong>: ${error}</li>`;
+                            });
+                        } else if (typeof errors === 'string') {
+                            errorList += `<li><strong>${field}</strong>: ${errors}</li>`;
+                        }
+                    });
+                    errorList += '</ul>';
+                    return errorList;
+                }
+
+                // Single error message
+                if (errorObj.message) {
+                    return errorObj.message;
+                }
+
+                if (errorObj.error) {
+                    return errorObj.error;
+                }
+
+                // Fallback: stringify the object
+                try {
+                    return JSON.stringify(errorObj);
+                } catch (e) {
+                    return "Error tidak dapat ditampilkan";
+                }
+            }
+
+            // Helper function to process error arrays
+            function processErrorArray(errArray) {
+                // If it's array of objects with path/message
+                if (errArray.length > 0 && typeof errArray[0] === 'object' &&
+                    errArray[0] !== null && errArray[0].path && errArray[0].message) {
+
+                    let errorList = '<ul>';
+                    errArray.forEach(err => {
+                        errorList += `<li><strong>${err.path}</strong>: ${err.message}</li>`;
+                    });
+                    errorList += '</ul>';
+                    return errorList;
+                }
+
+                // If it's just an array of strings
+                if (typeof errArray[0] === 'string') {
+                    let errorList = '<ul>';
+                    errArray.forEach(err => {
+                        errorList += `<li>${err}</li>`;
+                    });
+                    errorList += '</ul>';
+                    return errorList;
+                }
+
+                // Fallback: join as comma-separated list
+                return errArray.join(', ');
+            }
+
+            if (type === 'success') {
+                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                notification.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Berhasil!</p>
+                            <div>${message}</div>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            } else {
+                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                // Process error message for proper display
+                let processedMessage = '';
+
+                // Handle different error message formats
+                if (typeof message === 'string') {
+                    processedMessage = message;
+                } else if (Array.isArray(message)) {
+                    processedMessage = processErrorArray(message);
+                } else if (typeof message === 'object' && message !== null) {
+                    processedMessage = processErrorObject(message);
+                } else {
+                    processedMessage = "Terjadi kesalahan";
+                }
+
+                // Structure for the notification
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-start';
+
+                // Icon container
+                const iconContainer = document.createElement('div');
+                iconContainer.className = 'py-1 flex-shrink-0';
+                iconContainer.innerHTML = `
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                `;
+
+                // Content container
+                const contentContainer = document.createElement('div');
+                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                // Title
+                const title = document.createElement('p');
+                title.className = 'font-bold';
+                title.textContent = 'Error!';
+                contentContainer.appendChild(title);
+
+                // Message container
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'error-message';
+
+                // Always use innerHTML for processedMessage as it may contain HTML
+                messageContainer.innerHTML = processedMessage;
+
+                contentContainer.appendChild(messageContainer);
+
+                // Close button
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = function() {
+                    notification.remove();
+                };
+
+                // Assemble the notification
+                wrapper.appendChild(iconContainer);
+                wrapper.appendChild(contentContainer);
+                wrapper.appendChild(closeBtn);
+                notification.appendChild(wrapper);
+            }
+
+            // Add to document
+            document.body.appendChild(notification);
+
+            // Auto-remove notification after 5 seconds
+            setTimeout(() => {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+
+            return notification;
+        };
+
+        // Add slide-in animation for error messages
+        document.head.insertAdjacentHTML('beforeend', `
+            <style>
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+                .animate-slide-in-right {
+                    animation: slideInRight 0.3s ease-out forwards;
+                }
+                .error-message ul {
+                    margin-top: 0.5rem;
+                    padding-left: 1.5rem;
+                    list-style-type: disc;
+                }
+                .error-message li {
+                    margin-bottom: 0.25rem;
+                }
+                .error-message strong {
+                    color: #b91c1c;
+                    font-weight: 600;
+                }
+            </style>
+        `);
+
         // Move the function declarations to the global scope
         function showAllEvents(dateStr) {
             // Format the date for display
@@ -1158,6 +1404,12 @@
             generateCalendar(currentMonth, currentYear);
             fetchCalendarData(currentYear, currentMonth);
             loadAssetActivities(); // Load initial asset activities
+
+            // Apply form submission protection
+            const performCalibrationForm = document.getElementById('performCalibrationForm');
+            if (performCalibrationForm) {
+                preventMultipleSubmits(performCalibrationForm, 'button[type="submit"]');
+            }
 
             // Function to populate year selector with options
             function populateYearSelector() {
@@ -1528,7 +1780,7 @@
                         <div class="flex flex-col md:flex-row pl-4">
                             <!-- Date & Time -->
                             <div class="flex items-center md:flex-col md:items-start gap-2 md:gap-1 mb-3 md:mb-0 md:min-w-[120px] md:mr-6">
-                                <p class="text-lg font-medium font-['Poppins'] text-[#232D42]">${dateFormatted}</p>
+                                <p class="text-lg font-medium font-['Poppins'] text-[#213268]">${dateFormatted}</p>
                                 <p class="text-base font-medium font-['Poppins'] text-[#757575]">${timeFormatted}</p>
                             </div>
 
@@ -1547,7 +1799,7 @@
                                 </div>
 
                                 <!-- Status Change -->
-                                <div class="text-base font-['Poppins'] text-[#232D42]">
+                                <div class="text-base font-['Poppins'] text-[#213268]">
                                     ${userName} mengubah status dari ${createStatusBadge(activity.old_status)} ke ${createStatusBadge(activity.new_status)}
                                 </div>
                             </div>
@@ -1843,15 +2095,15 @@
                     const modalContent = document.getElementById('viewCalibrationModalContent');
 
                     e.preventDefault();
-                    const taskCode = this.getAttribute('data-id');
+                    const calibrationId = this.getAttribute('data-id');
 
                     // Set the calibration ID in the hidden field
-                    document.getElementById('calibration_id').value = taskCode;
+                    document.getElementById('calibration_id').value = calibrationId;
 
 
 
                     // Fetch calibration details using search parameter
-                    fetch(`/calibrations?search=${encodeURIComponent(taskCode)}`, {
+                    fetch(`/calibrations?search=${encodeURIComponent(calibrationId)}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -1882,13 +2134,13 @@
                                     calibration = data.data;
                                 }
 
-
-
                                 if (!calibration) {
-
-                                    alert('Tidak dapat menemukan data kalibrasi');
+                                    showToast('Tidak dapat menemukan data kalibrasi', 'error');
                                     return;
                                 }
+
+                                // Store the actual calibration ID for submission later
+                                document.getElementById('calibration_id').value = calibration.id || calibrationId;
 
                                 // Set current date as work date by default when modal opens
                                 const today = new Date().toISOString().split('T')[0];
@@ -1941,17 +2193,14 @@
                                 const filePreview = document.getElementById('file-preview');
                                 if (filePreview) filePreview.classList.add('hidden');
 
-
-                                // Open modal directly to avoid any issues with variables
-                                // Open modal
                                 openModal(modals.view, modalContents.view);
                             } else {
                                 // Show error toast (implement toast function if not already available)
-                                alert('Failed to load calibration details: ' + (data.message || 'Unknown error'));
+                                showToast('Failed to load calibration details: ' + (data.message || 'Unknown error'), 'error');
                             }
                         })
                         .catch(error => {
-                            alert('Error loading calibration details: ' + (error.message || 'Unknown error'));
+                            showToast('Error loading calibration details: ' + (error.message || 'Unknown error'), 'error');
                         });
                 });
             });
@@ -2010,77 +2259,156 @@
             });
 
             // Form submission for calibration
-            document.getElementById('updateCalibrationForm')?.addEventListener('submit', function (e) {
-
+            document.getElementById('performCalibrationForm')?.addEventListener('submit', function (e) {
                 e.preventDefault();
 
-                const taskCode = document.getElementById('calibration_id').value;
-                const formData = new FormData(this);
+                const calibrationId = document.getElementById('calibration_id').value;
 
-                // Remove the calibration_id from form data since it's used in the URL
-                formData.delete('calibration_id');
+                // Create a new FormData object instead of using the form directly
+                const formData = new FormData();
+
+                // Get all form fields
+                const formElements = this.elements;
+
+                // Only add non-empty fields to the FormData
+                for (let i = 0; i < formElements.length; i++) {
+                    const element = formElements[i];
+
+                    // Skip buttons, fieldsets, and hidden calibration_id field
+                    if (element.type === 'button' || element.type === 'submit' ||
+                        element.tagName === 'FIELDSET' || element.name === 'calibration_id') {
+                        continue;
+                    }
+
+                    // Handle different input types
+                    if (element.type === 'radio' || element.type === 'checkbox') {
+                        // Only include checked radio/checkbox values
+                        if (element.checked) {
+                            formData.append(element.name, element.value);
+                        }
+                    }
+                    // Handle file inputs
+                    else if (element.type === 'file') {
+                        // Only include files if they exist
+                        if (element.files && element.files.length > 0) {
+                            formData.append(element.name, element.files[0]);
+                        }
+                    }
+                    // Handle all other input types
+                    else if (element.value.trim() !== '') {
+                        formData.append(element.name, element.value.trim());
+
+                        // Log for debugging
+                        console.log(`Adding field: ${element.name} = ${element.value.trim()}`);
+                    } else {
+                        console.log(`Skipping empty field: ${element.name}`);
+                    }
+                }
 
                 // Add _method field for PUT request
                 formData.append('_method', 'PUT');
-                // Add task_code to the form data
-                formData.append('task_code', taskCode);
 
-                // Show loading state
-                const submitButton = this.querySelector('button[type="submit"]');
-                const originalButtonText = submitButton.innerHTML;
-                submitButton.disabled = true;
-                submitButton.innerHTML = `
-                        <span class="loading loading-spinner loading-sm mr-2"></span>
-                        Memproses...
-                    `;
+                // Log all form data that will be sent
+                console.log('Form data to be sent:');
+                for (const pair of formData.entries()) {
+                    console.log(`${pair[0]}: ${pair[1]}`);
+                }
 
-                fetch(`/calibrations/update-by-task`, {
-                    method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
+                // Clear any existing field error highlights
+                this.querySelectorAll('.border-red-500').forEach(el => {
+                    el.classList.remove('border-red-500');
+                });
+
+                // Show loading state on button
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span>Memproses...</span>
+                    </div>
+                `;
+
+                fetch(`/calibrations/report/${calibrationId}`, {
+                    method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                         'Accept': 'application/json'
                     },
                     body: formData
                 })
-                    .then(response => {
+                .then(response => {
+                    // Log the raw response for debugging
+                    console.log('Response status:', response.status);
+                    return response.json().then(data => {
+                        // Always capture the data, don't throw it yet
                         if (!response.ok) {
-                            return response.json().then(data => {
-                                throw data;
+                            console.log('Error response data:', data);
+                            return Promise.reject(data);
+                        }
+                        return data;
+                    });
+                })
+                .then(data => {
+                    console.log('Success response:', data);
+                    if (data.success) {
+                        // Close the modal
+                        closeModal(modals.view, modalContents.view);
+
+                        // Show success message
+                        showToast(data.message || 'Kalibrasi berhasil disimpan', 'success');
+
+                        // Reload the page after a slight delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        // Handle unexpected "success: false" in a successful response
+                        console.warn('Received success:false in a 2xx response', data);
+                        showToast(data, 'error');
+
+                        // Re-enable the submit button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Form submission error:', error);
+
+                    // Pass the complete error object to showToast for smart formatting
+                    showToast(error, 'error');
+
+                    // Highlight fields with errors if we can identify them
+                    if (error.errors) {
+                        // Handle array of error objects with path/message format
+                        if (Array.isArray(error.errors)) {
+                            error.errors.forEach(err => {
+                                if (err.path) {
+                                    const field = document.getElementById(err.path) ||
+                                                document.querySelector(`[name="${err.path}"]`);
+                                    if (field) {
+                                        field.classList.add('border-red-500');
+                                    }
+                                }
                             });
                         }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            // Close the modal
-                            closeModal(modals.view, modalContents.view);
-
-                            // Show success message
-                            alert(data.message || 'Kalibrasi berhasil disimpan');
-
-                            // Reload the page after a slight delay
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
-                        } else {
-                            // Reset button
-                            submitButton.disabled = false;
-                            submitButton.innerHTML = originalButtonText;
-
-                            // Show error message
-                            alert(data.message || data.error || 'Gagal menyimpan kalibrasi');
+                        // Handle object with field names as keys
+                        else if (typeof error.errors === 'object') {
+                            Object.keys(error.errors).forEach(fieldName => {
+                                const field = document.getElementById(fieldName) ||
+                                            document.querySelector(`[name="${fieldName}"]`);
+                                if (field) {
+                                    field.classList.add('border-red-500');
+                                }
+                            });
                         }
-                    })
-                    .catch(error => {
+                    }
 
-
-                        // Reset button
-                        submitButton.disabled = false;
-                        submitButton.innerHTML = originalButtonText;
-
-                        // Show error message
-                        alert('Terjadi kesalahan saat menyimpan kalibrasi: ' + (error.message || 'Unknown error'));
-                    });
+                    // Re-enable the submit button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                });
             });
         });
 

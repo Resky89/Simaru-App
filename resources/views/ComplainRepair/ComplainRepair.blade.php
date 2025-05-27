@@ -13,19 +13,6 @@
                         <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">KELUHAN & PERBAIKAN</h1>
 
                         <div class="flex gap-3">
-                            <!-- Create Complaint Button -->
-                            @if(hasPermission('complaint:create'))
-                                <button id="createComplaintBtn"
-                                    class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    <span class="text-base">Buat Keluhan</span>
-                                </button>
-                            @endif
-
                             <!-- Button Export PDF -->
                             @if(hasPermission('complaint:export'))
                                 <button id="exportBtn"
@@ -36,6 +23,19 @@
                                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
                                     <span class="text-base">Ekspor PDF</span>
+                                </button>
+                            @endif
+
+                            <!-- Create Complaint Button -->
+                            @if(hasPermission('complaint:create'))
+                                <button id="createComplaintBtn"
+                                    class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span class="text-base">Buat Keluhan</span>
                                 </button>
                             @endif
                         </div>
