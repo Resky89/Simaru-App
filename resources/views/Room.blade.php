@@ -1284,50 +1284,56 @@
                 initBuildingDropdowns();
 
                 // Form validation for Add Room
-                document.getElementById('addRoomForm').addEventListener('submit', function(event) {
-                    event.preventDefault(); // Always prevent default first, then check validation
+                const addRoomForm = document.getElementById('addRoomForm');
+                if (addRoomForm) {
+                    addRoomForm.addEventListener('submit', function(event) {
+                        event.preventDefault(); // Always prevent default first, then check validation
 
-                    const roomNameInput = document.getElementById('add_room_name');
-                    const buildingInput = document.getElementById('add_building_id');
-                    const buildingSearchInput = document.getElementById('add_building_search');
-                    const floorInput = document.getElementById('add_floor_number');
+                        const roomNameInput = document.getElementById('add_room_name');
+                        const buildingInput = document.getElementById('add_building_id');
+                        const buildingSearchInput = document.getElementById('add_building_search');
+                        const floorInput = document.getElementById('add_floor_number');
 
-                    const isRoomNameValid = validateField(roomNameInput);
-                    const isBuildingValid = validateBuildingField(buildingInput, buildingSearchInput);
-                    const isFloorValid = validateField(floorInput);
+                        const isRoomNameValid = validateField(roomNameInput);
+                        const isBuildingValid = validateBuildingField(buildingInput, buildingSearchInput);
+                        const isFloorValid = validateField(floorInput);
 
-                    if (!isRoomNameValid || !isBuildingValid || !isFloorValid) {
-                        // Show error toast for required fields
-                        showToast('Silakan isi semua field yang diperlukan', 'error');
-                        return false; // Stop here and don't submit the form
-                    }
+                        if (!isRoomNameValid || !isBuildingValid || !isFloorValid) {
+                            // Show error toast for required fields
+                            showToast('Silakan isi semua field yang diperlukan', 'error');
+                            return false; // Stop here and don't submit the form
+                        }
 
-                    // If validation passes, submit the form
-                    this.submit();
-                });
+                        // If validation passes, submit the form
+                        this.submit();
+                    });
+                }
 
                 // Form validation for Edit Room
-                document.getElementById('editRoomForm').addEventListener('submit', function(event) {
-                    event.preventDefault(); // Always prevent default first, then check validation
+                const editRoomForm = document.getElementById('editRoomForm');
+                if (editRoomForm) {
+                    editRoomForm.addEventListener('submit', function(event) {
+                        event.preventDefault(); // Always prevent default first, then check validation
 
-                    const roomNameInput = document.getElementById('editRoomName');
-                    const buildingInput = document.getElementById('editRoomBuilding');
-                    const buildingSearchInput = document.getElementById('edit_building_search');
-                    const floorInput = document.getElementById('editRoomFloor');
+                        const roomNameInput = document.getElementById('editRoomName');
+                        const buildingInput = document.getElementById('editRoomBuilding');
+                        const buildingSearchInput = document.getElementById('edit_building_search');
+                        const floorInput = document.getElementById('editRoomFloor');
 
-                    const isRoomNameValid = validateField(roomNameInput);
-                    const isBuildingValid = validateBuildingField(buildingInput, buildingSearchInput);
-                    const isFloorValid = validateField(floorInput);
+                        const isRoomNameValid = validateField(roomNameInput);
+                        const isBuildingValid = validateBuildingField(buildingInput, buildingSearchInput);
+                        const isFloorValid = validateField(floorInput);
 
-                    if (!isRoomNameValid || !isBuildingValid || !isFloorValid) {
-                        // Show error toast for required fields
-                        showToast('Silakan isi semua field yang diperlukan', 'error');
-                        return false; // Stop here and don't submit the form
-                    }
+                        if (!isRoomNameValid || !isBuildingValid || !isFloorValid) {
+                            // Show error toast for required fields
+                            showToast('Silakan isi semua field yang diperlukan', 'error');
+                            return false; // Stop here and don't submit the form
+                        }
 
-                    // If validation passes, submit the form
-                    this.submit();
-                });
+                        // If validation passes, submit the form
+                        this.submit();
+                    });
+                }
 
                 // Function to validate building field with search input
                 function validateBuildingField(hiddenInput, searchInput) {
@@ -1533,9 +1539,9 @@
                 }
 
                 // Add AJAX handling for add room form
-                const addRoomForm = document.getElementById('addRoomForm');
-                if (addRoomForm) {
-                    addRoomForm.addEventListener('submit', function(e) {
+                let roomFormAjax = document.getElementById('addRoomForm');
+                if (roomFormAjax) {
+                    roomFormAjax.addEventListener('submit', function(e) {
                         e.preventDefault();
 
                         // First perform client-side validation
@@ -1671,9 +1677,9 @@
                 }
 
                 // Edit Room form AJAX handling
-                const editRoomForm = document.getElementById('editRoomForm');
-                if (editRoomForm) {
-                    editRoomForm.addEventListener('submit', function(e) {
+                let editRoomFormAjax = document.getElementById('editRoomForm');
+                if (editRoomFormAjax) {
+                    editRoomFormAjax.addEventListener('submit', function(e) {
                         e.preventDefault();
 
                         // First perform client-side validation

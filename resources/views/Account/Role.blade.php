@@ -936,16 +936,19 @@
             }
 
             // Add event listener for add role button to open the modal
-            document.getElementById('addRoleBtn').addEventListener('click', async () => {
-                const permissions = await fetchPermissions();
-                renderPermissionCheckboxes(permissions, [], 'add-permissions-container');
+            const addRoleButton = document.getElementById('addRoleBtn');
+            if (addRoleButton) {
+                addRoleButton.addEventListener('click', async () => {
+                    const permissions = await fetchPermissions();
+                    renderPermissionCheckboxes(permissions, [], 'add-permissions-container');
 
-                // Reset the form
-                document.getElementById('addRoleForm').reset();
+                    // Reset the form
+                    document.getElementById('addRoleForm').reset();
 
-                // Open the add modal
-                openModal(addRoleModal, document.getElementById('addRoleModalContent'));
-            });
+                    // Open the add modal
+                    openModal(addRoleModal, document.getElementById('addRoleModalContent'));
+                });
+            }
 
             // Update the edit role button event listener in Role.blade.php
             document.querySelectorAll('.edit-role-btn').forEach(button => {
@@ -1013,21 +1016,23 @@
 
             // Close on outside click
             [addRoleModal, editRoleModal, deleteRoleModal].forEach(modal => {
-                modal.addEventListener('click', function (e) {
-                    // Check if the click is directly on the modal's overlay area
-                    if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
-                        e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
-                        const content = this.querySelector('[id$="ModalContent"]');
-                        closeModal(this, content);
-                    }
-                });
+                if (modal) {
+                    modal.addEventListener('click', function (e) {
+                        // Check if the click is directly on the modal's overlay area
+                        if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
+                            e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
+                            const content = this.querySelector('[id$="ModalContent"]');
+                            closeModal(this, content);
+                        }
+                    });
+                }
             });
 
             // Close on Escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     [addRoleModal, editRoleModal, deleteRoleModal].forEach(modal => {
-                        if (!modal.classList.contains('hidden')) {
+                        if (modal && !modal.classList.contains('hidden')) {
                             const content = modal.querySelector('[id$="ModalContent"]');
                             closeModal(modal, content);
                         }
@@ -1059,229 +1064,235 @@
             });
 
             // Add Role Form Submit Handler
-            document.getElementById('addRoleForm').addEventListener('submit', function (e) {
-                e.preventDefault();
+            const addRoleForm = document.getElementById('addRoleForm');
+            if (addRoleForm) {
+                addRoleForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
 
-                // First validate form
-                const roleNameInput = this.querySelector('[name="role_name"]');
-                if (!roleNameInput.value.trim()) {
-                    const errorElement = roleNameInput.closest('.space-y-2').querySelector('.error-message');
-                    if (errorElement) errorElement.classList.remove('hidden');
-                    roleNameInput.classList.add('border-red-500');
-                    showToast('Silakan isi semua field yang diperlukan', 'error');
-                    return false;
-                }
+                    // First validate form
+                    const roleNameInput = this.querySelector('[name="role_name"]');
+                    if (!roleNameInput.value.trim()) {
+                        const errorElement = roleNameInput.closest('.space-y-2').querySelector('.error-message');
+                        if (errorElement) errorElement.classList.remove('hidden');
+                        roleNameInput.classList.add('border-red-500');
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                        return false;
+                    }
 
-                // Prevent multiple submissions
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
-                    // Save original button text
-                    const originalText = submitBtn.innerHTML;
+                    // Prevent multiple submissions
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
 
-                    // Disable the button and show loading state
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        `;
+                        // Disable the button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
 
-                    // Re-enable button after 10 seconds as a failsafe
-                    setTimeout(() => {
+                        // Re-enable button after 10 seconds as a failsafe
+                        setTimeout(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+
+                    try {
+                        // Create a new form with the same action and method
+                        const form = document.createElement('form');
+                        form.action = this.action;
+                        form.method = this.method;
+
+                        // Copy the CSRF token
+                        const csrfToken = this.querySelector('input[name="_token"]');
+                        if (csrfToken) {
+                            const tokenInput = document.createElement('input');
+                            tokenInput.type = 'hidden';
+                            tokenInput.name = '_token';
+                            tokenInput.value = csrfToken.value;
+                            form.appendChild(tokenInput);
+                        }
+
+                        // Add role name
+                        const roleName = this.querySelector('[name="role_name"]');
+                        const roleNameInput = document.createElement('input');
+                        roleNameInput.type = 'hidden';
+                        roleNameInput.name = 'role_name';
+                        roleNameInput.value = roleName.value.trim();
+                        form.appendChild(roleNameInput);
+
+                        // Add description ONLY if it's not empty
+                        const description = this.querySelector('[name="description"]');
+                        if (description && description.value && description.value.trim() !== '') {
+                            const descInput = document.createElement('input');
+                            descInput.type = 'hidden';
+                            descInput.name = 'description';
+                            descInput.value = description.value.trim();
+                            form.appendChild(descInput);
+                        }
+
+                        // Get all checked checkboxes and hidden inputs with permission IDs
+                        const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
+
+                        // Add numeric permission IDs, avoiding duplicates
+                        const uniqueIds = new Set();
+                        permissionInputs.forEach(input => {
+                            uniqueIds.add(parseInt(input.value));
+                        });
+
+                        uniqueIds.forEach(id => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'permission_ids[]';
+                            input.value = id; // This is now a number
+                            form.appendChild(input);
+                        });
+
+                        // Append form to body, submit it, then remove it
+                        document.body.appendChild(form);
+                        form.submit();
+                        document.body.removeChild(form);
+                    } catch (error) {
+                        console.error('Error submitting form:', error);
+                        showToast('Terjadi kesalahan saat mengirim form', 'error');
+
+                        // Re-enable button if error
                         if (submitBtn) {
                             submitBtn.disabled = false;
                             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = originalText;
+                            submitBtn.innerHTML = originalText || 'Simpan';
                         }
-                    }, 10000);
-                }
-
-                try {
-                    // Create a new form with the same action and method
-                    const form = document.createElement('form');
-                    form.action = this.action;
-                    form.method = this.method;
-
-                    // Copy the CSRF token
-                    const csrfToken = this.querySelector('input[name="_token"]');
-                    if (csrfToken) {
-                        const tokenInput = document.createElement('input');
-                        tokenInput.type = 'hidden';
-                        tokenInput.name = '_token';
-                        tokenInput.value = csrfToken.value;
-                        form.appendChild(tokenInput);
                     }
-
-                    // Add role name
-                    const roleName = this.querySelector('[name="role_name"]');
-                    const roleNameInput = document.createElement('input');
-                    roleNameInput.type = 'hidden';
-                    roleNameInput.name = 'role_name';
-                    roleNameInput.value = roleName.value.trim();
-                    form.appendChild(roleNameInput);
-
-                    // Add description ONLY if it's not empty
-                    const description = this.querySelector('[name="description"]');
-                    if (description && description.value && description.value.trim() !== '') {
-                        const descInput = document.createElement('input');
-                        descInput.type = 'hidden';
-                        descInput.name = 'description';
-                        descInput.value = description.value.trim();
-                        form.appendChild(descInput);
-                    }
-
-                    // Get all checked checkboxes and hidden inputs with permission IDs
-                    const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
-
-                    // Add numeric permission IDs, avoiding duplicates
-                    const uniqueIds = new Set();
-                    permissionInputs.forEach(input => {
-                        uniqueIds.add(parseInt(input.value));
-                    });
-
-                    uniqueIds.forEach(id => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'permission_ids[]';
-                        input.value = id; // This is now a number
-                        form.appendChild(input);
-                    });
-
-                    // Append form to body, submit it, then remove it
-                    document.body.appendChild(form);
-                    form.submit();
-                    document.body.removeChild(form);
-                } catch (error) {
-                    console.error('Error submitting form:', error);
-                    showToast('Terjadi kesalahan saat mengirim form', 'error');
-
-                    // Re-enable button if error
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = originalText || 'Simpan';
-                    }
-                }
-            });
+                });
+            }
 
             // Edit Role Form Submit Handler (similar logic)
-            document.getElementById('editRoleForm').addEventListener('submit', function (e) {
-                e.preventDefault();
+            const editRoleForm = document.getElementById('editRoleForm');
+            if (editRoleForm) {
+                editRoleForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
 
-                // First validate form
-                const roleNameInput = this.querySelector('[name="role_name"]');
-                if (!roleNameInput.value.trim()) {
-                    const errorElement = roleNameInput.closest('.space-y-2').querySelector('.error-message');
-                    if (errorElement) errorElement.classList.remove('hidden');
-                    roleNameInput.classList.add('border-red-500');
-                    showToast('Silakan isi semua field yang diperlukan', 'error');
-                    return false;
-                }
+                    // First validate form
+                    const roleNameInput = this.querySelector('[name="role_name"]');
+                    if (!roleNameInput.value.trim()) {
+                        const errorElement = roleNameInput.closest('.space-y-2').querySelector('.error-message');
+                        if (errorElement) errorElement.classList.remove('hidden');
+                        roleNameInput.classList.add('border-red-500');
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                        return false;
+                    }
 
-                // Prevent multiple submissions
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
-                    // Save original button text
-                    const originalText = submitBtn.innerHTML;
+                    // Prevent multiple submissions
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
 
-                    // Disable the button and show loading state
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        `;
+                        // Disable the button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
 
-                    // Re-enable button after 10 seconds as a failsafe
-                    setTimeout(() => {
+                        // Re-enable button after 10 seconds as a failsafe
+                        setTimeout(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+
+                    try {
+                        // Create a new form with the same action and method
+                        const form = document.createElement('form');
+                        form.action = this.action;
+                        form.method = this.method;
+
+                        // Copy the CSRF token and method field
+                        const csrfToken = this.querySelector('input[name="_token"]');
+                        if (csrfToken) {
+                            const tokenInput = document.createElement('input');
+                            tokenInput.type = 'hidden';
+                            tokenInput.name = '_token';
+                            tokenInput.value = csrfToken.value;
+                            form.appendChild(tokenInput);
+                        }
+
+                        const methodField = this.querySelector('input[name="_method"]');
+                        if (methodField) {
+                            const methodInput = document.createElement('input');
+                            methodInput.type = 'hidden';
+                            methodInput.name = '_method';
+                            methodInput.value = methodField.value;
+                            form.appendChild(methodInput);
+                        }
+
+                        // Add role name
+                        const roleName = this.querySelector('[name="role_name"]');
+                        const roleNameInput = document.createElement('input');
+                        roleNameInput.type = 'hidden';
+                        roleNameInput.name = 'role_name';
+                        roleNameInput.value = roleName.value.trim();
+                        form.appendChild(roleNameInput);
+
+                        // Add description ONLY if it's not empty
+                        const description = this.querySelector('[name="description"]');
+                        if (description && description.value && description.value.trim() !== '') {
+                            const descInput = document.createElement('input');
+                            descInput.type = 'hidden';
+                            descInput.name = 'description';
+                            descInput.value = description.value.trim();
+                            form.appendChild(descInput);
+                        }
+
+                        // Get all checked checkboxes and hidden inputs with permission IDs
+                        const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
+
+                        // Add numeric permission IDs, avoiding duplicates
+                        const uniqueIds = new Set();
+                        permissionInputs.forEach(input => {
+                            uniqueIds.add(parseInt(input.value));
+                        });
+
+                        uniqueIds.forEach(id => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'permission_ids[]';
+                            input.value = id; // This is now a number
+                            form.appendChild(input);
+                        });
+
+                        // Append form to body, submit it, then remove it
+                        document.body.appendChild(form);
+                        form.submit();
+                        document.body.removeChild(form);
+                    } catch (error) {
+                        console.error('Error submitting form:', error);
+                        showToast('Terjadi kesalahan saat mengirim form', 'error');
+
+                        // Re-enable button if error
                         if (submitBtn) {
                             submitBtn.disabled = false;
                             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = originalText;
+                            submitBtn.innerHTML = originalText || 'Perbarui';
                         }
-                    }, 10000);
-                }
-
-                try {
-                    // Create a new form with the same action and method
-                    const form = document.createElement('form');
-                    form.action = this.action;
-                    form.method = this.method;
-
-                    // Copy the CSRF token and method field
-                    const csrfToken = this.querySelector('input[name="_token"]');
-                    if (csrfToken) {
-                        const tokenInput = document.createElement('input');
-                        tokenInput.type = 'hidden';
-                        tokenInput.name = '_token';
-                        tokenInput.value = csrfToken.value;
-                        form.appendChild(tokenInput);
                     }
-
-                    const methodField = this.querySelector('input[name="_method"]');
-                    if (methodField) {
-                        const methodInput = document.createElement('input');
-                        methodInput.type = 'hidden';
-                        methodInput.name = '_method';
-                        methodInput.value = methodField.value;
-                        form.appendChild(methodInput);
-                    }
-
-                    // Add role name
-                    const roleName = this.querySelector('[name="role_name"]');
-                    const roleNameInput = document.createElement('input');
-                    roleNameInput.type = 'hidden';
-                    roleNameInput.name = 'role_name';
-                    roleNameInput.value = roleName.value.trim();
-                    form.appendChild(roleNameInput);
-
-                    // Add description ONLY if it's not empty
-                    const description = this.querySelector('[name="description"]');
-                    if (description && description.value && description.value.trim() !== '') {
-                        const descInput = document.createElement('input');
-                        descInput.type = 'hidden';
-                        descInput.name = 'description';
-                        descInput.value = description.value.trim();
-                        form.appendChild(descInput);
-                    }
-
-                    // Get all checked checkboxes and hidden inputs with permission IDs
-                    const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
-
-                    // Add numeric permission IDs, avoiding duplicates
-                    const uniqueIds = new Set();
-                    permissionInputs.forEach(input => {
-                        uniqueIds.add(parseInt(input.value));
-                    });
-
-                    uniqueIds.forEach(id => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'permission_ids[]';
-                        input.value = id; // This is now a number
-                        form.appendChild(input);
-                    });
-
-                    // Append form to body, submit it, then remove it
-                    document.body.appendChild(form);
-                    form.submit();
-                    document.body.removeChild(form);
-                } catch (error) {
-                    console.error('Error submitting form:', error);
-                    showToast('Terjadi kesalahan saat mengirim form', 'error');
-
-                    // Re-enable button if error
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = originalText || 'Perbarui';
-                    }
-                }
-            });
+                });
+            }
 
             // Search and sorting functionality
             const searchInput = document.getElementById('searchInput');
@@ -1339,28 +1350,32 @@
             };
 
             // Form validation for Add Role
-            document.getElementById('addRoleForm').addEventListener('submit', function (event) {
-                const roleNameInput = this.querySelector('[name="role_name"]');
+            const addRoleFormValidation = document.getElementById('addRoleForm');
+            if (addRoleFormValidation) {
+                addRoleFormValidation.addEventListener('submit', function (event) {
+                    const roleNameInput = this.querySelector('[name="role_name"]');
+                    const isRoleNameValid = validateField(roleNameInput);
 
-                const isRoleNameValid = validateField(roleNameInput);
-
-                if (!isRoleNameValid) {
-                    event.preventDefault();
-                    showToast('Silakan isi semua field yang diperlukan', 'error');
-                }
-            });
+                    if (!isRoleNameValid) {
+                        event.preventDefault();
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                    }
+                });
+            }
 
             // Form validation for Edit Role
-            document.getElementById('editRoleForm').addEventListener('submit', function (event) {
-                const roleNameInput = document.getElementById('edit_role_name');
+            const editRoleFormValidation = document.getElementById('editRoleForm');
+            if (editRoleFormValidation) {
+                editRoleFormValidation.addEventListener('submit', function (event) {
+                    const roleNameInput = document.getElementById('edit_role_name');
+                    const isRoleNameValid = validateField(roleNameInput);
 
-                const isRoleNameValid = validateField(roleNameInput);
-
-                if (!isRoleNameValid) {
-                    event.preventDefault();
-                    showToast('Silakan isi semua field yang diperlukan', 'error');
-                }
-            });
+                    if (!isRoleNameValid) {
+                        event.preventDefault();
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                    }
+                });
+            }
 
             // Function to validate field and show error styling
             function validateField(field) {
@@ -1378,17 +1393,23 @@
             }
 
             // Add input event listeners to clear error styling when typing
-            document.querySelector('[name="role_name"]').addEventListener('input', function () {
-                this.classList.remove('border-red-500');
-                const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-            });
+            const roleNameInput = document.querySelector('[name="role_name"]');
+            if (roleNameInput) {
+                roleNameInput.addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
 
-            document.getElementById('edit_role_name').addEventListener('input', function () {
-                this.classList.remove('border-red-500');
-                const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-            });
+            const editRoleNameInput = document.getElementById('edit_role_name');
+            if (editRoleNameInput) {
+                editRoleNameInput.addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
 
             // Add event listener for delete role button
             document.querySelectorAll('.delete-role-btn').forEach(button => {

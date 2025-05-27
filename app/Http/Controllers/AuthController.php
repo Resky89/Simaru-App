@@ -50,7 +50,7 @@ class AuthController extends Controller
                             'report:finance' => 'report.finance',
                             'report:opname' => 'report.opname',
                             'report:depreciation' => 'report.depreciation',
-                            'user:view' => 'users',
+                            'user:view' => 'user',
                             'role:view' => 'roles'
                         ];
 
@@ -120,7 +120,7 @@ class AuthController extends Controller
                                 'report:finance' => 'report.finance',
                                 'report:opname' => 'report.opname',
                                 'report:depreciation' => 'report.depreciation',
-                                'user:view' => 'users',
+                                'user:view' => 'user',
                                 'role:view' => 'roles'
                             ];
 
@@ -358,7 +358,7 @@ class AuthController extends Controller
                         'report:finance' => 'report.finance',
                         'report:opname' => 'report.opname',
                         'report:depreciation' => 'report.depreciation',
-                        'user:view' => 'users',
+                         'user:view' => 'user',
                         'role:view' => 'roles'
                     ];
 

@@ -846,7 +846,10 @@
                     const errorElement = displayContainer.closest('.space-y-2').querySelector('.error-message');
                     const hasRoles = hiddenInputsContainer.querySelectorAll('input[name="role_ids[]"]').length > 0;
 
-                    if (!hasRoles) {
+                    // Don't show error when modal first opens, only after attempted submission
+                    const formSubmitted = inputContainer.closest('form').classList.contains('was-validated');
+
+                    if (!hasRoles && formSubmitted) {
                         wrapper.classList.add('border-red-500');
                         if (errorElement) errorElement.classList.remove('hidden');
                     } else {
@@ -949,9 +952,27 @@
             };
 
             // Reset role selection when opening Add User modal
-            document.getElementById('addUserBtn').addEventListener('click', () => {
-                window.setAddSelectedRoles([], []);
-            });
+            const addUserBtn = document.getElementById('addUserBtn');
+            if (addUserBtn) {
+                addUserBtn.addEventListener('click', () => {
+                    window.setAddSelectedRoles([], []);
+
+                    // Clear any previous validation state
+                    const addUserForm = document.getElementById('addUserForm');
+                    if (addUserForm) {
+                        addUserForm.classList.remove('was-validated');
+                    }
+
+                    // Reset any error styling
+                    document.querySelectorAll('#addUserModal .error-message').forEach(el => {
+                        el.classList.add('hidden');
+                    });
+
+                    document.querySelectorAll('#addUserModal input, #addUserModal select').forEach(el => {
+                        el.classList.remove('border-red-500');
+                    });
+                });
+            }
 
             // Toast container
             const toastContainer = document.createElement('div');
@@ -996,6 +1017,9 @@
 
                 // Reset the form fields
                 form.reset();
+
+                // Remove the validated state
+                form.classList.remove('was-validated');
 
                 // Clear validation errors
                 form.querySelectorAll('input, select, textarea').forEach(field => {
@@ -1290,6 +1314,9 @@
                 if (!form) return;
 
                 form.addEventListener('submit', function(e) {
+                    // Mark the form as validated
+                    this.classList.add('was-validated');
+
                     // First check if validation passes
                     let isValid = true;
 
@@ -1378,16 +1405,34 @@
             }
 
             // Apply to all forms
-            preventMultipleSubmits(addUserForm, 'button[type="submit"]');
-            preventMultipleSubmits(editUserForm, 'button[type="submit"]');
-            preventMultipleSubmits(deleteUserForm, 'button[type="submit"]');
+            preventMultipleSubmits(document.getElementById('addUserForm'), 'button[type="submit"]');
+            preventMultipleSubmits(document.getElementById('editUserForm'), 'button[type="submit"]');
+            preventMultipleSubmits(document.getElementById('deleteUserForm'), 'button[type="submit"]');
 
             // Remove these event listeners as they're now handled in preventMultipleSubmits
             // Form validation for Add User Modal
-            document.getElementById('addUserForm').removeEventListener('submit', function(){});
+            const addUserFormElement = document.getElementById('addUserForm');
+            if (addUserFormElement) {
+                addUserFormElement.querySelectorAll('input[required]').forEach(input => {
+                    input.addEventListener('input', function() {
+                        this.classList.remove('border-red-500');
+                        const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    });
+                });
+            }
 
             // Form validation for Edit User Modal
-            document.getElementById('editUserForm').removeEventListener('submit', function(){});
+            const editUserFormElement = document.getElementById('editUserForm');
+            if (editUserFormElement) {
+                editUserFormElement.querySelectorAll('input[required]').forEach(input => {
+                    input.addEventListener('input', function() {
+                        this.classList.remove('border-red-500');
+                        const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    });
+                });
+            }
 
             // Function to validate field and show error styling
             function validateField(field) {
@@ -1403,23 +1448,6 @@
                     return true;
                 }
             }
-
-            // Add input event listeners to clear error styling when typing
-            document.getElementById('addUserForm').querySelectorAll('input[required]').forEach(input => {
-                input.addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-                    if (errorElement) errorElement.classList.add('hidden');
-                });
-            });
-
-            document.getElementById('editUserForm').querySelectorAll('input[required]').forEach(input => {
-                input.addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-                    if (errorElement) errorElement.classList.add('hidden');
-                });
-            });
         });
     </script>
 @endsection

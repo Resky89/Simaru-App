@@ -190,7 +190,7 @@ class RoleController extends Controller
         try {
             // Validasi request
             $request->validate([
-                'role_name' => 'required|string|max:255',
+                'role_name' => 'required|string',
             ]);
 
             // Convert permission_ids to integers
@@ -296,7 +296,7 @@ class RoleController extends Controller
         try {
             // Validasi request
             $request->validate([
-                'role_name' => 'required|string|max:255',
+                'role_name' => 'required|string',
             ]);
 
             // Convert permission_ids to integers
