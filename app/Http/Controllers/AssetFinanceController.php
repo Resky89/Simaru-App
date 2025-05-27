@@ -15,7 +15,7 @@ class AssetFinanceController extends Controller
     }
 
     /**
-     * Get all financial transactions for a specific asset
+     * Mendapatkan semua transaksi keuangan untuk aset tertentu
      *
      * @param int $assetId
      * @return \Illuminate\Http\JsonResponse
@@ -23,31 +23,31 @@ class AssetFinanceController extends Controller
     public function getAllTransactions($assetId, Request $request)
     {
         try {
-            // Get pagination parameters
+            // Mendapatkan parameter paginasi
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
 
-            // Build query parameters
+            // Membangun parameter kueri
             $queryParams = [
                 'page' => $page,
                 'limit' => $limit
             ];
 
-            // Filter parameters
+            // Parameter filter
             if ($request->has('filter')) {
                 $filter = $request->input('filter');
 
-                // Only pass valid filter values (income or expense)
+                // Hanya meneruskan nilai filter yang valid (income atau expense)
                 if (in_array($filter, ['income', 'expense'])) {
-                    $queryParams['type'] = $filter; // Use 'type' parameter for the API
+                    $queryParams['type'] = $filter; // Gunakan parameter 'type' untuk API
                 }
             }
 
-            // Sort parameters
+            // Parameter pengurutan
             if ($request->has('sort')) {
                 $sort = $request->input('sort');
 
-                // Map frontend sort values to API parameters
+                // Petakan nilai pengurutan frontend ke parameter API
                 switch ($sort) {
                     case 'newest':
                         $queryParams['sort_by'] = 'transaction_date';
@@ -66,73 +66,64 @@ class AssetFinanceController extends Controller
                         $queryParams['sort_order'] = 'asc';
                         break;
                     default:
-                        // Default sort (newest first)
+                        // Pengurutan default (terbaru terlebih dahulu)
                         $queryParams['sort_by'] = 'transaction_date';
                         $queryParams['sort_order'] = 'desc';
                 }
             }
 
-            // Fetch the transactions for the given asset ID
+            // Mengambil transaksi untuk ID aset yang diberikan
             $result = $this->apiService->request('GET', "/asset-transactions/asset/{$assetId}", [
                 'query' => $queryParams
             ]);
 
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during asset transactions retrieval:', [
-                    'errors' => $result['errors']
-                ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['auth' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                ], 401);
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $formattedErrors = ['general' => 'Failed to retrieve asset transactions'];
+                $errorData = $result['errors'] ?? 'Gagal mengambil transaksi aset';
 
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
                     }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
-                \Log::warning('Error during asset transactions retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $formattedErrors
-                ]);
-
                 return response()->json([
                     'success' => false,
-                    'errors' => $formattedErrors
-                ], status: 400);
+                    'errors' => $errorMessage
+                ], 400);
             }
 
-            // Return the transactions data as JSON
+            // Mengembalikan data transaksi sebagai JSON
             return response()->json($result);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during asset transactions retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $assetId
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to retrieve asset transactions: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => 'Gagal mengambil transaksi aset: ' . $e->getMessage()
+            ], 500);
         }
     }
 
     /**
-     * Create a new financial transaction for an asset
+     * Membuat transaksi keuangan baru untuk aset
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
@@ -140,7 +131,7 @@ class AssetFinanceController extends Controller
     public function createTransaction(Request $request)
     {
         try {
-            // Validate request
+            // Memvalidasi request
             $validated = $request->validate([
                 'asset_id' => 'required|numeric',
                 'type' => 'required|string|in:expense,income',
@@ -149,7 +140,7 @@ class AssetFinanceController extends Controller
                 'description' => 'nullable|string'
             ]);
 
-            // Ensure numeric values are properly formatted
+            // Memastikan nilai numerik diformat dengan benar
             $data = [
                 'asset_id' => (int) $request->asset_id,
                 'type' => $request->type,
@@ -158,58 +149,73 @@ class AssetFinanceController extends Controller
                 'description' => $request->description
             ];
 
-            // Create the transaction via API service
+            // Membuat transaksi melalui layanan API
             $result = $this->apiService->request('POST', '/asset-transactions', [
                 'json' => $data
             ]);
 
-            // Check for success in the response
-            $isSuccess = isset($result['success']) && $result['success'] === true;
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
-            if (!$isSuccess) {
-                $formattedErrors = ['general' => 'Gagal membuat transaksi'];
-
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                \Log::warning('API transaction creation failed:', [
-                    'response' => $result,
-                    'errors' => $formattedErrors
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $formattedErrors
-                ], status: 400);
+                return redirect()->route('login')->with('error', 'Autentikasi gagal');
             }
 
-            // Check if this is an AJAX request
+            // Memeriksa kesalahan API atau respon tidak berhasil
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal membuat transaksi';
+
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                        'errors' => $errorMessage
+                    ], 400);
+            }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $errorMessage);
+            }
+
+            // Periksa apakah ini adalah permintaan AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
+                    'message' => $result['message'] ?? 'Transaksi berhasil ditambahkan',
                     'data' => $result['data'] ?? null
                 ]);
             }
 
-            // If it's a regular form submission, redirect with success message
+            // Jika ini adalah pengajuan formulir biasa, alihkan dengan pesan sukses
             return redirect()->back()->with('success', 'Transaksi berhasil ditambahkan');
 
         } catch (\Exception $e) {
-            \Log::error('Transaction creation error:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Gagal membuat transaksi: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => 'Gagal membuat transaksi: ' . $e->getMessage()
+                ], 500);
             }
 
             return redirect()->back()->with('error', 'Gagal membuat transaksi: ' . $e->getMessage());
@@ -217,7 +223,7 @@ class AssetFinanceController extends Controller
     }
 
     /**
-     * Update an existing financial transaction
+     * Memperbarui transaksi keuangan yang ada
      *
      * @param int $transactionId
      * @param Request $request
@@ -226,7 +232,7 @@ class AssetFinanceController extends Controller
     public function updateTransaction($transactionId, Request $request)
     {
         try {
-            // Validate request
+            // Memvalidasi request
             $validated = $request->validate([
                 'asset_id' => 'required|numeric',
                 'type' => 'required|string|in:expense,income',
@@ -235,7 +241,7 @@ class AssetFinanceController extends Controller
                 'description' => 'nullable|string'
             ]);
 
-            // Ensure numeric values are properly formatted
+            // Memastikan nilai numerik diformat dengan benar
             $data = [
                 'asset_id' => (int) $request->asset_id,
                 'type' => $request->type,
@@ -244,59 +250,62 @@ class AssetFinanceController extends Controller
                 'description' => $request->description
             ];
 
-            // Update the transaction via API service
+            // Memperbarui transaksi melalui layanan API
             $result = $this->apiService->request('PUT', "/asset-transactions/{$transactionId}", [
                 'json' => $data
             ]);
 
-            // Check for success in the response
-            $isSuccess = isset($result['success']) && $result['success'] === true;
-
-            if (!$isSuccess) {
-                $formattedErrors = ['general' => 'Gagal mengupdate transaksi'];
-
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
-                }
-
-                \Log::warning('API transaction update failed:', [
-                    'transaction_id' => $transactionId,
-                    'response' => $result,
-                    'errors' => $formattedErrors
-                ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
                 return response()->json([
                     'success' => false,
-                    'errors' => $formattedErrors
-                ], status: 400);
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                ], 401);
             }
 
-            // Return JSON response for toast notification
+            // Memeriksa kesalahan API atau respon tidak berhasil
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal memperbarui transaksi';
+
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $errorMessage
+                ], 400);
+            }
+
+            // Mengembalikan respons JSON untuk notifikasi toast
             return response()->json([
                 'success' => true,
+                'message' => $result['message'] ?? 'Transaksi berhasil diperbarui',
                 'data' => $result['data'] ?? null
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Transaction update error:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'transaction_id' => $transactionId
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Gagal mengupdate transaksi: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => 'Gagal memperbarui transaksi: ' . $e->getMessage()
+            ], 500);
         }
     }
 
     /**
-     * Delete a financial transaction
+     * Menghapus transaksi keuangan
      *
      * @param int $transactionId
      * @return \Illuminate\Http\JsonResponse
@@ -304,57 +313,60 @@ class AssetFinanceController extends Controller
     public function deleteTransaction($transactionId)
     {
         try {
-            // Delete the transaction via API service
+            // Menghapus transaksi melalui layanan API
             $result = $this->apiService->request('DELETE', "/asset-transactions/{$transactionId}");
 
-            // Check for success in the response
-            $isSuccess = isset($result['success']) && $result['success'] === true;
-
-            if (!$isSuccess) {
-                $formattedErrors = ['general' => 'Gagal menghapus transaksi'];
-
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
-                }
-
-                \Log::warning('API transaction deletion failed:', [
-                    'transaction_id' => $transactionId,
-                    'response' => $result,
-                    'errors' => $formattedErrors
-                ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
                 return response()->json([
                     'success' => false,
-                    'errors' => $formattedErrors
-                ], status: 400);
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                ], 401);
             }
 
-            // Return JSON response for toast notification
+            // Memeriksa kesalahan API atau respon tidak berhasil
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus transaksi';
+
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $errorMessage
+                ], 400);
+            }
+
+            // Mengembalikan respons JSON untuk notifikasi toast
             return response()->json([
                 'success' => true,
+                'message' => $result['message'] ?? 'Transaksi berhasil dihapus',
                 'data' => null
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Transaction deletion error:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'transaction_id' => $transactionId
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Gagal menghapus transaksi: ' . $e->getMessage()]
+                'errors' => 'Gagal menghapus transaksi: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Get a single financial transaction
+     * Mendapatkan satu transaksi keuangan
      *
      * @param int $transactionId
      * @return \Illuminate\Http\JsonResponse
@@ -362,48 +374,50 @@ class AssetFinanceController extends Controller
     public function getTransaction($transactionId)
     {
         try {
-            // Fetch the transaction details
+            // Mengambil detail transaksi
             $result = $this->apiService->request('GET', "/asset-transactions/{$transactionId}");
 
-            // Check for success in the response
-            $isSuccess = isset($result['success']) && $result['success'] === true;
-
-            if (!$isSuccess) {
-                $formattedErrors = ['general' => 'Failed to retrieve transaction'];
-
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
-                }
-
-                \Log::warning('Transaction retrieval failed:', [
-                    'transaction_id' => $transactionId,
-                    'response' => $result,
-                    'errors' => $formattedErrors
-                ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
                 return response()->json([
                     'success' => false,
-                    'errors' => $formattedErrors
-                ], status: 400);
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                ], 401);
             }
 
-            // Return the transaction data as JSON
+            // Memeriksa kesalahan API
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal mengambil data transaksi';
+
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $errorMessage
+                ], 400);
+            }
+
+            // Mengembalikan data transaksi sebagai JSON
             return response()->json($result);
 
         } catch (\Exception $e) {
-            \Log::error('Transaction retrieval error:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'transaction_id' => $transactionId
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to retrieve transaction: ' . $e->getMessage()]
+                'errors' => 'Gagal mengambil data transaksi: ' . $e->getMessage()
             ], 500);
         }
     }

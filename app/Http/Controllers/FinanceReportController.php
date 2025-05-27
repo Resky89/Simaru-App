@@ -16,7 +16,7 @@ class FinanceReportController extends Controller
     }
 
     /**
-     * Get all asset transactions.
+     * Mendapatkan semua transaksi aset.
      *
      * @param Request $request
      * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
@@ -24,44 +24,33 @@ class FinanceReportController extends Controller
     public function getAllTransactions(Request $request)
     {
         try {
-            // Get pagination parameters
+            // Mendapatkan parameter paginasi
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
             $sort = $request->input('sort', 'newest');
             $filter = $request->input('filter', 'all');
 
-            // Log request info
-            \Log::info('Fetching all asset transactions with parameters:', [
-                'page' => $page,
-                'limit' => $limit,
-                'search' => $search,
-                'sort' => $sort,
-                'filter' => $filter,
-                'request_url' => $request->fullUrl(),
-                'ajax' => $request->ajax()
-            ]);
-
-            // Build query parameters
+            // Membangun parameter kueri
             $queryParams = [
                 'page' => $page,
                 'limit' => $limit
             ];
 
-            // Add search parameter if provided
+            // Menambahkan parameter pencarian jika disediakan
             if (!empty($search)) {
                 $queryParams['search'] = $search;
             }
 
-            // Add filter parameter if it's not 'all'
+            // Menambahkan parameter filter jika bukan 'all'
             if ($filter !== 'all') {
-                // Only pass valid filter values (income or expense)
+                // Hanya meneruskan nilai filter yang valid (pendapatan atau pengeluaran)
                 if (in_array($filter, ['income', 'expense'])) {
-                    $queryParams['type'] = $filter; // Use 'type' parameter for the API
+                    $queryParams['type'] = $filter; // Menggunakan parameter 'type' untuk API
                 }
             }
 
-            // Handle sorting
+            // Menangani pengurutan
             switch ($sort) {
                 case 'newest':
                     $queryParams['sort_by'] = 'transaction_date';
@@ -80,57 +69,42 @@ class FinanceReportController extends Controller
                     $queryParams['sort_order'] = 'asc';
                     break;
                 default:
-                    // Default sort (newest first)
+                    // Pengurutan default (terbaru pertama)
                     $queryParams['sort_by'] = 'transaction_date';
                     $queryParams['sort_order'] = 'desc';
             }
 
-            // Fetch asset transactions from API
+            // Mengambil transaksi aset dari API
             $result = $this->apiService->request('GET', '/asset-transactions', [
                 'query' => $queryParams
             ]);
 
-            // Log API response for debugging
-            \Log::info('API response for asset transactions:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'data_count' => isset($result['data']) ? count($result['data']) : 0
-            ]);
-
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during asset transactions retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve asset transactions';
-
-                \Log::warning('Error during asset transactions retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil transaksi aset';
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
                         'errors' => $errorData
-                    ], status: 400);
+                    ], 400);
                 }
 
-                // Format error message for view
+                // Format pesan kesalahan untuk tampilan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -154,21 +128,21 @@ class FinanceReportController extends Controller
                 ]);
             }
 
-            // Get transactions and pagination data
+            // Mendapatkan data transaksi dan paginasi
             $transactions = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
 
-            // For AJAX requests, return JSON response
+            // Untuk permintaan AJAX, kembalikan respons JSON
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Asset transactions list retrieved successfully',
+                    'message' => 'Daftar transaksi aset berhasil diambil',
                     'data' => $transactions,
                     'pagination' => $pagination
                 ]);
             }
 
-            // For regular requests, return view
+            // Untuk permintaan reguler, kembalikan tampilan
             return view('Report.FinanceReport.FinanceReport', [
                 'transactions' => $transactions,
                 'pagination' => $pagination,
@@ -178,16 +152,11 @@ class FinanceReportController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during asset transactions retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to retrieve asset transactions: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => 'Gagal mengambil transaksi aset: ' . $e->getMessage()
+                ], 500);
             }
 
             return view('Report.FinanceReport.FinanceReport', [
@@ -196,13 +165,13 @@ class FinanceReportController extends Controller
                 'search' => $search,
                 'sort' => $sort,
                 'filter' => $filter,
-                'error' => 'Failed to retrieve asset transactions: ' . $e->getMessage()
+                'error' => 'Gagal mengambil transaksi aset: ' . $e->getMessage()
             ]);
         }
     }
 
     /**
-     * Export finance report as PDF
+     * Mengekspor laporan keuangan sebagai PDF
      *
      * @param Request $request
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
@@ -210,33 +179,31 @@ class FinanceReportController extends Controller
     public function exportFinanceReportPDF(Request $request)
     {
         try {
-            \Log::info('Starting finance report PDF export');
-
-            // Get search and sort parameters
+            // Mendapatkan parameter pencarian dan pengurutan
             $search = $request->input('search', '');
             $sort = $request->input('sort', 'newest');
             $filter = $request->input('filter', 'all');
 
-            // Build query parameters - use a large limit to get all data
+            // Membangun parameter kueri - menggunakan batas besar untuk mendapatkan semua data
             $queryParams = [
                 'page' => 1,
-                'limit' => 1000 // Large limit to get more data for PDF
+                'limit' => 1000 // Batas besar untuk mendapatkan lebih banyak data untuk PDF
             ];
 
-            // Add search parameter if provided
+            // Menambahkan parameter pencarian jika disediakan
             if (!empty($search)) {
                 $queryParams['search'] = $search;
             }
 
-            // Add filter parameter if it's not 'all'
+            // Menambahkan parameter filter jika bukan 'all'
             if ($filter !== 'all') {
-                // Only pass valid filter values (income or expense)
+                // Hanya meneruskan nilai filter yang valid (pendapatan atau pengeluaran)
                 if (in_array($filter, ['income', 'expense'])) {
-                    $queryParams['type'] = $filter; // Use 'type' parameter for the API
+                    $queryParams['type'] = $filter; // Menggunakan parameter 'type' untuk API
                 }
             }
 
-            // Handle sorting
+            // Menangani pengurutan
             switch ($sort) {
                 case 'newest':
                     $queryParams['sort_by'] = 'transaction_date';
@@ -255,35 +222,28 @@ class FinanceReportController extends Controller
                     $queryParams['sort_order'] = 'asc';
                     break;
                 default:
-                    // Default sort (newest first)
+                    // Pengurutan default (terbaru pertama)
                     $queryParams['sort_by'] = 'transaction_date';
                     $queryParams['sort_order'] = 'desc';
             }
 
-            // Fetch asset transactions from API
+            // Mengambil transaksi aset dari API
             $result = $this->apiService->request('GET', '/asset-transactions', [
                 'query' => $queryParams
             ]);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during finance report PDF export', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve finance report data';
+                $errorData = $result['errors'] ?? 'Gagal mengambil data laporan keuangan';
 
-                \Log::warning('Error during finance report data retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                // Format error message
+                // Format pesan kesalahan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -301,14 +261,10 @@ class FinanceReportController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Get transactions data
+            // Mendapatkan data transaksi
             $transactions = $result['data'] ?? [];
 
-            \Log::info('Data prepared for finance report PDF export', [
-                'transactions_count' => count($transactions)
-            ]);
-
-            // Create the PDF with the data
+            // Membuat PDF dengan data
             $pdf = Pdf::loadView('Report.FinanceReport.FinanceReportPDF', [
                 'transactions' => $transactions,
                 'search' => $search,
@@ -316,18 +272,13 @@ class FinanceReportController extends Controller
                 'filter' => $filter
             ]);
 
-            // Set paper size and orientation
+            // Menetapkan ukuran kertas dan orientasi
             $pdf->setPaper('a4', 'portrait');
 
-            \Log::info('Finance report PDF generation successful, streaming to browser');
-            return $pdf->stream("finance_report.pdf");
+            return $pdf->stream("laporan_keuangan.pdf");
 
         } catch (\Exception $e) {
-            \Log::error('Exception during finance report PDF export', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return redirect()->back()->with('error', 'Failed to export finance report as PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengekspor laporan keuangan sebagai PDF: ' . $e->getMessage());
         }
     }
 }

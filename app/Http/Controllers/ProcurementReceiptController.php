@@ -15,7 +15,7 @@ class ProcurementReceiptController extends Controller
     }
 
     /**
-     * Get all receipts with pagination
+     * Menampilkan daftar penerimaan barang dengan pagination
      *
      * @param Request $request
      * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
@@ -23,32 +23,32 @@ class ProcurementReceiptController extends Controller
     public function index(Request $request)
     {
         try {
-            // Get pagination parameters with defaults
+            // Mendapatkan parameter paginasi dengan nilai default
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
 
-            // Get search and filter parameters
+            // Mendapatkan parameter pencarian dan filter
             $search = $request->input('search');
             $status = $request->input('status');
             $sort = $request->input('sort');
 
-            // Build query parameters
+            // Membangun parameter query
             $queryParams = [
                 'page' => $page,
                 'limit' => $limit,
             ];
 
-            // Add search parameter if provided
+            // Menambahkan parameter pencarian jika disediakan
             if ($search) {
                 $queryParams['search'] = $search;
             }
 
-            // Add status filter if provided
+            // Menambahkan filter status jika disediakan
             if ($status) {
                 $queryParams['status'] = $status;
             }
 
-            // Set sort parameters based on selection
+            // Mengatur parameter pengurutan berdasarkan pilihan
             if ($sort) {
                 switch ($sort) {
                     case 'newest':
@@ -80,7 +80,7 @@ class ProcurementReceiptController extends Controller
                         $queryParams['sort_order'] = 'desc';
                 }
             } else {
-                // Default sorting if not specified
+                // Pengurutan default jika tidak ditentukan
                 $queryParams['sort_by'] = 'created_at';
                 $queryParams['sort_order'] = 'desc';
             }
@@ -89,40 +89,32 @@ class ProcurementReceiptController extends Controller
                 'query' => $queryParams
             ]);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during receipts retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', 'Authentication failed. Please log in again.');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve receipts';
+                $errorData = $result['errors'] ?? 'Gagal mengambil daftar penerimaan';
 
-                \Log::warning('Error during receipts retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
                     ], 400);
                 }
 
-                // Format error message for view
+                // Format pesan kesalahan untuk tampilan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -136,7 +128,7 @@ class ProcurementReceiptController extends Controller
                     $errorMessage = $errorData;
                 }
 
-                // Return view with empty receipts data and error message
+                // Mengembalikan tampilan dengan data penerimaan kosong dan pesan kesalahan
                 return view('Procurement.Receipt.Receipt', [
                     'receipts' => [],
                     'pagination' => null,
@@ -144,13 +136,13 @@ class ProcurementReceiptController extends Controller
                 ]);
             }
 
-            // Prepare data for the view
+            // Menyiapkan data untuk tampilan
             $receipts = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
             $message = $result['message'] ?? 'Daftar penerimaan barang berhasil diambil';
 
-            // Check if request is AJAX (wants JSON)
-            if ($request->ajax() || $request->wantsJson()) {
+            // Periksa jika permintaan adalah AJAX (menginginkan JSON)
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -159,36 +151,31 @@ class ProcurementReceiptController extends Controller
                 ]);
             }
 
-            // If not AJAX request, return view with data
+            // Jika bukan permintaan AJAX, kembalikan tampilan dengan data
             return view('Procurement.Receipt.Receipt', [
                 'receipts' => $receipts,
                 'pagination' => $pagination,
                 'message' => $message,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during receipts retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to fetch receipts: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => ['exception' => 'Gagal mengambil data penerimaan: ' . $e->getMessage()]
+                ], 500);
             }
 
-            // Always pass an empty array for receipts in case of error
+            // Selalu berikan array kosong untuk penerimaan jika terjadi kesalahan
             return view('Procurement.Receipt.Receipt', [
                 'receipts' => [],
                 'pagination' => null,
-                'error' => 'Failed to fetch receipt data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data penerimaan: ' . $e->getMessage()
             ]);
         }
     }
 
     /**
-     * Get a specific receipt by ID
+     * Mendapatkan detail penerimaan berdasarkan ID
      *
      * @param Request $request
      * @param int $id
@@ -197,45 +184,35 @@ class ProcurementReceiptController extends Controller
     public function show(Request $request, $id)
     {
         try {
-            // Make API call to get receipt details
+            // Membuat panggilan API untuk mendapatkan detail penerimaan
             $result = $this->apiService->request('GET', '/receipts/' . $id);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during receipt retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'receipt_id' => $id
-                ]);
 
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', 'Authentication failed. Please log in again.');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve receipt';
+                $errorData = $result['errors'] ?? 'Gagal mengambil detail penerimaan';
 
-                \Log::warning('Error during receipt retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'receipt_id' => $id
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
                     ], 400);
                 }
 
-                // Format error message for view
+                // Format pesan kesalahan untuk tampilan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -249,19 +226,19 @@ class ProcurementReceiptController extends Controller
                     $errorMessage = $errorData;
                 }
 
-                // Return view with error message
+                // Mengembalikan tampilan dengan pesan kesalahan
                 return view('Procurement.Receipt.DetailReceipt', [
                     'receipt' => null,
                     'error' => $errorMessage
                 ]);
             }
 
-            // Get receipt data
+            // Mendapatkan data penerimaan
             $receipt = $result['data'] ?? null;
             $message = $result['message'] ?? 'Penerimaan barang berhasil ditemukan';
 
-            // Check if request is AJAX (wants JSON)
-            if ($request->ajax() || $request->wantsJson()) {
+            // Periksa jika permintaan adalah AJAX (menginginkan JSON)
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -269,35 +246,29 @@ class ProcurementReceiptController extends Controller
                 ]);
             }
 
-            // If not AJAX request, return view with data
+            // Jika bukan permintaan AJAX, kembalikan tampilan dengan data
             return view('Procurement.Receipt.DetailReceipt', [
                 'receipt' => $receipt,
                 'message' => $message
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during receipt retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'receipt_id' => $id
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to fetch receipt: ' . $e->getMessage()]
+                    'errors' => ['exception' => 'Gagal mengambil detail penerimaan: ' . $e->getMessage()]
                 ], 500);
             }
 
-            // Return view with error
+            // Mengembalikan tampilan dengan kesalahan
             return view('Procurement.Receipt.DetailReceipt', [
                 'receipt' => null,
-                'error' => 'Failed to fetch receipt data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil detail penerimaan: ' . $e->getMessage()
             ]);
         }
     }
 
     /**
-     * Create a new receipt
+     * Membuat penerimaan barang baru
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
@@ -305,7 +276,7 @@ class ProcurementReceiptController extends Controller
     public function create(Request $request)
     {
         try {
-            // Validate the request data
+            // Memvalidasi data permintaan
             $validatedData = $request->validate([
                 'purchase_order_id' => 'required|integer',
                 'receipt_date' => 'required|date',
@@ -317,45 +288,37 @@ class ProcurementReceiptController extends Controller
                 'items.*.notes' => 'nullable|string',
             ]);
 
-            // Make API call to create a receipt
+            // Membuat panggilan API untuk membuat penerimaan
             $result = $this->apiService->request('POST', '/receipts', [
                 'json' => $validatedData
             ]);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during receipt creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', 'Authentication failed. Please log in again.');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to create receipt';
+                $errorData = $result['errors'] ?? 'Gagal membuat penerimaan';
 
-                \Log::warning('Error during receipt creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    // Return detailed error structure for JSON responses
+                if ($request->expectsJson() || $request->ajax()) {
+                    // Mengembalikan struktur kesalahan terperinci untuk respons JSON
                     if (is_array($errorData)) {
-                        // Keep the original error structure for proper display
+                        // Pertahankan struktur kesalahan asli untuk tampilan yang tepat
                         return response()->json([
                             'success' => false,
                             'errors' => $errorData,
-                            'message' => 'There were errors with your submission'
+                            'message' => 'Terdapat kesalahan pada pengiriman data'
                         ], 400);
                     } else {
                         return response()->json([
@@ -365,7 +328,7 @@ class ProcurementReceiptController extends Controller
                     }
                 }
 
-                // Format error message for redirect
+                // Format pesan kesalahan untuk redirect
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -382,12 +345,12 @@ class ProcurementReceiptController extends Controller
                 return redirect()->route('procurement.receipt')->with('error', $errorMessage);
             }
 
-            // Get receipt data
+            // Mendapatkan data penerimaan
             $receipt = $result['data'] ?? null;
             $message = $result['message'] ?? 'Penerimaan barang berhasil dibuat';
 
-            // Check if request is AJAX (wants JSON)
-            if ($request->ajax() || $request->wantsJson()) {
+            // Periksa jika permintaan adalah AJAX (menginginkan JSON)
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -395,30 +358,25 @@ class ProcurementReceiptController extends Controller
                 ]);
             }
 
-            // If not AJAX request, redirect with success message
+            // Jika bukan permintaan AJAX, redirect dengan pesan sukses
             return redirect()->route('procurement.receipt.show', ['id' => $receipt['receipt_id']])
                 ->with('success', $message);
         } catch (\Exception $e) {
-            \Log::error('Exception during receipt creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to create receipt: ' . $e->getMessage()]
+                    'errors' => ['exception' => 'Gagal membuat penerimaan: ' . $e->getMessage()]
                 ], 500);
             }
 
-            // Redirect with error
+            // Redirect dengan kesalahan
             return redirect()->route('procurement.receipt')
-                ->with('error', 'Failed to create receipt: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat penerimaan: ' . $e->getMessage());
         }
     }
 
     /**
-     * Export a receipt to PDF
+     * Mengekspor penerimaan ke PDF
      *
      * @param int $id
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
@@ -426,56 +384,35 @@ class ProcurementReceiptController extends Controller
     public function exportReceiptDetailPDF($id)
     {
         try {
-            // Log request info
-            \Log::info('Exporting receipt to PDF with ID: ' . $id);
-
-            // Fetch receipt from API
+            // Mengambil penerimaan dari API
             $result = $this->apiService->request('GET', '/receipts/' . $id);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during receipt PDF export:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check if the receipt exists
+            // Memeriksa apakah penerimaan ada
             if (!isset($result['data']) || empty($result['data'])) {
-                \Log::warning('Receipt not found:', [
-                    'id' => $id,
-                    'message' => $result['message'] ?? 'Receipt not found'
-                ]);
-
-                return redirect()->route('procurement.receipt')->with('error', 'Receipt not found');
+                return redirect()->route('procurement.receipt')->with('error', $result['message'] ?? 'Penerimaan tidak ditemukan');
             }
 
-            // Get receipt data
+            // Mendapatkan data penerimaan
             $receipt = $result['data'];
 
-            // Generate PDF
+            // Menghasilkan PDF
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('Procurement.Receipt.DetailReceiptPDF', [
                 'receipt' => $receipt,
                 'date_generated' => now()->format('Y-m-d H:i:s')
             ]);
 
-            // Log PDF generation
-            \Log::info('Receipt PDF generated successfully', [
-                'receipt_id' => $receipt['receipt_id'] ?? 'N/A'
-            ]);
-
-            // Stream the PDF to browser
+            // Menampilkan PDF ke browser
             return $pdf->stream('receipt_' . $id . '_' . now()->format('YmdHis') . '.pdf');
 
         } catch (\Exception $e) {
-            \Log::error('Exception during receipt PDF export:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return redirect()->back()->with('error', 'Failed to export Receipt as PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengekspor penerimaan sebagai PDF: ' . $e->getMessage());
         }
     }
 }

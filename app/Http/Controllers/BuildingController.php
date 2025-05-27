@@ -170,7 +170,7 @@ class BuildingController extends Controller
         try {
             // Memvalidasi request
             $validated = $request->validate([
-                'building_name' => 'required|string|max:255',
+                'building_name' => 'required|string',
                 'address' => 'required|string'
             ]);
 
@@ -185,7 +185,7 @@ class BuildingController extends Controller
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => 'Autentikasi gagal'
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
@@ -256,7 +256,7 @@ class BuildingController extends Controller
         try {
             // Memvalidasi request
             $validated = $request->validate([
-                'building_name' => 'required|string|max:255',
+                'building_name' => 'required|string',
                 'address' => 'required|string'
             ]);
 

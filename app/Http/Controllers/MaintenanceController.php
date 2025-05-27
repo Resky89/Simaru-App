@@ -31,18 +31,6 @@ class MaintenanceController extends Controller
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'desc');
 
-            // Log request info with detailed search info
-            \Log::info('Fetching maintenance schedules for view with parameters:', [
-                'page' => $page,
-                'limit' => $limit,
-                'search' => $search,
-                'status' => $status,
-                'sort_by' => $sortBy,
-                'sort_order' => $sortOrder,
-                'request_url' => $request->fullUrl(),
-                'ajax' => $request->ajax()
-            ]);
-
             // Build query parameters
             $queryParams = [
                 'page' => $page,
@@ -52,7 +40,6 @@ class MaintenanceController extends Controller
             // Add search parameter if provided
             if (!empty($search)) {
                 $queryParams['search'] = $search;
-                \Log::debug('Search query added:', ['search' => $search]);
             }
 
             // Add status filter if provided
@@ -70,7 +57,6 @@ class MaintenanceController extends Controller
             }
 
             // Fetch maintenance schedules
-            \Log::debug('Sending API request with query params:', $queryParams);
             $result = $this->apiService->request('GET', '/maintenance', [
                 'query' => $queryParams
             ]);
@@ -78,35 +64,20 @@ class MaintenanceController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during maintenance schedules retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => ['authentication' => $result['errors'] ?? 'Autentikasi gagal']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve maintenance schedules';
-
-                \Log::warning('Error during maintenance schedules retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorData
-                    ], status: 400);
-                }
+                $errorData = $result['errors'] ?? 'Gagal mengambil jadwal pemeliharaan';
 
                 // Format error message for view
                 $errorMessage = '';
@@ -122,6 +93,13 @@ class MaintenanceController extends Controller
                     $errorMessage = $errorData;
                 }
 
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], 400);
+                }
+
                 return view('Maintenance.Maintenance', [
                     'maintenances' => [],
                     'pagination' => null,
@@ -132,13 +110,6 @@ class MaintenanceController extends Controller
                     'error' => $errorMessage
                 ]);
             }
-
-            // Log API response for debugging
-            \Log::info('API response for maintenance schedules view:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'data_count' => isset($result['data']) ? count($result['data']) : 0
-            ]);
 
             // Parse data for view
             $maintenances = $result['data'] ?? [];
@@ -164,16 +135,11 @@ class MaintenanceController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during maintenance schedules view retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['general' => 'Failed to retrieve maintenance schedules: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => ['general' => 'Gagal mengambil jadwal pemeliharaan: ' . $e->getMessage()]
+                ], 500);
             }
 
             return view('Maintenance.Maintenance', [
@@ -183,7 +149,7 @@ class MaintenanceController extends Controller
                 'status' => $status,
                 'sort_by' => $sortBy,
                 'sort_order' => $sortOrder,
-                'error' => 'Failed to retrieve maintenance schedules: ' . $e->getMessage()
+                'error' => 'Gagal mengambil jadwal pemeliharaan: ' . $e->getMessage()
             ]);
         }
     }
@@ -202,15 +168,6 @@ class MaintenanceController extends Controller
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
             $status = $request->input('status', '');
-
-            // Log request info
-            \Log::info('Fetching all maintenance schedules with parameters:', [
-                'page' => $page,
-                'limit' => $limit,
-                'search' => $search,
-                'status' => $status,
-                'request_url' => $request->fullUrl()
-            ]);
 
             // Build query parameters
             $queryParams = [
@@ -233,38 +190,24 @@ class MaintenanceController extends Controller
                 'query' => $queryParams
             ]);
 
-            // Log API response for debugging
-            \Log::info('API response for maintenance schedules:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null
-            ]);
-
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during maintenance schedules retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => $result['errors'] ?? 'Autentikasi gagal']
+                ], 401);
             }
 
             // Check for API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve maintenance schedules';
-
-                \Log::warning('Error during maintenance schedules retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil jadwal pemeliharaan';
 
                 return response()->json([
                     'success' => false,
                     'errors' => $errorData
-                ], status: 400);
+                ], 400);
             }
 
             // Return the response
@@ -283,15 +226,10 @@ class MaintenanceController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during maintenance schedules retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['general' => 'Failed to retrieve maintenance schedules: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['general' => 'Gagal mengambil jadwal pemeliharaan: ' . $e->getMessage()]
+            ], 500);
         }
     }
 
@@ -304,61 +242,39 @@ class MaintenanceController extends Controller
     public function getMaintenance($id)
     {
         try {
-            // Log request info
-            \Log::info('Fetching maintenance with ID: ' . $id);
-
             // Fetch maintenance from API
             $result = $this->apiService->request('GET', '/maintenance/' . $id);
-
-            // Log API response for debugging
-            \Log::info('API response for maintenance retrieval:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null
-            ]);
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during maintenance retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => $result['errors'] ?? 'Autentikasi gagal']
+                ], 401);
             }
 
             // Check if the maintenance exists
             if (!isset($result['data']) || empty($result['data'])) {
-                \Log::warning('Maintenance not found:', [
-                    'id' => $id,
-                    'message' => $result['message'] ?? 'Maintenance not found'
-                ]);
-
                 return response()->json([
                     'success' => false,
-                    'errors' => ['maintenance' => 'Maintenance not found']
-                ], status: 404);
+                    'errors' => ['maintenance' => 'Data pemeliharaan tidak ditemukan']
+                ], 404);
             }
 
             // Return the API response
             return response()->json([
                 'success' => true,
-                'message' => 'Maintenance retrieved successfully',
+                'message' => 'Data pemeliharaan berhasil diambil',
                 'data' => $result['data']
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during maintenance retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['general' => 'Failed to retrieve maintenance: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['general' => 'Gagal mengambil data pemeliharaan: ' . $e->getMessage()]
+            ], 500);
         }
     }
 
@@ -371,36 +287,19 @@ class MaintenanceController extends Controller
     public function showMaintenanceDetail($id)
     {
         try {
-            // Log request info
-            \Log::info('Fetching maintenance details for ID: ' . $id);
-
             // Fetch maintenance from API
             $result = $this->apiService->request('GET', '/maintenance/' . $id);
-
-            // Log API response for debugging
-            \Log::info('API response for maintenance details:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null
-            ]);
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during maintenance details retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check if the maintenance exists
             if (!isset($result['data']) || empty($result['data'])) {
-                \Log::warning('Maintenance not found:', [
-                    'id' => $id,
-                    'message' => $result['message'] ?? 'Maintenance not found'
-                ]);
-
-                return redirect()->route('maintenance')->with('error', 'Maintenance not found');
+                return redirect()->route('maintenance')->with('error', 'Data pemeliharaan tidak ditemukan');
             }
 
             // Get maintenance history if available
@@ -421,9 +320,6 @@ class MaintenanceController extends Controller
                         $maintenanceData['history'] = [];
                     }
                 } catch (\Exception $e) {
-                    \Log::warning('Error fetching maintenance history:', [
-                        'error' => $e->getMessage()
-                    ]);
                     // Ensure history is an empty array
                     $maintenanceData['history'] = [];
                 }
@@ -435,12 +331,7 @@ class MaintenanceController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during maintenance details retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return redirect()->route('maintenance')->with('error', 'Failed to retrieve maintenance details: ' . $e->getMessage());
+            return redirect()->route('maintenance')->with('error', 'Gagal mengambil detail pemeliharaan: ' . $e->getMessage());
         }
     }
 
@@ -462,14 +353,6 @@ class MaintenanceController extends Controller
                 'interval' => 'required|string',
                 'assigned_to' => 'required|integer',
                 'vendor_id' => 'nullable|integer'
-            ]);
-
-            // Log request info
-            \Log::info('Creating bulk maintenance schedules with parameters:', [
-                'asset_ids' => $request->input('asset_ids'),
-                'start_date' => $request->input('start_date'),
-                'end_date' => $request->input('end_date'),
-                'request_url' => $request->fullUrl()
             ]);
 
             // Remove any duplicate asset IDs to prevent duplicate maintenance
@@ -497,62 +380,43 @@ class MaintenanceController extends Controller
                 'json' => $requestData
             ]);
 
-            // Log API response for debugging
-            \Log::info('API response for bulk maintenance creation:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null
-            ]);
-
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during bulk maintenance creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => $result['errors'] ?? 'Autentikasi gagal']
+                ], 401);
             }
 
             // Check if the request was successful
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to create maintenance schedules';
-
-                \Log::warning('Error during bulk maintenance creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal membuat jadwal pemeliharaan';
 
                 return response()->json([
                     'success' => false,
                     'errors' => $errorData
-                ], status: 400);
+                ], 400);
             }
 
             // For AJAX requests
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $result['message'] ?? 'Maintenance schedules created successfully',
+                    'message' => $result['message'] ?? 'Jadwal pemeliharaan berhasil dibuat',
                     'data' => $result['data'] ?? []
                 ]);
             }
 
             // For regular form submissions, redirect with session flash
-            return redirect()->route('maintenance')->with('success', 'Maintenance schedules created successfully');
+            return redirect()->route('maintenance')->with('success', 'Jadwal pemeliharaan berhasil dibuat');
 
         } catch (\Exception $e) {
-            \Log::error('Exception during bulk maintenance creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['general' => 'Failed to create maintenance schedules: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['general' => 'Gagal membuat jadwal pemeliharaan: ' . $e->getMessage()]
+            ], 500);
         }
     }
 
@@ -603,15 +467,6 @@ class MaintenanceController extends Controller
                 ], 422);
             }
 
-            // Log request info
-            \Log::info('Creating maintenance schedules with parameters:', [
-                'asset_ids' => $request->input('asset_ids'),
-                'start_date' => $request->input('start_date'),
-                'end_date' => $request->input('end_date'),
-                'interval' => $request->input('interval'),
-                'request_url' => $request->fullUrl()
-            ]);
-
             // Get asset IDs and make sure they're all integers
             $assetIds = $request->input('asset_ids', []);
             $assetIds = array_map('intval', $assetIds);
@@ -640,44 +495,29 @@ class MaintenanceController extends Controller
                 'json' => $requestData
             ]);
 
-            // Log API response for debugging
-            \Log::info('API response for maintenance creation:', [
-                'api_response' => $result,
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'api_response_success' => $result['success'] ?? false
-            ]);
-
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during maintenance creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => $result['errors'] ?? 'Autentikasi gagal']
+                ], 401);
             }
 
             // Return the response from API
             return response()->json([
                 'success' => isset($result['success']) && $result['success'] === true,
+                'message' => $result['message'] ?? 'Jadwal pemeliharaan berhasil dibuat',
                 'data' => $result['data'] ?? [],
-                'errors' => isset($result['success']) && $result['success'] !== true ? ($result['errors'] ?? ['general' => 'Failed to create maintenance']) : null
+                'errors' => isset($result['success']) && $result['success'] !== true ? ($result['errors'] ?? ['general' => 'Gagal membuat jadwal pemeliharaan']) : null
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during maintenance creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['general' => 'Failed to create maintenance schedules: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['general' => 'Gagal membuat jadwal pemeliharaan: ' . $e->getMessage()]
+            ], 500);
         }
     }
 
@@ -691,7 +531,7 @@ class MaintenanceController extends Controller
     public function update(Request $request, $id)
     {
         try {
-                        // Get the interval to determine validation rules
+            // Get the interval to determine validation rules
             $interval = $request->input('interval', '');
 
             // Define basic validation rules
@@ -702,7 +542,7 @@ class MaintenanceController extends Controller
                 'vendor_id' => 'nullable|integer',
                 'status' => 'nullable|string|in:new,in_progress,finished',
                 'notes' => 'nullable|string',
-                'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
+                'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png'
             ];
 
             // Add end_date validation based on interval
@@ -715,30 +555,14 @@ class MaintenanceController extends Controller
             $validator = \Validator::make($request->all(), $validationRules);
 
             if ($validator->fails()) {
-                \Log::warning('Validation error in maintenance update:', [
-                    'errors' => $validator->errors()->toArray()
-                ]);
-
                 return response()->json([
                     'success' => false,
                     'errors' => $validator->errors()
                 ], 422);
             }
 
-            // Log request info
-            \Log::info('Updating maintenance with ID: ' . $id, [
-                'request_data' => $request->except(['file']),
-                'request_url' => $request->fullUrl()
-            ]);
-
             // Check if this is a regular JSON request or a multipart request with file
             if ($request->hasFile('file')) {
-                \Log::info('File detected in maintenance update request', [
-                    'file_name' => $request->file('file')->getClientOriginalName(),
-                    'file_size' => $request->file('file')->getSize(),
-                    'file_type' => $request->file('file')->getMimeType()
-                ]);
-
                 // Handle file upload via multipart
                 $file = $request->file('file');
                 $multipart = [
@@ -752,18 +576,12 @@ class MaintenanceController extends Controller
                 // Add other fields to the multipart request
                 foreach ($request->except(['file']) as $key => $value) {
                     if (!is_null($value) && $value !== '') {
-                    $multipart[] = [
-                        'name' => $key,
-                        'contents' => $value
-                    ];
+                        $multipart[] = [
+                            'name' => $key,
+                            'contents' => $value
+                        ];
                     }
                 }
-
-                \Log::info('Sending multipart request with file to API', [
-                    'multipart_fields' => array_map(function($item) {
-                        return $item['name'];
-                    }, $multipart)
-                ]);
 
                 // Send request to API using multipart form data
                 $result = $this->apiService->request('PUT', '/maintenance/' . $id, [
@@ -779,48 +597,30 @@ class MaintenanceController extends Controller
                     }
                 }
 
-                \Log::info('Sending maintenance update request without file', [
-                    'request_data_keys' => array_keys($requestData)
-                ]);
-
                 // Send request to API without file
                 $result = $this->apiService->request('PUT', '/maintenance/' . $id, [
                     'json' => $requestData
                 ]);
             }
 
-            // Log API response for debugging
-            \Log::info('API response for maintenance update:', [
-                'api_response_status' => $result['status'] ?? null,
-                'api_response_message' => $result['message'] ?? null
-            ]);
-
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during maintenance update:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => $result['errors'] ?? 'Autentikasi gagal']
+                ], 401);
             }
 
             // Check if the request was successful
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to update maintenance';
-
-                \Log::warning('Error during maintenance update:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal memperbarui jadwal pemeliharaan';
 
                 return response()->json([
                     'success' => false,
                     'errors' => $errorData
-                ], status: 400);
+                ], 400);
             }
 
             // For AJAX requests
@@ -836,15 +636,10 @@ class MaintenanceController extends Controller
             return redirect()->route('maintenance')->with('success', 'Jadwal pemeliharaan berhasil diperbarui');
 
         } catch (\Exception $e) {
-            \Log::error('Exception during maintenance update:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['general' => 'Failed to update maintenance: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['general' => 'Gagal memperbarui jadwal pemeliharaan: ' . $e->getMessage()]
+            ], 500);
         }
     }
 
@@ -857,49 +652,26 @@ class MaintenanceController extends Controller
     public function destroy($id)
     {
         try {
-            \Log::info('Deleting maintenance record with ID: ' . $id);
-
             // Call the API to delete the maintenance record
             $result = $this->apiService->request('DELETE', '/maintenance/' . $id);
-
-            // Log the API response for debugging
-            \Log::info('API response for maintenance deletion:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null
-            ]);
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during maintenance deletion:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 if (request()->ajax() || request()->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => ['authentication' => $result['errors'] ?? 'Autentikasi gagal']
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check if the request was successful
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to delete maintenance record';
-
-                \Log::warning('Error during maintenance deletion:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorData
-                    ], status: 400);
-                }
+                $errorData = $result['errors'] ?? 'Gagal menghapus jadwal pemeliharaan';
 
                 // Format error message
                 $errorMessage = '';
@@ -915,6 +687,13 @@ class MaintenanceController extends Controller
                     $errorMessage = $errorData;
                 }
 
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], 400);
+                }
+
                 return redirect()->route('maintenance')
                     ->with('error', $errorMessage);
             }
@@ -923,27 +702,22 @@ class MaintenanceController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Maintenance record deleted successfully'
+                    'message' => 'Jadwal pemeliharaan berhasil dihapus'
                 ]);
             }
 
             // For regular form submissions, redirect with session flash
-            return redirect()->route('maintenance')->with('success', 'Maintenance record deleted successfully');
+            return redirect()->route('maintenance')->with('success', 'Jadwal pemeliharaan berhasil dihapus');
 
         } catch (\Exception $e) {
-            \Log::error('Exception during maintenance deletion:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['general' => 'Failed to delete maintenance record: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => ['general' => 'Gagal menghapus jadwal pemeliharaan: ' . $e->getMessage()]
+                ], 500);
             }
 
-            return redirect()->route('maintenance')->with('error', 'Failed to delete maintenance record: ' . $e->getMessage());
+            return redirect()->route('maintenance')->with('error', 'Gagal menghapus jadwal pemeliharaan: ' . $e->getMessage());
         }
     }
 
@@ -961,15 +735,6 @@ class MaintenanceController extends Controller
             $status = $request->input('status', '');
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'desc');
-
-            // Log request info
-            \Log::info('Exporting maintenance to PDF with parameters:', [
-                'search' => $search,
-                'status' => $status,
-                'sort_by' => $sortBy,
-                'sort_order' => $sortOrder,
-                'request_url' => $request->fullUrl()
-            ]);
 
             // Build query parameters
             $queryParams = [
@@ -1004,11 +769,8 @@ class MaintenanceController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during maintenance PDF export:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Get maintenance data
@@ -1024,21 +786,11 @@ class MaintenanceController extends Controller
                 'date_generated' => now()->format('d M Y H:i:s')
             ]);
 
-            // Log PDF generation
-            \Log::info('Maintenance PDF generated successfully', [
-                'maintenances_count' => count($maintenances)
-            ]);
-
             // Stream the PDF to browser
             return $pdf->stream('maintenance_report_' . now()->format('YmdHis') . '.pdf');
 
         } catch (\Exception $e) {
-            \Log::error('Exception during maintenance PDF export:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return redirect()->back()->with('error', 'Failed to export Maintenance as PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengekspor jadwal pemeliharaan ke PDF: ' . $e->getMessage());
         }
     }
 
@@ -1051,30 +803,19 @@ class MaintenanceController extends Controller
     public function exportMaintenanceDetailPDF($id)
     {
         try {
-            // Log request info
-            \Log::info('Exporting single maintenance to PDF with ID: ' . $id);
-
             // Fetch maintenance from API
             $result = $this->apiService->request('GET', '/maintenance/' . $id);
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during maintenance PDF export:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check if the maintenance exists
             if (!isset($result['data']) || empty($result['data'])) {
-                \Log::warning('Maintenance not found:', [
-                    'id' => $id,
-                    'message' => $result['message'] ?? 'Maintenance not found'
-                ]);
-
-                return redirect()->route('maintenance')->with('error', 'Maintenance not found');
+                return redirect()->route('maintenance')->with('error', 'Data pemeliharaan tidak ditemukan');
             }
 
             // Get maintenance data
@@ -1086,25 +827,13 @@ class MaintenanceController extends Controller
                     // Use config service instead of directly accessing protected property
                     $baseUrl = rtrim(config('services.api.base_url', 'http://localhost:5000'), '/');
                     $imagePath = $baseUrl . '/public/images/' . basename($maintenance['maintenance_report']['attachment_path']);
-                    \Log::info('Attempting to load image for base64 conversion:', [
-                        'image_path' => $imagePath
-                    ]);
 
                     $imageData = file_get_contents($imagePath);
                     if ($imageData !== false) {
                         $maintenance['maintenance_report']['attachment_picture_base64'] = base64_encode($imageData);
-                        \Log::info('Successfully converted maintenance report image to base64');
-                    } else {
-                        \Log::warning('Failed to get image data for maintenance report:', [
-                            'image_path' => $imagePath
-                        ]);
                     }
                 } catch (\Exception $e) {
-                    \Log::warning('Exception while converting maintenance report image to base64:', [
-                        'error' => $e->getMessage(),
-                        'maintenance_id' => $id,
-                        'image_path' => $maintenance['maintenance_report']['attachment_path'] ?? 'N/A'
-                    ]);
+                    // Silently continue if image conversion fails
                 }
             }
 
@@ -1114,21 +843,11 @@ class MaintenanceController extends Controller
                 'date_generated' => now()->format('d M Y H:i:s')
             ]);
 
-            // Log PDF generation
-            \Log::info('Single maintenance PDF generated successfully', [
-                'maintenance_id' => $maintenance['id'] ?? 'N/A'
-            ]);
-
             // Stream the PDF to browser
             return $pdf->stream('maintenance_report_' . $id . '_' . now()->format('YmdHis') . '.pdf');
 
         } catch (\Exception $e) {
-            \Log::error('Exception during detail maintenance PDF export:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return redirect()->back()->with('error', 'Failed to export Maintenance as PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengekspor jadwal pemeliharaan ke PDF: ' . $e->getMessage());
         }
     }
 
@@ -1141,38 +860,20 @@ class MaintenanceController extends Controller
     public function createMaintenanceReport(Request $request)
     {
         try {
-            // Log all request data for debugging
-            \Log::info('Maintenance report request data:', [
-                'all_data' => $request->all(),
-                'has_file' => $request->hasFile('file')
-            ]);
-
             // Validate the request
             $validator = \Validator::make($request->all(), [
                 'maintenance_id' => 'required|integer',
                 'description' => 'required|string',
                 'maintenance_date' => 'nullable|date',
-                'file' => 'nullable|file|mimes:jpeg,png,jpg|max:10240', // Accept 'file' field
+                'file' => 'nullable|file|mimes:jpeg,png,jpg', // Accept 'file' field
             ]);
 
             if ($validator->fails()) {
-                \Log::warning('Validation failed during maintenance report creation:', [
-                    'errors' => $validator->errors()->toArray()
-                ]);
-
                 return response()->json([
                     'success' => false,
                     'errors' => $validator->errors()
                 ], 422);
             }
-
-            \Log::info('Creating maintenance report', [
-                'maintenance_id' => $request->maintenance_id,
-                'has_maintenance_date' => $request->has('maintenance_date'),
-                'maintenance_date_value' => $request->input('maintenance_date'),
-                'description' => $request->description,
-                'has_file' => $request->hasFile('file')
-            ]);
 
             // Build multipart request for API
             $multipart = [];
@@ -1180,15 +881,8 @@ class MaintenanceController extends Controller
             // Add file if present
             if ($request->hasFile('file')) {
                 $fileData = $request->file('file');
-
-                \Log::info('Processing file upload for maintenance report', [
-                    'file_name' => $fileData->getClientOriginalName(),
-                    'file_size' => $fileData->getSize(),
-                    'mime_type' => $fileData->getMimeType()
-                ]);
-
                 $multipart[] = [
-                    'name' => 'file', // Use 'file' for API based on screenshot
+                    'name' => 'file', // Use 'file' for API
                     'contents' => fopen($fileData->getPathname(), 'r'),
                     'filename' => $fileData->getClientOriginalName()
                 ];
@@ -1212,44 +906,24 @@ class MaintenanceController extends Controller
                 'contents' => $request->input('maintenance_date') ?: now()->format('Y-m-d')
             ];
 
-            // Log the multipart request structure
-            \Log::info('Sending multipart request for maintenance report', [
-                'multipart_fields' => array_map(function($item) {
-                    return ['name' => $item['name'], 'value' => $item['name'] === 'file' ? 'FILE_DATA' : substr((string)$item['contents'], 0, 100)];
-                }, $multipart)
-            ]);
-
             // Call API with multipart request
             $result = $this->apiService->request('POST', '/maintenance-reports', [
                 'multipart' => $multipart
             ]);
 
-            // Log complete API response
-            \Log::info('API full response for maintenance report creation:', [
-                'response' => $result
-            ]);
-
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during maintenance report creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => ['authentication' => $result['errors'] ?? 'Autentikasi gagal']
+                ], 401);
             }
 
             // Check for API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'];
-
-                \Log::warning('Error during maintenance report creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal membuat laporan pemeliharaan';
 
                 // Format error data for JSON response
                 $formattedErrors = [];
@@ -1286,40 +960,24 @@ class MaintenanceController extends Controller
                     }
                 }
 
-                // For AJAX/JSON requests, return formatted errors
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $formattedErrors
-                    ], 400);
-                }
-
-                // For regular requests, format error message for redirect
-                $errorMessage = '';
-                foreach ($formattedErrors as $error) {
-                    $errorMessage .= $error['message'] . '; ';
-                }
-
-                return redirect()->back()->with('error', $errorMessage);
+                return response()->json([
+                    'success' => false,
+                    'errors' => $formattedErrors
+                ], 400);
             }
 
             // Return response in the expected format
             return response()->json([
                 'success' =>  $result['success'] ?? true,
-                'message' => $result['message'] ?? 'Maintenance report created successfully',
-                'data' => $result['data']
+                'message' => $result['message'] ?? 'Laporan pemeliharaan berhasil dibuat',
+                'data' => $result['data'] ?? null
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during maintenance report creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['me' => 'Failed to create maintenance report: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => ['general' => 'Gagal membuat laporan pemeliharaan: ' . $e->getMessage()]
+            ], 500);
         }
     }
 }

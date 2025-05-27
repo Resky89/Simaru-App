@@ -15,7 +15,7 @@ class ProcurementPurchaseOrderController extends Controller
     }
 
     /**
-     * Get all purchase orders with pagination
+     * Menampilkan daftar pesanan pembelian dengan pagination
      *
      * @param Request $request
      * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
@@ -23,32 +23,32 @@ class ProcurementPurchaseOrderController extends Controller
     public function index(Request $request)
     {
         try {
-            // Get pagination parameters with defaults
+            // Mendapatkan parameter paginasi dengan nilai default
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
 
-            // Get search and filter parameters
+            // Mendapatkan parameter pencarian dan filter
             $search = $request->input('search');
             $status = $request->input('status');
             $sort = $request->input('sort');
 
-            // Build query parameters
+            // Membangun parameter query
             $queryParams = [
                 'page' => $page,
                 'limit' => $limit,
             ];
 
-            // Add search parameter if provided
+            // Menambahkan parameter pencarian jika disediakan
             if ($search) {
                 $queryParams['search'] = $search;
             }
 
-            // Add status filter if provided
+            // Menambahkan filter status jika disediakan
             if ($status) {
                 $queryParams['status'] = $status;
             }
 
-            // Set sort parameters based on selection
+            // Mengatur parameter pengurutan berdasarkan pilihan
             if ($sort) {
                 switch ($sort) {
                     case 'newest':
@@ -72,7 +72,7 @@ class ProcurementPurchaseOrderController extends Controller
                         $queryParams['sort_order'] = 'desc';
                 }
             } else {
-                // Default sorting if not specified
+                // Pengurutan default jika tidak ditentukan
                 $queryParams['sort_by'] = 'created_at';
                 $queryParams['sort_order'] = 'desc';
             }
@@ -81,40 +81,32 @@ class ProcurementPurchaseOrderController extends Controller
                 'query' => $queryParams
             ]);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during purchase order retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', 'Authentication failed. Please log in again.');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve purchase orders';
+                $errorData = $result['errors'] ?? 'Gagal mengambil daftar pesanan pembelian';
 
-                \Log::warning('Error during purchase order retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
                     ], 400);
                 }
 
-                // Format error message for view
+                // Format pesan kesalahan untuk tampilan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -128,7 +120,7 @@ class ProcurementPurchaseOrderController extends Controller
                     $errorMessage = $errorData;
                 }
 
-                // Return view with empty purchase orders data and error message
+                // Mengembalikan tampilan dengan data pesanan pembelian kosong dan pesan kesalahan
                 return view('Procurement.PurchaseOrder.PurchaseOrder', [
                     'purchaseOrders' => [],
                     'pagination' => null,
@@ -136,13 +128,13 @@ class ProcurementPurchaseOrderController extends Controller
                 ]);
             }
 
-            // Prepare data for the view
+            // Menyiapkan data untuk tampilan
             $purchaseOrders = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
             $message = $result['message'] ?? 'Daftar pesanan pembelian berhasil diambil';
 
-            // Check if request is AJAX (wants JSON)
-            if ($request->ajax() || $request->wantsJson()) {
+            // Periksa jika permintaan adalah AJAX (menginginkan JSON)
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -151,36 +143,31 @@ class ProcurementPurchaseOrderController extends Controller
                 ]);
             }
 
-            // If not AJAX request, return view with data
+            // Jika bukan permintaan AJAX, kembalikan tampilan dengan data
             return view('Procurement.PurchaseOrder.PurchaseOrder', [
                 'purchaseOrders' => $purchaseOrders,
                 'pagination' => $pagination,
                 'message' => $message,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during purchase order retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to fetch purchase orders: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => ['exception' => 'Gagal mengambil data pesanan pembelian: ' . $e->getMessage()]
+                ], 500);
             }
 
-            // Always pass an empty array for purchase orders in case of error
+            // Selalu berikan array kosong untuk pesanan pembelian jika terjadi kesalahan
             return view('Procurement.PurchaseOrder.PurchaseOrder', [
                 'purchaseOrders' => [],
                 'pagination' => null,
-                'error' => 'Failed to fetch purchase order data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data pesanan pembelian: ' . $e->getMessage()
             ]);
         }
     }
 
     /**
-     * Get a specific purchase order by ID
+     * Mendapatkan detail pesanan pembelian berdasarkan ID
      *
      * @param Request $request
      * @param int $id
@@ -189,45 +176,35 @@ class ProcurementPurchaseOrderController extends Controller
     public function show(Request $request, $id)
     {
         try {
-            // Make API call to get purchase order details
+            // Membuat panggilan API untuk mendapatkan detail pesanan pembelian
             $result = $this->apiService->request('GET', '/purchase-orders/' . $id);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during purchase order retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'purchase_order_id' => $id
-                ]);
 
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', 'Authentication failed. Please log in again.');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve purchase order';
+                $errorData = $result['errors'] ?? 'Gagal mengambil detail pesanan pembelian';
 
-                \Log::warning('Error during purchase order retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'purchase_order_id' => $id
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
                     ], 400);
                 }
 
-                // Format error message for view
+                // Format pesan kesalahan untuk tampilan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -241,19 +218,19 @@ class ProcurementPurchaseOrderController extends Controller
                     $errorMessage = $errorData;
                 }
 
-                // Return view with error message
+                // Mengembalikan tampilan dengan pesan kesalahan
                 return view('Procurement.PurchaseOrder.DetailPurchaseOrder', [
                     'purchaseOrder' => null,
                     'error' => $errorMessage
                 ]);
             }
 
-            // Get purchase order data
+            // Mendapatkan data pesanan pembelian
             $purchaseOrder = $result['data'] ?? null;
             $message = $result['message'] ?? 'Pesanan pembelian berhasil ditemukan';
 
-            // Check if request is AJAX (wants JSON)
-            if ($request->ajax() || $request->wantsJson()) {
+            // Periksa jika permintaan adalah AJAX (menginginkan JSON)
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -261,35 +238,29 @@ class ProcurementPurchaseOrderController extends Controller
                 ]);
             }
 
-            // If not AJAX request, return view with data
+            // Jika bukan permintaan AJAX, kembalikan tampilan dengan data
             return view('Procurement.PurchaseOrder.DetailPurchaseOrder', [
                 'purchaseOrder' => $purchaseOrder,
                 'message' => $message
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during purchase order retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'purchase_order_id' => $id
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to fetch purchase order: ' . $e->getMessage()]
+                    'errors' => ['exception' => 'Gagal mengambil detail pesanan pembelian: ' . $e->getMessage()]
                 ], 500);
             }
 
-            // Return view with error
+            // Mengembalikan tampilan dengan kesalahan
             return view('Procurement.PurchaseOrder.DetailPurchaseOrder', [
                 'purchaseOrder' => null,
-                'error' => 'Failed to fetch purchase order data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil detail pesanan pembelian: ' . $e->getMessage()
             ]);
         }
     }
 
     /**
-     * Create purchase orders from selected vendor offers
+     * Membuat pesanan pembelian dari penawaran vendor yang dipilih
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -297,12 +268,7 @@ class ProcurementPurchaseOrderController extends Controller
     public function createFromVendorOffers(Request $request)
     {
         try {
-            // Log the request data for debugging
-            \Log::info('Received purchase order creation request:', [
-                'payload' => $request->all()
-            ]);
-
-            // Validate the request
+            // Memvalidasi data permintaan
             $validated = $request->validate([
                 'comparison_id' => 'required|integer',
                 'selections' => 'required|array|min:1',
@@ -310,34 +276,26 @@ class ProcurementPurchaseOrderController extends Controller
                 'selections.*.vendor_offer_id' => 'required|integer',
             ]);
 
-            // Make API call to create purchase orders
+            // Membuat panggilan API untuk membuat pesanan pembelian
             $result = $this->apiService->request('POST', '/purchase-orders/vendor-offers/select-multiple', [
                 'json' => $validated
             ]);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during purchase order creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
+                    'errors' => ['authentication' => 'Autentikasi gagal']
                 ], 401);
             }
 
-            // Check for API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to create purchase orders';
+                $errorData = $result['errors'] ?? 'Gagal membuat pesanan pembelian';
 
-                \Log::warning('Error during purchase order creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                // Format error message for better display in toast notifications
+                // Format kesalahan untuk tampilan yang lebih baik
                 $formattedErrors = [];
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -357,37 +315,28 @@ class ProcurementPurchaseOrderController extends Controller
                 ], 400);
             }
 
-            // Return successful response with data
+            // Mengembalikan respons sukses dengan data
             return response()->json([
                 'success' => true,
-                'message' => $result['message'] ?? 'Purchase orders created successfully',
+                'message' => $result['message'] ?? 'Pesanan pembelian berhasil dibuat',
                 'data' => $result['data'] ?? null
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Validation error during purchase order creation:', [
-                'errors' => $e->errors()
-            ]);
-
             return response()->json([
                 'success' => false,
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Exception during purchase order creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Failed to create purchase orders: ' . $e->getMessage()]],
+                'errors' => ['exception' => ['Gagal membuat pesanan pembelian: ' . $e->getMessage()]],
             ], 500);
         }
     }
 
     /**
-     * Export a purchase order to PDF
+     * Mengekspor pesanan pembelian ke PDF
      *
      * @param int $id
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
@@ -395,56 +344,35 @@ class ProcurementPurchaseOrderController extends Controller
     public function exportPurchaseOrderDetailPDF($id)
     {
         try {
-            // Log request info
-            \Log::info('Exporting purchase order to PDF with ID: ' . $id);
-
-            // Fetch purchase order from API
+            // Mengambil pesanan pembelian dari API
             $result = $this->apiService->request('GET', '/purchase-orders/' . $id);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during purchase order PDF export:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check if the purchase order exists
+            // Memeriksa apakah pesanan pembelian ada
             if (!isset($result['data']) || empty($result['data'])) {
-                \Log::warning('Purchase order not found:', [
-                    'id' => $id,
-                    'message' => $result['message'] ?? 'Purchase order not found'
-                ]);
-
-                return redirect()->route('procurement.purchase-order')->with('error', 'Purchase order not found');
+                return redirect()->route('procurement.purchase-order')->with('error', $result['message'] ?? 'Pesanan pembelian tidak ditemukan');
             }
 
-            // Get purchase order data
+            // Mendapatkan data pesanan pembelian
             $purchaseOrder = $result['data'];
 
-            // Generate PDF
+            // Menghasilkan PDF
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('Procurement.PurchaseOrder.DetailPurchaseOrderPDF', [
                 'purchaseOrder' => $purchaseOrder,
                 'date_generated' => now()->format('d M Y H:i:s')
             ]);
 
-            // Log PDF generation
-            \Log::info('Purchase order PDF generated successfully', [
-                'purchase_order_id' => $purchaseOrder['purchase_order_id'] ?? 'N/A'
-            ]);
-
-            // Stream the PDF to browser
+            // Menampilkan PDF ke browser
             return $pdf->stream('purchase_order_' . $id . '_' . now()->format('YmdHis') . '.pdf');
 
         } catch (\Exception $e) {
-            \Log::error('Exception during purchase order PDF export:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return redirect()->back()->with('error', 'Failed to export Purchase Order as PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengekspor pesanan pembelian sebagai PDF: ' . $e->getMessage());
         }
     }
 }

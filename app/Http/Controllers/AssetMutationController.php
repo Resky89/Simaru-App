@@ -15,76 +15,39 @@ class AssetMutationController extends Controller
     }
 
     /**
-     * Get mutation history for a specific asset
+     * Mendapatkan riwayat mutasi untuk aset tertentu
      *
-     * @param int $id The asset ID
+     * @param int $id ID aset
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\View\View
      */
     public function getAssetMutationHistory($id)
     {
         try {
-            // Log request info
-            \Log::info('Fetching asset mutation history for asset ID:', [
-                'asset_id' => $id,
-                'request_url' => request()->fullUrl()
-            ]);
-
-            // Fetch the mutation history for the given asset ID
+            // Mengambil riwayat mutasi untuk ID aset yang diberikan
             $result = $this->apiService->request('GET', "/asset-histories/status/{$id}");
 
-            // Log API response for debugging
-            \Log::info('API response for asset mutation history:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_errors' => $result['errors'] ?? null,
-                'asset_id' => $id
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during asset mutation history retrieval:', [
-                    'errors' => $result['errors']
-                ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
                 if (request()->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['auth' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Autentikasi gagal');
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $formattedErrors = ['general' => 'Failed to retrieve asset mutation history'];
+                $errorData = $result['errors'] ?? 'Gagal mengambil riwayat mutasi aset';
 
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
-                }
-
-                \Log::warning('Error during asset mutation history retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $formattedErrors
-                ]);
-
-                if (request()->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $formattedErrors
-                    ], status: 400);
-                }
-
-                // Format error message for redirect
+                // Format pesan kesalahan
                 $errorMessage = '';
-                if (is_array($formattedErrors)) {
-                    foreach ($formattedErrors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -92,18 +55,29 @@ class AssetMutationController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $formattedErrors;
+                    $errorMessage = $errorData;
+                }
+
+                if (request()->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorMessage
+                    ], 400);
                 }
 
                 return back()->with('error', $errorMessage);
             }
 
-            // Return the data as JSON if requested
+            // Mengembalikan data sebagai JSON jika diminta
             if (request()->wantsJson()) {
-                return response()->json($result);
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Data riwayat mutasi aset berhasil diambil',
+                    'data' => $result['data'] ?? []
+                ]);
             }
 
-            // For web views, return a view with the data
+            // Untuk tampilan web, kembalikan view dengan data
             return view('asset.mutation-history', [
                 'assetId' => $id,
                 'mutations' => $result['data']['histories'] ?? [],
@@ -111,50 +85,44 @@ class AssetMutationController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during asset mutation history retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $id
-            ]);
-
             if (request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to retrieve asset mutation history: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => 'Gagal mengambil riwayat mutasi aset: ' . $e->getMessage()
+                ], 500);
             }
 
-            return back()->with('error', 'Failed to retrieve asset mutation history: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengambil riwayat mutasi aset: ' . $e->getMessage());
         }
     }
 
     /**
-     * Get mutation history for an asset with a web display
+     * Menampilkan riwayat mutasi untuk aset dengan tampilan web
      *
-     * @param int $id The asset ID
+     * @param int $id ID aset
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function showAssetMutationHistory($id)
     {
         try {
-            // Reuse the API call method
+            // Menggunakan kembali metode panggilan API
             $response = $this->getAssetMutationHistory($id);
 
-            // If it's already a response intended for a view, return it
+            // Jika sudah merupakan respons yang ditujukan untuk view, kembalikan
             if (!($response instanceof \Illuminate\Http\JsonResponse)) {
                 return $response;
             }
 
-            // If it's a JSON response, we need to extract the data
+            // Jika itu respons JSON, kita perlu mengekstrak data
             $responseData = json_decode($response->getContent(), true);
 
             if (!isset($responseData['success']) || $responseData['success'] !== true) {
-                // Format error message if needed
-                $formattedErrors = $responseData['errors'] ?? ['general' => 'Failed to retrieve asset mutation history'];
+                // Format pesan kesalahan jika diperlukan
+                $errorData = $responseData['errors'] ?? 'Gagal mengambil riwayat mutasi aset';
 
                 $errorMessage = '';
-                if (is_array($formattedErrors)) {
-                    foreach ($formattedErrors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -162,7 +130,7 @@ class AssetMutationController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $formattedErrors;
+                    $errorMessage = $errorData;
                 }
 
                 return back()->with('error', $errorMessage);
@@ -175,13 +143,7 @@ class AssetMutationController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during asset mutation history display:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $id
-            ]);
-
-            return back()->with('error', 'Failed to display asset mutation history: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menampilkan riwayat mutasi aset: ' . $e->getMessage());
         }
     }
 }

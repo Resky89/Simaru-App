@@ -16,7 +16,7 @@ class DepreciationReportController extends Controller
     }
 
     /**
-     * Get all depreciation report data.
+     * Mendapatkan semua data laporan depresiasi.
      *
      * @param Request $request
      * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
@@ -24,11 +24,11 @@ class DepreciationReportController extends Controller
     public function getDepreciationReport(Request $request)
     {
         try {
-            // Get pagination parameters
+            // Mendapatkan parameter paginasi
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
 
-            // Get filter parameters
+            // Mendapatkan parameter filter
             $assetMasterName = $request->input('asset_master_name', '');
             $buildingId = $request->input('building_id', '');
             $roomId = $request->input('room_id', '');
@@ -39,7 +39,7 @@ class DepreciationReportController extends Controller
 
             $sort = $request->input('sort', 'newest');
 
-            // For backward compatibility
+            // Untuk kompatibilitas mundur
             if (empty($assetMasterName)) {
                 $assetMasterName = $request->input('search', '');
             }
@@ -48,23 +48,7 @@ class DepreciationReportController extends Controller
                 $yearMonth = $request->input('as_of_date', now()->format('Y-m'));
             }
 
-            // Log request info
-            \Log::info('Fetching depreciation report with parameters:', [
-                'page' => $page,
-                'limit' => $limit,
-                'asset_master_name' => $assetMasterName,
-                'building_id' => $buildingId,
-                'room_id' => $roomId,
-                'asset_type' => $assetType,
-                'subcategory_id' => $subcategoryId,
-                'year_month' => $yearMonth,
-                'book_value_end' => $bookValueEnd,
-                'sort' => $sort,
-                'request_url' => $request->fullUrl(),
-                'ajax' => $request->ajax()
-            ]);
-
-            // Build query parameters
+            // Membangun parameter kueri
             $queryParams = [
                 'page' => $page,
                 'limit' => $limit,
@@ -72,7 +56,7 @@ class DepreciationReportController extends Controller
                 'book_value_end' => $bookValueEnd
             ];
 
-            // Add filter parameters if provided
+            // Menambahkan parameter filter jika disediakan
             if (!empty($assetMasterName)) {
                 $queryParams['asset_master_name'] = $assetMasterName;
             }
@@ -93,7 +77,7 @@ class DepreciationReportController extends Controller
                 $queryParams['subcategory_id'] = $subcategoryId;
             }
 
-            // Handle sorting
+            // Menangani pengurutan
             switch ($sort) {
                 case 'asset_name_asc':
                     $queryParams['sort_by'] = 'asset_name';
@@ -120,57 +104,42 @@ class DepreciationReportController extends Controller
                     $queryParams['sort_order'] = 'desc';
                     break;
                 default:
-                    // Default sort (by asset name ascending)
+                    // Pengurutan default (berdasarkan nama aset menaik)
                     $queryParams['sort_by'] = 'asset_name';
                     $queryParams['sort_order'] = 'asc';
             }
 
-            // Fetch depreciation report data from API
+            // Mengambil data laporan depresiasi dari API
             $result = $this->apiService->request('GET', '/depreciations/report', [
                 'query' => $queryParams
             ]);
 
-            // Log API response for debugging
-            \Log::info('API response for depreciation report:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'data_count' => isset($result['data']) && isset($result['data']['items']) ? count($result['data']['items']) : 0
-            ]);
-
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during depreciation report retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve depreciation report';
-
-                \Log::warning('Error during depreciation report retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil laporan depresiasi';
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
                         'errors' => $errorData
-                    ], status: 400);
+                    ], 400);
                 }
 
-                // Format error message for view
+                // Format pesan kesalahan untuk tampilan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -196,11 +165,11 @@ class DepreciationReportController extends Controller
                 ]);
             }
 
-            // Get report data and prepare for view
+            // Mendapatkan data laporan dan menyiapkan untuk tampilan
             $items = $result['data']['items'] ?? [];
             $pagination = $result['pagination'] ?? null;
 
-            // Summary data
+            // Data ringkasan
             $summary = [
                 'total_items' => $result['data']['total_items'] ?? 0,
                 'total_acquisition_cost' => $result['data']['total_acquisition_cost'] ?? 0,
@@ -209,11 +178,11 @@ class DepreciationReportController extends Controller
                 'as_of_date' => $result['data']['as_of_date'] ?? $yearMonth
             ];
 
-            // For AJAX requests, return JSON response
+            // Untuk permintaan AJAX, kembalikan respons JSON
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Depreciation report retrieved successfully',
+                    'message' => 'Data laporan depresiasi berhasil diambil',
                     'data' => [
                         'items' => $items,
                         'summary' => $summary
@@ -222,7 +191,7 @@ class DepreciationReportController extends Controller
                 ]);
             }
 
-            // For regular requests, return view
+            // Untuk permintaan reguler, kembalikan tampilan
             return view('Report.DepreciationReport.DepreciationReport', [
                 'items' => $items,
                 'pagination' => $pagination,
@@ -234,16 +203,11 @@ class DepreciationReportController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during depreciation report retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to retrieve depreciation report: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => 'Gagal mengambil laporan depresiasi: ' . $e->getMessage()
+                ], 500);
             }
 
             return view('Report.DepreciationReport.DepreciationReport', [
@@ -254,13 +218,13 @@ class DepreciationReportController extends Controller
                 'sort' => $sort,
                 'as_of_date' => $yearMonth ?? now()->format('Y-m'),
                 'asset_type' => $assetType,
-                'error' => 'Failed to retrieve depreciation report: ' . $e->getMessage()
+                'error' => 'Gagal mengambil laporan depresiasi: ' . $e->getMessage()
             ]);
         }
     }
 
     /**
-     * Export depreciation report as PDF
+     * Mengekspor laporan depresiasi sebagai PDF
      *
      * @param Request $request
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
@@ -268,9 +232,7 @@ class DepreciationReportController extends Controller
     public function exportDepreciationReportPDF(Request $request)
     {
         try {
-            \Log::info('Starting depreciation report PDF export');
-
-            // Get filter parameters
+            // Mendapatkan parameter filter
             $assetMasterName = $request->input('asset_master_name', '');
             $buildingId = $request->input('building_id', '');
             $roomId = $request->input('room_id', '');
@@ -281,24 +243,24 @@ class DepreciationReportController extends Controller
 
             $sort = $request->input('sort', 'asset_name_asc');
 
-            // For backward compatibility
+            // Untuk kompatibilitas mundur
             if (empty($assetMasterName)) {
                 $assetMasterName = $request->input('search', '');
             }
 
             if (empty($yearMonth)) {
-                $yearMonth = $request->input('as_of_date', now()->format('Y-m-'));
+                $yearMonth = $request->input('as_of_date', now()->format('Y-m'));
             }
 
-            // Build query parameters - use a large limit to get all data
+            // Membangun parameter kueri - menggunakan batas besar untuk mendapatkan semua data
             $queryParams = [
                 'page' => 1,
-                'limit' => 1000, // Large limit to get more data for PDF
+                'limit' => 1000, // Batas besar untuk mendapatkan lebih banyak data untuk PDF
                 'year_month' => $yearMonth,
                 'book_value_end' => $bookValueEnd
             ];
 
-            // Add filter parameters if provided
+            // Menambahkan parameter filter jika disediakan
             if (!empty($assetMasterName)) {
                 $queryParams['asset_master_name'] = $assetMasterName;
             }
@@ -319,7 +281,7 @@ class DepreciationReportController extends Controller
                 $queryParams['subcategory_id'] = $subcategoryId;
             }
 
-            // Handle sorting
+            // Menangani pengurutan
             switch ($sort) {
                 case 'asset_name_asc':
                     $queryParams['sort_by'] = 'asset_name';
@@ -346,37 +308,28 @@ class DepreciationReportController extends Controller
                     $queryParams['sort_order'] = 'desc';
                     break;
                 default:
-                    // Default sort (by asset name ascending)
+                    // Pengurutan default (berdasarkan nama aset menaik)
                     $queryParams['sort_by'] = 'asset_name';
                     $queryParams['sort_order'] = 'asc';
             }
 
-            \Log::info('PDF export parameters:', $queryParams);
-
-            // Fetch depreciation report data from API
+            // Mengambil data laporan depresiasi dari API
             $result = $this->apiService->request('GET', '/depreciations/report', [
                 'query' => $queryParams
             ]);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during depreciation report PDF export', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors or unsuccessful responses
+            // Memeriksa kesalahan API atau respons tidak berhasil
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve depreciation report data';
+                $errorData = $result['errors'] ?? 'Gagal mengambil data laporan depresiasi';
 
-                \Log::warning('Error during depreciation report data retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                // Format error message
+                // Format pesan kesalahan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -394,10 +347,10 @@ class DepreciationReportController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Get depreciation items and summary data
+            // Mendapatkan item depresiasi dan data ringkasan
             $items = $result['data']['items'] ?? [];
 
-            // Summary data
+            // Data ringkasan
             $summary = [
                 'total_items' => $result['data']['total_items'] ?? 0,
                 'total_acquisition_cost' => $result['data']['total_acquisition_cost'] ?? 0,
@@ -406,11 +359,7 @@ class DepreciationReportController extends Controller
                 'as_of_date' => $result['data']['as_of_date'] ?? $yearMonth
             ];
 
-            \Log::info('Data prepared for depreciation report PDF export', [
-                'items_count' => count($items)
-            ]);
-
-            // Create the PDF with the data
+            // Membuat PDF dengan data
             $pdf = Pdf::loadView('Report.DepreciationReport.DepreciationReportPDF', [
                 'items' => $items,
                 'summary' => $summary,
@@ -423,18 +372,13 @@ class DepreciationReportController extends Controller
                 'subcategory_id' => $subcategoryId
             ]);
 
-            // Set paper size and orientation
+            // Menetapkan ukuran kertas dan orientasi
             $pdf->setPaper('a4', 'landscape');
 
-            \Log::info('Depreciation report PDF generation successful, streaming to browser');
-            return $pdf->stream("depreciation_report.pdf");
+            return $pdf->stream("laporan_depresiasi.pdf");
 
         } catch (\Exception $e) {
-            \Log::error('Exception during depreciation report PDF export', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return redirect()->back()->with('error', 'Failed to export depreciation report as PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengekspor laporan depresiasi sebagai PDF: ' . $e->getMessage());
         }
     }
 }

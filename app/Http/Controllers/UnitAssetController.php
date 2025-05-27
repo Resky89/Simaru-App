@@ -1237,8 +1237,12 @@ class UnitAssetController extends Controller
                 $excelData = $request->input('excel_data');
 
                 if (empty($excelData)) {
-                    if ($request->ajax()) {
-                        return response()->json(['success' => false, 'errors' => ['import' => 'Tidak ada data valid untuk diimpor']], 400);
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Tidak ada data valid untuk diimpor',
+                            'errors' => ['import' => 'Tidak ada data valid untuk diimpor']
+                        ], 400);
                     }
                     return redirect()->back()->with('error', 'Tidak ada data valid untuk diimpor');
                 }
@@ -1247,8 +1251,12 @@ class UnitAssetController extends Controller
                 $parsedData = json_decode($excelData, true);
 
                 if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsedData) || empty($parsedData)) {
-                    if ($request->ajax()) {
-                        return response()->json(['success' => false, 'errors' => ['import' => 'Format data tidak valid untuk diimpor']], 400);
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Format data tidak valid untuk diimpor',
+                            'errors' => ['import' => 'Format data tidak valid untuk diimpor']
+                        ], 400);
                     }
                     return redirect()->back()->with('error', 'Format data tidak valid untuk diimpor');
                 }
@@ -1260,8 +1268,12 @@ class UnitAssetController extends Controller
                     ]
                 ]);
             } else {
-                if ($request->ajax()) {
-                    return response()->json(['success' => false, 'errors' => ['import' => 'Tidak ada file Excel atau data yang disediakan']], 400);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Tidak ada file Excel atau data yang disediakan',
+                        'errors' => ['import' => 'Tidak ada file Excel atau data yang disediakan']
+                    ], 400);
                 }
                 return redirect()->back()->with('error', 'Tidak ada file Excel atau data yang disediakan');
             }
@@ -1269,10 +1281,14 @@ class UnitAssetController extends Controller
             // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->ajax()) {
-                    return response()->json(['success' => false, 'errors' => ['auth' => $result['message'] ?? 'Autentikasi gagal']], 401);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $result['errors'] ?? 'Autentikasi gagal',
+                        'errors' => ['auth' => $result['errors'] ?? 'Autentikasi gagal']
+                    ], 401);
                 }
-                return redirect()->route('login')->with('error', $result['message'] ?? 'Autentikasi gagal');
+                return redirect()->route('login')->with('error', $result['errors'] ?? 'Autentikasi gagal');
             }
 
             // Memeriksa kesalahan API atau respons tidak berhasil
@@ -1280,51 +1296,99 @@ class UnitAssetController extends Controller
                 isset($result['errors']) ||
                 (isset($result['success']) && $result['success'] === false)
             ) {
-                // Format pesan kesalahan termasuk detail kesalahan dari respons
-                $errorMessage = $result['errors'] ?? 'Gagal mengimpor aset';
+                // Siapkan pesan error dasar
+                $errorMessage = 'Gagal mengimpor aset';
+                $errorDetails = [];
 
-                // Ekstrak dan format informasi kesalahan detail jika tersedia
-                if (isset($result['data']['errors']) && is_array($result['data']['errors']) && count($result['data']['errors']) > 0) {
+                // Ekstrak pesan error utama jika ada
+                if (isset($result['errors']) && !empty($result['errors'])) {
+                    if (is_string($result['errors'])) {
+                        $errorMessage = $result['errors'];
+                    } elseif (is_array($result['errors'])) {
+                        // Jika errors berupa array, ambil pesan-pesan error
+                        foreach ($result['errors'] as $key => $error) {
+                            if (is_string($error)) {
+                                $errorDetails[] = $error;
+                            } elseif (is_array($error) && isset($error['message'])) {
+                                $errorDetails[] = $error['message'];
+                            }
+                        }
+
+                        if (!empty($errorDetails)) {
+                            $errorMessage = implode('; ', $errorDetails);
+                        }
+                    }
+                }
+
+                // Periksa untuk error lebih detail di data
+                if (isset($result['data']['errors']) && is_array($result['data']['errors']) && !empty($result['data']['errors'])) {
                     $errorDetails = [];
 
                     foreach ($result['data']['errors'] as $error) {
-                        if (isset($error['row']) && isset($error['reason'])) {
-                            $errorDetailMsg = "Baris {$error['row']}: ";
-
-                            // Sertakan asset_master_code jika tersedia
-                            if (isset($error['asset_master_code'])) {
-                                $errorDetailMsg .= "{$error['asset_master_code']} - ";
-                            }
-                            // Sertakan asset_name jika tersedia
-                            elseif (isset($error['asset_name'])) {
-                                $errorDetailMsg .= "{$error['asset_name']} - ";
-                            }
-
-                            $errorDetailMsg .= $error['reason'];
-                            $errorDetails[] = $errorDetailMsg;
-                        } elseif (is_string($error)) {
+                        if (is_string($error)) {
                             $errorDetails[] = $error;
-                        } elseif (is_array($error) && isset($error['message'])) {
-                            $errorDetails[] = $error['message'];
+                        } elseif (is_array($error)) {
+                            if (isset($error['row']) && isset($error['reason'])) {
+                                $errorDetailMsg = "Baris {$error['row']}: ";
+
+                                // Tambahkan asset_code jika tersedia
+                                if (isset($error['asset_code'])) {
+                                    $errorDetailMsg .= "{$error['asset_code']} - ";
+                                }
+                                // Tambahkan asset_name jika tersedia
+                                elseif (isset($error['asset_name'])) {
+                                    $errorDetailMsg .= "{$error['asset_name']} - ";
+                                }
+                                // Tambahkan serial_number jika tersedia
+                                elseif (isset($error['serial_number'])) {
+                                    $errorDetailMsg .= "SN: {$error['serial_number']} - ";
+                                }
+                                // Tambahkan asset_master_code jika tersedia
+                                elseif (isset($error['asset_master_code'])) {
+                                    $errorDetailMsg .= "{$error['asset_master_code']} - ";
+                                }
+
+                                $errorDetailMsg .= $error['reason'];
+                                $errorDetails[] = $errorDetailMsg;
+                            } elseif (isset($error['message'])) {
+                                $errorDetails[] = $error['message'];
+                            } elseif (isset($error['field'], $error['reason'])) {
+                                $errorDetails[] = "Field {$error['field']}: {$error['reason']}";
+                            }
                         }
                     }
 
-                    if ($request->ajax()) {
+                    // Untuk respons AJAX, kirim array error details
+                    if ($request->expectsJson()) {
                         return response()->json([
                             'success' => false,
-                            'errors' => ['import' => $errorMessage, 'details' => $errorDetails]
+                            'message' => $errorMessage,
+                            'errors' => ['import' => $errorMessage],
+                            'data' => [
+                                'errors' => $errorDetails,
+                                'total' => $result['data']['total'] ?? 0,
+                                'success' => $result['data']['success'] ?? 0,
+                                'failed' => $result['data']['failed'] ?? $result['data']['total'] ?? 0
+                            ]
                         ], 400);
                     }
 
-                    // Untuk non-AJAX, format sebagai HTML
-                    $errorMessage .= "<ul class='list-disc pl-4 mt-2'>";
-                    foreach ($errorDetails as $detail) {
-                        $errorMessage .= "<li>{$detail}</li>";
+                    // Untuk respons non-AJAX, format sebagai HTML
+                    if (!empty($errorDetails)) {
+                        $errorMessage .= "<ul class='list-disc pl-4 mt-2'>";
+                        foreach ($errorDetails as $detail) {
+                            $errorMessage .= "<li>{$detail}</li>";
+                        }
+                        $errorMessage .= "</ul>";
                     }
-                    $errorMessage .= "</ul>";
                 } else {
-                    if ($request->ajax()) {
-                        return response()->json(['success' => false, 'errors' => ['import' => $errorMessage]], 400);
+                    // Jika tidak ada detail error, kirim respons standar
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => $errorMessage,
+                            'errors' => ['import' => $errorMessage]
+                        ], 400);
                     }
                 }
 
@@ -1343,7 +1407,7 @@ class UnitAssetController extends Controller
             }
 
             // Mengembalikan respons berdasarkan jenis permintaan
-            if ($request->ajax()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => $successMessage,
@@ -1358,9 +1422,10 @@ class UnitAssetController extends Controller
             // Mengalihkan kembali dengan pesan sukses untuk permintaan non-AJAX
             return redirect()->route('assets')->with('success', $successMessage);
         } catch (\Exception $e) {
-            if ($request->ajax()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
+                    'message' => 'Gagal mengimpor aset: ' . $e->getMessage(),
                     'errors' => ['exception' => 'Gagal mengimpor aset: ' . $e->getMessage()]
                 ], 500);
             }

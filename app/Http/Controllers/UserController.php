@@ -27,6 +27,11 @@ class UserController extends Controller
             $status = $request->input('status', '');
             $sort = $request->input('sort', '');
 
+            // Untuk permintaan JSON, tingkatkan batas untuk memuat lebih banyak item
+            if ($request->expectsJson() || $request->ajax()) {
+                $userLimit = $request->input('user_limit', 100);
+            }
+
             $userQueryParams = [
                     'page' => $userPage,
                     'limit' => $userLimit,
@@ -66,31 +71,23 @@ class UserController extends Controller
             if (isset($userResult['errors']) && is_string($userResult['errors']) &&
                 in_array($userResult['errors'], ['auth_failed', 'session_expired']))
             {
-                $errorMessage = $userResult['errors'] ?? 'Authentication failed';
-                \Log::warning('Authentication error during users retrieval:', [
-                    'errors' => $errorMessage
-                ]);
+                $errorMessage = $userResult['errors'] ?? 'Autentikasi gagal';
 
                 // Return JSON if requested
-                if ($request->expectsJson() ||  $request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'message' => is_string($errorMessage) ? $errorMessage : 'Authentication failed'
+                        'errors' => $errorMessage
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Autentikasi gagal');
             }
 
             // Check for API errors based on success flag
             if (!isset($userResult['success']) || $userResult['success'] !== true)
             {
-                $errorData = $userResult['errors'] ?? 'Failed to fetch data';
-
-                \Log::warning('Error during user data retrieval:', [
-                    'user_success' => $userResult['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $userResult['errors'] ?? 'Gagal mengambil data';
 
                 // Format error message for view
                 $errorMessage = '';
@@ -107,11 +104,10 @@ class UserController extends Controller
                 }
 
                 // Return JSON if requested
-                if ($request->expectsJson() ||  $request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'message' => $errorMessage,
-                        'errors' => $errorData
+                        'errors' => $errorMessage
                     ], 400);
                 }
 
@@ -141,10 +137,10 @@ class UserController extends Controller
             }
 
             // Return JSON if requested
-            if ($request->expectsJson() ||  $request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'users' => $users,
                     'success' => true,
+                    'message' => $userResult['message'] ?? 'Data berhasil diambil',
                     'data' => $users,
                     'pagination' => $userPagination
                 ]);
@@ -166,9 +162,7 @@ class UserController extends Controller
                     $roles = $roleResult['data'] ?? [];
                 }
             } catch (\Exception $e) {
-                \Log::warning('Failed to fetch roles for dropdown', [
-                    'error' => $e->getMessage()
-                ]);
+                $roles = [];
             }
 
             return view('Account.User', [
@@ -185,16 +179,12 @@ class UserController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to fetch user data', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             // Return JSON if requested
-            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to fetch data: ' . $e->getMessage()
+                    'errors' => 'Gagal mengambil data user: ' . $e->getMessage(),
+                    'data' => null
                 ], 500);
             }
 
@@ -205,7 +195,7 @@ class UserController extends Controller
                 ],
                 'users' => [],
                 'user_pagination' => null,
-                'error' => 'Failed to fetch data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data: ' . $e->getMessage()
             ]);
         }
     }
@@ -221,6 +211,11 @@ class UserController extends Controller
             $searchQuery = $request->input('search', '');
             $status = $request->input('status', '');
             $sort = $request->input('sort', '');
+
+            // Untuk permintaan JSON, tingkatkan batas untuk memuat lebih banyak item
+            if ($request->expectsJson() || $request->ajax()) {
+                $limit = $request->input('limit', 100);
+            }
 
             $queryParams = [
                 'page' => $page,
@@ -268,20 +263,20 @@ class UserController extends Controller
             // Check if we got an error response from the ApiService
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during users retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to fetch users';
-
-                \Log::warning('Error during users retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil data user';
 
                 // Format error message for view
                 $errorMessage = '';
@@ -297,9 +292,25 @@ class UserController extends Controller
                     $errorMessage = $errorData;
                 }
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorMessage
+                    ], 400);
+                }
+
                 return view('Account.User', [
                     'users' => [],
                     'error' => $errorMessage
+                ]);
+            }
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Data berhasil diambil',
+                    'data' => $result['data'] ?? [],
+                    'pagination' => $result['pagination'] ?? null
                 ]);
             }
 
@@ -313,13 +324,17 @@ class UserController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to fetch users', [
-                'error' => $e->getMessage()
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal mengambil data user: ' . $e->getMessage(),
+                    'data' => null
+                ], 500);
+            }
 
             return view('Account.User', [
                 'users' => [],
-                'error' => 'Failed to fetch users: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data user: ' . $e->getMessage()
             ]);
         }
     }
@@ -330,9 +345,11 @@ class UserController extends Controller
     public function storeUser(Request $request)
     {
         try {
-            // Log the request data
-            \Log::info('Attempting to create user with data:', [
-                'request_data' => $request->except('password')
+            // Validasi request
+            $request->validate([
+                'employee_number' => 'required|string|max:255',
+                'password' => 'required|string|min:6',
+                'role_ids' => 'required|array',
             ]);
 
             // Updated endpoint for user creation with updated fields
@@ -345,68 +362,72 @@ class UserController extends Controller
                 ]
             ]);
 
-            // Log the API response (sensitive data redacted)
-            \Log::info('API response for user creation:', [
-                'api_response_success' => $result['success'] ?? false
-            ]);
-
             // Check if we got an auth error response
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during user creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to create user';
+                $errorData = $result['errors'] ?? 'Gagal membuat user';
 
-                \Log::warning('Error during user creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    ], 400);
+                }
 
                 // Format error message for redirect
+                $errorMessage = '';
                 if (is_array($errorData)) {
-                    // If it's a nested array of field => [messages]
-                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            foreach ($messages as $message) {
-                                $errorArray[] = $message;
-                            }
+                            $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
-                            $errorArray[] = $messages;
+                            $errorMessage .= $messages . '; ';
                         }
                     }
-
-                    // Return the formatted array for the view
-                    return redirect()->back()
-                        ->withInput($request->except('password'))
-                        ->with('error', $errorArray);
                 } else {
+                    $errorMessage = $errorData;
+                }
+
                     return redirect()->back()
                         ->withInput($request->except('password'))
-                        ->with('error', $errorData);
+                    ->with('error', $errorMessage);
                 }
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'User berhasil dibuat',
+                    'data' => $result['data'] ?? null
+                ], 201);
             }
 
-            // Successfully created
-            \Log::info('User created successfully');
             return redirect()->route('user')
-                ->with('success', $result['message'] ?? 'User created successfully');
+                ->with('success', $result['message'] ?? 'User berhasil dibuat');
         } catch (\Exception $e) {
-            \Log::error('Exception during user creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_data' => $request->except(['_token', 'password'])
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal membuat user: ' . $e->getMessage(),
+                    'data' => null
+                ], 500);
+            }
 
             return redirect()->back()
                 ->withInput($request->except('password'))
-                ->with('error', 'Failed to create user: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat user: ' . $e->getMessage());
         }
     }
 
@@ -416,10 +437,10 @@ class UserController extends Controller
     public function updateUser(Request $request, $id)
     {
         try {
-            // Log the request data
-            \Log::info('Attempting to update user with data:', [
-                'user_id' => $id,
-                'request_data' => $request->except('password')
+            // Validasi request
+            $request->validate([
+                'employee_number' => 'required|string|max:255',
+                'role_ids' => 'required|array',
             ]);
 
             // Prepare the JSON payload
@@ -438,69 +459,72 @@ class UserController extends Controller
                 'json' => $jsonPayload
             ]);
 
-            // Log the API response (sensitive data redacted)
-            \Log::info('API response for user update:', [
-                'api_response_success' => $result['success'] ?? false
-            ]);
-
             // Check if we got an auth error response
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during user update:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to update user';
+                $errorData = $result['errors'] ?? 'Gagal memperbarui user';
 
-                \Log::warning('Error during user update:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    ], 400);
+                }
 
                 // Format error message for redirect
+                $errorMessage = '';
                 if (is_array($errorData)) {
-                    // If it's a nested array of field => [messages]
-                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            foreach ($messages as $message) {
-                                $errorArray[] = $message;
-                            }
+                            $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
-                            $errorArray[] = $messages;
+                            $errorMessage .= $messages . '; ';
                         }
                     }
-
-                    // Return the formatted array for the view
-                    return redirect()->back()
-                        ->withInput($request->except('password'))
-                        ->with('error', $errorArray);
                 } else {
+                    $errorMessage = $errorData;
+                }
+
                     return redirect()->back()
                         ->withInput($request->except('password'))
-                        ->with('error', $errorData);
+                    ->with('error', $errorMessage);
                 }
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'User berhasil diperbarui',
+                    'data' => $result['data'] ?? null
+                ]);
             }
 
-            // Successfully updated
-            \Log::info('User updated successfully');
             return redirect()->route('user')
-                ->with('success', $result['message'] ?? 'User updated successfully');
+                ->with('success', $result['message'] ?? 'User berhasil diperbarui');
         } catch (\Exception $e) {
-            \Log::error('Exception during user update:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => $id,
-                'user_data' => $request->except(['_token', '_method', 'password'])
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal memperbarui user: ' . $e->getMessage(),
+                    'data' => null
+                ], 500);
+            }
 
             return redirect()->back()
                 ->withInput($request->except('password'))
-                ->with('error', 'Failed to update user: ' . $e->getMessage());
+                ->with('error', 'Gagal memperbarui user: ' . $e->getMessage());
         }
     }
 
@@ -510,64 +534,71 @@ class UserController extends Controller
     public function destroyUser($id)
     {
         try {
-            // Log the request
-            \Log::info('Attempting to delete user:', [
-                'user_id' => $id
-            ]);
-
             $result = $this->apiService->request('DELETE', "/users/{$id}");
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during user deletion:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+
+                if (request()->expectsJson() || request()->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to delete user';
+                $errorData = $result['errors'] ?? 'Gagal menghapus user';
 
-                \Log::warning('Error during user deletion:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                if (request()->expectsJson() || request()->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    ], 400);
+                }
 
                 // Format error message for redirect
+                $errorMessage = '';
                 if (is_array($errorData)) {
-                    // If it's a nested array of field => [messages]
-                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            foreach ($messages as $message) {
-                                $errorArray[] = $message;
-                            }
+                            $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
-                            $errorArray[] = $messages;
+                            $errorMessage .= $messages . '; ';
                         }
                     }
-
-                    return redirect()->back()->with('error', $errorArray);
                 } else {
-                    return redirect()->back()->with('error', $errorData);
+                    $errorMessage = $errorData;
                 }
+
+                return redirect()->back()->with('error', $errorMessage);
+                }
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'User berhasil dihapus',
+                    'data' => null
+                ]);
             }
 
-            // Successfully deleted
-            \Log::info('User deleted successfully');
             return redirect()->route('user')
-                ->with('success', $result['message'] ?? 'User deleted successfully');
+                ->with('success', $result['message'] ?? 'User berhasil dihapus');
         } catch (\Exception $e) {
-            \Log::error('Exception during user deletion:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => $id
-            ]);
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal menghapus user: ' . $e->getMessage(),
+                    'data' => null
+                ], 500);
+            }
 
             return redirect()->back()
-                ->with('error', 'Failed to delete user: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus user: ' . $e->getMessage());
         }
     }
 
@@ -595,38 +626,20 @@ class UserController extends Controller
             // Check if we got an auth error response
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during users by permission retrieval:', [
-                    'permission' => $permissionName,
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'message' => is_string($result['errors']) ? $result['errors'] : 'Authentication failed'
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors based on success flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? "Failed to fetch users with permission: {$permissionName}";
-
-                \Log::warning('Error during users by permission retrieval:', [
-                    'permission' => $permissionName,
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => is_string($errorData) ? $errorData : 'Failed to fetch users with permission',
-                        'errors' => $errorData
-                    ], 400);
-                }
+                $errorData = $result['errors'] ?? "Gagal mengambil data user dengan permission: {$permissionName}";
 
                 // Format error message
                 $errorMessage = '';
@@ -642,9 +655,16 @@ class UserController extends Controller
                     $errorMessage = $errorData;
                 }
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorMessage
+                    ], 400);
+                }
+
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage
+                    'errors' => $errorMessage
                 ], 400);
             }
 
@@ -652,28 +672,18 @@ class UserController extends Controller
             $users = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
 
-            \Log::info('Users by permission retrieved successfully', [
-                'permission' => $permissionName,
-                'count' => count($users)
-            ]);
-
             return response()->json([
                 'success' => true,
-                'message' => $result['message'] ?? 'Users with permission retrieved successfully',
+                'message' => $result['message'] ?? 'Data berhasil diambil',
                 'data' => $users,
                 'pagination' => $pagination
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during users by permission retrieval:', [
-                'permission' => $permissionName,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch users with permission: ' . $e->getMessage()
+                'errors' => 'Gagal mengambil data user dengan permission: ' . $e->getMessage(),
+                'data' => null
             ], 500);
         }
     }

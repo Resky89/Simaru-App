@@ -177,11 +177,11 @@ class VendorController extends Controller
         try {
             // Memvalidasi request
             $validated = $request->validate([
-                'vendor_name' => 'required|string|max:50',
-                'contact_person' => 'nullable|string|max:100',
-                'phone_number' => 'nullable|string|max:20',
-                'email' => 'nullable|string|email|max:100',
-                'website' => 'nullable|string|url|max:255',
+                'vendor_name' => 'required|string',
+                'contact_person' => 'nullable|string',
+                'phone_number' => 'nullable|string',
+                'email' => 'nullable|string|email',
+                'website' => 'nullable|string|url',
                 'address' => 'nullable|string'
             ]);
 
@@ -275,11 +275,11 @@ class VendorController extends Controller
         try {
             // Memvalidasi request
             $validated = $request->validate([
-                'vendor_name' => 'required|string|max:50',
-                'contact_person' => 'nullable|string|max:100',
-                'phone_number' => 'nullable|string|max:20',
-                'email' => 'nullable|string|email|max:100',
-                'website' => 'nullable|string|url|max:255',
+                'vendor_name' => 'required|string',
+                'contact_person' => 'nullable|string',
+                'phone_number' => 'nullable|string',
+                'email' => 'nullable|string|email',
+                'website' => 'nullable|string|url',
                 'address' => 'nullable|string'
             ]);
 
@@ -450,7 +450,7 @@ class VendorController extends Controller
         try {
             // Memvalidasi request
             $validated = $request->validate([
-                'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+                'excel_file' => 'required|file|mimes:xlsx,xls,csv'
             ]);
 
             // Membuat data formulir multipart untuk permintaan API

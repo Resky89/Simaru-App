@@ -15,81 +15,62 @@ class AssetHistoryController extends Controller
     }
 
     /**
-     * Get the history of a specific asset.
+     * Mendapatkan riwayat aset tertentu.
      *
-     * @param int $id The asset ID
+     * @param int $id ID aset
      * @return \Illuminate\Http\JsonResponse
      */
     public function getAssetHistory($id)
     {
         try {
-            // Log request info
-            \Log::info('Fetching asset history with ID:', [
-                'asset_id' => $id,
-                'request_url' => request()->fullUrl()
-            ]);
-
-            // Fetch the asset history with the given ID
+            // Mengambil riwayat aset dengan ID yang diberikan
             $result = $this->apiService->request('GET', "/asset-histories/{$id}");
 
-            // Log API response for debugging
-            \Log::info('API response for asset history:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_errors' => $result['errors'] ?? null,
-                'asset_id' => $id
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during asset history retrieval:', [
-                    'errors' => $result['errors']
-                ]);
-
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['auth' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                ], 401);
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $formattedErrors = ['general' => 'Failed to retrieve asset history'];
+                $errorData = $result['errors'] ?? 'Gagal mengambil riwayat aset';
 
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
                     }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
-                \Log::warning('Error during asset history retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $formattedErrors
-                ]);
-
                 return response()->json([
                     'success' => false,
-                    'errors' => $formattedErrors
-                ], status: 400);
+                    'errors' => $errorMessage
+                ], 400);
             }
 
-            // Return the response as is
-            return response()->json($result);
-
-        } catch (\Exception $e) {
-            \Log::error('Exception during asset history retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $id
+            // Mengembalikan respons apa adanya
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'] ?? 'Data riwayat aset berhasil diambil',
+                'data' => $result['data'] ?? []
             ]);
 
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to retrieve asset history: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => 'Gagal mengambil riwayat aset: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

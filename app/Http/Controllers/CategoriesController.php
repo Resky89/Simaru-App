@@ -214,7 +214,7 @@ class CategoriesController extends Controller
         try {
             $validated = $request->validate([
                 'asset_type' => 'required|string',
-                'subcategory_name' => 'required|string|max:255',
+                'subcategory_name' => 'required|string',
                 'description' => 'nullable|string'
             ]);
 
@@ -288,7 +288,7 @@ class CategoriesController extends Controller
         try {
             $validated = $request->validate([
                 'asset_type' => 'required|string',
-                'subcategory_name' => 'required|string|max:255',
+                'subcategory_name' => 'required|string',
                 'description' => 'nullable|string'
             ]);
 

@@ -171,9 +171,9 @@ class RoomController extends Controller
         try {
             // Memvalidasi request
             $validated = $request->validate([
-                'room_name' => 'required|string|max:255',
+                'room_name' => 'required|string',
                 'building_id' => 'required|integer',
-                'floor_number' => 'required|string|max:10',
+                'floor_number' => 'required|string',
                 'description' => 'nullable|string'
             ]);
 
@@ -271,9 +271,9 @@ class RoomController extends Controller
         try {
             // Memvalidasi request
             $validated = $request->validate([
-                'room_name' => 'required|string|max:255',
+                'room_name' => 'required|string',
                 'building_id' => 'required|integer',
-                'floor_number' => 'required|string|max:10',
+                'floor_number' => 'required|string',
                 'description' => 'nullable|string'
             ]);
 

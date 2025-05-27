@@ -105,29 +105,9 @@ class ViewMasterAssetController extends Controller
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Tambahkan ambil brands & subcategories
-            $brandsResult = $this->apiService->request('GET', '/brands', [
-                'query' => [
-                    'limit' => 1000,
-                    'sort_by' => 'brand_name',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories', [
-                'query' => [
-                    'limit' => 1000,
-                    'sort_by' => 'subcategory_name',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-            $brands = $brandsResult['data'] ?? [];
-            $subcategories = $subcategoriesResult['data'] ?? [];
-
-            // Return view with all data
+            // Return view with master asset data only
             return view('Asset.ViewMasterAsset', [
-                'masterAsset' => $masterAsset,
-                'brands' => $brands,
-                'subcategories' => $subcategories
+                'masterAsset' => $masterAsset
             ]);
         } catch (\Exception $e) {
             $errorMessage = 'Failed to retrieve master asset: ' . $e->getMessage();
@@ -188,40 +168,10 @@ class ViewMasterAssetController extends Controller
                 ], 400);
             }
 
-            // Prepare response data
-            $responseData = [
+            // Return JSON response with just the master asset data
+            return response()->json([
                 'masterAsset' => $result['data']
-            ];
-
-            // In the same request, also fetch brands and subcategories
-            // This is more efficient than separate requests
-            $brandsResult = $this->apiService->request('GET', '/brands', [
-                'query' => [
-                    'limit' => 1000,
-                    'sort_by' => 'brand_name',
-                    'sort_order' => 'asc'
-                ]
             ]);
-
-            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories', [
-                'query' => [
-                    'limit' => 1000,
-                    'sort_by' => 'subcategory_name',
-                    'sort_order' => 'asc'
-                ]
-            ]);
-
-            // Add brands and subcategories to response if available
-            if (isset($brandsResult['success']) && $brandsResult['success'] === true) {
-                $responseData['brands'] = $brandsResult['data'] ?? [];
-            }
-
-            if (isset($subcategoriesResult['success']) && $subcategoriesResult['success'] === true) {
-                $responseData['subcategories'] = $subcategoriesResult['data'] ?? [];
-            }
-
-            // Return JSON response
-            return response()->json($responseData);
         } catch (\Exception $e) {
             \Log::error('Exception during master asset edit retrieval:', [
                 'error' => $e->getMessage(),

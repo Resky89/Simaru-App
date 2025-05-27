@@ -14,30 +14,29 @@ class DashboardController extends Controller
         $this->apiService = $apiService;
     }
 
+    /**
+     * Menampilkan halaman dashboard.
+     *
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function index()
     {
         try {
-            // Log request info
-            \Log::info('Fetching dashboard data for view');
-
-            // Fetch dashboard summary from API
+            // Mengambil ringkasan dashboard dari API
             $result = $this->apiService->request('GET', '/dashboard/summary');
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during dashboard data retrieval', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return redirect()->route('login')
-                    ->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed. Please login again.');
+                    ->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal. Silakan login kembali.');
             }
 
-            // Fetch depreciation data from API
+            // Mengambil data depresiasi dari API
             $depreciationResult = $this->getDepreciationData();
 
-            // Prepare dashboard data
+            // Menyiapkan data dashboard
             $dashboardData = [
                 'total_users' => 0,
                 'total_assets' => 0,
@@ -70,12 +69,12 @@ class DashboardController extends Controller
                 ]
             ];
 
-            // Update with API data if available
+            // Memperbarui dengan data API jika tersedia
             if (isset($result['data']) && is_array($result['data'])) {
                 $dashboardData = array_merge($dashboardData, $result['data']);
             }
 
-            // Merge depreciation data if available
+            // Menggabungkan data depresiasi jika tersedia
             if (isset($depreciationResult['success']) && $depreciationResult['success'] === true && isset($depreciationResult['data'])) {
                 $dashboardData['total_acquisition_cost'] = $depreciationResult['data']['total_acquisition_cost'] ?? 0;
                 $dashboardData['total_book_value'] = $depreciationResult['data']['total_book_value'] ?? 0;
@@ -86,12 +85,7 @@ class DashboardController extends Controller
             return view('Dashboard', ['dashboardData' => $dashboardData]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during dashboard data retrieval', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            // Return view with default empty data and error message
+            // Kembalikan tampilan dengan data kosong default dan pesan kesalahan
             return view('Dashboard', [
                 'dashboardData' => [
                     'total_users' => 0,
@@ -124,46 +118,35 @@ class DashboardController extends Controller
                         'all' => []
                     ]
                 ],
-                'error' => 'Failed to load dashboard data: ' . $e->getMessage()
-            ])->with('error', 'Failed to load dashboard data: ' . $e->getMessage());
+                'error' => 'Gagal memuat data dashboard: ' . $e->getMessage()
+            ])->with('error', 'Gagal memuat data dashboard: ' . $e->getMessage());
         }
     }
 
     /**
-     * Get total depreciation data
+     * Mendapatkan data total depresiasi
      *
      * @return array
      */
     private function getDepreciationData()
     {
         try {
-            // Log request info
-            \Log::info('Fetching depreciation data');
-
-            // Fetch depreciation data from API
+            // Mengambil data depresiasi dari API
             $result = $this->apiService->request('GET', '/depreciations/total-value');
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during depreciation data retrieval', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return [
                     'success' => false,
-                    'errors' => $result['errors'] ?? 'Authentication failed'
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
                 ];
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve depreciation data';
-
-                \Log::warning('Error during depreciation data retrieval', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil data depresiasi';
 
                 return [
                     'success' => false,
@@ -174,64 +157,48 @@ class DashboardController extends Controller
             return $result;
 
         } catch (\Exception $e) {
-            \Log::error('Exception during depreciation data retrieval', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return [
                 'success' => false,
-                'errors' => 'Failed to retrieve depreciation data: ' . $e->getMessage()
+                'errors' => 'Gagal mengambil data depresiasi: ' . $e->getMessage()
             ];
         }
     }
 
     /**
-     * API endpoint for dashboard summary data (for AJAX requests)
+     * Endpoint API untuk data ringkasan dashboard (untuk permintaan AJAX)
      *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getSummary()
     {
         try {
-            // Log request info
-            \Log::info('Fetching dashboard summary data via API endpoint');
-
-            // Fetch dashboard summary from API
+            // Mengambil ringkasan dashboard dari API
             $result = $this->apiService->request('GET', '/dashboard/summary');
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during dashboard summary retrieval', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
                 ], 401);
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve dashboard summary';
-
-                \Log::warning('Error during dashboard summary retrieval', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil ringkasan dashboard';
 
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    'errors' => $errorData
                 ], 400);
             }
 
-            // Fetch depreciation data from API
+            // Mengambil data depresiasi dari API
             $depreciationResult = $this->getDepreciationData();
 
-            // Merge depreciation data with summary data if available
+            // Menggabungkan data depresiasi dengan data ringkasan jika tersedia
             if (isset($depreciationResult['success']) && $depreciationResult['success'] === true && isset($depreciationResult['data'])) {
                 $result['data']['total_acquisition_cost'] = $depreciationResult['data']['total_acquisition_cost'] ?? 0;
                 $result['data']['total_book_value'] = $depreciationResult['data']['total_book_value'] ?? 0;
@@ -239,9 +206,10 @@ class DashboardController extends Controller
                 $result['data']['as_of_date'] = $depreciationResult['data']['as_of_date'] ?? date('Y-m-d');
             }
 
-            // Return the summary data
+            // Mengembalikan data ringkasan
             return response()->json([
                 'success' => true,
+                'message' => 'Data ringkasan dashboard berhasil diambil',
                 'data' => $result['data'] ?? [
                     'total_users' => 0,
                     'total_assets' => 0,
@@ -276,20 +244,15 @@ class DashboardController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during dashboard summary retrieval', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => 'Failed to retrieve dashboard summary: ' . $e->getMessage()
+                'errors' => 'Gagal mengambil ringkasan dashboard: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Get calendar events data for a specific year and month
+     * Mendapatkan data acara kalender untuk tahun dan bulan tertentu
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
@@ -297,56 +260,42 @@ class DashboardController extends Controller
     public function getCalendarEvents(Request $request)
     {
         try {
-            // Get year and month from request (default to current year and month if not provided)
+            // Mendapatkan tahun dan bulan dari permintaan (default ke tahun dan bulan saat ini jika tidak disediakan)
             $year = $request->query('year', date('Y'));
             $month = $request->query('month', date('m'));
 
-            // Log request info
-            \Log::info('Fetching calendar events', [
-                'year' => $year,
-                'month' => $month
-            ]);
-
-            // Fetch calendar data from API
+            // Mengambil data kalender dari API
             $result = $this->apiService->request('GET', "/dashboard/calendar?year={$year}&month={$month}");
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during calendar data retrieval', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
                 ], 401);
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve calendar data';
-
-                \Log::warning('Error during calendar data retrieval', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil data kalender';
 
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    'errors' => $errorData
                 ], 400);
             }
 
-            // Get API data
+            // Mendapatkan data API
             $calendarData = $result['data'] ?? [];
 
-            // If no events data, initialize with an empty array
+            // Jika tidak ada data acara, inisialisasi dengan array kosong
             if (!isset($calendarData['events'])) {
                 $calendarData['events'] = [];
             }
 
-            // Prepare metadata if not provided by API
+            // Menyiapkan metadata jika tidak disediakan oleh API
             if (!isset($calendarData['meta'])) {
                 $events = $calendarData['events'] ?? [];
                 $calendarData['meta'] = [
@@ -364,7 +313,7 @@ class DashboardController extends Controller
                 ];
             }
 
-            // Return the calendar data with success message
+            // Mengembalikan data kalender dengan pesan sukses
             return response()->json([
                 'success' => true,
                 'message' => 'Daftar acara kalender berhasil diambil',
@@ -372,20 +321,15 @@ class DashboardController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during calendar data retrieval', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => 'Failed to retrieve calendar data: ' . $e->getMessage()
+                'errors' => 'Gagal mengambil data kalender: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Get Indonesian month name from month number
+     * Mendapatkan nama bulan dalam Bahasa Indonesia dari nomor bulan
      *
      * @param  int|string  $month
      * @return string
@@ -408,11 +352,11 @@ class DashboardController extends Controller
             12 => 'Desember'
         ];
 
-        return $indonesianMonths[$monthNumber] ?? 'Unknown';
+        return $indonesianMonths[$monthNumber] ?? 'Tidak Diketahui';
     }
 
     /**
-     * Get asset activities history
+     * Mendapatkan riwayat aktivitas aset
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
@@ -420,48 +364,34 @@ class DashboardController extends Controller
     public function getAssetActivities(Request $request)
     {
         try {
-            // Get pagination parameters from request
+            // Mendapatkan parameter paginasi dari permintaan
             $page = $request->query('page', 1);
             $limit = $request->query('limit', 10);
 
-            // Log request info
-            \Log::info('Fetching asset activities', [
-                'page' => $page,
-                'limit' => $limit
-            ]);
-
-            // Fetch asset activities from API
+            // Mengambil aktivitas aset dari API
             $result = $this->apiService->request('GET', "/asset-histories/activities/all?page={$page}&limit={$limit}");
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during asset activities retrieval', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
                 ], 401);
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve asset activities';
-
-                \Log::warning('Error during asset activities retrieval', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil aktivitas aset';
 
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
+                    'errors' => $errorData
                 ], 400);
             }
 
-            // Return the activities data with success message
+            // Mengembalikan data aktivitas dengan pesan sukses
             return response()->json([
                 'success' => true,
                 'message' => 'Aktivitas aset berhasil diambil',
@@ -479,14 +409,9 @@ class DashboardController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during asset activities retrieval', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => 'Failed to retrieve asset activities: ' . $e->getMessage()
+                'errors' => 'Gagal mengambil aktivitas aset: ' . $e->getMessage()
             ], 500);
         }
     }

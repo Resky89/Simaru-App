@@ -16,7 +16,7 @@ class OpnameReportController extends Controller
     }
 
     /**
-     * Display the opname report page with data.
+     * Menampilkan halaman laporan opname dengan data.
      */
     public function index(Request $request)
     {
@@ -35,40 +35,32 @@ class OpnameReportController extends Controller
                 ]
             ]);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during opname reports retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve opname reports';
-
-                \Log::warning('Error during opname reports retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil laporan opname';
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                    ], 400);
                 }
 
-                // Format error message for view
+                // Format pesan kesalahan untuk tampilan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -92,7 +84,7 @@ class OpnameReportController extends Controller
 
             $opnames = $result['data'] ?? [];
 
-            // Format pagination
+            // Format paginasi
             $pagination = null;
             if (isset($result['pagination'])) {
                 $paginationData = $result['pagination'];
@@ -114,21 +106,16 @@ class OpnameReportController extends Controller
                 'search' => $search
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to retrieve opname reports', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return view('Report.OpnameReport.OpnameReport', [
                 'opnames' => [],
                 'pagination' => null,
-                'error' => 'Failed to retrieve opname reports: ' . $e->getMessage()
+                'error' => 'Gagal mengambil laporan opname: ' . $e->getMessage()
             ]);
         }
     }
 
     /**
-     * Get all asset opnames.
+     * Mendapatkan semua opname aset.
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -136,12 +123,12 @@ class OpnameReportController extends Controller
     public function getAllOpnames(Request $request)
     {
         try {
-            // Get pagination parameters
+            // Mendapatkan parameter paginasi
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
 
-            // Build query parameters
+            // Membangun parameter kueri
             $queryParams = [
                 'page' => $page,
                 'limit' => $limit,
@@ -149,48 +136,40 @@ class OpnameReportController extends Controller
                 'sort_order' => 'desc'
             ];
 
-            // Add search parameter if provided
+            // Menambahkan parameter pencarian jika disediakan
             if (!empty($search)) {
                 $queryParams['search'] = $search;
             }
 
-            // Fetch opnames from API
+            // Mengambil data opname dari API
             $result = $this->apiService->request('GET', '/asset-opnames', [
                 'query' => $queryParams
             ]);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during opnames retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                ], 401);
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve asset opnames';
-
-                \Log::warning('Error during opnames retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil data opname aset';
 
                 return response()->json([
                     'success' => false,
                     'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                ], status: 400);
+                ], 400);
             }
 
-            // Return the response
+            // Mengembalikan respons
             return response()->json([
                 'success' => true,
-                'message' => 'Asset opnames retrieved successfully',
+                'message' => 'Data opname aset berhasil diambil',
                 'data' => $result['data'] ?? [],
                 'pagination' => $result['pagination'] ?? [
                     'total_items' => 0,
@@ -203,20 +182,15 @@ class OpnameReportController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during opnames retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve opnames: ' . $e->getMessage()
-            ], status: 500);
+                'errors' => 'Gagal mengambil data opname: ' . $e->getMessage()
+            ], 500);
         }
     }
 
     /**
-     * Display the opname detail page.
+     * Menampilkan halaman detail opname.
      *
      * @param int $id
      * @param Request $request
@@ -235,42 +209,32 @@ class OpnameReportController extends Controller
                 ]
             ]);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during opname detail page retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'opname_id' => $id
-                ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve opname details';
-
-                \Log::warning('Error during opname detail retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'opname_id' => $id
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil detail opname';
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                    ], 400);
                 }
 
-                // Format error message for view
+                // Format pesan kesalahan untuk tampilan
                 $errorMessage = '';
                 if (is_array($errorData)) {
                     foreach ($errorData as $field => $messages) {
@@ -295,7 +259,7 @@ class OpnameReportController extends Controller
                 ]);
             }
 
-            // Extract data from API response - Updated for new response structure
+            // Ekstrak data dari respons API - Diperbarui untuk struktur respons baru
             $responseData = $result['data'] ?? [];
             $details = $responseData['details'] ?? [];
             $pagination = $responseData['pagination'] ?? null;
@@ -303,7 +267,7 @@ class OpnameReportController extends Controller
             $roomInfo = $responseData['room_info'] ?? null;
             $opnameInfo = $responseData['opname_info'] ?? null;
 
-            // Get opname code from the opname_info
+            // Mendapatkan kode opname dari opname_info
             $opnameCode = $opnameInfo['opname_code'] ?? null;
 
             return view('Report.OpnameReport.OpnameDetail', [
@@ -317,12 +281,6 @@ class OpnameReportController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Failed to retrieve opname detail page:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'opname_id' => $id
-            ]);
-
             return view('Report.OpnameReport.OpnameDetail', [
                 'opnameId' => $id,
                 'opnameCode' => null,
@@ -331,13 +289,13 @@ class OpnameReportController extends Controller
                 'summary' => null,
                 'roomInfo' => null,
                 'opnameInfo' => null,
-                'error' => 'Failed to retrieve opname details: ' . $e->getMessage()
+                'error' => 'Gagal mengambil detail opname: ' . $e->getMessage()
             ]);
         }
     }
 
     /**
-     * Export opname detail as PDF
+     * Mengekspor detail opname sebagai PDF
      *
      * @param int $id
      * @param Request $request
@@ -346,35 +304,24 @@ class OpnameReportController extends Controller
     public function exportOpnameDetailPDF($id, Request $request)
     {
         try {
-            \Log::info('Starting opname detail PDF export', ['id' => $id]);
-
-            // Use the exact same data retrieval approach as showOpnameDetail
+            // Menggunakan pendekatan pengambilan data yang sama dengan showOpnameDetail
             $result = $this->apiService->request('GET', "/asset-opname-details/opname/{$id}", [
                 'query' => [
                     'page' => 1,
-                    'limit' => 100 // Large limit to get all data
+                    'limit' => 100 // Batas besar untuk mendapatkan semua data
                 ]
             ]);
 
-            // Check for auth errors
+            // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during opname detail PDF export', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'opname_id' => $id
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve opname details for PDF export';
-
-                \Log::warning('Error during opname detail PDF export:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'opname_id' => $id
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil detail opname untuk ekspor PDF';
 
                 $errorMessage = '';
                 if (is_array($errorData)) {
@@ -393,7 +340,7 @@ class OpnameReportController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Extract data using new response structure
+            // Ekstrak data menggunakan struktur respons baru
             $responseData = $result['data'] ?? [];
             $details = $responseData['details'] ?? [];
             $pagination = $responseData['pagination'] ?? null;
@@ -401,41 +348,27 @@ class OpnameReportController extends Controller
             $roomInfo = $responseData['room_info'] ?? null;
             $opnameInfo = $responseData['opname_info'] ?? null;
 
-            // Get opname code from the opname_info
+            // Mendapatkan kode opname dari opname_info
             $opnameCode = $opnameInfo['opname_code'] ?? 'N/A';
 
-            \Log::info('Data prepared for PDF export', [
-                'opnameCode' => $opnameCode,
-                'details_count' => count($details),
-                'has_summary' => !empty($summary),
-                'has_roomInfo' => !empty($roomInfo),
-                'has_opnameInfo' => !empty($opnameInfo)
-            ]);
-
-            // Create the PDF with the data - including opnameInfo
+            // Membuat PDF dengan data - termasuk opnameInfo
             $pdf = Pdf::loadView('Report.OpnameReport.OpnameDetailPDF', [
                 'opnameId' => $id,
                 'opnameCode' => $opnameCode,
                 'details' => $details,
-                'pagination' => null, // Not needed for PDF
+                'pagination' => null, // Tidak diperlukan untuk PDF
                 'summary' => $summary,
                 'roomInfo' => $roomInfo,
                 'opnameInfo' => $opnameInfo,
             ]);
 
-            // Set paper size and orientation
+            // Menetapkan ukuran kertas dan orientasi
             $pdf->setPaper('a4', 'portrait');
 
-            \Log::info('PDF generation successful, streaming to browser');
-            return $pdf->stream("opname_detail_{$id}.pdf");
+            return $pdf->stream("detail_opname_{$id}.pdf");
 
         } catch (\Exception $e) {
-            \Log::error('Exception during opname detail PDF export', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'opname_id' => $id
-            ]);
-            return redirect()->back()->with('error', 'Failed to export opname detail as PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengekspor detail opname sebagai PDF: ' . $e->getMessage());
         }
     }
 }

@@ -173,7 +173,7 @@ class BrandController extends Controller
         try {
             // Memvalidasi request
             $validated = $request->validate([
-                'brand_name' => 'required|string|max:255'
+                'brand_name' => 'required|string'
             ]);
 
             $brandsResult = $this->apiService->request('POST', '/brands', [
@@ -251,7 +251,7 @@ class BrandController extends Controller
         try {
             // Memvalidasi request
             $validated = $request->validate([
-                'brand_name' => 'required|string|max:255'
+                'brand_name' => 'required|string'
             ]);
 
             $result = $this->apiService->request('PUT', "/brands/{$id}", [

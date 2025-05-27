@@ -27,16 +27,6 @@ class MasterAssetController extends Controller
             $assetType = $request->input('type', '');
             $sortOrder = $request->input('sort', 'newest');
 
-            // Log request info
-            \Log::info('Fetching master assets with parameters:', [
-                'page' => $page,
-                'limit' => $limit,
-                'search' => $search,
-                'asset_type' => $assetType,
-                'sort' => $sortOrder,
-                'request_url' => $request->fullUrl()
-            ]);
-
             // Build query parameters
             $queryParams = [
                 'page' => $page,
@@ -85,35 +75,24 @@ class MasterAssetController extends Controller
                 'query' => $queryParams
             ]);
 
-            // Log API responses for debugging
-            \Log::info('API response for master assets list:', [
-                'assets_status' => $masterAssetsResult['status'] ?? null,
-                'assets_count' => isset($masterAssetsResult['data']) ? count($masterAssetsResult['data']) : 0
-            ]);
-
             // Check for auth errors
             if (isset($masterAssetsResult['errors']) && is_string($masterAssetsResult['errors']) &&
                 in_array($masterAssetsResult['errors'], ['auth_failed', 'session_expired'])) {
-                $errorMessage = $masterAssetsResult['errors'] ?? 'Authentication failed';
+                $errorMessage = $masterAssetsResult['errors'] ?? 'Autentikasi gagal';
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'error' => is_string($errorMessage) ? $errorMessage : 'Authentication failed'
+                        'error' => is_string($errorMessage) ? $errorMessage : 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Autentikasi gagal');
             }
 
             // Check for API errors based on status flag
             if (isset($masterAssetsResult['success']) && $masterAssetsResult['success'] !== true) {
-                $errorData = $masterAssetsResult['errors'] ?? 'Failed to fetch data';
-
-                \Log::warning('Error during data retrieval:', [
-                    'assets_status' => $masterAssetsResult['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $masterAssetsResult['errors'] ?? 'Gagal mengambil data';
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
@@ -162,22 +141,17 @@ class MasterAssetController extends Controller
                 'masterAssets_pagination' => $masterAssetsPagination
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during data retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'Failed to fetch data: ' . $e->getMessage()
+                    'error' => 'Gagal mengambil data: ' . $e->getMessage()
                 ], 500);
             }
 
             return view('Asset.MasterAsset', [
                 'masterAssets' => [],
                 'masterAssets_pagination' => null,
-                'error' => 'Failed to fetch data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data: ' . $e->getMessage()
             ]);
         }
     }
@@ -188,11 +162,6 @@ class MasterAssetController extends Controller
     public function storeMasterAsset(Request $request)
     {
         try {
-            // Log the request data
-            \Log::info('Attempting to create master asset with data:', [
-                'request_data' => $request->all()
-            ]);
-
             // Prepare master asset data - only include non-empty fields
             $masterAssetData = [];
 
@@ -225,11 +194,6 @@ class MasterAssetController extends Controller
             if ($request->filled('asset_type')) {
                 $masterAssetData['asset_type'] = $request->input('asset_type');
             }
-
-            // Log structured data yang akan dikirim ke API
-            \Log::info('Sending to API:', [
-                'master_asset_data' => $masterAssetData
-            ]);
 
             // Handle image upload if present
             if ($request->hasFile('image_file')) {
@@ -267,29 +231,16 @@ class MasterAssetController extends Controller
                 $result = $this->apiService->request('POST', '/asset-masters', $options);
             }
 
-            // Log the API response
-            \Log::info('API response for master asset creation:', [
-                'api_response' => $result
-            ]);
-
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during master asset creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Authentication failed') ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Autentikasi gagal') ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] === false) {
-                \Log::warning('Error during master asset creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $result['errors'] ?? 'Failed to create master asset'
-                ]);
-
                 // Format error message properly before passing to session
-                $errorMessage = 'Failed to create master asset';
+                $errorMessage = 'Gagal membuat aset master';
 
                 if (isset($result['errors'])) {
                     if (is_array($result['errors'])) {
@@ -313,23 +264,12 @@ class MasterAssetController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Successfully created - use the proper response format based on the example
-            \Log::info('Master asset created successfully', [
-                'asset_master_code' => $result['data']['asset_master_code'] ?? 'unknown',
-                'asset_master_id' => $result['data']['asset_master_id'] ?? 'unknown'
-            ]);
-
             return redirect()->route('asset-master')
-                ->with('success', 'Master asset created successfully');
+                ->with('success', 'Aset master berhasil dibuat');
         } catch (\Exception $e) {
-            \Log::error('Exception during master asset creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to create master asset: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat aset master: ' . $e->getMessage());
         }
     }
 
@@ -339,12 +279,6 @@ class MasterAssetController extends Controller
     public function updateMasterAsset(Request $request, $id)
     {
         try {
-            // Log request data for debugging
-            \Log::info('Attempting to update master asset with data:', [
-                'asset_master_id' => $id,
-                'request_data' => $request->all()
-            ]);
-
             // Prepare master asset data - only include non-empty fields
             $masterAssetData = [
                 'asset_master_id' => $id // ID is always required for update
@@ -380,11 +314,6 @@ class MasterAssetController extends Controller
             if ($request->has('remove_image')) {
                 $masterAssetData['remove_image'] = true;
             }
-
-            // Log structured data yang akan dikirim ke API
-            \Log::info('Sending to API:', [
-                'master_asset_data' => $masterAssetData
-            ]);
 
             // Handle image upload if present
             if ($request->hasFile('image_file')) {
@@ -430,30 +359,16 @@ class MasterAssetController extends Controller
                 $result = $this->apiService->request('PUT', "/asset-masters/{$id}", $options);
             }
 
-            // Log the API response
-            \Log::info('API response for master asset update:', [
-                'asset_master_id' => $id,
-                'api_response' => $result
-            ]);
-
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during master asset update:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Authentication failed') ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Autentikasi gagal') ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] === false) {
-                \Log::warning('Error during master asset update:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $result['errors'] ?? 'Failed to update master asset'
-                ]);
-
                 // Format error message properly before passing to session
-                $errorMessage = 'Failed to update master asset';
+                $errorMessage = 'Gagal memperbarui aset master';
 
                 if (isset($result['errors'])) {
                     if (is_array($result['errors'])) {
@@ -477,20 +392,12 @@ class MasterAssetController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Successfully updated
-            \Log::info('Master asset updated successfully', ['asset_master_id' => $id]);
             return redirect()->route('asset-master')
-                ->with('success', 'Master asset updated successfully');
+                ->with('success', 'Aset master berhasil diperbarui');
         } catch (\Exception $e) {
-            \Log::error('Exception during master asset update:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_master_id' => $id
-            ]);
-
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to update master asset: ' . $e->getMessage());
+                ->with('error', 'Gagal memperbarui aset master: ' . $e->getMessage());
         }
     }
 
@@ -500,51 +407,25 @@ class MasterAssetController extends Controller
     public function destroyMasterAsset($id)
     {
         try {
-            \Log::info('Attempting to delete master asset:', [
-                'asset_master_id' => $id,
-                'url' => request()->url()
-            ]);
-
             $result = $this->apiService->request('DELETE', "/asset-masters/{$id}");
-
-            // Log the API response
-            \Log::info('API response for master asset deletion:', [
-                'asset_master_id' => $id,
-                'api_response' => $result
-            ]);
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during master asset deletion:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Authentication failed') ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Autentikasi gagal') ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] === false) {
-                \Log::warning('Error during master asset deletion:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $result['errors'] ?? 'Failed to delete master asset'
-                ]);
                 return redirect()->back()
-                    ->with('error', is_array($result['errors'] ?? 'Failed to delete master asset') ? implode(', ', (array)$result['errors']) : ($result['errors'] ?? 'Failed to delete master asset'));
+                    ->with('error', is_array($result['errors'] ?? 'Gagal menghapus aset master') ? implode(', ', (array)$result['errors']) : ($result['errors'] ?? 'Gagal menghapus aset master'));
             }
 
-            // Successfully deleted
-            \Log::info('Master asset deleted successfully', ['asset_master_id' => $id]);
             return redirect()->route('asset-master')
-                ->with('success', 'Master asset deleted successfully');
+                ->with('success', 'Aset master berhasil dihapus');
         } catch (\Exception $e) {
-            \Log::error('Exception during master asset deletion:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_master_id' => $id
-            ]);
-
             return redirect()->back()
-                ->with('error', 'Failed to delete master asset: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus aset master: ' . $e->getMessage());
         }
     }
 
@@ -554,48 +435,25 @@ class MasterAssetController extends Controller
     public function getMasterAsset($id)
     {
         try {
-            // Log request info
-            \Log::info('Fetching single master asset with ID:', [
-                'asset_master_id' => $id,
-                'request_url' => request()->fullUrl(),
-                'ajax' => request()->ajax() ? 'Yes' : 'No'
-            ]);
-
             // Fetch the master asset with the given ID
             $result = $this->apiService->request('GET', "/asset-masters/{$id}");
-
-            // Log API response for debugging
-            \Log::info('API response for single master asset:', [
-                'api_response_status' => $result['status'] ?? $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'asset_master_id' => $id
-            ]);
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during master asset retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-
                 if (request()->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
+                        'errors' => ['authentication' => 'Autentikasi gagal']
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Authentication failed') ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Autentikasi gagal') ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors based on status flag
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve master asset';
-
-                \Log::warning('Error during master asset retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil data aset master';
 
                 if (request()->ajax()) {
                     return response()->json([
@@ -610,7 +468,7 @@ class MasterAssetController extends Controller
             $masterAsset = $result['data'] ?? null;
 
             if (!$masterAsset) {
-                $errorMessage = 'Master asset not found or response data is invalid';
+                $errorMessage = 'Aset master tidak ditemukan atau data respons tidak valid';
 
                 if (request()->ajax()) {
                     return response()->json(['error' => $errorMessage], 404);
@@ -645,13 +503,7 @@ class MasterAssetController extends Controller
             // Return full view with master asset data for non-AJAX requests
             return view('Asset.EditMasterAsset', ['masterAsset' => $masterAsset]);
         } catch (\Exception $e) {
-            $errorMessage = 'Failed to retrieve master asset: ' . $e->getMessage();
-
-            \Log::error('Exception during master asset retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_master_id' => $id
-            ]);
+            $errorMessage = 'Gagal mengambil data aset master: ' . $e->getMessage();
 
             if (request()->ajax()) {
                 return response()->json(['error' => $errorMessage], 500);
@@ -676,16 +528,6 @@ class MasterAssetController extends Controller
             $brandId = $request->input('brand', '');
             $subcategoryId = $request->input('category', '');
             $sortOrder = $request->input('sort', 'newest');
-
-            // Log request info
-            \Log::info('Exporting master assets to PDF with parameters:', [
-                'search' => $search,
-                'asset_type' => $assetType,
-                'brand_id' => $brandId,
-                'subcategory_id' => $subcategoryId,
-                'sort' => $sortOrder,
-                'request_url' => $request->fullUrl()
-            ]);
 
             // Build query parameters
             $queryParams = [
@@ -738,57 +580,21 @@ class MasterAssetController extends Controller
             // Check for auth errors
             if (isset($masterAssetsResult['errors']) && is_string($masterAssetsResult['errors']) &&
                 in_array($masterAssetsResult['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during master assets export:', [
-                    'errors' => $masterAssetsResult['errors'] ?? 'Authentication failed'
-                ]);
-                return redirect()->route('login')->with('error', is_string($masterAssetsResult['errors'] ?? 'Authentication failed') ? $masterAssetsResult['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($masterAssetsResult['errors'] ?? 'Autentikasi gagal') ? $masterAssetsResult['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors based on status flag
             if (!isset($masterAssetsResult['success']) || $masterAssetsResult['success'] !== true) {
-                $errorData = $masterAssetsResult['errors'] ?? 'Failed to fetch master assets data';
-                \Log::warning('Error during master assets export:', [
-                    'errors' => $errorData
-                ]);
+                $errorData = $masterAssetsResult['errors'] ?? 'Gagal mengambil data aset master';
                 return redirect()->back()->with('error', is_array($errorData) ? implode(', ', (array)$errorData) : $errorData);
             }
 
             // Get master assets data
             $masterAssets = $masterAssetsResult['data'] ?? [];
 
-            // Fetch brands and subcategories data for reference
-            $brandsResult = $this->apiService->request('GET', '/brands', [
-                'query' => [
-                    'page' => 1,
-                    'limit' => 1000
-                ]
-            ]);
-            $brands = $brandsResult['data'] ?? [];
-
-            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories', [
-                'query' => [
-                    'page' => 1,
-                    'limit' => 1000
-                ]
-            ]);
-            $subcategories = $subcategoriesResult['data'] ?? [];
-
-            // Create lookup arrays for brands and subcategories for easier reference
-            $brandMap = [];
-            foreach ($brands as $brand) {
-                $brandMap[$brand['brand_id']] = $brand;
-            }
-
-            $subcategoryMap = [];
-            foreach ($subcategories as $subcategory) {
-                $subcategoryMap[$subcategory['subcategory_id']] = $subcategory;
-            }
-
             // Generate PDF
             $pdf = Pdf::loadView('Asset.MasterAssetPDF', [
                 'masterAssets' => $masterAssets,
-                'brandMap' => $brandMap,
-                'subcategoryMap' => $subcategoryMap,
                 'search' => $search,
                 'assetType' => $assetType,
                 'brandId' => $brandId,
@@ -797,21 +603,10 @@ class MasterAssetController extends Controller
                 'date_generated' => now()->format('d M Y H:i:s')
             ]);
 
-            // Log PDF generation
-            \Log::info('Master assets PDF generated successfully', [
-                'assets_count' => count($masterAssets)
-            ]);
-
             // Stream the PDF to browser
-            return $pdf->stream('master_assets_report_' . now()->format('YmdHis') . '.pdf');
-
+            return $pdf->stream('laporan_aset_master_' . now()->format('YmdHis') . '.pdf');
         } catch (\Exception $e) {
-            \Log::error('Exception during master assets PDF export:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return redirect()->back()->with('error', 'Failed to export Master Assets as PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengekspor Aset Master sebagai PDF: ' . $e->getMessage());
         }
     }
 
@@ -821,12 +616,6 @@ class MasterAssetController extends Controller
     public function importMasterAsset(Request $request)
     {
         try {
-            \Log::info('Attempting to import master assets from Excel', [
-                'has_file' => $request->hasFile('excel_file_upload'),
-                'has_excel_data' => $request->has('excel_data'),
-                'is_ajax' => $request->ajax()
-            ]);
-
             if ($request->hasFile('excel_file_upload')) {
                 // Use multipart form data to send the actual file
                 $multipartData = [];
@@ -848,25 +637,27 @@ class MasterAssetController extends Controller
                 $excelData = $request->input('excel_data');
 
                 if (empty($excelData)) {
-                    if ($request->ajax()) {
-                        return response()->json(['success' => false, 'errors' => ['import' => 'No valid data found for import']], 400);
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'errors' => ['import' => 'Tidak ada data valid untuk diimpor']
+                        ], 400);
                     }
-                    return redirect()->back()->with('error', 'No valid data found for import');
+                    return redirect()->back()->with('error', 'Tidak ada data valid untuk diimpor');
                 }
 
                 // Decode the JSON data
                 $parsedData = json_decode($excelData, true);
 
                 if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsedData) || empty($parsedData)) {
-                    if ($request->ajax()) {
-                        return response()->json(['success' => false, 'errors' => ['import' => 'Invalid data format for import']], 400);
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'errors' => ['import' => 'Format data tidak valid untuk diimpor']
+                        ], 400);
                     }
-                    return redirect()->back()->with('error', 'Invalid data format for import');
+                    return redirect()->back()->with('error', 'Format data tidak valid untuk diimpor');
                 }
-
-                \Log::info('Parsed Excel data for import', [
-                    'record_count' => count($parsedData)
-                ]);
 
                 // Send data to API
                 $result = $this->apiService->request('POST', '/asset-masters/import', [
@@ -875,71 +666,73 @@ class MasterAssetController extends Controller
                     ]
                 ]);
             } else {
-                if ($request->ajax()) {
-                    return response()->json(['success' => false, 'errors' => ['import' => 'No Excel file or data provided']], 400);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['import' => 'Tidak ada file Excel atau data yang disediakan']
+                    ], 400);
                 }
-                return redirect()->back()->with('error', 'No Excel file or data provided');
+                return redirect()->back()->with('error', 'Tidak ada file Excel atau data yang disediakan');
             }
-
-            // Log the API response
-            \Log::info('API response for master asset import:', [
-                'api_response' => $result
-            ]);
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during master asset import:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                if ($request->ajax()) {
+                if ($request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
-                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Authentication failed') ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Autentikasi gagal') ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Failed to import master assets';
+                $errorData = $result['errors'] ?? 'Gagal mengimpor aset master';
 
-                \Log::warning('Error during master asset import:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                // Handle JSON response for API requests
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData,
+                        'data' => $result['data'] ?? null
+                    ], 400);
+                }
 
-                // Format error message including detailed errors from the response
+                // Format error message for detailed errors
+                $errorMessage = 'Gagal mengimpor aset master: ';
+
                 if (is_array($errorData)) {
-                    if ($request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $errorData
-                        ], 400);
-                    }
+                    $errorDetails = [];
 
-                    // For non-AJAX, format as HTML
-                    $errorMessage = 'Failed to import master assets: ';
-                    $errorMessage .= "<ul class='list-disc pl-4 mt-2'>";
-                    foreach ($errorData as $key => $detail) {
-                        if (is_array($detail)) {
-                            $errorMessage .= "<li>" . implode(', ', $detail) . "</li>";
-                        } else {
-                            $errorMessage .= "<li>{$detail}</li>";
+                    foreach ($errorData as $key => $error) {
+                        if (is_array($error)) {
+                            if (isset($error['message'])) {
+                                $errorDetails[] = $error['message'];
+                            } else if (isset($error['asset_name'], $error['reason'])) {
+                                $errorDetails[] = "\"{$error['asset_name']}\" - {$error['reason']}";
+                            } else if (isset($error['row'], $error['reason'])) {
+                                $errorDetails[] = "Baris {$error['row']}: {$error['reason']}";
+                            } else {
+                                $errorDetails[] = implode(', ', $error);
+                            }
+                        } else if (is_string($error)) {
+                            $errorDetails[] = $error;
                         }
                     }
-                    $errorMessage .= "</ul>";
-                } else {
-                    $errorMessage = $errorData;
 
-                    if ($request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => ['general' => $errorMessage]
-                        ], 400);
+                    // Format as HTML list for non-AJAX response
+                    if (!empty($errorDetails)) {
+                        $errorMessage .= "<ul class='list-disc pl-4 mt-2'>";
+                        foreach ($errorDetails as $detail) {
+                            $errorMessage .= "<li>{$detail}</li>";
+                        }
+                        $errorMessage .= "</ul>";
                     }
+                } else if (is_string($errorData)) {
+                    $errorMessage = $errorData;
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -951,13 +744,13 @@ class MasterAssetController extends Controller
             $failedCount = $result['data']['failed'] ?? 0;
 
             // Prepare success message
-            $successMessage = "Successfully imported {$successCount} master assets";
+            $successMessage = "Berhasil mengimpor {$successCount} aset master";
             if ($failedCount > 0) {
-                $successMessage .= " ({$failedCount} failed)";
+                $successMessage .= " ({$failedCount} gagal)";
             }
 
             // Return response based on request type
-            if ($request->ajax()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => $successMessage,
@@ -972,19 +765,14 @@ class MasterAssetController extends Controller
             // Redirect back with success message for non-AJAX requests
             return redirect()->route('asset-master')->with('success', $successMessage);
         } catch (\Exception $e) {
-            \Log::error('Exception during master asset import:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to import master assets: ' . $e->getMessage()]
+                    'errors' => ['exception' => 'Gagal mengimpor aset master: ' . $e->getMessage()]
                 ], 500);
             }
 
-            return redirect()->back()->with('error', 'Failed to import master assets: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengimpor aset master: ' . $e->getMessage());
         }
     }
 }

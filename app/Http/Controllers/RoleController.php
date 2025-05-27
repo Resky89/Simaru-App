@@ -26,6 +26,11 @@ class RoleController extends Controller
             $search = $request->input('search', '');
             $sort = $request->input('sort', '');
 
+            // Untuk permintaan JSON, tingkatkan batas untuk memuat lebih banyak item
+            if ($request->expectsJson() || $request->ajax()) {
+                $roleLimit = $request->input('role_limit', 100);
+            }
+
             $queryParams = [
                 'page' => $rolePage,
                 'limit' => $roleLimit,
@@ -60,13 +65,6 @@ class RoleController extends Controller
                 }
             }
 
-            // Log the query parameters for debugging
-            \Log::info('Role search parameters:', [
-                'search' => $search,
-                'sort' => $sort,
-                'queryParams' => $queryParams
-            ]);
-
             $response = $this->apiService->request('GET', '/roles', [
                 'query' => $queryParams
             ]);
@@ -74,34 +72,26 @@ class RoleController extends Controller
             // Check for auth errors
             if (isset($response['errors']) && is_string($response['errors']) &&
                 in_array($response['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during roles retrieval:', [
-                    'errors' => $response['errors'] ?? 'Authentication failed'
-                ]);
 
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => $response['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($response['errors']) ? $response['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($response['errors']) ? $response['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors or unsuccessful responses
             if (!isset($response['success']) || $response['success'] !== true) {
-                $errorData = $response['errors'] ?? 'Failed to fetch roles';
+                $errorData = $response['errors'] ?? 'Gagal mengambil data';
 
-                \Log::warning('Error during roles retrieval:', [
-                    'success' => $response['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                    ], 400);
                 }
 
                 // Format error message for view
@@ -155,6 +145,15 @@ class RoleController extends Controller
                 ];
             }
 
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $response['message'] ?? 'Data berhasil diambil',
+                    'data' => $roles,
+                    'pagination' => $rolePagination
+                ]);
+            }
+
             return view('Account.Role', [
                 'roles' => [
                     'data' => $roles,
@@ -164,10 +163,12 @@ class RoleController extends Controller
                 'sort' => $sort
             ]);
         } catch (\Exception $e) {
-            \Log::error('Gagal mengambil data role', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal mengambil data role: ' . $e->getMessage()
+                ], 500);
+            }
 
             return view('Account.Role', [
                 'roles' => [
@@ -187,9 +188,9 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         try {
-            // Log the request data
-            \Log::info('Attempting to create role with data:', [
-                'request_data' => $request->all()
+            // Validasi request
+            $request->validate([
+                'role_name' => 'required|string|max:255',
             ]);
 
             // Convert permission_ids to integers
@@ -218,93 +219,67 @@ class RoleController extends Controller
                 'json' => $payload
             ]);
 
-            // Log the API response
-            \Log::info('API response for role creation:', [
-                'api_response' => $result
-            ]);
-
             // Check if we got an auth error response
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during role creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to create role';
+                $errorData = $result['errors'] ?? 'Gagal membuat role';
 
-                \Log::warning('Error during role creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                    ], 400);
                 }
 
                 // Format error message for redirect
+                $errorMessage = '';
                 if (is_array($errorData)) {
-                    // If it's a nested array of field => [messages]
-                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            foreach ($messages as $message) {
-                                $errorArray[] = $message;
-                            }
+                            $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
-                            $errorArray[] = $field . ': ' . $messages;
+                            $errorMessage .= $messages . '; ';
                         }
                     }
-
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error', $errorArray);
                 } else {
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error', $errorData);
+                    $errorMessage = $errorData;
                 }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $errorMessage);
             }
 
-            // Successfully created
-            \Log::info('Role created successfully');
-
-            if ($request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Role berhasil dibuat',
+                    'message' => $result['message'] ?? 'Role berhasil dibuat',
                     'data' => $result['data'] ?? null
-                ], status: 201);
+                ], 201);
             }
 
             return redirect()->route('roles')
-                ->with('success', 'Role berhasil dibuat');
+                ->with('success', $result['message'] ?? 'Role berhasil dibuat');
         } catch (\Exception $e) {
-            \Log::error('Exception during role creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'role_data' => $request->except('_token')
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to create role: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => ['exception' => 'Gagal membuat role: ' . $e->getMessage()],
+                    'data' => null
+                ], 500);
             }
 
             return redirect()->back()
@@ -319,9 +294,9 @@ class RoleController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            // Log the update attempt
-            \Log::info('Attempting to update role with ID: ' . $id, [
-                'request_data' => $request->except(['_token', '_method'])
+            // Validasi request
+            $request->validate([
+                'role_name' => 'required|string|max:255',
             ]);
 
             // Convert permission_ids to integers
@@ -351,99 +326,67 @@ class RoleController extends Controller
                 'json' => $payload
             ]);
 
-            // Log the API response
-            \Log::info('API response for role update:', [
-                'api_response' => $result,
-                'role_id' => $id
-            ]);
-
             // Check if we got an auth error response
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during role update:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'role_id' => $id
-                ]);
 
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to update role';
+                $errorData = $result['errors'] ?? 'Gagal memperbarui role';
 
-                \Log::warning('Error during role update:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'role_id' => $id
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                    ], 400);
                 }
 
                 // Format error message for redirect
+                $errorMessage = '';
                 if (is_array($errorData)) {
-                    // If it's a nested array of field => [messages]
-                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            foreach ($messages as $message) {
-                                $errorArray[] = $message;
-                            }
+                            $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
-                            $errorArray[] = $field . ': ' . $messages;
+                            $errorMessage .= $messages . '; ';
                         }
                     }
-
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error', $errorArray);
                 } else {
+                    $errorMessage = $errorData;
+                }
+
                     return redirect()->back()
                         ->withInput()
-                        ->with('error', $errorData);
+                    ->with('error', $errorMessage);
                 }
-            }
 
-            // Successfully updated
-            \Log::info('Role updated successfully', [
-                'role_id' => $id
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Role berhasil diperbarui',
+                    'message' => $result['message'] ?? 'Role berhasil diperbarui',
                     'data' => $result['data'] ?? null
                 ]);
             }
 
             return redirect()->route('roles')
-                ->with('success', 'Role berhasil diperbarui');
+                ->with('success', $result['message'] ?? 'Role berhasil diperbarui');
         } catch (\Exception $e) {
-            \Log::error('Exception during role update:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'role_id' => $id,
-                'role_data' => $request->except(['_token', '_method'])
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to update role: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => ['exception' => 'Gagal memperbarui role: ' . $e->getMessage()],
+                    'data' => null
+                ], 500);
             }
 
             return redirect()->back()
@@ -458,99 +401,68 @@ class RoleController extends Controller
     public function destroy($id)
     {
         try {
-            \Log::info('Attempting to delete role with ID: ' . $id);
-
             $result = $this->apiService->request('DELETE', "/roles/{$id}");
-
-            // Log the API response
-            \Log::info('API response for role deletion:', [
-                'api_response' => $result,
-                'role_id' => $id
-            ]);
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during role deletion:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'role_id' => $id
-                ]);
 
-                if (request()->ajax() || request()->wantsJson()) {
+                if (request()->expectsJson() || request()->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for other API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to delete role';
+                $errorData = $result['errors'] ?? 'Gagal menghapus role';
 
-                \Log::warning('Error during role deletion:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'role_id' => $id
-                ]);
-
-                if (request()->ajax() || request()->wantsJson()) {
+                if (request()->expectsJson() || request()->ajax()) {
                     return response()->json([
                         'success' => false,
                         'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], status: 400);
+                    ], 400);
                 }
 
                 // Format error message for redirect
+                $errorMessage = '';
                 if (is_array($errorData)) {
-                    // If it's a nested array of field => [messages]
-                    $errorArray = [];
                     foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
-                            foreach ($messages as $message) {
-                                $errorArray[] = $message;
-                            }
+                            $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
-                            $errorArray[] = $field . ': ' . $messages;
+                            $errorMessage .= $messages . '; ';
                         }
                     }
-
-                    return redirect()->back()
-                        ->with('error', $errorArray);
                 } else {
-                    return redirect()->back()
-                        ->with('error', $errorData);
+                    $errorMessage = $errorData;
                 }
-            }
 
-            // Successfully deleted
-            \Log::info('Role deleted successfully', [
-                'role_id' => $id
-            ]);
+                    return redirect()->back()
+                    ->with('error', $errorMessage);
+                }
 
-            if (request()->ajax() || request()->wantsJson()) {
+            if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Role berhasil dihapus'
+                    'message' => $result['message'] ?? 'Role berhasil dihapus',
+                    'data' => null
                 ]);
             }
 
             return redirect()->route('roles')
-                ->with('success', 'Role berhasil dihapus');
+                ->with('success', $result['message'] ?? 'Role berhasil dihapus');
         } catch (\Exception $e) {
-            \Log::error('Exception during role deletion:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'role_id' => $id
-            ]);
-
-            if (request()->ajax() || request()->wantsJson()) {
+            if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to delete role: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => ['exception' => 'Gagal menghapus role: ' . $e->getMessage()],
+                    'data' => null
+                ], 500);
             }
 
             return redirect()->back()
@@ -578,29 +490,35 @@ class RoleController extends Controller
             // Check for auth errors
             if (isset($response['errors']) && is_string($response['errors']) &&
                 in_array($response['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during permissions retrieval:', [
-                    'errors' => $response['errors'] ?? 'Authentication failed'
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => $response['errors'] ?? 'Autentikasi gagal'
+                ], 401);
             }
 
             // Check for API errors or unsuccessful responses
             if (!isset($response['success']) || $response['success'] !== true) {
-                $errorData = $response['errors'] ?? 'Failed to fetch permissions';
+                $errorData = $response['errors'] ?? 'Gagal mengambil data permission';
 
-                \Log::warning('Error during permissions retrieval:', [
-                    'success' => $response['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
 
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                ], status: 400);
+                    'errors' => $errorMessage
+                ], 400);
             }
 
             $permissions = $response['data'] ?? [];
@@ -608,19 +526,16 @@ class RoleController extends Controller
 
             return response()->json([
                 'success' => true,
+                'message' => $response['message'] ?? 'Data berhasil diambil',
                 'data' => $permissions,
                 'pagination' => $pagination
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during permissions retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to retrieve permissions: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => 'Gagal mengambil data permission: ' . $e->getMessage(),
+                'data' => null
+            ], 500);
         }
     }
 
@@ -630,59 +545,53 @@ class RoleController extends Controller
     public function show($id)
     {
         try {
-            \Log::info('Fetching role with ID: ' . $id);
-
             $response = $this->apiService->request('GET', "/roles/{$id}");
 
             // Check for auth errors
             if (isset($response['errors']) && is_string($response['errors']) &&
                 in_array($response['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during role retrieval:', [
-                    'errors' => $response['errors'] ?? 'Authentication failed',
-                    'role_id' => $id
-                ]);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => $response['errors'] ?? 'Autentikasi gagal'
+                ], 401);
             }
 
             // Check for API errors or unsuccessful responses
             if (!isset($response['success']) || $response['success'] !== true) {
-                $errorData = $response['errors'] ?? 'Failed to fetch role';
+                $errorData = $response['errors'] ?? 'Gagal mengambil data role';
 
-                \Log::warning('Error during role retrieval:', [
-                    'success' => $response['success'] ?? false,
-                    'errors' => $errorData,
-                    'role_id' => $id
-                ]);
+                // Format error message
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
 
                 return response()->json([
                     'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                ], status: 400);
+                    'errors' => $errorMessage
+                ], 400);
             }
 
-            // Transform the response to ensure success field is present
-            $result = [
+            return response()->json([
                 'success' => true,
-                'message' => 'Role retrieved successfully',
-                'data' => $response['data'] ?? $response
-            ];
-
-            return response()->json($result);
-        } catch (\Exception $e) {
-            \Log::error('Exception during role retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'role_id' => $id
+                'message' => $response['message'] ?? 'Data berhasil diambil',
+                'data' => $response['data'] ?? null
             ]);
-
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to fetch role details: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => 'Gagal mengambil data role: ' . $e->getMessage(),
+                'data' => null
+            ], 500);
         }
     }
 }

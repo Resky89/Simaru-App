@@ -84,28 +84,20 @@ class ProcurementRequestController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurements index retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                if ($request->ajax() || $request->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => ['Authentication failed']],
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve procurements';
-
-                \Log::warning('Error during procurements index retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil daftar pengadaan';
 
                 if ($request->ajax() || $request->wantsJson()) {
                     // Format error message for better display in toast notifications
@@ -168,15 +160,10 @@ class ProcurementRequestController extends Controller
                 'pagination' => $pagination
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during procurements index retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => ['Failed to fetch procurements: ' . $e->getMessage()]],
+                    'errors' => ['exception' => ['Gagal mengambil daftar pengadaan: ' . $e->getMessage()]],
                 ], 500);
             }
 
@@ -184,141 +171,8 @@ class ProcurementRequestController extends Controller
             return view('Procurement.Request.Request', [
                 'procurements' => [],
                 'pagination' => null,
-                'error' => 'Failed to fetch procurement data: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data pengadaan: ' . $e->getMessage()
             ]);
-        }
-    }
-
-    /**
-     * Get procurement data as JSON for API requests
-     */
-    public function getDataJson(Request $request)
-    {
-        try {
-            // Get pagination parameters with defaults
-            $page = $request->input('page', 1);
-            $limit = $request->input('limit', 10);
-
-            // Get search and filter parameters
-            $search = $request->input('search');
-            $status = $request->input('status');
-            $sort = $request->input('sort');
-
-            // Build query parameters
-            $queryParams = [
-                'page' => $page,
-                'limit' => $limit,
-            ];
-
-            // Add search parameter if provided
-            if ($search) {
-                $queryParams['search'] = $search;
-            }
-
-            // Add status filter if provided
-            if ($status) {
-                $queryParams['status'] = $status;
-            }
-
-            // Set sort parameters based on selection
-            if ($sort) {
-                switch ($sort) {
-                    case 'newest':
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    case 'oldest':
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'title_asc':
-                        $queryParams['sort_by'] = 'title';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'title_desc':
-                        $queryParams['sort_by'] = 'title';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    default:
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'desc';
-                }
-            } else {
-                // Default sorting if not specified
-                $queryParams['sort_by'] = 'created_at';
-                $queryParams['sort_order'] = 'desc';
-            }
-
-            $result = $this->apiService->request('GET', '/procurements', [
-                'query' => $queryParams
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurements retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => ['Authentication failed']],
-                    'message' => 'Authentication failed'
-                ], 401);
-            }
-
-            // Check if we got an error response from the ApiService
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve procurements';
-
-                \Log::warning('Error during procurements retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $formattedErrors,
-                ], 400);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => $result['message'] ?? 'Daftar pengadaan berhasil diambil',
-                'data' => $result['data'] ?? [],
-                'pagination' => $result['pagination'] ?? [
-                    'total_items' => 0,
-                    'total_pages' => 0,
-                    'current_page' => (int) $page,
-                    'limit' => (int) $limit,
-                    'has_next' => false,
-                    'has_prev' => false
-                ]
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Exception during procurements retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'errors' => ['exception' => ['Failed to retrieve procurements: ' . $e->getMessage()]],
-            ], 500);
         }
     }
 
@@ -330,14 +184,14 @@ class ProcurementRequestController extends Controller
         try {
             // Validate request data
             $validated = $request->validate([
-                'title' => 'required|string|max:255',
+                'title' => 'required|string',
                 'priority' => 'required|string|in:Low,Medium,High',
                 'justification' => 'required|string',
-                'details' => 'required|array|min:1',
-                'details.*.asset_name' => 'required_without:details.*.asset_master_id|string|max:255',
+                'details' => 'required|array',
+                'details.*.asset_name' => 'required_without:details.*.asset_master_id|string',
                 'details.*.asset_master_id' => 'required_without:details.*.asset_name|integer',
-                'details.*.quantity' => 'required|integer|min:1',
-                'details.*.estimated_unit_price' => 'required|numeric|min:0',
+                'details.*.quantity' => 'required|integer',
+                'details.*.estimated_unit_price' => 'required|numeric',
             ]);
 
             // Process details to ensure proper types
@@ -363,24 +217,21 @@ class ProcurementRequestController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurement creation:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => ['Authentication failed']],
-                ], 401);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check if we got an error response
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to create procurement';
-
-                \Log::warning('Error during procurement creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal membuat pengadaan';
 
                 // Format error message for better display in toast notifications
                 $formattedErrors = [];
@@ -410,23 +261,14 @@ class ProcurementRequestController extends Controller
                 'redirect_url' => route('procurement.request')
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Validation error during procurement creation:', [
-                'errors' => $e->errors()
-            ]);
-
             return response()->json([
                 'success' => false,
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Exception during procurement creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Failed to create procurement: ' . $e->getMessage()]],
+                'errors' => ['exception' => ['Gagal membuat pengadaan: ' . $e->getMessage()]],
             ], 500);
         }
     }
@@ -443,34 +285,29 @@ class ProcurementRequestController extends Controller
             if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['general' => ['Failed to fetch procurement details']],
+                    'errors' => $procurementData['errors'] ?? 'Gagal mengambil detail pengadaan',
                 ], 400);
             }
 
             // Check if the procurement status allows updates
             $status = $procurementData['data']['status'] ?? null;
             if ($status !== 'Submitted') {
-                \Log::warning('Attempted to update procurement with non-Submitted status:', [
-                    'procurement_id' => $id,
-                    'current_status' => $status
-                ]);
-
                 return response()->json([
                     'success' => false,
-                    'errors' => ['status' => ['Procurement with status other than "Submitted" cannot be updated']],
+                    'errors' => ['status' => ['Pengadaan dengan status lainnya dari "Submitted" tidak dapat diperbarui']],
                 ], 403);
             }
 
             // Validate request data
             $validated = $request->validate([
-                'title' => 'required|string|max:255',
+                'title' => 'required|string',
                 'priority' => 'required|string|in:Low,Medium,High',
                 'justification' => 'required|string',
-                'details' => 'required|array|min:1',
-                'details.*.asset_name' => 'required_without:details.*.asset_master_id|string|max:255',
+                'details' => 'required|array',
+                'details.*.asset_name' => 'required_without:details.*.asset_master_id|string',
                 'details.*.asset_master_id' => 'required_without:details.*.asset_name|integer',
-                'details.*.quantity' => 'required|integer|min:1',
-                'details.*.estimated_unit_price' => 'required|numeric|min:0',
+                'details.*.quantity' => 'required|integer',
+                'details.*.estimated_unit_price' => 'required|numeric',
                 'details.*.specifications' => 'nullable|string',
                 'details.*.notes' => 'nullable|string',
             ]);
@@ -498,26 +335,20 @@ class ProcurementRequestController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurement update:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'procurement_id' => $id
-                ]);
 
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => ['Authentication failed']],
-                ], 401);
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check if we got an error response
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to update procurement';
-
-                \Log::warning('Error during procurement update:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'procurement_id' => $id
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal memperbarui pengadaan';
 
                 // Format error message for better display in toast notifications
                 $formattedErrors = [];
@@ -547,33 +378,25 @@ class ProcurementRequestController extends Controller
                 'redirect_url' => route('procurement.request')
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Validation error during procurement update:', [
-                'errors' => $e->errors(),
-                'procurement_id' => $id
-            ]);
-
             return response()->json([
                 'success' => false,
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Exception during procurement update:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'procurement_id' => $id
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Failed to update procurement: ' . $e->getMessage()]],
+                'errors' => ['exception' => ['Gagal memperbarui pengadaan: ' . $e->getMessage()]],
             ], 500);
         }
     }
 
     /**
      * Get a specific procurement request by ID
+     * @param Request $request
+     * @param int $id Procurement ID
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function getOne($id)
+    public function getOne( Request $request, $id)
     {
         try {
             $result = $this->apiService->request('GET', "/procurements/{$id}");
@@ -581,26 +404,20 @@ class ProcurementRequestController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurement retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'procurement_id' => $id
-                ]);
 
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => ['Authentication failed']],
-                ], 401);
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check if we got an error response
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve procurement';
-
-                \Log::warning('Error during procurement retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'procurement_id' => $id
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil detail pengadaan';
 
                 // Format error message for better display in toast notifications
                 $formattedErrors = [];
@@ -629,15 +446,9 @@ class ProcurementRequestController extends Controller
                 'data' => $result['data'] ?? null
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during procurement retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'procurement_id' => $id
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Failed to retrieve procurement: ' . $e->getMessage()]],
+                'errors' => ['exception' => ['Gagal mengambil detail pengadaan: ' . $e->getMessage()]],
             ], 500);
         }
     }
@@ -645,20 +456,15 @@ class ProcurementRequestController extends Controller
     /**
      * Delete a procurement request
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         try {
             // First, get the procurement details to check the status
             $procurementData = $this->apiService->request('GET', "/procurements/{$id}");
 
             if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
-                \Log::warning('Failed to fetch procurement details for deletion:', [
-                    'procurement_id' => $id,
-                    'response' => $procurementData
-                ]);
-
                 // Format error message for toast notifications
-                $errorData = $procurementData['errors'] ?? 'Failed to fetch procurement details';
+                $errorData = $procurementData['errors'] ?? 'Gagal mengambil detail pengadaan';
                 $formattedErrors = [];
 
                 if (is_array($errorData)) {
@@ -682,14 +488,9 @@ class ProcurementRequestController extends Controller
             // Check if the procurement status allows deletion
             $status = $procurementData['data']['status'] ?? null;
             if ($status !== 'Submitted') {
-                \Log::warning('Attempted to delete procurement with non-Submitted status:', [
-                    'procurement_id' => $id,
-                    'current_status' => $status
-                ]);
-
                 return response()->json([
                     'success' => false,
-                    'errors' => ['status' => ['Procurement with status other than "Submitted" cannot be deleted']],
+                    'errors' => ['status' => ['Pengadaan dengan status lainnya dari "Submitted" tidak dapat dihapus']],
                 ], 403);
             }
 
@@ -698,26 +499,19 @@ class ProcurementRequestController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurement deletion:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'procurement_id' => $id
-                ]);
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
 
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => ['Authentication failed']],
-                ], 401);
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check if we got an error response
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to delete procurement';
-
-                \Log::warning('Error during procurement deletion:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'procurement_id' => $id
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal menghapus pengadaan';
 
                 // Format error message for better display in toast notifications
                 $formattedErrors = [];
@@ -745,15 +539,9 @@ class ProcurementRequestController extends Controller
                 'message' => $result['message'] ?? 'Pengadaan berhasil dihapus'
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during procurement deletion:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'procurement_id' => $id
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Failed to delete procurement: ' . $e->getMessage()]],
+                'errors' => ['exception' => ['Gagal menghapus pengadaan: ' . $e->getMessage()]],
             ], 500);
         }
     }
@@ -768,37 +556,26 @@ class ProcurementRequestController extends Controller
     public function show(Request $request, $id)
     {
         try {
-            \Log::info('Fetching procurement details for ID: ' . $id);
-
             $result = $this->apiService->request('GET', "/procurements/{$id}");
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurement detail retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'procurement_id' => $id
-                ]);
+
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['authentication' => ['Authentication failed']],
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve procurement details';
-
-                \Log::warning('Error during procurement detail retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'procurement_id' => $id
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil detail pengadaan';
 
                 if ($request->ajax() || $request->wantsJson()) {
                     // Format error message for better display in toast notifications
@@ -822,17 +599,12 @@ class ProcurementRequestController extends Controller
                 }
 
                 return redirect()->route('procurement.request')
-                    ->with('error', is_string($errorData) ? $errorData : 'Failed to retrieve procurement details');
+                    ->with('error', is_string($errorData) ? $errorData : 'Gagal mengambil detail pengadaan');
             }
 
             // Make sure procurement data exists
             if (!isset($result['data'])) {
                 $errorMessage = 'Procurement data not found';
-
-                \Log::warning('Empty data returned for procurement detail:', [
-                    'procurement_id' => $id,
-                    'result_keys' => array_keys($result)
-                ]);
 
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
@@ -858,44 +630,33 @@ class ProcurementRequestController extends Controller
                 'procurement' => $result['data']
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during procurement detail retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'procurement_id' => $id
-            ]);
-
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => ['Failed to fetch procurement details: ' . $e->getMessage()]],
+                    'errors' => ['exception' => ['Gagal mengambil detail pengadaan: ' . $e->getMessage()]],
                 ], 500);
             }
 
             return redirect()->route('procurement.request')
-                ->with('error', 'Failed to fetch procurement details: ' . $e->getMessage());
+                ->with('error', 'Gagal mengambil detail pengadaan: ' . $e->getMessage());
         }
     }
 
     /**
      * Process manager approval for a procurement request
-     *
+     * @param Request $request
      * @param int $id Procurement ID
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function managerApproval($id)
+    public function managerApproval(Request $request, $id)
     {
         try {
             // First, get the procurement details to check the grand total
             $procurementData = $this->apiService->request('GET', "/procurements/{$id}");
 
             if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
-                \Log::warning('Failed to fetch procurement details for manager approval:', [
-                    'procurement_id' => $id,
-                    'response' => $procurementData
-                ]);
-
                 // Format error message for toast notifications
-                $errorData = $procurementData['errors'] ?? 'Failed to fetch procurement details';
+                $errorData = $procurementData['errors'] ?? 'Gagal mengambil detail pengadaan';
                 $formattedErrors = [];
 
                 if (is_array($errorData)) {
@@ -922,26 +683,20 @@ class ProcurementRequestController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurement manager approval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'procurement_id' => $id
-                ]);
 
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => ['Authentication failed']],
-                ], 401);
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check if we got an error response
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to approve procurement';
-
-                \Log::warning('Error during procurement manager approval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'procurement_id' => $id
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal menyetujui pengadaan';
 
                 // Format error message for better display in toast notifications
                 $formattedErrors = [];
@@ -972,7 +727,7 @@ class ProcurementRequestController extends Controller
                 if (isset($directorResult['success']) && $directorResult['success'] === true) {
                     return response()->json([
                         'success' => true,
-                        'message' => 'Procurement has been fully approved (manager + auto-director approval for amount ≤ 50M)',
+                        'message' => $directorResult['message'] ?? 'Pengadaan berhasil disetujui oleh direktur',
                         'data' => $directorResult['data'] ?? null
                     ]);
                 }
@@ -980,7 +735,7 @@ class ProcurementRequestController extends Controller
                 // Even if director approval fails, manager approval succeeded
                 return response()->json([
                     'success' => true,
-                    'message' => 'Procurement has been approved by manager (auto-director approval failed)',
+                    'message' => $directorResult['message'] ?? 'Pengadaan berhasil disetujui oleh direktur',
                     'data' => $result['data'] ?? null
                 ]);
             }
@@ -999,7 +754,7 @@ class ProcurementRequestController extends Controller
 
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Failed to approve procurement: ' . $e->getMessage()]],
+                'errors' => ['exception' => ['Gagal menyetujui pengadaan: ' . $e->getMessage()]],
             ], 500);
         }
     }
@@ -1007,10 +762,11 @@ class ProcurementRequestController extends Controller
     /**
      * Process director approval for a procurement request
      *
+     * @param Request $request
      * @param int $id Procurement ID
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function directorApproval($id)
+    public function directorApproval(Request $request, $id)
     {
         try {
             $result = $this->apiService->request('POST', "/procurements/{$id}/director-approval");
@@ -1018,26 +774,20 @@ class ProcurementRequestController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurement director approval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'procurement_id' => $id
-                ]);
 
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => ['Authentication failed']],
-                ], 401);
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check if we got an error response
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to approve procurement';
-
-                \Log::warning('Error during procurement director approval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'procurement_id' => $id
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal menyetujui pengadaan';
 
                 // Format error message for better display in toast notifications
                 $formattedErrors = [];
@@ -1065,15 +815,9 @@ class ProcurementRequestController extends Controller
                 'data' => $result['data'] ?? null
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during procurement director approval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'procurement_id' => $id
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Failed to approve procurement: ' . $e->getMessage()]],
+                'errors' => ['exception' => ['Gagal menyetujui pengadaan: ' . $e->getMessage()]],
             ], 500);
         }
     }
@@ -1083,14 +827,14 @@ class ProcurementRequestController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param int $id Procurement ID
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function rejectProcurement(Request $request, $id)
     {
         try {
             // Validate the request
             $validated = $request->validate([
-                'rejected_reason' => 'required|string|max:500',
+                'rejected_reason' => 'required|string',
             ]);
 
             // Call the API to reject the procurement
@@ -1101,26 +845,20 @@ class ProcurementRequestController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurement rejection:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'procurement_id' => $id
-                ]);
 
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => ['Authentication failed']],
-                ], 401);
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check if we got an error response
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to reject procurement';
-
-                \Log::warning('Error during procurement rejection:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'procurement_id' => $id
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal menolak pengadaan';
 
                 // Format error message for better display in toast notifications
                 $formattedErrors = [];
@@ -1148,34 +886,23 @@ class ProcurementRequestController extends Controller
                 'data' => $result['data'] ?? null
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Validation error during procurement rejection:', [
-                'errors' => $e->errors(),
-                'procurement_id' => $id
-            ]);
-
             return response()->json([
                 'success' => false,
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Exception during procurement rejection:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'procurement_id' => $id
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Failed to reject procurement: ' . $e->getMessage()]],
+                'errors' => ['exception' => ['Gagal menolak pengadaan: ' . $e->getMessage()]],
             ], 500);
         }
     }
 
     /**
      * Search for procurement requests
-     *
+     * @param int $id Procurement ID
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function search(Request $request)
     {
@@ -1202,24 +929,21 @@ class ProcurementRequestController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during procurement search:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => ['Authentication failed']],
-                ], 401);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to search procurement requests';
-
-                \Log::warning('Error during procurement search:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mencari pengadaan';
 
                 // Format error message for better display in toast notifications
                 $formattedErrors = [];
@@ -1244,18 +968,14 @@ class ProcurementRequestController extends Controller
             // Return successful response
             return response()->json([
                 'success' => true,
-                'message' => $result['message'] ?? 'Procurement requests retrieved successfully',
+                'message' => $result['message'] ?? 'Pengadaan berhasil ditemukan',
                 'data' => $result['data'] ?? []
             ]);
         } catch (\Exception $e) {
-            \Log::error('Exception during procurement search:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
 
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Failed to search procurement requests: ' . $e->getMessage()]],
+                'errors' => ['exception' => ['Gagal mencari pengadaan: ' . $e->getMessage()]],
             ], 500);
         }
     }

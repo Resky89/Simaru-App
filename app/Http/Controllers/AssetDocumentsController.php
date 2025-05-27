@@ -15,7 +15,7 @@ class AssetDocumentsController extends Controller
     }
 
     /**
-     * Display a listing of all documents.
+     * Menampilkan daftar dokumen aset.
      */
     public function index(Request $request)
     {
@@ -25,14 +25,10 @@ class AssetDocumentsController extends Controller
             $search = $request->input('search', '');
             $sortOrder = $request->input('sort', 'newest');
 
-            // Log request info
-            \Log::info('Fetching asset documents with parameters:', [
-                'page' => $page,
-                'limit' => $limit,
-                'search' => $search,
-                'sort' => $sortOrder,
-                'request_url' => $request->fullUrl()
-            ]);
+            // Untuk permintaan JSON, tingkatkan batas untuk memuat lebih banyak item
+            if ($request->expectsJson() || $request->ajax()) {
+                $limit = $request->input('limit', 100);
+            }
 
             // Build query parameters
             $queryParams = [
@@ -65,37 +61,33 @@ class AssetDocumentsController extends Controller
                 $queryParams['search'] = $search;
             }
 
-            // Fetch documents
+            // Mengambil dokumen dari API
             $documentsResult = $this->apiService->request('GET', '/asset-documents/documents', [
                 'query' => $queryParams
             ]);
 
-            // Log API response for debugging
-            \Log::info('API response for documents list:', [
-                'documents_status' => $documentsResult['success'] ?? false,
-                'documents_count' => isset($documentsResult['data']) ? count($documentsResult['data']) : 0
-            ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($documentsResult['errors']) && is_string($documentsResult['errors']) &&
+                in_array($documentsResult['errors'], ['auth_failed', 'session_expired'])) {
 
-            // Check for auth errors
-            if (isset($documentsResult['errors']) && (is_array($documentsResult['errors']) &&
-                (isset($documentsResult['errors']['auth_failed']) || isset($documentsResult['errors']['session_expired'])) ||
-                in_array($documentsResult['errors'], ['auth_failed', 'session_expired']))) {
-                return redirect()->route('login')->with('error', 'Authentication failed');
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $documentsResult['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($documentsResult['errors']) ? $documentsResult['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors based on success flag
+            // Memeriksa kesalahan API berdasarkan flag sukses
             if (!isset($documentsResult['success']) || $documentsResult['success'] !== true) {
-                $errors = $documentsResult['errors'] ?? 'Failed to fetch documents';
+                $errorData = $documentsResult['errors'] ?? 'Gagal mengambil dokumen';
 
-                \Log::warning('Error during documents retrieval:', [
-                    'success' => $documentsResult['success'] ?? false,
-                    'errors' => $errors
-                ]);
-
-                // Format error message for view
+                // Format pesan kesalahan
                 $errorMessage = '';
-                if (is_array($errors)) {
-                    foreach ($errors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -103,14 +95,14 @@ class AssetDocumentsController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $errors;
+                    $errorMessage = $errorData;
                 }
 
                 if ($request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['exception' => $errorMessage]
-                    ], status: 500);
+                        'errors' => $errorMessage
+                    ], 400);
                 }
 
                 return view('AssetDocument.AssetDocument', [
@@ -123,7 +115,7 @@ class AssetDocumentsController extends Controller
             // Parse data
             $documents = $documentsResult['data'] ?? [];
 
-            // Format pagination for documents
+            // Format pagination
             $documentsPagination = null;
             if (isset($documentsResult['pagination'])) {
                 $pagination = $documentsResult['pagination'];
@@ -139,7 +131,7 @@ class AssetDocumentsController extends Controller
                 ];
             }
 
-            // Check if this is an AJAX request
+            // Jika ini adalah permintaan AJAX atau JSON, kembalikan dokumen sebagai JSON
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -155,18 +147,13 @@ class AssetDocumentsController extends Controller
                 'documents_pagination' => $documentsPagination
             ]);
         } catch (\Exception $e) {
-            $errorMessage = 'Failed to fetch documents: ' . $e->getMessage();
-
-            \Log::error('Exception during documents retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            $errorMessage = 'Gagal mengambil dokumen: ' . $e->getMessage();
 
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
                     'errors' => ['exception' => $errorMessage]
-                ], status: 500);
+                ], 500);
             }
 
             return view('AssetDocument.AssetDocument', [
@@ -178,69 +165,36 @@ class AssetDocumentsController extends Controller
     }
 
     /**
-     * Get a single document by ID.
+     * Mendapatkan dokumen berdasarkan ID.
      */
     public function getDocument($id)
     {
         try {
-            // Log request info
-            \Log::info('Fetching single document with ID:', [
-                'document_id' => $id,
-                'request_url' => request()->fullUrl(),
-                'ajax' => request()->ajax() ? 'Yes' : 'No',
-                'wants_json' => request()->wantsJson() ? 'Yes' : 'No',
-                'accepts_json' => request()->expectsJson() ? 'Yes' : 'No',
-                'headers' => request()->header('Accept')
-            ]);
-
-            // Fetch the document with the given ID
+            // Mengambil dokumen dengan ID yang diberikan
             $result = $this->apiService->request('GET', "/asset-documents/documents/{$id}");
 
-            // Log API response for debugging
-            \Log::info('API response for single document:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'document_id' => $id
-            ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during document retrieval:', [
-                    'errors' => $result['errors']
-                ]);
-
-                if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest') {
+                if (request()->ajax() || request()->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['auth' => 'Authentication failed']
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors based on success flag
+            // Memeriksa kesalahan API berdasarkan flag sukses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errors = $result['errors'] ?? 'Failed to retrieve document';
+                $errorData = $result['errors'] ?? 'Gagal mengambil dokumen';
 
-                \Log::warning('Error during document retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errors
-                ]);
-
-                if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest') {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errors
-                    ], status: 400);
-                }
-
-                // Format error message for redirect
+                // Format pesan kesalahan
                 $errorMessage = '';
-                if (is_array($errors)) {
-                    foreach ($errors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -248,14 +202,14 @@ class AssetDocumentsController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $errors;
+                    $errorMessage = $errorData;
                 }
 
-                if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest') {
+                if (request()->ajax() || request()->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['exception' => $errorMessage]
-                    ], status: 500);
+                        'errors' => $errorMessage
+                    ], 400);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -264,9 +218,9 @@ class AssetDocumentsController extends Controller
             $document = $result['data'] ?? null;
 
             if (!$document) {
-                $errorMessage = 'Document not found or response data is invalid';
+                $errorMessage = 'Dokumen tidak ditemukan atau data respons tidak valid';
 
-                if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest') {
+                if (request()->ajax() || request()->expectsJson()) {
                     return response()->json([
                         'success' => false,
                         'errors' => ['general' => $errorMessage]
@@ -276,802 +230,20 @@ class AssetDocumentsController extends Controller
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // For AJAX requests, return JSON response with the expected format
-            if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest' || request()->header('Accept') == 'application/json') {
+            // Untuk permintaan AJAX, kembalikan respons JSON dengan format yang diharapkan
+            if (request()->ajax() || request()->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'data' => $document
                 ]);
             }
 
-            // Return view with document data for non-AJAX requests
+            // Return view dengan data dokumen untuk permintaan non-AJAX
             return view('AssetDocument.DocumentDetail', ['document' => $document]);
         } catch (\Exception $e) {
-            $errorMessage = 'Failed to retrieve document: ' . $e->getMessage();
+            $errorMessage = 'Gagal mengambil dokumen: ' . $e->getMessage();
 
-            \Log::error('Exception during document retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'document_id' => $id
-            ]);
-
-            if (request()->ajax() || request()->wantsJson() || request()->expectsJson() || request()->header('X-Requested-With') == 'XMLHttpRequest') {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => $errorMessage]
-                ], status: 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage);
-        }
-    }
-
-    /**
-     * Store a newly created document in storage.
-     */
-    public function store(Request $request)
-    {
-        try {
-            // Validate the request
-            $request->validate([
-                'document_title' => 'required|string|max:255',
-                'notes' => 'nullable|string',
-                'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
-                'asset_ids' => 'nullable|array',
-                'asset_ids.*' => 'nullable|integer|exists:assets,asset_id',
-            ]);
-
-            // Log request info
-            \Log::info('Creating new document:', [
-                'document_title' => $request->input('document_title'),
-                'has_file' => $request->hasFile('file') ? 'Yes' : 'No',
-                'request_url' => $request->fullUrl()
-            ]);
-
-            // Prepare data for API request
-            $data = [
-                'document_title' => $request->input('document_title'),
-                'notes' => $request->input('notes') ?? '',
-            ];
-
-            // Add asset_ids if provided
-            if ($request->has('asset_ids')) {
-                $data['asset_ids'] = $request->input('asset_ids');
-            }
-
-            // Create multipart request for file upload
-            $multipart = [];
-            foreach ($data as $key => $value) {
-                if (is_array($value)) {
-                    foreach ($value as $item) {
-                        $multipart[] = [
-                            'name' => $key . '[]',
-                            'contents' => $item
-                        ];
-                    }
-                } else {
-                    $multipart[] = [
-                        'name' => $key,
-                        'contents' => $value
-                    ];
-                }
-            }
-
-            // Add file if provided
-            if ($request->hasFile('file')) {
-                $file = $request->file('file');
-                $multipart[] = [
-                    'name' => 'file',
-                    'contents' => fopen($file->getPathname(), 'r'),
-                    'filename' => $file->getClientOriginalName()
-                ];
-            }
-
-            // Make API request to create document
-            $result = $this->apiService->request('POST', '/asset-documents/documents', [
-                'multipart' => $multipart
-            ]);
-
-            // Log API response for debugging
-            \Log::info('API response for document creation:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during document creation:', [
-                    'errors' => $result['errors']
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['auth' => 'Authentication failed']
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for API errors based on success flag
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errors = $result['errors'] ?? 'Failed to create document';
-
-                \Log::warning('Error during document creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errors
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errors
-                    ], status: 400);
-                }
-
-                // Format error message for redirect
-                $errorMessage = '';
-                if (is_array($errors)) {
-                    foreach ($errors as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errors;
-                }
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['exception' => $errorMessage]
-                    ], status: 500);
-                }
-
-                return redirect()->back()->with('error', $errorMessage)->withInput();
-            }
-
-            $document = $result['data'] ?? null;
-
-            // For AJAX requests, return JSON response with the expected format
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $document
-                ]);
-            }
-
-            // Redirect with success message for form submissions
-            return redirect()->route('asset-documents')->with('success', 'Document created successfully');
-        } catch (\Exception $e) {
-            $errorMessage = 'Failed to create document: ' . $e->getMessage();
-
-            \Log::error('Exception during document creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => $errorMessage]
-                ], status: 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage)->withInput();
-        }
-    }
-
-    /**
-     * Remove the specified document from storage.
-     */
-    public function destroy($id)
-    {
-        try {
-            // Log request info
-            \Log::info('Deleting document with ID:', [
-                'document_id' => $id,
-                'request_url' => request()->fullUrl(),
-                'ajax' => request()->ajax() ? 'Yes' : 'No'
-            ]);
-
-            // Make API request to delete the document
-            $result = $this->apiService->request('DELETE', "/asset-documents/documents/{$id}");
-
-            // Log API response for debugging
-            \Log::info('API response for document deletion:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'document_id' => $id
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during document deletion:', [
-                    'errors' => $result['errors']
-                ]);
-
-                if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['auth' => 'Authentication failed']
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for API errors based on success flag
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errors = $result['errors'] ?? 'Failed to delete document';
-
-                \Log::warning('Error during document deletion:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errors
-                ]);
-
-                if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errors
-                    ], status: 400);
-                }
-
-                // Format error message for redirect
-                $errorMessage = '';
-                if (is_array($errors)) {
-                    foreach ($errors as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errors;
-                }
-
-                if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['exception' => $errorMessage]
-                    ], status: 500);
-                }
-
-                return redirect()->back()->with('error', $errorMessage);
-            }
-
-            // For AJAX requests, return JSON response with the expected format
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => null
-                ]);
-            }
-
-            // Redirect with success message for non-AJAX requests
-            return redirect()->route('asset-documents')->with('success', 'Document deleted successfully');
-        } catch (\Exception $e) {
-            $errorMessage = 'Failed to delete document: ' . $e->getMessage();
-
-            \Log::error('Exception during document deletion:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'document_id' => $id
-            ]);
-
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => $errorMessage]
-                ], status: 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage);
-        }
-    }
-
-    /**
-     * Update the specified document in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        try {
-            // Validate the request
-            $request->validate([
-                'document_title' => 'required|string|max:255',
-                'notes' => 'nullable|string',
-                'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
-                'asset_ids' => 'nullable|array',
-                'asset_ids.*' => 'nullable|integer|exists:assets,asset_id',
-            ]);
-
-            // Log request info
-            \Log::info('Updating document with ID:', [
-                'document_id' => $id,
-                'document_title' => $request->input('document_title'),
-                'has_file' => $request->hasFile('file') ? 'Yes' : 'No',
-                'request_url' => $request->fullUrl()
-            ]);
-
-            // Prepare data for API request
-            $data = [
-                'document_title' => $request->input('document_title'),
-                'notes' => $request->input('notes') ?? '',
-            ];
-
-            // Add asset_ids if provided
-            if ($request->has('asset_ids')) {
-                $data['asset_ids'] = $request->input('asset_ids');
-            }
-
-            // Create multipart request for file upload
-            $multipart = [];
-            foreach ($data as $key => $value) {
-                if (is_array($value)) {
-                    foreach ($value as $item) {
-                        $multipart[] = [
-                            'name' => $key . '[]',
-                            'contents' => $item
-                        ];
-                    }
-                } else {
-                    $multipart[] = [
-                        'name' => $key,
-                        'contents' => $value
-                    ];
-                }
-            }
-
-            // Add file if provided
-            if ($request->hasFile('file')) {
-                $file = $request->file('file');
-                $multipart[] = [
-                    'name' => 'file',
-                    'contents' => fopen($file->getPathname(), 'r'),
-                    'filename' => $file->getClientOriginalName()
-                ];
-            }
-
-            // Make API request to update document
-            $result = $this->apiService->request('PUT', "/asset-documents/documents/{$id}", [
-                'multipart' => $multipart
-            ]);
-
-            // Log API response for debugging
-            \Log::info('API response for document update:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'document_id' => $id
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during document update:', [
-                    'errors' => $result['errors']
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['auth' => 'Authentication failed']
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for API errors based on success flag
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errors = $result['errors'] ?? 'Failed to update document';
-
-                \Log::warning('Error during document update:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errors
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errors
-                    ], status: 400);
-                }
-
-                // Format error message for redirect
-                $errorMessage = '';
-                if (is_array($errors)) {
-                    foreach ($errors as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errors;
-                }
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errors
-                    ], status: 400);
-                }
-
-                return redirect()->back()->with('error', $errorMessage)->withInput();
-            }
-
-            $document = $result['data'] ?? null;
-
-            // For AJAX requests, return JSON response with the expected format
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $document
-                ]);
-            }
-
-            // Redirect with success message for form submissions
-            return redirect()->route('asset-documents')->with('success', 'Document updated successfully');
-        } catch (\Exception $e) {
-            $errorMessage = 'Failed to update document: ' . $e->getMessage();
-
-            \Log::error('Exception during document update:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'document_id' => $id
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => $errorMessage]
-                ], status: 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage)->withInput();
-        }
-    }
-
-    /**
-     * Assign a document to multiple assets.
-     */
-    public function assignToAssets(Request $request, $id)
-    {
-        try {
-            // Validate the request
-            $request->validate([
-                'asset_ids' => 'required|array',
-                'asset_ids.*' => 'required|integer',
-            ]);
-
-            // Log request info
-            \Log::info('Assigning document to assets:', [
-                'document_id' => $id,
-                'asset_ids' => $request->input('asset_ids'),
-                'request_url' => $request->fullUrl()
-            ]);
-
-            // Prepare request data
-            $data = [
-                'asset_ids' => $request->input('asset_ids')
-            ];
-
-            // Make API request to assign document to assets
-            $result = $this->apiService->request('POST', "/asset-documents/documents/{$id}/assign", [
-                'json' => $data
-            ]);
-
-            // Log API response for debugging
-            \Log::info('API response for document assignment:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'document_id' => $id
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during document assignment:', [
-                    'errors' => $result['errors']
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['auth' => 'Authentication failed']
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for API errors based on success flag
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errors = $result['errors'] ?? 'Failed to assign document to assets';
-
-                \Log::warning('Error during document assignment:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errors
-                ]);
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errors
-                    ], status: 400);
-                }
-
-                // Format error message for redirect
-                $errorMessage = '';
-                if (is_array($errors)) {
-                    foreach ($errors as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errors;
-            }
-
-                return redirect()->back()->with('error', $errorMessage);
-            }
-
-            // Check if we have a redirect URL in the query parameters
-            $redirectUrl = $request->query('redirect');
-
-            // For AJAX/JSON requests
-            if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'data' => $result['data'] ?? []
-            ]);
-            }
-
-            // For non-AJAX requests, redirect with success message
-            if ($redirectUrl) {
-                return redirect($redirectUrl)->with('success', 'Document assigned to assets successfully');
-            }
-
-            return redirect()->back()->with('success', 'Document assigned to assets successfully');
-        } catch (\Exception $e) {
-            $errorMessage = 'Failed to assign document to assets: ' . $e->getMessage();
-
-            \Log::error('Exception during document assignment:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'document_id' => $id
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => false,
-                    'errors' => ['exception' => $errorMessage]
-            ], status: 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage);
-        }
-    }
-
-    /**
-     * Remove association between a document and an asset.
-     */
-    public function unlinkFromAsset($assetId, $documentId)
-    {
-        try {
-            // Log request info
-            \Log::info('Unlinking document from asset:', [
-                'asset_id' => $assetId,
-                'document_id' => $documentId,
-                'request_url' => request()->fullUrl()
-            ]);
-
-            // Make API request to unlink document from asset
-            $result = $this->apiService->request('DELETE', "/asset-documents/asset/{$assetId}/documents/{$documentId}");
-
-            // Log API response for debugging
-            \Log::info('API response for document unlinking:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'asset_id' => $assetId,
-                'document_id' => $documentId
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during document unlinking:', [
-                    'errors' => $result['errors']
-                ]);
-
-                if (request()->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['auth' => 'Authentication failed']
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for API errors based on success flag
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errors = $result['errors'] ?? 'Failed to remove document from asset';
-
-                \Log::warning('Error during document unlinking:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errors
-                ]);
-
-                if (request()->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errors
-                    ], status: 400);
-                }
-
-                // Format error message for redirect
-                $errorMessage = '';
-                if (is_array($errors)) {
-                    foreach ($errors as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errors;
-            }
-
-                return redirect()->back()->with('error', $errorMessage);
-            }
-
-            // Check if we have a redirect URL in the query parameters
-            $redirectUrl = request()->query('redirect');
-
-            // Return JSON response for AJAX requests
-            if (request()->ajax()) {
-            return response()->json([
-                'success' => true,
-                'data' => $result['data'] ?? []
-            ]);
-            }
-
-            // For non-AJAX requests, redirect with success message
-            if ($redirectUrl) {
-                return redirect($redirectUrl)->with('success', 'Document removed from asset successfully');
-            }
-
-            return redirect()->back()->with('success', 'Document removed from asset successfully');
-        } catch (\Exception $e) {
-            $errorMessage = 'Failed to remove document from asset: ' . $e->getMessage();
-
-            \Log::error('Exception during document unlinking:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $assetId,
-                'document_id' => $documentId
-            ]);
-
-            if (request()->ajax()) {
-            return response()->json([
-                'success' => false,
-                    'errors' => ['exception' => $errorMessage]
-            ], status: 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage);
-        }
-    }
-
-    /**
-     * Get all documents related to a specific asset.
-     */
-    public function getAssetDocuments($assetId)
-    {
-        try {
-            // Log request info
-            \Log::info('Fetching all documents for asset:', [
-                'asset_id' => $assetId,
-                'request_url' => request()->fullUrl()
-            ]);
-
-            // Make API request to get all documents for the asset
-            $result = $this->apiService->request('GET', "/asset-documents/asset/{$assetId}/all-documents");
-
-            // Log API response for debugging
-            \Log::info('API response for asset documents retrieval:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'asset_id' => $assetId
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during asset documents retrieval:', [
-                    'errors' => $result['errors']
-                ]);
-
-                if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['auth' => 'Authentication failed']
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for API errors based on success flag
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errors = $result['errors'] ?? 'Failed to retrieve asset documents';
-
-                \Log::warning('Error during asset documents retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errors
-                ]);
-
-                if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errors
-                    ], status: 400);
-                }
-
-                // Format error message for redirect
-                $errorMessage = '';
-                if (is_array($errors)) {
-                    foreach ($errors as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errors;
-                }
-
-                return redirect()->back()->with('error', $errorMessage);
-            }
-
-            // Return JSON response with all document types
-            return response()->json([
-                'success' => true,
-                'message' => 'All related documents retrieved successfully',
-                'data' => [
-                    'documents' => $result['data']['documents'] ?? [],
-                    'calibrationDocuments' => $result['data']['calibrationDocuments'] ?? [],
-                    'maintenanceDocuments' => $result['data']['maintenanceDocuments'] ?? []
-                ]
-            ]);
-        } catch (\Exception $e) {
-            $errorMessage = 'Failed to retrieve asset documents: ' . $e->getMessage();
-
-            \Log::error('Exception during asset documents retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $assetId
-            ]);
-
-            if (request()->ajax() || request()->wantsJson()) {
+            if (request()->ajax() || request()->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'errors' => ['exception' => $errorMessage]
@@ -1083,33 +255,606 @@ class AssetDocumentsController extends Controller
     }
 
     /**
-     * Create a document directly associated with a specific asset.
+     * Menyimpan dokumen baru ke dalam penyimpanan.
+     */
+    public function store(Request $request)
+    {
+        try {
+            // Memvalidasi permintaan
+            $request->validate([
+                'document_title' => 'required|string|max:255',
+                'notes' => 'nullable|string',
+                'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
+                'asset_ids' => 'nullable|array',
+                'asset_ids.*' => 'nullable|integer|exists:assets,asset_id',
+            ]);
+
+            // Menyiapkan data untuk permintaan API
+            $data = [
+                'document_title' => $request->input('document_title'),
+                'notes' => $request->input('notes') ?? '',
+            ];
+
+            // Tambahkan asset_ids jika disediakan
+            if ($request->has('asset_ids')) {
+                $data['asset_ids'] = $request->input('asset_ids');
+            }
+
+            // Buat permintaan multipart untuk unggah file
+            $multipart = [];
+            foreach ($data as $key => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $item) {
+                        $multipart[] = [
+                            'name' => $key . '[]',
+                            'contents' => $item
+                        ];
+                    }
+                } else {
+                    $multipart[] = [
+                        'name' => $key,
+                        'contents' => $value
+                    ];
+                }
+            }
+
+            // Tambahkan file jika disediakan
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $multipart[] = [
+                    'name' => 'file',
+                    'contents' => fopen($file->getPathname(), 'r'),
+                    'filename' => $file->getClientOriginalName()
+                ];
+            }
+
+            // Buat permintaan API untuk membuat dokumen
+            $result = $this->apiService->request('POST', '/asset-documents/documents', [
+                'multipart' => $multipart
+            ]);
+
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API berdasarkan flag sukses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal membuat dokumen';
+
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], 400);
+                }
+
+                return redirect()->back()->with('error', $errorMessage)->withInput();
+            }
+
+            $document = $result['data'] ?? null;
+
+            // Untuk permintaan AJAX, kembalikan respons JSON dengan format yang diharapkan
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $document
+                ]);
+            }
+
+            // Redirect dengan pesan sukses untuk pengiriman formulir
+            return redirect()->route('asset-documents')->with('success', 'Dokumen berhasil dibuat');
+        } catch (\Exception $e) {
+            $errorMessage = 'Gagal membuat dokumen: ' . $e->getMessage();
+
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => $errorMessage]
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', $errorMessage)->withInput();
+        }
+    }
+
+    /**
+     * Menghapus dokumen yang ditentukan.
+     */
+    public function destroy($id)
+    {
+        try {
+            // Buat permintaan API untuk menghapus dokumen
+            $result = $this->apiService->request('DELETE', "/asset-documents/documents/{$id}");
+
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+
+                if (request()->ajax() || request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API berdasarkan flag sukses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus dokumen';
+
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                if (request()->ajax() || request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], 400);
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Untuk permintaan AJAX, kembalikan respons JSON dengan format yang diharapkan
+            if (request()->ajax() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => null
+                ]);
+            }
+
+            // Redirect dengan pesan sukses untuk permintaan non-AJAX
+            return redirect()->route('asset-documents')->with('success', 'Dokumen berhasil dihapus');
+        } catch (\Exception $e) {
+            $errorMessage = 'Gagal menghapus dokumen: ' . $e->getMessage();
+
+            if (request()->ajax() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => $errorMessage]
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', $errorMessage);
+        }
+    }
+
+    /**
+     * Memperbarui dokumen yang ditentukan.
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            // Memvalidasi permintaan
+            $request->validate([
+                'document_title' => 'required|string|max:255',
+                'notes' => 'nullable|string',
+                'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
+                'asset_ids' => 'nullable|array',
+                'asset_ids.*' => 'nullable|integer|exists:assets,asset_id',
+            ]);
+
+            // Menyiapkan data untuk permintaan API
+            $data = [
+                'document_title' => $request->input('document_title'),
+                'notes' => $request->input('notes') ?? '',
+            ];
+
+            // Tambahkan asset_ids jika disediakan
+            if ($request->has('asset_ids')) {
+                $data['asset_ids'] = $request->input('asset_ids');
+            }
+
+            // Buat permintaan multipart untuk unggah file
+            $multipart = [];
+            foreach ($data as $key => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $item) {
+                        $multipart[] = [
+                            'name' => $key . '[]',
+                            'contents' => $item
+                        ];
+                    }
+                } else {
+                    $multipart[] = [
+                        'name' => $key,
+                        'contents' => $value
+                    ];
+                }
+            }
+
+            // Tambahkan file jika disediakan
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $multipart[] = [
+                    'name' => 'file',
+                    'contents' => fopen($file->getPathname(), 'r'),
+                    'filename' => $file->getClientOriginalName()
+                ];
+            }
+
+            // Buat permintaan API untuk memperbarui dokumen
+            $result = $this->apiService->request('PUT', "/asset-documents/documents/{$id}", [
+                'multipart' => $multipart
+            ]);
+
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API berdasarkan flag sukses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal memperbarui dokumen';
+
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], 400);
+                }
+
+                return redirect()->back()->with('error', $errorMessage)->withInput();
+            }
+
+            $document = $result['data'] ?? null;
+
+            // Untuk permintaan AJAX, kembalikan respons JSON dengan format yang diharapkan
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $document
+                ]);
+            }
+
+            // Redirect dengan pesan sukses untuk pengiriman formulir
+            return redirect()->route('asset-documents')->with('success', 'Dokumen berhasil diperbarui');
+        } catch (\Exception $e) {
+            $errorMessage = 'Gagal memperbarui dokumen: ' . $e->getMessage();
+
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => $errorMessage]
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', $errorMessage)->withInput();
+        }
+    }
+
+    /**
+     * Menetapkan dokumen ke beberapa aset.
+     */
+    public function assignToAssets(Request $request, $id)
+    {
+        try {
+            // Memvalidasi permintaan
+            $request->validate([
+                'asset_ids' => 'required|array',
+                'asset_ids.*' => 'required|integer',
+            ]);
+
+            // Menyiapkan data permintaan
+            $data = [
+                'asset_ids' => $request->input('asset_ids')
+            ];
+
+            // Buat permintaan API untuk menetapkan dokumen ke aset
+            $result = $this->apiService->request('POST', "/asset-documents/documents/{$id}/assign", [
+                'json' => $data
+            ]);
+
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API berdasarkan flag sukses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menetapkan dokumen ke aset';
+
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], 400);
+            }
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Periksa apakah kita memiliki URL redirect dalam parameter kueri
+            $redirectUrl = $request->query('redirect');
+
+            // Untuk permintaan AJAX/JSON
+            if ($request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? []
+            ]);
+            }
+
+            // Untuk permintaan non-AJAX, redirect dengan pesan sukses
+            if ($redirectUrl) {
+                return redirect($redirectUrl)->with('success', 'Dokumen berhasil ditetapkan ke aset');
+            }
+
+            return redirect()->back()->with('success', 'Dokumen berhasil ditetapkan ke aset');
+        } catch (\Exception $e) {
+            $errorMessage = 'Gagal menetapkan dokumen ke aset: ' . $e->getMessage();
+
+            if ($request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                    'errors' => ['exception' => $errorMessage]
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', $errorMessage);
+        }
+    }
+
+    /**
+     * Menghapus hubungan antara dokumen dan aset.
+     */
+    public function unlinkFromAsset($assetId, $documentId)
+    {
+        try {
+            // Buat permintaan API untuk menghapus hubungan dokumen dari aset
+            $result = $this->apiService->request('DELETE', "/asset-documents/asset/{$assetId}/documents/{$documentId}");
+
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+
+                if (request()->ajax() || request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API berdasarkan flag sukses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus dokumen dari aset';
+
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                if (request()->ajax() || request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], 400);
+            }
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Periksa apakah kita memiliki URL redirect dalam parameter kueri
+            $redirectUrl = request()->query('redirect');
+
+            // Kembalikan respons JSON untuk permintaan AJAX
+            if (request()->ajax() || request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? []
+            ]);
+            }
+
+            // Untuk permintaan non-AJAX, redirect dengan pesan sukses
+            if ($redirectUrl) {
+                return redirect($redirectUrl)->with('success', 'Dokumen berhasil dihapus dari aset');
+            }
+
+            return redirect()->back()->with('success', 'Dokumen berhasil dihapus dari aset');
+        } catch (\Exception $e) {
+            $errorMessage = 'Gagal menghapus dokumen dari aset: ' . $e->getMessage();
+
+            if (request()->ajax() || request()->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                    'errors' => ['exception' => $errorMessage]
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', $errorMessage);
+        }
+    }
+
+    /**
+     * Mendapatkan semua dokumen terkait dengan aset tertentu.
+     */
+    public function getAssetDocuments($assetId)
+    {
+        try {
+            // Buat permintaan API untuk mendapatkan semua dokumen untuk aset
+            $result = $this->apiService->request('GET', "/asset-documents/asset/{$assetId}/all-documents");
+
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+
+                if (request()->ajax() || request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
+
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API berdasarkan flag sukses
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal mengambil dokumen aset';
+
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
+                    }
+                } else {
+                    $errorMessage = $errorData;
+                }
+
+                if (request()->ajax() || request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], 400);
+                }
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+
+            // Kembalikan respons JSON dengan semua jenis dokumen
+            return response()->json([
+                'success' => true,
+                'message' => 'Semua dokumen terkait berhasil diambil',
+                'data' => [
+                    'documents' => $result['data']['documents'] ?? [],
+                    'calibrationDocuments' => $result['data']['calibrationDocuments'] ?? [],
+                    'maintenanceDocuments' => $result['data']['maintenanceDocuments'] ?? []
+                ]
+            ]);
+        } catch (\Exception $e) {
+            $errorMessage = 'Gagal mengambil dokumen aset: ' . $e->getMessage();
+
+            if (request()->ajax() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['exception' => $errorMessage]
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', $errorMessage);
+        }
+    }
+
+    /**
+     * Membuat dokumen yang langsung terkait dengan aset tertentu.
      */
     public function createAssetDocument(Request $request, $assetId)
     {
         try {
-            // Validate the request
+            // Memvalidasi permintaan
             $request->validate([
                 'document_title' => 'required|string|max:255',
                 'notes' => 'nullable|string',
                 'document' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
             ]);
 
-            // Log request info
-            \Log::info('Creating new document for asset:', [
-                'asset_id' => $assetId,
-                'document_title' => $request->input('document_title'),
-                'has_file' => $request->hasFile('document') ? 'Yes' : 'No',
-                'request_url' => $request->fullUrl()
-            ]);
-
-            // Prepare data for API request
+            // Menyiapkan data untuk permintaan API
             $data = [
                 'document_title' => $request->input('document_title'),
                 'notes' => $request->input('notes') ?? '',
             ];
 
-            // Create multipart request for file upload
+            // Buat permintaan multipart untuk unggah file
             $multipart = [];
             foreach ($data as $key => $value) {
                 $multipart[] = [
@@ -1118,7 +863,7 @@ class AssetDocumentsController extends Controller
                 ];
             }
 
-            // Add file (required for this endpoint)
+            // Tambahkan file (wajib untuk endpoint ini)
             if ($request->hasFile('document')) {
                 $file = $request->file('document');
                 $multipart[] = [
@@ -1128,56 +873,33 @@ class AssetDocumentsController extends Controller
                 ];
             }
 
-            // Make API request to create document directly associated with the asset
+            // Buat permintaan API untuk membuat dokumen langsung terkait dengan aset
             $result = $this->apiService->request('POST', "/asset-documents/asset/{$assetId}/documents", [
                 'multipart' => $multipart
             ]);
 
-            // Log API response for debugging
-            \Log::info('API response for asset document creation:', [
-                'api_response_success' => $result['success'] ?? null,
-                'api_response_message' => $result['message'] ?? null,
-                'asset_id' => $assetId
-            ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during asset document creation:', [
-                    'errors' => $result['errors']
-                ]);
-
-                if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
+                if ($request->ajax() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['auth' => 'Authentication failed']
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors based on success flag
+            // Memeriksa kesalahan API berdasarkan flag sukses
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errors = $result['errors'] ?? 'Failed to create document for asset';
+                $errorData = $result['errors'] ?? 'Gagal membuat dokumen untuk aset';
 
-                \Log::warning('Error during asset document creation:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errors
-                ]);
-
-                if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errors
-                    ], status: 400);
-                }
-
-                // Format error message for redirect
+                // Format pesan kesalahan
                 $errorMessage = '';
-                if (is_array($errors)) {
-                    foreach ($errors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -1185,38 +907,39 @@ class AssetDocumentsController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $errors;
+                    $errorMessage = $errorData;
+                }
+
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorData
+                    ], 400);
                 }
 
                 return redirect()->back()->with('error', $errorMessage)->withInput();
             }
 
-            // For AJAX requests, return JSON response
-            if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
+            // Untuk permintaan AJAX, kembalikan respons JSON
+            if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'data' => $result['data'] ?? null
                 ]);
             }
 
-            // Check if we have a redirect URL in the query parameters
+            // Periksa apakah kita memiliki URL redirect dalam parameter kueri
             $redirectUrl = $request->query('redirect');
             if ($redirectUrl) {
-                return redirect($redirectUrl)->with('success', 'Document created and assigned to asset successfully');
+                return redirect($redirectUrl)->with('success', 'Dokumen berhasil dibuat dan ditetapkan ke aset');
             }
 
-            // Redirect with success message
-            return redirect()->back()->with('success', 'Document created and assigned to asset successfully');
+            // Redirect dengan pesan sukses
+            return redirect()->back()->with('success', 'Dokumen berhasil dibuat dan ditetapkan ke aset');
         } catch (\Exception $e) {
-            $errorMessage = 'Failed to create document for asset: ' . $e->getMessage();
+            $errorMessage = 'Gagal membuat dokumen untuk aset: ' . $e->getMessage();
 
-            \Log::error('Exception during asset document creation:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $assetId
-            ]);
-
-            if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
+            if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'errors' => ['exception' => $errorMessage]

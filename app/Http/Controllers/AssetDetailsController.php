@@ -16,21 +16,15 @@ class AssetDetailsController extends Controller
     }
 
     /**
-     * Display the details of a specific asset.
+     * Menampilkan detail aset tertentu.
      *
-     * @param int $id The asset ID
+     * @param int $id ID aset
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function show($id)
     {
         try {
-            // Log request info
-            \Log::info('Fetching asset details with ID:', [
-                'asset_id' => $id,
-                'request_url' => request()->fullUrl()
-            ]);
-
-            // Fetch the asset with the given ID
+            // Mengambil aset dengan ID yang diberikan
             $result = $this->apiService->request('GET', "/assets/{$id}");
 
             // Log API response for debugging
@@ -51,28 +45,14 @@ class AssetDetailsController extends Controller
                 return redirect()->route('login')->with('error', 'Authentication failed');
             }
 
-            // Check for API errors based on success flag
+            // Memeriksa kesalahan API berdasarkan flag sukses
             if (!isset($result['success']) || $result['success'] !== true) {
-                // Properly format errors based on response structure
-                $formattedErrors = ['general' => 'Failed to retrieve asset details'];
+                $errorData = $result['errors'] ?? 'Gagal mengambil detail aset';
 
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
-                }
-
-                \Log::warning('Error during asset details retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $formattedErrors
-                ]);
-
-                // Format error message for redirect
+                // Format pesan kesalahan
                 $errorMessage = '';
-                if (is_array($formattedErrors)) {
-                    foreach ($formattedErrors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -80,7 +60,7 @@ class AssetDetailsController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $formattedErrors;
+                    $errorMessage = $errorData;
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -89,67 +69,56 @@ class AssetDetailsController extends Controller
             $asset = $result['data'] ?? null;
 
             if (!$asset) {
-                $errorMessage = 'Asset not found or response data is invalid';
+                $errorMessage = 'Aset tidak ditemukan atau data respons tidak valid';
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Log the complete asset structure for debugging
-            \Log::info('Complete asset data structure:', [
-                'asset' => $asset
-            ]);
-
-            // Generate QR code for the asset using the bulk API endpoint
+            // Membuat kode QR untuk aset menggunakan endpoint API bulk
             if (isset($asset['asset_id'])) {
                 try {
-                    // Create an array with the single asset ID
+                    // Buat array dengan ID aset tunggal
                     $assetIds = [$asset['asset_id']];
 
-                    // Call the bulk QR code generation API
+                    // Memanggil API pembuatan kode QR bulk
                     $qrResult = $this->apiService->request('POST', "/assets/qr/generate-bulk", [
                         'json' => [
                             'asset_ids' => $assetIds
                         ]
                     ]);
 
-                    \Log::info('QR code generation API response:', [
-                        'status' => $qrResult['success'] ?? null,
-                        'message' => $qrResult['message'] ?? null,
-                        'data_count' => isset($qrResult['data']) ? count($qrResult['data']) : 0
-                    ]);
-
-                    // If successful response with data, get the QR code for the asset
+                    // Jika respons berhasil dengan data, dapatkan kode QR untuk aset
                     if (isset($qrResult['success']) && $qrResult['success'] === true &&
                         isset($qrResult['data']) && is_array($qrResult['data']) && count($qrResult['data']) > 0) {
 
-                        // Find the QR data for this asset
+                        // Temukan data QR untuk aset ini
                         foreach ($qrResult['data'] as $qrData) {
                             if (isset($qrData['asset_id']) && $qrData['asset_id'] == $asset['asset_id']) {
-                                // If there's a base64 QR code in the response
+                                // Jika ada kode QR base64 dalam respons
                                 if (isset($qrData['qr_base64'])) {
                                     $asset['qr_base64'] = $qrData['qr_base64'];
                                     break;
                                 }
-                                // Or if there's a QR URL that needs to be converted to base64
+                                // Atau jika ada URL QR yang perlu dikonversi ke base64
                                 else if (isset($qrData['qr_url'])) {
                                     try {
-                                        // Get proper API URL from backend configuration
+                                        // Dapatkan URL API yang benar dari konfigurasi backend
                                         $backendUrl = rtrim(config('app.backend_url'), '/');
                                         $imageUrl = $backendUrl . "/public" . $qrData['qr_url'];
 
-                                        // Try to get the image content
+                                        // Coba mendapatkan konten gambar
                                         $imageData = @file_get_contents($imageUrl);
                                         if ($imageData !== false) {
                                             $asset['qr_base64'] = 'data:image/png;base64,' . base64_encode($imageData);
                                         }
                                     } catch (\Exception $qrImageEx) {
-                                        \Log::error('Failed to load QR image: ' . $qrImageEx->getMessage());
+                                        // Lanjutkan tanpa kode QR
                                     }
                                     break;
                                 }
                             }
                         }
                     } else if (isset($asset['qr_code']) && !empty($asset['qr_code'])) {
-                        // If QR code is already provided in the asset data
+                        // Jika kode QR sudah disediakan dalam data aset
                         try {
                             $backendUrl = rtrim(config('app.backend_url'), '/');
                             $imageUrl = $backendUrl . "/public" . $asset['qr_code'];
@@ -159,19 +128,15 @@ class AssetDetailsController extends Controller
                                 $asset['qr_base64'] = 'data:image/png;base64,' . base64_encode($imageData);
                             }
                         } catch (\Exception $qrImageEx) {
-                            \Log::error('Failed to load QR image from asset data: ' . $qrImageEx->getMessage());
+                            // Lanjutkan tanpa kode QR
                         }
                     }
                 } catch (\Exception $qrEx) {
-                    \Log::error('Exception during QR code generation:', [
-                        'error' => $qrEx->getMessage(),
-                        'trace' => $qrEx->getTraceAsString()
-                    ]);
-                    // Continue without QR code if failed
+                    // Lanjutkan tanpa kode QR jika gagal
                 }
             }
 
-            // Fetch asset masters for the asset master dropdown
+            // Ambil master aset untuk dropdown master aset
             $assetMastersResult = $this->apiService->request('GET', '/asset-masters', [
                 'query' => [
                     'limit' => 1000,
@@ -181,7 +146,7 @@ class AssetDetailsController extends Controller
             ]);
             $assetMasters = $assetMastersResult['data'] ?? [];
 
-            // Convert asset image to base64
+            // Konversi gambar aset ke base64
             if (!empty($asset['image_path'])) {
                 try {
                     $backendUrl = config('app.backend_url', 'http://localhost:5000');
@@ -190,16 +155,13 @@ class AssetDetailsController extends Controller
 
                     if ($imageData !== false) {
                         $asset['image_base64'] = base64_encode($imageData);
-                        \Log::info('Successfully encoded image to base64', ['size' => strlen($asset['image_base64'])]);
-                    } else {
-                        \Log::warning('Failed to get image data', ['url' => $imageUrl]);
                     }
                 } catch (\Exception $e) {
-                    \Log::error('Error loading image: ' . $e->getMessage());
+                    // Lanjutkan tanpa gambar jika gagal
                 }
             }
 
-            // Convert QR code to base64 if needed
+            // Konversi kode QR ke base64 jika diperlukan
             if (!empty($asset['qr_code_path'])) {
                 try {
                     $backendUrl = config('app.backend_url', 'http://localhost:5000');
@@ -209,106 +171,88 @@ class AssetDetailsController extends Controller
                         $asset['qr_base64'] = base64_encode($qrData);
                     }
                 } catch (\Exception $e) {
-                    \Log::warning('Failed to get QR code for PDF:', [
-                        'error' => $e->getMessage(),
-                        'asset_id' => $id,
-                        'qr_path' => $asset['qr_code_path'] ?? 'N/A'
-                    ]);
+                    // Lanjutkan tanpa kode QR jika gagal
                 }
             }
 
-            // Return the view with asset details
+            // Kembalikan tampilan dengan detail aset
             return view('Asset.AssetDetail', [
                 'asset' => $asset,
                 'assetMasters' => $assetMasters,
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during asset details retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $id
-            ]);
-
-            return redirect()->back()->with('error', 'Failed to retrieve asset details: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengambil detail aset: ' . $e->getMessage());
         }
     }
 
     /**
-     * Get asset details as JSON (for API requests)
+     * Mendapatkan detail aset sebagai JSON (untuk permintaan API)
      *
-     * @param int $id The asset ID
+     * @param int $id ID aset
      * @return \Illuminate\Http\JsonResponse
      */
     public function getAssetJson($id)
     {
         try {
-            // Fetch the asset with the given ID
+            // Mengambil aset dengan ID yang diberikan
             $result = $this->apiService->request('GET', "/assets/{$id}");
 
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['auth' => 'Authentication failed']
-                ], status: 401);
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                ], 401);
             }
 
-            // Check for API errors
+            // Memeriksa kesalahan API
             if (!isset($result['success']) || $result['success'] !== true) {
-                // Properly format errors based on response structure
-                $formattedErrors = ['general' => 'Failed to retrieve asset details'];
+                $errorData = $result['errors'] ?? 'Gagal mengambil detail aset';
 
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
+                // Format pesan kesalahan
+                $errorMessage = '';
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
+                        if (is_array($messages)) {
+                            $errorMessage .= implode(', ', $messages) . '; ';
+                        } else {
+                            $errorMessage .= $messages . '; ';
+                        }
                     }
+                } else {
+                    $errorMessage = $errorData;
                 }
 
                 return response()->json([
                     'success' => false,
-                    'errors' => $formattedErrors
-                ], status: 400);
+                    'errors' => $errorMessage
+                ], 400);
             }
 
-            // Return the asset data as JSON
+            // Mengembalikan data aset sebagai JSON
             return response()->json($result);
 
         } catch (\Exception $e) {
-            \Log::error('Exception during JSON asset details retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $id
-            ]);
-
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => 'Failed to retrieve asset details: ' . $e->getMessage()]
-            ], status: 500);
+                'errors' => 'Gagal mengambil detail aset: ' . $e->getMessage()
+            ], 500);
         }
     }
 
     /**
-     * Update the specified asset.
+     * Memperbarui aset yang ditentukan.
      *
      * @param Request $request
-     * @param int $id The asset ID
+     * @param int $id ID aset
      * @return \Illuminate\Http\RedirectResponse
      */
     public function updateAsset(Request $request, $id)
     {
         try {
-            // Log request data for debugging
-            \Log::info('Attempting to update asset with data:', [
-                'asset_id' => $id,
-                'request_data' => $request->all()
-            ]);
-
-            // Prepare asset data with new format (flat structure)
+            // Menyiapkan data aset dengan format baru (struktur datar)
             $assetData = [
                 'asset_id' => $id,
                 'serial_number' => $request->input('serial_number'),
@@ -321,7 +265,7 @@ class AssetDetailsController extends Controller
                 'room_id' => (int) $request->input('room_id')
             ];
 
-            // Add depreciation fields directly without checking is_depreciable
+            // Tambahkan bidang depresiasi langsung tanpa memeriksa is_depreciable
             if ($request->has('depreciation_method')) {
                 $assetData['depreciation_method'] = $request->input('depreciation_method');
                 $assetData['acquisition_cost'] = (float) $request->input('acquisition_cost');
@@ -330,24 +274,19 @@ class AssetDetailsController extends Controller
                 $assetData['date_acquired'] = $request->input('date_acquired');
             }
 
-            // Log structured data that will be sent to API
-            \Log::info('Sending to API:', [
-                'asset_data' => $assetData
-            ]);
-
-            // Handle image upload if present
+            // Tangani unggahan gambar jika ada
             if ($request->hasFile('image_file')) {
                 $multipartData = [];
 
-                // Send each asset data field individually in multipart
+                // Kirim setiap bidang data aset secara individual dalam multipart
                 foreach ($assetData as $key => $value) {
-                    // Convert values appropriately for multipart
+                    // Konversi nilai dengan tepat untuk multipart
                     if (is_bool($value)) {
                         $value = $value ? 'true' : 'false';
                     } elseif (is_array($value)) {
                         $value = json_encode($value);
                     } elseif ($value === null) {
-                        $value = ''; // Convert null to empty string for multipart
+                        $value = ''; // Konversi null ke string kosong untuk multipart
                     }
 
                         $multipartData[] = [
@@ -356,7 +295,7 @@ class AssetDetailsController extends Controller
                         ];
                 }
 
-                // Add file upload
+                // Tambahkan unggahan file
                 $multipartData[] = [
                     'name' => 'image_file',
                     'contents' => fopen($request->file('image_file')->getPathname(), 'r'),
@@ -366,59 +305,33 @@ class AssetDetailsController extends Controller
                 $options = ['multipart' => $multipartData];
                 $result = $this->apiService->request('PUT', "/assets/{$id}", $options);
             } else {
-                // No file upload, just send JSON data
+                // Tidak ada unggahan file, kirim saja data JSON
                 $options = ['json' => $assetData];
                 $result = $this->apiService->request('PUT', "/assets/{$id}", $options);
             }
 
-            // Log the API response
-            \Log::info('API response for asset update:', [
-                'asset_id' => $id,
-                'api_response' => $result
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                \Log::warning('Authentication error during asset update:', [
-                    'errors' => $result['errors']
-                ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
                 if ($request->ajax() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['auth' => 'Authentication failed']
-                    ], status: 401);
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                return redirect()->route('login')->with('error', 'Authentication failed');
+                return redirect()->route('login')->with('error', 'Autentikasi gagal');
             }
 
-            // Check for other API errors or unsuccessful responses
-            if (isset($result['errors']) ||
-                (isset($result['success']) && $result['success'] === false)) {
+            // Memeriksa kesalahan API atau respons tidak berhasil
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal memperbarui aset';
 
-                // Properly format errors based on response structure
-                $formattedErrors = ['general' => 'Failed to update asset'];
-
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
-                }
-
-                \Log::warning('Error during asset update:', [
-                    'success' => $result['success'] ?? null,
-                    'errors' => $formattedErrors
-                ]);
-
-                // Format error message for redirect/display
+                // Format pesan kesalahan
                         $errorMessage = '';
-                if (is_array($formattedErrors)) {
-                    foreach ($formattedErrors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             foreach ($messages as $message) {
                                 $errorMessage .= $message . '. ';
@@ -428,14 +341,14 @@ class AssetDetailsController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $formattedErrors;
+                    $errorMessage = $errorData;
                 }
 
                 if ($request->ajax() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors
-                    ], status: 400);
+                        'errors' => $errorMessage
+                    ], 400);
                 }
 
                 return redirect()->back()
@@ -443,60 +356,53 @@ class AssetDetailsController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Successfully updated
-            \Log::info('Asset updated successfully', ['asset_id' => $id]);
-
+            // Berhasil diperbarui
             if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Asset updated successfully',
+                    'message' => 'Aset berhasil diperbarui',
                     'data' => $result['data'] ?? null
                 ]);
             }
 
             return redirect()->route('asset.details', ['id' => $id])
-                ->with('success', 'Asset updated successfully');
+                ->with('success', 'Aset berhasil diperbarui');
         } catch (\Exception $e) {
-            \Log::error('Exception during asset update:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $id
-            ]);
-
             if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Failed to update asset: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => 'Gagal memperbarui aset: ' . $e->getMessage()
+                ], 500);
             }
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to update asset: ' . $e->getMessage());
+                ->with('error', 'Gagal memperbarui aset: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Checkout aset.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
     public function checkoutAsset(Request $request)
     {
         try {
-            // Log request data for debugging
-            \Log::info('Attempting to checkout asset with data:', [
-                'request_data' => $request->all()
-            ]);
-
-            // Base checkout data with only asset_id
+            // Data dasar checkout hanya dengan asset_id
             $checkoutData = [
                 'asset_id' => (int)$request->input('asset_id')
             ];
 
-            // Add notes only if not empty
+            // Tambahkan catatan hanya jika tidak kosong
             if ($request->filled('checkout_notes')) {
                 $checkoutData['checkout_notes'] = $request->input('checkout_notes');
             }
 
-            // Determine checkout type based on checkout_to_type
+            // Tentukan jenis checkout berdasarkan checkout_to_type
             if ($request->input('checkout_to_type') === 'location') {
-                // Location checkout - include room_id
+                // Checkout lokasi - sertakan room_id
                 $roomId = (int)($request->input('room_id') ?? $request->input('location_id') ?? 0);
                 if ($roomId > 0) {
                     $checkoutData['room_id'] = $roomId;
@@ -504,7 +410,7 @@ class AssetDetailsController extends Controller
                     return redirect()->back()->with('error', 'ID ruangan harus berupa angka positif');
                 }
             } else {
-                // Employee checkout - include assigned_to
+                // Checkout karyawan - sertakan assigned_to
                 $userId = (int)$request->input('assigned_to');
                 if ($userId > 0) {
                     $checkoutData['assigned_to'] = $userId;
@@ -513,47 +419,32 @@ class AssetDetailsController extends Controller
                 }
             }
 
-            // Log the actual data being sent to API
-            \Log::info('Sending to API:', [
-                'checkout_data' => $checkoutData
-            ]);
-
-            // Send request to API
+            // Kirim permintaan ke API
             $options = ['json' => $checkoutData];
             $result = $this->apiService->request('POST', '/asset-transfers/checkout', $options);
 
-            // Log the API response
-            \Log::info('API response for asset checkout:', [
-                'asset_id' => $request->input('asset_id'),
-                'api_response' => $result
-            ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for other API errors
-            if (isset($result['errors']) ||
-                (isset($result['success']) && $result['success'] === false)) {
-
-                // Properly format errors based on response structure
-                $formattedErrors = ['general' => 'Failed to checkout asset'];
-
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                // Format error message for redirect
+                return redirect()->route('login')->with('error', 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API lainnya
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal melakukan checkout aset';
+
+                // Format pesan kesalahan
                 $errorMessage = '';
-                if (is_array($formattedErrors)) {
-                    foreach ($formattedErrors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -561,110 +452,94 @@ class AssetDetailsController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $formattedErrors;
+                    $errorMessage = $errorData;
                 }
 
                 if ($request->ajax() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors
-                    ], status: 400);
+                        'errors' => $errorMessage
+                    ], 400);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Return successful response
-            $successMessage = $result['message'] ?? 'Asset checked out successfully';
-            return redirect()->back()->with('success', $successMessage);
-
-        } catch (\Exception $e) {
-            \Log::error('Exception during asset checkout:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            // Kembalikan respons berhasil
+            $successMessage = $result['message'] ?? 'Aset berhasil di-checkout';
 
             if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Failed to checkout asset: ' . $e->getMessage()]
-                ], status: 500);
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => $result['data'] ?? null
+                ]);
             }
 
-            return redirect()->back()->with('error', 'Failed to checkout asset: ' . $e->getMessage());
+            return redirect()->back()->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal melakukan checkout aset: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal melakukan checkout aset: ' . $e->getMessage());
         }
     }
 
     /**
-     * Check in (return) an asset.
+     * Check in (kembalikan) aset.
      *
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function checkinAsset(Request $request)
     {
         try {
-            // Log request data for debugging
-            \Log::info('Attempting to check in asset with data:', [
-                'request_data' => $request->all()
-            ]);
-
-            // Prepare check-in data with required fields
+            // Persiapkan data check-in dengan bidang yang diperlukan
             $checkinData = [
                 'asset_id' => (int)$request->input('asset_id')
             ];
 
-            // Only include notes if provided
+            // Sertakan catatan hanya jika disediakan
             if ($request->filled('return_notes')) {
                 $checkinData['return_notes'] = $request->input('return_notes');
             }
 
-            // Add condition if provided
+            // Tambahkan kondisi jika disediakan
             if ($request->filled('condition')) {
                 $checkinData['condition'] = $request->input('condition');
             }
 
-            // Log the actual data being sent to API
-            \Log::info('Sending to API:', [
-                'checkin_data' => $checkinData
-            ]);
-
-            // Send request to API
+            // Kirim permintaan ke API
             $options = ['json' => $checkinData];
             $result = $this->apiService->request('POST', '/asset-transfers/return', $options);
 
-            // Log the API response
-            \Log::info('API response for asset check-in:', [
-                'asset_id' => $request->input('asset_id'),
-                'api_response' => $result
-            ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for other API errors
-            if (isset($result['errors']) ||
-                (isset($result['success']) && $result['success'] === false)) {
-
-                // Properly format errors based on response structure
-                $formattedErrors = ['general' => 'Failed to check in asset'];
-
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                // Format error message for redirect
+                return redirect()->route('login')->with('error', 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API lainnya
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal mengembalikan aset';
+
+                // Format pesan kesalahan
                 $errorMessage = '';
-                if (is_array($formattedErrors)) {
-                    foreach ($formattedErrors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -672,105 +547,89 @@ class AssetDetailsController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $formattedErrors;
+                    $errorMessage = $errorData;
                 }
 
                 if ($request->ajax() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors
-                    ], status: 400);
+                        'errors' => $errorMessage
+                    ], 400);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Return successful response
-            $successMessage = $result['message'] ?? 'Asset checked in successfully';
-            return redirect()->back()->with('success', $successMessage);
-
-        } catch (\Exception $e) {
-            \Log::error('Exception during asset check-in:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            // Kembalikan respons berhasil
+            $successMessage = $result['message'] ?? 'Aset berhasil dikembalikan';
 
             if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Failed to check in asset: ' . $e->getMessage()]
-                ], status: 500);
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => $result['data'] ?? null
+                ]);
             }
 
-            return redirect()->back()->with('error', 'Failed to check in asset: ' . $e->getMessage());
+            return redirect()->back()->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal mengembalikan aset: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal mengembalikan aset: ' . $e->getMessage());
         }
     }
 
     /**
-     * Report an asset as lost.
+     * Melaporkan aset sebagai hilang.
      *
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function reportAssetLost(Request $request)
     {
         try {
-            // Log request data for debugging
-            \Log::info('Attempting to report asset as lost with data:', [
-                'request_data' => $request->all()
-            ]);
-
-            // Prepare lost report data with required fields
+            // Persiapkan data laporan hilang dengan bidang yang diperlukan
             $lostData = [
                 'asset_id' => (int)$request->input('asset_id')
             ];
 
-            // Only include reason if provided
+            // Sertakan alasan hanya jika disediakan
             if ($request->filled('loss_reason')) {
                 $lostData['loss_reason'] = $request->input('loss_reason');
             }
 
-            // Log the actual data being sent to API
-            \Log::info('Sending to API:', [
-                'lost_data' => $lostData
-            ]);
-
-            // Send request to API
+            // Kirim permintaan ke API
             $options = ['json' => $lostData];
             $result = $this->apiService->request('POST', '/asset-transfers/loss', $options);
 
-            // Log the API response
-            \Log::info('API response for reporting asset as lost:', [
-                'asset_id' => $request->input('asset_id'),
-                'api_response' => $result
-            ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for other API errors
-            if (isset($result['errors']) ||
-                (isset($result['success']) && $result['success'] === false)) {
-
-                // Properly format errors based on response structure
-                $formattedErrors = ['general' => 'Failed to report asset as lost'];
-
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                // Format error message for redirect
+                return redirect()->route('login')->with('error', 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API lainnya
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal melaporkan aset hilang';
+
+                // Format pesan kesalahan
                 $errorMessage = '';
-                if (is_array($formattedErrors)) {
-                    foreach ($formattedErrors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -778,105 +637,89 @@ class AssetDetailsController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $formattedErrors;
+                    $errorMessage = $errorData;
                 }
 
                 if ($request->ajax() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors
-                    ], status: 400);
+                        'errors' => $errorMessage
+                    ], 400);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Return successful response
-            $successMessage = $result['message'] ?? 'Asset reported as lost successfully';
-            return redirect()->back()->with('success', $successMessage);
-
-        } catch (\Exception $e) {
-            \Log::error('Exception during reporting asset as lost:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            // Kembalikan respons berhasil
+            $successMessage = $result['message'] ?? 'Aset berhasil dilaporkan hilang';
 
             if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Failed to report asset as lost: ' . $e->getMessage()]
-                ], status: 500);
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => $result['data'] ?? null
+                ]);
             }
 
-            return redirect()->back()->with('error', 'Failed to report asset as lost: ' . $e->getMessage());
+            return redirect()->back()->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal melaporkan aset hilang: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal melaporkan aset hilang: ' . $e->getMessage());
         }
     }
 
     /**
-     * Report an asset as found.
+     * Melaporkan aset sebagai ditemukan.
      *
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function reportAssetFound(Request $request)
     {
         try {
-            // Log request data for debugging
-            \Log::info('Attempting to report asset as found with data:', [
-                'request_data' => $request->all()
-            ]);
-
-            // Prepare found data with required fields
+            // Persiapkan data ditemukan dengan bidang yang diperlukan
             $foundData = [
                 'asset_id' => (int)$request->input('asset_id')
             ];
 
-            // Only include notes if provided
+            // Sertakan catatan hanya jika disediakan
             if ($request->filled('found_notes')) {
                 $foundData['found_notes'] = $request->input('found_notes');
             }
 
-            // Log the actual data being sent to API
-            \Log::info('Sending to API:', [
-                'found_data' => $foundData
-            ]);
-
-            // Send request to API
+            // Kirim permintaan ke API
             $options = ['json' => $foundData];
             $result = $this->apiService->request('POST', '/asset-transfers/found', $options);
 
-            // Log the API response
-            \Log::info('API response for reporting asset as found:', [
-                'asset_id' => $request->input('asset_id'),
-                'api_response' => $result
-            ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for other API errors
-            if (isset($result['errors']) ||
-                (isset($result['success']) && $result['success'] === false)) {
-
-                // Properly format errors based on response structure
-                $formattedErrors = ['general' => 'Failed to report asset as found'];
-
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                // Format error message for redirect
+                return redirect()->route('login')->with('error', 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API lainnya
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal melaporkan aset ditemukan';
+
+                // Format pesan kesalahan
                 $errorMessage = '';
-                if (is_array($formattedErrors)) {
-                    foreach ($formattedErrors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -884,60 +727,58 @@ class AssetDetailsController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $formattedErrors;
+                    $errorMessage = $errorData;
                 }
 
                 if ($request->ajax() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors
-                    ], status: 400);
+                        'errors' => $errorMessage
+                    ], 400);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Return successful response
-            $successMessage = $result['message'] ?? 'Asset reported as found successfully';
-            return redirect()->back()->with('success', $successMessage);
-
-        } catch (\Exception $e) {
-            \Log::error('Exception during reporting asset as found:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            // Kembalikan respons berhasil
+            $successMessage = $result['message'] ?? 'Aset berhasil dilaporkan ditemukan';
 
             if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Failed to report asset as found: ' . $e->getMessage()]
-                ], status: 500);
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => $result['data'] ?? null
+                ]);
             }
 
-            return redirect()->back()->with('error', 'Failed to report asset as found: ' . $e->getMessage());
+            return redirect()->back()->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal melaporkan aset ditemukan: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal melaporkan aset ditemukan: ' . $e->getMessage());
         }
     }
 
     /**
-     * Dispose an asset.
+     * Menghapus aset.
      *
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function disposeAsset(Request $request)
     {
         try {
-            // Log request data for debugging
-            \Log::info('Attempting to dispose asset with data:', [
-                'request_data' => $request->all()
-            ]);
-
-            // Prepare disposal data with required fields
+            // Persiapkan data penghapusan dengan bidang yang diperlukan
             $disposeData = [
                 'asset_id' => (int)$request->input('asset_id'),
                 'disposal_reason' => $request->input('disposal_reason'),
             ];
-
 
             if ($request->filled('disposal_method')) {
                 $disposeData['disposal_method'] = $request->input('disposal_method');
@@ -947,47 +788,32 @@ class AssetDetailsController extends Controller
                 $disposeData['disposal_notes'] = $request->input('disposal_notes');
             }
 
-            // Log the actual data being sent to API
-            \Log::info('Sending to API:', [
-                'dispose_data' => $disposeData
-            ]);
-
-            // Send request to API
+            // Kirim permintaan ke API
             $options = ['json' => $disposeData];
             $result = $this->apiService->request('POST', '/asset-transfers/dispose', $options);
 
-            // Log the API response
-            \Log::info('API response for asset disposal:', [
-                'asset_id' => $request->input('asset_id'),
-                'api_response' => $result
-            ]);
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
 
-            // Check for auth errors
-            if (isset($result['errors']) && (is_array($result['errors']) &&
-                (isset($result['errors']['auth_failed']) || isset($result['errors']['session_expired'])) ||
-                in_array($result['errors'], ['auth_failed', 'session_expired']))) {
-                return redirect()->route('login')->with('error', 'Authentication failed');
-            }
-
-            // Check for other API errors
-            if (isset($result['errors']) ||
-                (isset($result['success']) && $result['success'] === false)) {
-
-                // Properly format errors based on response structure
-                $formattedErrors = ['general' => 'Failed to dispose asset'];
-
-                if (isset($result['errors'])) {
-                    if (is_string($result['errors'])) {
-                        $formattedErrors = ['general' => $result['errors']];
-                    } elseif (is_array($result['errors'])) {
-                        $formattedErrors = $result['errors'];
-                    }
+                if ($request->ajax() || $request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
                 }
 
-                // Format error message for redirect
+                return redirect()->route('login')->with('error', 'Autentikasi gagal');
+            }
+
+            // Memeriksa kesalahan API lainnya
+            if (!isset($result['success']) || $result['success'] === false) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus aset';
+
+                // Format pesan kesalahan
                 $errorMessage = '';
-                if (is_array($formattedErrors)) {
-                    foreach ($formattedErrors as $field => $messages) {
+                if (is_array($errorData)) {
+                    foreach ($errorData as $field => $messages) {
                         if (is_array($messages)) {
                             $errorMessage .= implode(', ', $messages) . '; ';
                         } else {
@@ -995,42 +821,46 @@ class AssetDetailsController extends Controller
                         }
                     }
                 } else {
-                    $errorMessage = $formattedErrors;
+                    $errorMessage = $errorData;
                 }
 
                 if ($request->ajax() || $request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors
-                    ], status: 400);
+                        'errors' => $errorMessage
+                    ], 400);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Return successful response
-            $successMessage = $result['message'] ?? 'Asset disposed successfully';
-            return redirect()->back()->with('success', $successMessage);
-
-        } catch (\Exception $e) {
-            \Log::error('Exception during asset disposal:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            // Kembalikan respons berhasil
+            $successMessage = $result['message'] ?? 'Aset berhasil dihapus';
 
             if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Failed to dispose asset: ' . $e->getMessage()]
-                ], status: 500);
+                    'success' => true,
+                    'message' => $successMessage,
+                    'data' => $result['data'] ?? null
+                ]);
             }
 
-            return redirect()->back()->with('error', 'Failed to dispose asset: ' . $e->getMessage());
+            return redirect()->back()->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal menghapus aset: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal menghapus aset: ' . $e->getMessage());
         }
     }
 
     /**
-     * Export asset detail to PDF
+     * Ekspor detail aset ke PDF
      *
      * @param int $id
      * @param Request $request
@@ -1039,16 +869,16 @@ class AssetDetailsController extends Controller
     public function exportAssetDetailPDF($id, Request $request)
     {
         try {
-            // Fetch asset details
+            // Ambil detail aset
             $result = $this->apiService->request('GET', "/assets/{$id}");
 
             if (!isset($result['data'])) {
-                return redirect()->route('assets.index')->with('error', 'Asset not found');
+                return redirect()->route('assets.index')->with('error', 'Aset tidak ditemukan');
             }
 
             $asset = $result['data'];
 
-            // Convert asset image to base64
+            // Konversi gambar aset ke base64
             if (!empty($asset['asset_master']['reference_image_path'])) {
                 try {
                     $imagePath = 'http://localhost:5000/public' . $asset['asset_master']['reference_image_path'];
@@ -1057,15 +887,11 @@ class AssetDetailsController extends Controller
                         $asset['image_base64'] = base64_encode($imageData);
                     }
                 } catch (\Exception $e) {
-                    \Log::warning('Failed to get asset image for PDF:', [
-                        'error' => $e->getMessage(),
-                        'asset_id' => $id,
-                        'image_path' => $asset['asset_master']['reference_image_path'] ?? 'N/A'
-                    ]);
+                    // Lanjutkan tanpa gambar
                 }
             }
 
-            // Convert QR code to base64
+            // Konversi kode QR ke base64
             if (!empty($asset['qr_code'])) {
                 try {
                     $qrPath = 'http://localhost:5000/public' . $asset['qr_code'];
@@ -1074,31 +900,21 @@ class AssetDetailsController extends Controller
                         $asset['qr_base64'] = base64_encode($qrData);
                     }
                 } catch (\Exception $e) {
-                    \Log::warning('Failed to get QR code for PDF:', [
-                        'error' => $e->getMessage(),
-                        'asset_id' => $id,
-                        'qr_path' => $asset['qr_code'] ?? 'N/A'
-                    ]);
+                    // Lanjutkan tanpa kode QR
                 }
             }
 
-            // Generate PDF
+            // Buat PDF
             $pdf = Pdf::loadView('Asset.AssetDetailPDF', [
                 'asset' => $asset,
                 'date_generated' => now()->format('d M Y H:i:s')
             ]);
 
-            // Stream the PDF to browser
-            return $pdf->stream('asset_detail_' . $id . '_' . now()->format('YmdHis') . '.pdf');
+            // Alirkan PDF ke browser
+            return $pdf->stream('detail_aset_' . $id . '_' . now()->format('YmdHis') . '.pdf');
 
         } catch (\Exception $e) {
-            \Log::error('Exception during asset detail PDF export:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_id' => $id
-            ]);
-
-            return redirect()->back()->with('error', 'Failed to export asset detail as PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengekspor detail aset sebagai PDF: ' . $e->getMessage());
         }
     }
 }

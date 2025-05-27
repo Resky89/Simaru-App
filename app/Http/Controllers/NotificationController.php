@@ -67,28 +67,20 @@ class NotificationController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                Log::warning('Authentication error while fetching notifications:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
 
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => 'Authentication failed'
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to fetch notifications';
-
-                Log::warning('Error while fetching notifications:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal mengambil data notifikasi';
 
                 // Format error message
                 $errorMessage = '';
@@ -129,7 +121,7 @@ class NotificationController extends Controller
 
             // Format data from the API result
             $notifications = $result['data'] ?? [];
-            $message = $result['message'] ?? 'Notifications fetched successfully';
+            $message = $result['message'] ?? 'Notifikasi berhasil diambil';
 
             // If this is an AJAX or JSON request, return the notifications as JSON
             if ($request->expectsJson() || $request->ajax()) {
@@ -172,15 +164,10 @@ class NotificationController extends Controller
 
             return view('Notifications', compact('notifications', 'pagination'));
         } catch (\Exception $e) {
-            Log::error('Failed to fetch notifications:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => 'Failed to load notifications: ' . $e->getMessage()
+                    'errors' => 'Gagal mengambil data notifikasi: ' . $e->getMessage()
                 ], 500);
             }
 
@@ -196,7 +183,7 @@ class NotificationController extends Controller
                     'next_page_url' => null,
                     'prev_page_url' => null
                 ],
-                'error' => 'Failed to load notifications: ' . $e->getMessage()
+                'error' => 'Gagal mengambil data notifikasi: ' . $e->getMessage()
             ]);
         }
     }
@@ -213,30 +200,20 @@ class NotificationController extends Controller
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                Log::warning('Authentication error while marking notification as read:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed',
-                    'notification_id' => $id
-                ]);
 
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => 'Authentication failed'
+                        'errors' => 'Autentikasi gagal'
                     ], 401);
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to mark notification as read';
-
-                Log::warning('Error while marking notification as read:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData,
-                    'notification_id' => $id
-                ]);
+                $errorData = $result['errors'] ?? 'Gagal menandai notifikasi sebagai sudah dibaca';
 
                 // Format error message
                 $errorMessage = '';
@@ -263,7 +240,7 @@ class NotificationController extends Controller
             }
 
             // Successfully marked as read
-            $message = $result['message'] ?? 'Notification marked as read successfully';
+            $message = $result['message'] ?? 'Notifikasi berhasil ditandai sebagai sudah dibaca';
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
@@ -275,20 +252,14 @@ class NotificationController extends Controller
 
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
-            Log::error('Failed to mark notification as read:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'notification_id' => $id
-            ]);
-
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => 'Failed to mark notification as read: ' . $e->getMessage()
+                    'errors' => 'Gagal menandai notifikasi sebagai sudah dibaca: ' . $e->getMessage()
                 ], 500);
             }
 
-            return redirect()->back()->with('error', 'Failed to mark notification as read: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menandai notifikasi sebagai sudah dibaca: ' . $e->getMessage());
         }
     }
 }
