@@ -1598,8 +1598,11 @@
                     }
                 })
                 .then(response => {
+                    // Check if response is OK
                     if (!response.ok) {
-                        throw new Error('Server returned status: ' + response.status);
+                        return response.json().then(errorData => {
+                            throw errorData;
+                        });
                     }
                     return response.json();
                 })
@@ -1627,8 +1630,8 @@
                     submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                     submitBtn.innerHTML = originalText;
 
-                    // Show error message
-                    showToast('Gagal menghapus aset: ' + error.message, 'error');
+                    // Show error notification with proper error handling
+                    showToast(error, 'error');
                 });
             }
         });
@@ -2510,264 +2513,123 @@
                 }
             })
             .then(response => {
-                // Check if response is JSON
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    return response.json().then(data => {
-                        // Add status to the data object
-                        data.status = response.status;
-                        return data;
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw errorData;
                     });
-                } else {
-                    // If not JSON, it's likely an error page or redirect
-                    throw new Error('Invalid response format');
                 }
+                return response.json();
             })
             .then(data => {
                 // Reset button state
                 importBtn.disabled = false;
                 importBtn.innerHTML = originalBtnText;
 
-                if (data.success === true || (data.status >= 200 && data.status < 300)) {
-                    // Success response
-                    console.log('Import successful:', data);
+                // Success response
+                console.log('Import successful:', data);
 
-                    // Close the modal
-                    const modal = document.getElementById('importMasterAssetModal');
-                    const content = document.getElementById('importMasterAssetModalContent');
-                    closeModal(modal, content);
+                // Close the modal
+                const modal = document.getElementById('importMasterAssetModal');
+                const content = document.getElementById('importMasterAssetModalContent');
+                closeModal(modal, content);
 
-                    // Show success notification
-                    showToast(data.message || 'Aset master berhasil diimpor!', 'success');
+                // Show success notification
+                showToast(data.message || 'Aset master berhasil diimpor!', 'success');
 
-                    // Reload the page to show updated data
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    // Error response
-                    console.error('Import error:', data);
-
-                    // Show error notification toast
-                    console.error('Import error details:', data);
-
-                    let errorMessage = data.message || 'Terjadi kesalahan selama pengimporan.';
-                    let errorDetails = [];
-
-                    // Process different error formats
-                    // Case 1: data.errors as object with field keys
-                    if (data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
-                        Object.entries(data.errors).forEach(([field, messages]) => {
-                            if (Array.isArray(messages)) {
-                                messages.forEach(msg => errorDetails.push(`${field}: ${msg}`));
-                            } else if (typeof messages === 'string') {
-                                errorDetails.push(`${field}: ${messages}`);
-                            }
-                        });
-                    }
-                    // Case 2: data.errors as array
-                    else if (data.errors && Array.isArray(data.errors)) {
-                        data.errors.forEach(error => {
-                            if (typeof error === 'string') {
-                                errorDetails.push(error);
-                            } else if (typeof error === 'object') {
-                                if (error.message) {
-                                    errorDetails.push(error.message);
-                                } else if (error.row && error.reason) {
-                                    errorDetails.push(`Baris ${error.row}: ${error.reason}`);
-                                } else if (error.reason) {
-                                    errorDetails.push(error.reason);
-                                } else {
-                                    // Try to extract any property as a fallback
-                                    const values = Object.values(error).filter(v => typeof v === 'string');
-                                    if (values.length > 0) {
-                                        errorDetails.push(values.join(', '));
-                                    }
-                                }
-                            }
-                        });
-                    }
-                    // Case 3: data.data.errors (nested structure)
-                    else if (data.data && data.data.errors) {
-                        console.log('Server returned detailed errors:', data.data.errors);
-
-                        if (Array.isArray(data.data.errors)) {
-                            data.data.errors.forEach(error => {
-                                if (typeof error === 'string') {
-                                    errorDetails.push(error);
-                                } else if (error.message) {
-                                    errorDetails.push(error.message);
-                                } else if (error.asset_name && error.reason) {
-                                    errorDetails.push(`"${error.asset_name}" - ${error.reason}`);
-                                } else if (error.row && error.reason) {
-                                    errorDetails.push(`Baris ${error.row}: ${error.reason}`);
-                                } else if (error.reason) {
-                                    errorDetails.push(error.reason);
-                                }
-                            });
-                        } else if (typeof data.data.errors === 'object') {
-                            Object.entries(data.data.errors).forEach(([field, messages]) => {
-                                if (Array.isArray(messages)) {
-                                    messages.forEach(msg => errorDetails.push(`${field}: ${msg}`));
-                                } else if (typeof messages === 'string') {
-                                    errorDetails.push(`${field}: ${messages}`);
-                                }
-                            });
-                        }
-                    }
-
-                    // Format the error message with details if available
-                    if (errorDetails.length > 0) {
-                        errorMessage = `${errorMessage}<ul class="mt-2 ml-4 list-disc">`;
-                        errorDetails.forEach(detail => {
-                            errorMessage += `<li>${detail}</li>`;
-                        });
-                        errorMessage += '</ul>';
-                    }
-
-                    // Create and show the toast notification
-                    showToast(errorMessage, 'error');
-                }
+                // Reload the page to show updated data
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             })
             .catch(error => {
                 // Reset button state
                 importBtn.disabled = false;
                 importBtn.innerHTML = originalBtnText;
 
-                console.error('Import fetch error:', error);
+                console.error('Import error:', error);
 
-                // Try to get more detailed error if available
-                let errorMessage = 'Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.';
-
-                if (error.response) {
-                    // The server responded with a status code outside the 2xx range
-                    try {
-                        // Try to parse the error response
-                        error.response.json().then(data => {
-                            if (data.message) {
-                                errorMessage = data.message;
-
-                                // Add details if available
-                                if (data.errors) {
-                                    errorMessage += '<ul class="mt-2 ml-4 list-disc">';
-                                    if (typeof data.errors === 'object') {
-                                        Object.values(data.errors).flat().forEach(err => {
-                                            errorMessage += `<li>${err}</li>`;
-                                        });
-                                    } else if (Array.isArray(data.errors)) {
-                                        data.errors.forEach(err => {
-                                            errorMessage += `<li>${err}</li>`;
-                                        });
-                                    }
-                                    errorMessage += '</ul>';
-                                }
-
-                                showToast(errorMessage, 'error');
-                            }
-                        }).catch(() => {
-                            // If we can't parse the JSON, just show the status text
-                            showToast(`Error: ${error.response.statusText || errorMessage}`, 'error');
-                        });
-                    } catch (e) {
-                        // If any error in parsing, use default message
-                        showToast(errorMessage, 'error');
-                    }
-                } else {
-                    // Network error or something prevented the request
-                    showToast(error.message || errorMessage, 'error');
-                }
+                // Show error notification with proper error handling
+                showToast(error, 'error');
             });
         });
 
-        // Helper function to show notifications
-        function showNotification(type, message) {
-            // Create the notification element
-            const notification = document.createElement('div');
-            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
-            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
-            notification.role = 'alert';
+        // Function to handle import error responses
+        function handleImportErrorResponse(errorData) {
+            let errorMessage = errorData.message || 'Terjadi kesalahan selama pengimporan.';
+            let errorDetails = [];
 
-            // Check if message contains HTML
-            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
-
-            if (type === 'success') {
-                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-                notification.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
-            } else {
-                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
-
-                // Structure for the notification
-                const wrapper = document.createElement('div');
-                wrapper.className = 'flex items-start';
-
-                // Icon container
-                const iconContainer = document.createElement('div');
-                iconContainer.className = 'py-1 flex-shrink-0';
-                iconContainer.innerHTML = `
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                `;
-
-                // Content container
-                const contentContainer = document.createElement('div');
-                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                // Title
-                const title = document.createElement('p');
-                title.className = 'font-bold';
-                title.textContent = 'Error!';
-                contentContainer.appendChild(title);
-
-                // Message container
-                const messageContainer = document.createElement('div');
-                messageContainer.className = 'error-message';
-
-                // Handle HTML content
-                if (hasHTML) {
-                    messageContainer.innerHTML = message;
-                } else {
-                    messageContainer.textContent = message;
+            // Process different error formats
+            if (errorData.errors) {
+                // If errors is an object with field keys
+                if (typeof errorData.errors === 'object' && !Array.isArray(errorData.errors)) {
+                    Object.entries(errorData.errors).forEach(([field, messages]) => {
+                        if (Array.isArray(messages)) {
+                            messages.forEach(msg => errorDetails.push(`${field}: ${msg}`));
+                        } else if (typeof messages === 'string') {
+                            errorDetails.push(`${field}: ${messages}`);
+                        }
+                    });
                 }
-
-                contentContainer.appendChild(messageContainer);
-
-                // Close button
-                const closeBtn = document.createElement('span');
-                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                closeBtn.textContent = '×';
-                closeBtn.onclick = function() {
-                    notification.remove();
-                };
-
-                // Assemble the notification
-                wrapper.appendChild(iconContainer);
-                wrapper.appendChild(contentContainer);
-                wrapper.appendChild(closeBtn);
-                notification.appendChild(wrapper);
+                // If errors is an array
+                else if (Array.isArray(errorData.errors)) {
+                    errorData.errors.forEach(error => {
+                        if (typeof error === 'string') {
+                            errorDetails.push(error);
+                        } else if (typeof error === 'object') {
+                            if (error.message) {
+                                errorDetails.push(error.message);
+                            } else if (error.row && error.reason) {
+                                errorDetails.push(`Baris ${error.row}: ${error.reason}`);
+                            } else if (error.reason) {
+                                errorDetails.push(error.reason);
+                            }
+                        }
+                    });
+                }
             }
 
-            // Add to document
-            document.body.appendChild(notification);
+            // Nested error structure
+            if (errorData.data && errorData.data.errors) {
+                if (Array.isArray(errorData.data.errors)) {
+                    errorData.data.errors.forEach(error => {
+                        if (typeof error === 'string') {
+                            errorDetails.push(error);
+                        } else if (error.message) {
+                            errorDetails.push(error.message);
+                        } else if (error.asset_name && error.reason) {
+                            errorDetails.push(`"${error.asset_name}" - ${error.reason}`);
+                        } else if (error.row && error.reason) {
+                            errorDetails.push(`Baris ${error.row}: ${error.reason}`);
+                        } else if (error.reason) {
+                            errorDetails.push(error.reason);
+                        }
+                    });
+                } else if (typeof errorData.data.errors === 'object') {
+                    Object.entries(errorData.data.errors).forEach(([field, messages]) => {
+                        if (Array.isArray(messages)) {
+                            messages.forEach(msg => errorDetails.push(`${field}: ${msg}`));
+                        } else if (typeof messages === 'string') {
+                            errorDetails.push(`${field}: ${messages}`);
+                        }
+                    });
+                }
+            }
 
-            // Auto-remove notification after 5 seconds
-            setTimeout(() => {
-                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => notification.remove(), 500);
-            }, 5000);
+            // Format the error message with details if available
+            if (errorDetails.length > 0) {
+                errorMessage = `${errorMessage}<ul class="mt-2 ml-4 list-disc">`;
+                errorDetails.forEach(detail => {
+                    errorMessage += `<li>${detail}</li>`;
+                });
+                errorMessage += '</ul>';
+            }
+
+            showNotification('error', errorMessage);
+        }
+
+        // Helper function to show notifications - using the improved showToast function
+        function showNotification(type, message) {
+            showToast(message, type);
         }
 
         // Function to show toast notifications
@@ -2778,8 +2640,9 @@
             notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
             notification.role = 'alert';
 
-            // Check if message contains HTML
-            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+            // Check if message contains HTML or is an object
+            const hasHTML = typeof message === 'string' && /<[a-z][\s\S]*>/i.test(message);
+            const isObject = typeof message === 'object' && message !== null;
 
             if (type === 'success') {
                 notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
@@ -2792,7 +2655,7 @@
                         </div>
                         <div>
                             <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
+                            <div>${isObject ? message.message || 'Operasi berhasil' : message}</div>
                         </div>
                         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                     </div>
@@ -2827,11 +2690,91 @@
                 const messageContainer = document.createElement('div');
                 messageContainer.className = 'error-message';
 
-                // Handle HTML content
-                if (hasHTML) {
-                    messageContainer.innerHTML = message;
+                if (isObject) {
+                    let errorContent = '';
+
+                    // Main error message
+                    if (message.message) {
+                        errorContent = `<p>${message.message}</p>`;
+                    } else {
+                        errorContent = '<p>Terjadi kesalahan</p>';
+                    }
+
+                    // Process error arrays with path/message format
+                    if (message.errors) {
+                        errorContent += '<ul class="mt-2 ml-4 list-disc">';
+
+                        if (Array.isArray(message.errors)) {
+                            message.errors.forEach(err => {
+                                if (typeof err === 'string') {
+                                    errorContent += `<li>${err}</li>`;
+                                } else if (typeof err === 'object' && err !== null) {
+                                    if (err.path && err.message) {
+                                        errorContent += `<li>${err.path}: ${err.message}</li>`;
+                                    } else if (err.message) {
+                                        errorContent += `<li>${err.message}</li>`;
+                                    } else {
+                                        // Try to extract any useful information
+                                        const values = Object.values(err).filter(v => typeof v === 'string');
+                                        if (values.length > 0) {
+                                            errorContent += `<li>${values.join(': ')}</li>`;
+                                        }
+                                    }
+                                }
+                            });
+                        } else if (typeof message.errors === 'object') {
+                            // If errors is an object with field names as keys
+                            Object.entries(message.errors).forEach(([field, fieldErrors]) => {
+                                if (Array.isArray(fieldErrors)) {
+                                    fieldErrors.forEach(err => errorContent += `<li>${field}: ${err}</li>`);
+                                } else if (typeof fieldErrors === 'string') {
+                                    errorContent += `<li>${field}: ${fieldErrors}</li>`;
+                                }
+                            });
+                        }
+
+                        errorContent += '</ul>';
+                    }
+
+                    // Handle nested error structure in data.errors
+                    if (message.data && message.data.errors) {
+                        errorContent += '<ul class="mt-2 ml-4 list-disc">';
+
+                        if (Array.isArray(message.data.errors)) {
+                            message.data.errors.forEach(err => {
+                                if (typeof err === 'string') {
+                                    errorContent += `<li>${err}</li>`;
+                                } else if (typeof err === 'object' && err !== null) {
+                                    if (err.path && err.message) {
+                                        errorContent += `<li>${err.path}: ${err.message}</li>`;
+                                    } else if (err.message) {
+                                        errorContent += `<li>${err.message}</li>`;
+                                    } else if (err.reason) {
+                                        errorContent += `<li>${err.reason}</li>`;
+                                    }
+                                }
+                            });
+                        } else if (typeof message.data.errors === 'object') {
+                            Object.entries(message.data.errors).forEach(([field, fieldErrors]) => {
+                                if (Array.isArray(fieldErrors)) {
+                                    fieldErrors.forEach(err => errorContent += `<li>${field}: ${err}</li>`);
+                                } else if (typeof fieldErrors === 'string') {
+                                    errorContent += `<li>${field}: ${fieldErrors}</li>`;
+                                }
+                            });
+                        }
+
+                        errorContent += '</ul>';
+                    }
+
+                    messageContainer.innerHTML = errorContent;
                 } else {
-                    messageContainer.textContent = message;
+                    // Handle string message (plain text or HTML)
+                    if (hasHTML) {
+                        messageContainer.innerHTML = message;
+                    } else {
+                        messageContainer.textContent = message;
+                    }
                 }
 
                 contentContainer.appendChild(messageContainer);
@@ -2890,112 +2833,11 @@
 
         // Form validation for Add Master Asset
         document.getElementById('createMasterAssetForm')?.addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent normal form submission
-
-            // Get all required fields from the form
-            const assetName = document.querySelector('#createMasterAssetForm input[name="asset_name"]');
-            const assetType = document.querySelector('#createMasterAssetForm select[name="asset_type"]');
-
-            // For custom select dropdowns, get the hidden inputs
-            const subcategoryInput = document.querySelector('#createMasterAssetForm input[name="subcategory_id"]');
-            const brandInput = document.querySelector('#createMasterAssetForm input[name="brand_id"]');
-
-            // Validate required fields
-            const isAssetNameValid = validateField(assetName);
-            const isAssetTypeValid = validateField(assetType);
-
-            // For custom select dropdowns, check the hidden input value
-            const isSubcategoryValid = validateField(
-                subcategoryInput.closest('.custom-select-container').querySelector('.search-input'),
-                subcategoryInput && subcategoryInput.value ? true : false
-            );
-
-            const isBrandValid = validateField(
-                brandInput.closest('.custom-select-container').querySelector('.search-input'),
-                brandInput && brandInput.value ? true : false
-            );
-
-            // If any validation fails, prevent form submission
-            if (!isAssetNameValid || !isAssetTypeValid || !isSubcategoryValid || !isBrandValid) {
-                showToast('Silakan isi semua field yang diperlukan', 'error');
-                return false;
-            }
-
-            // Prepare form data for submission
-            const formData = new FormData(this);
-
-            // Prevent multiple submissions
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn && !submitBtn.disabled) {
-                // Save original button text
-                const originalText = submitBtn.innerHTML;
-
-                // Disable button and show loading state
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
-
-                // Submit the form via AJAX
-                fetch(this.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Server returned status: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Show success notification
-                    showNotification('success', data.message);
-
-                    // Close the modal
-                    const modal = document.getElementById('addMasterAssetModal');
-                    const content = document.getElementById('addMasterAssetModalContent');
-                    if (modal && content) {
-                        closeModal(modal, content);
-                    }
-
-                    // Reset form
-                    resetAddMasterAssetForm();
-
-                    // Reload the page after a short delay to show the new data
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                })
-                .catch(error => {
-                    console.error('Error submitting form:', error);
-
-                    // Show error notification
-                    showNotification('error', 'Gagal menambahkan aset: ' + error.message);
-
-                    // Re-enable submit button
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = originalText;
-                });
-            }
-        });
-
-        // Form validation for Edit Master Asset
-        document.getElementById('editMasterAssetForm')?.addEventListener('submit', function(event) {
-            const assetName = document.getElementById('edit_asset_name');
-            const assetType = document.getElementById('edit_asset_type');
-            const subcategoryId = document.getElementById('edit_subcategory_id');
-            const brandId = document.getElementById('edit_brand_id');
-
-            // Log values for debugging
-            console.log("Edit Form Validation - Values:", {
-                asset_name: assetName.value,
-                asset_type: assetType.value,
-                subcategory_id: subcategoryId.value,
-                brand_id: brandId.value
-            });
+            // Validation code - define validation variables
+            const assetName = this.querySelector('input[name="asset_name"]');
+            const assetType = document.getElementById('asset_type');
+            const subcategoryId = document.getElementById('subcategory_id');
+            const brandId = document.getElementById('brand_id');
 
             // Validate required fields
             const isAssetNameValid = validateField(assetName);
@@ -3024,87 +2866,193 @@
                 if (errorElement) errorElement.classList.remove('hidden');
             }
 
-            // If any validation fails, prevent form submission
-            if (!isAssetNameValid || !isAssetTypeValid || !isSubcategoryValid || !isBrandValid) {
-                event.preventDefault();
-                console.log("Validation failed:", {
-                    isAssetNameValid,
-                    isAssetTypeValid,
-                    isSubcategoryValid,
-                    isBrandValid
-                });
-                showToast('Silakan isi semua field yang diperlukan', 'error');
-                return false;
-            }
+            // If validation passes, proceed with form submission
+            if (isAssetNameValid && isAssetTypeValid && isSubcategoryValid && isBrandValid) {
+                event.preventDefault(); // Prevent default form submission
 
-            // Prevent default form submission to use AJAX instead
+                // Prepare form data
+                const formData = new FormData(this);
+
+                // Make sure hidden inputs are included
+                const hiddenInputIds = ['subcategory_id', 'brand_id'];
+                hiddenInputIds.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input && input.value) {
+                        formData.set(input.name, input.value);
+                    }
+                });
+
+                // Prevent multiple submissions
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.disabled) {
+                    // Save original button text
+                    const originalText = submitBtn.innerHTML;
+
+                    // Disable button and show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
+
+                    // Submit the form via AJAX
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errorData => {
+                                throw errorData;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Show success notification
+                        showToast(data.message || 'Aset master berhasil ditambahkan!', 'success');
+
+                        // Close the modal and reset form
+                        const modal = document.getElementById('addMasterAssetModal');
+                        const content = document.getElementById('addMasterAssetModalContent');
+                        if (modal && content) {
+                            closeModal(modal, content);
+                            resetAddMasterAssetForm();
+                        }
+
+                        // Reload the page after a short delay to show the new data
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    })
+                    .catch(error => {
+                        console.error('Error submitting form:', error);
+
+                        // Re-enable submit button
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = originalText;
+
+                        // Show error notification with proper error handling
+                        showToast(error, 'error');
+                    });
+                }
+            } else {
+                event.preventDefault();
+                showToast('Silakan isi semua field yang diperlukan', 'error');
+            }
+        });
+
+        // Edit form submission handler
+        document.getElementById('editMasterAssetForm')?.addEventListener('submit', function(event) {
+            // Prevent default submission to use AJAX
             event.preventDefault();
 
-            // Prepare form data for submission
-            const formData = new FormData(this);
+            // Validation code - define validation variables
+            const assetName = document.getElementById('edit_asset_name');
+            const assetType = document.getElementById('edit_asset_type');
+            const subcategoryId = document.getElementById('edit_subcategory_id');
+            const brandId = document.getElementById('edit_brand_id');
 
-            // Make sure hidden inputs for custom selects are included
-            const hiddenInputIds = ['edit_subcategory_id', 'edit_brand_id'];
-            hiddenInputIds.forEach(id => {
-                const input = document.getElementById(id);
-                if (input && input.value) {
-                    formData.set(input.name, input.value);
-                    console.log(`Including ${input.name} in submission with value: ${input.value}`);
-                }
-            });
+            // Validate required fields
+            const isAssetNameValid = validateField(assetName);
+            const isAssetTypeValid = validateField(assetType);
 
-            // Prevent multiple submissions
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn && !submitBtn.disabled) {
-                // Save original button text
-                const originalText = submitBtn.innerHTML;
+            // For custom select dropdowns, explicitly look at the hidden input value
+            const subcategoryContainer = subcategoryId.closest('.custom-select-container');
+            const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
+            const isSubcategoryValid = subcategoryId.value ? true : false;
 
-                // Disable button and show loading state
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
+            // Show visual feedback if invalid
+            if (!isSubcategoryValid) {
+                subcategorySearchInput.classList.add('border-red-500');
+                const errorElement = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) errorElement.classList.remove('hidden');
+            }
 
-                // Submit the form via AJAX
-                fetch(this.action, {
-                    method: 'POST', // Always use POST for form submission with FormData
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+            const brandContainer = brandId.closest('.custom-select-container');
+            const brandSearchInput = brandContainer.querySelector('.search-input');
+            const isBrandValid = brandId.value ? true : false;
+
+            // Show visual feedback if invalid
+            if (!isBrandValid) {
+                brandSearchInput.classList.add('border-red-500');
+                const errorElement = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) errorElement.classList.remove('hidden');
+            }
+
+            // If validation passes
+            if (isAssetNameValid && isAssetTypeValid && isSubcategoryValid && isBrandValid) {
+                // Prepare form data
+                const formData = new FormData(this);
+
+                // Make sure hidden inputs are included
+                const hiddenInputIds = ['edit_subcategory_id', 'edit_brand_id'];
+                hiddenInputIds.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input && input.value) {
+                        formData.set(input.name, input.value);
                     }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Server returned status: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Show success notification
-                    showNotification('success', data.message || 'Aset master berhasil diperbarui!');
-
-                    // Close the modal
-                    const modal = document.getElementById('editMasterAssetModal');
-                    const content = document.getElementById('editMasterAssetModalContent');
-                    if (modal && content) {
-                        closeModal(modal, content);
-                    }
-
-                    // Reload the page after a short delay to show the updated data
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                })
-                .catch(error => {
-                    console.error('Error submitting form:', error);
-
-                    // Show error notification
-                    showNotification('error', 'Gagal memperbarui aset: ' + error.message);
-
-                    // Re-enable submit button
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = originalText;
                 });
+
+                // Prevent multiple submissions
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.disabled) {
+                    // Save original button text
+                    const originalText = submitBtn.innerHTML;
+
+                    // Disable button and show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
+
+                    // Submit the form via AJAX
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errorData => {
+                                throw errorData;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Show success notification
+                        showToast(data.message || 'Aset master berhasil diperbarui!', 'success');
+
+                        // Close the modal
+                        const modal = document.getElementById('editMasterAssetModal');
+                        const content = document.getElementById('editMasterAssetModalContent');
+                        if (modal && content) {
+                            closeModal(modal, content);
+                        }
+
+                        // Reload the page after a short delay to show the updated data
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    })
+                    .catch(error => {
+                        console.error('Error submitting form:', error);
+
+                        // Re-enable submit button
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = originalText;
+
+                        // Show error notification with proper error handling
+                        showToast(error, 'error');
+                    });
+                }
+            } else {
+                showToast('Silakan isi semua field yang diperlukan', 'error');
             }
         });
 
@@ -3134,202 +3082,136 @@
             if (errorElement) errorElement.classList.add('hidden');
         });
 
-        // Load categories and brands when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize cached data for reuse
-            window.cachedCategories = new Map(); // Map of assetType -> categories data
+        // Subcategory search functionality with direct event listeners
+        document.querySelectorAll('[id$="subcategory_id"]').forEach(subcategoryInput => {
+            const container = subcategoryInput.closest('.custom-select-container');
+            const searchInput = container.querySelector('.search-input');
+            const optionsContainer = container.querySelector('.options-container');
 
-            // Initialize custom select dropdowns
-            initCustomSelects();
+            // Add dropdown icon to indicate it's clickable
+            const dropdownIcon = document.createElement('div');
+            dropdownIcon.className = 'absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer';
+            dropdownIcon.innerHTML = '<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>';
+            searchInput.parentNode.style.position = 'relative';
+            searchInput.parentNode.appendChild(dropdownIcon);
+            if (searchInput) {
+                // Remove focus event - only show on click
+                searchInput.addEventListener('focus', (e) => {
+                    // Don't show dropdown on focus - only on click
+                    e.stopPropagation();
+                });
 
-            // Brand search functionality with direct event listeners
-            document.querySelectorAll('[id$="brand_id"]').forEach(brandInput => {
-                const container = brandInput.closest('.custom-select-container');
-                const searchInput = container.querySelector('.search-input');
-                const optionsContainer = container.querySelector('.options-container');
-
-                // Add dropdown icon to indicate it's clickable
-                const dropdownIcon = document.createElement('div');
-                dropdownIcon.className = 'absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer';
-                dropdownIcon.innerHTML = '<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>';
-                searchInput.parentNode.style.position = 'relative';
-                searchInput.parentNode.appendChild(dropdownIcon);
-
-                if (searchInput) {
-                    // Remove focus event - only show on click
-                    searchInput.addEventListener('focus', (e) => {
-                        // Don't show dropdown on focus - only on click
-                        e.stopPropagation();
-                    });
-
-                    // Show dropdown when clicking on the input or dropdown icon
-                    const showDropdown = function() {
-                        // Always load results with at least a space to show all options
-                        const searchTerm = searchInput.value.trim() || " ";
-                        fetchBrands(searchTerm, brandInput.id);
-                        optionsContainer.style.display = 'block';
-                    };
-
-                    searchInput.addEventListener('click', showDropdown);
-                    dropdownIcon.addEventListener('click', function(e) {
-                        e.stopPropagation(); // Prevent triggering document click handler
-                        showDropdown();
-                    });
-
-                    // Hide dropdown when clicking outside
-                    document.addEventListener('click', function(e) {
-                        if (e.target !== searchInput && e.target !== dropdownIcon && !dropdownIcon.contains(e.target) && !optionsContainer.contains(e.target)) {
-                            optionsContainer.style.display = 'none';
-                        }
-                    });
-
-                    // Add input event listener for search
-                    searchInput.addEventListener('input', debounce(function() {
-                        const searchTerm = this.value.trim();
-                        if (searchTerm.length > 0) {
-                            fetchBrands(searchTerm, brandInput.id);
-                            // Keep dropdown open when typing
-                            optionsContainer.style.display = 'block';
-                        } else {
-                            // If they've cleared the input, show all options
-                            fetchBrands(" ", brandInput.id);
-                            optionsContainer.style.display = 'block';
-                        }
-                    }, 300));
-                }
-            });
-
-            // Subcategory search functionality with direct event listeners
-            document.querySelectorAll('[id$="subcategory_id"]').forEach(subcategoryInput => {
-                const container = subcategoryInput.closest('.custom-select-container');
-                const searchInput = container.querySelector('.search-input');
-                const optionsContainer = container.querySelector('.options-container');
-
-                // Add dropdown icon to indicate it's clickable
-                const dropdownIcon = document.createElement('div');
-                dropdownIcon.className = 'absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer';
-                dropdownIcon.innerHTML = '<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>';
-                searchInput.parentNode.style.position = 'relative';
-                searchInput.parentNode.appendChild(dropdownIcon);
-                if (searchInput) {
-                    // Remove focus event - only show on click
-                    searchInput.addEventListener('focus', (e) => {
-                        // Don't show dropdown on focus - only on click
-                        e.stopPropagation();
-                    });
-
-                    // Show dropdown when clicking on the input or dropdown icon
-                    const showDropdown = function() {
-                        // Don't do anything if input is disabled
-                        if (searchInput.disabled) {
-                            // Provide visual feedback by highlighting the asset type field
-                            const assetTypeId = subcategoryInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
-                            const assetTypeSelect = document.getElementById(assetTypeId);
-                            assetTypeSelect.classList.add('border-blue-500', 'ring-2', 'ring-blue-200');
-
-                            // Remove highlight after a short delay
-                            setTimeout(() => {
-                                assetTypeSelect.classList.remove('border-blue-500', 'ring-2', 'ring-blue-200');
-                            }, 1000);
-                            return;
-                        }
-
+                // Show dropdown when clicking on the input or dropdown icon
+                const showDropdown = function() {
+                    // Don't do anything if input is disabled
+                    if (searchInput.disabled) {
+                        // Provide visual feedback by highlighting the asset type field
                         const assetTypeId = subcategoryInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
                         const assetTypeSelect = document.getElementById(assetTypeId);
+                        assetTypeSelect.classList.add('border-blue-500', 'ring-2', 'ring-blue-200');
 
-                        if (assetTypeSelect && assetTypeSelect.value) {
-                            // Always load results with at least a space to show all options
-                            const searchTerm = searchInput.value.trim() || " ";
+                        // Remove highlight after a short delay
+                        setTimeout(() => {
+                            assetTypeSelect.classList.remove('border-blue-500', 'ring-2', 'ring-blue-200');
+                        }, 1000);
+                        return;
+                    }
+
+                    const assetTypeId = subcategoryInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
+                    const assetTypeSelect = document.getElementById(assetTypeId);
+
+                    if (assetTypeSelect && assetTypeSelect.value) {
+                        // Always load results with at least a space to show all options
+                        const searchTerm = searchInput.value.trim() || " ";
+                        fetchCategories(assetTypeSelect.value, searchTerm, subcategoryInput.id);
+                        optionsContainer.style.display = 'block';
+                    } else {
+                        // This should not happen if the input is properly disabled
+                        optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Pilih tipe aset terlebih dahulu</div>';
+                        optionsContainer.style.display = 'block';
+
+                        // Highlight the asset type field to guide the user
+                        assetTypeSelect.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+
+                        // Remove highlight after a short delay
+                        setTimeout(() => {
+                            assetTypeSelect.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+                        }, 1500);
+                    }
+                };
+
+                searchInput.addEventListener('click', showDropdown);
+                dropdownIcon.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent triggering document click handler
+                    showDropdown();
+                });
+
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (e.target !== searchInput && e.target !== dropdownIcon && !dropdownIcon.contains(e.target) && !optionsContainer.contains(e.target)) {
+                        optionsContainer.style.display = 'none';
+                    }
+                });
+
+                // Add input event listener for search
+                searchInput.addEventListener('input', debounce(function() {
+                    // Don't do anything if input is disabled
+                    if (this.disabled) return;
+
+                    const searchTerm = this.value.trim();
+                    const assetTypeId = subcategoryInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
+                    const assetTypeSelect = document.getElementById(assetTypeId);
+
+                    if (assetTypeSelect && assetTypeSelect.value) {
+                        if (searchTerm.length > 0) {
                             fetchCategories(assetTypeSelect.value, searchTerm, subcategoryInput.id);
                             optionsContainer.style.display = 'block';
                         } else {
-                            // This should not happen if the input is properly disabled
-                            optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Pilih tipe aset terlebih dahulu</div>';
+                            // If they've cleared the input, show all options
+                            fetchCategories(assetTypeSelect.value, " ", subcategoryInput.id);
                             optionsContainer.style.display = 'block';
-
-                            // Highlight the asset type field to guide the user
-                            assetTypeSelect.classList.add('border-red-500', 'ring-2', 'ring-red-200');
-
-                            // Remove highlight after a short delay
-                            setTimeout(() => {
-                                assetTypeSelect.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
-                            }, 1500);
                         }
-                    };
-
-                    searchInput.addEventListener('click', showDropdown);
-                    dropdownIcon.addEventListener('click', function(e) {
-                        e.stopPropagation(); // Prevent triggering document click handler
-                        showDropdown();
-                    });
-
-                    // Hide dropdown when clicking outside
-                    document.addEventListener('click', function(e) {
-                        if (e.target !== searchInput && e.target !== dropdownIcon && !dropdownIcon.contains(e.target) && !optionsContainer.contains(e.target)) {
-                            optionsContainer.style.display = 'none';
-                        }
-                    });
-
-                    // Add input event listener for search
-                    searchInput.addEventListener('input', debounce(function() {
-                        // Don't do anything if input is disabled
-                        if (this.disabled) return;
-
-                        const searchTerm = this.value.trim();
-                        const assetTypeId = subcategoryInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
-                        const assetTypeSelect = document.getElementById(assetTypeId);
-
-                        if (assetTypeSelect && assetTypeSelect.value) {
-                            if (searchTerm.length > 0) {
-                                fetchCategories(assetTypeSelect.value, searchTerm, subcategoryInput.id);
-                                optionsContainer.style.display = 'block';
-                            } else {
-                                // If they've cleared the input, show all options
-                                fetchCategories(assetTypeSelect.value, " ", subcategoryInput.id);
-                                optionsContainer.style.display = 'block';
-                            }
-                        }
-                    }, 300));
-                }
-            });
-
-            // For custom select dropdowns error handling
-            document.querySelectorAll('.custom-select-container .search-input').forEach(input => {
-                input.addEventListener('input', function() {
-                    const container = this.closest('.custom-select-container');
-                    const selectElement = container.querySelector('select');
-                    if (selectElement) {
-                        selectElement.classList.remove('border-red-500');
-                        const errorElement = container.closest('.space-y-2')?.querySelector('.error-message');
-                        if (errorElement) errorElement.classList.add('hidden');
                     }
-                });
-            });
-
-            // Ensure subcategory inputs are properly disabled/enabled based on asset type selection
-            function updateSubcategoryInputState(subcategoryId, assetTypeId) {
-                const subcategoryInput = document.getElementById(subcategoryId);
-                if (!subcategoryInput) return;
-
-                const container = subcategoryInput.closest('.custom-select-container');
-                const searchInput = container.querySelector('.search-input');
-                const assetTypeSelect = document.getElementById(assetTypeId);
-
-                if (assetTypeSelect && assetTypeSelect.value) {
-                    // Enable subcategory input and update placeholder
-                    searchInput.disabled = false;
-                    searchInput.placeholder = "Cari kategori...";
-                } else {
-                    // Disable subcategory input if no asset type is selected
-                    searchInput.disabled = true;
-                    searchInput.placeholder = "Pilih tipe aset terlebih dahulu";
-                }
+                }, 300));
             }
-
-            // Initialize state of subcategory inputs
-            updateSubcategoryInputState('subcategory_id', 'asset_type');
-            updateSubcategoryInputState('edit_subcategory_id', 'edit_asset_type');
         });
+
+        // For custom select dropdowns error handling
+        document.querySelectorAll('.custom-select-container .search-input').forEach(input => {
+            input.addEventListener('input', function() {
+                const container = this.closest('.custom-select-container');
+                const selectElement = container.querySelector('select');
+                if (selectElement) {
+                    selectElement.classList.remove('border-red-500');
+                    const errorElement = container.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                }
+            });
+        });
+
+        // Ensure subcategory inputs are properly disabled/enabled based on asset type selection
+        function updateSubcategoryInputState(subcategoryId, assetTypeId) {
+            const subcategoryInput = document.getElementById(subcategoryId);
+            if (!subcategoryInput) return;
+
+            const container = subcategoryInput.closest('.custom-select-container');
+            const searchInput = container.querySelector('.search-input');
+            const assetTypeSelect = document.getElementById(assetTypeId);
+
+            if (assetTypeSelect && assetTypeSelect.value) {
+                // Enable subcategory input and update placeholder
+                searchInput.disabled = false;
+                searchInput.placeholder = "Cari kategori...";
+            } else {
+                // Disable subcategory input if no asset type is selected
+                searchInput.disabled = true;
+                searchInput.placeholder = "Pilih tipe aset terlebih dahulu";
+            }
+        }
+
+        // Initialize state of subcategory inputs
+        updateSubcategoryInputState('subcategory_id', 'asset_type');
+        updateSubcategoryInputState('edit_subcategory_id', 'edit_asset_type');
 
         // Function to fetch brands with search parameter
         function fetchBrands(searchTerm = '', targetId = '') {
