@@ -148,7 +148,7 @@
                                             {{ isset($complaint['finished_date']) && $complaint['finished_date'] ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            ID: {{ $complaint['reporter_number'] ?? '-' }}
+                                            {{ $complaint['reporter_number'] ?? '-' }}
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             <div class="flex space-x-2">
@@ -164,6 +164,7 @@
                                                     </svg>
                                                 </button>
                                                 @if(hasPermission('repair:medical') && hasPermission('repair:non-medical'))
+                                                    @if($complaint['status'] == 'new' || $complaint['status'] == 'in progress')
                                                     <button
                                                         class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors repair-complaint-btn"
                                                         data-id="{{ $complaint['id'] }}"
@@ -175,6 +176,7 @@
                                                                 d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                                                         </svg>
                                                     </button>
+                                                    @endif
                                                 @endif
                                                 @if(hasPermission('complaint:delete'))
                                                     <button
@@ -974,15 +976,14 @@
             assetSearch?.addEventListener('focus', function () {
                 // Only show dropdown if we haven't selected an asset yet
                 if (!assetId.value) {
-                    // Make sure we have assets data before showing dropdown
-                    if (assets && assets.length > 0) {
-                        displayFilteredAssets(assets, '');
-                        assetDropdown.classList.remove('hidden');
-                    } else {
-                        // No assets available
-                        assetNoResults.classList.remove('hidden');
-                        assetDropdown.classList.remove('hidden');
-                    }
+                    // Show loading indicator initially
+                    assetLoadingIndicator.classList.remove('hidden');
+                    assetNoResults.classList.add('hidden');
+                    assetDropdownContent.innerHTML = '';
+                    assetDropdown.classList.remove('hidden');
+
+                    // Load initial assets (empty search)
+                    searchAssets('');
                 }
             });
 
@@ -1001,37 +1002,84 @@
 
                 // Set new timeout for debounce (300ms)
                 assetSearchTimeout = setTimeout(function () {
-                    // Filter assets client-side
-                    filterAssets(searchTerm);
+                    // Search assets using server-side API
+                    searchAssets(searchTerm);
                 }, 300);
             });
 
-            // Function to filter assets based on search term
-            function filterAssets(searchTerm) {
-                assetLoadingIndicator.classList.add('hidden');
+            // Function to search assets using server API
+            function searchAssets(searchTerm) {
+                // Show loading state
+                assetLoadingIndicator.classList.remove('hidden');
+                assetNoResults.classList.add('hidden');
+                assetDropdownContent.innerHTML = '';
 
-                if (!assets || assets.length === 0) {
-                    assetNoResults.classList.remove('hidden');
-                    return;
-                }
+                // Build the search URL with parameters
+                const searchUrl = `/assets?json=true&search=${encodeURIComponent(searchTerm)}&limit=20`;
 
-                // Filter assets by name, code or ID
-                let filteredAssets = assets;
-                if (searchTerm) {
-                    filteredAssets = assets.filter(asset =>
-                        (asset.asset_name && asset.asset_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                        (asset.asset_master_name && asset.asset_master_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                        (asset.asset_code && asset.asset_code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                        (asset.asset_id && asset.asset_id.toString().includes(searchTerm))
-                    );
-                }
+                // Make the API request
+                fetch(searchUrl, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Process the response
+                    let fetchedAssets = [];
 
-                displayFilteredAssets(filteredAssets, searchTerm);
+                    // Handle different response formats
+                    if (Array.isArray(data)) {
+                        fetchedAssets = data;
+                    } else if (data.assets && Array.isArray(data.assets)) {
+                        fetchedAssets = data.assets;
+                    } else if (data.data && Array.isArray(data.data)) {
+                        fetchedAssets = data.data;
+                    }
+
+                    // Display the results
+                    displayFilteredAssets(fetchedAssets, searchTerm);
+                })
+                .catch(error => {
+                    console.error('Error searching assets:', error);
+                    assetLoadingIndicator.classList.add('hidden');
+
+                    // Show error message
+                    assetDropdownContent.innerHTML = `
+                        <div class="p-2 text-center text-red-500">
+                            Gagal mencari aset. Silakan coba lagi.
+                        </div>
+                    `;
+
+                    // If we have local assets data, fall back to client-side filtering
+                    if (assets && assets.length > 0) {
+                        // Filter assets by name, code or ID
+                        let filteredAssets = assets;
+                        if (searchTerm) {
+                            filteredAssets = assets.filter(asset =>
+                                (asset.asset_name && asset.asset_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                                (asset.asset_master_name && asset.asset_master_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                                (asset.asset_code && asset.asset_code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                                (asset.asset_id && asset.asset_id.toString().includes(searchTerm))
+                            );
+                        }
+
+                        // Display fallback results
+                        displayFilteredAssets(filteredAssets, searchTerm);
+                    }
+                });
             }
 
             // Function to display filtered assets in dropdown
             function displayFilteredAssets(filteredAssets, searchTerm) {
                 assetDropdownContent.innerHTML = '';
+                assetLoadingIndicator.classList.add('hidden');
 
                 if (!filteredAssets || filteredAssets.length === 0) {
                     assetNoResults.classList.remove('hidden');
@@ -1039,12 +1087,8 @@
                 }
 
                 assetNoResults.classList.add('hidden');
-                assetLoadingIndicator.classList.add('hidden');
 
-                // Limit to first 100 results for performance
-                const assetsToShow = filteredAssets.slice(0, 100);
-
-                assetsToShow.forEach(asset => {
+                filteredAssets.forEach(asset => {
                     const div = document.createElement('div');
                     div.className = 'p-2 hover:bg-gray-100 cursor-pointer rounded transition-colors';
                     div.innerHTML = `
@@ -1058,6 +1102,14 @@
 
                     assetDropdownContent.appendChild(div);
                 });
+
+                // Show count if there are many results
+                if (filteredAssets.length > 10) {
+                    const countDiv = document.createElement('div');
+                    countDiv.className = 'p-2 text-center text-xs text-gray-500 border-t';
+                    countDiv.textContent = `Menampilkan ${filteredAssets.length} aset`;
+                    assetDropdownContent.appendChild(countDiv);
+                }
             }
 
             // Function to select an asset

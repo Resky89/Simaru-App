@@ -151,30 +151,7 @@ class UserController extends Controller
                 ]);
             }
 
-            // Get roles for the view
-            $roles = [];
-            try {
-                $roleResult = $this->apiService->request('GET', '/roles', [
-                    'query' => [
-                        'page' => 1,
-                        'limit' => 100, // Get enough roles for dropdowns
-                        'sort_by' => 'role_id',
-                        'sort_order' => 'asc'
-                    ]
-                ]);
-
-                if (isset($roleResult['success']) && $roleResult['success'] === true) {
-                    $roles = $roleResult['data'] ?? [];
-                }
-            } catch (\Exception $e) {
-                $roles = [];
-            }
-
             return view('Account.User', [
-                'roles' => [
-                    'data' => $roles,
-                    'pagination' => null
-                ],
                 'users' => $users,
                 'user_pagination' => $userPagination,
                 'filters' => [
@@ -194,10 +171,6 @@ class UserController extends Controller
             }
 
             return view('Account.User', [
-                'roles' => [
-                    'data' => [],
-                    'pagination' => null
-                ],
                 'users' => [],
                 'user_pagination' => null,
                 'error' => 'Gagal mengambil data: ' . $e->getMessage()

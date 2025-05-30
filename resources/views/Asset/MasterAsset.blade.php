@@ -307,10 +307,10 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <!-- Subcategory Dropdown -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Kategori <span class="text-red-500">*</span></label>
+                                    <label class="block text-base font-semibold text-[#666666]">Kategori <span class="text-red-500">*</span> <span class="text-xs text-blue-600">(Pilih tipe aset terlebih dahulu)</span></label>
                                     <div class="custom-select-container relative">
-                                        <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="Cari kategori...">
+                                        <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                            placeholder="Pilih tipe aset terlebih dahulu" disabled id="subcategory_search">
                                         <input type="hidden" name="subcategory_id" id="subcategory_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500" id="subcategory-loading-message">Pilih tipe aset terlebih dahulu</div>
@@ -329,7 +329,6 @@
                                         <input type="hidden" name="brand_id" id="brand_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500" id="brand-loading-message">Memuat data merk...</div>
-                                            <!-- Brands will be loaded dynamically -->
                                         </div>
                                     </div>
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Merk harus dipilih</div>
@@ -474,10 +473,10 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <!-- Subcategory Dropdown -->
                                 <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Kategori <span class="text-red-500">*</span></label>
+                                    <label class="block text-base font-semibold text-[#666666]">Kategori <span class="text-red-500">*</span> <span class="text-xs text-blue-600">(Pilih tipe aset terlebih dahulu)</span></label>
                                     <div class="custom-select-container relative">
-                                        <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            placeholder="Cari kategori...">
+                                        <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                            placeholder="Pilih tipe aset terlebih dahulu" disabled id="edit_subcategory_search">
                                         <input type="hidden" name="subcategory_id" id="edit_subcategory_id">
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500" id="edit-subcategory-loading-message">Pilih tipe aset terlebih dahulu</div>
@@ -811,11 +810,11 @@
 
         // Display session notifications using the showNotification function
         @if(session('success'))
-            showNotification('success', '{{ session('success') }}');
+            showToast('{{ session('success') }}', 'success');
         @endif
 
         @if(session('error') || isset($error))
-            showNotification('error', '{!! session('error') ?? $error ?? 'An error occurred' !!}');
+            showToast('{!! session('error') ?? $error ?? 'An error occurred' !!}', 'error');
         @endif
 
         // Modal functionality
@@ -907,50 +906,62 @@
                     optionsContainer.appendChild(loadMoreDiv);
                 }
 
-                // Show options when input is focused
-                searchInput.addEventListener('focus', () => {
-                    optionsContainer.classList.remove('hidden');
-
-                    // Reset search and show all loaded options
-                    if (searchInput.value === '') {
-                        if (isFullyLoaded) {
-                            allOptions.forEach(option => {
-                                option.style.display = '';
-                            });
-                        } else {
-                            // Show only initial options
-                            allOptions.forEach((option, index) => {
-                                option.style.display = index < visibleCount ? '' : 'none';
-                            });
-
-                            // Make sure load more button is visible if needed
-                            const loadMoreBtn = optionsContainer.querySelector('.load-more');
-                            if (!loadMoreBtn && !isFullyLoaded) {
-                                const loadMoreDiv = document.createElement('div');
-                                loadMoreDiv.className = 'load-more p-3 text-center text-blue-600 hover:bg-gray-100 cursor-pointer';
-                                loadMoreDiv.textContent = `Muat lebih banyak opsi... (${visibleCount} dari ${allOptions.length})`;
-                                loadMoreDiv.addEventListener('click', function() {
-                                    const newVisibleCount = Math.min(visibleCount + loadMoreIncrement, allOptions.length);
-                                    for (let i = visibleCount; i < newVisibleCount; i++) {
-                                        allOptions[i].style.display = '';
-                                    }
-                                    visibleCount = newVisibleCount;
-
-                                    if (visibleCount >= allOptions.length) {
-                                        this.remove();
-                                        isFullyLoaded = true;
-                                    } else {
-                                        this.textContent = `Muat lebih banyak opsi... (${visibleCount} dari ${allOptions.length})`;
-                                    }
-                                });
-                                optionsContainer.appendChild(loadMoreDiv);
-                            }
-                        }
-                    } else {
-                        // If there's already a search term, filter by it
-                        filterOptions(searchInput.value.toLowerCase().trim());
-                    }
+                // Show options when input is focused - REMOVING THIS BEHAVIOR
+                searchInput.addEventListener('focus', (e) => {
+                    // Don't show dropdown on focus - prevent default behavior
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Don't show the dropdown automatically - it will be shown only on click
                 });
+
+                // For non-dynamic selects (pre-populated options), add click handler
+                if (allOptions.length > 0) {
+                    // Add click event to show dropdown
+                    searchInput.addEventListener('click', () => {
+                        // Only show dropdown when clicking
+                        optionsContainer.classList.remove('hidden');
+
+                        // Reset search and show all loaded options
+                        if (searchInput.value === '') {
+                            if (isFullyLoaded) {
+                                allOptions.forEach(option => {
+                                    option.style.display = '';
+                                });
+                            } else {
+                                // Show only initial options
+                                allOptions.forEach((option, index) => {
+                                    option.style.display = index < visibleCount ? '' : 'none';
+                                });
+
+                                // Make sure load more button is visible if needed
+                                const loadMoreBtn = optionsContainer.querySelector('.load-more');
+                                if (!loadMoreBtn && !isFullyLoaded) {
+                                    const loadMoreDiv = document.createElement('div');
+                                    loadMoreDiv.className = 'load-more p-3 text-center text-blue-600 hover:bg-gray-100 cursor-pointer';
+                                    loadMoreDiv.textContent = `Muat lebih banyak opsi... (${visibleCount} dari ${allOptions.length})`;
+                                    loadMoreDiv.addEventListener('click', function() {
+                                        const newVisibleCount = Math.min(visibleCount + loadMoreIncrement, allOptions.length);
+                                        for (let i = visibleCount; i < newVisibleCount; i++) {
+                                            allOptions[i].style.display = '';
+                                        }
+                                        visibleCount = newVisibleCount;
+
+                                        if (visibleCount >= allOptions.length) {
+                                            this.remove();
+                                            isFullyLoaded = true;
+                                        } else {
+                                            this.textContent = `Muat lebih banyak opsi... (${visibleCount} dari ${allOptions.length})`;
+                                        }
+                                    });
+                                    optionsContainer.appendChild(loadMoreDiv);
+                                }
+                            }
+                        } else {
+                            // If there's already a search term, filter by it
+                            filterOptions(searchInput.value.toLowerCase().trim());
+                        }
+                    });
+                }
 
                 // Hide options when clicking outside
                 document.addEventListener('click', (e) => {
@@ -1177,229 +1188,45 @@
 
         // Load subcategories based on selected asset type
         function loadSubcategories(assetType, targetElementId, loadingMessageId, searchTerm = '', silentLoad = false) {
+            // Forward to the new implementation
+            if (typeof fetchCategories === 'function') {
+                fetchCategories(assetType, searchTerm, targetElementId);
+                return;
+            }
+
+            // Fallback implementation - this should never execute since fetchCategories is now defined
+            console.warn('fetchCategories not available, using legacy loadSubcategories');
+
             // Get container elements
             const container = document.querySelector(`#${targetElementId}`).closest('.custom-select-container');
             const optionsContainer = container.querySelector('.options-container');
-            const loadingMessage = document.getElementById(loadingMessageId);
-            const searchInput = container.querySelector('.search-input');
-
-            // Reset previous options
-            Array.from(optionsContainer.querySelectorAll('.option')).forEach(option => option.remove());
-
-            // Remove any existing no-results message
-            const existingNoResults = optionsContainer.querySelector('.no-results');
-            if (existingNoResults) {
-                existingNoResults.remove();
-            }
 
             // Set loading message
-            if (loadingMessage) {
-                loadingMessage.textContent = searchTerm ? 'Mencari kategori...' : 'Memuat kategori...';
-            } else {
-                // Create a loading message if it doesn't exist
-                const newLoadingMsg = document.createElement('div');
-                newLoadingMsg.id = loadingMessageId;
-                newLoadingMsg.className = 'p-2 text-center text-gray-500';
-                newLoadingMsg.textContent = searchTerm ? 'Mencari kategori...' : 'Memuat kategori...';
-                optionsContainer.appendChild(newLoadingMsg);
-            }
+            optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat kategori...</div>';
 
             // Show options container only if not in silent mode
-            if (!silentLoad && optionsContainer.classList.contains('hidden')) {
-                optionsContainer.classList.remove('hidden');
+            if (!silentLoad) {
+                optionsContainer.style.display = 'block';
             }
 
             if (!assetType) {
-                if (loadingMessage) {
-                    loadingMessage.textContent = 'Pilih tipe aset terlebih dahulu';
-                }
-                        return;
-                    }
-
-            // Build URL with search parameter if provided
-            let url = `/categories?asset_type=${assetType}&json=true`;
-            if (searchTerm) {
-                url += `&search=${encodeURIComponent(searchTerm)}`;
+                optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Pilih tipe aset terlebih dahulu</div>';
+                return;
             }
-
-            // Fetch subcategories from API
-            fetch(url, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Clear the loading message
-                    Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
-
-                    // Check if we have data
-                    if (!Array.isArray(data) || data.length === 0) {
-                        const noDataMsg = document.createElement('div');
-                        noDataMsg.className = 'no-results p-2 text-center text-gray-500';
-                        noDataMsg.textContent = searchTerm ? `Tidak ada hasil untuk "${searchTerm}"` : 'Tidak ada kategori tersedia';
-                        optionsContainer.appendChild(noDataMsg);
-                        return;
-                    }
-
-                    // Add search help message
-                    const searchHelpMsg = document.createElement('div');
-                    searchHelpMsg.className = 'p-2 text-center text-gray-500';
-                    searchHelpMsg.textContent = 'Ketik untuk mencari...';
-                    optionsContainer.appendChild(searchHelpMsg);
-
-                    // Add options
-                    data.forEach(subcategory => {
-                        const option = document.createElement('div');
-                        option.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
-                        option.setAttribute('data-value', subcategory.subcategory_id);
-                        option.setAttribute('data-type', subcategory.asset_type);
-                        option.textContent = subcategory.subcategory_name;
-
-                        // Add click event
-                        option.addEventListener('click', () => {
-                            const hiddenInput = container.querySelector('input[type="hidden"]');
-                            hiddenInput.value = subcategory.subcategory_id;
-                            searchInput.value = subcategory.subcategory_name;
-                            optionsContainer.classList.add('hidden');
-
-                            // Trigger change event
-                const event = new Event('change', { bubbles: true });
-                hiddenInput.dispatchEvent(event);
-                        });
-
-                        optionsContainer.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching subcategories:', error);
-                    Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
-
-                    const errorMsg = document.createElement('div');
-                    errorMsg.className = 'p-2 text-center text-red-500';
-                    errorMsg.textContent = 'Error loading categories';
-                    optionsContainer.appendChild(errorMsg);
-                });
         }
 
                 // Load brands
         function loadBrands(targetElementId, loadingMessageId, searchTerm = '', silentLoad = false) {
-            // Get container elements
-            const container = document.querySelector(`#${targetElementId}`).closest('.custom-select-container');
-            const optionsContainer = container.querySelector('.options-container');
-            const loadingMessage = document.getElementById(loadingMessageId);
-            const searchInput = container.querySelector('.search-input');
-
-            // Reset previous options
-            Array.from(optionsContainer.querySelectorAll('.option')).forEach(option => option.remove());
-
-            // Remove any existing no-results message
-            const existingNoResults = optionsContainer.querySelector('.no-results');
-            if (existingNoResults) {
-                existingNoResults.remove();
+            // Just forward to the new implementation at the bottom
+            if (typeof fetchBrands === 'function') {
+                fetchBrands(searchTerm, targetElementId);
+                return;
             }
 
-            // Set loading message
-            if (loadingMessage) {
-                loadingMessage.textContent = searchTerm ? 'Mencari merk...' : 'Memuat data merk...';
-            } else {
-                // Create a loading message if it doesn't exist
-                const newLoadingMsg = document.createElement('div');
-                newLoadingMsg.id = loadingMessageId;
-                newLoadingMsg.className = 'p-2 text-center text-gray-500';
-                newLoadingMsg.textContent = searchTerm ? 'Mencari merk...' : 'Memuat data merk...';
-                optionsContainer.appendChild(newLoadingMsg);
-            }
+            // Fallback if the new function isn't available yet (this code should never execute)
+            console.warn('fetchBrands not available, using legacy loadBrands');
 
-            // Show options container only if not in silent mode
-            if (!silentLoad && optionsContainer.classList.contains('hidden')) {
-                optionsContainer.classList.remove('hidden');
-            }
-
-            // Build URL with search parameter if provided
-            let url = '/brands?json=true';
-            if (searchTerm) {
-                url += `&search=${encodeURIComponent(searchTerm)}`;
-            }
-
-            // Fetch brands from API
-            fetch(url, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Clear the loading message
-                    Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
-
-                    // Check if we have data
-                    if (!Array.isArray(data) || data.length === 0) {
-                        const noDataMsg = document.createElement('div');
-                        noDataMsg.className = 'no-results p-2 text-center text-gray-500';
-                        noDataMsg.textContent = searchTerm ? `Tidak ada hasil untuk "${searchTerm}"` : 'Tidak ada merk tersedia';
-                        optionsContainer.appendChild(noDataMsg);
-                        return;
-                    }
-
-                    // Add search help message
-                    const searchHelpMsg = document.createElement('div');
-                    searchHelpMsg.className = 'p-2 text-center text-gray-500';
-                    searchHelpMsg.textContent = 'Ketik untuk mencari...';
-                    optionsContainer.appendChild(searchHelpMsg);
-
-                    // Add options with highlight for search term
-                    data.forEach(brand => {
-                        const option = document.createElement('div');
-                        option.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
-                        option.setAttribute('data-value', brand.brand_id);
-
-                        // Highlight search term if it exists
-                        if (searchTerm && brand.brand_name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                            const regex = new RegExp(searchTerm, 'gi');
-                            option.innerHTML = brand.brand_name.replace(regex, match =>
-                                `<span class="bg-yellow-200">${match}</span>`
-                            );
-                } else {
-                            option.textContent = brand.brand_name;
-                        }
-
-                        // Add click event
-                        option.addEventListener('click', () => {
-                            const hiddenInput = container.querySelector('input[type="hidden"]');
-                            hiddenInput.value = brand.brand_id;
-                            searchInput.value = brand.brand_name;
-                            optionsContainer.classList.add('hidden');
-
-                            // Trigger change event
-                            const event = new Event('change', { bubbles: true });
-                            hiddenInput.dispatchEvent(event);
-                        });
-
-                        optionsContainer.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching brands:', error);
-                    Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
-
-                    const errorMsg = document.createElement('div');
-                    errorMsg.className = 'p-2 text-center text-red-500';
-                    errorMsg.textContent = 'Error loading brands';
-                    optionsContainer.appendChild(errorMsg);
-                });
+            // Implementation details removed to avoid conflicts
         }
 
         // Asset type change handlers
@@ -1413,8 +1240,18 @@
             hiddenInput.value = '';
             searchInput.value = '';
 
-            // Load subcategories with empty search value
-            loadSubcategories(selectedType, 'subcategory_id', 'subcategory-loading-message', '');
+            if (selectedType) {
+                // Enable subcategory input and update placeholder
+                searchInput.disabled = false;
+                searchInput.placeholder = "Cari kategori...";
+
+                // Load subcategories with empty search value using the new function
+                fetchCategories(selectedType, '', 'subcategory_id');
+            } else {
+                // Disable subcategory input if no asset type is selected
+                searchInput.disabled = true;
+                searchInput.placeholder = "Pilih tipe aset terlebih dahulu";
+            }
         });
 
         document.getElementById('edit_asset_type')?.addEventListener('change', function() {
@@ -1427,8 +1264,18 @@
             hiddenInput.value = '';
             searchInput.value = '';
 
-            // Load subcategories with empty search value
-            loadSubcategories(selectedType, 'edit_subcategory_id', 'edit-subcategory-loading-message', '');
+            if (selectedType) {
+                // Enable subcategory input and update placeholder
+                searchInput.disabled = false;
+                searchInput.placeholder = "Cari kategori...";
+
+                // Load subcategories with empty search value using the new function
+                fetchCategories(selectedType, '', 'edit_subcategory_id');
+            } else {
+                // Disable subcategory input if no asset type is selected
+                searchInput.disabled = true;
+                searchInput.placeholder = "Pilih tipe aset terlebih dahulu";
+            }
         });
 
         // Load brands when form opens
@@ -1444,9 +1291,22 @@
                     // Load brands in silent mode (don't show dropdown)
                     loadBrands('edit_brand_id', 'edit-brand-loading-message', '', true);
 
-                    // If asset has asset_type, load subcategories filtered by that type in silent mode
+                    // If asset has asset_type, enable and load subcategories
                     if (asset.asset_type) {
-                        loadSubcategories(asset.asset_type, 'edit_subcategory_id', 'edit-subcategory-loading-message', '', true);
+                        // Enable subcategory input
+                        const subcategoryContainer = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
+                        const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
+                        subcategorySearchInput.disabled = false;
+                        subcategorySearchInput.placeholder = "Cari kategori...";
+
+                        // Load subcategories filtered by that type
+                        fetchCategories(asset.asset_type, '', 'edit_subcategory_id');
+                    } else {
+                        // Ensure subcategory input is disabled if no asset type
+                        const subcategoryContainer = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
+                        const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
+                        subcategorySearchInput.disabled = true;
+                        subcategorySearchInput.placeholder = "Pilih tipe aset terlebih dahulu";
                     }
                 };
 
@@ -1567,8 +1427,14 @@
                         if (asset.asset_type) {
                             document.getElementById('edit_asset_type').value = asset.asset_type;
 
-                            // Load subcategories based on asset type with silent mode (don't show dropdown)
-                            loadSubcategories(asset.asset_type, 'edit_subcategory_id', 'edit-subcategory-loading-message', '', true);
+                            // Enable subcategory input
+                            const subcategoryContainer = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
+                            const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
+                            subcategorySearchInput.disabled = false;
+                            subcategorySearchInput.placeholder = "Cari kategori...";
+
+                            // Load subcategories based on asset type
+                            fetchCategories(asset.asset_type, '', 'edit_subcategory_id');
 
                             // Set the selected subcategory value immediately
                             if (asset.subcategory_id && asset.subcategory_name) {
@@ -1705,6 +1571,13 @@
 
         // Prevent multiple submissions for delete form
         document.getElementById('delete-form')?.addEventListener('submit', function(event) {
+            // Prevent default form submission
+            event.preventDefault();
+
+            // Prepare form data
+            const formData = new FormData(this);
+            const actionUrl = this.action;
+
             // Prevent multiple submissions
             const submitBtn = this.querySelector('button[type="submit"]');
             if (submitBtn && !submitBtn.disabled) {
@@ -1716,12 +1589,47 @@
                 submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                 submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menghapus...</span></div>';
 
-                // Set timeout to re-enable button after 10 seconds (in case of network issues)
-                setTimeout(() => {
+                // Submit via AJAX
+                fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server returned status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Close modal
+                    const deleteModal = document.getElementById('deleteModal');
+                    const deleteContent = document.getElementById('deleteModalContent');
+                    if (deleteModal && deleteContent) {
+                        closeModal(deleteModal, deleteContent);
+                    }
+
+                    // Show success message
+                    showToast(data.message || 'Aset master berhasil dihapus!', 'success');
+
+                    // Reload page after short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error('Error deleting asset:', error);
+
+                    // Re-enable button
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                     submitBtn.innerHTML = originalText;
-                }, 10000);
+
+                    // Show error message
+                    showToast('Gagal menghapus aset: ' + error.message, 'error');
+                });
             }
         });
 
@@ -2630,7 +2538,7 @@
                     closeModal(modal, content);
 
                     // Show success notification
-                    showNotification('success', data.message || 'Assets imported successfully!');
+                    showToast(data.message || 'Aset master berhasil diimpor!', 'success');
 
                     // Reload the page to show updated data
                     setTimeout(() => {
@@ -2718,7 +2626,7 @@
                     }
 
                     // Create and show the toast notification
-                    showNotification('error', errorMessage);
+                    showToast(errorMessage, 'error');
                 }
             })
             .catch(error => {
@@ -2754,19 +2662,19 @@
                                     errorMessage += '</ul>';
                                 }
 
-                                showNotification('error', errorMessage);
+                                showToast(errorMessage, 'error');
                             }
                         }).catch(() => {
                             // If we can't parse the JSON, just show the status text
-                            showNotification('error', `Error: ${error.response.statusText || errorMessage}`);
+                            showToast(`Error: ${error.response.statusText || errorMessage}`, 'error');
                         });
                     } catch (e) {
                         // If any error in parsing, use default message
-                        showNotification('error', errorMessage);
+                        showToast(errorMessage, 'error');
                     }
                 } else {
                     // Network error or something prevented the request
-                    showNotification('error', error.message || errorMessage);
+                    showToast(error.message || errorMessage, 'error');
                 }
             });
         });
@@ -2809,9 +2717,9 @@
                 const iconContainer = document.createElement('div');
                 iconContainer.className = 'py-1 flex-shrink-0';
                 iconContainer.innerHTML = `
-                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 `;
 
                 // Content container
@@ -2864,7 +2772,93 @@
 
         // Function to show toast notifications
         function showToast(message, type = 'success') {
-            showNotification(type, message);
+            // Create the notification element
+            const notification = document.createElement('div');
+            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+            notification.role = 'alert';
+
+            // Check if message contains HTML
+            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+
+            if (type === 'success') {
+                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                notification.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="py-1">
+                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Berhasil!</p>
+                            <div>${message}</div>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            } else {
+                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                // Structure for the notification
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-start';
+
+                // Icon container
+                const iconContainer = document.createElement('div');
+                iconContainer.className = 'py-1 flex-shrink-0';
+                iconContainer.innerHTML = `
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                `;
+
+                // Content container
+                const contentContainer = document.createElement('div');
+                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                // Title
+                const title = document.createElement('p');
+                title.className = 'font-bold';
+                title.textContent = 'Error!';
+                contentContainer.appendChild(title);
+
+                // Message container
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'error-message';
+
+                // Handle HTML content
+                if (hasHTML) {
+                    messageContainer.innerHTML = message;
+                } else {
+                    messageContainer.textContent = message;
+                }
+
+                contentContainer.appendChild(messageContainer);
+
+                // Close button
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = function() {
+                    notification.remove();
+                };
+
+                // Assemble the notification
+                wrapper.appendChild(iconContainer);
+                wrapper.appendChild(contentContainer);
+                wrapper.appendChild(closeBtn);
+                notification.appendChild(wrapper);
+            }
+
+            // Add to document
+            document.body.appendChild(notification);
+
+            // Auto-remove notification after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
         }
 
         // Function to validate field and show/hide error message
@@ -2896,6 +2890,8 @@
 
         // Form validation for Add Master Asset
         document.getElementById('createMasterAssetForm')?.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent normal form submission
+
             // Get all required fields from the form
             const assetName = document.querySelector('#createMasterAssetForm input[name="asset_name"]');
             const assetType = document.querySelector('#createMasterAssetForm select[name="asset_type"]');
@@ -2921,24 +2917,12 @@
 
             // If any validation fails, prevent form submission
             if (!isAssetNameValid || !isAssetTypeValid || !isSubcategoryValid || !isBrandValid) {
-                event.preventDefault();
                 showToast('Silakan isi semua field yang diperlukan', 'error');
                 return false;
             }
 
-            // Remove empty fields from form submission
-            const formInputs = this.querySelectorAll('input, textarea, select');
-            formInputs.forEach(input => {
-                // Skip checkbox inputs and file inputs
-                if (input.type === 'checkbox' || input.type === 'file' || input.type === 'hidden') {
-                    return;
-                }
-
-                // If the input is empty, disable it so it won't be included in form submission
-                if (input.value === '' || input.value === null) {
-                    input.disabled = true;
-                }
-            });
+            // Prepare form data for submission
+            const formData = new FormData(this);
 
             // Prevent multiple submissions
             const submitBtn = this.querySelector('button[type="submit"]');
@@ -2951,17 +2935,50 @@
                 submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                 submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
 
-                // Set timeout to re-enable button after 10 seconds (in case of network issues)
-                setTimeout(() => {
+                // Submit the form via AJAX
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server returned status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Show success notification
+                    showNotification('success', data.message);
+
+                    // Close the modal
+                    const modal = document.getElementById('addMasterAssetModal');
+                    const content = document.getElementById('addMasterAssetModalContent');
+                    if (modal && content) {
+                        closeModal(modal, content);
+                    }
+
+                    // Reset form
+                    resetAddMasterAssetForm();
+
+                    // Reload the page after a short delay to show the new data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error('Error submitting form:', error);
+
+                    // Show error notification
+                    showNotification('error', 'Gagal menambahkan aset: ' + error.message);
+
+                    // Re-enable submit button
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                     submitBtn.innerHTML = originalText;
-
-                    // Re-enable all inputs that were disabled
-                    formInputs.forEach(input => {
-                        input.disabled = false;
-                    });
-                }, 10000);
+                });
             }
         });
 
@@ -3020,33 +3037,19 @@
                 return false;
             }
 
-                        // Make sure hidden inputs for custom selects are properly included
-            const hiddenInputs = ['edit_subcategory_id', 'edit_brand_id', 'edit_asset_type'];
-            hiddenInputs.forEach(id => {
+            // Prevent default form submission to use AJAX instead
+            event.preventDefault();
+
+            // Prepare form data for submission
+            const formData = new FormData(this);
+
+            // Make sure hidden inputs for custom selects are included
+            const hiddenInputIds = ['edit_subcategory_id', 'edit_brand_id'];
+            hiddenInputIds.forEach(id => {
                 const input = document.getElementById(id);
                 if (input && input.value) {
-                    // Ensure the field will be submitted with correct value
-                    input.disabled = false;
-
-                    // Also add a data-debug attribute to verify in browser inspection
-                    input.setAttribute('data-included-in-submission', 'true');
-                    console.log(`Including ${id} in submission with value: ${input.value}`);
-                }
-            });
-
-            // Remove empty fields from form submission
-            const formInputs = this.querySelectorAll('input, textarea, select');
-            formInputs.forEach(input => {
-                // Skip checkbox inputs, file inputs, and special inputs
-                if (input.type === 'checkbox' || input.type === 'file' ||
-                    input.name === '_token' || input.name === '_method' ||
-                    hiddenInputs.includes(input.id)) {
-                    return;
-                }
-
-                // If the input is empty, disable it so it won't be included in form submission
-                if (input.value === '' || input.value === null) {
-                    input.disabled = true;
+                    formData.set(input.name, input.value);
+                    console.log(`Including ${input.name} in submission with value: ${input.value}`);
                 }
             });
 
@@ -3061,17 +3064,47 @@
                 submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                 submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
 
-                // Set timeout to re-enable button after 10 seconds (in case of network issues)
-                setTimeout(() => {
+                // Submit the form via AJAX
+                fetch(this.action, {
+                    method: 'POST', // Always use POST for form submission with FormData
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server returned status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Show success notification
+                    showNotification('success', data.message || 'Aset master berhasil diperbarui!');
+
+                    // Close the modal
+                    const modal = document.getElementById('editMasterAssetModal');
+                    const content = document.getElementById('editMasterAssetModalContent');
+                    if (modal && content) {
+                        closeModal(modal, content);
+                    }
+
+                    // Reload the page after a short delay to show the updated data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error('Error submitting form:', error);
+
+                    // Show error notification
+                    showNotification('error', 'Gagal memperbarui aset: ' + error.message);
+
+                    // Re-enable submit button
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                     submitBtn.innerHTML = originalText;
-
-                    // Re-enable all inputs that were disabled
-                    formInputs.forEach(input => {
-                        input.disabled = false;
-                    });
-                }, 10000);
+                });
             }
         });
 
@@ -3103,110 +3136,471 @@
 
         // Load categories and brands when the page loads
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize cached data for reuse
+            window.cachedCategories = new Map(); // Map of assetType -> categories data
+
             // Initialize custom select dropdowns
             initCustomSelects();
 
-            // Enhance each search input for dynamic search
-            document.querySelectorAll('.custom-select-container').forEach(container => {
+            // Brand search functionality with direct event listeners
+            document.querySelectorAll('[id$="brand_id"]').forEach(brandInput => {
+                const container = brandInput.closest('.custom-select-container');
                 const searchInput = container.querySelector('.search-input');
-                const hiddenInput = container.querySelector('input[type="hidden"]');
+                const optionsContainer = container.querySelector('.options-container');
 
-                if (searchInput && hiddenInput) {
-                    // Show dropdown when clicking on the input (not just on focus)
-                    searchInput.addEventListener('click', function(e) {
-            const optionsContainer = container.querySelector('.options-container');
-                        if (optionsContainer && optionsContainer.classList.contains('hidden')) {
-                            // Trigger the appropriate load function based on input type
-                            if (hiddenInput.id.includes('subcategory')) {
-                                const assetTypeId = hiddenInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
-                                const assetTypeSelect = document.getElementById(assetTypeId);
-                                if (assetTypeSelect && assetTypeSelect.value) {
-                                    loadSubcategories(assetTypeSelect.value, hiddenInput.id, `${hiddenInput.id}-loading-message`, '');
-                                }
-                            } else if (hiddenInput.id.includes('brand')) {
-                                loadBrands(hiddenInput.id, `${hiddenInput.id}-loading-message`, '');
-                            }
+                // Add dropdown icon to indicate it's clickable
+                const dropdownIcon = document.createElement('div');
+                dropdownIcon.className = 'absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer';
+                dropdownIcon.innerHTML = '<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>';
+                searchInput.parentNode.style.position = 'relative';
+                searchInput.parentNode.appendChild(dropdownIcon);
+
+                if (searchInput) {
+                    // Remove focus event - only show on click
+                    searchInput.addEventListener('focus', (e) => {
+                        // Don't show dropdown on focus - only on click
+                        e.stopPropagation();
+                    });
+
+                    // Show dropdown when clicking on the input or dropdown icon
+                    const showDropdown = function() {
+                        // Always load results with at least a space to show all options
+                        const searchTerm = searchInput.value.trim() || " ";
+                        fetchBrands(searchTerm, brandInput.id);
+                        optionsContainer.style.display = 'block';
+                    };
+
+                    searchInput.addEventListener('click', showDropdown);
+                    dropdownIcon.addEventListener('click', function(e) {
+                        e.stopPropagation(); // Prevent triggering document click handler
+                        showDropdown();
+                    });
+
+                    // Hide dropdown when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (e.target !== searchInput && e.target !== dropdownIcon && !dropdownIcon.contains(e.target) && !optionsContainer.contains(e.target)) {
+                            optionsContainer.style.display = 'none';
                         }
                     });
+
+                    // Add input event listener for search
+                    searchInput.addEventListener('input', debounce(function() {
+                        const searchTerm = this.value.trim();
+                        if (searchTerm.length > 0) {
+                            fetchBrands(searchTerm, brandInput.id);
+                            // Keep dropdown open when typing
+                            optionsContainer.style.display = 'block';
+                        } else {
+                            // If they've cleared the input, show all options
+                            fetchBrands(" ", brandInput.id);
+                            optionsContainer.style.display = 'block';
+                        }
+                    }, 300));
                 }
             });
 
-            // For initial page load, pre-load brands (don't show dropdown)
-            document.querySelectorAll('[id$="brand_id"]').forEach(brandInput => {
-                // Create a loading indicator but don't display it initially
-                const brandContainer = brandInput.closest('.custom-select-container');
-                const optionsContainer = brandContainer.querySelector('.options-container');
-                if (!optionsContainer.querySelector(`#${brandInput.id}-loading-message`)) {
-                    const loadingMsg = document.createElement('div');
-                    loadingMsg.id = `${brandInput.id}-loading-message`;
-                    loadingMsg.className = 'p-2 text-center text-gray-500 hidden';
-                    loadingMsg.textContent = 'Memuat data merk...';
-                    optionsContainer.appendChild(loadingMsg);
-                }
+            // Subcategory search functionality with direct event listeners
+            document.querySelectorAll('[id$="subcategory_id"]').forEach(subcategoryInput => {
+                const container = subcategoryInput.closest('.custom-select-container');
+                const searchInput = container.querySelector('.search-input');
+                const optionsContainer = container.querySelector('.options-container');
 
-                // Preload the data in the background
-                fetch('/brands?json=true', {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .catch(error => console.error('Error preloading brands:', error));
+                // Add dropdown icon to indicate it's clickable
+                const dropdownIcon = document.createElement('div');
+                dropdownIcon.className = 'absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer';
+                dropdownIcon.innerHTML = '<svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>';
+                searchInput.parentNode.style.position = 'relative';
+                searchInput.parentNode.appendChild(dropdownIcon);
+                if (searchInput) {
+                    // Remove focus event - only show on click
+                    searchInput.addEventListener('focus', (e) => {
+                        // Don't show dropdown on focus - only on click
+                        e.stopPropagation();
+                    });
+
+                    // Show dropdown when clicking on the input or dropdown icon
+                    const showDropdown = function() {
+                        // Don't do anything if input is disabled
+                        if (searchInput.disabled) {
+                            // Provide visual feedback by highlighting the asset type field
+                            const assetTypeId = subcategoryInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
+                            const assetTypeSelect = document.getElementById(assetTypeId);
+                            assetTypeSelect.classList.add('border-blue-500', 'ring-2', 'ring-blue-200');
+
+                            // Remove highlight after a short delay
+                            setTimeout(() => {
+                                assetTypeSelect.classList.remove('border-blue-500', 'ring-2', 'ring-blue-200');
+                            }, 1000);
+                            return;
+                        }
+
+                        const assetTypeId = subcategoryInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
+                        const assetTypeSelect = document.getElementById(assetTypeId);
+
+                        if (assetTypeSelect && assetTypeSelect.value) {
+                            // Always load results with at least a space to show all options
+                            const searchTerm = searchInput.value.trim() || " ";
+                            fetchCategories(assetTypeSelect.value, searchTerm, subcategoryInput.id);
+                            optionsContainer.style.display = 'block';
+                        } else {
+                            // This should not happen if the input is properly disabled
+                            optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Pilih tipe aset terlebih dahulu</div>';
+                            optionsContainer.style.display = 'block';
+
+                            // Highlight the asset type field to guide the user
+                            assetTypeSelect.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+
+                            // Remove highlight after a short delay
+                            setTimeout(() => {
+                                assetTypeSelect.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+                            }, 1500);
+                        }
+                    };
+
+                    searchInput.addEventListener('click', showDropdown);
+                    dropdownIcon.addEventListener('click', function(e) {
+                        e.stopPropagation(); // Prevent triggering document click handler
+                        showDropdown();
+                    });
+
+                    // Hide dropdown when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (e.target !== searchInput && e.target !== dropdownIcon && !dropdownIcon.contains(e.target) && !optionsContainer.contains(e.target)) {
+                            optionsContainer.style.display = 'none';
+                        }
+                    });
+
+                    // Add input event listener for search
+                    searchInput.addEventListener('input', debounce(function() {
+                        // Don't do anything if input is disabled
+                        if (this.disabled) return;
+
+                        const searchTerm = this.value.trim();
+                        const assetTypeId = subcategoryInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
+                        const assetTypeSelect = document.getElementById(assetTypeId);
+
+                        if (assetTypeSelect && assetTypeSelect.value) {
+                            if (searchTerm.length > 0) {
+                                fetchCategories(assetTypeSelect.value, searchTerm, subcategoryInput.id);
+                                optionsContainer.style.display = 'block';
+                            } else {
+                                // If they've cleared the input, show all options
+                                fetchCategories(assetTypeSelect.value, " ", subcategoryInput.id);
+                                optionsContainer.style.display = 'block';
+                            }
+                        }
+                    }, 300));
+                }
             });
 
-            // Same for subcategories if asset type is already selected
-            const assetTypeSelect = document.getElementById('asset_type');
-            if (assetTypeSelect && assetTypeSelect.value) {
-                const subcategoryId = 'subcategory_id';
-                // Create a loading indicator but don't display it
-                const subcategoryContainer = document.getElementById(subcategoryId).closest('.custom-select-container');
-                const optionsContainer = subcategoryContainer.querySelector('.options-container');
-                if (!optionsContainer.querySelector(`#${subcategoryId}-loading-message`)) {
-                    const loadingMsg = document.createElement('div');
-                    loadingMsg.id = `${subcategoryId}-loading-message`;
-                    loadingMsg.className = 'p-2 text-center text-gray-500 hidden';
-                    loadingMsg.textContent = 'Memuat kategori...';
-                    optionsContainer.appendChild(loadingMsg);
-                }
-
-                // Preload the data in the background
-                fetch(`/categories?asset_type=${assetTypeSelect.value}&json=true`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+            // For custom select dropdowns error handling
+            document.querySelectorAll('.custom-select-container .search-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const container = this.closest('.custom-select-container');
+                    const selectElement = container.querySelector('select');
+                    if (selectElement) {
+                        selectElement.classList.remove('border-red-500');
+                        const errorElement = container.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
                     }
-                })
-                .then(response => response.json())
-                .catch(error => console.error('Error preloading subcategories:', error));
+                });
+            });
+
+            // Ensure subcategory inputs are properly disabled/enabled based on asset type selection
+            function updateSubcategoryInputState(subcategoryId, assetTypeId) {
+                const subcategoryInput = document.getElementById(subcategoryId);
+                if (!subcategoryInput) return;
+
+                const container = subcategoryInput.closest('.custom-select-container');
+                const searchInput = container.querySelector('.search-input');
+                const assetTypeSelect = document.getElementById(assetTypeId);
+
+                if (assetTypeSelect && assetTypeSelect.value) {
+                    // Enable subcategory input and update placeholder
+                    searchInput.disabled = false;
+                    searchInput.placeholder = "Cari kategori...";
+                } else {
+                    // Disable subcategory input if no asset type is selected
+                    searchInput.disabled = true;
+                    searchInput.placeholder = "Pilih tipe aset terlebih dahulu";
+                }
             }
+
+            // Initialize state of subcategory inputs
+            updateSubcategoryInputState('subcategory_id', 'asset_type');
+            updateSubcategoryInputState('edit_subcategory_id', 'edit_asset_type');
         });
 
-        // For custom select dropdowns
-        document.querySelectorAll('.custom-select-container .search-input').forEach(input => {
-            input.addEventListener('input', function() {
-                const container = this.closest('.custom-select-container');
-                const selectElement = container.querySelector('select');
-                if (selectElement) {
-                    selectElement.classList.remove('border-red-500');
-                    const errorElement = container.closest('.space-y-2')?.querySelector('.error-message');
-                    if (errorElement) errorElement.classList.add('hidden');
+        // Function to fetch brands with search parameter
+        function fetchBrands(searchTerm = '', targetId = '') {
+            if (!targetId) return;
+
+            const container = document.getElementById(targetId).closest('.custom-select-container');
+            const optionsContainer = container.querySelector('.options-container');
+            const searchInput = container.querySelector('.search-input');
+            const hiddenInput = container.querySelector('input[type="hidden"]');
+
+            // Special case: If it's just a space, we'll treat it as a request to show all options
+            const isShowAll = searchTerm === " ";
+
+            // Don't show loading or open dropdown if no search term (except for our special case)
+            if (!searchTerm.trim() && !isShowAll) {
+                optionsContainer.style.display = 'none';
+                return;
+            }
+
+            optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat merk...</div>';
+            optionsContainer.style.display = 'block';
+
+            // Build query parameters
+            let queryParams = new URLSearchParams();
+            queryParams.append('json', 'true');
+            queryParams.append('limit', '20');
+
+            // Only add search parameter if it's not our special "show all" case
+            if (searchTerm.trim() && !isShowAll) {
+                queryParams.append('search', searchTerm.trim());
+            }
+
+            fetch(`/brands?${queryParams.toString()}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                let brands = [];
+
+                if (Array.isArray(data)) {
+                    brands = data;
+                } else if (data.brands && Array.isArray(data.brands)) {
+                    brands = data.brands;
+                } else if (data.data && Array.isArray(data.data)) {
+                    brands = data.data;
+                }
+
+                displayBrandResults(brands, optionsContainer, hiddenInput, searchInput);
+            })
+            .catch(error => {
+                console.error('Error fetching brands:', error);
+                optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat merk</div>';
             });
-        });
+        }
 
-        // Add slide-in animation and styling for error messages to CSS
-        document.head.insertAdjacentHTML('beforeend', `
-            <style>
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); }
-                    to { transform: translateX(0); }
+        function displayBrandResults(brands, resultsElem, idInputElem, searchInputElem) {
+            resultsElem.innerHTML = '';
+
+            if (brands.length === 0) {
+                resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada merk yang ditemukan</div>';
+                return;
+            }
+
+            if (searchInputElem && searchInputElem.value.trim()) {
+                const searchTerm = searchInputElem.value.trim().toLowerCase();
+                brands.sort((a, b) => {
+                    const aName = a.brand_name?.toLowerCase() || '';
+                    const bName = b.brand_name?.toLowerCase() || '';
+
+                    if (aName === searchTerm) return -1;
+                    if (bName === searchTerm) return 1;
+
+                    const aStarts = aName.startsWith(searchTerm);
+                    const bStarts = bName.startsWith(searchTerm);
+                    if (aStarts && !bStarts) return -1;
+                    if (bStarts && !aStarts) return 1;
+
+                    return aName.localeCompare(bName);
+                });
+            }
+
+            brands.forEach((brand, index) => {
+                const div = document.createElement('div');
+                div.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
+                div.textContent = brand.brand_name || 'Unknown Brand';
+                div.setAttribute('data-value', brand.brand_id || '');
+
+                div.addEventListener('click', function() {
+                    idInputElem.value = this.getAttribute('data-value');
+                    searchInputElem.value = this.textContent;
+                    resultsElem.style.display = 'none';
+
+                    // Trigger change event
+                    const event = new Event('change', { bubbles: true });
+                    idInputElem.dispatchEvent(event);
+                });
+
+                resultsElem.appendChild(div);
+            });
+
+            if (brands.length > 10) {
+                const countDiv = document.createElement('div');
+                countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
+                countDiv.textContent = `Menampilkan ${brands.length} merk`;
+                resultsElem.appendChild(countDiv);
+            }
+        }
+
+        // Function to fetch categories with search parameter based on asset type
+        function fetchCategories(assetType, searchTerm = '', targetId = '') {
+            if (!assetType || !targetId) return;
+
+            const container = document.getElementById(targetId).closest('.custom-select-container');
+            const optionsContainer = container.querySelector('.options-container');
+            const searchInput = container.querySelector('.search-input');
+            const hiddenInput = container.querySelector('input[type="hidden"]');
+
+            // Special case: If it's just a space, we'll treat it as a request to show all options
+            const isShowAll = searchTerm === " ";
+
+            // Don't show loading or open dropdown if no search term (except for our special case)
+            if (!searchTerm.trim() && !isShowAll) {
+                optionsContainer.style.display = 'none';
+                return;
+            }
+
+            optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat kategori...</div>';
+            optionsContainer.style.display = 'block';
+
+            // Build query parameters
+            let queryParams = new URLSearchParams();
+            queryParams.append('json', 'true');
+            queryParams.append('asset_type', assetType);
+            queryParams.append('limit', '50');
+
+            // Only add search parameter if it's not our special "show all" case
+            if (searchTerm.trim() && !isShowAll) {
+                queryParams.append('search', searchTerm.trim());
+            }
+
+            fetch(`/categories?${queryParams.toString()}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-                .animate-slide-in-right {
-                    animation: slideInRight 0.3s ease-out forwards;
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
                 }
-            </style>
-        `);
+                return response.json();
+            })
+            .then(data => {
+                let categories = [];
+
+                if (Array.isArray(data)) {
+                    categories = data;
+                } else if (data.categories && Array.isArray(data.categories)) {
+                    categories = data.categories;
+                } else if (data.data && Array.isArray(data.data)) {
+                    categories = data.data;
+                }
+
+                // Cache the results if we're showing all options
+                if (isShowAll && window.cachedCategories) {
+                    window.cachedCategories.set(assetType, categories);
+                }
+
+                displayCategoryResults(categories, optionsContainer, hiddenInput, searchInput, assetType);
+            })
+            .catch(error => {
+                console.error('Error fetching categories:', error);
+                optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat kategori</div>';
+            });
+        }
+
+        function displayCategoryResults(categories, resultsElem, idInputElem, searchInputElem, assetType) {
+            resultsElem.innerHTML = '';
+
+            if (categories.length === 0) {
+                resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada kategori yang ditemukan</div>';
+                return;
+            }
+
+            if (searchInputElem && searchInputElem.value.trim()) {
+                const searchTerm = searchInputElem.value.trim().toLowerCase();
+                categories.sort((a, b) => {
+                    const aName = a.subcategory_name?.toLowerCase() || '';
+                    const bName = b.subcategory_name?.toLowerCase() || '';
+
+                    if (aName === searchTerm) return -1;
+                    if (bName === searchTerm) return 1;
+
+                    const aStarts = aName.startsWith(searchTerm);
+                    const bStarts = bName.startsWith(searchTerm);
+                    if (aStarts && !bStarts) return -1;
+                    if (bStarts && !aStarts) return 1;
+
+                    return aName.localeCompare(bName);
+                });
+            }
+
+            // Add asset type title
+            const typeTitle = document.createElement('div');
+            typeTitle.className = 'p-2 text-sm font-medium text-gray-600 border-b';
+            typeTitle.textContent = `Kategori ${assetType === 'medical' ? 'Medis' : 'Non-Medis'}`;
+            resultsElem.appendChild(typeTitle);
+
+            categories.forEach((category) => {
+                const div = document.createElement('div');
+                div.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
+                div.textContent = category.subcategory_name || 'Unknown Category';
+                div.setAttribute('data-value', category.subcategory_id || '');
+                div.setAttribute('data-type', category.asset_type || assetType);
+
+                div.addEventListener('click', function() {
+                    idInputElem.value = this.getAttribute('data-value');
+                    searchInputElem.value = this.textContent;
+
+                    // Explicitly hide the dropdown
+                    resultsElem.style.display = 'none';
+
+                    // Trigger change event
+                    const event = new Event('change', { bubbles: true });
+                    idInputElem.dispatchEvent(event);
+                });
+
+                resultsElem.appendChild(div);
+            });
+
+            if (categories.length > 10) {
+                const countDiv = document.createElement('div');
+                countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
+                countDiv.textContent = `Menampilkan ${categories.length} kategori`;
+                resultsElem.appendChild(countDiv);
+            }
+        }
     });
+
+    // Add slide-in animation and styling for error messages to CSS
+    document.head.insertAdjacentHTML('beforeend', `
+        <style>
+            @keyframes slideInRight {
+                from { transform: translateX(100%); }
+                to { transform: translateX(0); }
+            }
+            .animate-slide-in-right {
+                animation: slideInRight 0.3s ease-out forwards;
+            }
+
+            /* Styling for error messages with HTML content */
+            .error-message ul {
+                margin-top: 0.5rem;
+                padding-left: 1.5rem;
+            }
+            .error-message ul li {
+                margin-bottom: 0.25rem;
+            }
+            .error-message ul li:last-child {
+                margin-bottom: 0;
+            }
+        </style>
+    `);
 </script>
 @endpush
+

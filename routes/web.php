@@ -170,7 +170,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
             ->name('users.by-permission');
 
     // Role Management
-    Route::middleware('permission:role:view')->group(function() {
+    Route::middleware('permission:role:view|user:create|user:edit')->group(function() {
     Route::get('/roles', [RoleController::class, 'index'])->name('roles');
     Route::get('/roles/permissions', [RoleController::class, 'getAllPermissions'])->name('roles.permissions');
     Route::get('/roles/{id}', [RoleController::class, 'show'])->name('roles.show');
@@ -239,9 +239,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Categories Management
-    Route::prefix('categories')->middleware('permission:asset-subcategory:view')->group(function () {
+    Route::prefix('categories')->middleware('permission:asset-subcategory:view|asset-master:create|asset-master:edit')->group(function () {
         Route::get('/', [CategoriesController::class, 'index'])->name('categories');
-        Route::get('/by-asset-type', [CategoriesController::class, 'getByAssetType'])->name('categories.by-asset-type');
         Route::get('/{id}', [CategoriesController::class, 'show'])->name('categories.show');
 
         // Write operations
@@ -260,7 +259,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Brand routes
-    Route::prefix('brands')->middleware('permission:brand:view')->group(function () {
+    Route::prefix('brands')->middleware('permission:brand:view|asset-master:create|asset-master:edit')->group(function () {
         Route::get('/', [BrandController::class, 'index'])->name('brands');
         Route::get('/{id}', [BrandController::class, 'getBrand'])->name('brands.get');
 

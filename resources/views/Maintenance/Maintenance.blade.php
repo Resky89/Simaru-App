@@ -180,16 +180,13 @@
                                                     $loggedInUserId = session('user_id');
                                                     $assignedUserId = $maintenance['assigned_to'] ?? null;
 
-                                                    // Compare logged-in user ID with assigned user ID
                                                     $canCreateReport = ($loggedInUserId && $assignedUserId && $loggedInUserId == $assignedUserId);
 
-                                                    // Check if it's a medical asset
                                                     $isMedical = false;
                                                     if (isset($maintenance['asset_type']) && stripos($maintenance['asset_type'], 'medical') !== false) {
                                                         $isMedical = true;
                                                     }
 
-                                                    // Check for appropriate permissions based on asset type
                                                     $hasReportPermission = $isMedical ?
                                                         hasPermission('maintenance-report:medical') :
                                                         hasPermission('maintenance-report:non-medical');
@@ -248,7 +245,7 @@
                                 @php
                                     $currentPage = $pagination['current_page'] ?? 1;
                                     $totalPages = $pagination['total_pages'] ?? 1;
-                                    $maxPagesShown = 5; // Show max 5 pages at once
+                                    $maxPagesShown = 5;
                                     $startPage = max(1, $currentPage - 2);
                                     $endPage = min($totalPages, $startPage + $maxPagesShown - 1);
 
@@ -424,12 +421,14 @@
                                                         <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                        </div>
-                                                    <ul id="user_list" class="max-h-56 overflow-y-auto"></ul>
-                                    </div>
-                                </div>
-                            </div>
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <ul id="user_list" class="max-h-56 overflow-y-auto"></ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="flex items-center gap-4">
@@ -1462,10 +1461,6 @@
 
             // Function to fetch maintenance data with AJAX (for future use)
             function fetchMaintenanceData(page = 1, search = '', status = '', sort = '') {
-                // This is a placeholder for future AJAX implementation
-                // You would implement this to fetch data without page reload
-                console.log('AJAX fetch maintenance data:', {page, search, status, sort});
-
                 // Show loading state
                 const tableBody = document.querySelector('table tbody');
                 if (tableBody) {
@@ -1788,8 +1783,6 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log('API response for assets:', data); // Log the complete API response for debugging
-
                         const assets = data.assets || [];
                         if (assets.length === 0) {
                             document.getElementById('assetSelectionList').innerHTML = `
@@ -1856,13 +1849,10 @@
 
                         document.getElementById('assetSelectionList').innerHTML = html;
 
-                        // Setup pagination with proper data
                         const paginationData = data.assets_pagination || data.pagination || {};
-                        console.log('Pagination data:', paginationData); // Log pagination data for debugging
 
                         setupAssetPagination(paginationData);
 
-                        // Attach checkbox event handlers
                         attachCheckboxHandlers();
                     })
                     .catch(error => {
@@ -1875,22 +1865,18 @@
                     });
             }
 
-            // Function to handle checkbox events for asset selection
             function attachCheckboxHandlers() {
                 const checkboxes = document.querySelectorAll('.asset-checkbox');
 
-                // First remove any existing event listeners by cloning and replacing
                 checkboxes.forEach(checkbox => {
                     const newCheckbox = checkbox.cloneNode(true);
                     checkbox.parentNode.replaceChild(newCheckbox, checkbox);
                 });
 
-                // Now add fresh event listeners
                 document.querySelectorAll('.asset-checkbox').forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         const assetId = this.getAttribute('data-id');
                         if (this.checked) {
-                            // Create asset object
                             const asset = {
                                 id: assetId,
                                 code: this.getAttribute('data-code'),
@@ -1900,25 +1886,20 @@
                                 category: this.getAttribute('data-category')
                             };
 
-                            // Validate and add to selected assets if not already there
                             if (validateAsset(asset) && !selectedAssets.some(a => a.id === assetId)) {
                                 selectedAssets.push(asset);
                             }
                         } else {
-                            // Remove from selected assets
                             selectedAssets = selectedAssets.filter(asset => asset.id !== assetId);
                         }
                     });
                 });
 
-                // Setup Select All checkbox
                 const selectAllAssets = document.getElementById('selectAllAssets');
                 if (selectAllAssets) {
-                    // Remove existing event listeners
                     const newSelectAll = selectAllAssets.cloneNode(true);
                     selectAllAssets.parentNode.replaceChild(newSelectAll, selectAllAssets);
 
-                    // Add fresh event listener
                     document.getElementById('selectAllAssets').addEventListener('change', function() {
                         const checkboxes = document.querySelectorAll('.asset-checkbox');
                         checkboxes.forEach(checkbox => {
@@ -1929,14 +1910,12 @@
                 }
             }
 
-            // Function to setup asset pagination
             function setupAssetPagination(pagination) {
                 if (!pagination) return;
 
                 const paginationInfo = document.getElementById('assetModalPaginationInfo');
                 const paginationControls = document.getElementById('assetModalPaginationControls');
 
-                // Handle different pagination data structures (from maintenance vs calibration API)
                 const currentPage = pagination.current_page || 1;
                 const totalPages = pagination.total_pages || pagination.last_page || 1;
                 const totalItems = pagination.total_items || pagination.total || 0;
@@ -1944,15 +1923,12 @@
                 const from = pagination.from || ((currentPage - 1) * limit + 1);
                 const to = pagination.to || Math.min(currentPage * limit, totalItems);
 
-                // Update pagination info
                 if (paginationInfo) {
                     paginationInfo.textContent = `Menampilkan ${from} sampai ${to} dari ${totalItems} data`;
                 }
 
-                // Generate pagination controls
                 let controlsHtml = '';
 
-                // Previous button
                 controlsHtml += `
                     <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
                        ${currentPage > 1 ? 'data-page="' + (currentPage - 1) + '"' : ''}>
@@ -1963,9 +1939,7 @@
                     </a>
                 `;
 
-                // Only show pagination if there are items
                 if (totalItems > 0) {
-                    // Page numbers
                     controlsHtml += '<div class="flex gap-2">';
 
                     const maxPagesShown = 5;
@@ -2008,7 +1982,6 @@
                     controlsHtml += '</div>';
                 }
 
-                // Next button
                 controlsHtml += `
                     <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
                        ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
@@ -2022,7 +1995,6 @@
                 if (paginationControls) {
                     paginationControls.innerHTML = controlsHtml;
 
-                    // Add event listeners to pagination links
                     paginationControls.querySelectorAll('a[data-page]').forEach(link => {
                         link.addEventListener('click', function(e) {
                             e.preventDefault();
@@ -2035,21 +2007,17 @@
                 }
             }
 
-            // Function to update the selected assets list in the add maintenance form
             function updateSelectedAssetsList() {
                 const selectedAssetsList = document.getElementById('selectedAssetsList');
 
                 if (selectedAssets.length > 0) {
-                    // Get current page and per page settings
                     const perPage = parseInt(document.getElementById('selectedAssetsPerPage').value, 10) || 5;
                     const currentPage = parseInt(selectedAssetsList.getAttribute('data-current-page') || '1', 10);
                     const totalPages = Math.ceil(selectedAssets.length / perPage);
 
-                    // Calculate indices for current page
                     const startIndex = (currentPage - 1) * perPage;
                     const endIndex = Math.min(startIndex + perPage, selectedAssets.length);
 
-                    // Generate table rows for current page
                     let html = '';
                     for (let i = startIndex; i < endIndex; i++) {
                         const asset = selectedAssets[i];
@@ -2072,11 +2040,9 @@
                         </tr>`;
                     }
 
-                    // Store current page in the table element
                     selectedAssetsList.setAttribute('data-current-page', currentPage);
                     selectedAssetsList.innerHTML = html;
 
-                    // Add hidden inputs for all assets (so form submission includes all assets)
                     let hiddenInputsHtml = '';
                     selectedAssets.forEach(asset => {
                         if (!html.includes(`name="asset_ids[]" value="${asset.id}"`)) {
@@ -2084,7 +2050,6 @@
                         }
                     });
 
-                    // Append hidden inputs after the table
                     const hiddenInputsContainer = document.getElementById('hiddenAssetInputs') || document.createElement('div');
                     hiddenInputsContainer.id = 'hiddenAssetInputs';
                     hiddenInputsContainer.innerHTML = hiddenInputsHtml;
@@ -2094,17 +2059,13 @@
                         selectedAssetsList.parentNode.appendChild(hiddenInputsContainer);
                     }
 
-                    // Update pagination controls
                     updateSelectedAssetsPagination(currentPage, totalPages, selectedAssets.length);
 
-                    // Add event listeners to remove buttons
                     document.querySelectorAll('.remove-asset').forEach(button => {
                         button.addEventListener('click', function() {
                             const assetId = this.getAttribute('data-id');
                             selectedAssets = selectedAssets.filter(asset => asset.id !== assetId);
 
-                            // If removing an item from the last page and that page would be empty,
-                            // go to the previous page
                             const newTotalPages = Math.ceil(selectedAssets.length / perPage);
                             if (currentPage > newTotalPages && newTotalPages > 0) {
                                 selectedAssetsList.setAttribute('data-current-page', newTotalPages);
@@ -2116,7 +2077,6 @@
                 } else {
                     selectedAssetsList.innerHTML = '<tr><td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia dalam tabel</td></tr>';
 
-                    // Reset pagination
                     const paginationContainer = document.getElementById('selectedAssetsPagination');
                     if (paginationContainer) {
                         paginationContainer.innerHTML = '';
@@ -2127,7 +2087,6 @@
                         infoContainer.textContent = 'Menampilkan 0 sampai 0 dari 0 data';
                     }
 
-                    // Clear hidden inputs
                     const hiddenInputsContainer = document.getElementById('hiddenAssetInputs');
                     if (hiddenInputsContainer) {
                         hiddenInputsContainer.innerHTML = '';
@@ -2135,7 +2094,6 @@
                 }
             }
 
-            // Function to update pagination for selected assets
             function updateSelectedAssetsPagination(currentPage, totalPages, totalItems) {
                 const perPage = parseInt(document.getElementById('selectedAssetsPerPage').value, 10) || 5;
                 const paginationContainer = document.getElementById('selectedAssetsPagination');
@@ -2143,23 +2101,18 @@
 
                 if (!paginationContainer || !infoContainer) return;
 
-                // Calculate from and to numbers
                 const from = totalItems === 0 ? 0 : (currentPage - 1) * perPage + 1;
                 const to = Math.min(currentPage * perPage, totalItems);
 
-                // Update info text
                 infoContainer.textContent = `Menampilkan ${from} sampai ${to} dari ${totalItems} data`;
 
-                // Generate pagination controls
                 let html = '';
 
-                // Only show pagination if there are multiple pages
                 if (totalPages <= 1) {
                     paginationContainer.innerHTML = '';
                     return;
                 }
 
-                // Previous button
                 html += `
                     <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
                        ${currentPage > 1 ? 'data-page="' + (currentPage - 1) + '"' : ''}>
@@ -2170,7 +2123,6 @@
                     </a>
                 `;
 
-                // Page numbers
                 html += '<div class="flex gap-2">';
 
                 const maxPagesShown = 3;
@@ -2212,7 +2164,6 @@
 
                 html += '</div>';
 
-                // Next button
                 html += `
                     <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
                        ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
@@ -2225,7 +2176,6 @@
 
                 paginationContainer.innerHTML = html;
 
-                // Add event listeners to pagination links
                 paginationContainer.querySelectorAll('a[data-page]').forEach(link => {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
@@ -2237,7 +2187,6 @@
                 });
             }
 
-            // Function to change page for selected assets
             function changeSelectedAssetsPage(page) {
                 const selectedAssetsList = document.getElementById('selectedAssetsList');
                 if (selectedAssetsList) {
@@ -2246,33 +2195,25 @@
                 }
             }
 
-            // Vendor search functionality with debounce
-            let allVendors = []; // Store all vendors for client-side filtering
+            let allVendors = [];
             const vendorSearchInput = document.getElementById('vendor_search');
             const vendorIdInput = document.getElementById('vendor_id');
             const vendorResults = document.getElementById('vendor_results');
 
-            // Edit modal vendor search
             const editVendorSearchInput = document.getElementById('edit_vendor_search');
             const editVendorIdInput = document.getElementById('edit_vendor_id');
             const editVendorResults = document.getElementById('edit_vendor_results');
 
-            // Initial load of vendors
-            loadAllVendors();
-
-            // Show/hide vendor results
             vendorSearchInput?.addEventListener('focus', function() {
-                filterAndDisplayVendors(this.value.trim(), 'add');
+                fetchVendors(this.value.trim(), 'add');
                 vendorResults.style.display = 'block';
             });
 
-            // Show/hide edit vendor results
             editVendorSearchInput?.addEventListener('focus', function() {
-                filterAndDisplayVendors(this.value.trim(), 'edit');
+                fetchVendors(this.value.trim(), 'edit');
                 editVendorResults.style.display = 'block';
             });
 
-            // Hide vendor results when clicking outside
             document.addEventListener('click', function(e) {
                 if (e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
                     vendorResults.style.display = 'none';
@@ -2282,188 +2223,101 @@
                 }
             });
 
-            // Search vendors with debounce
             vendorSearchInput?.addEventListener('input', debounce(function() {
                 const searchTerm = this.value.trim();
-                filterAndDisplayVendors(searchTerm, 'add');
+                fetchVendors(searchTerm, 'add');
             }, 300));
 
-            // Search vendors in edit modal with debounce
             editVendorSearchInput?.addEventListener('input', debounce(function() {
                 const searchTerm = this.value.trim();
-                filterAndDisplayVendors(searchTerm, 'edit');
+                fetchVendors(searchTerm, 'edit');
             }, 300));
 
-            // Load all vendors
-            function loadAllVendors() {
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-                vendorResults.style.display = 'block';
-
-                // First try to get from localStorage to avoid delay
-                const cachedVendors = localStorage.getItem('allVendors');
-                if (cachedVendors) {
-                    try {
-                        allVendors = JSON.parse(cachedVendors);
-
-                        // Still load fresh data in the background
-                        fetchAllVendors();
-
-                        return; // Exit early with cached data
-                    } catch (e) {
-                        console.error('Error parsing cached vendors:', e);
-                    }
-                }
-
-                // If no cache, fetch from API
-                fetchAllVendors();
-            }
-
-            // Fetch all vendors with pagination
-            function fetchAllVendors() {
-                let page = 1;
-                allVendors = []; // Reset array
-
-                function fetchPage(page) {
-                    if (page === 1) {
-                        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-                    } else {
-                        // Update loading message for subsequent pages
-                        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor (halaman ' + page + ')...</div>';
-                    }
-
-                    fetch(`/vendor?json=true&page=${page}&limit=1000`, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Server responded with status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        let vendors = [];
-                        let pagination = null;
-
-                        // Handle different response formats
-                        if (Array.isArray(data)) {
-                            vendors = data;
-                        } else if (data.vendors && Array.isArray(data.vendors)) {
-                            vendors = data.vendors;
-                            pagination = data.pagination;
-                        } else if (data.data && Array.isArray(data.data)) {
-                            vendors = data.data;
-                            pagination = data.pagination;
-                        }
-
-                        // Add to our collection
-                        allVendors = [...allVendors, ...vendors];
-
-                        // Check if there are more pages
-                        const hasNextPage = pagination && pagination.has_next;
-
-                        if (hasNextPage) {
-                            // Fetch next page
-                            fetchPage(page + 1);
-                        } else {
-                            // Cache for future use
-                            try {
-                                localStorage.setItem('allVendors', JSON.stringify(allVendors));
-                            } catch (e) {
-                                console.error('Error caching vendors:', e);
-                            }
-
-                            // If the input has a value, filter and display
-                            if (vendorSearchInput && vendorSearchInput.value.trim()) {
-                                filterAndDisplayVendors(vendorSearchInput.value.trim());
-                            } else {
-                                vendorResults.style.display = 'none';
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error(`Error fetching vendors page ${page}:`, error);
-                        vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
-
-                        // If we got some vendors, still show them
-                        if (allVendors.length > 0) {
-                            filterAndDisplayVendors(vendorSearchInput?.value.trim() || '');
-                        }
-                    });
-                }
-
-                // Start fetching from page 1
-                fetchPage(page);
-            }
-
-            // Filter and display vendors based on search term
-            function filterAndDisplayVendors(searchTerm, mode = 'add') {
-                // Determine which elements to use based on mode
+            function fetchVendors(searchTerm = '', mode = 'add') {
                 const resultsElem = mode === 'add' ? vendorResults : editVendorResults;
                 const searchInputElem = mode === 'add' ? vendorSearchInput : editVendorSearchInput;
                 const idInputElem = mode === 'add' ? vendorIdInput : editVendorIdInput;
 
-                // Make sure dropdown is visible
+                resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
                 resultsElem.style.display = 'block';
 
-                // Show loading message during search
-                if (searchTerm && searchTerm.length > 0) {
-                    resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Mencari vendor...</div>';
-                }
+                let queryParams = new URLSearchParams();
+                queryParams.append('json', 'true');
+                queryParams.append('limit', '20');
 
-                // If we have no vendors yet
-                if (allVendors.length === 0) {
-                    resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-                    return;
-                }
-
-                // Filter vendors
-                let filteredVendors = allVendors;
                 if (searchTerm) {
-                    const term = searchTerm.toLowerCase();
-                    filteredVendors = allVendors.filter(vendor =>
-                        vendor.vendor_name?.toLowerCase().includes(term)
-                    );
+                    queryParams.append('search', searchTerm);
                 }
 
-                // Sort by relevance if we have a search term
-                if (searchTerm) {
-                    filteredVendors.sort((a, b) => {
-                        // Exact matches first
-                        if (a.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return -1;
-                        if (b.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return 1;
+                const url = `/vendor?${queryParams.toString()}`;
 
-                        // Then starts-with matches
-                        const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                        const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                        if (aStarts && !bStarts) return -1;
-                        if (bStarts && !aStarts) return 1;
+                fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let vendors = [];
 
-                        // Then alphabetical
-                        return a.vendor_name.localeCompare(b.vendor_name);
+                    if (Array.isArray(data)) {
+                        vendors = data;
+                    } else if (data.vendors && Array.isArray(data.vendors)) {
+                        vendors = data.vendors;
+                    } else if (data.data && Array.isArray(data.data)) {
+                        vendors = data.data;
+                    }
+
+                    vendors.forEach(vendor => {
+                        const existingIndex = allVendors.findIndex(v => v.vendor_id.toString() === vendor.vendor_id.toString());
+                        if (existingIndex === -1) {
+                            allVendors.push(vendor);
+                        }
                     });
-                }
 
-                // Limit to first 20 for performance
-                const displayVendors = filteredVendors.slice(0, 20);
+                    displayVendorResults(vendors, resultsElem, idInputElem, searchInputElem);
+                })
+                .catch(error => {
+                    console.error('Error fetching vendors:', error);
+                    resultsElem.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
+                });
+            }
 
-                // Update DOM with animation delay
+            function displayVendorResults(vendors, resultsElem, idInputElem, searchInputElem) {
                 resultsElem.innerHTML = '';
 
-                if (displayVendors.length === 0) {
+                if (vendors.length === 0) {
                     resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada vendor yang ditemukan</div>';
                     return;
                 }
 
-                // Add vendor items with staggered animation
-                displayVendors.forEach((vendor, index) => {
+                if (searchInputElem && searchInputElem.value.trim()) {
+                    const searchTerm = searchInputElem.value.trim().toLowerCase();
+                    vendors.sort((a, b) => {
+                        if (a.vendor_name.toLowerCase() === searchTerm) return -1;
+                        if (b.vendor_name.toLowerCase() === searchTerm) return 1;
+
+                        const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm);
+                        const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm);
+                        if (aStarts && !bStarts) return -1;
+                        if (bStarts && !aStarts) return 1;
+
+                        return a.vendor_name.localeCompare(b.vendor_name);
+                    });
+                }
+
+                vendors.forEach((vendor, index) => {
                     const div = document.createElement('div');
                     div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
                     div.textContent = vendor.vendor_name;
                     div.setAttribute('data-id', vendor.vendor_id);
-                    div.style.animationDelay = `${index * 30}ms`; // Staggered animation
+                    div.style.animationDelay = `${index * 30}ms`;
 
                     div.addEventListener('click', function() {
                         idInputElem.value = this.getAttribute('data-id');
@@ -2474,20 +2328,17 @@
                     resultsElem.appendChild(div);
                 });
 
-                // Show count if limited
-                if (filteredVendors.length > 20) {
+                if (vendors.length > 10) {
                     const countDiv = document.createElement('div');
                     countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
-                    countDiv.textContent = `Menampilkan 20 dari ${filteredVendors.length} vendor`;
+                    countDiv.textContent = `Menampilkan ${vendors.length} vendor`;
                     resultsElem.appendChild(countDiv);
                 }
             }
 
-            // Initialize user search functionality
             initUserSearch('user_search', 'user_dropdown', 'user_list', 'user_loading', 'selected_user_id');
             initUserSearch('edit_user_search', 'edit_user_dropdown', 'edit_user_list', 'edit_user_loading', 'edit_assigned_to');
 
-            // Function to initialize user search
             function initUserSearch(searchInputId, dropdownId, userListId, loadingIndicatorId, selectedUserIdId) {
                 const searchInput = document.getElementById(searchInputId);
                 const dropdown = document.getElementById(dropdownId);
@@ -2497,45 +2348,42 @@
 
                 if (!searchInput || !dropdown || !userList) return;
 
-                // Toggle dropdown visibility
                 searchInput.addEventListener('focus', function() {
                     dropdown.classList.remove('hidden');
                     if (userList.children.length === 0) {
-                        loadUsers(''); // Initial load on focus
+                        loadUsers('');
                     }
                 });
 
-                // Hide dropdown when clicking outside
                 document.addEventListener('click', function(e) {
                     if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
                         dropdown.classList.add('hidden');
                     }
                 });
 
-                // Search input handler with debounce
                 const debouncedSearch = debounce(function(e) {
                     loadUsers(e.target.value);
                 }, 300);
 
                 searchInput.addEventListener('input', debouncedSearch);
 
-                            // Function to load users with maintenance-report permissions
             function loadUsers(searchTerm) {
-                // Show loading indicator
                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                 userList.innerHTML = '';
 
-                // Prepare query parameters
+                const searchingMsg = document.createElement('li');
+                searchingMsg.className = 'px-4 py-2 text-blue-500 text-center';
+                searchingMsg.textContent = searchTerm ? `Mencari "${searchTerm}"...` : 'Memuat pengguna...';
+                userList.appendChild(searchingMsg);
+
                 let queryParams = new URLSearchParams();
                 if (searchTerm) {
                     queryParams.append('search', searchTerm);
                 }
-                queryParams.append('limit', 10);
+                queryParams.append('limit', 20);
 
-                // Determine which permissions to fetch based on what the current user has
                 const fetchPromises = [];
 
-                // Get the permissions the user has
                 const userPermissions = [];
                 if (@json(hasPermission('maintenance-report:medical'))) {
                     userPermissions.push('maintenance-report:medical');
@@ -2544,7 +2392,6 @@
                     userPermissions.push('maintenance-report:non-medical');
                 }
 
-                // Create fetch promises based on user permissions
                 userPermissions.forEach(permission => {
                     fetchPromises.push(
                         fetch(`/user/by-permission/${permission}?${queryParams.toString()}`, {
@@ -2556,10 +2403,9 @@
                     );
                 });
 
-                // If user doesn't have any relevant permissions, show an error
                 if (userPermissions.length === 0) {
-                    // Show message that user doesn't have permission
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                    userList.innerHTML = '';
                     const noPermission = document.createElement('li');
                     noPermission.className = 'px-4 py-2 text-red-500';
                     noPermission.textContent = 'Anda tidak memiliki izin untuk melihat pengguna dengan akses pemeliharaan';
@@ -2567,24 +2413,18 @@
                     return;
                 }
 
-                // Fetch permitted user types in parallel
                 Promise.all(fetchPromises)
                 .then(responses => {
-                    // Check if all responses are ok
                     if (!responses.every(response => response.ok)) {
                         throw new Error('Failed to fetch users with permissions');
                     }
-                    // Parse all responses as JSON
                     return Promise.all(responses.map(response => response.json()));
                 })
                 .then(dataArray => {
-                    // Combine and deduplicate users from both permission responses
                     let combinedUsers = [];
-                    let userIds = new Set(); // To track unique user IDs
+                    let userIds = new Set();
 
-                    // Process each response data
                     dataArray.forEach(data => {
-                        // Handle different response formats
                         let users = [];
                         if (Array.isArray(data)) {
                             users = data;
@@ -2594,7 +2434,6 @@
                             users = data.data;
                         }
 
-                        // Add unique users to combined list
                         users.forEach(user => {
                             if (!userIds.has(user.user_id)) {
                                 userIds.add(user.user_id);
@@ -2603,7 +2442,6 @@
                         });
                     });
 
-                                            // Populate dropdown with combined results
                     userList.innerHTML = '';
 
                     if (combinedUsers.length === 0) {
@@ -2612,7 +2450,6 @@
                         noResults.textContent = 'Tidak ada pengguna ditemukan dengan izin pemeliharaan';
                         userList.appendChild(noResults);
                     } else {
-                        // Sort users by employee_number or name for better readability
                         combinedUsers.sort((a, b) => {
                             if (a.employee_number && b.employee_number) {
                                 return a.employee_number.localeCompare(b.employee_number);
@@ -2626,7 +2463,6 @@
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
-                            // Display employee_number with user's name if available
                             let displayText = '';
                             if (user.employee_number) {
                                 displayText = user.employee_number;
@@ -2642,10 +2478,8 @@
                             li.setAttribute('data-employee-number', user.employee_number || '');
 
                             li.addEventListener('click', function() {
-                                // Set the selected user ID
                                 selectedUserId.value = this.getAttribute('data-id');
 
-                                // Update the search input with employee number or name
                                 const employeeNumber = this.getAttribute('data-employee-number');
                                 if (employeeNumber) {
                                     searchInput.value = employeeNumber;
@@ -2653,18 +2487,14 @@
                                     searchInput.value = this.textContent;
                                 }
 
-                                // Hide dropdown
                                 dropdown.classList.add('hidden');
                             });
 
                             userList.appendChild(li);
                         });
 
-                        // Show count with permission context
                         const countDiv = document.createElement('li');
                         countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
-
-                                                // Reference the userPermissions array defined earlier
                         let permissionText = '';
 
                         if (userPermissions.includes('maintenance-report:medical') &&
@@ -2687,8 +2517,6 @@
                     console.error('Error loading users with permissions:', error);
                     const errorItem = document.createElement('li');
                     errorItem.className = 'px-4 py-2 text-red-500';
-
-                                        // Reference the userPermissions array defined earlier
                     if (userPermissions.includes('maintenance-report:medical') &&
                         userPermissions.includes('maintenance-report:non-medical')) {
                         errorItem.textContent = 'Gagal memuat data pengguna dengan izin pemeliharaan medis dan non-medis';
@@ -2708,11 +2536,9 @@
                 }
             }
 
-            // Form submission handling
             document.getElementById('addMaintenanceForm')?.addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                // Validate required fields
                 const intervalField = document.getElementById('interval');
                 const startDateField = document.getElementById('start_date');
                 const endDateField = document.getElementById('end_date');
@@ -2721,7 +2547,6 @@
                 const isIntervalValid = validateField(intervalField);
                 const isStartDateValid = validateField(startDateField);
 
-                // Only validate end date if it's visible (for non-ONCE, non-DAILY intervals)
                 let isEndDateValid = true;
                 if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') {
                     isEndDateValid = validateField(endDateField);
@@ -2729,18 +2554,15 @@
 
                 const isUserValid = validateField(userSearchField);
 
-                // Check if assets are selected
                 let isAssetsValid = true;
                 if (selectedAssets.length === 0) {
                     isAssetsValid = false;
                     showToast('Silakan pilih setidaknya satu aset', 'error');
                 }
 
-                // If any validation fails, stop form submission
                 if (!isIntervalValid || !isStartDateValid || !isEndDateValid || !isUserValid || !isAssetsValid) {
                     showToast('Silakan isi semua field yang diperlukan', 'error');
 
-                    // Find the submit button and reset it
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         submitBtn.disabled = false;
@@ -2751,37 +2573,31 @@
                     return;
                 }
 
-                // Create a JSON object instead of FormData to properly control types
+                // Create FormData from the form
                 const formData = new FormData(this);
                 const jsonData = {};
 
-                // Process regular form fields
                 for (const [key, value] of formData.entries()) {
                     if (key !== 'asset_ids[]') {
                         jsonData[key] = value;
                     }
                 }
 
-                // Convert assigned_to to number
                 if (jsonData.assigned_to) {
                     jsonData.assigned_to = parseInt(jsonData.assigned_to, 10);
                 }
 
-                // Convert vendor_id to number or remove if empty
                 if (jsonData.vendor_id) {
                     jsonData.vendor_id = parseInt(jsonData.vendor_id, 10);
                 } else {
                     delete jsonData.vendor_id;
                 }
 
-                // Don't send end_date for ONCE or DAILY intervals
                 if (jsonData.interval === 'ONCE' || jsonData.interval === 'DAILY') {
                     delete jsonData.end_date;
                 }
 
-                // Convert asset_ids to array of numbers
                 jsonData.asset_ids = selectedAssets.map(asset => {
-                    // Make sure each asset ID is a valid number
                     const assetId = parseInt(asset.id, 10);
                     if (isNaN(assetId)) {
                         console.error('Invalid asset ID:', asset.id);
@@ -2790,17 +2606,12 @@
                     return assetId;
                 });
 
-                // Log the final data before sending
-                console.log('Sending maintenance data:', jsonData);
-
-                // Validation check for asset_ids format
                 if (!Array.isArray(jsonData.asset_ids) || jsonData.asset_ids.length === 0) {
                     showToast('Error: Tidak ada ID aset yang valid untuk dikirim', 'error');
                     return;
                 }
 
                 try {
-                    // Send the JSON data to the server
                 fetch('/maintenance', {
                     method: 'POST',
                         body: JSON.stringify(jsonData),
@@ -2812,17 +2623,14 @@
                     })
                 .then(handleApiResponse)
                 .then(data => {
-                        console.log('Maintenance creation response:', data);
                     if (data.success) {
                         showToast(data.message || 'Jadwal pemeliharaan berhasil dibuat', 'success');
                         closeModal(modals.add, modalContents.add);
 
-                        // Reload the page after a short delay
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
                     } else {
-                            // Handle unsuccessful response - check for error message
                             if (data.error) {
                                 showToast(data.error, 'error');
                             } else if (data.message) {
@@ -2837,20 +2645,15 @@
                 .catch(error => {
                     console.error('Error creating maintenance schedule:', error);
 
-                    // Handle different error formats
                     if (error && error.errors) {
                         if (Array.isArray(error.errors)) {
-                            // If we have an array of errors with path and message properties
                             showToast(error.errors, 'error');
                         } else {
-                            // If we have structured validation errors in object format
                             showToast({ errors: error.errors }, 'error');
                         }
                     } else if (error && error.status === 422) {
-                        // If it's a validation error but no structured data
                         showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
                     } else {
-                        // Generic error message
                         showToast(error.message || 'Gagal membuat jadwal pemeliharaan', 'error');
                     }
                 });
@@ -2860,51 +2663,39 @@
                 }
             });
 
-            // Export PDF functionality
             document.getElementById('exportBtn')?.addEventListener('click', () => {
-                // Get current URL parameters
                 const url = new URL(window.location.href);
                 const searchParams = url.searchParams;
 
-                // Create the PDF export URL with the same parameters
                 const exportUrl = "{{ route('maintenance.export.pdf') }}?" + searchParams.toString();
 
-                // Redirect to the export URL
                 window.open(exportUrl, '_blank');
             });
 
-            // Delete maintenance buttons
             document.querySelectorAll('.delete-maintenance-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const maintenanceId = this.getAttribute('data-id');
                     const deleteMaintenanceName = document.getElementById('deleteMaintenanceName');
 
-                    // Store the maintenance ID for later use
                     document.getElementById('deleteMaintenanceForm').setAttribute('data-id', maintenanceId);
 
-                    // Get maintenance details to show in the confirmation modal
                     const assetName = this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
                     const assetCode = this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent;
 
-                    // Set maintenance name in the modal
                     deleteMaintenanceName.textContent = `${assetName} (${assetCode.replace('Kode: ', '')})`;
 
-                    // Open delete confirmation modal
                     openModal(modals.delete, modalContents.delete);
                 });
             });
 
-            // Form submission handler for delete
             document.getElementById('deleteMaintenanceForm').addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                // Get the maintenance ID from the data attribute
                 const maintenanceId = this.getAttribute('data-id');
 
                 if (!maintenanceId) {
                     showToast('ID pemeliharaan tidak ada', 'error');
 
-                    // Reset submit button if validation fails
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         submitBtn.disabled = false;
@@ -2915,7 +2706,6 @@
                     return;
                 }
 
-                // Make the DELETE request directly to the ID-specific endpoint
                 fetch(`/maintenance/${maintenanceId}`, {
                     method: 'DELETE',
                     headers: {
@@ -2925,14 +2715,11 @@
                 })
                 .then(handleApiResponse)
                 .then(data => {
-                    // Close the modal
                     closeModal(modals.delete, modalContents.delete);
 
                     if (data.success) {
-                        // Show toast notification first
                         showToast(data.message || 'Rekaman pemeliharaan berhasil dihapus', 'success');
 
-                        // Delay the redirect slightly to allow the toast to be seen
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);
@@ -2944,40 +2731,31 @@
                     console.error('Delete request failed:', error);
                     closeModal(modals.delete, modalContents.delete);
 
-                    // Handle different error formats
                     if (error && error.errors) {
                         if (Array.isArray(error.errors)) {
-                            // If we have an array of errors with path and message properties
                             showToast(error.errors, 'error');
                         } else {
-                            // If we have structured validation errors in object format
                             showToast({ errors: error.errors }, 'error');
                         }
                     } else if (error && error.status === 422) {
-                        // If it's a validation error but no structured data
                         showToast(`Validasi gagal: ${error.message || 'Silakan periksa form Anda'}`, 'error');
                     } else {
-                        // Generic error message
                         showToast(error.message || 'Gagal menghapus rekaman pemeliharaan', 'error');
                     }
                 });
             });
 
-            // Edit maintenance buttons
             document.querySelectorAll('.edit-maintenance-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const maintenanceId = this.getAttribute('data-id');
                     const assetName = this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
                     const assetCode = this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent.replace('Kode: ', '');
 
-                    // Show loading state in edit form
                     document.getElementById('edit_asset_name').textContent = assetName;
                     document.getElementById('edit_asset_code').textContent = assetCode;
 
-                    // Reset form values
                     document.getElementById('editMaintenanceForm').reset();
 
-                    // Fetch maintenance details
                     fetch(`/maintenance/${maintenanceId}`, {
                         headers: {
                             'Accept': 'application/json',
@@ -2997,10 +2775,8 @@
 
                         const maintenance = result.data;
 
-                        // Populate form with maintenance data
                         document.getElementById('edit_maintenance_id').value = maintenance.id;
 
-                        // Format dates (API returns ISO format, input requires YYYY-MM-DD)
                         if (maintenance.start_date) {
                             const startDate = new Date(maintenance.start_date);
                             document.getElementById('edit_start_date').value = startDate.toISOString().split('T')[0];
@@ -3011,19 +2787,14 @@
                             document.getElementById('edit_end_date').value = endDate.toISOString().split('T')[0];
                         }
 
-                        // Set interval
                         if (maintenance.interval) {
                             document.getElementById('edit_interval').value = maintenance.interval;
-                            // Apply end date visibility based on interval
                             toggleEndDateVisibility(maintenance.interval, 'edit');
                         }
 
-                        // Set assigned_to (with employee_number display)
                         if (maintenance.assigned_to) {
-                            // Set the hidden input value
                             document.getElementById('edit_assigned_to').value = maintenance.assigned_to;
 
-                            // Set the search input display text to assigned_to_employee_number
                             if (maintenance.assigned_to_employee_number) {
                                 document.getElementById('edit_user_search').value = maintenance.assigned_to_employee_number;
                             } else if (maintenance.employee_number) {
@@ -3035,7 +2806,6 @@
                             }
                         }
 
-                        // Set vendor_id and vendor_name (if exists)
                         if (maintenance.vendor_id && maintenance.vendor_name) {
                             document.getElementById('edit_vendor_id').value = maintenance.vendor_id;
                             document.getElementById('edit_vendor_search').value = maintenance.vendor_name;
@@ -3044,7 +2814,6 @@
                             document.getElementById('edit_vendor_search').value = '';
                         }
 
-                        // Open the edit modal
                         openModal(modals.edit, modalContents.edit);
                     })
                     .catch(error => {
@@ -3054,7 +2823,6 @@
                 });
             });
 
-            // Form submission handler for edit
             document.getElementById('editMaintenanceForm').addEventListener('submit', function(e) {
                 e.preventDefault();
 
@@ -3062,7 +2830,6 @@
                 if (!maintenanceId) {
                     showToast('ID pemeliharaan tidak ada', 'error');
 
-                    // Reset the submit button if validation fails
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         submitBtn.disabled = false;
@@ -3073,7 +2840,6 @@
                     return;
                 }
 
-                // Validate required fields
                 const intervalField = document.getElementById('edit_interval');
                 const startDateField = document.getElementById('edit_start_date');
                 const endDateField = document.getElementById('edit_end_date');
@@ -3082,7 +2848,6 @@
                 const isIntervalValid = validateField(intervalField);
                 const isStartDateValid = validateField(startDateField);
 
-                // Only validate end date if it's visible (for non-ONCE, non-DAILY intervals)
                 let isEndDateValid = true;
                 if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') {
                     isEndDateValid = validateField(endDateField);
@@ -3090,11 +2855,9 @@
 
                 const isUserValid = validateField(userSearchField);
 
-                // If any validation fails, stop form submission
                 if (!isIntervalValid || !isStartDateValid || !isEndDateValid || !isUserValid) {
                     showToast('Silakan isi semua field yang diperlukan', 'error');
 
-                    // Reset the submit button if validation fails
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         submitBtn.disabled = false;
@@ -3105,7 +2868,6 @@
                     return;
                 }
 
-                // Collect form data into JSON
                 const formData = {
                     interval: intervalField.value,
                     start_date: startDateField.value,
@@ -3113,12 +2875,10 @@
                     vendor_id: document.getElementById('edit_vendor_id').value ? parseInt(document.getElementById('edit_vendor_id').value, 10) : null
                 };
 
-                // Only add end_date if interval is not ONCE or DAILY
                 if (formData.interval !== 'ONCE' && formData.interval !== 'DAILY') {
                     formData.end_date = endDateField.value;
                 }
 
-                // Make the PUT request to update the maintenance
                 fetch(`/maintenance/${maintenanceId}`, {
                     method: 'PUT',
                     headers: {
@@ -3130,14 +2890,11 @@
                 })
                 .then(handleApiResponse)
                 .then(data => {
-                    // Close the modal
                     closeModal(modals.edit, modalContents.edit);
 
                     if (data.success) {
-                        // Show toast notification
                         showToast(data.message || 'Rekaman pemeliharaan berhasil diperbarui', 'success');
 
-                        // Reload the page after a short delay
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);
@@ -3148,76 +2905,59 @@
                 .catch(error => {
                     console.error('Update request failed:', error);
 
-                    // Handle different error formats
                     if (error && error.errors) {
                         if (Array.isArray(error.errors)) {
-                            // If we have an array of errors with path and message properties
                             showToast(error.errors, 'error');
                         } else {
-                            // If we have structured validation errors in object format
                             showToast({ errors: error.errors }, 'error');
                         }
                     } else if (error && error.status === 422) {
-                        // If it's a validation error but no structured data
                         showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
                     } else {
-                        // Generic error message
                         showToast(error.message || 'Gagal memperbarui rekaman pemeliharaan', 'error');
                     }
                 });
             });
 
-                        // Global security check for report creation
             @php
                 echo "const currentLoggedInUserId = " . json_encode(session('user_id')) . ";";
             @endphp
 
-            // Create Report buttons
             document.querySelectorAll('.create-report-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const maintenanceId = this.getAttribute('data-id');
-                    // Coba ambil dari atribut data dulu
                     let assetName = this.getAttribute('data-asset-name');
                     let assetCode = this.getAttribute('data-asset-code');
 
-                    // Get assigned user ID and enforce security
                     const assignedUserId = this.getAttribute('data-assigned-to');
 
-                    // Double security check to prevent unauthorized access through direct script execution
                     if (!currentLoggedInUserId || !assignedUserId || currentLoggedInUserId != assignedUserId) {
                         showToast('Akses ditolak. Hanya petugas yang ditugaskan yang dapat membuat laporan pemeliharaan.', 'error');
                         return;
                     }
 
-                    // Jika tidak ada di data attributes, ambil dari row
                     if (!assetName || !assetCode) {
                         assetName = this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
                         assetCode = this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent.replace('Kode: ', '');
                     }
 
-                    // Set the form data
                     document.getElementById('report_maintenance_id').value = maintenanceId;
                     document.getElementById('report_asset_name').textContent = assetName;
                     document.getElementById('report_asset_code').textContent = assetCode;
 
-                    // Set default date to today
                     const today = new Date().toISOString().split('T')[0];
                     document.getElementById('maintenance_date').value = today;
 
-                    // Reset form fields but preserve ID and date
                     document.getElementById('createReportForm').reset();
-                    document.getElementById('report_maintenance_id').value = maintenanceId; // Re-set ID after reset
-                    document.getElementById('maintenance_date').value = today; // Re-set date after reset
+                    document.getElementById('report_maintenance_id').value = maintenanceId;
+                    document.getElementById('maintenance_date').value = today;
 
-                    // Reset image preview
                     document.getElementById('image-preview').classList.add('hidden');
 
-                    // Open the modal
                     openModal(modals.report, modalContents.report);
                 });
             });
 
-            // Form submission handler for create report
             document.getElementById('createReportForm').addEventListener('submit', function(e) {
                 e.preventDefault();
 
@@ -3228,7 +2968,6 @@
                 if (!maintenanceId) {
                     showToast('ID pemeliharaan tidak ada', 'error');
 
-                    // Reset submit button if validation fails
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         submitBtn.disabled = false;
@@ -3238,22 +2977,17 @@
 
                     return;
                 }
-
-                                // Security check: ensure current user is authorized to submit this report
                 const maintenanceReportId = document.getElementById('report_maintenance_id').value;
 
-                // We already have currentLoggedInUserId from the global scope
                 if (!currentLoggedInUserId) {
                     showToast('Sesi pengguna tidak valid. Silakan login kembali.', 'error');
                     return;
                 }
 
-                // Additional verification that form wasn't tampered with
                 const reportBtns = document.querySelectorAll('.create-report-btn');
                 let isAuthorized = false;
                 let correctAssignedUserId = null;
 
-                // Find the maintenance item to verify authorization
                 reportBtns.forEach(btn => {
                     if (btn.getAttribute('data-id') === maintenanceReportId) {
                         correctAssignedUserId = btn.getAttribute('data-assigned-to');
@@ -3265,19 +2999,15 @@
 
                 if (!isAuthorized) {
                     showToast('Akses ditolak. Anda tidak memiliki wewenang untuk membuat laporan ini.', 'error');
-                    // Close the modal
                     closeModal(modals.report, modalContents.report);
                     return;
                 }
 
-                // Validate required fields
                 const isDateValid = validateField(maintenanceDate);
                 const isDescriptionValid = validateField(description);
 
                 if (!isDateValid || !isDescriptionValid) {
                     showToast('Silakan isi semua field yang diperlukan', 'error');
-
-                    // Reset submit button if validation fails
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         submitBtn.disabled = false;
@@ -3288,17 +3018,8 @@
                     return;
                 }
 
-                // Create FormData object for file upload
                 const formData = new FormData(this);
 
-
-                // Log formData for debugging
-                console.log('Submitting maintenance report with data:');
-                for (let pair of formData.entries()) {
-                    console.log(pair[0] + ': ' + (pair[0] === 'attachment' ? 'FILE' : pair[1]));
-                }
-
-                // Show loading state
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
@@ -3309,10 +3030,8 @@
                     </div>
                 `;
 
-                // Get CSRF token
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                // Make the POST request to create the report
                 fetch('/maintenance/reports', {
                     method: 'POST',
                     body: formData,
@@ -3320,24 +3039,18 @@
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json'
                     },
-                    credentials: 'same-origin' // Important for CSRF
+                    credentials: 'same-origin'
                 })
                 .then(handleApiResponse)
                 .then(data => {
-                    console.log('Server response:', data);
-
-                    // Reset button state
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
 
-                    // Close the modal
                     closeModal(modals.report, modalContents.report);
 
                     if (data.success) {
-                        // Show toast notification
                         showToast(data.message || 'Laporan pemeliharaan berhasil dibuat', 'success');
 
-                        // Reload the page after a short delay
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);
@@ -3348,30 +3061,23 @@
                 .catch(error => {
                     console.error('Gagal membuat laporan pemeliharaan:', error);
 
-                    // Reset button state
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
 
-                    // Handle different error formats
                     if (error && error.errors) {
                         if (Array.isArray(error.errors)) {
-                            // If we have an array of errors with path and message properties
                             showToast(error.errors, 'error');
                         } else {
-                            // If we have structured validation errors in object format
                             showToast({ errors: error.errors }, 'error');
                         }
                     } else if (error && error.status === 422) {
-                        // If it's a validation error but no structured data
                         showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
                     } else {
-                        // Generic error message
                         showToast(error.message || 'Gagal membuat laporan pemeliharaan', 'error');
                     }
                 });
             });
 
-            // File upload preview for attachment
             document.getElementById('attachment')?.addEventListener('change', function() {
                 const file = this.files[0];
                 if (file) {
@@ -3385,48 +3091,38 @@
                 }
             });
 
-            // Remove image button for attachment
             document.getElementById('remove-image')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 const fileInput = document.getElementById('attachment');
                 if (fileInput) {
-                    fileInput.value = ''; // Clear the file input
+                    fileInput.value = '';
                 }
                 document.getElementById('image-preview').classList.add('hidden');
             });
 
-            // Initialize datepicker for maintenance date in report form
             if (document.getElementById('maintenance_date')) {
-                // Set max attribute to today
                 const todayDate = new Date().toISOString().split('T')[0];
                 document.getElementById('maintenance_date').value = todayDate;
                 document.getElementById('maintenance_date').setAttribute('max', todayDate);
             }
 
-            // Function to validate field and show error styling
             function validateField(field, isValid = null) {
                 let isFieldValid = isValid;
                 let fieldParent, errorElement;
 
-                // Find the appropriate error message element
                 if (field.id === 'user_search') {
-                    // For user search field, we need to target the parent relative div
                     fieldParent = field.closest('.relative');
                     errorElement = fieldParent.querySelector('.error-message');
 
-                    // Check if user is selected (hidden input has value)
                     if (isFieldValid === null) {
                         isFieldValid = document.getElementById('selected_user_id').value !== '';
                     }
                 } else if (field.id === 'vendor_search') {
-                    // For vendor search (which is optional)
                     return true;
                 } else if (field.tagName.toLowerCase() === 'select' || field.type === 'date') {
-                    // For select dropdowns and date fields
                     fieldParent = field.parentElement;
                     errorElement = fieldParent.querySelector('.error-message');
 
-                    // Check if the field has a value
                     if (isFieldValid === null) {
                         isFieldValid = field.value !== '';
                     }
@@ -3434,13 +3130,11 @@
                     fieldParent = field.parentElement;
                     errorElement = fieldParent.querySelector('.error-message');
 
-                    // For other input types, check if value is not empty
                     if (isFieldValid === null) {
                         isFieldValid = field.value.trim() !== '';
                     }
                 }
 
-                // Apply styling based on validation result
                 if (!isFieldValid) {
                     field.classList.add('border-red-500');
                     if (errorElement) errorElement.classList.remove('hidden');
@@ -3452,7 +3146,6 @@
                 }
             }
 
-            // Clear error styling when field is changed
             document.getElementById('interval').addEventListener('change', function() {
                 validateField(this, true);
             });
@@ -3460,7 +3153,6 @@
             document.getElementById('start_date').addEventListener('input', function() {
                 validateField(this, true);
 
-                // If end date exists and is less than start date, validate end date
                 const endDateInput = document.getElementById('end_date');
                 if (endDateInput && endDateInput.value && endDateInput.value < this.value) {
                     validateField(endDateInput, false);
@@ -3472,7 +3164,6 @@
             });
 
             document.getElementById('user_search').addEventListener('input', function() {
-                // Only clear error if there's text
                 if (this.value.trim()) {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.relative').querySelector('.error-message');
@@ -3480,7 +3171,6 @@
                 }
             });
 
-            // Setup event listeners to clear validation styling in edit form
             document.getElementById('edit_interval')?.addEventListener('change', function() {
                 validateField(this, true);
             });
@@ -3488,7 +3178,6 @@
             document.getElementById('edit_start_date')?.addEventListener('input', function() {
                 validateField(this, true);
 
-                // If end date exists and is less than start date, validate end date
                 const endDateInput = document.getElementById('edit_end_date');
                 if (endDateInput && endDateInput.value && endDateInput.value < this.value) {
                     validateField(endDateInput, false);
@@ -3500,7 +3189,6 @@
             });
 
             document.getElementById('edit_user_search')?.addEventListener('input', function() {
-                // Only clear error if there's text
                 if (this.value.trim()) {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.relative').querySelector('.error-message');
@@ -3508,7 +3196,6 @@
                 }
             });
 
-            // Add form validation event listeners for report form
             document.getElementById('maintenance_date')?.addEventListener('input', function() {
                 validateField(this, true);
             });
@@ -3521,7 +3208,6 @@
     @endpush
 
     <style>
-        /* Animation for the vendor search dropdown items */
         .vendor-item {
             opacity: 0;
             animation: fadeIn 0.3s ease-in-out forwards;

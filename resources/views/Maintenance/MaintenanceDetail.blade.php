@@ -215,7 +215,7 @@
 
                                         <div class="flex flex-col">
                                             <span class="text-sm text-gray-500">Dilaporkan Oleh</span>
-                                            <span>ID: {{ $maintenance['maintenance_report']['reported_by'] ?? 'N/A' }}</span>
+                                            <span>{{ $maintenance['maintenance_report']['reported_by_employee_number'] ?? 'N/A' }}</span>
                                         </div>
 
                                         <div class="flex flex-col">

@@ -918,7 +918,7 @@
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = `
                         <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        ${isEditMode ? 'Menyimpan...' : 'Mengirim...'}
+                        ${isEditMode ? 'MENYIMPAN...' : 'MENGIRIM...'}
                     `;
 
                     // Determine the endpoint based on whether we're creating or editing

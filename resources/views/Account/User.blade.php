@@ -100,6 +100,7 @@
                                                     data-user-id="{{ $user['user_id'] }}"
                                                     data-employee-number="{{ $user['employee_number'] }}"
                                                     data-role-ids="{{ isset($user['roles']) ? json_encode(array_column($user['roles'], 'role_id')) : '[]' }}"
+                                                    data-role-names="{{ isset($user['roles']) ? json_encode(array_column($user['roles'], 'role_name')) : '[]' }}"
                                                     data-is-active="{{ $user['is_active'] ? 'true' : 'false' }}">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -494,76 +495,67 @@
             setupRoleSearch('add-roles-input', 'add-roles-dropdown', 'add-selected-roles-display', 'add-role-hidden-inputs');
             setupRoleSearch('edit-roles-input', 'edit-roles-dropdown', 'edit-selected-roles-display', 'edit-role-hidden-inputs');
 
-            // Search functionality
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                // Set initial value from URL parameters
-                const urlParams = new URLSearchParams(window.location.search);
-                searchInput.value = urlParams.get('search') || '';
+            // Store fetched roles for caching
+            let cachedRoles = new Map();
 
-                // Add debounce for search
-                let searchTimeout;
-                searchInput.addEventListener('input', function() {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(applyFilters, 500);
+            // Function to fetch roles with search parameter
+            function fetchRoles(searchTerm = '', roleIds = [], callback) {
+                // Build query parameters
+                let queryParams = new URLSearchParams();
+                queryParams.append('json', 'true');
+                queryParams.append('limit', '100');
+                
+                // Add search term if provided
+                if (searchTerm) {
+                    queryParams.append('search', searchTerm);
+                }
+                
+                // Add role IDs if provided
+                if (Array.isArray(roleIds) && roleIds.length > 0) {
+                    roleIds.forEach(id => queryParams.append('ids[]', id));
+                }
+                
+                // Create URL with query parameters
+                const url = `/roles?${queryParams.toString()}`;
+                
+                fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let roles = [];
+                    
+                    // Parse the response data based on format
+                    if (Array.isArray(data)) {
+                        roles = data;
+                    } else if (data.roles && Array.isArray(data.roles)) {
+                        roles = data.roles;
+                    } else if (data.data && Array.isArray(data.data)) {
+                        roles = data.data;
+                    }
+                    
+                    // Cache the roles for future use
+                    roles.forEach(role => {
+                        cachedRoles.set(role.role_id.toString(), role);
+                    });
+                    
+                    // Call the callback with the roles
+                    callback(roles);
+                })
+                .catch(error => {
+                    console.error('Error fetching roles:', error);
+                    callback([]);
                 });
             }
-
-            // Function to apply all filters and sorting
-            function applyFilters() {
-                const searchTerm = document.getElementById('searchInput').value;
-                const statusFilter = document.getElementById('statusFilter').value;
-                const sortOrder = document.getElementById('sortOrder').value;
-
-                // Construct URL with filters
-                const url = new URL(window.location.href);
-
-                // Set search parameter
-                if (searchTerm) url.searchParams.set('search', searchTerm);
-                else url.searchParams.delete('search');
-
-                // Set status parameter
-                if (statusFilter) {
-                    url.searchParams.set('status', statusFilter);
-                } else {
-                    url.searchParams.delete('status');
-                }
-
-                // Set sort parameter
-                if (sortOrder) url.searchParams.set('sort', sortOrder);
-                else url.searchParams.delete('sort');
-
-                // Reset to page 1 when filters change
-                url.searchParams.set('user_page', 1);
-
-                // Navigate to the new URL
-                window.location.href = url.toString();
-            }
-
-            // Add event listeners for dropdown filters
-            const statusFilterSelect = document.getElementById('statusFilter');
-            if (statusFilterSelect) {
-                // Set initial value from URL
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.has('status')) {
-                    statusFilterSelect.value = urlParams.get('status');
-                }
-
-                statusFilterSelect.addEventListener('change', applyFilters);
-            }
-
-            // Add event listener for sort order
-            const sortOrderSelect = document.getElementById('sortOrder');
-            if (sortOrderSelect) {
-                // Set initial value from URL
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.has('sort')) {
-                    sortOrderSelect.value = urlParams.get('sort');
-                }
-
-                sortOrderSelect.addEventListener('change', applyFilters);
-            }
-
+            
             // Modify setupRoleSearch to handle validation
             function setupRoleSearch(inputId, dropdownId, displayContainerId, hiddenInputsId) {
                 const input = document.getElementById(inputId);
@@ -703,25 +695,47 @@
                     // Show loading indicator
                     loadingIndicator.style.display = 'flex';
                     rolesListContainer.innerHTML = '';
-
-                    // Get all available roles
-                    const roles = @json($roles['data'] ?? []);
-
-                    // Filter roles based on search term and exclude already selected roles
-                    let filteredRoles = roles.filter(role => {
-                        // Skip already selected roles
-                        if (selectedRoles.has(role.role_id.toString())) {
-                            return false;
-                        }
-
-                        // If there's a search term, match against it
-                        if (searchTerm) {
-                            return role.role_name.toLowerCase().includes(searchTerm);
-                        }
-
-                        // If no search term, include all non-selected roles
-                        return true;
+                    
+                    // Prepare selected role IDs to exclude
+                    const selectedRoleIds = Array.from(selectedRoles.keys());
+                    
+                    // First check if we already have cached roles that match the search
+                    let cachedResults = [];
+                    
+                    if (!searchTerm) {
+                        // If no search term, use all cached roles
+                        cachedResults = Array.from(cachedRoles.values())
+                            .filter(role => !selectedRoleIds.includes(role.role_id.toString()));
+                    } else {
+                        // If search term exists, filter cached roles
+                        cachedResults = Array.from(cachedRoles.values())
+                            .filter(role => 
+                                !selectedRoleIds.includes(role.role_id.toString()) && 
+                                role.role_name.toLowerCase().includes(searchTerm.toLowerCase())
+                            );
+                    }
+                    
+                    // If we have enough cached results, use them
+                    if (cachedResults.length >= 5 && !searchTerm) {
+                        renderRoleDropdown(cachedResults);
+                        return;
+                    }
+                    
+                    // Otherwise, fetch from server
+                    fetchRoles(searchTerm, [], function(roles) {
+                        // Filter out already selected roles
+                        const filteredRoles = roles.filter(role => 
+                            !selectedRoleIds.includes(role.role_id.toString())
+                        );
+                        
+                        renderRoleDropdown(filteredRoles);
                     });
+                }
+
+                // Helper function to render the role dropdown
+                function renderRoleDropdown(filteredRoles) {
+                    // Clear any existing content
+                    rolesListContainer.innerHTML = '';
 
                     // Hide loading indicator
                     loadingIndicator.style.display = 'none';
@@ -770,6 +784,14 @@
 
                         rolesListContainer.appendChild(option);
                     });
+
+                    // If we have a lot of results, show the count
+                    if (filteredRoles.length > 20) {
+                        const countMsg = document.createElement('div');
+                        countMsg.className = 'p-2 text-center text-gray-500 text-xs';
+                        countMsg.textContent = `Menampilkan ${filteredRoles.length} peran yang cocok`;
+                        rolesListContainer.appendChild(countMsg);
+                    }
                 }
 
                 // Render selected roles
@@ -900,6 +922,14 @@
                     if (Array.isArray(roleIds) && Array.isArray(roleNames) && roleIds.length === roleNames.length) {
                         roleIds.forEach((id, index) => {
                             selectedRoles.set(id.toString(), roleNames[index]);
+                            
+                            // Also add to cached roles
+                            if (!cachedRoles.has(id.toString())) {
+                                cachedRoles.set(id.toString(), {
+                                    role_id: id,
+                                    role_name: roleNames[index]
+                                });
+                            }
                         });
                     }
 
@@ -925,29 +955,50 @@
                 const activeSelect = document.getElementById('edit_is_active');
                 if (activeSelect) activeSelect.value = (isActive === 'true') ? '1' : '0';
 
-                // Get role names for the selected role IDs
-                const roles = @json($roles['data'] ?? []);
-                const roleNames = [];
-
-                if (Array.isArray(roleIds) && roleIds.length > 0 && Array.isArray(roles)) {
-                    roleIds.forEach(roleId => {
-                        const role = roles.find(r => r.role_id.toString() === roleId.toString());
-                        if (role) {
-                            roleNames.push(role.role_name);
-                        }
-                    });
-                }
-
-                // Set selected roles - this calls the function created in setupRoleSearch
-                if (typeof setEditSelectedRoles === 'function') {
-                    setEditSelectedRoles(roleIds, roleNames);
-                }
-
-                // Open the modal
+                // Open the modal first so the user sees something happening
                 const modal = document.getElementById('editUserModal');
                 const content = document.getElementById('editUserModalContent');
                 if (modal && content) {
                     openModal(modal, content);
+                }
+                
+                // Try to get role names from the button data attribute
+                let roleNames = [];
+                try {
+                    // Get the button that was clicked
+                    const editButtons = document.querySelectorAll(`.edit-user-btn[data-user-id="${userId}"]`);
+                    if (editButtons.length > 0) {
+                        const roleNamesAttr = editButtons[0].getAttribute('data-role-names');
+                        if (roleNamesAttr) {
+                            roleNames = JSON.parse(roleNamesAttr);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error parsing role names:", error);
+                }
+                
+                // If we have role names from the button, use them directly
+                if (Array.isArray(roleNames) && roleNames.length === roleIds.length) {
+                    if (typeof setEditSelectedRoles === 'function') {
+                        setEditSelectedRoles(roleIds, roleNames);
+                    }
+                } else {
+                    // Fallback to fetching role names by IDs
+                    fetchRoles('', roleIds, function(roles) {
+                        // Map the fetched roles to names in the same order as requested IDs
+                        const roleMap = new Map();
+                        roles.forEach(role => {
+                            roleMap.set(role.role_id.toString(), role.role_name);
+                        });
+                        
+                        const fetchedRoleNames = roleIds.map(id => 
+                            roleMap.get(id.toString()) || `Role ID: ${id}`
+                        );
+                        
+                        if (typeof setEditSelectedRoles === 'function') {
+                            setEditSelectedRoles(roleIds, fetchedRoleNames);
+                        }
+                    });
                 }
             };
 

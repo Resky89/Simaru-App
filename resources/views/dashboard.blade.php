@@ -2494,12 +2494,9 @@
         const vendorIdInput = document.getElementById('vendor_id');
         const vendorResults = document.getElementById('vendor_results');
 
-        // Initial load of vendors
-        loadAllVendors();
-
         // Show/hide vendor results
         vendorSearchInput?.addEventListener('focus', function () {
-            filterAndDisplayVendors(this.value.trim());
+            fetchVendors(this.value.trim());
             vendorResults.style.display = 'block';
         });
 
@@ -2513,154 +2510,91 @@
         // Search vendors with debounce
         vendorSearchInput?.addEventListener('input', debounce(function () {
             const searchTerm = this.value.trim();
-            filterAndDisplayVendors(searchTerm);
+            fetchVendors(searchTerm);
         }, 300));
 
-        // Load all vendors
-        function loadAllVendors() {
+        // Function to fetch vendors with search parameter
+        function fetchVendors(searchTerm = '') {
+            // Show loading indicator
             vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
             vendorResults.style.display = 'block';
 
-            // First try to get from localStorage to avoid delay
-            const cachedVendors = localStorage.getItem('allVendors');
-            if (cachedVendors) {
-                try {
-                    allVendors = JSON.parse(cachedVendors);
-
-                    // Show the dropdown with cached data
-                    filterAndDisplayVendors(vendorSearchInput?.value.trim() || '');
-
-                    // Still load fresh data in the background
-                    fetchAllVendors();
-
-                    return; // Exit early with cached data
-                } catch (e) {
-                    console.error('Error parsing cached vendors:', e);
-                }
+            // Build query parameters
+            let queryParams = new URLSearchParams();
+            queryParams.append('json', 'true');
+            queryParams.append('limit', '20');
+            
+            // Add search term if provided
+            if (searchTerm) {
+                queryParams.append('search', searchTerm);
             }
-
-            // If no cache, fetch from API
-            fetchAllVendors();
-        }
-
-        // Fetch all vendors with pagination
-        function fetchAllVendors() {
-            let page = 1;
-            allVendors = []; // Reset array
-
-            function fetchPage(page) {
-                if (page === 1) {
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-                } else {
-                    // Update loading message for subsequent pages
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor (halaman ' + page + ')...</div>';
+            
+            // Create URL with query parameters
+            const url = `/vendor?${queryParams.toString()}`;
+            
+            // Fetch vendors from API
+            fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-
-                fetch(`/vendor?json=true&page=${page}&limit=100`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server merespon dengan status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                let vendors = [];
+                
+                // Handle different response formats
+                if (Array.isArray(data)) {
+                    vendors = data;
+                } else if (data.vendors && Array.isArray(data.vendors)) {
+                    vendors = data.vendors;
+                } else if (data.data && Array.isArray(data.data)) {
+                    vendors = data.data;
+                }
+                
+                // Cache the vendors for potential reuse
+                vendors.forEach(vendor => {
+                    const existingIndex = allVendors.findIndex(v => v.vendor_id.toString() === vendor.vendor_id.toString());
+                    if (existingIndex === -1) {
+                        allVendors.push(vendor);
                     }
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Server merespon dengan status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        let vendors = [];
-                        let pagination = null;
-
-                        // Handle different response formats
-                        if (Array.isArray(data)) {
-                            vendors = data;
-                        } else if (data.vendors && Array.isArray(data.vendors)) {
-                            vendors = data.vendors;
-                            pagination = data.pagination;
-                        } else if (data.data && Array.isArray(data.data)) {
-                            vendors = data.data;
-                            pagination = data.pagination;
-                        }
-
-                        // Add to our collection
-                        allVendors = [...allVendors, ...vendors];
-
-                        // Check if there are more pages
-                        const hasNextPage = pagination && pagination.has_next;
-
-                        if (hasNextPage) {
-                            // Fetch next page
-                            fetchPage(page + 1);
-                        } else {
-                            // Cache for future use
-                            try {
-                                localStorage.setItem('allVendors', JSON.stringify(allVendors));
-                            } catch (e) {
-                                console.error('Error caching vendors:', e);
-                            }
-
-                            // If the input has a value, filter and display
-                            if (vendorSearchInput && vendorSearchInput.value.trim()) {
-                                filterAndDisplayVendors(vendorSearchInput.value.trim());
-                            } else {
-                                vendorResults.style.display = 'none';
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error(`Error fetching vendors page ${page}:`, error);
-                        vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
-
-                        // If we got some vendors, still show them
-                        if (allVendors.length > 0) {
-                            filterAndDisplayVendors(vendorSearchInput?.value.trim() || '');
-                        }
-                    });
-            }
-
-            // Start fetching from page 1
-            fetchPage(page);
+                });
+                
+                // Display the results
+                displayVendorResults(vendors);
+            })
+            .catch(error => {
+                console.error('Error fetching vendors:', error);
+                vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
+            });
         }
 
-        // Filter and display vendors based on search term
-        function filterAndDisplayVendors(searchTerm) {
-            // Make sure dropdown is visible
-            vendorResults.style.display = 'block';
+        // Helper function to display vendor results
+        function displayVendorResults(vendors) {
+            // Update DOM
+            vendorResults.innerHTML = '';
 
-            // Show loading message during search
-            if (searchTerm && searchTerm.length > 0) {
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Mencari vendor...</div>';
-            }
-
-            // If we have no vendors yet
-            if (allVendors.length === 0) {
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
+            if (vendors.length === 0) {
+                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada vendor ditemukan</div>';
                 return;
             }
 
-            // Filter vendors
-            let filteredVendors = allVendors;
-            if (searchTerm) {
-                const term = searchTerm.toLowerCase();
-                filteredVendors = allVendors.filter(vendor => {
-                    if (!vendor.vendor_name) return false;
-                    return vendor.vendor_name.toLowerCase().includes(term);
-                });
-            }
-
             // Sort by relevance if we have a search term
-            if (searchTerm) {
-                filteredVendors.sort((a, b) => {
-                    if (!a.vendor_name || !b.vendor_name) return 0;
-
+            if (vendorSearchInput && vendorSearchInput.value.trim()) {
+                const searchTerm = vendorSearchInput.value.trim().toLowerCase();
+                vendors.sort((a, b) => {
                     // Exact matches first
-                    if (a.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return -1;
-                    if (b.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return 1;
+                    if (a.vendor_name.toLowerCase() === searchTerm) return -1;
+                    if (b.vendor_name.toLowerCase() === searchTerm) return 1;
 
                     // Then starts-with matches
-                    const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                    const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
+                    const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm);
+                    const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm);
                     if (aStarts && !bStarts) return -1;
                     if (bStarts && !aStarts) return 1;
 
@@ -2669,19 +2603,8 @@
                 });
             }
 
-            // Limit to first 20 for performance
-            const displayVendors = filteredVendors.slice(0, 20);
-
-            // Update DOM with animation delay
-            vendorResults.innerHTML = '';
-
-            if (displayVendors.length === 0) {
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada vendor ditemukan</div>';
-                return;
-            }
-
             // Add vendor items with staggered animation
-            displayVendors.forEach((vendor, index) => {
+            vendors.forEach((vendor, index) => {
                 if (!vendor.vendor_name || !vendor.vendor_id) {
                     console.error('Vendor missing name or ID:', vendor);
                     return;
@@ -2703,11 +2626,11 @@
                 vendorResults.appendChild(div);
             });
 
-            // Show count if limited
-            if (filteredVendors.length > 20) {
+            // Show count if more than a certain number
+            if (vendors.length > 10) {
                 const countDiv = document.createElement('div');
                 countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
-                countDiv.textContent = `Menampilkan 20 dari ${filteredVendors.length} vendor`;
+                countDiv.textContent = `Menampilkan ${vendors.length} vendor`;
                 vendorResults.appendChild(countDiv);
             }
         }
@@ -2724,7 +2647,5 @@
                 timeout = setTimeout(later, wait);
             };
         }
-
-        // Form submission for calibration
     </script>
 @endsection

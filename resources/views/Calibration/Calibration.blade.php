@@ -1850,41 +1850,119 @@
                             openModal(modals.add, modalContents.add);
                         });
 
-                        // Load vendors for dropdown
+                        // Replace the loadVendors function (around line 1855)
                         function loadVendors() {
-                            fetch('/vendor?json=true', {
+                            // We'll use the cached vendors if available, otherwise fetch them
+                            if (allVendors && allVendors.length > 0) {
+                                populateVendorDropdown(allVendors);
+                            } else {
+                                // If no cached vendors, trigger the fetch
+                                fetchVendors();
+                            }
+                        }
+
+                        // Add a single fetchVendors function to replace all three vendor fetch methods
+                        function fetchVendors(searchTerm = '', callback = null) {
+                            // Build query parameters
+                            const params = new URLSearchParams({
+                                json: 'true',
+                                limit: searchTerm ? '20' : '100' // Use smaller limit for search, larger for full load
+                            });
+                            
+                            // Add search term if provided
+                            if (searchTerm) {
+                                params.append('search', searchTerm);
+                            }
+                            
+                            // Show loading state in dropdown if visible
+                            if (vendorResults && vendorResults.style.display === 'block') {
+                                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+                            }
+                            
+                            // Make a single fetch request
+                            fetch(`/vendor?${params.toString()}`, {
                                 headers: {
                                     'Accept': 'application/json',
                                     'X-Requested-With': 'XMLHttpRequest'
                                 }
                             })
                                 .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Server responded with status: ${response.status}`);
+                                }
                                     return response.json();
                                 })
                                 .then(data => {
+                                let vendors = [];
+                                
+                                // Handle different response formats
+                                if (Array.isArray(data)) {
+                                    vendors = data;
+                                } else if (data.vendors && Array.isArray(data.vendors)) {
+                                    vendors = data.vendors;
+                                } else if (data.data && Array.isArray(data.data)) {
+                                    vendors = data.data;
+                                }
+                                
+                                // If this is a full load (no search term), cache the vendors
+                                if (!searchTerm) {
+                                    allVendors = vendors;
+                                    
+                                    // Cache for future use
+                                    try {
+                                        localStorage.setItem('allVendors', JSON.stringify(allVendors));
+                                    } catch (e) {
+                                        console.error('Error caching vendors:', e);
+                                    }
+                                    
+                                    // If we're loading for dropdown, populate it
+                                    populateVendorDropdown(vendors);
+                                }
+                                
+                                // If we have a callback, call it with the vendors
+                                if (callback) {
+                                    callback(vendors);
+                                }
+                                
+                                // If we're searching and the results dropdown is visible, display results
+                                if (searchTerm && vendorResults && vendorResults.style.display === 'block') {
+                                    displayVendorResults(vendors);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching vendors:', error);
+                                
+                                // Show error in dropdown if visible
+                                if (vendorResults && vendorResults.style.display === 'block') {
+                                    vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
+                                }
+                                
+                                // Show toast notification with error details
+                                if (typeof error === 'object' && error !== null) {
+                                    showToast(error, 'error');
+                                } else {
+                                    showToast('Gagal memuat vendor: ' + error.message, 'error');
+                                }
+                                
+                                // If we have a callback, call it with empty array
+                                if (callback) {
+                                    callback([]);
+                                }
+                            });
+                        }
+
+                        // Helper function to populate vendor dropdown
+                        function populateVendorDropdown(vendors) {
                                     const select = document.getElementById('vendor_id');
+                            if (!select) return;
+                            
                                     select.innerHTML = '<option value="">Select Vendor</option>';
 
-                                    if (Array.isArray(data)) {
-                                        data.forEach(vendor => {
+                            vendors.forEach(vendor => {
                                             const option = document.createElement('option');
                                             option.value = vendor.vendor_id;
                                             option.textContent = vendor.vendor_name;
                                             select.appendChild(option);
-                                        });
-                                    } else if (data.vendors && Array.isArray(data.vendors)) {
-                                        data.vendors.forEach(vendor => {
-                                            const option = document.createElement('option');
-                                            option.value = vendor.vendor_id;
-                                            option.textContent = vendor.vendor_name;
-                                            select.appendChild(option);
-                                        });
-                                    } else {
-                                        console.error('Unexpected vendor data format:', data);
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error loading vendors:', error);
                                 });
                         }
 
@@ -3046,8 +3124,53 @@
                         const vendorIdInput = document.getElementById('vendor_id');
                         const vendorResults = document.getElementById('vendor_results');
 
-                        // Initial load of vendors
-                        loadAllVendors();
+                        // Replace the loadAllVendors function (around line 2730)
+                        function loadAllVendors() {
+                            // First try to get from localStorage to avoid delay
+                            const cachedVendors = localStorage.getItem('allVendors');
+                            if (cachedVendors) {
+                                try {
+                                    allVendors = JSON.parse(cachedVendors);
+                                    
+                                    // If the search input has a value, filter and display
+                                    if (vendorSearchInput && vendorSearchInput.value.trim()) {
+                                        filterAndDisplayVendors(vendorSearchInput.value.trim());
+                                    } else if (vendorResults) {
+                                        vendorResults.style.display = 'none';
+                                    }
+                                    
+                                    // Still load fresh data in the background
+                                    fetchVendors();
+                                    
+                                    return; // Exit early with cached data
+                                } catch (e) {
+                                    console.error('Error parsing cached vendors:', e);
+                                }
+                            }
+                            
+                            // If no cache, fetch from API
+                            fetchVendors();
+                        }
+
+                        // Replace the filterAndDisplayVendors function (around line 2790)
+                        function filterAndDisplayVendors(searchTerm) {
+                            // Make sure dropdown is visible
+                            if (vendorResults) vendorResults.style.display = 'block';
+                            
+                            // If search term is provided, use server-side search
+                            if (searchTerm && searchTerm.length > 0) {
+                                fetchVendors(searchTerm, displayVendorResults);
+                            } else {
+                                // If no search term and we have cached vendors, use them
+                                if (allVendors.length > 0) {
+                                    // Display all vendors (limited to first 20)
+                                    displayVendorResults(allVendors.slice(0, 20));
+                                } else {
+                                    // If no cached vendors, fetch them
+                                    fetchVendors('', vendors => displayVendorResults(vendors.slice(0, 20)));
+                                }
+                            }
+                        }
 
                         // Handle Edit Schedule Button click events
                         document.querySelectorAll('.edit-schedule-btn').forEach(button => {
@@ -3260,17 +3383,21 @@
 
                         // Load all vendors
                         function loadAllVendors() {
-                            vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
-                            vendorResults.style.display = 'block';
-
                             // First try to get from localStorage to avoid delay
                             const cachedVendors = localStorage.getItem('allVendors');
                             if (cachedVendors) {
                                 try {
                                     allVendors = JSON.parse(cachedVendors);
+                                    
+                                    // If the search input has a value, filter and display
+                                    if (vendorSearchInput && vendorSearchInput.value.trim()) {
+                                        filterAndDisplayVendors(vendorSearchInput.value.trim());
+                                    } else if (vendorResults) {
+                                        vendorResults.style.display = 'none';
+                                    }
 
                                     // Still load fresh data in the background
-                                    fetchAllVendors();
+                                    fetchVendors();
 
                                     return; // Exit early with cached data
                                 } catch (e) {
@@ -3279,159 +3406,48 @@
                             }
 
                             // If no cache, fetch from API
-                            fetchAllVendors();
-                        }
-
-                        // Fetch all vendors with pagination
-                        function fetchAllVendors() {
-                            let page = 1;
-                            allVendors = []; // Reset array
-
-                            function fetchPage(page) {
-                                if (page === 1) {
-                                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
-                                } else {
-                                    // Update loading message for subsequent pages
-                                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors (page ' + page + ')...</div>';
-                                }
-
-                                fetch(`/vendor?json=true&page=${page}&limit=100`, {
-                                    headers: {
-                                        'Accept': 'application/json',
-                                        'X-Requested-With': 'XMLHttpRequest'
-                                    }
-                                })
-                                    .then(response => {
-                                        if (!response.ok) {
-                                            throw new Error(`Server merespon dengan status: ${response.status}`);
-                                        }
-                                        return response.json();
-                                    })
-                                    .then(data => {
-                                        let vendors = [];
-                                        let pagination = null;
-
-                                        // Handle different response formats
-                                        if (Array.isArray(data)) {
-                                            vendors = data;
-                                        } else if (data.vendors && Array.isArray(data.vendors)) {
-                                            vendors = data.vendors;
-                                            pagination = data.pagination;
-                                        } else if (data.data && Array.isArray(data.data)) {
-                                            vendors = data.data;
-                                            pagination = data.pagination;
-                                        }
-
-                                        // Add to our collection
-                                        allVendors = [...allVendors, ...vendors];
-
-                                        // Check if there are more pages
-                                        const hasNextPage = pagination && pagination.has_next;
-
-                                        if (hasNextPage) {
-                                            // Fetch next page
-                                            fetchPage(page + 1);
-                                        } else {
-                                            // Cache for future use
-                                            try {
-                                                localStorage.setItem('allVendors', JSON.stringify(allVendors));
-                                            } catch (e) {
-                                                console.error('Error caching vendors:', e);
-                                            }
-
-                                            // If the input has a value, filter and display
-                                            if (vendorSearchInput && vendorSearchInput.value.trim()) {
-                                                filterAndDisplayVendors(vendorSearchInput.value.trim());
-                                            } else {
-                                                vendorResults.style.display = 'none';
-                                            }
-                                        }
-                                    })
-                                    .catch(error => {
-                                        console.error(`Error fetching vendors page ${page}:`, error);
-                                        vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
-
-                                        // If we got some vendors, still show them
-                                        if (allVendors.length > 0) {
-                                            filterAndDisplayVendors(vendorSearchInput?.value.trim() || '');
-                                        }
-
-                                        // Show toast notification with error details
-                                        if (typeof error === 'object' && error !== null) {
-                                            showToast(error, 'error');
-                                        } else {
-                                            showToast('Gagal memuat vendor: ' + error.message, 'error');
-                                        }
-                                    });
-                            }
-
-                            // Start fetching from page 1
-                            fetchPage(page);
+                            fetchVendors();
                         }
 
                         // Filter and display vendors based on search term
                         function filterAndDisplayVendors(searchTerm) {
                             // Make sure dropdown is visible
-                            vendorResults.style.display = 'block';
+                            if (vendorResults) vendorResults.style.display = 'block';
 
-                            // Show loading message during search
+                            // If search term is provided, use server-side search
                             if (searchTerm && searchTerm.length > 0) {
-                                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Mencari vendor...</div>';
+                                fetchVendors(searchTerm, displayVendorResults);
+                                    } else {
+                                // If no search term and we have cached vendors, use them
+                                if (allVendors.length > 0) {
+                                // Display all vendors (limited to first 20)
+                                displayVendorResults(allVendors.slice(0, 20));
+                                } else {
+                                    // If no cached vendors, fetch them
+                                    fetchVendors('', vendors => displayVendorResults(vendors.slice(0, 20)));
+                                }
                             }
+                        }
 
-                            // If we have no vendors yet
-                            if (allVendors.length === 0) {
-                                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-                                return;
-                            }
-
-                            // Filter vendors
-                            let filteredVendors = allVendors;
-                            if (searchTerm) {
-                                const term = searchTerm.toLowerCase();
-                                filteredVendors = allVendors.filter(vendor =>
-                                    vendor.vendor_name?.toLowerCase().includes(term)
-                                );
-                            }
-
-                            // Sort by relevance if we have a search term
-                            if (searchTerm) {
-                                filteredVendors.sort((a, b) => {
-                                    // Exact matches first
-                                    if (a.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return -1;
-                                    if (b.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return 1;
-
-                                    // Then starts-with matches
-                                    const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                                    const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                                    if (aStarts && !bStarts) return -1;
-                                    if (bStarts && !aStarts) return 1;
-
-                                    // Then alphabetical
-                                    return a.vendor_name.localeCompare(b.vendor_name);
-                                });
-                            }
-
-                            // Limit to first 20 for performance
-                            const displayVendors = filteredVendors.slice(0, 20);
-
-                            // Update DOM with animation delay
+                        // Helper function to display vendor results
+                        function displayVendorResults(vendors) {
+                            // Update DOM
                             vendorResults.innerHTML = '';
 
-                            if (displayVendors.length === 0) {
-                                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">No vendors found</div>';
+                            if (vendors.length === 0) {
+                                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Vendor tidak ditemukan</div>';
                                 return;
                             }
 
                             // Add vendor items with staggered animation
-                            displayVendors.forEach((vendor, index) => {
+                            vendors.forEach((vendor, index) => {
                                 const div = document.createElement('div');
                                 div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
                                 div.textContent = vendor.vendor_name;
                                 div.setAttribute('data-id', vendor.vendor_id);
                                 div.style.animationDelay = `${index * 30}ms`; // Staggered animation
 
-                                div.addEventListener('click', function () {
+                                div.addEventListener('click', function() {
                                     vendorIdInput.value = this.getAttribute('data-id');
                                     vendorSearchInput.value = this.textContent;
                                     vendorResults.style.display = 'none';
@@ -3441,10 +3457,10 @@
                             });
 
                             // Show count if limited
-                            if (filteredVendors.length > 20) {
+                            if (vendors.length === 20) {
                                 const countDiv = document.createElement('div');
                                 countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
-                                countDiv.textContent = `Showing 20 of ${filteredVendors.length} vendors`;
+                                countDiv.textContent = `Menampilkan 20 hasil pertama`;
                                 vendorResults.appendChild(countDiv);
                             }
                         }

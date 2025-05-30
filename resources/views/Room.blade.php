@@ -507,30 +507,20 @@
                             const modal = document.getElementById('deleteRoomModal');
                             closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
 
-                            if (data.success === true) {
-                                // Show success toast
-                                showToast(data.message || 'Ruangan berhasil dihapus', 'success');
-
-                                // Reload the page after a short delay
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1000);
-                            } else {
-                                // Show error toast
-                                showToast(data.message || 'Gagal menghapus ruangan', 'error');
-                            }
+                            // Reload the page to show server-side notification
+                            window.location.reload();
                         })
                         .catch(error => {
                             // Reset button state
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalBtnText;
 
-                            // Show error toast
-                            showToast('Terjadi kesalahan: ' + error.message, 'error');
-
                             // Close the modal
                             const modal = document.getElementById('deleteRoomModal');
                             closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+
+                            // Reload the page to show server-side error notification
+                            window.location.reload();
                         });
                     });
                 }
@@ -550,6 +540,122 @@
                     showToast('{{ session('error') }}', 'error');
                 @endif
             });
+
+            // Function to show toast notifications
+            window.showToast = function (message, type = 'info') {
+                // Create the notification element
+                const notification = document.createElement('div');
+                notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+                notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+                notification.role = 'alert';
+
+                // Check if message contains HTML
+                const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+
+                if (type === 'success') {
+                    notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                    notification.innerHTML = `
+                        <div class="flex items-start">
+                        <div class="py-1">
+                                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div>
+                                <p class="font-bold">Berhasil!</p>
+                                <div>${message}</div>
+                        </div>
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+                } else {
+                    notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                    // Structure for the notification
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'flex items-start';
+
+                    // Icon container
+                    const iconContainer = document.createElement('div');
+                    iconContainer.className = 'py-1 flex-shrink-0';
+                    iconContainer.innerHTML = `
+                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    `;
+
+                    // Content container
+                    const contentContainer = document.createElement('div');
+                    contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                    // Title
+                    const title = document.createElement('p');
+                    title.className = 'font-bold';
+                    title.textContent = 'Error!';
+                    contentContainer.appendChild(title);
+
+                    // Message container
+                    const messageContainer = document.createElement('div');
+                    messageContainer.className = 'error-message';
+
+                    // Handle HTML content
+                    if (hasHTML) {
+                        messageContainer.innerHTML = message;
+                    } else {
+                        messageContainer.textContent = message;
+                    }
+
+                    contentContainer.appendChild(messageContainer);
+
+                    // Close button
+                    const closeBtn = document.createElement('span');
+                    closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                    closeBtn.textContent = '×';
+                    closeBtn.onclick = function() {
+                        notification.remove();
+                    };
+
+                    // Assemble the notification
+                    wrapper.appendChild(iconContainer);
+                    wrapper.appendChild(contentContainer);
+                    wrapper.appendChild(closeBtn);
+                    notification.appendChild(wrapper);
+                }
+
+                // Add to document
+                document.body.appendChild(notification);
+
+                // Auto-remove notification after 5 seconds
+                setTimeout(() => {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => notification.remove(), 500);
+                }, 5000);
+            }
+
+            // Add slide-in animation and styling for error messages to CSS
+            document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); }
+                        to { transform: translateX(0); }
+                    }
+                    .animate-slide-in-right {
+                        animation: slideInRight 0.3s ease-out forwards;
+                    }
+
+                    /* Styling for error messages with HTML content */
+                    .error-message ul {
+                        margin-top: 0.5rem;
+                        padding-left: 1.5rem;
+                    }
+                    .error-message ul li {
+                        margin-bottom: 0.25rem;
+                    }
+                    .error-message ul li:last-child {
+                        margin-bottom: 0;
+                    }
+                </style>
+            `);
         </script>
 
         <!-- Import Room Modal -->
@@ -824,11 +930,6 @@
                 // Set initial values from URL parameters
                 const urlParams = new URLSearchParams(window.location.search);
                 if (searchInput) searchInput.value = urlParams.get('search') || '';
-
-                // Toast container
-                const toastContainer = document.createElement('div');
-                toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-4';
-                document.body.appendChild(toastContainer);
 
                 // Get all modal elements
                 const addRoomModal = document.getElementById('addRoomModal');
@@ -1447,97 +1548,6 @@
                     });
                 }
 
-                // Function to show toast notifications
-                window.showToast = function (message, type = 'info') {
-                    // Create the notification element
-                    const notification = document.createElement('div');
-                    notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
-                    notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
-                    notification.role = 'alert';
-
-                    // Check if message contains HTML
-                    const hasHTML = /<[a-z][\s\S]*>/i.test(message);
-
-                    if (type === 'success') {
-                        notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-                        notification.innerHTML = `
-                            <div class="flex items-start">
-                            <div class="py-1">
-                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            </div>
-                            <div>
-                                    <p class="font-bold">Berhasil!</p>
-                                    <div>${message}</div>
-                            </div>
-                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                        </div>
-                    `;
-                    } else {
-                        notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
-
-                        // Structure for the notification
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'flex items-start';
-
-                        // Icon container
-                        const iconContainer = document.createElement('div');
-                        iconContainer.className = 'py-1 flex-shrink-0';
-                        iconContainer.innerHTML = `
-                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        `;
-
-                        // Content container
-                        const contentContainer = document.createElement('div');
-                        contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                        // Title
-                        const title = document.createElement('p');
-                        title.className = 'font-bold';
-                        title.textContent = 'Error!';
-                        contentContainer.appendChild(title);
-
-                        // Message container
-                        const messageContainer = document.createElement('div');
-                        messageContainer.className = 'error-message';
-
-                        // Handle HTML content
-                        if (hasHTML) {
-                            messageContainer.innerHTML = message;
-                        } else {
-                            messageContainer.textContent = message;
-                        }
-
-                        contentContainer.appendChild(messageContainer);
-
-                        // Close button
-                        const closeBtn = document.createElement('span');
-                        closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                        closeBtn.textContent = '×';
-                        closeBtn.onclick = function() {
-                            notification.remove();
-                        };
-
-                        // Assemble the notification
-                        wrapper.appendChild(iconContainer);
-                        wrapper.appendChild(contentContainer);
-                        wrapper.appendChild(closeBtn);
-                        notification.appendChild(wrapper);
-                    }
-
-                    // Add to document
-                    document.body.appendChild(notification);
-
-                    // Auto-remove notification after 5 seconds
-                    setTimeout(() => {
-                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                        setTimeout(() => notification.remove(), 500);
-                    }, 5000);
-                }
-
                 // Add AJAX handling for add room form
                 let roomFormAjax = document.getElementById('addRoomForm');
                 if (roomFormAjax) {
@@ -1596,21 +1606,15 @@
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalBtnText;
 
-                            if (data.status >= 200 && data.status < 300) {
+                            if (data.success === true || (data.status >= 200 && data.status < 300)) {
                                 // Success response
                                 const modal = document.getElementById('addRoomModal');
                                 closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
-                                showToast(data.message || 'Ruangan berhasil ditambahkan!', 'success');
 
                                 // Reload the page to show updated data
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1000);
+                                window.location.reload();
                             } else {
                                 // Error response
-                                let errorMessage = data.message || 'Terjadi kesalahan saat menambahkan ruangan.';
-                                let errorDetails = [];
-
                                 // Add validation errors if present
                                 if (data.errors) {
                                     // Clear previous validation errors
@@ -1646,24 +1650,9 @@
                                                     errorElement.classList.remove('hidden');
                                                 }
                                             }
-
-                                            // Also collect for the toast
-                                            errorDetails.push(Array.isArray(data.errors[key]) ?
-                                                data.errors[key][0] : data.errors[key]);
                                         });
                                     }
                                 }
-
-                                // Create HTML content for the error message toast
-                                if (errorDetails.length > 0) {
-                                    errorMessage = `${errorMessage}<ul class="mt-2 ml-4 list-disc">`;
-                                    errorDetails.forEach(detail => {
-                                        errorMessage += `<li>${detail}</li>`;
-                                    });
-                                    errorMessage += '</ul>';
-                                }
-
-                                showToast(errorMessage, 'error');
                             }
                         })
                         .catch(error => {
@@ -1671,7 +1660,8 @@
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalBtnText;
 
-                            showToast('Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.', 'error');
+                            // Reload page to show server error message
+                            window.location.reload();
                         });
                     });
                 }
@@ -1734,21 +1724,15 @@
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalBtnText;
 
-                            if (data.status >= 200 && data.status < 300) {
+                            if (data.success === true || (data.status >= 200 && data.status < 300)) {
                                 // Success response
                                 const modal = document.getElementById('editRoomModal');
                                 closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
-                                showToast(data.message || 'Ruangan berhasil diperbarui!', 'success');
 
                                 // Reload the page to show updated data
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1000);
+                                window.location.reload();
                             } else {
                                 // Error response
-                                let errorMessage = data.message || 'Terjadi kesalahan saat memperbarui ruangan.';
-                                let errorDetails = [];
-
                                 // Add validation errors if present
                                 if (data.errors) {
                                     // Clear previous validation errors
@@ -1784,24 +1768,9 @@
                                                     errorElement.classList.remove('hidden');
                                                 }
                                             }
-
-                                            // Also collect for the toast
-                                            errorDetails.push(Array.isArray(data.errors[key]) ?
-                                                data.errors[key][0] : data.errors[key]);
                                         });
                                     }
                                 }
-
-                                // Create HTML content for the error message
-                                if (errorDetails.length > 0) {
-                                    errorMessage = `${errorMessage}<ul class="mt-2 ml-4 list-disc">`;
-                                    errorDetails.forEach(detail => {
-                                        errorMessage += `<li>${detail}</li>`;
-                                    });
-                                    errorMessage += '</ul>';
-                                }
-
-                                showToast(errorMessage, 'error');
                             }
                         })
                         .catch(error => {
@@ -1809,7 +1778,8 @@
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalBtnText;
 
-                            showToast('Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.', 'error');
+                            // Reload page to show server error message
+                            window.location.reload();
                         });
                     });
                 }

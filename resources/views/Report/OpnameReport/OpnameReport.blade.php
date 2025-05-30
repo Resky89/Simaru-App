@@ -36,7 +36,7 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $opname['total_assets'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $opname['scanned_assets'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            {{ date('d M Y', strtotime($opname['created_at'])) }}</td>
+                                            {{ \Carbon\Carbon::parse($opname['created_at'])->locale('id')->isoFormat('D MMMM Y') }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">
                                                 <a href="{{ route('opnames.detail', $opname['opname_id']) }}"

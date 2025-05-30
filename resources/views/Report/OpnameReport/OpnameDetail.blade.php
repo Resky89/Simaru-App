@@ -70,7 +70,7 @@
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Tanggal Dibuat</p>
                             <p class="text-lg font-semibold text-[#213268]">
-                                {{ isset($opnameInfo['opname_created_at']) ? date('d M Y, H:i', strtotime($opnameInfo['opname_created_at'])) : 'N/A' }}
+                                {{ isset($opnameInfo['opname_created_at']) ? \Carbon\Carbon::parse($opnameInfo['opname_created_at'])->locale('id')->isoFormat('D MMMM Y, HH:mm') : 'N/A' }}
                             </p>
                         </div>
                     </div>
@@ -205,7 +205,7 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
-                                                {{ date('d M Y H:i', strtotime($asset['scan_date'])) }}
+                                                {{ \Carbon\Carbon::parse($asset['scan_date'])->locale('id')->isoFormat('D MMMM Y HH:mm') }}
                                             </div>
                                         @else
                                             -
