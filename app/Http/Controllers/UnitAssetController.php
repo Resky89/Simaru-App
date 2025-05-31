@@ -89,6 +89,12 @@ class UnitAssetController extends Controller
             // Memeriksa kesalahan autentikasi
             if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
                 in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])) {
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
                 return redirect()->route('login')->with('error', is_string($assetsResult['errors']) ? $assetsResult['errors'] : 'Autentikasi gagal');
             }
 
@@ -541,19 +547,8 @@ class UnitAssetController extends Controller
     public function generateBarcode($id)
     {
         try {
-            \Log::info('Attempting to generate barcode for single asset:', [
-                'asset_id' => $id,
-                'url' => request()->url()
-            ]);
-
             // Single asset request
             $result = $this->apiService->request('GET', "/assets/barcode/generate/{$id}");
-
-            // Log the API response
-            \Log::info('API response for barcode generation:', [
-                'asset_id' => $id,
-                'api_response' => $result
-            ]);
 
             // Check for auth errors
             if (isset($result['errors']) && is_string($result['errors']) &&
@@ -927,8 +922,9 @@ class UnitAssetController extends Controller
             // Ensure we've got an array of IDs (log this for debugging)
             \Log::info('Asset IDs for QR generation:', ['asset_ids' => $assetIds, 'count' => count($assetIds)]);
 
-            $qrSize = $request->input('qr_size', 50);
+            $qrSize = $request->input('qr_size', 80);
             $quantity = $request->input('quantity', 1);
+            $printerType = $request->input('printer_type', 'zebra');
 
             // Determine container width based on qr_size
             $containerWidth = 80; // Default to 80mm
@@ -936,6 +932,8 @@ class UnitAssetController extends Controller
                 $containerWidth = 100;
             } elseif ($qrSize == 80) {
                 $containerWidth = 80;
+            } elseif ($qrSize == 60) {
+                $containerWidth = 60;
             }
 
             // Use apiService to generate QR codes for the selected assets
@@ -952,7 +950,8 @@ class UnitAssetController extends Controller
                 'request' => [
                     'asset_ids' => $assetIds,
                     'qr_size' => $qrSize,
-                    'quantity' => $quantity
+                    'quantity' => $quantity,
+                    'printer_type' => $printerType
                 ],
                 'response_success' => $result['success'] ?? false,
                 'response_data_count' => isset($result['data']) ? count($result['data']) : 0
@@ -1038,11 +1037,12 @@ class UnitAssetController extends Controller
                 }
             }
 
-            // Return the view for direct printing
-            return view('Asset.qrcode_print', [
+            // Always use the label printing view
+            return view('Asset.qrcode_print_label', [
                 'qrData' => $qrData,
                 'qrSize' => $qrSize,
-                'containerWidth' => $containerWidth
+                'containerWidth' => $containerWidth,
+                'printerType' => $printerType
             ]);
         } catch (\Exception $e) {
             $errorMessage = 'Failed to print QR codes: ' . $e->getMessage();
@@ -1449,15 +1449,6 @@ class UnitAssetController extends Controller
             $statusFilter = $request->input('current_status', '');
             $sortOrder = $request->input('sort', 'newest');
 
-            // Log request info
-            \Log::info('Exporting unit assets to PDF with parameters:', [
-                'search' => $search,
-                'type' => $typeFilter,
-                'current_status' => $statusFilter,
-                'sort' => $sortOrder,
-                'request_url' => $request->fullUrl()
-            ]);
-
             // Build query parameters
             $query = [
                 'page' => 1,
@@ -1515,20 +1506,12 @@ class UnitAssetController extends Controller
             // Check for auth errors
             if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
                 in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during unit assets export:', [
-                    'errors' => $assetsResult['errors'] ?? 'Authentication failed'
-                ]);
                 return redirect()->route('login')->with('error', is_string($assetsResult['errors']) ? $assetsResult['errors'] : 'Authentication failed');
             }
 
             // Check for API errors based on success flag
             if (!isset($assetsResult['success']) || $assetsResult['success'] !== true) {
                 $errorData = $assetsResult['errors'] ?? 'Failed to fetch unit assets data';
-
-                \Log::warning('Error during unit assets export:', [
-                    'success' => $assetsResult['success'] ?? false,
-                    'errors' => $errorData
-                ]);
 
                 // Format error message for redirect
                 $errorMessage = '';
@@ -1560,20 +1543,10 @@ class UnitAssetController extends Controller
                 'date_generated' => now()->format('d M Y H:i:s')
             ]);
 
-            // Log PDF generation
-            \Log::info('Unit assets PDF generated successfully', [
-                'assets_count' => count($assets)
-            ]);
-
             // Stream the PDF to browser
             return $pdf->stream('unit_assets_report_' . now()->format('YmdHis') . '.pdf');
 
         } catch (\Exception $e) {
-            \Log::error('Exception during unit assets PDF export:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return redirect()->back()->with('error', 'Failed to export Unit Assets as PDF: ' . $e->getMessage());
         }
     }

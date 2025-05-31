@@ -880,11 +880,23 @@
                             <input type="hidden" name="asset_ids" id="printQRAssetIds" value="">
 
                             <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Ukuran Kertas Stiker</label>
+                                <label class="block text-base font-semibold text-[#666666]">Ukuran Label</label>
                                 <select name="qr_size" id="qr_size"
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                    <option value="80">80 x 50 mm (Kertas Stiker)</option>
-                                    <option value="100">100 x 50 mm (Kertas Stiker)</option>
+                                    <option value="80">80 x 50 mm (Label Stiker)</option>
+                                    <option value="100">100 x 50 mm (Label Stiker)</option>
+                                    <option value="60">60 x 40 mm (Label Kecil)</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-base font-semibold text-[#666666]">Jenis Printer</label>
+                                <select name="printer_type" id="printer_type"
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                    <option value="zebra">Zebra Label Printer</option>
+                                    <option value="epson">Epson Label Printer</option>
+                                    <option value="jiabo">Jiabo Label Printer</option>
+                                    <option value="dymo">Dymo Label Printer</option>
                                 </select>
                             </div>
 
@@ -894,34 +906,24 @@
                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                             </div>
 
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Tipe Cetak</label>
-                                <div class="space-y-2">
-                                    <div class="flex items-center">
-                                        <input id="print_direct" name="print_type" type="radio" value="direct" checked
-                                            class="h-4 w-4 text-[#213268] border-gray-300 focus:ring-[#213268]">
-                                        <label for="print_direct" class="ml-2 block text-sm text-gray-700">
-                                            Cetak Langsung
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center mt-2">
-                                        <input id="print_pdf" name="print_type" type="radio" value="pdf"
-                                            class="h-4 w-4 text-[#213268] border-gray-300 focus:ring-[#213268]">
-                                        <label for="print_pdf" class="ml-2 block text-sm text-gray-700">
-                                            Download PDF
-                                        </label>
-                                    </div>
-                                </div>
+                            <div class="bg-blue-50 p-3 rounded-lg text-sm text-blue-800 mt-2">
+                                <p class="font-medium">Tips Pencetakan Label:</p>
+                                <ul class="list-disc pl-5 mt-1 text-xs space-y-1">
+                                    <li>Pastikan label stiker terpasang dengan benar di printer</li>
+                                    <li>Setiap jenis printer memiliki pengaturan khusus</li>
+                                    <li>Sesuaikan ukuran label dengan media stiker yang digunakan</li>
+                                    <li>Printer Dymo sebaiknya menggunakan ukuran 60 x 40 mm</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex gap-3 p-6 pt-0">
-                        <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
-                            Batal
+                        <button type="button" id="printPdfBtn" class="w-1/2 h-[45px] bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200">
+                            Download PDF
                         </button>
                         <button type="submit" class="w-1/2 h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                            Cetak QR Code
+                            Cetak Label
                         </button>
                     </div>
                 </form>
@@ -2665,14 +2667,6 @@
                 return;
             }
 
-            console.log('Initializing user search with elements:', {
-                searchInput: searchInput.id,
-                dropdown: dropdown.id,
-                userList: userList.id,
-                loadingIndicator: loadingIndicator?.id,
-                selectedUserId: selectedUserId.id
-            });
-
             // Toggle dropdown visibility
             searchInput.addEventListener('focus', function() {
                 dropdown.classList.remove('hidden');
@@ -2697,15 +2691,12 @@
 
             // Function to load users
             async function loadUsers(searchTerm) {
-                console.log('Loading users with search term:', searchTerm);
-
                 // Show loading indicator
                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                 userList.innerHTML = '';
 
                 try {
                     const apiUrl = `{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}&status=active`;
-                    console.log('Fetching users from URL:', apiUrl);
 
                     const response = await fetch(apiUrl, {
                         headers: {
@@ -2719,10 +2710,7 @@
                     }
 
                     const data = await response.json();
-                    console.log('User data response:', data);
-
                     const users = data.users || data.data || [];
-                    console.log(`Found ${users.length} users`);
 
                     // Populate dropdown
                     userList.innerHTML = '';
@@ -3065,7 +3053,6 @@
 
             try {
                 const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}`;
-                console.log(`Fetching rooms from: ${apiUrl}`);
 
                 const response = await fetch(apiUrl, {
                     headers: {
@@ -3079,7 +3066,6 @@
                 }
 
                 const data = await response.json();
-                console.log('Room API response:', data);
 
                 // Determine where the rooms array is in the response
                 let rooms = [];
@@ -3097,9 +3083,8 @@
                 // Filter rooms by the selected building ID
                 rooms = rooms.filter(room => {
                     const roomBuildingId = room.building_id ||
-                                          (room.building && room.building.building_id) ||
-                                          '';
-                    return roomBuildingId == buildingId; // Use == for type coercion
+                    (room.building && room.building.building_id) || '';
+                    return roomBuildingId == buildingId;
                 });
 
                 if (rooms.length === 0) {
@@ -3563,9 +3548,6 @@
                 importBtn.innerHTML = originalBtnText;
 
                 if (data.success === true || (data.status >= 200 && data.status < 300)) {
-                    // Success response
-                    console.log('Import successful:', data);
-
                     // Close the modal
                     const modal = document.getElementById('importAssetModal');
                     closeModal(modal);
@@ -3882,29 +3864,81 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const printForm = document.getElementById('printQRForm');
-        const printDirectRadio = document.getElementById('print_direct');
-        const printPdfRadio = document.getElementById('print_pdf');
+        const printerTypeSelect = document.getElementById('printer_type');
+        const qrSizeSelect = document.getElementById('qr_size');
+        const printPdfBtn = document.getElementById('printPdfBtn');
 
-        if (printForm && printDirectRadio && printPdfRadio) {
-            // Function to update form action based on selected print type
-            const updateFormAction = () => {
-                if (printDirectRadio.checked) {
-                    printForm.action = "{{ route('assets.qr.print-direct') }}";
-                } else {
-                    printForm.action = "{{ route('assets.qr.print-pdf') }}";
+        if (printForm) {
+            // Add event listener for printer type
+            printerTypeSelect.addEventListener('change', function() {
+                // Suggest appropriate label size based on printer type
+                const printerType = this.value;
+                if (printerType === 'dymo') {
+                    // Dymo typically works better with smaller labels
+                    if (qrSizeSelect.value !== '60') {
+                        qrSizeSelect.value = '60';
+                    }
                 }
-            };
-
-            // Add event listeners for radio buttons
-            printDirectRadio.addEventListener('change', updateFormAction);
-            printPdfRadio.addEventListener('change', updateFormAction);
-
-            // Set initial form action
-            updateFormAction();
+            });
 
             // Add submit handler to reload page after form submission
             printForm.addEventListener('submit', function() {
-                // Close the modal first
+                // Set a flag in sessionStorage to indicate that we should reload after printing
+                sessionStorage.setItem('reloadAfterPrint', 'true');
+
+                // Trigger auto-reload after a delay to allow the print window to open
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            });
+
+            // Handle PDF download button click
+            if (printPdfBtn) {
+                printPdfBtn.addEventListener('click', function() {
+                    // Get asset IDs and other parameters from the form
+                    const assetIds = document.getElementById('printQRAssetIds').value;
+                    const qrSize = document.getElementById('qr_size').value;
+                    const quantity = document.getElementById('quantity').value;
+
+                    // Create and submit a form to request PDF
+                    const pdfForm = document.createElement('form');
+                    pdfForm.method = 'POST';
+                    pdfForm.action = "{{ route('assets.qr.print-pdf') }}";
+                    pdfForm.target = '_blank';
+                    pdfForm.style.display = 'none';
+
+                    // Add CSRF token
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    pdfForm.appendChild(csrfInput);
+
+                    // Add other form parameters
+                    const assetIdsInput = document.createElement('input');
+                    assetIdsInput.type = 'hidden';
+                    assetIdsInput.name = 'asset_ids';
+                    assetIdsInput.value = assetIds;
+                    pdfForm.appendChild(assetIdsInput);
+
+                    const qrSizeInput = document.createElement('input');
+                    qrSizeInput.type = 'hidden';
+                    qrSizeInput.name = 'qr_size';
+                    qrSizeInput.value = qrSize;
+                    pdfForm.appendChild(qrSizeInput);
+
+                    const quantityInput = document.createElement('input');
+                    quantityInput.type = 'hidden';
+                    quantityInput.name = 'quantity';
+                    quantityInput.value = quantity;
+                    pdfForm.appendChild(quantityInput);
+
+                    // Add to DOM and submit
+                    document.body.appendChild(pdfForm);
+                    pdfForm.submit();
+
+                    // Close the modal
                 const modal = document.getElementById('printQRModal');
                 if (modal) {
                     const modalContent = document.getElementById('printQRModalContent');
@@ -3912,21 +3946,20 @@
                     modalContent.classList.add('opacity-0', 'scale-95', 'translate-y-4');
                     setTimeout(() => {
                         modal.classList.add('hidden');
-                        // Reload the page after a short delay to allow the print window to open
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
                     }, 300);
                 }
             });
+            }
         }
 
-        // Close Print QR Modal
-        document.getElementById('printQRModal')?.querySelectorAll('.close-modal').forEach(button => {
-            button.addEventListener('click', function() {
+        // Close Print QR Modal when escape key is pressed
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
                 const modal = document.getElementById('printQRModal');
+                if (modal && !modal.classList.contains('hidden')) {
                 closeModal(modal);
-            });
+                }
+            }
         });
     });
 </script>
