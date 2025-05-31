@@ -4,11 +4,9 @@
 
 @section('content')
 @include('Layout.loading')
-    <div class="h-full space-y-4 md:space-y-6">
+<div class="h-full">
         <!-- Asset Details Section -->
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body p-4 md:p-7">
-                <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6 p-4 md:p-7 bg-base-100 rounded-xl">
                     <!-- Header -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div class="flex items-center">
@@ -416,10 +414,9 @@
 
                     <!-- Tabs Section -->
                     <div class="mt-4">
+            <div class="bg-base-100 shadow-xl overflow-hidden rounded-lg">
                         <!-- Tabs Navigation -->
-                        <div class="card bg-base-100 shadow-xl overflow-hidden">
-                            <div
-                                class="flex flex-nowrap border-b border-[#EEF1F4] bg-white w-full overflow-x-auto hide-scrollbar">
+                <div class="flex flex-nowrap border-b border-[#EEF1F4] bg-white w-full overflow-x-auto hide-scrollbar">
                                 <button
                                     class="tab-btn whitespace-nowrap flex-none md:flex-1 flex items-center justify-center gap-1 md:gap-2 px-3 py-2 md:px-2 md:py-3 text-[#213268] border-b-2 border-[#213268] font-medium text-xs md:text-sm active"
                                     data-tab="document">
@@ -488,8 +485,6 @@
                                 </div>
                                 <div class="tab-pane hidden" id="finance">
                                     @include('Asset.Tabs.Finance')
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

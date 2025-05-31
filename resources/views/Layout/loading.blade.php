@@ -1,13 +1,13 @@
 <!-- Full Screen Loading Animation -->
 <div id="loading-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-white hidden opacity-0">
-    <div class="text-center">
+    <div class="text-center p-8 rounded-xl">
         <div class="animate-pulse">
             <img src="{{ asset('images/Logo_RS_UMMI.png') }}" alt="RS UMMI Logo" class="mx-auto w-64 h-auto">
         </div>
-        <div class="mt-4">
-            <div class="animate-spin inline-block w-8 h-8 border-4 border-blue-800 border-t-transparent rounded-full"></div>
+        <div class="mt-6">
+            <div class="animate-spin inline-block w-10 h-10 border-4 border-[#213268] border-t-transparent rounded-full shadow-md"></div>
         </div>
-        <div class="mt-2 text-blue-800 font-semibold">Loading...</div>
+        <div class="mt-3 text-[#213268] font-semibold text-lg">Memuat...</div>
     </div>
 </div>
 
@@ -98,16 +98,22 @@
 <style>
     #loading-screen {
         transition: opacity 0.5s ease-out;
+        background-color: rgba(255, 255, 255, 0.97);
     }
 
     /* Animation for pulsing effect */
     @keyframes gentle-pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
+        0% { transform: scale(1); opacity: 0.9; }
+        50% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(1); opacity: 0.9; }
     }
 
     .animate-pulse {
         animation: gentle-pulse 2s infinite ease-in-out;
+    }
+    
+    /* Enhanced spinner shadow */
+    .animate-spin {
+        filter: drop-shadow(0 2px 4px rgba(33, 50, 104, 0.2));
     }
 </style>

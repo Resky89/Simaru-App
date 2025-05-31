@@ -69,7 +69,7 @@
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">{{ $document['document_title'] ?? '-' }}</td>
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">
                                         @if(isset($document['upload_date']))
-                                            {{ \Carbon\Carbon::parse($document['upload_date'])->locale('id')->format('d M Y') }}
+                                            {{ \Carbon\Carbon::parse($document['upload_date'])->locale('id')->isoFormat('D MMM Y') }}
                                         @else
                                             -
                                         @endif
