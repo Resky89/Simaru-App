@@ -528,12 +528,12 @@
                                     <h3 class="text-lg font-semibold text-[#213268] mb-4">Informasi Aset</h3>
 
                                     <!-- Master Asset selection -->
-                                    <div class="mb-5">
+                                    <div class="mb-5 space-y-2">
                                         <label for="edit_asset_master_search" class="block text-base font-semibold text-[#666666] mb-2">Master Aset <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <input type="text" id="edit_asset_master_search"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                placeholder="Cari master aset..." autocomplete="off">
+                                                placeholder="Cari master aset..." autocomplete="off" required>
                                             <input type="hidden" name="asset_master_id" id="edit_selected_asset_master_id" required>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Master aset harus dipilih</div>
                                             <input type="hidden" id="edit_selected_is_depreciable" value="false">
@@ -553,48 +553,53 @@
                                     </div>
 
                                     <!-- Serial Number -->
-                                    <div class="mb-5">
+                                    <div class="mb-5 space-y-2">
                                         <label for="edit_serial_number" class="block text-base font-semibold text-[#666666] mb-2">Nomor Seri</label>
                                         <input type="text" name="serial_number" id="edit_serial_number"
                                             value="{{ $asset['serial_number'] ?? '' }}"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="Masukkan nomor seri">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor seri harus diisi</div>
                                 </div>
 
                                     <!-- Purchase Information -->
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                                        <div>
+                                        <div class="space-y-2">
                                             <label class="block text-base font-semibold text-[#666666] mb-2">Tanggal Pembelian</label>
                                         <input type="date" name="purchase_date" id="edit_purchase_date"
                                             value="{{ $asset['purchase_date'] ?? '' }}"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian harus diisi</div>
                                     </div>
-                                        <div>
+                                        <div class="space-y-2">
                                             <label class="block text-base font-semibold text-[#666666] mb-2">Biaya Pembelian</label>
                                         <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
                                             value="{{ $asset['purchase_cost'] ?? '0.00' }}"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="0.00">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
                                     </div>
                                 </div>
 
                                     <!-- Warranty -->
-                                    <div class="mb-5">
+                                    <div class="mb-5 space-y-2">
                                         <label class="block text-base font-semibold text-[#666666] mb-2">Tanggal Berakhir Garansi</label>
                                         <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
                                             value="{{ $asset['warranty_end_date'] ?? '' }}"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal berakhir garansi harus diisi</div>
                                     </div>
 
                                     <!-- Location Information -->
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                                        <div>
+                                        <div class="space-y-2">
                                             <label class="block text-base font-semibold text-[#666666] mb-2">Gedung <span class="text-red-500">*</span></label>
                                             <div class="relative">
                                                 <input type="text" id="edit_building_search"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="Cari gedung..." autocomplete="off">
-                                                <input type="hidden" name="building_id" id="edit_selected_building_id">
+                                                    placeholder="Cari gedung..." autocomplete="off" required>
+                                                <input type="hidden" name="building_id" id="edit_selected_building_id" required>
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Gedung harus dipilih</div>
                                                 <div id="edit_building_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                     <div id="edit_building_loading" class="p-2 text-gray-500 text-center">
                                                         <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -607,13 +612,14 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div>
+                                        <div class="space-y-2">
                                             <label class="block text-base font-semibold text-[#666666] mb-2">Ruangan <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <input type="text" id="edit_room_search"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled>
+                                                    placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled required>
                                             <input type="hidden" name="room_id" id="edit_selected_room_id" value="{{ $asset['room_id'] ?? '' }}" required>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Ruangan harus dipilih</div>
                                             <div id="edit_room_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                 <div id="edit_room_loading" class="p-2 text-gray-500 text-center">
                                                     <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -630,7 +636,7 @@
 
                                     <!-- Condition and Responsibility -->
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        <div>
+                                        <div class="space-y-2">
                                             <label class="block text-base font-semibold text-[#666666] mb-2">Kondisi</label>
                                         <select name="condition" id="edit_condition" required
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
@@ -638,14 +644,16 @@
                                             <option value="slightly damage" {{ $asset['condition'] == 'slightly damage' ? 'selected' : '' }}>Sedikit Rusak</option>
                                             <option value="high damage" {{ $asset['condition'] == 'high damage' ? 'selected' : '' }}>Sangat Rusak</option>
                                         </select>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Kondisi harus dipilih</div>
                                     </div>
-                                        <div>
+                                        <div class="space-y-2">
                                             <label class="block text-base font-semibold text-[#666666] mb-2">Karyawan yang Bertanggung Jawab</label>
                                         <div class="relative">
                                             <input type="text" id="edit_user_search"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                 placeholder="Cari karyawan (nomor karyawan)..." autocomplete="off">
                                             <input type="hidden" name="user_id" id="edit_selected_user_id" value="{{ $asset['user_id'] ?? '' }}">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Karyawan harus dipilih</div>
                                             <div id="edit_user_dropdown" class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                 <div id="edit_user_loading" class="p-2 text-gray-500 text-center">
                                                     <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -665,10 +673,10 @@
                                 <div id="edit_depreciation_fields" class="space-y-5 border rounded-lg p-5 border-dashed border-gray-300 {{ $asset['asset_master']['is_depreciable'] ? '' : 'hidden' }}">
                                     <h3 class="text-lg font-semibold text-[#213268] mb-3">Informasi Penyusutan</h3>
 
-                                    <div class="mb-4">
+                                    <div class="mb-4 space-y-2">
                                         <label class="block text-base font-semibold text-[#666666] mb-2">Metode Penyusutan <span class="text-red-500">*</span></label>
                                         <select name="depreciation_method" id="edit_depreciation_method"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]" required>
                                             <option value="Straight Line" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Straight Line' ? 'selected' : '' }}>Garis Lurus</option>
                                             <option value="Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Declining Balance' ? 'selected' : '' }}>Penyusutan Dua Kali</option>
                                             <option value="Double Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Double Declining Balance' ? 'selected' : '' }}>Dua Kali Penyusutan</option>
@@ -679,35 +687,35 @@
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
-                                        <div>
-                                            <label class="block text-base font-semibold text-[#666666] mb-2">Biaya Pengadaan <span class="text-red-500">*</span></label>
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Biaya Akusisi <span class="text-red-500">*</span></label>
                                             <input type="number" step="0.01" name="acquisition_cost" id="edit_acquisition_cost"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                placeholder="0.00" value="{{ isset($asset['depreciation']) ? $asset['depreciation']['acquisition_cost'] : '' }}">
-                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan harus diisi</div>
+                                                placeholder="0.00" value="{{ isset($asset['depreciation']) ? $asset['depreciation']['acquisition_cost'] : '' }}" required>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya akusisi harus diisi</div>
                                         </div>
-                                        <div>
+                                        <div class="space-y-2">
                                             <label class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa <span class="text-red-500">*</span></label>
                                             <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                placeholder="0.00" value="{{ isset($asset['depreciation']) ? $asset['depreciation']['salvage_value'] : '' }}">
+                                                placeholder="0.00" value="{{ isset($asset['depreciation']) ? $asset['depreciation']['salvage_value'] : '' }}" required>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus diisi</div>
                                         </div>
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        <div>
+                                        <div class="space-y-2">
                                             <label class="block text-base font-semibold text-[#666666] mb-2">Usia Aset (bulan) <span class="text-red-500">*</span></label>
                                             <input type="number" name="asset_life_months" id="edit_asset_life_months"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['asset_life_months'] : '' }}">
+                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['asset_life_months'] : '' }}" required>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Usia aset harus diisi</div>
                                         </div>
-                                        <div>
+                                        <div class="space-y-2">
                                             <label class="block text-base font-semibold text-[#666666] mb-2">Tanggal Pengadaan <span class="text-red-500">*</span></label>
                                             <input type="date" name="date_acquired" id="edit_date_acquired"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}">
+                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}" required>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan harus diisi</div>
                                         </div>
                                     </div>
@@ -2625,83 +2633,72 @@
                 if (!form) return true;
 
                 // Fields to validate
-                const assetMasterId = document.getElementById('edit_selected_asset_master_id');
                 const assetMasterSearch = document.getElementById('edit_asset_master_search');
-                const buildingId = document.getElementById('edit_selected_building_id');
+                const selectedAssetMasterId = document.getElementById('edit_selected_asset_master_id');
                 const buildingSearch = document.getElementById('edit_building_search');
-                const roomId = document.getElementById('edit_selected_room_id');
+                const selectedBuildingId = document.getElementById('edit_selected_building_id');
                 const roomSearch = document.getElementById('edit_room_search');
-
-                let isValid = true;
-
-                // Check asset master
-                if (!assetMasterId.value) {
-                    const errorMsg = assetMasterSearch.closest('.relative').querySelector('.error-message');
-                    assetMasterSearch.classList.add('border-red-500');
-                    if (errorMsg) errorMsg.classList.remove('hidden');
-                    isValid = false;
-                }
-
-                // Check building
-                if (!buildingId.value) {
-                    buildingSearch.classList.add('border-red-500');
-                    isValid = false;
-                }
-
-                // Check room
-                if (!roomId.value) {
-                    roomSearch.classList.add('border-red-500');
-                    isValid = false;
-                }
-
-                // Check depreciation fields if visible
+                const selectedRoomId = document.getElementById('edit_selected_room_id');
                 const depreciationFields = document.getElementById('edit_depreciation_fields');
-                if (depreciationFields && !depreciationFields.classList.contains('hidden')) {
-                    const depreciationMethod = document.getElementById('edit_depreciation_method');
-                    const acquisitionCost = document.getElementById('edit_acquisition_cost');
-                    const salvageValue = document.getElementById('edit_salvage_value');
-                    const assetLifeMonths = document.getElementById('edit_asset_life_months');
-                    const dateAcquired = document.getElementById('edit_date_acquired');
+                const isDepreciable = !depreciationFields.classList.contains('hidden');
 
-                    // Validate each field
-                    if (!depreciationMethod.value) {
-                        const errorMsg = depreciationMethod.closest('.space-y-2').querySelector('.error-message');
-                        depreciationMethod.classList.add('border-red-500');
-                        if (errorMsg) errorMsg.classList.remove('hidden');
-                        isValid = false;
-                    }
+                // Validate only mandatory fields
+                const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
+                const isBuildingValid = validateField(buildingSearch, selectedBuildingId.value ? true : false);
+                const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
 
-                    if (!acquisitionCost.value) {
-                        const errorMsg = acquisitionCost.closest('.space-y-2').querySelector('.error-message');
-                        acquisitionCost.classList.add('border-red-500');
-                        if (errorMsg) errorMsg.classList.remove('hidden');
-                        isValid = false;
-                    }
+                // Track validation status
+                let isValid = isAssetMasterValid && isBuildingValid && isRoomValid;
 
-                    if (!salvageValue.value) {
-                        const errorMsg = salvageValue.closest('.space-y-2').querySelector('.error-message');
-                        salvageValue.classList.add('border-red-500');
-                        if (errorMsg) errorMsg.classList.remove('hidden');
-                        isValid = false;
-                    }
+                // If depreciation is enabled, validate depreciation fields
+                if (isDepreciable) {
+                    const depreciation_method = document.getElementById('edit_depreciation_method');
+                    const acquisition_cost = document.getElementById('edit_acquisition_cost');
+                    const salvage_value = document.getElementById('edit_salvage_value');
+                    const asset_life_months = document.getElementById('edit_asset_life_months');
+                    const date_acquired = document.getElementById('edit_date_acquired');
 
-                    if (!assetLifeMonths.value) {
-                        const errorMsg = assetLifeMonths.closest('.space-y-2').querySelector('.error-message');
-                        assetLifeMonths.classList.add('border-red-500');
-                        if (errorMsg) errorMsg.classList.remove('hidden');
-                        isValid = false;
-                    }
+                    // Validate all required depreciation fields
+                    const isDepreciationMethodValid = validateField(depreciation_method);
+                    const isAcquisitionCostValid = validateField(acquisition_cost);
+                    const isSalvageValueValid = validateField(salvage_value);
+                    const isAssetLifeMonthsValid = validateField(asset_life_months);
+                    const isDateAcquiredValid = validateField(date_acquired);
 
-                    if (!dateAcquired.value) {
-                        const errorMsg = dateAcquired.closest('.space-y-2').querySelector('.error-message');
-                        dateAcquired.classList.add('border-red-500');
-                        if (errorMsg) errorMsg.classList.remove('hidden');
-                        isValid = false;
-                    }
+                    // Update overall validation status
+                    isValid = isValid && isDepreciationMethodValid && isAcquisitionCostValid &&
+                            isSalvageValueValid && isAssetLifeMonthsValid && isDateAcquiredValid;
                 }
 
                 if (!isValid) {
-                    showToast('Silahkan lengkapi semua bidang yang diperlukan', 'error');
+                    showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
+                }
+
+                return isValid;
+            }
+
+            // Function to validate field and show/hide error message
+            function validateField(field, customCheck = null) {
+                if (!field) return true; // Skip if field doesn't exist
+
+                let isValid = true;
+                if (customCheck !== null) {
+                    isValid = customCheck;
+                } else if (field.tagName.toLowerCase() === 'select') {
+                    isValid = field.value !== '';
+                } else {
+                    isValid = field.value.trim() !== '';
+                }
+
+                // Find the error message element
+                const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+
+                if (!isValid) {
+                    field.classList.add('border-red-500');
+                    if (errorElement) errorElement.classList.remove('hidden');
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorElement) errorElement.classList.add('hidden');
                 }
 
                 return isValid;
@@ -2713,16 +2710,22 @@
                 if (input) {
                     input.addEventListener('input', function() {
                         this.classList.remove('border-red-500');
-                        const errorMsg = this.closest('.relative')?.querySelector('.error-message') ||
-                                        this.closest('.space-y-2')?.querySelector('.error-message');
-                        if (errorMsg) errorMsg.classList.add('hidden');
+                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
                     });
                 }
             }
 
             // Apply input event listeners to all fields
             clearErrorOnInput('edit_asset_master_search');
+            clearErrorOnInput('edit_building_search');
             clearErrorOnInput('edit_room_search');
+            clearErrorOnInput('edit_serial_number');
+            clearErrorOnInput('edit_purchase_date');
+            clearErrorOnInput('edit_purchase_cost');
+            clearErrorOnInput('edit_warranty_end_date');
+            clearErrorOnInput('edit_condition');
+            clearErrorOnInput('edit_user_search');
             clearErrorOnInput('edit_depreciation_method');
             clearErrorOnInput('edit_acquisition_cost');
             clearErrorOnInput('edit_salvage_value');

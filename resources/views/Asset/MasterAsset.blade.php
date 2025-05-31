@@ -312,6 +312,11 @@
                                         <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] disabled:bg-gray-100 disabled:cursor-not-allowed"
                                             placeholder="Pilih tipe aset terlebih dahulu" disabled id="subcategory_search">
                                         <input type="hidden" name="subcategory_id" id="subcategory_id">
+                                        <div class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer dropdown-icon">
+                                            <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500" id="subcategory-loading-message">Pilih tipe aset terlebih dahulu</div>
                                             <!-- Subcategories will be loaded dynamically based on asset_type -->
@@ -327,6 +332,11 @@
                                         <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="Cari merk...">
                                         <input type="hidden" name="brand_id" id="brand_id">
+                                        <div class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer dropdown-icon">
+                                            <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500" id="brand-loading-message">Memuat data merk...</div>
                                         </div>
@@ -478,6 +488,11 @@
                                         <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] disabled:bg-gray-100 disabled:cursor-not-allowed"
                                             placeholder="Pilih tipe aset terlebih dahulu" disabled id="edit_subcategory_search">
                                         <input type="hidden" name="subcategory_id" id="edit_subcategory_id">
+                                        <div class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer dropdown-icon">
+                                            <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500" id="edit-subcategory-loading-message">Pilih tipe aset terlebih dahulu</div>
                                             <!-- Subcategories will be loaded dynamically based on asset_type -->
@@ -493,6 +508,11 @@
                                         <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="Cari merk...">
                                         <input type="hidden" name="brand_id" id="edit_brand_id">
+                                        <div class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer dropdown-icon">
+                                            <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
                                         <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                             <div class="p-2 text-center text-gray-500" id="edit-brand-loading-message">Memuat data merk...</div>
                                             <!-- Brands will be loaded dynamically -->
@@ -851,232 +871,95 @@
                 const searchInput = container.querySelector('.search-input');
                 const hiddenInput = container.querySelector('input[type="hidden"]');
                 const optionsContainer = container.querySelector('.options-container');
-                const options = container.querySelectorAll('.option');
+                const dropdownIcon = container.querySelector('.dropdown-icon');
 
-                // Store all options in a variable for quick access
-                const allOptions = Array.from(options);
+                if (!searchInput || !hiddenInput || !optionsContainer) return;
 
-                // Debug info about available options
-                console.log(`Select for ${hiddenInput.id || 'unknown'} has ${allOptions.length} options`);
-
-                // Lazy loading configuration
-                const maxInitialOptions = 30; // Show fewer options initially for better performance
-                const loadMoreIncrement = 50; // Load this many more options when "Load more" is clicked
-                let isFullyLoaded = allOptions.length <= maxInitialOptions;
-                let visibleCount = Math.min(maxInitialOptions, allOptions.length);
-
-                // Initialize with limited options if there are many
-                if (!isFullyLoaded) {
-                    // Hide options beyond the initial limit
-                    allOptions.forEach((option, index) => {
-                        if (index >= maxInitialOptions) {
-                            option.style.display = 'none';
-                        }
-                    });
-
-                    // Add a "load more" option at the end
-                    const loadMoreDiv = document.createElement('div');
-                    loadMoreDiv.className = 'load-more p-3 text-center text-blue-600 hover:bg-gray-100 cursor-pointer';
-                    loadMoreDiv.textContent = `Muat lebih banyak opsi... (${visibleCount} dari ${allOptions.length})`;
-                    loadMoreDiv.addEventListener('click', function() {
-                        // Calculate how many more to show
-                        const newVisibleCount = Math.min(visibleCount + loadMoreIncrement, allOptions.length);
-
-                        // Show the next batch of options
-                        for (let i = visibleCount; i < newVisibleCount; i++) {
-                            allOptions[i].style.display = '';
-                        }
-
-                        visibleCount = newVisibleCount;
-
-                        // Update load more text or remove if all loaded
-                        if (visibleCount >= allOptions.length) {
-                            this.remove();
-                            isFullyLoaded = true;
-                        } else {
-                            this.textContent = `Muat lebih banyak opsi... (${visibleCount} dari ${allOptions.length})`;
-                        }
-
-                        // Apply current search filter if there is one
-                        const searchValue = searchInput.value.toLowerCase().trim();
-                        if (searchValue) {
-                            filterOptions(searchValue);
-                        }
-                    });
-                    optionsContainer.appendChild(loadMoreDiv);
-                }
-
-                // Show options when input is focused - REMOVING THIS BEHAVIOR
-                searchInput.addEventListener('focus', (e) => {
-                    // Don't show dropdown on focus - prevent default behavior
-                    e.preventDefault();
+                // Handle dropdown toggle on click
+                const toggleDropdown = (e) => {
                     e.stopPropagation();
-                    // Don't show the dropdown automatically - it will be shown only on click
-                });
 
-                // For non-dynamic selects (pre-populated options), add click handler
-                if (allOptions.length > 0) {
-                    // Add click event to show dropdown
-                    searchInput.addEventListener('click', () => {
-                        // Only show dropdown when clicking
-                        optionsContainer.classList.remove('hidden');
+                    // If input is disabled, don't show dropdown
+                    if (searchInput.disabled) {
+                        // Highlight the asset type field instead
+                        const formId = container.closest('form').id;
+                        const assetTypeId = formId === 'editMasterAssetForm' ? 'edit_asset_type' : 'asset_type';
+                        const assetTypeSelect = document.getElementById(assetTypeId);
 
-                        // Reset search and show all loaded options
-                        if (searchInput.value === '') {
-                            if (isFullyLoaded) {
-                                allOptions.forEach(option => {
-                                    option.style.display = '';
-                                });
-                            } else {
-                                // Show only initial options
-                                allOptions.forEach((option, index) => {
-                                    option.style.display = index < visibleCount ? '' : 'none';
-                                });
-
-                                // Make sure load more button is visible if needed
-                                const loadMoreBtn = optionsContainer.querySelector('.load-more');
-                                if (!loadMoreBtn && !isFullyLoaded) {
-                                    const loadMoreDiv = document.createElement('div');
-                                    loadMoreDiv.className = 'load-more p-3 text-center text-blue-600 hover:bg-gray-100 cursor-pointer';
-                                    loadMoreDiv.textContent = `Muat lebih banyak opsi... (${visibleCount} dari ${allOptions.length})`;
-                                    loadMoreDiv.addEventListener('click', function() {
-                                        const newVisibleCount = Math.min(visibleCount + loadMoreIncrement, allOptions.length);
-                                        for (let i = visibleCount; i < newVisibleCount; i++) {
-                                            allOptions[i].style.display = '';
-                                        }
-                                        visibleCount = newVisibleCount;
-
-                                        if (visibleCount >= allOptions.length) {
-                                            this.remove();
-                                            isFullyLoaded = true;
-                                        } else {
-                                            this.textContent = `Muat lebih banyak opsi... (${visibleCount} dari ${allOptions.length})`;
-                                        }
-                                    });
-                                    optionsContainer.appendChild(loadMoreDiv);
-                                }
-                            }
-                        } else {
-                            // If there's already a search term, filter by it
-                            filterOptions(searchInput.value.toLowerCase().trim());
+                        if (assetTypeSelect) {
+                            assetTypeSelect.classList.add('border-blue-500', 'ring-2', 'ring-blue-200');
+                            setTimeout(() => {
+                                assetTypeSelect.classList.remove('border-blue-500', 'ring-2', 'ring-blue-200');
+                            }, 1000);
                         }
-                    });
+                        return;
+                    }
+
+                    const isDropdownVisible = !optionsContainer.classList.contains('hidden');
+
+                    // Toggle visibility
+                    if (isDropdownVisible) {
+                        optionsContainer.classList.add('hidden');
+                        } else {
+                        // Load options if needed
+                        if (hiddenInput.id.includes('subcategory')) {
+                            const assetTypeId = hiddenInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
+                            const assetTypeSelect = document.getElementById(assetTypeId);
+
+                            if (assetTypeSelect && assetTypeSelect.value) {
+                                fetchCategories(assetTypeSelect.value, searchInput.value.trim() || " ", hiddenInput.id);
+                            } else {
+                                optionsContainer.innerHTML = '<div class="p-2 text-center text-gray-500">Pilih tipe aset terlebih dahulu</div>';
+                            }
+                        } else if (hiddenInput.id.includes('brand')) {
+                            fetchBrands(searchInput.value.trim() || " ", hiddenInput.id);
+                        }
+
+                        // Show dropdown
+                        optionsContainer.classList.remove('hidden');
+                    }
+                };
+
+                // Attach click event to both search input and dropdown icon
+                searchInput.addEventListener('click', toggleDropdown);
+                if (dropdownIcon) {
+                    dropdownIcon.addEventListener('click', toggleDropdown);
                 }
 
-                // Hide options when clicking outside
-                document.addEventListener('click', (e) => {
+                // Search functionality
+                searchInput.addEventListener('input', debounce(function() {
+                    const searchValue = this.value.trim();
+
+                    // Skip if disabled
+                    if (this.disabled) return;
+
+                    // Load appropriate options
+                    if (hiddenInput.id.includes('subcategory')) {
+                        const assetTypeId = hiddenInput.id === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type';
+                        const assetTypeSelect = document.getElementById(assetTypeId);
+
+                        if (assetTypeSelect && assetTypeSelect.value) {
+                            fetchCategories(assetTypeSelect.value, searchValue || " ", hiddenInput.id);
+                            optionsContainer.classList.remove('hidden');
+                        }
+                    } else if (hiddenInput.id.includes('brand')) {
+                        fetchBrands(searchValue || " ", hiddenInput.id);
+                        optionsContainer.classList.remove('hidden');
+                    }
+                }, 300));
+
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
                     if (!container.contains(e.target)) {
                         optionsContainer.classList.add('hidden');
                     }
                 });
 
-                // Function to filter options by search term
-                function filterOptions(searchValue) {
-                    // For search operations, we'll search through ALL options, not just visible ones
-                    isFullyLoaded = true; // When searching, ignore lazy loading limits
-
-                    let hasResults = false;
-                    const matchingOptions = [];
-
-                    // Remove any existing no-results message
-                    const existingNoResults = optionsContainer.querySelector('.no-results');
-                    if (existingNoResults) {
-                        existingNoResults.remove();
-                    }
-
-                    // Remove load more button when filtering
-                    const loadMoreBtn = optionsContainer.querySelector('.load-more');
-                    if (loadMoreBtn) {
-                        loadMoreBtn.remove();
-                    }
-
-                    // First find exact matches (start with)
-                    allOptions.forEach(option => {
-                        const text = option.textContent.trim().toLowerCase();
-                        if (text.startsWith(searchValue)) {
-                            matchingOptions.push(option);
-                            option.style.display = '';
-                            hasResults = true;
-                        } else {
-                            option.style.display = 'none';
-                        }
-                    });
-
-                    // If no exact matches, look for contains matches
-                    if (!hasResults) {
-                        allOptions.forEach(option => {
-                            const text = option.textContent.trim().toLowerCase();
-                            if (text.includes(searchValue)) {
-                                matchingOptions.push(option);
-                                option.style.display = '';
-                                hasResults = true;
-                            }
-                        });
-                    }
-
-                    // Show no results message if needed
-                    if (!hasResults) {
-                        const msgDiv = document.createElement('div');
-                        msgDiv.className = 'no-results p-3 text-center text-gray-500';
-                        msgDiv.textContent = 'No results found';
-                        optionsContainer.appendChild(msgDiv);
-                    } else {
-                        // Show the matched options and scroll to the first match
-                        if (matchingOptions.length > 0) {
-                            matchingOptions[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-                            // Add result count if there are many matches
-                            if (matchingOptions.length > 10) {
-                                const countDiv = document.createElement('div');
-                                countDiv.className = 'results-count p-2 text-center text-xs text-gray-500';
-                                countDiv.textContent = `Ditemukan ${matchingOptions.length} data`;
-                                optionsContainer.insertBefore(countDiv, optionsContainer.firstChild);
-                            }
-                        }
-                    }
-                }
-
-                // Attach event handlers for dynamic search with dropdown
-                searchInput.addEventListener('input', debounce(function() {
-                    const searchValue = this.value.toLowerCase().trim();
-                    const containerId = hiddenInput.id;
-                    const containerLoadingId = optionsContainer.querySelector('[id$="-loading-message"]')?.id || `${containerId}-loading-message`;
-
-                    // Identify what type of dropdown this is (subcategory or brand)
-                    if (containerId.includes('subcategory')) {
-                        // For subcategory, we need the asset type
-                        const assetTypeSelect = document.getElementById(containerId === 'edit_subcategory_id' ? 'edit_asset_type' : 'asset_type');
-                        if (assetTypeSelect && assetTypeSelect.value) {
-                            loadSubcategories(assetTypeSelect.value, containerId, containerLoadingId, searchValue);
-                        } else {
-                            // If no asset type is selected, show a message
-                            Array.from(optionsContainer.querySelectorAll('.option, .no-results')).forEach(el => el.remove());
-                            const msgDiv = document.createElement('div');
-                            msgDiv.className = 'p-2 text-center text-gray-500';
-                            msgDiv.textContent = 'Pilih tipe aset terlebih dahulu';
-                            optionsContainer.classList.remove('hidden');
-                            optionsContainer.appendChild(msgDiv);
-                        }
-                    } else if (containerId.includes('brand')) {
-                        // For brand, just search directly
-                        loadBrands(containerId, containerLoadingId, searchValue);
-                    }
-                }, 100)); // Reduced debounce time for more responsive search
-
-                // Set selected option
-                options.forEach(option => {
-                    option.addEventListener('click', () => {
-                        const value = option.dataset.value;
-                        const text = option.textContent.trim();
-
-                        hiddenInput.value = value;
-                        searchInput.value = text;
-                        optionsContainer.classList.add('hidden');
-
-                        // Trigger change event to notify form of the selection
-                        const event = new Event('change', { bubbles: true });
-                        hiddenInput.dispatchEvent(event);
-                    });
+                // Remove validation error on input
+                searchInput.addEventListener('input', function() {
+                    this.classList.remove('border-red-500');
+                    const errorElement = container.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
                 });
             });
         }
@@ -1098,6 +981,11 @@
             // If we have display text, use it directly
             if (displayText) {
                 searchInput.value = displayText;
+
+                // Clear any validation errors
+                searchInput.classList.remove('border-red-500');
+                const errorElement = container.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
 
                 // Trigger change event to validate properly
                 const event = new Event('change', { bubbles: true });
@@ -1177,6 +1065,11 @@
                     searchInput.value = value.toString();
                 }
             }
+
+            // Clear any validation errors
+            searchInput.classList.remove('border-red-500');
+            const errorElement = container.closest('.space-y-2')?.querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
 
                         // Trigger change event to validate properly
                         const event = new Event('change', { bubbles: true });
@@ -2822,7 +2715,10 @@
 
             if (!isValid) {
                 field.classList.add('border-red-500');
-                if (errorElement) errorElement.classList.remove('hidden');
+                if (errorElement) {
+                    errorElement.textContent = errorElement.getAttribute('data-error-message') || 'Field ini wajib diisi';
+                    errorElement.classList.remove('hidden');
+                }
             } else {
                 field.classList.remove('border-red-500');
                 if (errorElement) errorElement.classList.add('hidden');
@@ -2833,6 +2729,9 @@
 
         // Form validation for Add Master Asset
         document.getElementById('createMasterAssetForm')?.addEventListener('submit', function(event) {
+            // Prevent default submission to use AJAX
+            event.preventDefault();
+
             // Validation code - define validation variables
             const assetName = this.querySelector('input[name="asset_name"]');
             const assetType = document.getElementById('asset_type');
@@ -2852,7 +2751,10 @@
             if (!isSubcategoryValid) {
                 subcategorySearchInput.classList.add('border-red-500');
                 const errorElement = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
-                if (errorElement) errorElement.classList.remove('hidden');
+                if (errorElement) {
+                    errorElement.textContent = 'Kategori harus dipilih';
+                    errorElement.classList.remove('hidden');
+                }
             }
 
             const brandContainer = brandId.closest('.custom-select-container');
@@ -2863,13 +2765,14 @@
             if (!isBrandValid) {
                 brandSearchInput.classList.add('border-red-500');
                 const errorElement = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
-                if (errorElement) errorElement.classList.remove('hidden');
+                if (errorElement) {
+                    errorElement.textContent = 'Merk harus dipilih';
+                    errorElement.classList.remove('hidden');
+                }
             }
 
             // If validation passes, proceed with form submission
             if (isAssetNameValid && isAssetTypeValid && isSubcategoryValid && isBrandValid) {
-                event.preventDefault(); // Prevent default form submission
-
                 // Prepare form data
                 const formData = new FormData(this);
 
@@ -2934,12 +2837,43 @@
                         submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = originalText;
 
-                        // Show error notification with proper error handling
-                        showToast(error, 'error');
+                        // Show field-specific errors if available
+                        if (error.errors) {
+                            Object.entries(error.errors).forEach(([field, messages]) => {
+                                const fieldElement = this.querySelector(`[name="${field}"]`);
+                                if (fieldElement) {
+                                    fieldElement.classList.add('border-red-500');
+                                    const errorContainer = fieldElement.closest('.space-y-2')?.querySelector('.error-message');
+
+                                    if (errorContainer) {
+                                        errorContainer.textContent = Array.isArray(messages) ? messages[0] : messages;
+                                        errorContainer.classList.remove('hidden');
+                                    }
+                                } else if (field === 'subcategory_id') {
+                                    subcategorySearchInput.classList.add('border-red-500');
+                                    const errorContainer = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
+
+                                    if (errorContainer) {
+                                        errorContainer.textContent = Array.isArray(messages) ? messages[0] : messages;
+                                        errorContainer.classList.remove('hidden');
+                                    }
+                                } else if (field === 'brand_id') {
+                                    brandSearchInput.classList.add('border-red-500');
+                                    const errorContainer = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
+
+                                    if (errorContainer) {
+                                        errorContainer.textContent = Array.isArray(messages) ? messages[0] : messages;
+                                        errorContainer.classList.remove('hidden');
+                                    }
+                                }
+                            });
+                        }
+
+                        // Show general error notification
+                        showToast(error.message || 'Terjadi kesalahan saat menyimpan data', 'error');
                     });
                 }
             } else {
-                event.preventDefault();
                 showToast('Silakan isi semua field yang diperlukan', 'error');
             }
         });
@@ -2968,7 +2902,10 @@
             if (!isSubcategoryValid) {
                 subcategorySearchInput.classList.add('border-red-500');
                 const errorElement = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
-                if (errorElement) errorElement.classList.remove('hidden');
+                if (errorElement) {
+                    errorElement.textContent = 'Kategori harus dipilih';
+                    errorElement.classList.remove('hidden');
+                }
             }
 
             const brandContainer = brandId.closest('.custom-select-container');
@@ -2979,7 +2916,10 @@
             if (!isBrandValid) {
                 brandSearchInput.classList.add('border-red-500');
                 const errorElement = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
-                if (errorElement) errorElement.classList.remove('hidden');
+                if (errorElement) {
+                    errorElement.textContent = 'Merk harus dipilih';
+                    errorElement.classList.remove('hidden');
+                }
             }
 
             // If validation passes
@@ -3047,8 +2987,44 @@
                         submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = originalText;
 
+                        // Show field-specific errors if available
+                        if (error.errors) {
+                            Object.entries(error.errors).forEach(([field, messages]) => {
+                                // Handle field mapping for edit form
+                                let fieldElement = null;
+                                let errorContainer = null;
+
+                                if (field === 'asset_name') {
+                                    fieldElement = document.getElementById('edit_asset_name');
+                                } else if (field === 'asset_type') {
+                                    fieldElement = document.getElementById('edit_asset_type');
+                                } else if (field === 'subcategory_id') {
+                                    fieldElement = subcategorySearchInput;
+                                    errorContainer = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
+                                } else if (field === 'brand_id') {
+                                    fieldElement = brandSearchInput;
+                                    errorContainer = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
+                                } else {
+                                    fieldElement = this.querySelector(`[name="${field}"]`);
+                                }
+
+                                if (fieldElement) {
+                                    fieldElement.classList.add('border-red-500');
+
+                                    if (!errorContainer) {
+                                        errorContainer = fieldElement.closest('.space-y-2')?.querySelector('.error-message');
+                                    }
+
+                                    if (errorContainer) {
+                                        errorContainer.textContent = Array.isArray(messages) ? messages[0] : messages;
+                                        errorContainer.classList.remove('hidden');
+                                    }
+                                }
+                            });
+                        }
+
                         // Show error notification with proper error handling
-                        showToast(error, 'error');
+                        showToast(error.message || 'Terjadi kesalahan saat menyimpan data', 'error');
                     });
                 }
             } else {
@@ -3227,12 +3203,12 @@
 
             // Don't show loading or open dropdown if no search term (except for our special case)
             if (!searchTerm.trim() && !isShowAll) {
-                optionsContainer.style.display = 'none';
+                optionsContainer.classList.add('hidden');
                 return;
             }
 
-            optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat merk...</div>';
-            optionsContainer.style.display = 'block';
+            optionsContainer.innerHTML = '<div class="p-2 text-center text-gray-500">Memuat merk...</div>';
+            optionsContainer.classList.remove('hidden');
 
             // Build query parameters
             let queryParams = new URLSearchParams();
@@ -3271,7 +3247,13 @@
             })
             .catch(error => {
                 console.error('Error fetching brands:', error);
-                optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat merk</div>';
+                optionsContainer.innerHTML = `
+                    <div class="p-3 text-sm text-red-500 text-center">
+                        <p>Gagal memuat merk</p>
+                        <p class="text-xs mt-1 text-red-400">${error.message}</p>
+                        <button class="mt-2 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
+                    </div>
+                `;
             });
         }
 
@@ -3279,9 +3261,20 @@
             resultsElem.innerHTML = '';
 
             if (brands.length === 0) {
-                resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada merk yang ditemukan</div>';
+                resultsElem.innerHTML = `
+                    <div class="p-4 text-center">
+                        <p class="text-gray-500 mb-2">Tidak ada merk yang ditemukan</p>
+                        <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
+                    </div>
+                `;
                 return;
             }
+
+            // Add header for brands
+            const typeTitle = document.createElement('div');
+            typeTitle.className = 'p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
+            typeTitle.textContent = `Daftar Merk`;
+            resultsElem.appendChild(typeTitle);
 
             if (searchInputElem && searchInputElem.value.trim()) {
                 const searchTerm = searchInputElem.value.trim().toLowerCase();
@@ -3310,7 +3303,14 @@
                 div.addEventListener('click', function() {
                     idInputElem.value = this.getAttribute('data-value');
                     searchInputElem.value = this.textContent;
-                    resultsElem.style.display = 'none';
+
+                    // Clear any validation errors
+                    searchInputElem.classList.remove('border-red-500');
+                    const container = searchInputElem.closest('.custom-select-container');
+                    const errorElement = container.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+
+                    resultsElem.classList.add('hidden');
 
                     // Trigger change event
                     const event = new Event('change', { bubbles: true });
@@ -3342,12 +3342,12 @@
 
             // Don't show loading or open dropdown if no search term (except for our special case)
             if (!searchTerm.trim() && !isShowAll) {
-                optionsContainer.style.display = 'none';
+                optionsContainer.classList.add('hidden');
                 return;
             }
 
-            optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat kategori...</div>';
-            optionsContainer.style.display = 'block';
+            optionsContainer.innerHTML = '<div class="p-2 text-center text-gray-500">Memuat kategori...</div>';
+            optionsContainer.classList.remove('hidden');
 
             // Build query parameters
             let queryParams = new URLSearchParams();
@@ -3383,16 +3383,17 @@
                     categories = data.data;
                 }
 
-                // Cache the results if we're showing all options
-                if (isShowAll && window.cachedCategories) {
-                    window.cachedCategories.set(assetType, categories);
-                }
-
                 displayCategoryResults(categories, optionsContainer, hiddenInput, searchInput, assetType);
             })
             .catch(error => {
                 console.error('Error fetching categories:', error);
-                optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat kategori</div>';
+                optionsContainer.innerHTML = `
+                    <div class="p-3 text-sm text-red-500 text-center">
+                        <p>Gagal memuat kategori</p>
+                        <p class="text-xs mt-1 text-red-400">${error.message}</p>
+                        <button class="mt-2 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
+                    </div>
+                `;
             });
         }
 
@@ -3400,7 +3401,12 @@
             resultsElem.innerHTML = '';
 
             if (categories.length === 0) {
-                resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada kategori yang ditemukan</div>';
+                resultsElem.innerHTML = `
+                    <div class="p-4 text-center">
+                        <p class="text-gray-500 mb-2">Tidak ada kategori yang ditemukan</p>
+                        <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
+                    </div>
+                `;
                 return;
             }
 
@@ -3424,7 +3430,7 @@
 
             // Add asset type title
             const typeTitle = document.createElement('div');
-            typeTitle.className = 'p-2 text-sm font-medium text-gray-600 border-b';
+            typeTitle.className = 'p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
             typeTitle.textContent = `Kategori ${assetType === 'medical' ? 'Medis' : 'Non-Medis'}`;
             resultsElem.appendChild(typeTitle);
 
@@ -3439,8 +3445,14 @@
                     idInputElem.value = this.getAttribute('data-value');
                     searchInputElem.value = this.textContent;
 
+                    // Clear any validation errors
+                    searchInputElem.classList.remove('border-red-500');
+                    const container = searchInputElem.closest('.custom-select-container');
+                    const errorElement = container.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+
                     // Explicitly hide the dropdown
-                    resultsElem.style.display = 'none';
+                    resultsElem.classList.add('hidden');
 
                     // Trigger change event
                     const event = new Event('change', { bubbles: true });

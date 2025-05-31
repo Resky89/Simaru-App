@@ -471,11 +471,11 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
                                     <div>
-                                        <label for="acquisition_cost" class="block text-base font-semibold text-[#666666] mb-2">Biaya Pengadaan <span class="text-red-500">*</span></label>
+                                        <label for="acquisition_cost" class="block text-base font-semibold text-[#666666] mb-2">Biaya Akusisi <span class="text-red-500">*</span></label>
                                         <input type="number" name="acquisition_cost" id="acquisition_cost" step="0.01"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="0.00" disabled>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan harus diisi</div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya akusisi harus diisi</div>
                                     </div>
                                     <div>
                                         <label for="salvage_value" class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa <span class="text-red-500">*</span></label>
@@ -703,11 +703,11 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
                                     <div>
-                                        <label for="edit_acquisition_cost" class="block text-base font-semibold text-[#666666] mb-2">Biaya Pengadaan <span class="text-red-500">*</span></label>
+                                        <label for="edit_acquisition_cost" class="block text-base font-semibold text-[#666666] mb-2">Biaya Akusisi <span class="text-red-500">*</span></label>
                                         <input type="number" step="0.01" name="acquisition_cost" id="edit_acquisition_cost"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="0.00" disabled>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan harus diisi</div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya akusisi harus diisi</div>
                                     </div>
                                     <div>
                                         <label for="edit_salvage_value" class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa <span class="text-red-500">*</span></label>
@@ -1164,6 +1164,34 @@
         initEventHandlers();
         checkUrlParams();
 
+        // Auto-fill acquisition cost when purchase cost changes in add modal
+        const purchaseCostField = document.getElementById('purchase_cost');
+        const acquisitionCostField = document.getElementById('acquisition_cost');
+        const depreciationFields = document.getElementById('depreciation_fields');
+
+        if (purchaseCostField && acquisitionCostField && depreciationFields) {
+            purchaseCostField.addEventListener('input', function() {
+                // Only auto-fill if depreciation is enabled (fields are visible)
+                if (!depreciationFields.classList.contains('hidden')) {
+                    acquisitionCostField.value = this.value;
+                }
+            });
+        }
+
+        // Auto-fill acquisition cost when purchase cost changes in edit modal
+        const editPurchaseCostField = document.getElementById('edit_purchase_cost');
+        const editAcquisitionCostField = document.getElementById('edit_acquisition_cost');
+        const editDepreciationFields = document.getElementById('edit_depreciation_fields');
+
+        if (editPurchaseCostField && editAcquisitionCostField && editDepreciationFields) {
+            editPurchaseCostField.addEventListener('input', function() {
+                // Only auto-fill if depreciation is enabled (fields are visible)
+                if (!editDepreciationFields.classList.contains('hidden')) {
+                    editAcquisitionCostField.value = this.value;
+                }
+            });
+        }
+
         // Initialize user search functionality
         initUserSearch(
             document.getElementById('user_search'),
@@ -1193,16 +1221,41 @@
             const roomSearch = document.getElementById('room_search');
             const selectedRoomId = document.getElementById('selected_room_id');
             const submitBtn = this.querySelector('button[type="submit"]');
+            const depreciationFields = document.getElementById('depreciation_fields');
+            const isDepreciable = !depreciationFields.classList.contains('hidden');
 
             // Validate only mandatory fields
             const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
             const isBuildingValid = validateField(buildingSearch, selectedBuildingId.value ? true : false);
             const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
 
+            // Track validation status
+            let isValid = isAssetMasterValid && isBuildingValid && isRoomValid;
+
+            // If depreciation is enabled, validate depreciation fields
+            if (isDepreciable) {
+                const depreciation_method = document.getElementById('depreciation_method');
+                const acquisition_cost = document.getElementById('acquisition_cost');
+                const salvage_value = document.getElementById('salvage_value');
+                const asset_life_months = document.getElementById('asset_life_months');
+                const date_acquired = document.getElementById('date_acquired');
+
+                // Validate all required depreciation fields
+                const isDepreciationMethodValid = validateField(depreciation_method);
+                const isAcquisitionCostValid = validateField(acquisition_cost);
+                const isSalvageValueValid = validateField(salvage_value);
+                const isAssetLifeMonthsValid = validateField(asset_life_months);
+                const isDateAcquiredValid = validateField(date_acquired);
+
+                // Update overall validation status
+                isValid = isValid && isDepreciationMethodValid && isAcquisitionCostValid &&
+                          isSalvageValueValid && isAssetLifeMonthsValid && isDateAcquiredValid;
+            }
+
             // If mandatory fields validation fails, prevent form submission
-            if (!isAssetMasterValid || !isBuildingValid || !isRoomValid) {
+            if (!isValid) {
                 event.preventDefault();
-                showToast('Silakan pilih master aset, gedung, dan ruangan', 'error');
+                showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
                 return;
             }
 
@@ -1232,15 +1285,40 @@
             const roomSearch = document.getElementById('edit_room_search');
             const selectedRoomId = document.getElementById('edit_selected_room_id');
             const submitBtn = this.querySelector('button[type="submit"]');
+            const depreciationFields = document.getElementById('edit_depreciation_fields');
+            const isDepreciable = !depreciationFields.classList.contains('hidden');
 
             // Validate only mandatory fields
             const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
             const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
 
+            // Track validation status
+            let isValid = isAssetMasterValid && isRoomValid;
+
+            // If depreciation is enabled, validate depreciation fields
+            if (isDepreciable) {
+                const depreciation_method = document.getElementById('edit_depreciation_method');
+                const acquisition_cost = document.getElementById('edit_acquisition_cost');
+                const salvage_value = document.getElementById('edit_salvage_value');
+                const asset_life_months = document.getElementById('edit_asset_life_months');
+                const date_acquired = document.getElementById('edit_date_acquired');
+
+                // Validate all required depreciation fields
+                const isDepreciationMethodValid = validateField(depreciation_method);
+                const isAcquisitionCostValid = validateField(acquisition_cost);
+                const isSalvageValueValid = validateField(salvage_value);
+                const isAssetLifeMonthsValid = validateField(asset_life_months);
+                const isDateAcquiredValid = validateField(date_acquired);
+
+                // Update overall validation status
+                isValid = isValid && isDepreciationMethodValid && isAcquisitionCostValid &&
+                          isSalvageValueValid && isAssetLifeMonthsValid && isDateAcquiredValid;
+            }
+
             // If mandatory fields validation fails, prevent form submission
-            if (!isAssetMasterValid || !isRoomValid) {
+            if (!isValid) {
                 event.preventDefault();
-                showToast('Silakan pilih master aset dan ruangan', 'error');
+                showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
                 return;
             }
 
@@ -1459,19 +1537,55 @@
 
             const inputs = depreciationFields.querySelectorAll('input, select');
 
-                if (isDepreciable) {
-                    depreciationFields.classList.remove('hidden');
-                    inputs.forEach(input => {
-                        input.disabled = false;
-                        input.required = true;
+            if (isDepreciable) {
+                depreciationFields.classList.remove('hidden');
+                inputs.forEach(input => {
+                    input.disabled = false;
+                    input.required = true;
+
+                    // Add class to indicate it's a required field
+                    const label = input.closest('.space-y-2')?.querySelector('label');
+                    if (label) {
+                        // Add required asterisk if not already present
+                        if (!label.innerHTML.includes('<span class="text-red-500">*</span>')) {
+                            label.innerHTML += ' <span class="text-red-500">*</span>';
+                        }
+                    }
+
+                    // Add event listeners to inputs to clear error styling when typing
+                    input.addEventListener('input', function() {
+                        this.classList.remove('border-red-500');
+                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
                     });
-                } else {
-                    depreciationFields.classList.add('hidden');
-                    inputs.forEach(input => {
-                        input.disabled = true;
-                        input.required = false;
-                    });
-                }
+
+                    // For select elements, add change event listener
+                    if (input.tagName.toLowerCase() === 'select') {
+                        input.addEventListener('change', function() {
+                            this.classList.remove('border-red-500');
+                            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                            if (errorElement) errorElement.classList.add('hidden');
+                        });
+                    }
+                });
+            } else {
+                depreciationFields.classList.add('hidden');
+                inputs.forEach(input => {
+                    input.disabled = true;
+                    input.required = false;
+
+                    // Remove error styling when fields are hidden
+                    input.classList.remove('border-red-500');
+                    const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+
+                    // Remove the required marker from labels when not required
+                    const label = input.closest('.space-y-2')?.querySelector('label');
+                    if (label) {
+                        label.innerHTML = label.innerHTML.replace(' <span class="text-red-500">*</span>', '');
+                    }
+                });
+            }
         }
 
         // Helper function to set field value safely
@@ -2546,7 +2660,18 @@
             loadingIndicator,
             selectedUserId
         ) {
-            if (!searchInput || !dropdown || !userList) return;
+            if (!searchInput || !dropdown || !userList) {
+                console.error('Missing elements for user search initialization', { searchInput, dropdown, userList });
+                return;
+            }
+
+            console.log('Initializing user search with elements:', {
+                searchInput: searchInput.id,
+                dropdown: dropdown.id,
+                userList: userList.id,
+                loadingIndicator: loadingIndicator?.id,
+                selectedUserId: selectedUserId.id
+            });
 
             // Toggle dropdown visibility
             searchInput.addEventListener('focus', function() {
@@ -2572,12 +2697,17 @@
 
             // Function to load users
             async function loadUsers(searchTerm) {
+                console.log('Loading users with search term:', searchTerm);
+
                 // Show loading indicator
                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                 userList.innerHTML = '';
 
                 try {
-                    const response = await fetch(`{{ url('/user') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) + '&status=active' : '?status=active'}`, {
+                    const apiUrl = `{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}&status=active`;
+                    console.log('Fetching users from URL:', apiUrl);
+
+                    const response = await fetch(apiUrl, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -2585,11 +2715,14 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error('Failed to fetch users from server');
+                        throw new Error(`Failed to fetch users from server: ${response.status} ${response.statusText}`);
                     }
 
                     const data = await response.json();
-                    const users = data.users || [];
+                    console.log('User data response:', data);
+
+                    const users = data.users || data.data || [];
+                    console.log(`Found ${users.length} users`);
 
                     // Populate dropdown
                     userList.innerHTML = '';
@@ -2643,7 +2776,7 @@
                     console.error('Error loading users:', error);
                     const errorItem = document.createElement('li');
                     errorItem.className = 'px-4 py-2 text-red-500';
-                    errorItem.textContent = 'Galat memproses data pengguna';
+                    errorItem.textContent = `Galat memproses data pengguna: ${error.message}`;
                     userList.appendChild(errorItem);
                 } finally {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');

@@ -896,12 +896,6 @@
                                 subcategoryList.appendChild(manualOption);
                             }
 
-                            // Add more detailed diagnostic information
-                            console.log('Request details:', {
-                                url: `{{ route('categories.by-asset-type') }}?asset_type=${assetType}${searchTerm ? '&search=' + searchTerm : ''}`,
-                                assetType,
-                                searchTerm
-                            });
 
                             // Also update the input placeholder to indicate the error
                             subcategorySearch.placeholder = "Gagal memuat kategori";

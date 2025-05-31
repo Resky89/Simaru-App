@@ -134,7 +134,6 @@
                     <thead>
                         <tr>
                             <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Kode Aset</th>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Nomor Seri</th>
                             <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Kondisi</th>
                             <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Status</th>
                             <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Lokasi</th>
@@ -146,9 +145,6 @@
                             <tr>
                                 <td class="p-3 text-sm border-t border-gray-200">
                                     {{ $asset['asset_code'] }}
-                                </td>
-                                <td class="p-3 text-sm border-t border-gray-200">
-                                    {{ $asset['serial_number'] }}
                                 </td>
                                 <td class="p-3 text-sm border-t border-gray-200">
                                     @php
@@ -262,7 +258,7 @@
                     id="editMasterAssetModalContent">
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#28356B]">UBAH ASSET MASTER</h2>
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">UBAH ASSET MASTER</h2>
                         <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -276,23 +272,23 @@
                         @method('PUT')
                         <div class="p-6">
                             <!-- Loading indicator -->
-                            <div class="text-center" id="editFormSpinner">
-                                <div class="inline-block w-8 h-8 border-4 border-[#28356B] border-t-transparent rounded-full animate-spin"></div>
+                            <div class="text-center" id="edit-loading">
+                                <div class="inline-block w-8 h-8 border-4 border-[#213268] border-t-transparent rounded-full animate-spin"></div>
                                 <p class="mt-2 text-gray-600">Memuat data aset...</p>
                             </div>
 
                             <div id="edit-form-content" class="space-y-4 hidden">
                                 <!-- Asset Information Section -->
-                                <h3 class="text-lg font-semibold text-[#28356B] border-b pb-2">Informasi Aset</h3>
+                                <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Aset</h3>
 
                                 <!-- Image upload -->
                                 <div class="space-y-2">
                                     <label class="block text-base font-semibold text-[#666666]">Gambar Aset</label>
-                                    <div class="border-2 border-dashed border-[#28356B] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                    <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                         <!-- Current image preview -->
-                                        <div id="edit_image_preview" class="mt-2 mb-4 w-full hidden">
+                                        <div id="edit-image-container" class="mt-2 mb-4 w-full hidden">
                                             <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
-                                                <img id="edit_current_image" src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Asset Image">
+                                                <img src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Asset Image">
                                                 <button type="button" class="remove-image-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -305,8 +301,8 @@
                                             <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
-                                            <p class="mt-1 text-sm text-gray-600">Seret gambar Anda atau <span class="text-[#28356B] font-semibold">browsing file</span></p>
-                                            <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png</p>
+                                            <p class="mt-1 text-sm text-gray-600">Seret gambar atau <span class="text-blue-600">pilih file</span></p>
+                                            <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
                                         </div>
                                         <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                     </div>
@@ -317,7 +313,7 @@
                                     <div class="space-y-2">
                                         <label for="edit_asset_name" class="block text-base font-semibold text-[#666666]">Nama Aset <span class="text-red-500">*</span></label>
                                         <input type="text" name="asset_name" id="edit_asset_name" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                             placeholder="Nama Aset">
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Nama Aset harus diisi</div>
                                     </div>
@@ -325,7 +321,7 @@
                                     <div class="space-y-2">
                                         <label for="edit_asset_type" class="block text-base font-semibold text-[#666666]">Tipe Aset <span class="text-red-500">*</span></label>
                                         <select name="asset_type" id="edit_asset_type" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]">
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                             <option value="">Pilih Tipe Aset</option>
                                             <option value="medical">Medis</option>
                                             <option value="non_medical">Non Medis</option>
@@ -335,24 +331,26 @@
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Subcategory Dropdown -->
                                     <div class="space-y-2">
-                                        <label for="edit_subcategory_id" class="block text-base font-semibold text-[#666666]">Kategori <span class="text-red-500">*</span></label>
+                                        <label for="edit_subcategory_id" class="block text-base font-semibold text-[#666666]">Kategori <span class="text-red-500">*</span> <span class="text-xs text-blue-600">(Pilih tipe aset terlebih dahulu)</span></label>
                                         <div class="custom-select-container relative">
-                                            <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]"
-                                                placeholder="Cari kategori...">
+                                            <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                                placeholder="Pilih tipe aset terlebih dahulu" disabled id="edit_subcategory_search">
                                             <input type="hidden" name="subcategory_id" id="edit_subcategory_id" required>
                                             <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
                                                 <div class="p-2 text-center text-gray-500" id="edit-subcategory-loading-message">Pilih tipe aset terlebih dahulu</div>
-                                                <!-- Subcategories will be loaded dynamically -->
+                                                <!-- Subcategories will be loaded dynamically based on asset_type -->
                                             </div>
                                         </div>
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus dipilih</div>
                                     </div>
 
+                                    <!-- Brand Dropdown -->
                                     <div class="space-y-2">
                                         <label for="edit_brand_id" class="block text-base font-semibold text-[#666666]">Merk <span class="text-red-500">*</span></label>
                                         <div class="custom-select-container relative">
-                                            <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B]"
+                                            <input type="text" class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                 placeholder="Cari merk...">
                                             <input type="hidden" name="brand_id" id="edit_brand_id" required>
                                             <div class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
@@ -367,7 +365,7 @@
                                 <div class="space-y-2">
                                     <label for="edit_description" class="block text-base font-semibold text-[#666666]">Deskripsi</label>
                                     <textarea name="description" id="edit_description"
-                                        class="w-full h-[100px] px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#28356B] resize-none"
+                                        class="w-full h-[100px] px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] resize-none"
                                         placeholder="Deskripsi Aset"></textarea>
                                 </div>
 
@@ -375,7 +373,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <!-- Depreciation Toggle Switch -->
                                     <div class="flex items-center justify-between">
-                                        <label for="edit_is_depreciable" class="text-base font-semibold text-[#666666]">Aktifkan Depresiasi Aset</label>
+                                        <label for="edit_is_depreciable" class="text-base font-semibold text-[#666666]">Aktifkan Penyusutan Aset</label>
                                         <label class="relative inline-flex items-center cursor-pointer">
                                             <input type="checkbox" name="is_depreciable" id="edit_is_depreciable" class="sr-only peer depreciation-toggle" value="1">
                                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
@@ -383,14 +381,14 @@
                                                 peer-checked:after:border-white after:content-[''] after:absolute
                                                 after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
                                                 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                                                peer-checked:bg-[#28356B]"></div>
+                                                peer-checked:bg-[#213268]"></div>
                                             <span class="ml-2 text-sm font-medium text-gray-900 depreciation-status">Tidak</span>
                                         </label>
                                     </div>
 
                                     <!-- Calibration Toggle Switch -->
                                     <div class="flex items-center justify-between">
-                                        <label for="edit_needs_calibration" class="text-base font-semibold text-[#666666]">Memerlukan Kalibrasi</label>
+                                        <label for="edit_needs_calibration" class="text-base font-semibold text-[#666666]">Kalibrasi</label>
                                         <label class="relative inline-flex items-center cursor-pointer">
                                             <input type="checkbox" name="needs_calibration" id="edit_needs_calibration" class="sr-only peer calibration-toggle" value="1">
                                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer
@@ -398,16 +396,16 @@
                                                 peer-checked:after:border-white after:content-[''] after:absolute
                                                 after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300
                                                 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                                                peer-checked:bg-[#28356B]"></div>
+                                                peer-checked:bg-[#213268]"></div>
                                             <span class="ml-2 text-sm font-medium text-gray-900 calibration-status">Tidak</span>
                                         </label>
                                     </div>
                                 </div>
 
                                 <!-- Submit Button -->
-                                <button type="submit" id="edit-submit-btn" class="w-full h-[45px] bg-[#28356B] text-white rounded-lg text-base hover:bg-[#1e2c5a] transform active:scale-[0.98] transition-all duration-200 mt-6">
+                                <button type="submit" id="edit-submit-btn" class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 mt-6">
                                     Perbarui
-                                    </button>
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -444,18 +442,18 @@
                 const isSubcategory = hiddenInput.id === 'edit_subcategory_id';
                 const isBrand = hiddenInput.id === 'edit_brand_id';
 
-                // Show options when input is focused
-                searchInput.addEventListener('focus', () => {
+                // Show options when input is clicked (not on focus)
+                searchInput.addEventListener('click', () => {
                     optionsContainer.classList.remove('hidden');
 
                     // Load data if needed
                     if (isSubcategory) {
                         const assetType = document.getElementById('edit_asset_type').value;
                         if (assetType) {
-                            loadSubcategories(assetType);
+                            fetchCategories(assetType, " ", hiddenInput.id);
                         }
                     } else if (isBrand) {
-                        loadBrands();
+                        fetchBrands(" ", hiddenInput.id);
                     }
                 });
 
@@ -477,10 +475,10 @@
                         if (isSubcategory) {
                             const assetType = document.getElementById('edit_asset_type').value;
                             if (assetType) {
-                                loadSubcategories(assetType, searchValue);
+                                fetchCategories(assetType, searchValue, hiddenInput.id);
                             }
                         } else if (isBrand) {
-                            loadBrands(searchValue);
+                            fetchBrands(searchValue, hiddenInput.id);
                         }
                     }, 300); // 300ms debounce
                 });
@@ -493,7 +491,7 @@
         const editModalContent = document.getElementById('editMasterAssetModalContent');
         const closeButtons = document.querySelectorAll('.close-modal');
         const editForm = document.getElementById('editMasterAssetForm');
-        const editFormSpinner = document.getElementById('editFormSpinner');
+        const editFormSpinner = document.getElementById('edit-loading');
         const editFormContent = document.getElementById('edit-form-content');
 
         // Form validation for Edit Master Asset
@@ -594,9 +592,15 @@
             searchInput.value = '';
             hiddenInput.value = '';
 
-            // Load subcategories for the new asset type
+            // Enable or disable subcategory search based on asset type
             if (selectedType) {
-                loadSubcategories(selectedType);
+                searchInput.disabled = false;
+                searchInput.placeholder = "Cari kategori...";
+                // Load subcategories for the new asset type
+                fetchCategories(selectedType, " ", 'edit_subcategory_id');
+            } else {
+                searchInput.disabled = true;
+                searchInput.placeholder = "Pilih tipe aset terlebih dahulu";
             }
         });
 
@@ -625,7 +629,7 @@
             editForm.reset();
 
             // Hide image preview if exists
-            const imagePreview = document.getElementById('edit_image_preview');
+            const imagePreview = document.getElementById('edit-image-container');
             if (imagePreview) {
                 imagePreview.classList.add('hidden');
             }
@@ -704,11 +708,17 @@
                     initCustomSelects();
 
                     // Load brands
-                    loadBrands();
+                    fetchBrands('', 'edit_brand_id');
 
                     // Load subcategories based on the asset type
                     if (data.masterAsset.asset_type) {
-                        loadSubcategories(data.masterAsset.asset_type);
+                        // Enable subcategory input
+                        const subcategoryContainer = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
+                        const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
+                        subcategorySearchInput.disabled = false;
+                        subcategorySearchInput.placeholder = "Cari kategori...";
+
+                        fetchCategories(data.masterAsset.asset_type, '', 'edit_subcategory_id');
                     }
 
                     // Then populate other form fields
@@ -740,11 +750,11 @@
             setTimeout(() => {
                 // Set subcategory and brand using helper functions
                 if (masterAsset.subcategory_id && masterAsset.subcategory_name) {
-                    setDropdownValue('edit_subcategory_id', masterAsset.subcategory_id, masterAsset.subcategory_name);
+                    setSelectValue('edit_subcategory_id', masterAsset.subcategory_id, masterAsset.subcategory_name);
                 }
 
                 if (masterAsset.brand_id && masterAsset.brand_name) {
-                    setDropdownValue('edit_brand_id', masterAsset.brand_id, masterAsset.brand_name);
+                    setSelectValue('edit_brand_id', masterAsset.brand_id, masterAsset.brand_name);
                 }
             }, 500);
 
@@ -761,21 +771,20 @@
 
             // Image preview
             if (masterAsset.reference_image_path) {
-                const imagePreview = document.getElementById('edit_image_preview');
-                const currentImage = document.getElementById('edit_current_image');
-                imagePreview.classList.remove('hidden');
-                currentImage.src = `${window.appConfig.backendUrl}/public${masterAsset.reference_image_path}`;
-                currentImage.onerror = function() {
-                    this.src = '/images/no-image.png';
+                const imageContainer = document.getElementById('edit-image-container');
+                const imageElement = imageContainer.querySelector('img');
+                imageContainer.classList.remove('hidden');
+                imageElement.src = `${window.appConfig.backendUrl}/public${masterAsset.reference_image_path}`;
+                imageElement.onerror = function() {
                     this.onerror = null;
                 };
             } else {
-                document.getElementById('edit_image_preview').classList.add('hidden');
+                document.getElementById('edit-image-container').classList.add('hidden');
             }
         }
 
         // Helper function to set dropdown values
-        function setDropdownValue(id, value, displayText) {
+        function setSelectValue(id, value, displayText) {
             const hiddenInput = document.getElementById(id);
             if (!hiddenInput) return;
 
@@ -798,11 +807,11 @@
                 const reader = new FileReader();
 
                 reader.onload = function(e) {
-                    const imagePreview = document.getElementById('edit_image_preview');
-                    const currentImage = document.getElementById('edit_current_image');
+                    const imageContainer = document.getElementById('edit-image-container');
+                    const imageElement = imageContainer.querySelector('img');
 
-                    currentImage.src = e.target.result;
-                    imagePreview.classList.remove('hidden');
+                    imageElement.src = e.target.result;
+                    imageContainer.classList.remove('hidden');
 
                     // If there's a remove image checkbox, uncheck it
                     const removeCheckbox = document.getElementById('edit_remove_image');
@@ -819,8 +828,8 @@
         const removeImageBtns = document.querySelectorAll('.remove-image-btn');
         removeImageBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                const imagePreview = document.getElementById('edit_image_preview');
-                imagePreview.classList.add('hidden');
+                const imageContainer = document.getElementById('edit-image-container');
+                imageContainer.classList.add('hidden');
 
                 // Clear the file input
                 document.getElementById('edit_image_file').value = '';
@@ -912,48 +921,38 @@
             showToast("{{ session('error') }}", 'error');
         @endif
 
-        // Load subcategories based on selected asset type
-        function loadSubcategories(assetType, searchTerm = '') {
-            // Get container elements
-            const container = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
+        // Function to fetch brands with search parameter
+        function fetchBrands(searchTerm = '', targetId = '') {
+            if (!targetId) return;
+
+            const container = document.getElementById(targetId).closest('.custom-select-container');
             const optionsContainer = container.querySelector('.options-container');
-            const loadingMessage = document.getElementById('edit-subcategory-loading-message');
             const searchInput = container.querySelector('.search-input');
+            const hiddenInput = container.querySelector('input[type="hidden"]');
 
-            // Reset previous options
-            Array.from(optionsContainer.querySelectorAll('.option')).forEach(option => option.remove());
+            // Special case: If it's just a space, we'll treat it as a request to show all options
+            const isShowAll = searchTerm === " ";
 
-            // Remove any existing no-results message
-            const existingNoResults = optionsContainer.querySelector('.no-results');
-            if (existingNoResults) {
-                existingNoResults.remove();
-            }
-
-            // Set loading message
-            if (loadingMessage) {
-                loadingMessage.textContent = searchTerm ? 'Mencari kategori...' : 'Memuat kategori...';
-            }
-
-            // Show options container if it's hidden (for search)
-            if (optionsContainer.classList.contains('hidden')) {
-                optionsContainer.classList.remove('hidden');
-            }
-
-            if (!assetType) {
-                if (loadingMessage) {
-                    loadingMessage.textContent = 'Pilih tipe aset terlebih dahulu';
-                }
+            // Don't show loading or open dropdown if no search term (except for our special case)
+            if (!searchTerm.trim() && !isShowAll) {
+                optionsContainer.classList.add('hidden');
                 return;
             }
 
-            // Build URL with search parameter if provided
-            let url = `/categories?asset_type=${assetType}&json=true`;
-            if (searchTerm) {
-                url += `&search=${encodeURIComponent(searchTerm)}`;
+            optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat data merk...</div>';
+            optionsContainer.classList.remove('hidden');
+
+            // Build query parameters
+            let queryParams = new URLSearchParams();
+            queryParams.append('json', 'true');
+            queryParams.append('limit', '50');
+
+            // Only add search parameter if it's not our special "show all" case
+            if (searchTerm.trim() && !isShowAll) {
+                queryParams.append('search', searchTerm.trim());
             }
 
-            // Fetch subcategories from API
-            fetch(url, {
+            fetch(`/brands?${queryParams.toString()}`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
@@ -961,168 +960,227 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`Server responded with status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
-                // Clear the loading message
-                Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
+                let brands = [];
 
-                // Check if we have data
-                if (!Array.isArray(data) || data.length === 0) {
-                    const noDataMsg = document.createElement('div');
-                    noDataMsg.className = 'no-results p-2 text-center text-gray-500';
-                    noDataMsg.textContent = searchTerm ? `Tidak ada hasil untuk "${searchTerm}"` : 'Tidak ada kategori tersedia';
-                    optionsContainer.appendChild(noDataMsg);
-                    return;
+                if (Array.isArray(data)) {
+                    brands = data;
+                } else if (data.brands && Array.isArray(data.brands)) {
+                    brands = data.brands;
+                } else if (data.data && Array.isArray(data.data)) {
+                    brands = data.data;
                 }
 
-                // Add search help message
-                const searchHelpMsg = document.createElement('div');
-                searchHelpMsg.className = 'p-2 text-center text-gray-500';
-                searchHelpMsg.textContent = 'Ketik untuk mencari...';
-                optionsContainer.appendChild(searchHelpMsg);
-
-                // Add options
-                data.forEach(subcategory => {
-                    const option = document.createElement('div');
-                    option.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
-                    option.setAttribute('data-value', subcategory.subcategory_id);
-                    option.setAttribute('data-type', subcategory.asset_type);
-                    option.textContent = subcategory.subcategory_name;
-
-                    // Add click event
-                    option.addEventListener('click', () => {
-                        const hiddenInput = container.querySelector('input[type="hidden"]');
-                        hiddenInput.value = subcategory.subcategory_id;
-                        searchInput.value = subcategory.subcategory_name;
-                        optionsContainer.classList.add('hidden');
-
-                        // Trigger change event
-                        const event = new Event('change', { bubbles: true });
-                        hiddenInput.dispatchEvent(event);
-                    });
-
-                    optionsContainer.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching subcategories:', error);
-                Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
-
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'p-2 text-center text-red-500';
-                errorMsg.textContent = 'Error loading categories';
-                optionsContainer.appendChild(errorMsg);
-            });
-        }
-
-        // Load brands
-        function loadBrands(searchTerm = '') {
-            // Get container elements
-            const container = document.querySelector('#edit_brand_id').closest('.custom-select-container');
-            const optionsContainer = container.querySelector('.options-container');
-            const loadingMessage = document.getElementById('edit-brand-loading-message');
-            const searchInput = container.querySelector('.search-input');
-
-            // Reset previous options
-            Array.from(optionsContainer.querySelectorAll('.option')).forEach(option => option.remove());
-
-            // Remove any existing no-results message
-            const existingNoResults = optionsContainer.querySelector('.no-results');
-            if (existingNoResults) {
-                existingNoResults.remove();
-            }
-
-            // Set loading message
-            if (loadingMessage) {
-                loadingMessage.textContent = searchTerm ? 'Mencari merk...' : 'Memuat data merk...';
-            }
-
-            // Show options container if it's hidden (for search)
-            if (optionsContainer.classList.contains('hidden')) {
-                optionsContainer.classList.remove('hidden');
-            }
-
-            // Build URL with search parameter if provided
-            let url = '/brands?json=true';
-            if (searchTerm) {
-                url += `&search=${encodeURIComponent(searchTerm)}`;
-            }
-
-            // Fetch brands from API
-            fetch(url, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Clear the loading message
-                Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
-
-                // Check if we have data
-                if (!Array.isArray(data) || data.length === 0) {
-                    const noDataMsg = document.createElement('div');
-                    noDataMsg.className = 'no-results p-2 text-center text-gray-500';
-                    noDataMsg.textContent = searchTerm ? `Tidak ada hasil untuk "${searchTerm}"` : 'Tidak ada merk tersedia';
-                    optionsContainer.appendChild(noDataMsg);
-                    return;
-                }
-
-                // Add search help message
-                const searchHelpMsg = document.createElement('div');
-                searchHelpMsg.className = 'p-2 text-center text-gray-500';
-                searchHelpMsg.textContent = 'Ketik untuk mencari...';
-                optionsContainer.appendChild(searchHelpMsg);
-
-                // Add options with highlight for search term
-                data.forEach(brand => {
-                    const option = document.createElement('div');
-                    option.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
-                    option.setAttribute('data-value', brand.brand_id);
-
-                    // Highlight search term if it exists
-                    if (searchTerm && brand.brand_name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                        const regex = new RegExp(searchTerm, 'gi');
-                        option.innerHTML = brand.brand_name.replace(regex, match =>
-                            `<span class="bg-yellow-200">${match}</span>`
-                        );
-                    } else {
-                        option.textContent = brand.brand_name;
-                    }
-
-                    // Add click event
-                    option.addEventListener('click', () => {
-                        const hiddenInput = container.querySelector('input[type="hidden"]');
-                        hiddenInput.value = brand.brand_id;
-                        searchInput.value = brand.brand_name;
-                        optionsContainer.classList.add('hidden');
-
-                        // Trigger change event
-                        const event = new Event('change', { bubbles: true });
-                        hiddenInput.dispatchEvent(event);
-                    });
-
-                    optionsContainer.appendChild(option);
-                });
+                displayBrandResults(brands, optionsContainer, hiddenInput, searchInput);
             })
             .catch(error => {
                 console.error('Error fetching brands:', error);
-                Array.from(optionsContainer.querySelectorAll('.p-2.text-center')).forEach(msg => msg.remove());
-
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'p-2 text-center text-red-500';
-                errorMsg.textContent = 'Error loading brands';
-                optionsContainer.appendChild(errorMsg);
+                optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat data merk</div>';
             });
+        }
+
+        function displayBrandResults(brands, resultsElem, idInputElem, searchInputElem) {
+            resultsElem.innerHTML = '';
+
+            if (brands.length === 0) {
+                resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada merk yang ditemukan</div>';
+                return;
+            }
+
+            // Add search help text
+            const searchHelp = document.createElement('div');
+            searchHelp.className = 'p-2 text-xs text-gray-500 text-center border-b';
+            searchHelp.textContent = 'Ketik untuk mencari merk...';
+            resultsElem.appendChild(searchHelp);
+
+            if (searchInputElem && searchInputElem.value.trim()) {
+                const searchTerm = searchInputElem.value.trim().toLowerCase();
+                brands.sort((a, b) => {
+                    const aName = a.brand_name?.toLowerCase() || '';
+                    const bName = b.brand_name?.toLowerCase() || '';
+
+                    if (aName === searchTerm) return -1;
+                    if (bName === searchTerm) return 1;
+
+                    const aStarts = aName.startsWith(searchTerm);
+                    const bStarts = bName.startsWith(searchTerm);
+                    if (aStarts && !bStarts) return -1;
+                    if (bStarts && !aStarts) return 1;
+
+                    return aName.localeCompare(bName);
+                });
+            }
+
+            brands.forEach((brand, index) => {
+                const div = document.createElement('div');
+                div.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
+                div.textContent = brand.brand_name || 'Unknown Brand';
+                div.setAttribute('data-value', brand.brand_id || '');
+
+                div.addEventListener('click', function() {
+                    idInputElem.value = this.getAttribute('data-value');
+                    searchInputElem.value = this.textContent;
+                    resultsElem.classList.add('hidden');
+
+                    // Clear any error styling
+                    searchInputElem.classList.remove('border-red-500');
+                    const errorElement = searchInputElem.closest('.space-y-2').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+
+                    // Trigger change event
+                    const event = new Event('change', { bubbles: true });
+                    idInputElem.dispatchEvent(event);
+                });
+
+                resultsElem.appendChild(div);
+            });
+
+            if (brands.length > 10) {
+                const countDiv = document.createElement('div');
+                countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
+                countDiv.textContent = `Menampilkan ${brands.length} merk`;
+                resultsElem.appendChild(countDiv);
+            }
+        }
+
+        // Function to fetch categories with search parameter based on asset type
+        function fetchCategories(assetType, searchTerm = '', targetId = '') {
+            if (!assetType || !targetId) return;
+
+            const container = document.getElementById(targetId).closest('.custom-select-container');
+            const optionsContainer = container.querySelector('.options-container');
+            const searchInput = container.querySelector('.search-input');
+            const hiddenInput = container.querySelector('input[type="hidden"]');
+
+            // Special case: If it's just a space, we'll treat it as a request to show all options
+            const isShowAll = searchTerm === " ";
+
+            // Don't show loading or open dropdown if no search term (except for our special case)
+            if (!searchTerm.trim() && !isShowAll) {
+                optionsContainer.classList.add('hidden');
+                return;
+            }
+
+            optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat kategori...</div>';
+            optionsContainer.classList.remove('hidden');
+
+            // Build query parameters
+            let queryParams = new URLSearchParams();
+            queryParams.append('json', 'true');
+            queryParams.append('asset_type', assetType);
+            queryParams.append('limit', '50');
+
+            // Only add search parameter if it's not our special "show all" case
+            if (searchTerm.trim() && !isShowAll) {
+                queryParams.append('search', searchTerm.trim());
+            }
+
+            fetch(`/categories?${queryParams.toString()}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                let categories = [];
+
+                if (Array.isArray(data)) {
+                    categories = data;
+                } else if (data.categories && Array.isArray(data.categories)) {
+                    categories = data.categories;
+                } else if (data.data && Array.isArray(data.data)) {
+                    categories = data.data;
+                }
+
+                displayCategoryResults(categories, optionsContainer, hiddenInput, searchInput, assetType);
+            })
+            .catch(error => {
+                console.error('Error fetching categories:', error);
+                optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat kategori</div>';
+            });
+        }
+
+        function displayCategoryResults(categories, resultsElem, idInputElem, searchInputElem, assetType) {
+            resultsElem.innerHTML = '';
+
+            if (categories.length === 0) {
+                resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada kategori yang ditemukan</div>';
+                return;
+            }
+
+            // Add search help text
+            const searchHelp = document.createElement('div');
+            searchHelp.className = 'p-2 text-xs text-gray-500 text-center border-b';
+            searchHelp.textContent = 'Ketik untuk mencari kategori...';
+            resultsElem.appendChild(searchHelp);
+
+            if (searchInputElem && searchInputElem.value.trim()) {
+                const searchTerm = searchInputElem.value.trim().toLowerCase();
+                categories.sort((a, b) => {
+                    const aName = a.subcategory_name?.toLowerCase() || '';
+                    const bName = b.subcategory_name?.toLowerCase() || '';
+
+                    if (aName === searchTerm) return -1;
+                    if (bName === searchTerm) return 1;
+
+                    const aStarts = aName.startsWith(searchTerm);
+                    const bStarts = bName.startsWith(searchTerm);
+                    if (aStarts && !bStarts) return -1;
+                    if (bStarts && !aStarts) return 1;
+
+                    return aName.localeCompare(bName);
+                });
+            }
+
+            // Add asset type title
+            const typeTitle = document.createElement('div');
+            typeTitle.className = 'p-2 text-sm font-medium text-gray-600 border-b';
+            typeTitle.textContent = `Kategori ${assetType === 'medical' ? 'Medis' : 'Non-Medis'}`;
+            resultsElem.appendChild(typeTitle);
+
+            categories.forEach((category) => {
+                const div = document.createElement('div');
+                div.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
+                div.textContent = category.subcategory_name || 'Unknown Category';
+                div.setAttribute('data-value', category.subcategory_id || '');
+                div.setAttribute('data-type', category.asset_type || assetType);
+
+                div.addEventListener('click', function() {
+                    idInputElem.value = this.getAttribute('data-value');
+                    searchInputElem.value = this.textContent;
+
+                    // Clear any error styling
+                    searchInputElem.classList.remove('border-red-500');
+                    const errorElement = searchInputElem.closest('.space-y-2').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+
+                    // Explicitly hide the dropdown
+                    resultsElem.classList.add('hidden');
+
+                    // Trigger change event
+                    const event = new Event('change', { bubbles: true });
+                    idInputElem.dispatchEvent(event);
+                });
+
+                resultsElem.appendChild(div);
+            });
+
+            if (categories.length > 10) {
+                const countDiv = document.createElement('div');
+                countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
+                countDiv.textContent = `Menampilkan ${categories.length} kategori`;
+                resultsElem.appendChild(countDiv);
+            }
         }
     });
 </script>
