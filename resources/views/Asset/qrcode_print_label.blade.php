@@ -51,31 +51,63 @@
             display: flex;
             height: 100%;
             width: 100%;
+            align-items: center;
         }
+
+        /* Adjust content layout based on container width */
+        @if($containerWidth == 80)
+        .label-content {
+            padding: 0 1mm;
+        }
+        @elseif($containerWidth == 100)
+        .label-content {
+            padding: 0 2mm;
+        }
+        @endif
 
         .qr-image {
             height: 100%;
-            width: {{ $containerWidth / 2 }}mm;
+            width: {{ $containerWidth / 2.2 }}mm; /* Slightly smaller to give more space to text */
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* Size adjustments for smaller labels */
+        /* Size adjustments for different label sizes */
         @if($qrSize == 60)
         .qr-image {
-            width: 24mm;
+            width: 22mm; /* Slightly smaller */
         }
 
         .qr-image img {
-            max-height: 22mm;
-            max-width: 22mm;
+            max-height: 20mm;
+            max-width: 20mm;
+        }
+        @elseif($containerWidth == 80)
+        .qr-image {
+            width: 34mm;
+        }
+
+        .qr-image img {
+            max-height: 32mm;
+            max-width: 32mm;
+            object-fit: contain;
+        }
+        @elseif($containerWidth == 100)
+        .qr-image {
+            width: 40mm;
+        }
+
+        .qr-image img {
+            max-height: 38mm;
+            max-width: 38mm;
+            object-fit: contain;
         }
         @else
         .qr-image img {
-            max-height: 42mm;
-            max-width: 42mm;
+            max-height: 40mm;
+            max-width: 40mm;
             object-fit: contain;
         }
         @endif
@@ -87,16 +119,80 @@
             flex-direction: column;
             justify-content: center;
             overflow: hidden;
+            max-width: {{ $containerWidth / 2 }}mm;
+        }
+
+        /* Adjust details section based on container width */
+        @if($containerWidth == 80)
+        .qr-details {
+            padding-left: 1mm;
+            max-width: 42mm;
+        }
+        @elseif($containerWidth == 100)
+        .qr-details {
+            padding-left: 3mm;
+            max-width: 55mm;
+        }
+        @endif
+
+        /* Adjust spacing between elements */
+        .qr-details > div {
+            margin-bottom: {{ $qrSize == 60 ? '0.5mm' : '1mm' }};
+        }
+
+        /* Ensure proper spacing for the last element */
+        .qr-details > div:last-child {
+            margin-bottom: 0;
         }
 
         .qr-code {
             font-weight: bold;
             font-size: {{ $qrSize == 60 ? '9' : '11' }}px;
             margin-bottom: 2mm;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal;
+            word-break: break-word;
+            overflow: visible;
+            text-overflow: clip;
+            max-height: {{ $qrSize == 60 ? '10mm' : '15mm' }};
+            line-height: {{ $qrSize == 60 ? '10px' : '12px' }};
         }
+
+        /* Adjust font sizes based on container width */
+        @if($containerWidth == 80)
+        .qr-code {
+            font-size: 10px;
+            line-height: 11px;
+        }
+
+        .qr-name {
+            font-size: 9px;
+        }
+
+        .qr-category {
+            font-size: 8px;
+        }
+
+        .qr-meta {
+            font-size: 7px;
+        }
+        @elseif($containerWidth == 100)
+        .qr-code {
+            font-size: 12px;
+            line-height: 13px;
+        }
+
+        .qr-name {
+            font-size: 11px;
+        }
+
+        .qr-category {
+            font-size: 10px;
+        }
+
+        .qr-meta {
+            font-size: 9px;
+        }
+        @endif
 
         /* Special handling for asset code on small labels */
         @if($qrSize == 60)
@@ -104,11 +200,6 @@
             font-size: 9px;
             line-height: 10px;
             margin-bottom: 1mm;
-            white-space: normal; /* Allow wrapping if needed */
-            word-break: break-all; /* Break words at any character */
-            overflow: visible; /* Don't hide overflowing content */
-            text-overflow: clip;
-            max-height: 10mm;
         }
         @endif
 
@@ -201,6 +292,27 @@
             max-height: 95%; /* Slightly smaller QR for Dymo */
         }
         @endif
+
+        /* Special handling for very long asset codes */
+        .long-code {
+            font-size: {{ $qrSize == 60 ? '7px' : '9px' }};
+            line-height: {{ $qrSize == 60 ? '8px' : '10px' }};
+            display: inline-block;
+            word-break: break-all;
+        }
+
+        /* Adjust long code handling based on container width */
+        @if($containerWidth == 80)
+        .long-code {
+            font-size: 8px;
+            line-height: 9px;
+        }
+        @elseif($containerWidth == 100)
+        .long-code {
+            font-size: 10px;
+            line-height: 11px;
+        }
+        @endif
     </style>
 </head>
 <body>
@@ -225,7 +337,26 @@
                 @endif
             </div>
             <div class="qr-details">
-                <div class="qr-code">{{ $asset['asset_code'] ?? 'No Code' }}</div>
+                <div class="qr-code">
+                    @php
+                        $assetCode = $asset['asset_code'] ?? 'No Code';
+                        // If asset code is very long, add a small CSS class
+                        $codeLength = strlen($assetCode);
+
+                        // Adjust threshold based on container width
+                        $longCodeThreshold = 20; // Default
+                        if ($containerWidth == 80) {
+                            $longCodeThreshold = 18;
+                        } elseif ($containerWidth == 100) {
+                            $longCodeThreshold = 22;
+                        } elseif ($qrSize == 60) {
+                            $longCodeThreshold = 16;
+                        }
+
+                        $longCodeClass = $codeLength > $longCodeThreshold ? 'long-code' : '';
+                    @endphp
+                    <span class="{{ $longCodeClass }}">{{ $assetCode }}</span>
+                </div>
                 <div class="qr-name">
                     @php
                         // Try to get asset name from different possible locations in the data structure

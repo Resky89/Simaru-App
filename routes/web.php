@@ -33,6 +33,7 @@ use App\Http\Controllers\ProcurementPriceComparisonController;
 use App\Http\Controllers\ProcurementPurchaseOrderController;
 use App\Http\Controllers\ProcurementReceiptController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\CsrfTokenController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -51,6 +52,9 @@ Route::group(['middleware' => 'guest'], function () {
 
 // Logout Route (accessible to authenticated users)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// CSRF Token Refresh Route
+Route::get('/csrf-token-refresh', [CsrfTokenController::class, 'refresh'])->name('csrf.refresh');
 
 //=============================================================================
 // AUTHENTICATION ROUTES

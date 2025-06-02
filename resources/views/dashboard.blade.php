@@ -8,9 +8,9 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
             <!-- Total Asset Card -->
-            <div class="stats bg-gradient-to-r from-[rgba(80,130,7,0.1)] to-[rgba(80,130,7,0.2)] rounded-lg border-none">
-                <div class="stat flex flex-row items-center gap-3 p-4">
-                    <div class="stat-figure text-[#659B09] opacity-50">
+            <div
+                class="p-4 bg-gradient-to-r from-[rgba(101,155,9,0.1)] to-[rgba(101,155,9,0.2)] rounded-lg flex items-center gap-3">
+                <div class="text-[#659B09] opacity-50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor">
                             <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -18,19 +18,17 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <div class="stat-value text-[28px] font-medium text-[#213268]">
+                    <div class="text-[28px] font-medium text-[#213268]">
                             {{ formatCompactNumber($dashboardData['total_assets'] ?? 0) }}
                         </div>
-                        <div class="stat-title text-[14px] text-[#659B09] m-0 opacity-80">Aset</div>
-                    </div>
+                    <div class="text-[14px] text-[#659B09] opacity-80">Aset</div>
                 </div>
             </div>
 
             <!-- Under Repair Card -->
             <div
-                class="stats bg-gradient-to-r from-[rgba(218,174,15,0.1)] to-[rgba(218,174,15,0.2)] rounded-lg border-none">
-                <div class="stat flex flex-row items-center gap-3 p-4">
-                    <div class="stat-figure text-[#DAAE0F] opacity-50">
+                class="p-4 bg-gradient-to-r from-[rgba(218,174,15,0.1)] to-[rgba(218,174,15,0.2)] rounded-lg flex items-center gap-3">
+                <div class="text-[#DAAE0F] opacity-50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor">
                             <path
@@ -38,18 +36,17 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <div class="stat-value text-[28px] font-medium text-[#213268]">
+                    <div class="text-[28px] font-medium text-[#213268]">
                             {{ formatCompactNumber($dashboardData['assets_by_status']['under repair'] ?? 0) }}
                         </div>
-                        <div class="stat-title text-[14px] text-[#DAAE0F] m-0 opacity-80">Dalam Perbaikan </div>
-                    </div>
+                    <div class="text-[14px] text-[#DAAE0F] opacity-80">Dalam Perbaikan</div>
                 </div>
             </div>
 
             <!-- Net Asset Value Card -->
-            <div class="stats bg-gradient-to-r from-[rgba(255,74,43,0.1)] to-[rgba(255,74,43,0.2)] rounded-lg border-none">
-                <div class="stat flex flex-row items-center gap-3 p-4">
-                    <div class="stat-figure text-[#F16A1B] opacity-50">
+            <div
+                class="p-4 bg-gradient-to-r from-[rgba(255,74,43,0.1)] to-[rgba(255,74,43,0.2)] rounded-lg flex items-center gap-3">
+                <div class="text-[#FF4A2B] opacity-50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor">
                             <circle cx="12" cy="12" r="10" />
@@ -58,19 +55,17 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <div class="stat-value text-[28px] font-medium text-[#213268]">
+                    <div class="text-[28px] font-medium text-[#213268]">
                             {{ formatCompactCurrency($dashboardData['total_book_value'] ?? 0) }}
                         </div>
-                        <div class="stat-title text-[14px] text-[#F16A1B] m-0 opacity-80">Nilai Buku</div>
-                    </div>
+                    <div class="text-[14px] text-[#FF4A2B] opacity-80">Nilai Buku</div>
                 </div>
             </div>
 
             <!-- Acquisition Cost Card -->
             <div
-                class="stats bg-gradient-to-r from-[rgba(111,67,205,0.1)] to-[rgba(111,67,205,0.2)] rounded-lg border-none">
-                <div class="stat flex flex-row items-center gap-3 p-4">
-                    <div class="stat-figure text-[#6F43CD] opacity-50">
+                class="p-4 bg-gradient-to-r from-[rgba(78,102,164,0.1)] to-[rgba(78,102,164,0.2)] rounded-lg flex items-center gap-3">
+                <div class="text-[#ACC3EF] opacity-50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor">
                             <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
@@ -78,19 +73,17 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <div class="stat-value text-[28px] font-medium text-[#213268]">
+                    <div class="text-[28px] font-medium text-[#213268]">
                             {{ formatCompactCurrency($dashboardData['total_acquisition_cost'] ?? 0) }}
                         </div>
-                        <div class="stat-title text-[14px] text-[#6F43CD] m-0 opacity-80">Biaya Pengadaan</div>
-                    </div>
+                    <div class="text-[14px] text-[#ACC3EF] opacity-80">Biaya Pengadaan</div>
                 </div>
             </div>
 
             <!-- Users Card -->
             <div
-                class="stats bg-gradient-to-r from-[rgba(37,177,255,0.1)] to-[rgba(37,177,255,0.2)] rounded-lg border-none">
-                <div class="stat flex flex-row items-center gap-3 p-4">
-                    <div class="stat-figure text-[#1B8ADB] opacity-50">
+                class="p-4 bg-gradient-to-r from-[rgba(37,177,255,0.1)] to-[rgba(37,177,255,0.2)] rounded-lg flex items-center gap-3">
+                <div class="text-[#25B1FF] opacity-50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -100,11 +93,10 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <div class="stat-value text-[28px] font-medium text-[#213268]">
+                    <div class="text-[28px] font-medium text-[#213268]">
                             {{ formatCompactNumber($dashboardData['total_users'] ?? 0) }}
                         </div>
-                        <div class="stat-title text-[14px] text-[#1B8ADB] m-0 opacity-80">Pengguna</div>
-                    </div>
+                    <div class="text-[14px] text-[#25B1FF] opacity-80">Pengguna</div>
                 </div>
             </div>
         </div>
@@ -112,8 +104,7 @@
         <!-- Middle Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
             <!-- Asset By Status -->
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body p-4">
+            <div class="bg-white shadow-xl rounded-lg p-4">
                     <!-- Title -->
                     <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Berdasarkan Status</h2>
 
@@ -157,15 +148,13 @@
                             <div class="flex items-center gap-2">
                                 <div class="w-2.5 h-2.5 bg-[#FF4A2B]"></div>
                                 <span class="text-sm text-[#4F4F4F]">Hilang</span>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Asset By Categories -->
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body p-4">
+            <div class="bg-white shadow-xl rounded-lg p-4">
                     <!-- Title and Toggle -->
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-2xl font-medium text-[#213268] font-['Poppins']">Aset Berdasarkan Kategori</h2>
@@ -200,8 +189,8 @@
 
                                         <!-- Progress Circle -->
                                         @if($percentage > 0)
-                                            <circle cx="18" cy="18" r="{{ $radius }}" fill="none" stroke="#213268"
-                                                stroke-width="2.5" stroke-dasharray="{{ $circumference }}"
+                                        <circle cx="18" cy="18" r="{{ $radius }}" fill="none" stroke="#213268" stroke-width="2.5"
+                                            stroke-dasharray="{{ $circumference }}"
                                                 stroke-dashoffset="{{ $circumference - ($percentage / 100 * $circumference) }}"
                                                 class="progress-circle" data-percentage="{{ $percentage }}" />
                                         @endif
@@ -224,7 +213,6 @@
                                 Tidak ada data kategori tersedia
                             </div>
                         @endforelse
-                    </div>
                 </div>
             </div>
         </div>
@@ -232,8 +220,7 @@
         <!-- Bottom Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
             <!-- Upcoming Assets Calibration -->
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body p-4">
+            <div class="bg-white shadow-xl rounded-lg p-4">
                     <!-- Title -->
                     <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Yang Akan Dikalibrasi</h2>
 
@@ -307,13 +294,11 @@
                                 <p class="mt-2 text-gray-500">Tidak ada data kalibrasi yang akan datang</p>
                             </div>
                         @endforelse
-                    </div>
                 </div>
             </div>
 
             <!-- Asset By Location -->
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body p-4">
+            <div class="bg-white shadow-xl rounded-lg p-4">
                     <!-- Title -->
                     <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Berdasarkan Lokasi</h2>
 
@@ -368,16 +353,14 @@
                                 Tidak ada data lokasi tersedia
                             </div>
                         @endforelse
-                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Calendar -->
-        <div class="flex flex-col items-start p-6 gap-8 w-full bg-white rounded-lg shadow-lg mb-6">
+        <div class="bg-white rounded-lg shadow-lg p-6 mt-4 md:mt-6">
             <!-- Header -->
-            <div class="flex flex-col md:flex-row justify-between items-center w-full gap-3">
-                <div class="flex flex-col md:flex-row w-full justify-between items-center gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-center w-full gap-3 mb-8">
                     <!-- Title and Navigation -->
                     <div class="flex items-center gap-3">
                         <button onclick="changeMonth(-1)"
@@ -419,10 +402,9 @@
                                 <option value="10">November</option>
                                 <option value="11">Desember</option>
                             </select>
-                            <div
-                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#213268]">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#213268]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
                                     <path d="M6 9l6 6 6-6" />
                                 </svg>
                             </div>
@@ -433,13 +415,11 @@
                                 class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[100px] bg-white text-[#213268] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
                                 <!-- Years will be added via JavaScript -->
                             </select>
-                            <div
-                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#213268]">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#213268]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
                                     <path d="M6 9l6 6 6-6" />
                                 </svg>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -470,9 +450,9 @@
         </div>
 
         <!-- Recent Activity -->
-        <div class="card bg-white shadow-xl p-4 md:p-7 lg:p-14 space-y-6">
+        <div class="bg-white rounded-lg p-7 mt-4 md:mt-6">
             <!-- Title -->
-            <h2 class="text-2xl font-medium font-['Poppins'] text-[#213268]">Aktivitas Terakhir</h2>
+            <h2 class="text-2xl font-medium font-['Poppins'] text-[#213268] mb-6">Aktivitas Terakhir</h2>
 
             <!-- Activity List -->
             <div class="space-y-3.5" id="asset-activities">
@@ -483,22 +463,26 @@
             </div>
 
             <!-- Load More Button -->
-            <div class="flex justify-center mt-8" id="load-more-container" style="display: none;">
-                <button id="load-more-activities"
-                    class="relative flex items-center justify-center gap-2 px-6 py-3 bg-white border border-[#ECECEC] rounded-xl shadow-md hover:shadow-lg transition-all duration-300 group">
-                    <div class="flex flex-col items-center justify-center">
-                        <span class="font-medium text-[#213268]">Muat Lebih Banyak</span>
-                        <span class="text-xs text-gray-500">Menampilkan aktivitas sebelumnya</span>
-                    </div>
-                    <div
-                        class="absolute right-4 w-8 h-8 flex items-center justify-center rounded-full bg-[#213268] text-white transform group-hover:translate-y-1 transition-transform duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            <div class="flex justify-center items-center mt-8" id="load-more-container" style="display: none;">
+                <div id="load-more-activities"
+                    class="mx-auto relative w-full max-w-xs sm:max-w-sm md:max-w-md py-4 px-6 text-center cursor-pointer swipe-indicator bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition-all duration-300 transform">
+                    <!-- Down Arrow Icon (Default) -->
+                    <div class="flex flex-col items-center justify-center gap-2" id="load-more-default">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#213268] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                         </svg>
+                        <div class="flex flex-col items-center">
+                            <span class="font-medium text-[#213268]">Swipe Ke Atas</span>
+                            <span class="text-xs text-gray-500">Untuk melihat aktivitas sebelumnya</span>
+                        </div>
                     </div>
-                </button>
+
+                    <!-- Loading Animation (Hidden initially) -->
+                    <div class="hidden flex-col items-center justify-center gap-2" id="load-more-loading">
+                        <div class="w-8 h-8 border-2 border-[#213268] border-t-transparent rounded-full animate-spin"></div>
+                        <span class="text-sm text-gray-500">Memuat aktivitas...</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -889,6 +873,26 @@
             }
         }
 
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes slideUp {
+            0% {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
         .animate-fade-in {
             opacity: 0;
             animation: fadeIn 0.5s ease-out forwards;
@@ -904,6 +908,33 @@
 
         .animate-pulse {
             animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .animate-bounce {
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .swipe-indicator {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(33, 50, 104, 0.1);
+        }
+
+        .swipe-indicator::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(to bottom, transparent, rgba(33, 50, 104, 0.1));
+        }
+
+        .swipe-indicator:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 2px rgba(33, 50, 104, 0.1);
         }
 
         /* Custom scrollbar styling */
@@ -954,6 +985,61 @@
 
         .progress-circle {
             animation: fillProgress 1.5s ease-out forwards;
+        }
+
+        /* Add transitions for loading states */
+        #load-more-default, #load-more-loading {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Add pulse effect to draw attention to the swipe indicator */
+        @keyframes pulseSwipe {
+            0% { box-shadow: 0 0 0 0 rgba(33, 50, 104, 0.2); }
+            70% { box-shadow: 0 0 0 10px rgba(33, 50, 104, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(33, 50, 104, 0); }
+        }
+
+        .swipe-indicator {
+            animation: pulseSwipe 2s infinite;
+        }
+
+        @keyframes slideUp {
+            0% {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* Custom styling for the load more button */
+        #load-more-activities {
+            transform-origin: center;
+            will-change: transform, opacity;
+        }
+
+        #load-more-activities:hover {
+            background-color: rgba(33, 50, 104, 0.05);
+        }
+
+        /* Ensure the load more container is centered */
+        #load-more-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Smooth transitions for the loading states */
+        #load-more-default, #load-more-loading {
+            transition: opacity 0.3s ease;
         }
     </style>
 
@@ -1175,7 +1261,7 @@
                 const closeBtn = document.createElement('span');
                 closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
                 closeBtn.textContent = '×';
-                closeBtn.onclick = function() {
+                closeBtn.onclick = function () {
                     notification.remove();
                 };
 
@@ -1343,11 +1429,11 @@
                             {{ $dashboardData['assets_by_status']['lost'] ?? 0 }}
                         ],
                         backgroundColor: [
-                            '#7CB60C',  // Available - Green
-                            '#25B1FF',  // Maintenance - Grey
-                            '#DAAE0F',  // Check Out - yellow
-                            '#ACC3EF',  // Dispose - Blue
-                            '#FF4A2B'   // Lost - Red
+                            '#7CB60C',  // Available - Green (500)
+                            '#25B1FF',  // Maintenance - Blue (500)
+                            '#FFD016',  // Check Out - Yellow (500)
+                            '#ACC3EF',  // Dispose - Navy (200)
+                            '#FF4A2B'   // Lost - Red (500)
                         ],
                         borderWidth: 0
                     }]
@@ -1712,7 +1798,7 @@
                         'Available': 'bg-[#659B09]',
                         'Checked out': 'bg-[#F59E0B]',
                         'Under Repair': 'bg-[#25B1FF]',
-                        'Dispose': 'bg-[#ACC3EF]',
+                    'Disposed': 'bg-[#ACC3EF]',
                         'Lost': 'bg-[#FF4A2B]'
                     };
                     return statusClasses[statusType] || 'bg-gray-500';
@@ -1724,7 +1810,7 @@
                         'Available': 'TERSEDIA',
                         'Checked out': 'DIPINJAM',
                         'Under Repair': 'PERBAIKAN',
-                        'Dispose': 'DIHAPUSKAN',
+                    'Disposed': 'DIHAPUSKAN',
                         'Lost': 'HILANG'
                     };
                     return statusLabels[status] || status.toUpperCase();
@@ -1810,14 +1896,9 @@
 
             // Function to load asset activities
             async function loadAssetActivities(page = 1, append = false) {
-                if (isLoadingActivities) return;
-                isLoadingActivities = true;
-
-                const activitiesContainer = document.getElementById('asset-activities');
-                const loadMoreContainer = document.getElementById('load-more-container');
-
-                // Show loading state if not appending
+            // Note: isLoadingActivities flag is now set by the caller before the delay
                 if (!append) {
+                const activitiesContainer = document.getElementById('asset-activities');
                     activitiesContainer.innerHTML = `
                         <div class="text-center py-12">
                             <div class="inline-block p-4 bg-[#213268]/5 rounded-full">
@@ -1826,29 +1907,20 @@
                             <p class="mt-3 text-gray-600 font-medium">Memuat aktivitas terakhir...</p>
                         </div>
                     `;
-                } else {
-                    // Add a loading indicator at the bottom when loading more
-                    activitiesContainer.insertAdjacentHTML('beforeend', `
-                        <div id="activities-loading-more" class="text-center py-6 animate-pulse">
-                            <div class="inline-block p-2 bg-[#213268]/5 rounded-full">
-                                <span class="loading loading-spinner loading-sm text-[#213268]"></span>
-                            </div>
-                            <p class="mt-2 text-sm text-gray-600">Memuat lebih banyak aktivitas...</p>
-                        </div>
-                    `);
-                }
+            }
+
+            const activitiesContainer = document.getElementById('asset-activities');
+            const loadMoreContainer = document.getElementById('load-more-container');
 
                 try {
                     const response = await fetch(`/dashboard/activities?page=${page}&limit=${activitiesPerPage}`);
                     const data = await response.json();
 
-
+                // Update loading state
+                showLoadingAnimation(false);
 
                     // Remove loading state
-                    if (append) {
-                        const loadingMore = document.getElementById('activities-loading-more');
-                        if (loadingMore) loadingMore.remove();
-                    } else {
+                if (!append) {
                         activitiesContainer.innerHTML = '';
                     }
 
@@ -1877,7 +1949,17 @@
                             const activitiesHTML = activities.map(activity => createActivityItemHTML(activity)).join('');
 
                             if (append) {
-                                activitiesContainer.insertAdjacentHTML('beforeend', activitiesHTML);
+                            // Add a slide-up animation to new content
+                            const tempContainer = document.createElement('div');
+                            tempContainer.innerHTML = activitiesHTML;
+
+                            // Add animation class to each activity
+                            Array.from(tempContainer.children).forEach((child, index) => {
+                                child.classList.add('animate-slide-in');
+                                child.style.animationDelay = `${index * 100}ms`;
+                            });
+
+                            activitiesContainer.insertAdjacentHTML('beforeend', tempContainer.innerHTML);
                             } else {
                                 activitiesContainer.innerHTML = activitiesHTML;
                             }
@@ -1905,14 +1987,11 @@
                         }
                     }
                 } catch (error) {
+                // Update loading state
+                showLoadingAnimation(false);
 
-
-                    // Remove loading indicator if appending
-                    if (append) {
-                        const loadingMore = document.getElementById('activities-loading-more');
-                        if (loadingMore) loadingMore.remove();
-                    } else {
                         // Show error message
+                if (!append) {
                         activitiesContainer.innerHTML = `
                             <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
                                 <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
@@ -1937,9 +2016,102 @@
             // Set up load more button event listener
             document.getElementById('load-more-activities').addEventListener('click', () => {
                 if (!isLoadingActivities && hasMoreActivities) {
+                showLoadingAnimation(true);
                     loadAssetActivities(currentActivitiesPage + 1, true);
                 }
             });
+
+        // Add swipe detection for load more
+        const activitiesContainer = document.getElementById('asset-activities');
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        // Function to show loading animation
+        function showLoadingAnimation(isLoading) {
+            const defaultView = document.getElementById('load-more-default');
+            const loadingView = document.getElementById('load-more-loading');
+            const container = document.getElementById('load-more-activities');
+
+            if (isLoading) {
+                // Add a smooth transition by changing opacity first
+                defaultView.style.opacity = '0';
+                // Add a subtle scale effect
+                container.classList.add('scale-95');
+                setTimeout(() => {
+                    defaultView.classList.add('hidden');
+                    defaultView.classList.remove('flex');
+                    loadingView.classList.add('flex');
+                    loadingView.classList.remove('hidden');
+                    // Fade in the loading animation
+                    loadingView.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingView.style.opacity = '1';
+                        container.classList.remove('scale-95');
+                    }, 50);
+                }, 300); // Short delay for the fade-out effect
+            } else {
+                loadingView.style.opacity = '0';
+                // Add a subtle scale effect
+                container.classList.add('scale-95');
+                setTimeout(() => {
+                    loadingView.classList.add('hidden');
+                    loadingView.classList.remove('flex');
+                    defaultView.classList.add('flex');
+                    defaultView.classList.remove('hidden');
+                    // Fade in the default view
+                    setTimeout(() => {
+                        defaultView.style.opacity = '1';
+                        container.classList.remove('scale-95');
+                    }, 50);
+                }, 300); // Short delay for the fade-out effect
+            }
+        }
+
+        // Set up swipe detection
+        if (activitiesContainer) {
+            activitiesContainer.addEventListener('touchstart', (e) => {
+                touchStartY = e.changedTouches[0].screenY;
+            }, false);
+
+            activitiesContainer.addEventListener('touchend', (e) => {
+                touchEndY = e.changedTouches[0].screenY;
+                handleSwipe();
+            }, false);
+        }
+
+        function handleSwipe() {
+            const swipeThreshold = 100; // Minimum swipe distance
+            const swipeUp = touchStartY - touchEndY > swipeThreshold;
+
+            if (swipeUp && !isLoadingActivities && hasMoreActivities) {
+                // Set loading flag immediately to prevent multiple calls
+                isLoadingActivities = true;
+                // First show loading animation
+                showLoadingAnimation(true);
+
+                // Add a delay to make the animation visible before loading data
+                setTimeout(() => {
+                    loadAssetActivities(currentActivitiesPage + 1, true);
+                }, 800); // 800ms delay to see the loading animation
+            }
+        }
+
+        // Add scroll detection to automatically load more activities
+        if (activitiesContainer) {
+            window.addEventListener('scroll', function() {
+                const containerBottom = activitiesContainer.getBoundingClientRect().bottom;
+                const isNearBottom = containerBottom <= window.innerHeight + 100;
+
+                if (isNearBottom && !isLoadingActivities && hasMoreActivities) {
+                    // Set loading flag immediately to prevent multiple calls
+                    isLoadingActivities = true;
+                    showLoadingAnimation(true);
+                    setTimeout(() => {
+                        loadAssetActivities(currentActivitiesPage + 1, true);
+                    }, 800); // Matching delay for consistency with swipe
+                }
+            });
+        }
 
             // Calendar is now initialized inside the DOMContentLoaded event handler
 
@@ -2523,15 +2695,15 @@
             let queryParams = new URLSearchParams();
             queryParams.append('json', 'true');
             queryParams.append('limit', '20');
-            
+
             // Add search term if provided
             if (searchTerm) {
                 queryParams.append('search', searchTerm);
             }
-            
+
             // Create URL with query parameters
             const url = `/vendor?${queryParams.toString()}`;
-            
+
             // Fetch vendors from API
             fetch(url, {
                 headers: {
@@ -2547,7 +2719,7 @@
             })
             .then(data => {
                 let vendors = [];
-                
+
                 // Handle different response formats
                 if (Array.isArray(data)) {
                     vendors = data;
@@ -2556,7 +2728,7 @@
                 } else if (data.data && Array.isArray(data.data)) {
                     vendors = data.data;
                 }
-                
+
                 // Cache the vendors for potential reuse
                 vendors.forEach(vendor => {
                     const existingIndex = allVendors.findIndex(v => v.vendor_id.toString() === vendor.vendor_id.toString());
@@ -2564,7 +2736,7 @@
                         allVendors.push(vendor);
                     }
                 });
-                
+
                 // Display the results
                 displayVendorResults(vendors);
             })

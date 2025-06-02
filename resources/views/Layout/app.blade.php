@@ -13,6 +13,8 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Axios for AJAX requests -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -117,6 +119,102 @@
         </div>
     </div>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- CSRF Token Auto-Refresh -->
+    <script>
+        // Configure axios with CSRF token
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+        // Get the CSRF token from the meta tag
+        const token = document.querySelector('meta[name="csrf-token"]');
+        if (token) {
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+        }
+
+        // Set up a response interceptor for handling CSRF token expiration
+        axios.interceptors.response.use(
+            response => response,
+            async error => {
+                // Check if the error is a CSRF token mismatch (419 status)
+                if (error.response && error.response.status === 419) {
+                    // Try to get a new CSRF token
+                    try {
+                        // Get a new token
+                        const response = await fetch('/csrf-token-refresh', {
+                            method: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+
+                            // Update the CSRF token in the meta tag
+                            const metaToken = document.querySelector('meta[name="csrf-token"]');
+                            if (metaToken && data.token) {
+                                metaToken.content = data.token;
+
+                                // Update axios default headers
+                                axios.defaults.headers.common['X-CSRF-TOKEN'] = data.token;
+
+                                // Update any forms on the page
+                                document.querySelectorAll('input[name="_token"]').forEach(input => {
+                                    input.value = data.token;
+                                });
+
+                                // Retry the original request
+                                const originalRequest = error.config;
+                                originalRequest.headers['X-CSRF-TOKEN'] = data.token;
+
+                                return axios(originalRequest);
+                            }
+                        }
+                    } catch (refreshError) {
+                        console.error('Failed to refresh CSRF token:', refreshError);
+                    }
+                }
+
+                return Promise.reject(error);
+            }
+        );
+
+        // Add event listener for jQuery AJAX
+        $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
+            if (jqXHR.status === 419) {
+                // Get a new CSRF token
+                $.get('/csrf-token-refresh', function(data) {
+                    // Update the token in the meta tag
+                    $('meta[name="csrf-token"]').attr('content', data.token);
+
+                    // Update any forms on the page
+                    $('input[name="_token"]').val(data.token);
+
+                    // Update jQuery AJAX defaults
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': data.token
+                        }
+                    });
+
+                    // Retry the original request
+                    $.ajax(settings);
+                });
+
+                // Prevent default error handling
+                return false;
+            }
+        });
+
+        // Setup jQuery AJAX defaults
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
+
     <script>
         // GLOBAL APP MANAGER - Handles sidebar, navigation, modals and auth
         window.AppManager = {

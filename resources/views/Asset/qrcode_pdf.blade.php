@@ -176,11 +176,75 @@
                         </div>
                         <div class="qr-details">
                             <div class="qr-code">{{ $asset['asset_code'] }}</div>
-                            <div class="qr-category">{{ isset($asset['category']['subcategory_name']) ? $asset['category']['subcategory_name'] : 'N/A' }}</div>
-                            <div class="qr-name">{{ $asset['asset_name'] }}</div>
+                            @php
+                                // Try to get subcategory name from different possible locations in the data structure
+                                $subcategoryName = null;
+                                if (isset($asset['subcategory']) && isset($asset['subcategory']['subcategory_name'])) {
+                                    $subcategoryName = $asset['subcategory']['subcategory_name'];
+                                } elseif (isset($asset['category']) && isset($asset['category']['subcategory_name'])) {
+                                    $subcategoryName = $asset['category']['subcategory_name'];
+                                } elseif (isset($asset['subcategory_name'])) {
+                                    $subcategoryName = $asset['subcategory_name'];
+                                } elseif (isset($asset['asset_master']) && isset($asset['asset_master']['subcategory']) && isset($asset['asset_master']['subcategory']['subcategory_name'])) {
+                                    $subcategoryName = $asset['asset_master']['subcategory']['subcategory_name'];
+                                } elseif (isset($asset['asset_master']) && isset($asset['asset_master']['subcategory_name'])) {
+                                    $subcategoryName = $asset['asset_master']['subcategory_name'];
+                                }
+                            @endphp
+                            <div class="qr-category">{{ $subcategoryName ?? 'N/A' }}</div>
+                            @php
+                                // Try to get asset name from different possible locations in the data structure
+                                $assetName = null;
+                                if (isset($asset['asset_name'])) {
+                                    $assetName = $asset['asset_name'];
+                                } elseif (isset($asset['asset_master_name'])) {
+                                    $assetName = $asset['asset_master_name'];
+                                } elseif (isset($asset['asset_master']) && isset($asset['asset_master']['asset_name'])) {
+                                    $assetName = $asset['asset_master']['asset_name'];
+                                } elseif (isset($asset['asset_master']) && isset($asset['asset_master']['asset_master_name'])) {
+                                    $assetName = $asset['asset_master']['asset_master_name'];
+                                }
+                            @endphp
+                            <div class="qr-name">{{ $assetName ?? 'Unknown Asset' }}</div>
                             <div class="qr-meta">Dibuat: {{ date('d/m/Y', strtotime($asset['created_at'] ?? now())) }}</div>
-                            <div class="qr-meta">Lokasi: {{ isset($asset['location']['room_name']) ? $asset['location']['room_name'] : 'N/A' }}</div>
-                            <div class="qr-meta">{{ isset($asset['location']['floor_number']) ? $asset['location']['floor_number'] : 'Lantai ?' }}</div>
+                            @php
+                                // Try to get location information from different possible locations in the data structure
+                                $buildingName = 'N/A';
+                                $roomName = 'N/A';
+                                $floorNumber = 'Lantai ?';
+
+                                // Get room name
+                                if (isset($asset['room']) && isset($asset['room']['room_name'])) {
+                                    $roomName = $asset['room']['room_name'];
+                                } elseif (isset($asset['location']) && isset($asset['location']['room_name'])) {
+                                    $roomName = $asset['location']['room_name'];
+                                } elseif (isset($asset['room_name'])) {
+                                    $roomName = $asset['room_name'];
+                                }
+
+                                // Get building name
+                                if (isset($asset['room']) && isset($asset['room']['building']) && isset($asset['room']['building']['building_name'])) {
+                                    $buildingName = $asset['room']['building']['building_name'];
+                                } elseif (isset($asset['room']) && isset($asset['room']['building_name'])) {
+                                    $buildingName = $asset['room']['building_name'];
+                                } elseif (isset($asset['location']) && isset($asset['location']['building_name'])) {
+                                    $buildingName = $asset['location']['building_name'];
+                                } elseif (isset($asset['building_name'])) {
+                                    $buildingName = $asset['building_name'];
+                                }
+
+                                // Get floor number
+                                if (isset($asset['room']) && isset($asset['room']['floor_number'])) {
+                                    $floorNumber = $asset['room']['floor_number'];
+                                } elseif (isset($asset['location']) && isset($asset['location']['floor_number'])) {
+                                    $floorNumber = $asset['location']['floor_number'];
+                                } elseif (isset($asset['floor_number'])) {
+                                    $floorNumber = $asset['floor_number'];
+                                }
+                            @endphp
+                            <div class="qr-meta">Lokasi: {{ $roomName }}</div>
+                            <div class="qr-meta">Lantai: {{ $floorNumber }}</div>
+                            <div class="qr-meta">Gedung: {{ $buildingName }}</div>
                         </div>
                     </div>
                 </td>
