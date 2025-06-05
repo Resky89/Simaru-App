@@ -9,23 +9,41 @@
             font-size: 12px;
             line-height: 1.4;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #213268;
+            text-align: left;
+            margin-bottom: 10px;
         }
-        .header h1 {
-            font-size: 18px;
-            font-weight: bold;
+        .header img {
+            max-width: 100%;
+            height: auto;
+            max-height: 50px;
+        }
+        .header-line {
+            border-bottom: 2px solid #213268;
+            margin-top: 3px;
+            margin-bottom: 15px;
+            clear: both;
+        }
+        .page-title {
             color: #213268;
-            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
-        .header p {
-            margin: 5px 0;
-            font-size: 12px;
-            color: #666;
+        .filters {
+            margin-bottom: 15px;
+            font-size: 11px;
+        }
+        .filters strong {
+            font-weight: bold;
+            display: inline-block;
+            width: 100px;
         }
         table {
             width: 100%;
@@ -54,33 +72,34 @@
             border-top: 1px solid #ddd;
             padding-top: 10px;
         }
-        .filters {
-            margin-bottom: 15px;
-            font-size: 11px;
-        }
-        .filters strong {
-            font-weight: bold;
-            display: inline-block;
-            width: 100px;
-        }
         .striped tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        .asset-type {
+        .badge {
             display: inline-block;
             padding: 2px 6px;
             border-radius: 10px;
             font-size: 9px;
-            background-color: #e9ecef;
-            color: #495057;
+            margin-right: 4px;
+            margin-bottom: 2px;
+        }
+        .badge-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-primary {
+            background-color: #f3e8ff;
+            color: #6b21a8;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>LAPORAN ASET MASTER</h1>
-        <p>Dibuat pada: {{ $date_generated }}</p>
+        <img src="{{ public_path('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI">
     </div>
+    <div class="header-line"></div>
+
+    <div class="page-title">LAPORAN ASET MASTER</div>
 
     <div class="filters">
         @if(!empty($search))
@@ -97,14 +116,6 @@
                 {{ ucfirst(str_replace('_', ' ', $assetType)) }}
             @endif
         </p>
-        @endif
-
-        @if(!empty($brandId) && isset($brandMap[$brandId]))
-        <p><strong>Merek:</strong> {{ $brandMap[$brandId]['brand_name'] ?? 'Tidak Diketahui' }}</p>
-        @endif
-
-        @if(!empty($subcategoryId) && isset($subcategoryMap[$subcategoryId]))
-        <p><strong>Kategori:</strong> {{ $subcategoryMap[$subcategoryId]['subcategory_name'] ?? 'Tidak Diketahui' }}</p>
         @endif
 
         <p><strong>Urutan:</strong>
@@ -132,63 +143,41 @@
             <tr>
                 <th>Kode Aset</th>
                 <th>Nama Aset</th>
-                <th>Merek</th>
-                <th>Kategori</th>
                 <th>Tipe</th>
+                <th>Kategori</th>
+                <th>Merek</th>
                 <th>Properti</th>
             </tr>
         </thead>
         <tbody>
             @forelse($masterAssets as $asset)
                 <tr>
-                    <td>{{ $asset['asset_master_code'] ?? '-' }}</td>
+                    <td>{{ $asset['asset_master_code'] ?? 'N/A' }}</td>
                     <td>{{ $asset['asset_name'] ?? '-' }}</td>
                     <td>
-                        @if(isset($asset['brand_id']) && isset($brandMap[$asset['brand_id']]))
-                            {{ $brandMap[$asset['brand_id']]['brand_name'] ?? '-' }}
-                        @else
-                            {{ $asset['brand_name'] ?? '-' }}
-                        @endif
-                    </td>
-                    <td>
-                        @if(isset($asset['subcategory_id']) && isset($subcategoryMap[$asset['subcategory_id']]))
-                            {{ $subcategoryMap[$asset['subcategory_id']]['subcategory_name'] ?? '-' }}
-                        @else
-                            {{ $asset['subcategory_name'] ?? '-' }}
-                        @endif
-                    </td>
-                    <td>
-                        <span class="asset-type">
-                            @if(isset($asset['asset_type']))
-                                @if($asset['asset_type'] == 'medical')
-                                    Medis
-                                @elseif($asset['asset_type'] == 'non_medical')
-                                    Non Medis
-                                @else
-                                    {{ ucfirst(str_replace('_', ' ', $asset['asset_type'])) }}
-                                @endif
-                            @elseif(isset($asset['subcategory_id']) && isset($subcategoryMap[$asset['subcategory_id']]['asset_type']))
-                                @if($subcategoryMap[$asset['subcategory_id']]['asset_type'] == 'medical')
-                                    Medis
-                                @elseif($subcategoryMap[$asset['subcategory_id']]['asset_type'] == 'non_medical')
-                                    Non Medis
-                                @else
-                                    {{ ucfirst(str_replace('_', ' ', $subcategoryMap[$asset['subcategory_id']]['asset_type'])) }}
-                                @endif
+                        @if(isset($asset['asset_type']))
+                            @if(strtolower($asset['asset_type']) == 'medical')
+                                Medis
+                            @elseif(strtolower($asset['asset_type']) == 'non_medical')
+                                Non Medis
                             @else
-                                -
-                            @endif
-                        </span>
-                    </td>
-                    <td>
-                        @if(isset($asset['is_depreciable']) || isset($asset['needs_calibration']))
-                            @if(isset($asset['is_depreciable']) && $asset['is_depreciable'])
-                                <div>Dapat Disusutkan</div>
-                            @endif
-                            @if(isset($asset['needs_calibration']) && $asset['needs_calibration'])
-                                <div>Perlu Kalibrasi</div>
+                                {{ $asset['asset_type'] }}
                             @endif
                         @else
+                            -
+                        @endif
+                    </td>
+                    <td>{{ $asset['subcategory_name'] ?? '-' }}</td>
+                    <td>{{ $asset['brand_name'] ?? '-' }}</td>
+                    <td>
+                        @if(isset($asset['is_depreciable']) && $asset['is_depreciable'])
+                            <span class="badge badge-info">Dapat Disusutkan</span>
+                        @endif
+                        @if(isset($asset['needs_calibration']) && $asset['needs_calibration'])
+                            <span class="badge badge-primary">Perlu Kalibrasi</span>
+                        @endif
+                        @if((!isset($asset['is_depreciable']) || !$asset['is_depreciable']) &&
+                            (!isset($asset['needs_calibration']) || !$asset['needs_calibration']))
                             -
                         @endif
                     </td>

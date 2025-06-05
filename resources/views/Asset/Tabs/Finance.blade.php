@@ -1,14 +1,16 @@
 <div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-[#213268]">TRANSAKSI KEUANGAN</h2>
-        <button id="addTransactionBtn" type="button"
-            class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            TAMBAH TRANSAKSI
-        </button>
+        @if(hasPermission('asset:transaction:create'))
+            <button id="addTransactionBtn" type="button"
+                class="bg-[#213268] text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-[#162249] transition-colors flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                TAMBAH TRANSAKSI
+            </button>
+        @endif
     </div>
 
     <!-- Loading indicator -->
@@ -38,22 +40,24 @@
     </div>
 
     <!-- Transactions List with better headers -->
-    <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-md">
-        <table class="w-full min-w-[500px] border-collapse">
-            <thead>
-                <tr>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Tanggal</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-2/12">Tipe</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-right w-3/12">Nominal</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Keterangan</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-1/12">Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="transaction-items">
-                <!-- Transaction items will be loaded here -->
-            </tbody>
-        </table>
-    </div>
+    @if(hasPermission('asset:transaction:view'))
+        <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-md">
+            <table class="w-full min-w-[500px] border-collapse">
+                <thead>
+                    <tr>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Tanggal</th>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-2/12">Tipe</th>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-right w-3/12">Nominal</th>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Keterangan</th>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-1/12">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="transaction-items">
+                    <!-- Transaction items will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    @endif
 
     <!-- Summary in cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
@@ -101,301 +105,310 @@
     </div>
 
     <!-- Add Transaction Modal -->
-    <div id="addTransactionModal" class="fixed inset-0 z-50 hidden">
-        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-        <div class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                    id="addTransactionModalContent">
-                    <!-- Header -->
-                    <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH TRANSAKSI BARU</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                            data-modal="addTransactionModal">
-                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
+    @if(hasPermission('asset:transaction:create'))
+        <div id="addTransactionModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="addTransactionModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH TRANSAKSI BARU</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                data-modal="addTransactionModal">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
 
-                    <!-- Form -->
-                    <form id="addTransactionForm" action="{{ route('asset-transactions.store') }}" method="POST" data-no-loading>
-                        @csrf
-                        <div class="p-6">
-                            <div class="space-y-4">
-                                <!-- Hidden asset_id field -->
-                                <input type="hidden" id="asset-id" name="asset_id"
-                                    value="{{ $asset['asset_id'] ?? '' }}">
+                        <!-- Form -->
+                        <form id="addTransactionForm" action="{{ route('asset-transactions.store') }}" method="POST"
+                            data-no-loading>
+                            @csrf
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <!-- Hidden asset_id field -->
+                                    <input type="hidden" id="asset-id" name="asset_id"
+                                        value="{{ $asset['asset_id'] ?? '' }}">
 
-                                <!-- Type Input with better options -->
-                                <div class="space-y-2">
-                                    <label for="transaction-type"
-                                        class="block text-base font-semibold text-[#666666]">Tipe <span
-                                            class="text-red-500">*</span></label>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <label
-                                            class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                            <input type="radio" name="type" value="expense"
-                                                class="mr-2 text-[#213268] focus:ring-[#213268]">
-                                            <div class="flex items-center">
-                                                <div class="p-1.5 bg-red-100 rounded-md mr-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600"
-                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                                                    </svg>
+                                    <!-- Type Input with better options -->
+                                    <div class="space-y-2">
+                                        <label for="transaction-type"
+                                            class="block text-base font-semibold text-[#666666]">Tipe <span
+                                                class="text-red-500">*</span></label>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <label
+                                                class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="type" value="expense"
+                                                    class="mr-2 text-[#213268] focus:ring-[#213268]">
+                                                <div class="flex items-center">
+                                                    <div class="p-1.5 bg-red-100 rounded-md mr-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                        </svg>
+                                                    </div>
+                                                    <span>Pengeluaran</span>
                                                 </div>
-                                                <span>Pengeluaran</span>
-                                            </div>
-                                        </label>
-                                        <label
-                                            class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                            <input type="radio" name="type" value="income"
-                                                class="mr-2 text-[#213268] focus:ring-[#213268]">
-                                            <div class="flex items-center">
-                                                <div class="p-1.5 bg-green-100 rounded-md mr-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                                    </svg>
+                                            </label>
+                                            <label
+                                                class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="type" value="income"
+                                                    class="mr-2 text-[#213268] focus:ring-[#213268]">
+                                                <div class="flex items-center">
+                                                    <div class="p-1.5 bg-green-100 rounded-md mr-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                            class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                        </svg>
+                                                    </div>
+                                                    <span>Pemasukan</span>
                                                 </div>
-                                                <span>Pemasukan</span>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Date Input -->
-                                <div class="space-y-2">
-                                    <label for="transaction-date"
-                                        class="block text-base font-semibold text-[#666666]">Tanggal <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="date" id="transaction-date" name="transaction_date" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                </div>
-
-                                <!-- Amount Input with currency prefix -->
-                                <div class="space-y-2">
-                                    <label for="transaction-amount"
-                                        class="block text-base font-semibold text-[#666666]">Nominal <span
-                                            class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <div
-                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span class="text-gray-500">Rp</span>
+                                            </label>
                                         </div>
-                                        <input type="text" id="transaction-amount" name="amount" required
-                                            placeholder="0,00"
-                                            class="w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                     </div>
-                                </div>
 
-                                <!-- Notes Input -->
-                                <div class="space-y-2">
-                                    <label for="transaction-description"
-                                        class="block text-base font-semibold text-[#666666]">Keterangan</label>
-                                    <textarea id="transaction-description" name="description" rows="3"
-                                        class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        placeholder="Keterangan transaksi"></textarea>
-                                </div>
+                                    <!-- Date Input -->
+                                    <div class="space-y-2">
+                                        <label for="transaction-date"
+                                            class="block text-base font-semibold text-[#666666]">Tanggal <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="date" id="transaction-date" name="transaction_date" required
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                    </div>
 
-                                <!-- Error message -->
-                                <div id="form-error" class="text-red-500 text-sm hidden"></div>
+                                    <!-- Amount Input with currency prefix -->
+                                    <div class="space-y-2">
+                                        <label for="transaction-amount"
+                                            class="block text-base font-semibold text-[#666666]">Nominal <span
+                                                class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <div
+                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500">Rp</span>
+                                            </div>
+                                            <input type="text" id="transaction-amount" name="amount" required
+                                                placeholder="0,00"
+                                                class="w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                        </div>
+                                    </div>
 
-                                <!-- Save Button -->
-                                <div class="pt-4 flex gap-4">
-                                    <button type="button" id="addTransactionSubmitBtn"
-                                        class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Simpan
-                                    </button>
+                                    <!-- Notes Input -->
+                                    <div class="space-y-2">
+                                        <label for="transaction-description"
+                                            class="block text-base font-semibold text-[#666666]">Keterangan</label>
+                                        <textarea id="transaction-description" name="description" rows="3"
+                                            class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                            placeholder="Keterangan transaksi"></textarea>
+                                    </div>
+
+                                    <!-- Error message -->
+                                    <div id="form-error" class="text-red-500 text-sm hidden"></div>
+
+                                    <!-- Save Button -->
+                                    <div class="pt-4 flex gap-4">
+                                        <button type="button" id="addTransactionSubmitBtn"
+                                            class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                            Simpan
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 
     <!-- Edit Transaction Modal -->
-    <div id="editTransactionModal" class="fixed inset-0 z-50 hidden">
-        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-        <div class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                    id="editTransactionModalContent">
-                    <!-- Header -->
-                    <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT TRANSAKSI</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                            data-modal="editTransactionModal">
-                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
+    @if(hasPermission('asset:transaction:edit'))
+        <div id="editTransactionModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="editTransactionModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT TRANSAKSI</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                data-modal="editTransactionModal">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
 
-                    <!-- Form -->
-                    <form id="editTransactionForm"
-                        action="{{ route('asset-transactions.update', ['transactionId' => '_id_']) }}" method="POST" data-no-loading>
-                        @csrf
-                        @method('PUT')
-                        <div class="p-6">
-                            <div class="space-y-4">
-                                <!-- Hidden fields -->
-                                <input type="hidden" id="edit-transaction-id" name="transaction_id">
-                                <input type="hidden" id="edit-asset-id" name="asset_id"
-                                    value="{{ $asset['asset_id'] ?? '' }}">
+                        <!-- Form -->
+                        <form id="editTransactionForm"
+                            action="{{ route('asset-transactions.update', ['transactionId' => '_id_']) }}" method="POST"
+                            data-no-loading>
+                            @csrf
+                            @method('PUT')
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <!-- Hidden fields -->
+                                    <input type="hidden" id="edit-transaction-id" name="transaction_id">
+                                    <input type="hidden" id="edit-asset-id" name="asset_id"
+                                        value="{{ $asset['asset_id'] ?? '' }}">
 
-                                <!-- Type Input -->
-                                <div class="space-y-2">
-                                    <label for="edit-transaction-type"
-                                        class="block text-base font-semibold text-[#666666]">Tipe <span
-                                            class="text-red-500">*</span></label>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <label
-                                            class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                            <input type="radio" name="type" value="expense" id="edit-type-expense"
-                                                class="mr-2 text-[#213268] focus:ring-[#213268]">
-                                            <div class="flex items-center">
-                                                <div class="p-1.5 bg-red-100 rounded-md mr-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600"
-                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                                                    </svg>
+                                    <!-- Type Input -->
+                                    <div class="space-y-2">
+                                        <label for="edit-transaction-type"
+                                            class="block text-base font-semibold text-[#666666]">Tipe <span
+                                                class="text-red-500">*</span></label>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <label
+                                                class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="type" value="expense" id="edit-type-expense"
+                                                    class="mr-2 text-[#213268] focus:ring-[#213268]">
+                                                <div class="flex items-center">
+                                                    <div class="p-1.5 bg-red-100 rounded-md mr-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                        </svg>
+                                                    </div>
+                                                    <span>Pengeluaran</span>
                                                 </div>
-                                                <span>Pengeluaran</span>
-                                            </div>
-                                        </label>
-                                        <label
-                                            class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                            <input type="radio" name="type" value="income" id="edit-type-income"
-                                                class="mr-2 text-[#213268] focus:ring-[#213268]">
-                                            <div class="flex items-center">
-                                                <div class="p-1.5 bg-green-100 rounded-md mr-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                                    </svg>
+                                            </label>
+                                            <label
+                                                class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                                <input type="radio" name="type" value="income" id="edit-type-income"
+                                                    class="mr-2 text-[#213268] focus:ring-[#213268]">
+                                                <div class="flex items-center">
+                                                    <div class="p-1.5 bg-green-100 rounded-md mr-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                            class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                        </svg>
+                                                    </div>
+                                                    <span>Pemasukan</span>
                                                 </div>
-                                                <span>Pemasukan</span>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Date Input -->
-                                <div class="space-y-2">
-                                    <label for="edit-transaction-date"
-                                        class="block text-base font-semibold text-[#666666]">Tanggal <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="date" id="edit-transaction-date" name="transaction_date" required
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                </div>
-
-                                <!-- Amount Input -->
-                                <div class="space-y-2">
-                                    <label for="edit-transaction-amount"
-                                        class="block text-base font-semibold text-[#666666]">Nominal <span
-                                            class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <div
-                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span class="text-gray-500">Rp</span>
+                                            </label>
                                         </div>
-                                        <input type="text" id="edit-transaction-amount" name="amount" required
-                                            placeholder="0,00"
-                                            class="w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                     </div>
-                                </div>
 
-                                <!-- Notes Input -->
-                                <div class="space-y-2">
-                                    <label for="edit-transaction-description"
-                                        class="block text-base font-semibold text-[#666666]">Keterangan</label>
-                                    <textarea id="edit-transaction-description" name="description" rows="3"
-                                        class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        placeholder="Keterangan transaksi"></textarea>
-                                </div>
+                                    <!-- Date Input -->
+                                    <div class="space-y-2">
+                                        <label for="edit-transaction-date"
+                                            class="block text-base font-semibold text-[#666666]">Tanggal <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="date" id="edit-transaction-date" name="transaction_date" required
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                    </div>
 
-                                <!-- Error message -->
-                                <div id="edit-form-error" class="text-red-500 text-sm hidden"></div>
+                                    <!-- Amount Input -->
+                                    <div class="space-y-2">
+                                        <label for="edit-transaction-amount"
+                                            class="block text-base font-semibold text-[#666666]">Nominal <span
+                                                class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <div
+                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500">Rp</span>
+                                            </div>
+                                            <input type="text" id="edit-transaction-amount" name="amount" required
+                                                placeholder="0,00"
+                                                class="w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                        </div>
+                                    </div>
 
-                                <!-- Save Button -->
-                                <div class="pt-4 flex gap-4">
-                                    <button type="submit" id="editTransactionSubmitBtn"
-                                        class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Simpan
-                                    </button>
+                                    <!-- Notes Input -->
+                                    <div class="space-y-2">
+                                        <label for="edit-transaction-description"
+                                            class="block text-base font-semibold text-[#666666]">Keterangan</label>
+                                        <textarea id="edit-transaction-description" name="description" rows="3"
+                                            class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                            placeholder="Keterangan transaksi"></textarea>
+                                    </div>
+
+                                    <!-- Error message -->
+                                    <div id="edit-form-error" class="text-red-500 text-sm hidden"></div>
+
+                                    <!-- Save Button -->
+                                    <div class="pt-4 flex gap-4">
+                                        <button type="submit" id="editTransactionSubmitBtn"
+                                            class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                            Simpan
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 
     <!-- Delete Transaction Modal -->
-    <div id="deleteTransactionModal" class="fixed inset-0 z-50 hidden">
-        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-        <div class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                    id="deleteTransactionModalContent">
-                    <!-- Header -->
-                    <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS TRANSAKSI</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                            data-modal="deleteTransactionModal">
-                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
+    @if(hasPermission('asset:transaction:delete'))
+        <div id="deleteTransactionModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="deleteTransactionModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS TRANSAKSI</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                                data-modal="deleteTransactionModal">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
 
-                    <!-- Content -->
-                    <form id="deleteTransactionForm"
-                        action="{{ route('asset-transactions.destroy', ['transactionId' => '_id_']) }}" method="POST" data-no-loading>
-                        @csrf
-                        @method('DELETE')
-                        <div class="p-6">
-                            <div class="space-y-6 max-w-[400px] mx-auto">
-                                <div class="flex flex-col items-center">
-                                    <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus
-                                        transaksi ini? Tindakan ini tidak dapat dibatalkan.</p>
-                                </div>
-                                <div class="flex gap-3">
-                                    <button type="button"
-                                        class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
-                                        data-modal="deleteTransactionModal">
-                                        Batal
-                                    </button>
-                                    <button type="submit" id="deleteTransactionSubmitBtn"
-                                        class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
-                                        Hapus
-                                    </button>
+                        <!-- Content -->
+                        <form id="deleteTransactionForm"
+                            action="{{ route('asset-transactions.destroy', ['transactionId' => '_id_']) }}" method="POST"
+                            data-no-loading>
+                            @csrf
+                            @method('DELETE')
+                            <div class="p-6">
+                                <div class="space-y-6 max-w-[400px] mx-auto">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus
+                                            transaksi ini? Tindakan ini tidak dapat dibatalkan.</p>
+                                    </div>
+                                    <div class="flex gap-3">
+                                        <button type="button"
+                                            class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
+                                            data-modal="deleteTransactionModal">
+                                            Batal
+                                        </button>
+                                        <button type="submit" id="deleteTransactionSubmitBtn"
+                                            class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                            Hapus
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 </div>
 
 <!-- Toast Notification Container -->
@@ -560,18 +573,28 @@
             document.addEventListener('click', (e) => {
                 // Edit transaction button handling
                 if (e.target.closest('.edit-transaction')) {
-                    e.preventDefault();
-                    const editBtn = e.target.closest('.edit-transaction');
-                    const transactionId = editBtn.getAttribute('data-id');
-                    editTransaction(transactionId);
+                    @if(hasPermission('asset:transaction:edit'))
+                        e.preventDefault();
+                        const editBtn = e.target.closest('.edit-transaction');
+                        const transactionId = editBtn.getAttribute('data-id');
+                        editTransaction(transactionId);
+                    @else
+                        e.preventDefault();
+                        financeShowToast('Anda tidak memiliki izin untuk mengedit transaksi', 'error');
+                    @endif
                 }
 
                 // Delete transaction button handling
                 if (e.target.closest('.delete-transaction')) {
-                    e.preventDefault();
-                    const deleteBtn = e.target.closest('.delete-transaction');
-                    const transactionId = deleteBtn.getAttribute('data-id');
-                    showDeleteModal(transactionId);
+                    @if(hasPermission('asset:transaction:delete'))
+                        e.preventDefault();
+                        const deleteBtn = e.target.closest('.delete-transaction');
+                        const transactionId = deleteBtn.getAttribute('data-id');
+                        showDeleteModal(transactionId);
+                    @else
+                        e.preventDefault();
+                        financeShowToast('Anda tidak memiliki izin untuk menghapus transaksi', 'error');
+                    @endif
                 }
             });
 
@@ -780,16 +803,20 @@
                     <td class="p-3 text-xs border-t border-[#EEF1F4] truncate">${transaction.description || '-'}</td>
                     <td class="p-3 border-t border-[#EEF1F4] text-center">
                         <div class="flex justify-center items-center space-x-2">
-                            <button class="edit-transaction text-[#3D3D3D] hover:text-[#213268] focus:outline-none" title="Edit" data-id="${transaction.transaction_id}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </button>
-                            <button class="delete-transaction text-[#3D3D3D] hover:text-red-500 focus:outline-none" title="Hapus" data-id="${transaction.transaction_id}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
+                            @if(hasPermission('asset:transaction:edit'))
+                                <button class="edit-transaction p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors" title="Edit" data-id="${transaction.transaction_id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                            @endif
+                            @if(hasPermission('asset:transaction:delete'))
+                                <button class="delete-transaction p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors" title="Hapus" data-id="${transaction.transaction_id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -972,11 +999,19 @@
                     const formData = new FormData(form);
                     formData.set('amount', amount); // Set amount yang sudah diformat
 
-                    // Convert FormData to JSON
-                    const jsonData = {};
-                    formData.forEach((value, key) => {
-                        jsonData[key] = key === 'amount' ? parseFloat(value) : value;
-                    });
+                    // Convert FormData to JSON - only include non-empty fields
+                    const jsonData = {
+                        asset_id: parseInt(formData.get('asset_id')),
+                        type: formData.get('type'),
+                        amount: parseFloat(formData.get('amount')),
+                        transaction_date: formData.get('transaction_date')
+                    };
+
+                    // Only add description if it's not empty
+                    const description = formData.get('description');
+                    if (description && description.trim() !== '') {
+                        jsonData.description = description.trim();
+                    }
 
                     // Get CSRF token
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -1185,14 +1220,19 @@
                 return;
             }
 
-            // Create JSON data
+            // Create JSON data - only include non-empty fields
             const jsonData = {
                 asset_id: parseInt(formData.get('asset_id')),
                 type: formData.get('type'),
                 amount: amount,
-                transaction_date: formData.get('transaction_date'),
-                description: formData.get('description')
+                transaction_date: formData.get('transaction_date')
             };
+
+            // Only add description if it's not empty
+            const description = formData.get('description');
+            if (description && description.trim() !== '') {
+                jsonData.description = description.trim();
+            }
 
             // Show loading state
             this.disabled = true;

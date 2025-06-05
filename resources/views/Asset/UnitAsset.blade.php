@@ -2285,7 +2285,7 @@
                 const assetIds = Array.from(checkedAssets).map(checkbox => checkbox.getAttribute('data-asset-id'));
 
                 if (assetIds.length === 0) {
-                    alert('Silakan pilih setidaknya satu aset untuk mencetak kode QR.');
+                    showToast('Silakan pilih setidaknya satu aset untuk mencetak kode QR.', 'error');
                     return;
                 }
 
@@ -2663,7 +2663,6 @@
             selectedUserId
         ) {
             if (!searchInput || !dropdown || !userList) {
-                console.error('Missing elements for user search initialization', { searchInput, dropdown, userList });
                 return;
             }
 
@@ -2889,22 +2888,26 @@
             );
 
             // User search for add modal
-            initUserSearch(
-                document.getElementById('user_search'),
-                document.getElementById('user_dropdown'),
-                document.getElementById('user_list'),
-                document.getElementById('user_loading'),
-                document.getElementById('selected_user_id')
-            );
+            if (document.getElementById('user_search')) {
+                initUserSearch(
+                    document.getElementById('user_search'),
+                    document.getElementById('user_dropdown'),
+                    document.getElementById('user_list'),
+                    document.getElementById('user_loading'),
+                    document.getElementById('selected_user_id')
+                );
+            }
 
             // User search for edit modal
-            initUserSearch(
-                document.getElementById('edit_user_search'),
-                document.getElementById('edit_user_dropdown'),
-                document.getElementById('edit_user_list'),
-                document.getElementById('edit_user_loading'),
-                document.getElementById('edit_selected_user_id')
-            );
+            if (document.getElementById('edit_user_search')) {
+                initUserSearch(
+                    document.getElementById('edit_user_search'),
+                    document.getElementById('edit_user_dropdown'),
+                    document.getElementById('edit_user_list'),
+                    document.getElementById('edit_user_loading'),
+                    document.getElementById('edit_selected_user_id')
+                );
+            }
         }
 
         // Initialize dropdown functionality
@@ -3067,7 +3070,7 @@
 
                 const data = await response.json();
 
-                // Determine where the rooms array is in the response
+                // Extract rooms from the response structure
                 let rooms = [];
                 if (Array.isArray(data)) {
                     rooms = data;
@@ -3080,12 +3083,7 @@
                     throw new Error('Invalid response format from server');
                 }
 
-                // Filter rooms by the selected building ID
-                rooms = rooms.filter(room => {
-                    const roomBuildingId = room.building_id ||
-                    (room.building && room.building.building_id) || '';
-                    return roomBuildingId == buildingId;
-                });
+                // No need to filter rooms by building ID as the API already returns filtered data
 
                 if (rooms.length === 0) {
                     roomList.appendChild(createDropdownItem('Tidak ada ruangan ditemukan untuk gedung ini', 'px-4 py-2 text-gray-500 italic'));
@@ -3753,13 +3751,13 @@
             const url = new URL(window.location.href);
 
             // Clear existing parameters we're going to set
-            ['search', 'type', 'current_status', 'sort', 'page'].forEach(param => {
+            ['search', 'asset_type', 'current_status', 'sort', 'page'].forEach(param => {
                 url.searchParams.delete(param);
             });
 
             // Add new parameters if they have values
             if (searchValue) url.searchParams.set('search', searchValue);
-            if (typeValue) url.searchParams.set('type', typeValue);
+            if (typeValue) url.searchParams.set('asset_type', typeValue);
             if (statusValue) url.searchParams.set('current_status', statusValue);
             if (sortValue) url.searchParams.set('sort', sortValue);
 
@@ -3786,7 +3784,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         if (searchInput) searchInput.value = urlParams.get('search') || '';
         if (assetTypeFilter) {
-            const typeValue = urlParams.get('type');
+            const typeValue = urlParams.get('asset_type');
             if (typeValue) {
                 assetTypeFilter.value = typeValue;
             }

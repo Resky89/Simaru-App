@@ -32,11 +32,12 @@
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="relative flex-grow">
                             <input type="text" id="searchInput" placeholder="Cari berdasarkan nomor pegawai..."
+                                value="{{ $search ?? '' }}"
                                 class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0118 0z" />
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
                         </div>
@@ -50,9 +51,9 @@
 
                             <select id="sortOrder"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                <option value="" selected>Urutan Default</option>
-                                <option value="id_asc">Terlama</option>
-                                <option value="id_desc">Terbaru</option>
+                                <option value="" {{ ($sort ?? '') == '' ? 'selected' : '' }}>Urutan Default</option>
+                                <option value="id_asc" {{ ($sort ?? '') == 'id_asc' ? 'selected' : '' }}>Terlama</option>
+                                <option value="id_desc" {{ ($sort ?? '') == 'id_desc' ? 'selected' : '' }}>Terbaru</option>
                             </select>
                         </div>
                     </div>
@@ -484,10 +485,73 @@
             });
             @endif
 
+            // Search and sorting functionality
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const sortOrder = document.getElementById('sortOrder');
+
+            // Function to handle search and sorting
+            function applyFilters() {
+                const searchValue = searchInput?.value.trim() || '';
+                const statusValue = statusFilter?.value || '';
+                const sortValue = sortOrder?.value || '';
+
+                // Create URL with filter parameters
+                const url = new URL(window.location.href);
+
+                // Clear existing parameters we're going to set
+                ['search', 'status', 'sort', 'user_page'].forEach(param => {
+                    url.searchParams.delete(param);
+                });
+
+                // Add new parameters if they have values
+                if (searchValue) url.searchParams.set('search', searchValue);
+                if (statusValue) url.searchParams.set('status', statusValue);
+                if (sortValue) url.searchParams.set('sort', sortValue);
+
+                // Reset to page 1 when filters change
+                url.searchParams.set('user_page', 1);
+
+                // Navigate to the new URL
+                window.location.href = url.toString();
+            }
+
+            // Add event listeners with debounce for search
+            let searchTimeout;
+            searchInput?.addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(applyFilters, 500);
+            });
+
+            // Add event listener for status filter
+            statusFilter?.addEventListener('change', applyFilters);
+
+            // Add event listener for sort order
+            sortOrder?.addEventListener('change', applyFilters);
+
+            // Set initial values from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (searchInput) searchInput.value = urlParams.get('search') || '';
+            if (statusFilter) {
+                const statusValue = urlParams.get('status');
+                if (statusValue) {
+                    statusFilter.value = statusValue;
+                }
+            }
+            if (sortOrder) {
+                const sortValue = urlParams.get('sort');
+                if (sortValue) {
+                    sortOrder.value = sortValue;
+                }
+            }
+
             // Function to change items per page for users
             window.changeUserPerPage = function (limit) {
                 const url = new URL(window.location.href);
+                // Preserve all existing parameters
                 url.searchParams.set('user_limit', limit);
+                // Reset to page 1 when changing limit
+                url.searchParams.set('user_page', 1);
                 window.location.href = url.toString();
             }
 
@@ -504,20 +568,20 @@
                 let queryParams = new URLSearchParams();
                 queryParams.append('json', 'true');
                 queryParams.append('limit', '100');
-                
+
                 // Add search term if provided
                 if (searchTerm) {
                     queryParams.append('search', searchTerm);
                 }
-                
+
                 // Add role IDs if provided
                 if (Array.isArray(roleIds) && roleIds.length > 0) {
                     roleIds.forEach(id => queryParams.append('ids[]', id));
                 }
-                
+
                 // Create URL with query parameters
                 const url = `/roles?${queryParams.toString()}`;
-                
+
                 fetch(url, {
                     headers: {
                         'Accept': 'application/json',
@@ -532,7 +596,7 @@
                 })
                 .then(data => {
                     let roles = [];
-                    
+
                     // Parse the response data based on format
                     if (Array.isArray(data)) {
                         roles = data;
@@ -541,12 +605,12 @@
                     } else if (data.data && Array.isArray(data.data)) {
                         roles = data.data;
                     }
-                    
+
                     // Cache the roles for future use
                     roles.forEach(role => {
                         cachedRoles.set(role.role_id.toString(), role);
                     });
-                    
+
                     // Call the callback with the roles
                     callback(roles);
                 })
@@ -555,7 +619,7 @@
                     callback([]);
                 });
             }
-            
+
             // Modify setupRoleSearch to handle validation
             function setupRoleSearch(inputId, dropdownId, displayContainerId, hiddenInputsId) {
                 const input = document.getElementById(inputId);
@@ -695,13 +759,13 @@
                     // Show loading indicator
                     loadingIndicator.style.display = 'flex';
                     rolesListContainer.innerHTML = '';
-                    
+
                     // Prepare selected role IDs to exclude
                     const selectedRoleIds = Array.from(selectedRoles.keys());
-                    
+
                     // First check if we already have cached roles that match the search
                     let cachedResults = [];
-                    
+
                     if (!searchTerm) {
                         // If no search term, use all cached roles
                         cachedResults = Array.from(cachedRoles.values())
@@ -709,25 +773,25 @@
                     } else {
                         // If search term exists, filter cached roles
                         cachedResults = Array.from(cachedRoles.values())
-                            .filter(role => 
-                                !selectedRoleIds.includes(role.role_id.toString()) && 
+                            .filter(role =>
+                                !selectedRoleIds.includes(role.role_id.toString()) &&
                                 role.role_name.toLowerCase().includes(searchTerm.toLowerCase())
                             );
                     }
-                    
+
                     // If we have enough cached results, use them
                     if (cachedResults.length >= 5 && !searchTerm) {
                         renderRoleDropdown(cachedResults);
                         return;
                     }
-                    
+
                     // Otherwise, fetch from server
                     fetchRoles(searchTerm, [], function(roles) {
                         // Filter out already selected roles
-                        const filteredRoles = roles.filter(role => 
+                        const filteredRoles = roles.filter(role =>
                             !selectedRoleIds.includes(role.role_id.toString())
                         );
-                        
+
                         renderRoleDropdown(filteredRoles);
                     });
                 }
@@ -922,7 +986,7 @@
                     if (Array.isArray(roleIds) && Array.isArray(roleNames) && roleIds.length === roleNames.length) {
                         roleIds.forEach((id, index) => {
                             selectedRoles.set(id.toString(), roleNames[index]);
-                            
+
                             // Also add to cached roles
                             if (!cachedRoles.has(id.toString())) {
                                 cachedRoles.set(id.toString(), {
@@ -961,7 +1025,7 @@
                 if (modal && content) {
                     openModal(modal, content);
                 }
-                
+
                 // Try to get role names from the button data attribute
                 let roleNames = [];
                 try {
@@ -976,7 +1040,7 @@
                 } catch (error) {
                     console.error("Error parsing role names:", error);
                 }
-                
+
                 // If we have role names from the button, use them directly
                 if (Array.isArray(roleNames) && roleNames.length === roleIds.length) {
                     if (typeof setEditSelectedRoles === 'function') {
@@ -990,11 +1054,11 @@
                         roles.forEach(role => {
                             roleMap.set(role.role_id.toString(), role.role_name);
                         });
-                        
-                        const fetchedRoleNames = roleIds.map(id => 
+
+                        const fetchedRoleNames = roleIds.map(id =>
                             roleMap.get(id.toString()) || `Role ID: ${id}`
                         );
-                        
+
                         if (typeof setEditSelectedRoles === 'function') {
                             setEditSelectedRoles(roleIds, fetchedRoleNames);
                         }

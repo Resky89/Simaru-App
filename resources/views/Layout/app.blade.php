@@ -131,48 +131,81 @@
             axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
         }
 
+        // Function to refresh the CSRF token
+        const refreshCsrfToken = async () => {
+            try {
+                const response = await fetch('/csrf-token-refresh', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to refresh CSRF token');
+                }
+
+                const data = await response.json();
+
+                if (!data.token) {
+                    throw new Error('No token returned from server');
+                }
+
+                // Update the CSRF token in the meta tag
+                const metaToken = document.querySelector('meta[name="csrf-token"]');
+                if (metaToken) {
+                    metaToken.content = data.token;
+
+                    // Update axios default headers
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = data.token;
+                }
+
+                // Update any forms on the page
+                document.querySelectorAll('input[name="_token"]').forEach(input => {
+                    input.value = data.token;
+                });
+
+                return data.token;
+            } catch (error) {
+                console.error('Error refreshing CSRF token:', error);
+                throw error;
+            }
+        };
+
         // Set up a response interceptor for handling CSRF token expiration
         axios.interceptors.response.use(
             response => response,
             async error => {
                 // Check if the error is a CSRF token mismatch (419 status)
                 if (error.response && error.response.status === 419) {
-                    // Try to get a new CSRF token
+                    const originalRequest = error.config;
+
+                    // Prevent infinite retry loops
+                    if (originalRequest._retry) {
+                        // If we've already tried to refresh the token, redirect to login
+                        window.location.href = '/login';
+                        return Promise.reject(error);
+                    }
+
+                    originalRequest._retry = true;
+
                     try {
-                        // Get a new token
-                        const response = await fetch('/csrf-token-refresh', {
-                            method: 'GET',
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json'
-                            }
-                        });
+                        // Get a fresh token
+                        const token = await refreshCsrfToken();
 
-                        if (response.ok) {
-                            const data = await response.json();
+                        // Update the token in the headers for the retry
+                        originalRequest.headers['X-CSRF-TOKEN'] = token;
 
-                            // Update the CSRF token in the meta tag
-                            const metaToken = document.querySelector('meta[name="csrf-token"]');
-                            if (metaToken && data.token) {
-                                metaToken.content = data.token;
-
-                                // Update axios default headers
-                                axios.defaults.headers.common['X-CSRF-TOKEN'] = data.token;
-
-                                // Update any forms on the page
-                                document.querySelectorAll('input[name="_token"]').forEach(input => {
-                                    input.value = data.token;
-                                });
-
-                                // Retry the original request
-                                const originalRequest = error.config;
-                                originalRequest.headers['X-CSRF-TOKEN'] = data.token;
-
-                                return axios(originalRequest);
-                            }
-                        }
+                        // Retry the original request with the new token
+                        return axios(originalRequest);
                     } catch (refreshError) {
-                        console.error('Failed to refresh CSRF token:', refreshError);
+                        console.error('Failed to refresh token and retry request:', refreshError);
+                        // Redirect to login page on token refresh failure
+                        window.location.href = '/login';
+                        return Promise.reject(error);
                     }
                 }
 
@@ -184,22 +217,19 @@
         $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
             if (jqXHR.status === 419) {
                 // Get a new CSRF token
-                $.get('/csrf-token-refresh', function(data) {
-                    // Update the token in the meta tag
-                    $('meta[name="csrf-token"]').attr('content', data.token);
-
-                    // Update any forms on the page
-                    $('input[name="_token"]').val(data.token);
-
+                refreshCsrfToken().then(token => {
                     // Update jQuery AJAX defaults
                     $.ajaxSetup({
                         headers: {
-                            'X-CSRF-TOKEN': data.token
+                            'X-CSRF-TOKEN': token
                         }
                     });
 
                     // Retry the original request
                     $.ajax(settings);
+                }).catch(() => {
+                    // Redirect to login page on token refresh failure
+                    window.location.href = '/login';
                 });
 
                 // Prevent default error handling
@@ -211,6 +241,16 @@
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // Refresh token periodically (every 30 minutes)
+        setInterval(refreshCsrfToken, 30 * 60 * 1000);
+
+        // Refresh token when the page becomes visible again
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                refreshCsrfToken().catch(console.error);
             }
         });
     </script>

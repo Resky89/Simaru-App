@@ -493,7 +493,7 @@
                         // Title
                         const title = document.createElement('p');
                         title.className = 'font-bold';
-                        title.textContent = 'Kesalahan!';
+                        title.textContent = 'Gagal!';
                         contentContainer.appendChild(title);
 
                         // Message container
@@ -1244,17 +1244,11 @@
                                 rooms = result;
                             } else if (result.data && Array.isArray(result.data)) {
                                 rooms = result.data;
+                            } else if (result.rooms && Array.isArray(result.rooms)) {
+                                rooms = result.rooms;
                             } else {
                                 console.error('Unexpected API response format:', result);
                             }
-
-                            // Additional client-side filtering by building ID for safety
-                            rooms = rooms.filter(room => {
-                                const roomBuildingId = room.building_id ||
-                                                  (room.building && room.building.building_id) ||
-                                                  '';
-                                return roomBuildingId == buildingId; // Use == for type coercion
-                            });
 
                             // Populate dropdown
                             roomList.innerHTML = '';

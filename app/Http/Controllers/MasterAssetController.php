@@ -525,8 +525,6 @@ class MasterAssetController extends Controller
             // Get filter parameters
             $search = $request->input('search', '');
             $assetType = $request->input('type', '');
-            $brandId = $request->input('brand', '');
-            $subcategoryId = $request->input('category', '');
             $sortOrder = $request->input('sort', 'newest');
 
             // Build query parameters
@@ -564,14 +562,6 @@ class MasterAssetController extends Controller
                 $queryParams['asset_type'] = $assetType;
             }
 
-            if (!empty($brandId)) {
-                $queryParams['brand_id'] = $brandId;
-            }
-
-            if (!empty($subcategoryId)) {
-                $queryParams['subcategory_id'] = $subcategoryId;
-            }
-
             // Fetch master assets for PDF
             $masterAssetsResult = $this->apiService->request('GET', '/asset-masters', [
                 'query' => $queryParams
@@ -597,8 +587,6 @@ class MasterAssetController extends Controller
                 'masterAssets' => $masterAssets,
                 'search' => $search,
                 'assetType' => $assetType,
-                'brandId' => $brandId,
-                'subcategoryId' => $subcategoryId,
                 'sort' => $sortOrder,
                 'date_generated' => now()->format('d M Y H:i:s')
             ]);

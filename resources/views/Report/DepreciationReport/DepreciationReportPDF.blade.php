@@ -7,134 +7,216 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            font-size: 9pt;
-            line-height: 1.3;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
             margin: 0;
             padding: 0;
         }
+
         .header {
-            text-align: center;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #213268;
-        }
-        .logo {
-            max-width: 120px;
+            text-align: left;
             margin-bottom: 10px;
         }
-        h1 {
-            font-size: 16pt;
-            margin: 5px 0;
-            color: #213268;
+
+        .header img {
+            max-width: 100%;
+            height: auto;
+            max-height: 50px;
         }
-        h2 {
-            font-size: 13pt;
-            margin: 8px 0;
-            color: #213268;
-        }
-        .sub-header {
-            font-size: 10pt;
+
+        .header-line {
+            border-bottom: 2px solid #213268;
+            margin-top: 3px;
             margin-bottom: 15px;
+            clear: both;
         }
+
+        .page-title {
+            color: #213268;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #213268;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #EEF1F4;
+            padding-bottom: 5px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            font-size: 8pt;
         }
-        table, th, td {
-            border: 1px solid #EEF1F4;
-        }
+
         th {
             background-color: #213268;
-            padding: 5px 3px;
+            color: white;
             font-weight: bold;
             text-align: left;
-            color: white;
-            font-size: 8pt;
+            padding: 6px;
+            font-size: 11px;
+            border: 1px solid #213268;
         }
+
         td {
-            padding: 4px 3px;
-            font-size: 8pt;
+            border: 1px solid #EEF1F4;
+            padding: 6px;
+            font-size: 10px;
+            vertical-align: top;
         }
+
         .footer {
+            margin-top: 20px;
             text-align: center;
-            font-size: 8pt;
-            margin-top: 15px;
+            font-size: 10px;
             color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 8px;
         }
-        .summary {
-            margin-bottom: 15px;
-        }
-        .summary-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .summary-box {
-            background-color: #f0f4ff;
+
+        .info-card {
+            background-color: #F8F9FA;
+            border: 1px solid #E9ECEF;
             border-radius: 5px;
-            padding: 10px;
-            flex: 1;
-            min-width: 160px;
-            margin-bottom: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
         }
+
+        .summary-box {
+            background-color: #F8F9FA;
+            border: 1px solid #E9ECEF;
+            border-radius: 5px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-grid {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background-color: #F0F4FF;
+            border: 1px solid #E9ECEF;
+            border-radius: 5px;
+            padding: 12px;
+            text-align: center;
+        }
+
         .summary-label {
-            font-size: 8pt;
+            font-size: 11px;
             color: #666;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
         }
+
         .summary-value {
-            font-size: 10pt;
+            font-size: 16px;
             font-weight: bold;
             color: #213268;
         }
-        .page-break {
-            page-break-after: always;
+
+        .text-right {
+            text-align: right;
         }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .striped tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
         .no-data {
             text-align: center;
             padding: 20px;
             color: #666;
-        }
-        .text-right {
-            text-align: right;
-        }
-        .text-center {
-            text-align: center;
-        }
-        .striped tr:nth-child(even) {
-            background-color: #f9f9f9;
+            font-style: italic;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>LAPORAN PENYUSUTAN</h1>
-        <div class="sub-header">
-            <strong>Dibuat pada:</strong> {{ date('d M Y H:i:s') }}<br>
-            <strong>Tanggal:</strong> {{ date('d M Y', strtotime($as_of_date)) }}
-            @if(!empty($search))
-                <br><strong>Filter Pencarian:</strong> {{ $search }}
-            @endif
-            @if(!empty($asset_type))
-                <br><strong>Tipe Aset:</strong> {{ ucfirst($asset_type) == 'Medical' ? 'Medis' : (ucfirst($asset_type) == 'Non_medical' ? 'Non Medis' : ucfirst($asset_type)) }}
-            @endif
-            @if(isset($is_percentage))
-                <br><strong>Format:</strong> {{ $is_percentage ? 'Persentase' : 'Nilai' }}
-            @endif
-        </div>
+        <img src="{{ public_path('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI">
+    </div>
+    <div class="header-line"></div>
+
+    <div class="page-title">LAPORAN PENYUSUTAN ASET</div>
+    <div class="subtitle">
+        Tanggal Laporan:
+        @php
+            // Define Indonesian month names
+            $months = [
+                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            ];
+
+            // Check if as_of_date exists and use current date as fallback
+            $formattedDate = '';
+            try {
+                // Use current date if as_of_date is not set
+                $dateStr = isset($as_of_date) ? $as_of_date : date('Y-m-d');
+                $date = new DateTime($dateStr);
+                $day = $date->format('d');
+                $month = $months[(int)$date->format('m')];
+                $year = $date->format('Y');
+                $formattedDate = "$day $month $year";
+            } catch (\Exception $e) {
+                // If date parsing fails, use current date
+                $now = new DateTime();
+                $day = $now->format('d');
+                $month = $months[(int)$now->format('m')];
+                $year = $now->format('Y');
+                $formattedDate = "$day $month $year";
+            }
+            echo $formattedDate;
+        @endphp
+        @if(!empty($asset_type))
+            | Tipe Aset: {{ ucfirst($asset_type) == 'Medical' ? 'Medis' : (ucfirst($asset_type) == 'Non_medical' ? 'Non Medis' : ucfirst($asset_type)) }}
+        @endif
+        @if(isset($is_percentage))
+            | Format: {{ $is_percentage ? 'Persentase' : 'Nilai' }}
+        @endif
+        @if(!empty($search))
+            | Filter: {{ $search }}
+        @endif
     </div>
 
-    <div class="summary">
-        <table>
-            <tr>
-                <td width="25%" style="background-color: #f0f4ff; border: none;">
+    <h2>Ringkasan Penyusutan</h2>
+
+    <table class="summary-grid">
+        <tr>
+            <td width="25%">
+                <div class="summary-card">
                     <div class="summary-label">Total Aset</div>
                     <div class="summary-value">{{ $summary['total_items'] ?? 0 }}</div>
-                </td>
-                <td width="25%" style="background-color: #f0f4ff; border: none;">
+                </div>
+            </td>
+            <td width="25%">
+                <div class="summary-card">
                     <div class="summary-label">Total Biaya Perolehan</div>
                     <div class="summary-value">
                         @if(isset($is_percentage) && $is_percentage)
@@ -143,8 +225,10 @@
                             Rp {{ number_format($summary['total_acquisition_cost'] ?? 0, 0, ',', '.') }}
                         @endif
                     </div>
-                </td>
-                <td width="25%" style="background-color: #f0f4ff; border: none;">
+                </div>
+            </td>
+            <td width="25%">
+                <div class="summary-card">
                     <div class="summary-label">Total Nilai Buku</div>
                     <div class="summary-value">
                         @if(isset($is_percentage) && $is_percentage)
@@ -158,8 +242,10 @@
                             Rp {{ number_format($summary['total_book_value'] ?? 0, 0, ',', '.') }}
                         @endif
                     </div>
-                </td>
-                <td width="25%" style="background-color: #f0f4ff; border: none;">
+                </div>
+            </td>
+            <td width="25%">
+                <div class="summary-card">
                     <div class="summary-label">Total Penyusutan</div>
                     <div class="summary-value">
                         @if(isset($is_percentage) && $is_percentage)
@@ -173,11 +259,12 @@
                             Rp {{ number_format($summary['total_depreciation'] ?? 0, 0, ',', '.') }}
                         @endif
                     </div>
-                </td>
-            </tr>
-        </table>
-    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
 
+    <h2>Detail Aset</h2>
     @if(count($items) > 0)
         <table class="striped">
             <thead>
@@ -202,7 +289,23 @@
                 <tr>
                     <td class="text-center">{{ $item['asset_id'] }}</td>
                     <td>{{ $item['asset_name'] }}</td>
-                    <td>{{ isset($item['date_acquired']) ? \Carbon\Carbon::parse($item['date_acquired'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</td>
+                    <td>
+                        @if(isset($item['date_acquired']) && !empty($item['date_acquired']))
+                            @php
+                                try {
+                                    $date = new DateTime($item['date_acquired']);
+                                    $day = $date->format('d');
+                                    $month = $months[(int)$date->format('m')];
+                                    $year = $date->format('Y');
+                                    echo "$day $month $year";
+                                } catch (\Exception $e) {
+                                    echo 'N/A';
+                                }
+                            @endphp
+                        @else
+                            N/A
+                        @endif
+                    </td>
                     <td class="text-right">
                         @if(isset($is_percentage) && $is_percentage)
                             100%
@@ -227,11 +330,21 @@
                     <td>
                         @php
                             try {
-                                // Try to parse and format the month_and_year
-                                echo \Carbon\Carbon::createFromFormat('F Y', $item['month_and_year'])->locale('id')->isoFormat('MMMM YYYY');
+                                // Parse the month_and_year
+                                if (isset($item['month_and_year']) && !empty($item['month_and_year'])) {
+                                    $dateObj = DateTime::createFromFormat('F Y', $item['month_and_year']);
+                                    if ($dateObj) {
+                                        $monthNum = (int)$dateObj->format('m');
+                                        $year = $dateObj->format('Y');
+                                        echo $months[$monthNum] . ' ' . $year;
+                                    } else {
+                                        echo $item['month_and_year'] ?? 'N/A';
+                                    }
+                                } else {
+                                    echo 'N/A';
+                                }
                             } catch (\Exception $e) {
-                                // If parsing fails, show original value
-                                echo $item['month_and_year'];
+                                echo $item['month_and_year'] ?? 'N/A';
                             }
                         @endphp
                     </td>
@@ -262,8 +375,20 @@
     @endif
 
     <div class="footer">
-        <p>Laporan ini dibuat secara otomatis dari Sistem Monitoring Aset.</p>
-        <p>© {{ date('Y') }} Sistem Monitoring Aset</p>
+        <p>Dibuat pada:
+            @php
+                try {
+                    $now = new DateTime();
+                    $day = $now->format('d');
+                    $month = $months[(int)$now->format('m')] ?? '';
+                    $year = $now->format('Y');
+                    echo "$day $month $year";
+                } catch (\Exception $e) {
+                    echo date('d M Y');
+                }
+            @endphp
+        </p>
+        <p>Sistem Monitoring Aset - Laporan Penyusutan Aset RS UMMI</p>
     </div>
 </body>
 </html>

@@ -9,37 +9,48 @@
             font-size: 12px;
             line-height: 1.4;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #28356B;
+            text-align: left;
+            margin-bottom: 10px;
         }
-        .header h1 {
-            font-size: 18px;
+        .header img {
+            max-width: 100%;
+            height: auto;
+            max-height: 50px;
+        }
+        .header-line {
+            border-bottom: 2px solid #213268;
+            margin-top: 3px;
+            margin-bottom: 15px;
+            clear: both;
+        }
+        .page-title {
+            color: #213268;
+            font-size: 24px;
             font-weight: bold;
-            color: #28356B;
-            margin: 0;
-        }
-        .header p {
-            margin: 5px 0;
-            font-size: 12px;
-            color: #666;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
         .asset-info {
             margin-bottom: 20px;
+            clear: both;
         }
         .asset-info h2 {
-            font-size: 16px;
-            color: #28356B;
+            font-size: 14px;
+            color: #213268;
             border-bottom: 1px solid #eee;
             padding-bottom: 5px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
         .info-row {
             display: flex;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .info-label {
             font-weight: bold;
@@ -48,13 +59,18 @@
         .info-value {
             flex: 1;
         }
-        .asset-image {
+        .image-container {
+            height: 180px;
             text-align: center;
-            margin: 15px 0;
+            border: 1px solid #eee;
+            background-color: white;
+            vertical-align: middle;
+            margin: 10px 0;
+            padding: 10px;
         }
-        .asset-image img {
-            max-width: 250px;
-            max-height: 250px;
+        .image-container img {
+            max-width: 85%;
+            max-height: 160px;
         }
         table {
             width: 100%;
@@ -62,16 +78,16 @@
             margin-bottom: 20px;
         }
         th {
-            background-color: #28356B;
+            background-color: #213268;
             color: white;
             font-weight: bold;
             text-align: left;
-            padding: 8px;
+            padding: 6px;
             font-size: 11px;
         }
         td {
             border-top: 1px solid #eef1f4;
-            padding: 8px;
+            padding: 6px;
             font-size: 10px;
             vertical-align: top;
         }
@@ -81,43 +97,24 @@
             font-size: 10px;
             color: #666;
             border-top: 1px solid #ddd;
-            padding-top: 10px;
+            padding-top: 8px;
         }
         .status-badge {
             display: inline-block;
             padding: 2px 6px;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 9px;
             font-weight: normal;
+            text-transform: uppercase;
         }
-        .status-badge-yes {
-            background-color: #d4edda;
-            color: #155724;
+        .badge-blue {
+            background-color: #dbeafe;
+            color: #1e40af;
         }
-        .status-badge-no {
-            background-color: #f8d7da;
-            color: #721c24;
+        .badge-purple {
+            background-color: #f3e8ff;
+            color: #6b21a8;
         }
-
-        /* Condition badge styles */
-        .condition-good {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .condition-fair, .condition-slightly-damage {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .condition-poor {
-            background-color: #ffe5d0;
-            color: #ad4e00;
-        }
-        .condition-high-damage {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        /* Status badge styles */
         .status-available {
             background-color: #659B09;
             color: white;
@@ -142,22 +139,40 @@
             background-color: #EF4444;
             color: white;
         }
+        .condition-good {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .condition-fair, .condition-slightly-damage {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .condition-poor {
+            background-color: #ffe5d0;
+            color: #ad4e00;
+        }
+        .condition-high-damage {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>DETAIL LAPORAN ASSET MASTER</h1>
-        <p>Dibuat pada: {{ $date_generated }}</p>
+        <img src="{{ public_path('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI">
     </div>
+    <div class="header-line"></div>
+
+    <div class="page-title">DETAIL ASET MASTER</div>
 
     <!-- Master Asset Image Section -->
     <div class="asset-info">
         <h2>Gambar Aset Master</h2>
-        <div class="image-container" style="text-align: center; margin: 10px 0; padding: 10px; background-color: white; border: 1px solid #eee;">
+        <div class="image-container">
             @if(!empty($masterAsset['image_base64']))
-                <img src="data:image/jpeg;base64,{{ $masterAsset['image_base64'] }}" alt="Master Asset Image" style="max-width: 300px; max-height: 300px;">
+                <img src="data:image/jpeg;base64,{{ $masterAsset['image_base64'] }}" alt="Master Asset Image">
             @elseif(isset($masterAsset['reference_image_path']) && $masterAsset['reference_image_path'])
-                <img src="data:image/jpeg;base64,{{ $masterAsset['reference_image_base64'] }}" alt="Master Asset Image" style="max-width: 300px; max-height: 300px;">
+                <img src="data:image/jpeg;base64,{{ $masterAsset['reference_image_base64'] }}" alt="Master Asset Image">
             @else
                 <p style="color: #999; font-style: italic;">Tidak ada gambar tersedia</p>
             @endif
@@ -168,66 +183,64 @@
     <div class="asset-info">
         <h2>Informasi Aset Master</h2>
 
-        <!-- Basic Identification -->
-        <div class="info-row">
-            <div class="info-label">Kode Aset Master:</div>
-            <div class="info-value">{{ $masterAsset['asset_master_code'] ?? 'N/A' }}</div>
-        </div>
+        <table class="detail-table" style="border-collapse: collapse; width: 100%;">
+            <tr>
+                <th style="width: 30%; border: 1px solid #EEF1F4;">Kode Aset Master</th>
+                <td style="border: 1px solid #EEF1F4;">{{ $masterAsset['asset_master_code'] ?? 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #EEF1F4;">Nama Aset</th>
+                <td style="border: 1px solid #EEF1F4;">{{ $masterAsset['asset_name'] ?? 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #EEF1F4;">Tipe Aset</th>
+                <td style="border: 1px solid #EEF1F4;">
+                    @php
+                        $assetType = $masterAsset['asset_type'] ?? 'N/A';
+                        if (strtolower($assetType) === 'medical') {
+                            echo 'Medis';
+                        } elseif (strtolower($assetType) === 'non_medical') {
+                            echo 'Non Medis';
+                        } else {
+                            echo ucfirst($assetType);
+                        }
+                    @endphp
+                </td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #EEF1F4;">Kategori</th>
+                <td style="border: 1px solid #EEF1F4;">{{ $masterAsset['subcategory_name'] ?? 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #EEF1F4;">Merk</th>
+                <td style="border: 1px solid #EEF1F4;">{{ $masterAsset['brand_name'] ?? 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #EEF1F4;">Karakteristik</th>
+                <td style="border: 1px solid #EEF1F4;">
+                    @if(isset($masterAsset['is_depreciable']) && $masterAsset['is_depreciable'])
+                        <span class="status-badge badge-blue">Aset Dapat Mengalami Depresiasi</span>
+                    @endif
 
-        <div class="info-row">
-            <div class="info-label">Nama Aset:</div>
-            <div class="info-value">{{ $masterAsset['asset_name'] ?? 'N/A' }}</div>
-        </div>
+                    @if(isset($masterAsset['needs_calibration']) && $masterAsset['needs_calibration'])
+                        <span class="status-badge badge-purple">Aset Memerlukan Kalibrasi</span>
+                    @endif
 
-        <!-- Classification -->
-        <div class="info-row">
-            <div class="info-label">Tipe Aset:</div>
-            <div class="info-value">{{ ucfirst($masterAsset['asset_type'] ?? 'N/A') }}</div>
-        </div>
-
-        <div class="info-row">
-            <div class="info-label">Kategori:</div>
-            <div class="info-value">{{ $masterAsset['subcategory_name'] ?? 'N/A' }}</div>
-        </div>
-
-        <div class="info-row">
-            <div class="info-label">Merk:</div>
-            <div class="info-value">{{ $masterAsset['brand_name'] ?? 'N/A' }}</div>
-        </div>
-
-        <!-- Asset Characteristics -->
-        <div class="info-row">
-            <div class="info-label">Penyusutan:</div>
-            <div class="info-value">
-                @if(isset($masterAsset['is_depreciable']) && $masterAsset['is_depreciable'])
-                    <span class="status-badge status-badge-yes">Ya</span>
-                @else
-                    <span class="status-badge status-badge-no">No</span>
-                @endif
-            </div>
-        </div>
-
-        <div class="info-row">
-            <div class="info-label">Memerlukan Kalibrasi:</div>
-            <div class="info-value">
-                @if(isset($masterAsset['needs_calibration']) && $masterAsset['needs_calibration'])
-                    <span class="status-badge status-badge-yes">Ya</span>
-                @else
-                    <span class="status-badge status-badge-no">Tidak</span>
-                @endif
-            </div>
-        </div>
-
-        <!-- Additional Information -->
-        <div class="info-row">
-            <div class="info-label">Dibuat Pada:</div>
-            <div class="info-value">{{ isset($masterAsset['created_at']) ? date('d M Y H:i', strtotime($masterAsset['created_at'])) : 'N/A' }}</div>
-        </div>
-
-        <div class="info-row">
-            <div class="info-label">Deskripsi:</div>
-            <div class="info-value">{{ $masterAsset['description'] ?? 'Tidak ada deskripsi tersedia' }}</div>
-        </div>
+                    @if((!isset($masterAsset['is_depreciable']) || !$masterAsset['is_depreciable']) &&
+                        (!isset($masterAsset['needs_calibration']) || !$masterAsset['needs_calibration']))
+                        -
+                    @endif
+                </td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #EEF1F4;">Dibuat Pada</th>
+                <td style="border: 1px solid #EEF1F4;">{{ isset($masterAsset['created_at']) ? date('d M Y H:i', strtotime($masterAsset['created_at'])) : 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid #EEF1F4;">Deskripsi</th>
+                <td style="border: 1px solid #EEF1F4;">{{ $masterAsset['description'] ?? 'Tidak ada deskripsi tersedia' }}</td>
+            </tr>
+        </table>
     </div>
 
     <!-- Asset Units Section -->
@@ -256,19 +269,28 @@
                             if(isset($asset['condition'])) {
                                 switch(strtolower($asset['condition'])) {
                                     case 'good':
-                                        $conditionClass .= ' Baik';
+                                        $conditionClass .= ' condition-good';
+                                        $conditionText = 'Baik';
                                         break;
+                                    case 'slightly damage':
                                     case 'slighly damaged':
-                                        $conditionClass .= ' Sedikit Rusak';
+                                        $conditionClass .= ' condition-slightly-damage';
+                                        $conditionText = 'Sedikit Rusak';
                                         break;
+                                    case 'high damage':
                                     case 'highly damaged':
-                                        $conditionClass .= ' Rusak Berat';
+                                        $conditionClass .= ' condition-high-damage';
+                                        $conditionText = 'Rusak Berat';
                                         break;
+                                    default:
+                                        $conditionText = ucfirst($asset['condition']);
                                 }
+                            } else {
+                                $conditionText = 'Unknown';
                             }
                         @endphp
                         <span class="{{ $conditionClass }}">
-                            {{ ucfirst($asset['condition'] ?? 'Unknown') }}
+                            {{ $conditionText }}
                         </span>
                     </td>
                     <td>
@@ -329,7 +351,7 @@
     @endif
 
     <div class="footer">
-        <p>Sistem Monitoring Aset - Detail Laporan Aset Master</p>
+        <p>Sistem Monitoring Aset - Detail Aset Master RS UMMI</p>
     </div>
 </body>
 </html>

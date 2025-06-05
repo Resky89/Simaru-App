@@ -9,23 +9,32 @@
             font-size: 12px;
             line-height: 1.4;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #213268;
+            text-align: left;
+            margin-bottom: 10px;
         }
-        .header h1 {
-            font-size: 18px;
-            font-weight: bold;
+        .header img {
+            max-width: 100%;
+            height: auto;
+            max-height: 50px;
+        }
+        .header-line {
+            border-bottom: 2px solid #213268;
+            margin-top: 3px;
+            margin-bottom: 15px;
+            clear: both;
+        }
+        .page-title {
             color: #213268;
-            margin: 0;
-        }
-        .header p {
-            margin: 5px 0;
-            font-size: 12px;
-            color: #666;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
         table {
             width: 100%;
@@ -45,53 +54,6 @@
             padding: 8px;
             font-size: 10px;
             vertical-align: top;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 9px;
-            font-weight: normal;
-        }
-        .status-scheduled {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .status-in-progress {
-            background-color: #cce5ff;
-            color: #004085;
-        }
-        .status-completed {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .status-overdue {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .status-cancelled {
-            background-color: #e2e3e5;
-            color: #383d41;
-        }
-        /* Result Badge Styles */
-        .result-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 9px;
-            font-weight: normal;
-        }
-        .result-pass {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .result-fail {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .result-unknown {
-            background-color: #fff3cd;
-            color: #856404;
         }
         .footer {
             margin-top: 20px;
@@ -113,22 +75,73 @@
         .striped tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
+        /* Status Badge Styles */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        /* Calibration Status Badge Styles */
+        .status-scheduled {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+        .status-in-progress {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        .status-completed {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+        .status-overdue {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+        .status-cancelled {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+
+        /* Result Badge Styles */
+        .result-pass {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+        .result-fail {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+        .result-unknown {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>LAPORAN KALIBRASI</h1>
-        <p>Dibuat pada: {{ $date_generated }}</p>
+        <img src="{{ public_path('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI">
     </div>
+    <div class="header-line"></div>
+
+    <div class="page-title">LAPORAN KALIBRASI</div>
 
     <div class="filters">
         @if(!empty($search))
         <p><strong>Pencarian:</strong> {{ $search }}</p>
         @endif
+
         <p><strong>Urutan:</strong> {{ $sort_order == 'desc' ? 'Terbaru Terlebih Dahulu' : 'Terlama Terlebih Dahulu' }}</p>
+
         @if(!empty($status))
-        <p><strong>Filter Status:</strong> {{ ucfirst(str_replace('_', ' ', $status)) }}</p>
+        <p><strong>Status:</strong> {{ ucfirst(str_replace('_', ' ', $status)) }}</p>
         @endif
+
     </div>
 
     <table class="striped">
@@ -149,8 +162,8 @@
             @forelse($calibrations as $calibration)
                 <tr>
                     <td>
-                        <div>{{ $calibration['asset_name'] ?? '-' }}</div>
-                        <div style="color: #666;">{{ $calibration['asset_code'] ?? '-' }}</div>
+                        <div><strong>{{ $calibration['asset_name'] ?? '-' }}</strong></div>
+                        <div style="color: #666; font-size: 8px;">{{ $calibration['asset_code'] ?? '-' }}</div>
                     </td>
                     <td>{{ $calibration['task_code'] ?? '-' }}</td>
                     <td>
@@ -160,33 +173,35 @@
 
                             if ($status == 'scheduled') {
                                 $statusClass = 'status-scheduled';
-                                $statusText = 'Dijadwalkan';
+                                $statusText = 'DIJADWALKAN';
                             } elseif ($status == 'in_progress') {
                                 $statusClass = 'status-in-progress';
-                                $statusText = 'Dalam Pengerjaan';
+                                $statusText = 'DALAM PENGERJAAN';
                             } elseif ($status == 'completed') {
                                 $statusClass = 'status-completed';
-                                $statusText = 'Selesai';
+                                $statusText = 'SELESAI';
                             } elseif ($status == 'overdue') {
                                 $statusClass = 'status-overdue';
-                                $statusText = 'Terlambat';
+                                $statusText = 'TERLAMBAT';
                             } elseif ($status == 'cancelled') {
                                 $statusClass = 'status-cancelled';
-                                $statusText = 'Dibatalkan';
+                                $statusText = 'DIBATALKAN';
+                            } else {
+                                $statusText = 'TIDAK DIKETAHUI';
                             }
                         @endphp
                         <span class="status-badge {{ $statusClass }}">
-                            {{ ucfirst(str_replace('_', ' ', $statusText ?: 'Unknown')) }}
+                            {{ $statusText }}
                         </span>
                     </td>
                     <td>
-                        {{ isset($calibration['planning_calibration_date']) ? \Carbon\Carbon::parse($calibration['planning_calibration_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
+                        {{ isset($calibration['planning_calibration_date']) ? date('d M Y', strtotime($calibration['planning_calibration_date'])) : '-' }}
                     </td>
                     <td>
-                        {{ isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'] ? \Carbon\Carbon::parse($calibration['actual_calibration_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
+                        {{ isset($calibration['actual_calibration_date']) && $calibration['actual_calibration_date'] ? date('d M Y', strtotime($calibration['actual_calibration_date'])) : '-' }}
                     </td>
                     <td>
-                        {{ isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'] ? \Carbon\Carbon::parse($calibration['next_calibration_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
+                        {{ isset($calibration['next_calibration_date']) && $calibration['next_calibration_date'] ? date('d M Y', strtotime($calibration['next_calibration_date'])) : '-' }}
                     </td>
                     <td>{{ $calibration['certificate_number'] ?? '-' }}</td>
                     <td>
@@ -197,24 +212,24 @@
 
                             if ($result == 'pass') {
                                 $resultClass = 'result-pass';
-                                $resultText = 'Lulus';
+                                $resultText = 'LULUS';
                             } elseif ($result == 'fail') {
                                 $resultClass = 'result-fail';
-                                $resultText = 'Gagal';
+                                $resultText = 'GAGAL';
                             } elseif ($result == 'unknown') {
                                 $resultClass = 'result-unknown';
-                                $resultText = 'Tidak Ditemukan';
+                                $resultText = 'TIDAK DITEMUKAN';
                             }
                         @endphp
                         @if($resultText != '-')
-                        <span class="result-badge {{ $resultClass }}">
+                        <span class="status-badge {{ $resultClass }}">
                             {{ $resultText }}
                         </span>
                         @else
                             {{ $resultText }}
                         @endif
                     </td>
-                    <td>{{ isset($calibration['calibration_price']) ? number_format($calibration['calibration_price'], 0, ',', '.') : '-' }}</td>
+                    <td>{{ isset($calibration['calibration_price']) ? 'Rp ' . number_format($calibration['calibration_price'], 0, ',', '.') : '-' }}</td>
                 </tr>
             @empty
                 <tr>
@@ -225,7 +240,7 @@
     </table>
 
     <div class="footer">
-        <p>Sistem Monitoring Aset - Laporan Kalibrasi</p>
+        <p>Sistem Monitoring Aset - Laporan Kalibrasi RS UMMI</p>
     </div>
 </body>
 </html>

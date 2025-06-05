@@ -27,7 +27,7 @@ class UnitAssetController extends Controller
             $limit = $request->query('limit', 10);
             $search = $request->query('search', '');
             $statusFilter = $request->query('current_status', '');
-            $typeFilter = $request->query('type', '');
+            $typeFilter = $request->query('asset_type', '');
             $sortOrder = $request->query('sort', '');
 
             // Membangun parameter kueri
@@ -78,7 +78,7 @@ class UnitAssetController extends Controller
 
             // Menambahkan filter tipe aset jika disediakan
             if (!empty($typeFilter)) {
-                $queryParams['type'] = $typeFilter;
+                $queryParams['asset_type'] = $typeFilter;
             }
 
             // Mengambil aset dari API
@@ -1445,7 +1445,7 @@ class UnitAssetController extends Controller
         try {
             // Get filter parameters
             $search = $request->input('search', '');
-            $typeFilter = $request->input('type', '');
+            $typeFilter = $request->input('asset_type', '');
             $statusFilter = $request->input('current_status', '');
             $sortOrder = $request->input('sort', 'newest');
 
@@ -1495,7 +1495,7 @@ class UnitAssetController extends Controller
 
             // Add asset type filter if provided
             if (!empty($typeFilter)) {
-                $query['type'] = $typeFilter;
+                $query['asset_type'] = $typeFilter;
             }
 
             // Fetch assets for PDF

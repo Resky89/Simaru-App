@@ -9,23 +9,32 @@
             font-size: 12px;
             line-height: 1.4;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #213268;
+            text-align: left;
+            margin-bottom: 10px;
         }
-        .header h1 {
-            font-size: 18px;
-            font-weight: bold;
+        .header img {
+            max-width: 100%;
+            height: auto;
+            max-height: 50px;
+        }
+        .header-line {
+            border-bottom: 2px solid #213268;
+            margin-top: 3px;
+            margin-bottom: 15px;
+            clear: both;
+        }
+        .page-title {
             color: #213268;
-            margin: 0;
-        }
-        .header p {
-            margin: 5px 0;
-            font-size: 12px;
-            color: #666;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
         table {
             width: 100%;
@@ -91,20 +100,22 @@
             color: white;
         }
         .under-repair {
-            background-color: #6B7280;
+            background-color: #25B1FF;
             color: white;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>LAPORAN ASSET UNIT</h1>
-        <p>Generated on: {{ $date_generated }}</p>
+        <img src="{{ public_path('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI">
     </div>
+    <div class="header-line"></div>
+
+    <div class="page-title">LAPORAN ASET UNIT</div>
 
     <div class="filters">
         @if(!empty($search))
-        <p><strong>Search:</strong> {{ $search }}</p>
+        <p><strong>Pencarian:</strong> {{ $search }}</p>
         @endif
 
         @if(!empty($typeFilter))
@@ -115,7 +126,7 @@
         <p><strong>Status:</strong> {{ ucfirst($statusFilter) }}</p>
         @endif
 
-        <p><strong>Urutan Pengurutan:</strong>
+        <p><strong>Urutan:</strong>
             @switch($sortOrder)
                 @case('newest')
                     Terbaru
@@ -140,12 +151,9 @@
             <tr>
                 <th>Kode Aset</th>
                 <th>Nama Aset</th>
-                <th>Tipe</th>
-                <th>Kategori</th>
-                <th>Lokasi</th>
+                <th>Tipe Aset</th>
+                <th>Kategori Aset</th>
                 <th>Status</th>
-                <th>Nomor Seri</th>
-                <th>Tanggal Pembelian</th>
             </tr>
         </thead>
         <tbody>
@@ -172,17 +180,7 @@
                     <td>
                         {{ $asset['asset_master']['subcategory_name'] ?? '-' }}
                     </td>
-                    <td>
-                        @if(isset($asset['room']) && isset($asset['room']['room_name']))
-                            {{ $asset['room']['room_name'] }}
-                            @if(isset($asset['room']['building']) && isset($asset['room']['building']['building_name']))
-                                ({{ $asset['room']['building']['building_name'] }})
-                            @endif
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td>
+                    <td class="text-center">
                         @php
                             $statusText = 'UNKNOWN';
                             $statusClass = '';
@@ -216,19 +214,17 @@
                         @endphp
                         <span class="status-badge {{ $statusClass }}">{{ $statusText }}</span>
                     </td>
-                    <td>{{ $asset['serial_number'] ?? '-' }}</td>
-                    <td>{{ $asset['purchase_date'] ?? '-' }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" style="text-align: center;">Tidak ada aset yang ditemukan</td>
+                    <td colspan="7" style="text-align: center;">Tidak ada aset yang ditemukan</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
     <div class="footer">
-        <p>Sistem Pengawasan Aset - Laporan Aset Unit</p>
+        <p>Sistem Monitoring Aset - Laporan Aset Unit RS UMMI</p>
     </div>
 </body>
 </html>

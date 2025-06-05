@@ -302,7 +302,7 @@ class ViewMasterAssetController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function exportMasterAssetPDF($id, Request $request)
+    public function exportViewMasterAssetPDF($id, Request $request)
     {
         try {
             // Fetch master asset details

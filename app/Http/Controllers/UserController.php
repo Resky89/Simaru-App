@@ -330,8 +330,8 @@ class UserController extends Controller
         try {
             // Validasi request
             $request->validate([
-                'employee_number' => 'required|string|max:255',
-                'password' => 'required|string|min:6',
+                'employee_number' => 'required|string',
+                'password' => 'required|string',
                 'role_ids' => 'required|array',
             ]);
 
@@ -422,7 +422,7 @@ class UserController extends Controller
         try {
             // Validasi request
             $request->validate([
-                'employee_number' => 'required|string|max:255',
+                'employee_number' => 'required|string',
                 'role_ids' => 'required|array',
             ]);
 

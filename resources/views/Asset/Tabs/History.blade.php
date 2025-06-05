@@ -9,6 +9,10 @@
             <span class="ml-2 text-gray-600">Memuat data riwayat...</span>
         </div>
 
+        <div id="errorMessage"
+            class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+        </div>
+
         <div id="historyContent" class="hidden">
             <!-- History content will be loaded here -->
         </div>
@@ -20,7 +24,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p id="errorMessage">Gagal memuat data riwayat.</p>
+                <p id="errorMessageText">Gagal memuat data riwayat.</p>
                 <button class="mt-2 px-4 py-2 bg-[#203268] text-white rounded-lg" onclick="loadAssetHistory()">
                     Coba Lagi
                 </button>
@@ -46,6 +50,7 @@
         document.getElementById('historyLoading').classList.remove('hidden');
         document.getElementById('historyContent').classList.add('hidden');
         document.getElementById('historyError').classList.add('hidden');
+        document.getElementById('errorMessage').classList.add('hidden');
 
         // Get CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -90,6 +95,7 @@
                 // Hide loading, show content
                 document.getElementById('historyLoading').classList.add('hidden');
                 document.getElementById('historyContent').classList.remove('hidden');
+                document.getElementById('errorMessage').classList.add('hidden');
             })
             .catch(error => {
                 console.error('Error loading asset history:', error);
@@ -228,9 +234,14 @@
         document.getElementById('historyLoading').classList.add('hidden');
         document.getElementById('historyContent').classList.add('hidden');
 
-        const errorElement = document.getElementById('historyError');
-        const errorMessageElement = document.getElementById('errorMessage');
+        // Update the dedicated error message container
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = message || 'Gagal memuat data riwayat.';
+        errorDiv.classList.remove('hidden');
 
+        // Also update the error retry section
+        const errorElement = document.getElementById('historyError');
+        const errorMessageElement = document.getElementById('errorMessageText');
         errorMessageElement.textContent = message || 'Gagal memuat riwayat aset.';
         errorElement.classList.remove('hidden');
     }

@@ -140,14 +140,18 @@ class AssetFinanceController extends Controller
                 'description' => 'nullable|string'
             ]);
 
-            // Memastikan nilai numerik diformat dengan benar
+            // Memastikan nilai numerik diformat dengan benar dan hanya menyertakan field yang ada
             $data = [
                 'asset_id' => (int) $request->asset_id,
                 'type' => $request->type,
                 'amount' => (float) $request->amount,
                 'transaction_date' => $request->transaction_date,
-                'description' => $request->description
             ];
+
+            // Hanya tambahkan description jika tidak kosong
+            if ($request->filled('description')) {
+                $data['description'] = $request->description;
+            }
 
             // Membuat transaksi melalui layanan API
             $result = $this->apiService->request('POST', '/asset-transactions', [
@@ -241,14 +245,18 @@ class AssetFinanceController extends Controller
                 'description' => 'nullable|string'
             ]);
 
-            // Memastikan nilai numerik diformat dengan benar
+            // Memastikan nilai numerik diformat dengan benar dan hanya menyertakan field yang ada
             $data = [
                 'asset_id' => (int) $request->asset_id,
                 'type' => $request->type,
                 'amount' => (float) $request->amount,
                 'transaction_date' => $request->transaction_date,
-                'description' => $request->description
             ];
+
+            // Hanya tambahkan description jika tidak kosong
+            if ($request->filled('description')) {
+                $data['description'] = $request->description;
+            }
 
             // Memperbarui transaksi melalui layanan API
             $result = $this->apiService->request('PUT', "/asset-transactions/{$transactionId}", [

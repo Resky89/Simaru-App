@@ -654,7 +654,7 @@
                                     <li>Format file yang didukung: .xlsx, .xls, .csv</li>
                                 </ul>
                                 <div class="mt-3 flex justify-end">
-                                    <a href="{{ asset('docs/ImportAsetTemplate.xlsx') }}" download class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-[#213268] rounded-md hover:bg-[#152451] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <a href="{{ asset('docs/ImportAssetMasterTemplate.xlsx') }}" download class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-[#213268] rounded-md hover:bg-[#152451] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                         </svg>
@@ -800,8 +800,8 @@
 
         @if(!hasPermission('asset-master:import'))
         // Disable related elements if user doesn't have permission
-        const addButtons = document.querySelectorAll('#importMasterAssetBtn, #preview-btn');
-        addButtons.forEach(btn => {
+        const importButtons = document.querySelectorAll('#importMasterAssetBtn, #preview-btn');
+        importButtons.forEach(btn => {
             if (btn) {
                 btn.style.display = 'none';
             }
@@ -1267,7 +1267,7 @@
                 const submitBtn = document.getElementById('edit-submit-btn');
 
                 if (editModal && editContent) {
-                    // Reset form and show loading
+                    // Reset form and set action URL
                     document.getElementById('editMasterAssetForm').reset();
                     document.getElementById('editMasterAssetForm').action = `{{ url('asset-master') }}/${assetId}`;
 
@@ -1350,12 +1350,12 @@
                         // Update toggle status text
                         const depreciationStatus = document.querySelector('#editMasterAssetModal .depreciation-status');
                         if (depreciationStatus) {
-                            depreciationStatus.textContent = asset.is_depreciable ? 'Yes' : 'No';
+                            depreciationStatus.textContent = asset.is_depreciable ? 'Ya' : 'Tidak';
                         }
 
                         const calibrationStatus = document.querySelector('#editMasterAssetModal .calibration-status');
                         if (calibrationStatus) {
-                            calibrationStatus.textContent = asset.needs_calibration ? 'Yes' : 'No';
+                            calibrationStatus.textContent = asset.needs_calibration ? 'Ya' : 'Tidak';
                         }
 
                         // Handle image if present
@@ -1750,20 +1750,20 @@
 
         // Toggle switches for add form
         document.getElementById('is_depreciable')?.addEventListener('change', function() {
-            document.querySelectorAll('.depreciation-status')[0].textContent = this.checked ? 'Yes' : 'No';
+            document.querySelectorAll('.depreciation-status')[0].textContent = this.checked ? 'Ya' : 'Tidak';
         });
 
         document.getElementById('needs_calibration')?.addEventListener('change', function() {
-            document.querySelectorAll('.calibration-status')[0].textContent = this.checked ? 'Yes' : 'No';
+            document.querySelectorAll('.calibration-status')[0].textContent = this.checked ? 'Ya' : 'Tidak';
         });
 
         // Toggle switches for edit form
         document.getElementById('edit_is_depreciable')?.addEventListener('change', function() {
-            document.querySelectorAll('.depreciation-status')[1].textContent = this.checked ? 'Yes' : 'No';
+            document.querySelectorAll('.depreciation-status')[1].textContent = this.checked ? 'Ya' : 'Tidak';
         });
 
         document.getElementById('edit_needs_calibration')?.addEventListener('change', function() {
-            document.querySelectorAll('.calibration-status')[1].textContent = this.checked ? 'Yes' : 'No';
+            document.querySelectorAll('.calibration-status')[1].textContent = this.checked ? 'Ya' : 'Tidak';
         });
 
         // Pagination helpers
@@ -2729,9 +2729,6 @@
 
         // Form validation for Add Master Asset
         document.getElementById('createMasterAssetForm')?.addEventListener('submit', function(event) {
-            // Prevent default submission to use AJAX
-            event.preventDefault();
-
             // Validation code - define validation variables
             const assetName = this.querySelector('input[name="asset_name"]');
             const assetType = document.getElementById('asset_type');
@@ -2739,150 +2736,80 @@
             const brandId = document.getElementById('brand_id');
 
             // Validate required fields
-            const isAssetNameValid = validateField(assetName);
-            const isAssetTypeValid = validateField(assetType);
+            let isValid = true;
 
-            // For custom select dropdowns, explicitly look at the hidden input value
+            // Check asset name
+            if (!assetName.value.trim()) {
+                assetName.classList.add('border-red-500');
+                const errorElement = assetName.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.textContent = 'Nama aset harus diisi';
+                    errorElement.classList.remove('hidden');
+                }
+                isValid = false;
+            }
+
+            // Check asset type
+            if (!assetType.value) {
+                assetType.classList.add('border-red-500');
+                const errorElement = assetType.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.textContent = 'Tipe aset harus dipilih';
+                    errorElement.classList.remove('hidden');
+                }
+                isValid = false;
+            }
+
+            // Check subcategory
             const subcategoryContainer = subcategoryId.closest('.custom-select-container');
             const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
-            const isSubcategoryValid = subcategoryId.value ? true : false;
-
-            // Show visual feedback if invalid
-            if (!isSubcategoryValid) {
+            if (!subcategoryId.value) {
                 subcategorySearchInput.classList.add('border-red-500');
                 const errorElement = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
                 if (errorElement) {
                     errorElement.textContent = 'Kategori harus dipilih';
                     errorElement.classList.remove('hidden');
                 }
+                isValid = false;
             }
 
+            // Check brand
             const brandContainer = brandId.closest('.custom-select-container');
             const brandSearchInput = brandContainer.querySelector('.search-input');
-            const isBrandValid = brandId.value ? true : false;
-
-            // Show visual feedback if invalid
-            if (!isBrandValid) {
+            if (!brandId.value) {
                 brandSearchInput.classList.add('border-red-500');
                 const errorElement = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
                 if (errorElement) {
                     errorElement.textContent = 'Merk harus dipilih';
                     errorElement.classList.remove('hidden');
                 }
+                isValid = false;
             }
 
-            // If validation passes, proceed with form submission
-            if (isAssetNameValid && isAssetTypeValid && isSubcategoryValid && isBrandValid) {
-                // Prepare form data
-                const formData = new FormData(this);
+            if (!isValid) {
+                event.preventDefault();
+                showToast('Silakan isi semua field yang diperlukan', 'error');
+                return;
+            }
 
-                // Make sure hidden inputs are included
-                const hiddenInputIds = ['subcategory_id', 'brand_id'];
-                hiddenInputIds.forEach(id => {
-                    const input = document.getElementById(id);
-                    if (input && input.value) {
-                        formData.set(input.name, input.value);
-                    }
-                });
-
-                // Prevent multiple submissions
+            // Show loading state on the button
                 const submitBtn = this.querySelector('button[type="submit"]');
                 if (submitBtn && !submitBtn.disabled) {
-                    // Save original button text
-                    const originalText = submitBtn.innerHTML;
-
-                    // Disable button and show loading state
                     submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
-
-                    // Submit the form via AJAX
-                    fetch(this.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(errorData => {
-                                throw errorData;
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Show success notification
-                        showToast(data.message || 'Aset master berhasil ditambahkan!', 'success');
-
-                        // Close the modal and reset form
-                        const modal = document.getElementById('addMasterAssetModal');
-                        const content = document.getElementById('addMasterAssetModalContent');
-                        if (modal && content) {
-                            closeModal(modal, content);
-                            resetAddMasterAssetForm();
-                        }
-
-                        // Reload the page after a short delay to show the new data
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    })
-                    .catch(error => {
-                        console.error('Error submitting form:', error);
-
-                        // Re-enable submit button
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = originalText;
-
-                        // Show field-specific errors if available
-                        if (error.errors) {
-                            Object.entries(error.errors).forEach(([field, messages]) => {
-                                const fieldElement = this.querySelector(`[name="${field}"]`);
-                                if (fieldElement) {
-                                    fieldElement.classList.add('border-red-500');
-                                    const errorContainer = fieldElement.closest('.space-y-2')?.querySelector('.error-message');
-
-                                    if (errorContainer) {
-                                        errorContainer.textContent = Array.isArray(messages) ? messages[0] : messages;
-                                        errorContainer.classList.remove('hidden');
-                                    }
-                                } else if (field === 'subcategory_id') {
-                                    subcategorySearchInput.classList.add('border-red-500');
-                                    const errorContainer = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
-
-                                    if (errorContainer) {
-                                        errorContainer.textContent = Array.isArray(messages) ? messages[0] : messages;
-                                        errorContainer.classList.remove('hidden');
-                                    }
-                                } else if (field === 'brand_id') {
-                                    brandSearchInput.classList.add('border-red-500');
-                                    const errorContainer = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
-
-                                    if (errorContainer) {
-                                        errorContainer.textContent = Array.isArray(messages) ? messages[0] : messages;
-                                        errorContainer.classList.remove('hidden');
-                                    }
-                                }
-                            });
-                        }
-
-                        // Show general error notification
-                        showToast(error.message || 'Terjadi kesalahan saat menyimpan data', 'error');
-                    });
-                }
-            } else {
-                showToast('Silakan isi semua field yang diperlukan', 'error');
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Menyimpan...
+                `;
             }
+
+            // Let form submit proceed normally (standard form submission, not AJAX)
         });
 
         // Edit form submission handler
         document.getElementById('editMasterAssetForm')?.addEventListener('submit', function(event) {
-            // Prevent default submission to use AJAX
-            event.preventDefault();
-
             // Validation code - define validation variables
             const assetName = document.getElementById('edit_asset_name');
             const assetType = document.getElementById('edit_asset_type');
@@ -2890,146 +2817,76 @@
             const brandId = document.getElementById('edit_brand_id');
 
             // Validate required fields
-            const isAssetNameValid = validateField(assetName);
-            const isAssetTypeValid = validateField(assetType);
+            let isValid = true;
 
-            // For custom select dropdowns, explicitly look at the hidden input value
+            // Check asset name
+            if (!assetName.value.trim()) {
+                assetName.classList.add('border-red-500');
+                const errorElement = assetName.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.textContent = 'Nama aset harus diisi';
+                    errorElement.classList.remove('hidden');
+                }
+                isValid = false;
+            }
+
+            // Check asset type
+            if (!assetType.value) {
+                assetType.classList.add('border-red-500');
+                const errorElement = assetType.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.textContent = 'Tipe aset harus dipilih';
+                    errorElement.classList.remove('hidden');
+                }
+                isValid = false;
+            }
+
+            // Check subcategory
             const subcategoryContainer = subcategoryId.closest('.custom-select-container');
             const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
-            const isSubcategoryValid = subcategoryId.value ? true : false;
-
-            // Show visual feedback if invalid
-            if (!isSubcategoryValid) {
+            if (!subcategoryId.value) {
                 subcategorySearchInput.classList.add('border-red-500');
                 const errorElement = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
                 if (errorElement) {
                     errorElement.textContent = 'Kategori harus dipilih';
                     errorElement.classList.remove('hidden');
                 }
+                isValid = false;
             }
 
+            // Check brand
             const brandContainer = brandId.closest('.custom-select-container');
             const brandSearchInput = brandContainer.querySelector('.search-input');
-            const isBrandValid = brandId.value ? true : false;
-
-            // Show visual feedback if invalid
-            if (!isBrandValid) {
+            if (!brandId.value) {
                 brandSearchInput.classList.add('border-red-500');
                 const errorElement = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
                 if (errorElement) {
                     errorElement.textContent = 'Merk harus dipilih';
                     errorElement.classList.remove('hidden');
                 }
+                isValid = false;
             }
 
-            // If validation passes
-            if (isAssetNameValid && isAssetTypeValid && isSubcategoryValid && isBrandValid) {
-                // Prepare form data
-                const formData = new FormData(this);
+            if (!isValid) {
+                event.preventDefault();
+                showToast('Silakan isi semua field yang diperlukan', 'error');
+                return;
+            }
 
-                // Make sure hidden inputs are included
-                const hiddenInputIds = ['edit_subcategory_id', 'edit_brand_id'];
-                hiddenInputIds.forEach(id => {
-                    const input = document.getElementById(id);
-                    if (input && input.value) {
-                        formData.set(input.name, input.value);
-                    }
-                });
-
-                // Prevent multiple submissions
+            // Show loading state on the button
                 const submitBtn = this.querySelector('button[type="submit"]');
                 if (submitBtn && !submitBtn.disabled) {
-                    // Save original button text
-                    const originalText = submitBtn.innerHTML;
-
-                    // Disable button and show loading state
                     submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
-
-                    // Submit the form via AJAX
-                    fetch(this.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(errorData => {
-                                throw errorData;
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Show success notification
-                        showToast(data.message || 'Aset master berhasil diperbarui!', 'success');
-
-                        // Close the modal
-                        const modal = document.getElementById('editMasterAssetModal');
-                        const content = document.getElementById('editMasterAssetModalContent');
-                        if (modal && content) {
-                            closeModal(modal, content);
-                        }
-
-                        // Reload the page after a short delay to show the updated data
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    })
-                    .catch(error => {
-                        console.error('Error submitting form:', error);
-
-                        // Re-enable submit button
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = originalText;
-
-                        // Show field-specific errors if available
-                        if (error.errors) {
-                            Object.entries(error.errors).forEach(([field, messages]) => {
-                                // Handle field mapping for edit form
-                                let fieldElement = null;
-                                let errorContainer = null;
-
-                                if (field === 'asset_name') {
-                                    fieldElement = document.getElementById('edit_asset_name');
-                                } else if (field === 'asset_type') {
-                                    fieldElement = document.getElementById('edit_asset_type');
-                                } else if (field === 'subcategory_id') {
-                                    fieldElement = subcategorySearchInput;
-                                    errorContainer = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
-                                } else if (field === 'brand_id') {
-                                    fieldElement = brandSearchInput;
-                                    errorContainer = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
-                                } else {
-                                    fieldElement = this.querySelector(`[name="${field}"]`);
-                                }
-
-                                if (fieldElement) {
-                                    fieldElement.classList.add('border-red-500');
-
-                                    if (!errorContainer) {
-                                        errorContainer = fieldElement.closest('.space-y-2')?.querySelector('.error-message');
-                                    }
-
-                                    if (errorContainer) {
-                                        errorContainer.textContent = Array.isArray(messages) ? messages[0] : messages;
-                                        errorContainer.classList.remove('hidden');
-                                    }
-                                }
-                            });
-                        }
-
-                        // Show error notification with proper error handling
-                        showToast(error.message || 'Terjadi kesalahan saat menyimpan data', 'error');
-                    });
-                }
-            } else {
-                showToast('Silakan isi semua field yang diperlukan', 'error');
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Menyimpan...
+                `;
             }
+
+            // Let form submit proceed normally (standard form submission, not AJAX)
         });
 
         // Add input event listeners to clear error styling when typing in add form
@@ -3100,11 +2957,11 @@
                         // Always load results with at least a space to show all options
                         const searchTerm = searchInput.value.trim() || " ";
                         fetchCategories(assetTypeSelect.value, searchTerm, subcategoryInput.id);
-                        optionsContainer.style.display = 'block';
+                        optionsContainer.classList.remove('hidden');
                     } else {
                         // This should not happen if the input is properly disabled
                         optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Pilih tipe aset terlebih dahulu</div>';
-                        optionsContainer.style.display = 'block';
+                        optionsContainer.classList.remove('hidden');
 
                         // Highlight the asset type field to guide the user
                         assetTypeSelect.classList.add('border-red-500', 'ring-2', 'ring-red-200');
@@ -3125,7 +2982,7 @@
                 // Hide dropdown when clicking outside
                 document.addEventListener('click', function(e) {
                     if (e.target !== searchInput && e.target !== dropdownIcon && !dropdownIcon.contains(e.target) && !optionsContainer.contains(e.target)) {
-                        optionsContainer.style.display = 'none';
+                        optionsContainer.classList.add('hidden');
                     }
                 });
 
@@ -3141,11 +2998,11 @@
                     if (assetTypeSelect && assetTypeSelect.value) {
                         if (searchTerm.length > 0) {
                             fetchCategories(assetTypeSelect.value, searchTerm, subcategoryInput.id);
-                            optionsContainer.style.display = 'block';
+                            optionsContainer.classList.remove('hidden');
                         } else {
                             // If they've cleared the input, show all options
                             fetchCategories(assetTypeSelect.value, " ", subcategoryInput.id);
-                            optionsContainer.style.display = 'block';
+                            optionsContainer.classList.remove('hidden');
                         }
                     }
                 }, 300));

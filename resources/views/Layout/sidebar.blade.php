@@ -3,7 +3,7 @@
     $menuPermissions = [
         'dashboard' => 'dashboard:view',
         'masterdata' => ['asset-subcategory:view', 'brand:view', 'building:view', 'room:view', 'vendor:view'],
-        'asset' => 'asset:view',
+        'asset' => ['asset:view', 'asset-master:view', 'document:view'],
         'calibration' => 'calibration:view',
         'maintenance' => 'maintenance:view',
         'complaint' => 'complaint:view',
@@ -147,7 +147,7 @@
             @endif
 
             <!-- Asset (New Menu) -->
-            @if(hasPermission($menuPermissions['asset']))
+            @if(hasAnyPermission($menuPermissions['asset']))
             <div class="{{ $menuItemClass }}">
                 <button class="w-full focus:outline-none toggle-menu" data-menu="asset">
                     <div class="{{ $menuLinkClass }} menu-header">

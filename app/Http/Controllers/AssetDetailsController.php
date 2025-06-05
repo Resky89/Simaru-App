@@ -904,10 +904,44 @@ class AssetDetailsController extends Controller
                 }
             }
 
+            // Ambil data depresiasi
+            $depreciationData = null;
+            try {
+                $depreciationResult = $this->apiService->request('GET', "/depreciations/calculate/asset/{$id}");
+                if (isset($depreciationResult['success']) && $depreciationResult['success'] === true) {
+                    $depreciationData = $depreciationResult['data']['depreciation'] ?? $depreciationResult['depreciation'] ?? null;
+                }
+            } catch (\Exception $e) {
+                // Lanjutkan tanpa data depresiasi
+            }
+
+            // Ambil data transaksi keuangan
+            $financeData = null;
+            try {
+                $financeResult = $this->apiService->request('GET', "/asset-transactions/asset/{$id}", [
+                    'query' => [
+                        'limit' => 100,
+                        'sort_by' => 'transaction_date',
+                        'sort_order' => 'desc'
+                    ]
+                ]);
+
+                if (isset($financeResult['success']) && $financeResult['success'] === true) {
+                    $financeData = [
+                        'transactions' => $financeResult['data']['transactions'] ?? [],
+                        'summary' => $financeResult['data']['summary'] ?? null
+                    ];
+                }
+            } catch (\Exception $e) {
+                // Lanjutkan tanpa data keuangan
+            }
+
             // Buat PDF
             $pdf = Pdf::loadView('Asset.AssetDetailPDF', [
                 'asset' => $asset,
-                'date_generated' => now()->format('d M Y H:i:s')
+                'date_generated' => now()->format('d M Y H:i:s'),
+                'depreciation' => $depreciationData,
+                'finance' => $financeData
             ]);
 
             // Alirkan PDF ke browser

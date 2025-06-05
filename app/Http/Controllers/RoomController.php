@@ -25,6 +25,7 @@ class RoomController extends Controller
             $roomLimit = $request->query('room_limit', 10);
             $search = $request->query('search', '');
             $sort = $request->query('sort', '');
+            $buildingId = $request->query('building_id', '');
 
             // Untuk permintaan JSON, tingkatkan batas untuk memuat lebih banyak item
             if ($request->expectsJson() || $request->ajax()) {
@@ -42,6 +43,11 @@ class RoomController extends Controller
             // Parameter pencarian
             if (!empty($search)) {
                 $queryParams['search'] = $search;
+            }
+
+            // Parameter building_id
+            if (!empty($buildingId)) {
+                $queryParams['building_id'] = $buildingId;
             }
 
             // Pengurutan kustom

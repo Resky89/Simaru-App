@@ -58,20 +58,41 @@
 
                 <!-- Opname Info Card -->
                 <div class="bg-[#F8F9FA] p-5 rounded-lg border border-[#E9ECEF]">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Opname Information -->
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">Kode Opname</p>
-                            <p class="text-lg font-semibold text-[#213268]">{{ $opnameInfo['opname_code'] ?? $opnameCode ?? 'N/A' }}</p>
+                            <h3 class="text-[#213268] font-semibold text-lg mb-3">Informasi Opname</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Kode Opname</p>
+                                    <p class="text-lg font-semibold text-[#213268]">{{ $opnameInfo['opname_code'] ?? $opnameCode ?? 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Tanggal Dibuat</p>
+                                    <p class="text-lg font-semibold text-[#213268]">
+                                        {{ isset($opnameInfo['opname_created_at']) ? \Carbon\Carbon::parse($opnameInfo['opname_created_at'])->locale('id')->isoFormat('D MMMM Y, HH:mm') : 'N/A' }}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Location Information -->
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">Ruangan</p>
-                            <p class="text-lg font-semibold text-[#213268]">{{ $roomInfo['room_name'] ?? 'N/A' }}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 mb-1">Tanggal Dibuat</p>
-                            <p class="text-lg font-semibold text-[#213268]">
-                                {{ isset($opnameInfo['opname_created_at']) ? \Carbon\Carbon::parse($opnameInfo['opname_created_at'])->locale('id')->isoFormat('D MMMM Y, HH:mm') : 'N/A' }}
-                            </p>
+                            <h3 class="text-[#213268] font-semibold text-lg mb-3">Lokasi</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Gedung</p>
+                                    <p class="text-lg font-semibold text-[#213268]">{{ $roomInfo['building'] ?? 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Ruangan</p>
+                                    <p class="text-lg font-semibold text-[#213268]">{{ $roomInfo['room_name'] ?? 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Lantai</p>
+                                    <p class="text-lg font-semibold text-[#213268]">{{ $roomInfo['floor'] ?? 'N/A' }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
