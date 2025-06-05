@@ -7,40 +7,16 @@
     <div class="h-full">
         <!-- Maintenance Details Section -->
         <div class="flex flex-col gap-6 p-4 md:p-7 bg-base-100 rounded-xl">
-            <!-- Header with Back Button, Title, ID and Status -->
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
+            <!-- Header with Back Button and Title -->
+            <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center">
                     <a href="{{ route('maintenance') }}"
-                        class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                        class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                         <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
                     </a>
-                    <div>
-                        <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DETAIL PEMELIHARAAN</h1>
-                        <div class="flex items-center gap-3 mt-1">
-                            @php
-                                $statusClass = '';
-                                $status = $maintenance['status'] ?? '';
-                                $statusText = 'Tidak Diketahui';
-
-                                if ($status == 'new') {
-                                    $statusClass = 'bg-blue-100 text-blue-800';
-                                    $statusText = 'Baru';
-                                } elseif ($status == 'in_progress') {
-                                    $statusClass = 'bg-yellow-100 text-yellow-800';
-                                    $statusText = 'Dalam Proses';
-                                } elseif ($status == 'finished') {
-                                    $statusClass = 'bg-green-100 text-green-800';
-                                    $statusText = 'Selesai';
-                                }
-                            @endphp
-
-                            <span class="px-3 py-1 rounded-full text-sm font-semibold {{ $statusClass }}">
-                                {{ $statusText }}
-                            </span>
-                        </div>
-                    </div>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DETAIL PEMELIHARAAN</h1>
                 </div>
 
                 <!-- Export Button -->
@@ -56,15 +32,47 @@
                 </a>
             </div>
 
-            <!-- Main Content -->
-            <div class="flex flex-col gap-6">
-                <!-- Main Info Section -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Left Column -->
-                    <div class="space-y-6">
+            <!-- Status Banner -->
+            @php
+                $statusClass = 'bg-gray-100 text-gray-800 border-gray-200';
+                $status = $maintenance['status'] ?? '';
+                $statusText = 'Tidak Diketahui';
+                $statusIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />';
+                $statusDescription = '';
+
+                if ($status == 'new') {
+                    $statusClass = 'bg-blue-100 text-blue-800 border-blue-200';
+                    $statusText = 'Baru';
+                    $statusIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />';
+                    $statusDescription = 'Pemeliharaan baru dibuat dan belum dimulai';
+                } elseif ($status == 'in_progress') {
+                    $statusClass = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                    $statusText = 'Dalam Proses';
+                    $statusIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />';
+                    $statusDescription = 'Pemeliharaan sedang dalam proses pengerjaan';
+                } elseif ($status == 'finished') {
+                    $statusClass = 'bg-green-100 text-green-800 border-green-200';
+                    $statusText = 'Selesai';
+                    $statusIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />';
+                    $statusDescription = 'Pemeliharaan telah selesai dilakukan';
+                }
+            @endphp
+
+            <div class="w-full rounded-lg p-4 mb-4 border flex items-center gap-3 {{ $statusClass }}">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {!! $statusIcon !!}
+                </svg>
+                <div>
+                    <div class="font-semibold">Status: {{ $statusText }}</div>
+                    <div class="text-sm">{{ $statusDescription }}</div>
+                </div>
+            </div>
+
+            <!-- Main Content Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <!-- Asset Information Card -->
-                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
-                            <h2 class="text-lg font-semibold text-[#213268] mb-4 flex items-center">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                    <h2 class="font-bold text-lg text-[#213268] border-b pb-2 mb-4 flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -75,18 +83,16 @@
                             <div class="space-y-4">
                                 <div class="flex flex-col">
                                     <span class="text-sm text-gray-500">Nama Aset</span>
-                                    <span class="font-medium">{{ $maintenance['asset_name'] ?? 'N/A' }}</span>
+                            <span class="font-medium text-lg">{{ $maintenance['asset_name'] ?? 'N/A' }}</span>
                                 </div>
-                                <div class="grid grid-cols-2 gap-4">
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Kode Aset</span>
-                                        <span>{{ $maintenance['asset_code'] ?? 'N/A' }}</span>
-                                    </div>
+                            <span class="font-medium">{{ $maintenance['asset_code'] ?? 'N/A' }}</span>
                                 </div>
                                 @if(isset($maintenance['asset']) && isset($maintenance['asset']['location']))
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Lokasi</span>
-                                        <span>{{ $maintenance['asset']['location']['room_name'] ?? 'N/A' }},
+                                <span class="font-medium">{{ $maintenance['asset']['location']['room_name'] ?? 'N/A' }},
                                             {{ $maintenance['asset']['location']['building_name'] ?? '' }}</span>
                                     </div>
                                 @endif
@@ -94,39 +100,55 @@
                         </div>
 
                         <!-- Schedule Information Card -->
-                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
-                            <h2 class="text-lg font-semibold text-[#213268] mb-4 flex items-center">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                    <h2 class="font-bold text-lg text-[#213268] border-b pb-2 mb-4 flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                Informasi Jadwal
+                        Jadwal Pemeliharaan
                             </h2>
                             <div class="space-y-4">
                                 <div class="flex flex-col">
                                     <span class="text-sm text-gray-500">Interval</span>
-                                    <span class="font-medium">{{ $maintenance['interval'] ?? 'N/A' }}</span>
+                                    <span class="font-medium">
+                                        @php
+                                            $intervalText = $maintenance['interval'] ?? 'N/A';
+                                            $translations = [
+                                                'ONCE' => 'Sekali',
+                                                'DAILY' => 'Harian',
+                                                'WEEKLY' => 'Mingguan',
+                                                '2 WEEKS' => '2 Minggu',
+                                                'MONTHLY' => 'Bulanan',
+                                                '2 MONTHS' => '2 Bulan',
+                                                '3 MONTHS' => '3 Bulan',
+                                                '4 MONTHS' => '4 Bulan',
+                                                '6 MONTHS' => '6 Bulan',
+                                                'YEARLY' => 'Tahunan'
+                                            ];
+
+                                            if (array_key_exists($intervalText, $translations)) {
+                                                $intervalText = $translations[$intervalText];
+                                            }
+                                        @endphp
+                                        {{ $intervalText }}
+                                    </span>
                                 </div>
-                                <div class="grid grid-cols-2 gap-4">
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Tanggal Mulai</span>
-                                        <span>{{ isset($maintenance['start_date']) ? \Carbon\Carbon::parse($maintenance['start_date'])->locale('id')->isoFormat('D MMMM Y') : 'N/A' }}</span>
+                            <span class="font-medium">{{ isset($maintenance['start_date']) ? \Carbon\Carbon::parse($maintenance['start_date'])->locale('id')->isoFormat('D MMMM Y') : 'N/A' }}</span>
                                     </div>
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Tanggal Selesai</span>
-                                        <span>{{ isset($maintenance['end_date']) ? \Carbon\Carbon::parse($maintenance['end_date'])->locale('id')->isoFormat('D MMMM Y') : 'N/A' }}</span>
-                                    </div>
-                                </div>
+                            <span class="font-medium">{{ isset($maintenance['end_date']) ? \Carbon\Carbon::parse($maintenance['end_date'])->locale('id')->isoFormat('D MMMM Y') : 'N/A' }}</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Column -->
-                    <div class="space-y-6">
                         <!-- Assignment Information Card -->
-                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
-                            <h2 class="text-lg font-semibold text-[#213268] mb-4 flex items-center">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                    <h2 class="font-bold text-lg text-[#213268] border-b pb-2 mb-4 flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -141,22 +163,20 @@
                                 </div>
                                 <div class="flex flex-col">
                                     <span class="text-sm text-gray-500">Dijadwalkan Oleh</span>
-                                    <span>{{ $maintenance['scheduled_by_employee_number'] ?? 'N/A' }}</span>
+                            <span class="font-medium">{{ $maintenance['scheduled_by_employee_number'] ?? 'N/A' }}</span>
                                 </div>
                                 <div class="flex flex-col">
                                     <span class="text-sm text-gray-500">Vendor</span>
-                                    <span>{{ $maintenance['vendor_name'] ?? 'N/A' }}</span>
+                            <span class="font-medium">{{ $maintenance['vendor_name'] ?? 'N/A' }}</span>
+                        </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Notes & Documents Card -->
-                        @if(
-                                (isset($maintenance['notes']) && !empty($maintenance['notes']) && $maintenance['notes'] != 'No notes available') ||
-                                (isset($maintenance['document_file_path']) && !empty($maintenance['document_file_path']))
-                            )
-                            <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
-                                <h2 class="text-lg font-semibold text-[#213268] mb-4 flex items-center">
+            <!-- Notes & Documents Section -->
+            @if((isset($maintenance['notes']) && !empty($maintenance['notes']) && $maintenance['notes'] != 'No notes available') || (isset($maintenance['document_file_path']) && !empty($maintenance['document_file_path'])))
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mt-2">
+                    <h2 class="font-bold text-lg text-[#213268] border-b pb-2 mb-4 flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -164,79 +184,90 @@
                                     </svg>
                                     Catatan & Dokumen
                                 </h2>
-                                <div class="space-y-4">
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     @if(isset($maintenance['notes']) && !empty($maintenance['notes']) && $maintenance['notes'] != 'No notes available')
                                         <div class="flex flex-col">
-                                            <span class="text-sm text-gray-500">Catatan</span>
-                                            <p class="font-medium whitespace-pre-wrap">{{ $maintenance['notes'] }}</p>
+                                <span class="text-sm text-gray-500 mb-2">Catatan</span>
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    <p class="whitespace-pre-wrap">{{ $maintenance['notes'] }}</p>
+                                </div>
                                         </div>
                                     @endif
 
                                     @if(isset($maintenance['document_file_path']) && !empty($maintenance['document_file_path']))
                                         <div class="flex flex-col">
-                                            <span class="text-sm text-gray-500">Dokumen Terlampir</span>
+                                <span class="text-sm text-gray-500 mb-2">Dokumen Terlampir</span>
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 flex items-center">
+                                    <svg class="w-10 h-10 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <div>
+                                        <p class="font-medium">{{ basename($maintenance['document_file_path']) }}</p>
                                             <a href="{{ $maintenance['document_file_path'] }}" target="_blank"
-                                                class="text-blue-600 hover:underline flex items-center mt-1">
+                                            class="text-blue-600 hover:underline text-sm flex items-center mt-1">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                                     xmlns="http://www.w3.org/2000/svg">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
-                                                    </path>
+                                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                                 </svg>
                                                 Lihat Dokumen
                                             </a>
                                         </div>
-                                    @endif
                                 </div>
                             </div>
                         @endif
                     </div>
                 </div>
+            @endif
 
-                <!-- Maintenance Report Section - Full Width -->
+            <!-- Maintenance Report Section -->
                 @if(isset($maintenance['maintenance_report']))
-                    <div class="mt-2">
-                        <div class="bg-blue-50 p-5 rounded-lg border border-blue-100">
-                            <h2 class="text-xl font-semibold text-[#213268] mb-4 flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mt-2">
+                    <h2 class="font-bold text-lg text-[#213268] border-b pb-2 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                                 </svg>
                                 Laporan Pemeliharaan
                             </h2>
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-4">
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Tanggal Laporan</span>
-                                        <span
-                                            class="font-medium">{{ isset($maintenance['maintenance_report']['maintenance_date']) ? \Carbon\Carbon::parse($maintenance['maintenance_report']['maintenance_date'])->locale('id')->isoFormat('D MMMM Y') : 'N/A' }}</span>
+                                <span class="font-medium">{{ isset($maintenance['maintenance_report']['maintenance_date']) ? \Carbon\Carbon::parse($maintenance['maintenance_report']['maintenance_date'])->locale('id')->isoFormat('D MMMM Y') : 'N/A' }}</span>
                                     </div>
 
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Dilaporkan Oleh</span>
-                                        <span>{{ $maintenance['maintenance_report']['reported_by_employee_number'] ?? 'N/A' }}</span>
+                                <span class="font-medium">{{ $maintenance['maintenance_report']['reported_by_employee_number'] ?? 'N/A' }}</span>
                                     </div>
 
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Laporan Dibuat Pada</span>
-                                        <span>{{ isset($maintenance['maintenance_report']['created_at']) ? \Carbon\Carbon::parse($maintenance['maintenance_report']['created_at'])->locale('id')->isoFormat('D MMMM Y') : 'N/A' }}</span>
+                                <span class="font-medium">{{ isset($maintenance['maintenance_report']['created_at']) ? \Carbon\Carbon::parse($maintenance['maintenance_report']['created_at'])->locale('id')->isoFormat('D MMMM Y') : 'N/A' }}</span>
                                     </div>
                                 </div>
 
                                 <div class="space-y-4">
                                     <div class="flex flex-col">
                                         <span class="text-sm text-gray-500">Deskripsi</span>
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
                                         <p class="whitespace-pre-wrap">
                                             {{ $maintenance['maintenance_report']['description'] ?? 'Tidak ada deskripsi tersedia' }}
                                         </p>
+                                </div>
                                     </div>
                                 </div>
                             </div>
 
                             @if(isset($maintenance['maintenance_report']['attachment_path']) && !empty($maintenance['maintenance_report']['attachment_path']))
-                                <div class="mt-4 pt-4 border-t border-blue-200">
-                                    <span class="text-sm text-gray-500 block mb-2">Lampiran</span>
+                        <div class="mt-6 border-t border-gray-200 pt-4">
+                            <span class="text-sm text-gray-500 block mb-3">Lampiran</span>
                                     <div class="flex justify-center">
                                         <div class="max-w-md">
                                             <img src="http://localhost:5000/public/images/{{ basename($maintenance['maintenance_report']['attachment_path']) }}"
@@ -248,20 +279,18 @@
                                     </div>
                                 </div>
                             @endif
-                        </div>
                     </div>
                 @endif
 
-                <!-- History Section - Full Width -->
+            <!-- History Section -->
                 @php
                     $hasHistory = isset($maintenance['history']) && is_array($maintenance['history']) && !empty($maintenance['history']);
                 @endphp
 
                 @if($hasHistory)
-                    <div class="mt-2">
-                        <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
-                            <h2 class="text-xl font-semibold text-[#213268] mb-4 flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mt-2">
+                    <h2 class="font-bold text-lg text-[#213268] border-b pb-2 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -273,8 +302,7 @@
                                     <thead>
                                         <tr>
                                             <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal</th>
-                                            <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Diubah Oleh
-                                            </th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Diubah Oleh</th>
                                             <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Bidang</th>
                                             <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Dari</th>
                                             <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Menjadi</th>
@@ -299,11 +327,9 @@
                                         @endforeach
                                     </tbody>
                                 </table>
-                            </div>
                         </div>
                     </div>
                 @endif
-            </div>
         </div>
     </div>
 @endsection

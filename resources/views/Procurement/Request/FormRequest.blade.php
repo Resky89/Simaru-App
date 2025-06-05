@@ -372,20 +372,20 @@
                 }
 
                 // Fetch asset masters for dropdowns
-                function fetchAssetMasters() {
-                    // If we already have asset masters, no need to fetch again
-                    if (assetMasters.length > 0) {
-                        updateAssetMasterDropdowns();
-                        return Promise.resolve(assetMasters);
-                    }
-
+                function fetchAssetMasters(searchTerm = '') {
                     // Show loading indicator in all dropdowns
                     document.querySelectorAll('.asset-master-loading').forEach(loading => {
                         loading.style.display = 'block';
                     });
 
-                    // Use the same API endpoint as in UnitAsset.blade.php
-                    return fetch('{{ route("asset-master") }}', {
+                    // Build the URL with search parameter if provided
+                    let url = '{{ route("asset-master") }}';
+                    if (searchTerm) {
+                        url += `?search=${encodeURIComponent(searchTerm)}`;
+                    }
+
+                    // Use the API endpoint with search parameter
+                    return fetch(url, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -399,8 +399,16 @@
                         })
                         .then(data => {
                             // Match the data structure from UnitAsset.blade.php
-                            assetMasters = data.masterAssets || [];
-                            console.log('Loaded', assetMasters.length, 'asset masters');
+                            const results = data.masterAssets || [];
+                            console.log('Loaded', results.length, 'asset masters for search:', searchTerm);
+
+                            // If it's a search, just return the results instead of storing all assets
+                            if (searchTerm) {
+                                return results;
+                            }
+
+                            // Otherwise store the full list for initial load
+                            assetMasters = results;
 
                             // Update selected asset master IDs
                             updateSelectedAssetMasterIds();
@@ -413,7 +421,7 @@
                                 loading.style.display = 'none';
                             });
 
-                            return assetMasters;
+                            return results;
                         })
                         .catch(error => {
                             console.error('Error loading asset masters:', error);
@@ -508,14 +516,90 @@
                     const hiddenInput = container.querySelector('.asset-master-id');
 
                     if (searchInput && dropdown && list) {
+                        // Debounce function to reduce API calls while typing
+                        let searchTimeout;
+
                         // When input is cleared, clear the hidden value too
                         searchInput.addEventListener('input', function () {
-                            if (!this.value.trim()) {
+                            const value = this.value.trim();
+
+                            // Clear the previous timeout
+                            if (searchTimeout) {
+                                clearTimeout(searchTimeout);
+                            }
+
+                            // Show dropdown when typing
+                            dropdown.classList.remove('hidden');
+
+                            if (!value) {
                                 hiddenInput.value = '';
                                 // Update available options for all dropdowns
                                 updateSelectedAssetMasterIds();
+
+                                // If we have cached asset masters, show them
+                            if (assetMasters.length > 0) {
                                 updateAssetMasterDropdowns();
+                            } else {
+                                    // Otherwise load initial set
+                                loadingIndicator.style.display = 'block';
+                                fetchAssetMasters().then(() => {
+                                    loadingIndicator.style.display = 'none';
+                                });
                             }
+                                return;
+                            }
+
+                            // Show loading indicator
+                            loadingIndicator.style.display = 'block';
+
+                            // Set a timeout to debounce the search
+                            searchTimeout = setTimeout(() => {
+                                // Fetch asset masters with search term
+                                fetchAssetMasters(value)
+                                    .then(results => {
+                                        // Clear the current list
+                                        list.innerHTML = '';
+
+                                        // Hide loading indicator
+                                        loadingIndicator.style.display = 'none';
+
+                                        // Update selected asset master IDs
+                                        updateSelectedAssetMasterIds();
+
+                                        // Filter results to exclude already selected ones
+                                        const currentAssetMasterId = hiddenInput.value ? parseInt(hiddenInput.value) : null;
+                                        const availableAssets = results.filter(asset => {
+                                            const assetId = parseInt(asset.asset_master_id);
+                                            return !selectedAssetMasterIds.has(assetId) || (currentAssetMasterId === assetId);
+                            });
+
+                                        // Add options for each available asset master
+                                        if (availableAssets.length === 0) {
+                                const noResults = document.createElement('li');
+                                noResults.className = 'px-4 py-2 text-sm text-gray-500 italic no-results-item';
+                                noResults.textContent = 'Tidak ada aset yang cocok';
+                                list.appendChild(noResults);
+                                        } else {
+                                            availableAssets.forEach(asset => {
+                                                const li = document.createElement('li');
+                                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                                                li.textContent = asset.asset_name || 'Aset tidak dikenal';
+                                                li.setAttribute('data-id', asset.asset_master_id);
+                                                li.setAttribute('data-name', asset.asset_name || 'Aset tidak dikenal');
+
+                                                // Add click handler
+                                                li.addEventListener('click', function () {
+                                                    searchInput.value = this.getAttribute('data-name');
+                                                    hiddenInput.value = this.getAttribute('data-id');
+                                                    dropdown.classList.add('hidden');
+                                                    updateSelectedAssetMasterIds();
+                                                });
+
+                                                list.appendChild(li);
+                                            });
+                                        }
+                                    });
+                            }, 300); // 300ms debounce time
                         });
 
                         // Show dropdown on focus
@@ -532,41 +616,6 @@
                                 fetchAssetMasters().then(() => {
                                     loadingIndicator.style.display = 'none';
                                 });
-                            }
-                        });
-
-                        // Filter items on input
-                        searchInput.addEventListener('input', function () {
-                            const value = this.value.toLowerCase();
-
-                            // Show dropdown if it's hidden and we're typing
-                            if (dropdown.classList.contains('hidden') && value.trim() !== '') {
-                                dropdown.classList.remove('hidden');
-                            }
-
-                            const items = list.querySelectorAll('li:not(.no-results-item)');
-
-                            let hasVisibleItems = false;
-
-                            // Remove any previous "no results" item
-                            list.querySelectorAll('.no-results-item').forEach(el => el.remove());
-
-                            items.forEach(item => {
-                                const text = item.textContent.toLowerCase();
-                                if (text.includes(value)) {
-                                    item.style.display = '';
-                                    hasVisibleItems = true;
-                                } else {
-                                    item.style.display = 'none';
-                                }
-                            });
-
-                            // Show "No results" message if needed
-                            if (!hasVisibleItems) {
-                                const noResults = document.createElement('li');
-                                noResults.className = 'px-4 py-2 text-sm text-gray-500 italic no-results-item';
-                                noResults.textContent = 'Tidak ada aset yang cocok';
-                                list.appendChild(noResults);
                             }
                         });
 

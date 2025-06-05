@@ -9,23 +9,32 @@
             font-size: 12px;
             line-height: 1.4;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #213268;
+            text-align: left;
+            margin-bottom: 10px;
         }
-        .header h1 {
-            font-size: 18px;
-            font-weight: bold;
+        .header img {
+            max-width: 100%;
+            height: auto;
+            max-height: 50px;
+        }
+        .header-line {
+            border-bottom: 2px solid #213268;
+            margin-top: 3px;
+            margin-bottom: 15px;
+            clear: both;
+        }
+        .page-title {
             color: #213268;
-            margin: 0;
-        }
-        .header p {
-            margin: 5px 0;
-            font-size: 12px;
-            color: #666;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
         .section {
             margin-bottom: 20px;
@@ -131,12 +140,79 @@
             border-top: 1px solid #ddd;
             padding-top: 10px;
         }
+
+        /* Status Banner Styles */
+        .status-banner {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            color: #333;
+            font-weight: bold;
+        }
+        .status-banner-pending {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+        }
+        .status-banner-approved {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .status-banner-rejected {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .status-banner-in-progress {
+            background-color: #cce5ff;
+            border: 1px solid #b8daff;
+        }
+        .status-banner-completed {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>DETAIL KELUHAN & PERBAIKAN</h1>
-        <p>Dibuat pada: {{ \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM YYYY') }}</p>
+        <img src="{{ public_path('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI">
+    </div>
+    <div class="header-line"></div>
+
+    <div class="page-title">DETAIL KELUHAN & PERBAIKAN</div>
+
+    <!-- Status Banner Section -->
+    @php
+        $statusClass = 'status-banner-pending';
+        $status = $complaint['status'] ?? '';
+        $statusText = 'TIDAK DIKETAHUI';
+        $statusDescription = '';
+        $statusIcon = '';
+
+        if ($status == 'new') {
+            $statusClass = 'status-banner-pending';
+            $statusText = 'BARU';
+            $statusDescription = 'Keluhan baru dibuat';
+        } elseif ($status == 'in progress') {
+            $statusClass = 'status-banner-in-progress';
+            $statusText = 'SEDANG DIPROSES';
+            $statusDescription = 'Keluhan sedang dalam proses perbaikan';
+        } elseif ($status == 'finished') {
+            $statusClass = 'status-banner-completed';
+            $statusText = 'SELESAI';
+            $statusDescription = 'Keluhan telah selesai diperbaiki pada ' . (isset($complaint['finished_date']) ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'tanggal tidak tersedia');
+        } elseif ($status == 'approved') {
+            $statusClass = 'status-banner-approved';
+            $statusText = 'DISETUJUI';
+            $statusDescription = 'Keluhan telah disetujui untuk diperbaiki';
+        } else {
+            $statusClass = 'status-banner-pending';
+            $statusText = 'TIDAK DIKETAHUI';
+            $statusDescription = 'Status keluhan tidak diketahui';
+        }
+    @endphp
+
+    <div class="status-banner {{ $statusClass }}">
+        <div>Status: {{ $statusText }}</div>
+        <div style="font-weight: normal; font-size: 11px; margin-top: 3px;">{{ $statusDescription }}</div>
     </div>
 
     <!-- Complaint Section -->
@@ -177,42 +253,8 @@
                     </div>
                     <div class="detail-row">
                         <div class="detail-cell">
-                            <span class="detail-cell-title">Status</span>
-                            <span class="detail-cell-value">
-                                @php
-                                    $statusClass = '';
-                                    $status = $complaint['status'] ?? '';
-
-                                    if ($status == 'approved' || $status == 'completed') {
-                                        $statusClass = 'status-approved';
-                                    } elseif ($status == 'pending') {
-                                        $statusClass = 'status-pending';
-                                    } elseif ($status == 'rejected') {
-                                        $statusClass = 'status-rejected';
-                                    } elseif ($status == 'in_progress') {
-                                        $statusClass = 'status-in-progress';
-                                    }
-                                @endphp
-                                <span class="status-badge {{ $statusClass }}">
-                                    @if($status == 'approved')
-                                        Disetujui
-                                    @elseif($status == 'pending')
-                                        Menunggu
-                                    @elseif($status == 'rejected')
-                                        Ditolak
-                                    @elseif($status == 'in_progress')
-                                        Sedang Diproses
-                                    @elseif($status == 'completed')
-                                        Selesai
-                                    @else
-                                        Tidak Diketahui
-                                    @endif
-                                </span>
-                            </span>
-                        </div>
-                        <div class="detail-cell">
                             <span class="detail-cell-title">Keluhan Oleh</span>
-                            <span class="detail-cell-value">ID: {{ $complaint['reporter_number'] ?? 'N/A' }}</span>
+                            <span class="detail-cell-value">{{ $complaint['reporter_number'] ?? 'N/A' }}</span>
                         </div>
                     </div>
                 </div>
@@ -259,7 +301,22 @@
                         <div class="detail-row">
                             <div class="detail-cell">
                                 <span class="detail-cell-title">Hasil</span>
-                                <span class="detail-cell-value">{{ $complaint['repair']['final_result'] ?? 'N/A' }}</span>
+                                <span class="detail-cell-value">
+                                    @php
+                                        $resultClass = '';
+                                        $resultText = '';
+                                        $finalResult = $complaint['repair']['final_result'] ?? '';
+
+                                        $translations = [
+                                            'Slightly Damage' => 'Kerusakan Ringan',
+                                            'Heavy Damage' => 'Kerusakan Berat',
+                                            'Waiting for Part' => 'Menunggu Suku Cadang'
+                                        ];
+
+                                        $resultText = $translations[$finalResult] ?? $finalResult ?? 'N/A';
+                                    @endphp
+                                    <span class="detail-cell-value">{{ $resultText }}</span>
+                                </span>
                             </div>
                             <div class="detail-cell">
                                 <span class="detail-cell-title">Biaya</span>

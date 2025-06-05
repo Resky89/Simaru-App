@@ -7,8 +7,8 @@
         'calibration' => 'calibration:view',
         'maintenance' => 'maintenance:view',
         'complaint' => 'complaint:view',
-        'procurement' => 'procurement:view',
-        'report' => 'report:view',
+        'procurement' => ['procurement:view', 'price-comparison:view', 'purchase-order:view', 'procurement:view'],
+        'report' => ['report:opname', 'report:finance', 'report:depreciation'],
         'account' => ['user:view', 'role:view']
     ];
 
@@ -256,7 +256,7 @@
             @endif
 
             <!-- Procurement -->
-            @if(hasPermission($menuPermissions['procurement']))
+            @if(hasAnyPermission($menuPermissions['procurement']))
             <div class="{{ $menuItemClass }}">
                 <button class="w-full focus:outline-none toggle-menu" data-menu="procurement">
                     <div class="{{ $menuLinkClass }} menu-header">
@@ -302,7 +302,7 @@
             @endif
 
             <!-- Report -->
-            @if(hasPermission($menuPermissions['report']))
+            @if(hasAnyPermission($menuPermissions['report']))
             <div class="{{ $menuItemClass }}">
                 <button class="w-full focus:outline-none toggle-menu" data-menu="report">
                     <div class="{{ $menuLinkClass }} menu-header">

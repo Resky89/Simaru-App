@@ -320,30 +320,30 @@
     @if(!empty($details))
     <table>
         <thead>
-            <tr>
-                <th>Kode Aset</th>
-                <th>Deskripsi</th>
-                <th>Tanggal Scan</th>
-                <th>Status</th>
-                <th>Lokasi Seharusnya</th>
-                <th>Lokasi Aktual</th>
-                <th>Discan Oleh</th>
-            </tr>
+        <tr>
+            <th>Kode Aset</th>
+            <th>Deskripsi</th>
+            <th>Tanggal Scan</th>
+            <th>Status</th>
+            <th>Lokasi Seharusnya</th>
+            <th>Lokasi Aktual</th>
+            <th>Discan Oleh</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach($details as $asset)
-            <tr>
+        @foreach($details as $asset)
+        <tr>
                 <td><strong>{{ isset($asset['asset_code']) ? $asset['asset_code'] : '-' }}</strong></td>
-                <td>{{ isset($asset['asset_description']) ? $asset['asset_description'] : '-' }}</td>
-                <td>
-                    @if(isset($asset['scan_date']))
+            <td>{{ isset($asset['asset_description']) ? $asset['asset_description'] : '-' }}</td>
+            <td>
+                @if(isset($asset['scan_date']))
                     {{ formatDateIndonesian($asset['scan_date'], false) }}
-                    @else
+                @else
                     -
-                    @endif
-                </td>
-                <td>
-                    @if(isset($asset['scan_status']))
+                @endif
+            </td>
+            <td>
+                @if(isset($asset['scan_status']))
                     @if($asset['scan_status'] == 'found')
                     <span class="status-badge status-found">Ditemukan</span>
                     @elseif($asset['scan_status'] == 'missing')
@@ -351,22 +351,22 @@
                     @elseif($asset['scan_status'] == 'misplaced')
                     <span class="status-badge status-misplaced">Salah Tempat</span>
                     @else
-                    {{ $asset['scan_status'] }}
+                        {{ $asset['scan_status'] }}
                     @endif
-                    @else
+                @else
                     -
-                    @endif
-                </td>
-                <td>{{ isset($asset['expected_location_name']) ? $asset['expected_location_name'] : '-' }}</td>
-                <td>{{ isset($asset['actual_location_name']) ? $asset['actual_location_name'] : '-' }}</td>
-                <td>{{ isset($asset['scanner_name']) ? $asset['scanner_name'] : '-' }}</td>
-            </tr>
-            @endforeach
+                @endif
+            </td>
+            <td>{{ isset($asset['expected_location_name']) ? $asset['expected_location_name'] : '-' }}</td>
+            <td>{{ isset($asset['actual_location_name']) ? $asset['actual_location_name'] : '-' }}</td>
+            <td>{{ isset($asset['scanner_name']) ? $asset['scanner_name'] : '-' }}</td>
+        </tr>
+        @endforeach
         </tbody>
     </table>
     @else
     <div style="text-align: center; padding: 20px; color: #666; font-style: italic; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px;">
-        <p>Tidak ada data aset tersedia untuk laporan opname ini.</p>
+    <p>Tidak ada data aset tersedia untuk laporan opname ini.</p>
     </div>
     @endif
 

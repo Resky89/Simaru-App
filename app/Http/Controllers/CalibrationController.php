@@ -746,17 +746,37 @@ class CalibrationController extends Controller
                     $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif']);
 
                     if ($isImage) {
-                        $imagePath = 'http://localhost:5000/public/images/' . $fileName;
-                        $imageData = file_get_contents($imagePath);
+                        // Construct proper path to the image
+                        $backendUrl = config('app.backend_url', 'http://localhost:5000');
+
+                        // Check if certificate_file_path already includes /public
+                        if (strpos($calibrationData['certificate_file_path'], '/public') === 0) {
+                            $imagePath = $backendUrl . $calibrationData['certificate_file_path'];
+                        } else {
+                            $imagePath = $backendUrl . '/public' . $calibrationData['certificate_file_path'];
+                        }
+
+                        // Alternative path in case the above doesn't work
+                        $altImagePath = $backendUrl . '/public' . $fileName;
+
+                        // Try to get image data from the main path
+                        $imageData = @file_get_contents($imagePath);
+
+                        // If main path failed, try alternative path
+                        if ($imageData === false) {
+                            $imageData = @file_get_contents($altImagePath);
+                        }
+
                         if ($imageData !== false) {
                             $calibrationData['certificate_file_base64'] = base64_encode($imageData);
                         }
                     } else {
-                        // Untuk dokumen, simpan URL-nya
-                        $calibrationData['certificate_file_url'] = 'http://localhost:5000/public/documents/' . $fileName;
+                        // For non-image documents, just store the filename
+                        $calibrationData['certificate_file_url'] = $fileName;
                     }
                 } catch (\Exception $e) {
-                    // Lanjutkan tanpa file sertifikat jika gagal
+                    // Continue without certificate file if failed
+                    \Log::error('Failed to process certificate file: ' . $e->getMessage());
                 }
             }
 

@@ -141,17 +141,8 @@
                         </p>
 
                         <div class="flex flex-col sm:flex-row gap-4">
-                            <a href="{{ route('dashboard') }}"
-                                class="px-6 py-3 bg-[#213268] text-white rounded-lg font-medium transition-all duration-300 hover:bg-[#162449] flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 12l2-2m0 0l7-7 7 7m-14 0l2 2m0 0l7 7 7-7m-14 0l2-2" />
-                                </svg>
-                                Kembali ke Dashboard
-                            </a>
                             <a href="javascript:history.back()"
-                                class="px-6 py-3 border-2 border-[#213268] text-[#213268] rounded-lg font-medium transition-all duration-300 hover:bg-[#213268] hover:text-white flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1">
+                                class="px-6 py-3 bg-[#213268] text-white rounded-lg font-medium transition-all duration-300 hover:bg-[#162449] flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

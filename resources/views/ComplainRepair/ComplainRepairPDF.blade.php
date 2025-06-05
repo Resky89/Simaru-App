@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
     <meta charset="utf-8">
     <title>Laporan Keluhan & Perbaikan</title>
@@ -9,23 +9,32 @@
             font-size: 12px;
             line-height: 1.4;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #213268;
+            text-align: left;
+            margin-bottom: 10px;
         }
-        .header h1 {
-            font-size: 18px;
-            font-weight: bold;
+        .header img {
+            max-width: 100%;
+            height: auto;
+            max-height: 50px;
+        }
+        .header-line {
+            border-bottom: 2px solid #213268;
+            margin-top: 3px;
+            margin-bottom: 15px;
+            clear: both;
+        }
+        .page-title {
             color: #213268;
-            margin: 0;
-        }
-        .header p {
-            margin: 5px 0;
-            font-size: 12px;
-            color: #666;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
         table {
             width: 100%;
@@ -45,33 +54,6 @@
             padding: 8px;
             font-size: 10px;
             vertical-align: top;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 9px;
-            font-weight: normal;
-        }
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .status-approved {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .status-rejected {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .status-in-progress {
-            background-color: #cce5ff;
-            color: #004085;
-        }
-        .status-completed {
-            background-color: #d4edda;
-            color: #155724;
         }
         .footer {
             margin-top: 20px;
@@ -93,21 +75,82 @@
         .striped tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: medium;
+            text-align: center;
+            min-width: 60px;
+        }
+        .status-new {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        .status-in-progress {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+        .status-finished {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+        .status-approved {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+        .status-unknown {
+            background-color: #F3F4F6;
+            color: #4B5563;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>LAPORAN KELUHAN & PERBAIKAN</h1>
-        <p>Dibuat pada: {{ \Carbon\Carbon::parse($date_generated)->locale('id')->isoFormat('DD MMMM YYYY') }}</p>
+        <img src="{{ public_path('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI">
     </div>
+    <div class="header-line"></div>
+
+    <div class="page-title">LAPORAN KELUHAN & PERBAIKAN</div>
 
     <div class="filters">
         @if(!empty($search))
         <p><strong>Pencarian:</strong> {{ $search }}</p>
         @endif
-        <p><strong>Urutan Sortir:</strong> {{ ucfirst($sort) }}</p>
+
+        <p><strong>Urutan:</strong>
+            @switch($sort ?? 'default')
+                @case('newest')
+                    Terbaru
+                    @break
+                @case('oldest')
+                    Terlama
+                    @break
+                @default
+                    {{ ucfirst(str_replace('_', ' ', $sort ?? 'default')) }}
+            @endswitch
+        </p>
+
         @if(!empty($status))
-        <p><strong>Filter Status:</strong> {{ ucfirst(str_replace('_', ' ', $status)) }}</p>
+        <p><strong>Filter Status:</strong>
+            @switch($status)
+                @case('new')
+                    Baru
+                    @break
+                @case('in_progress')
+                    Sedang Diproses
+                    @break
+                @case('finished')
+                    Selesai
+                    @break
+                @case('approved')
+                    Disetujui
+                    @break
+                @default
+                    {{ ucfirst(str_replace('_', ' ', $status)) }}
+            @endswitch
+        </p>
         @endif
     </div>
 
@@ -127,23 +170,23 @@
                 <tr>
                     <td>
                         <div>{{ $complaint['asset_name'] ?? '-' }}</div>
-                        <div style="color: #666;">ID: {{ $complaint['asset_id'] ?? '-' }}</div>
+                        <div style="color: #666;">Kode: {{ $complaint['asset_code'] ?? '-' }}</div>
                     </td>
                     <td>{{ $complaint['description'] ?? '-' }}</td>
                     <td>
                         @php
-                            $statusClass = '';
+                            $statusClass = 'status-unknown';
                             $status = $complaint['status'] ?? '';
                             $statusText = 'Tidak Diketahui';
 
                             if ($status == 'new') {
-                                $statusClass = 'status-pending';
+                                $statusClass = 'status-new';
                                 $statusText = 'Baru';
                             } elseif ($status == 'in progress') {
                                 $statusClass = 'status-in-progress';
                                 $statusText = 'Sedang Diproses';
                             } elseif ($status == 'finished') {
-                                $statusClass = 'status-completed';
+                                $statusClass = 'status-finished';
                                 $statusText = 'Selesai';
                             } elseif ($status == 'approved') {
                                 $statusClass = 'status-approved';
@@ -173,7 +216,7 @@
     </table>
 
     <div class="footer">
-        <p>Sistem Monitoring Aset - Laporan Keluhan & Perbaikan</p>
+        <p>Sistem Monitoring Aset - Laporan Keluhan & Perbaikan RS UMMI</p>
     </div>
 </body>
 </html>

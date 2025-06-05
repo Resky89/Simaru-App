@@ -3,7 +3,7 @@
     <div class="flex-1"></div>
     <div class="flex items-center gap-2 md:gap-4">
         <!-- Notification -->
-        <div class="relative hidden md:block">
+        <div class="relative">
             <div class="notification-dropdown cursor-pointer">
                 <div class="relative">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -13,7 +13,7 @@
                 </div>
 
                 <!-- Notification Dropdown -->
-                <div id="notification-menu" class="hidden absolute right-0 mt-2 w-[350px] max-w-[95vw] bg-white rounded-lg shadow-xl z-50 max-h-[80vh] overflow-hidden">
+                <div id="notification-menu" class="hidden fixed left-1/2 transform -translate-x-1/2 top-[80px] w-[90%] max-w-[350px] bg-white rounded-lg shadow-xl z-50 max-h-[80vh] overflow-hidden">
                     <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
                         <h3 class="text-sm font-semibold text-[#232D42]">Notifikasi</h3>
                         <button id="refresh-notifications" class="text-[#213268] hover:text-[#182451]">
@@ -72,6 +72,27 @@
         const unreadTab = document.getElementById('unread-tab');
         const readTab = document.getElementById('read-tab');
 
+        // Function to position the dropdown properly
+        function positionDropdown() {
+            if (!notificationMenu) return;
+
+            // Get viewport dimensions
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            // Calculate max height based on viewport
+            const maxHeight = Math.min(viewportHeight * 0.8, viewportHeight - 100);
+            notificationMenu.style.maxHeight = maxHeight + 'px';
+
+            // Ensure notification list has proper height
+            if (notificationList) {
+                const headerHeight = notificationMenu.querySelector('.border-b').offsetHeight || 0;
+                const tabsHeight = notificationMenu.querySelector('.flex.border-b').offsetHeight || 0;
+                const availableHeight = maxHeight - headerHeight - tabsHeight;
+                notificationList.style.maxHeight = `${availableHeight}px`;
+            }
+        }
+
         let notifications = {
             unread: [],
             read: []
@@ -95,6 +116,7 @@
                 notificationMenu.classList.add('hidden');
             } else {
                 notificationMenu.classList.remove('hidden');
+                positionDropdown(); // Position the dropdown when opening
 
                 // Only load notifications if they haven't been loaded yet
                 if (!isNotificationsLoaded && !isLoading) {
@@ -131,6 +153,19 @@
                 toggleDropdown();
             });
         }
+
+        // Listen for window resize and orientation change to reposition dropdown
+        window.addEventListener('resize', function() {
+            if (isDropdownOpen) {
+                positionDropdown();
+            }
+        });
+
+        window.addEventListener('orientationchange', function() {
+            if (isDropdownOpen) {
+                setTimeout(positionDropdown, 100); // Short delay to allow orientation to complete
+            }
+        });
 
         // Tab switching
         unreadTab.addEventListener('click', function() {
@@ -381,16 +416,15 @@
                 notificationItem.setAttribute('data-id', notification.id);
 
                 notificationItem.innerHTML = `
-                    <div class="flex justify-between items-start gap-1">
+                    <div class="flex flex-col w-full">
+                        <div class="notification-header flex items-start justify-between cursor-pointer group">
                         <div class="flex-1 min-w-0 pr-1">
-                            <div class="notification-header flex items-center justify-between cursor-pointer group">
-                                <div class="flex-1 flex items-center gap-2">
-                            <h4 class="text-sm font-semibold ${notification.is_read ? 'text-gray-500' : 'text-[#232D42]'} mb-0.5">${notification.title}</h4>
+                                <h4 class="text-sm font-semibold ${notification.is_read ? 'text-gray-500' : 'text-[#232D42]'} mb-0.5 break-words">${notification.title}</h4>
                                     ${isNew && !notification.is_read ?
-                                        '<span class="text-xs bg-[#213268] text-white px-1.5 py-0.5 rounded-full inline-flex items-center justify-center min-w-[36px]">Baru</span>' :
+                                    '<span class="text-xs bg-[#213268] text-white px-1.5 py-0.5 rounded-full inline-flex items-center justify-center min-w-[36px] mb-1">Baru</span>' :
                                         ''}
                                 </div>
-                                <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 shrink-0 ml-1">
                                     <span class="text-xs text-gray-400 whitespace-nowrap" title="${formattedDate}">${timeAgo}</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 ${notification.is_read ? 'text-gray-400 rotate-180' : 'text-[#213268] group-hover:text-[#182451]'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -399,7 +433,6 @@
                             </div>
                             <div class="notification-detail ${notification.is_read ? '' : 'hidden'} mt-2">
                             <p class="text-xs text-gray-600 break-words">${notification.detail}</p>
-                        </div>
                         </div>
                     </div>
                 `;

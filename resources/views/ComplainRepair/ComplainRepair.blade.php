@@ -145,7 +145,11 @@
                                             {{ isset($complaint['complaint_date']) ? \Carbon\Carbon::parse($complaint['complaint_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            {{ isset($complaint['finished_date']) && $complaint['finished_date'] ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : '-' }}
+                                            @if(isset($complaint['finished_date']) && $complaint['finished_date'] && $complaint['finished_date'] != '-')
+                                                {{ \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') }}
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             {{ $complaint['reporter_number'] ?? '-' }}
