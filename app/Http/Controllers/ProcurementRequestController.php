@@ -196,16 +196,37 @@ class ProcurementRequestController extends Controller
 
             // Process details to ensure proper types
             if (isset($validated['details']) && is_array($validated['details'])) {
-                foreach ($validated['details'] as $key => $detail) {
-                    if (isset($detail['quantity'])) {
-                        $validated['details'][$key]['quantity'] = (int)$detail['quantity'];
+                // Ensure details is indexed numerically to maintain array structure
+                $details = array_values($validated['details']);
+                $validated['details'] = [];
+
+                foreach ($details as $detail) {
+                    $processedDetail = [];
+
+                    // Process asset_name or asset_master_id
+                    if (isset($detail['asset_name'])) {
+                        $processedDetail['asset_name'] = $detail['asset_name'];
                     }
-                    if (isset($detail['estimated_unit_price'])) {
-                        $validated['details'][$key]['estimated_unit_price'] = (float)$detail['estimated_unit_price'];
-                    }
+
                     if (isset($detail['asset_master_id'])) {
-                        $validated['details'][$key]['asset_master_id'] = (int)$detail['asset_master_id'];
+                        $processedDetail['asset_master_id'] = (int)$detail['asset_master_id'];
                     }
+
+                    // Process required fields
+                    $processedDetail['quantity'] = (int)$detail['quantity'];
+                    $processedDetail['estimated_unit_price'] = (float)$detail['estimated_unit_price'];
+
+                    // Process optional fields
+                    if (isset($detail['specifications'])) {
+                        $processedDetail['specifications'] = $detail['specifications'];
+                    }
+
+                    if (isset($detail['notes'])) {
+                        $processedDetail['notes'] = $detail['notes'];
+                    }
+
+                    // Add to details array
+                    $validated['details'][] = $processedDetail;
                 }
             }
 
@@ -314,16 +335,37 @@ class ProcurementRequestController extends Controller
 
             // Process details to ensure proper types
             if (isset($validated['details']) && is_array($validated['details'])) {
-                foreach ($validated['details'] as $key => $detail) {
-                    if (isset($detail['quantity'])) {
-                        $validated['details'][$key]['quantity'] = (int)$detail['quantity'];
+                // Ensure details is indexed numerically to maintain array structure
+                $details = array_values($validated['details']);
+                $validated['details'] = [];
+
+                foreach ($details as $detail) {
+                    $processedDetail = [];
+
+                    // Process asset_name or asset_master_id
+                    if (isset($detail['asset_name'])) {
+                        $processedDetail['asset_name'] = $detail['asset_name'];
                     }
-                    if (isset($detail['estimated_unit_price'])) {
-                        $validated['details'][$key]['estimated_unit_price'] = (float)$detail['estimated_unit_price'];
-                    }
+
                     if (isset($detail['asset_master_id'])) {
-                        $validated['details'][$key]['asset_master_id'] = (int)$detail['asset_master_id'];
+                        $processedDetail['asset_master_id'] = (int)$detail['asset_master_id'];
                     }
+
+                    // Process required fields
+                    $processedDetail['quantity'] = (int)$detail['quantity'];
+                    $processedDetail['estimated_unit_price'] = (float)$detail['estimated_unit_price'];
+
+                    // Process optional fields
+                    if (isset($detail['specifications'])) {
+                        $processedDetail['specifications'] = $detail['specifications'];
+                    }
+
+                    if (isset($detail['notes'])) {
+                        $processedDetail['notes'] = $detail['notes'];
+                    }
+
+                    // Add to details array
+                    $validated['details'][] = $processedDetail;
                 }
             }
 

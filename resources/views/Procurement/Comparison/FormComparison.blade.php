@@ -3,171 +3,165 @@
 @section('title', isset($comparison) ? 'Edit Perbandingan Harga' : 'Formulir Perbandingan Harga')
 
 @section('content')
-@include('Layout.loading')
+    @include('Layout.loading')
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <div class="h-full space-y-4 md:space-y-6">
-        <!-- Price Comparison Form Section -->
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body p-4 md:p-7">
-                <div class="flex flex-col gap-6">
-                    <!-- Header -->
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div class="flex items-center">
-                            <a href="{{ route('procurement.price-comparison') }}" id="backButton"
-                                class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="p-4 md:p-7 bg-base-100 rounded-lg">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div class="flex items-center">
+                <a href="{{ route('procurement.price-comparison') }}" id="backButton"
+                    class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
+                    {{ isset($comparison) ? 'EDIT PERBANDINGAN HARGA' : 'FORMULIR PERBANDINGAN HARGA' }}
+                </h1>
+            </div>
+        </div>
+
+        <!-- Check permission for create/edit -->
+        @if((isset($comparison) && hasPermission('price-comparison:edit')) || (!isset($comparison) && hasPermission('price-comparison:create')))
+            <!-- Search Section -->
+            <div class="space-y-4">
+                <!-- Quotation Title -->
+                <div class="space-y-2">
+                    <label class="block text-base font-semibold text-[#666666]">Judul Penawaran <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" id="comparisonTitle" value="{{ $comparison['title'] ?? '' }}"
+                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                        placeholder="Pembelian toner printer">
+                    <div class="error-message text-red-500 text-sm mt-1 hidden">Judul penawaran harus diisi</div>
+                </div>
+
+                <!-- Request Number -->
+                <div class="space-y-2">
+                    <label class="block text-base font-semibold text-[#666666]">Nomor Permintaan <span
+                            class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input type="text" id="requestNumber"
+                            value="{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}"
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-l-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                            placeholder="Masukkan nomor permintaan yang disetujui" autocomplete="off" {{ isset($comparison) ? 'readonly' : '' }}>
+                        <input type="hidden" id="selected_request_id" value="{{ $comparison['procurement_id'] ?? '' }}">
+
+                        <div class="absolute inset-y-0 right-0 flex">
+                            <button id="searchBtn" type="button"
+                                class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451]">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 19l-7-7 7-7" />
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
-                            </a>
-                            <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
-                                {{ isset($comparison) ? 'EDIT PERBANDINGAN HARGA' : 'FORMULIR PERBANDINGAN HARGA' }}</h1>
+                            </button>
+                        </div>
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor permintaan harus diisi
+                        </div>
+
+                        <!-- Dropdown for search results -->
+                        <div id="procurement_dropdown"
+                            class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                            <!-- Loading indicator -->
+                            <div id="procurement_loading" class="flex justify-center py-2">
+                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                                    </circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <ul id="procurement_list" class="max-h-56 overflow-y-auto"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Details Section - Hidden by default unless editing -->
+            <div id="requestDetails" class="{{ isset($comparison) ? '' : 'hidden' }} mt-6">
+                <div class="border border-[#CCCCCC] rounded-lg p-4 bg-[#F9FAFB]">
+                    <!-- Request Details -->
+                    <div class="grid grid-cols-1 gap-3">
+                        <!-- Request Number -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Nomor Permintaan</p>
+                            <p class="text-[#666666]">: <span
+                                    id="displayRequestNumber">{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}</span>
+                            </p>
+                        </div>
+
+                        <!-- Request Title -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Judul Permintaan</p>
+                            <p class="text-[#666666]">: <span
+                                    id="displayRequestName">{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_name'] ?? '' : '' }}</span>
+                            </p>
+                        </div>
+
+                        <!-- Requester -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Pemohon</p>
+                            <p class="text-[#666666]">: <span
+                                    id="displayUserInput">{{ isset($comparison['procurement']) ? $comparison['procurement']['user_name'] ?? '' : '' }}</span>
+                            </p>
+                        </div>
+
+                        <!-- Request Date -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Tanggal Permintaan</p>
+                            <p class="text-[#666666]">: <span id="displayInputDate">
+                                    @if(isset($comparison['procurement']['created_at']))
+                                        {{ \Carbon\Carbon::parse($comparison['procurement']['created_at'])->format('d F Y') }}
+                                    @endif
+                                </span></p>
                         </div>
                     </div>
 
-                    <!-- Check permission for create/edit -->
-                    @if((isset($comparison) && hasPermission('price-comparison:edit')) || (!isset($comparison) && hasPermission('price-comparison:create')))
-                        <!-- Search Section -->
-                        <div class="space-y-4">
-                            <!-- Quotation Title -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Judul Penawaran <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" id="comparisonTitle" value="{{ $comparison['title'] ?? '' }}"
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Pembelian toner printer">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Judul penawaran harus diisi</div>
-                            </div>
+                    <!-- Asset List -->
+                    <div class="space-y-4 mt-6">
+                        <h2 class="text-lg font-semibold text-[#666666]">Daftar Aset</h2>
 
-                            <!-- Request Number -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Nomor Permintaan <span
-                                        class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <input type="text" id="requestNumber"
-                                        value="{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-l-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        placeholder="Masukkan nomor permintaan yang disetujui" autocomplete="off" {{ isset($comparison) ? 'readonly' : '' }}>
-                                    <input type="hidden" id="selected_request_id"
-                                        value="{{ $comparison['procurement_id'] ?? '' }}">
-
-                                    <div class="absolute inset-y-0 right-0 flex">
-                                        <button id="searchBtn" type="button"
-                                            class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451]">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor permintaan harus diisi
-                                    </div>
-
-                                    <!-- Dropdown for search results -->
-                                    <div id="procurement_dropdown"
-                                        class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
-                                        <!-- Loading indicator -->
-                                        <div id="procurement_loading" class="flex justify-center py-2">
-                                            <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg"
-                                                fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                    stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor"
-                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                                </path>
-                                            </svg>
-                                        </div>
-                                        <ul id="procurement_list" class="max-h-56 overflow-y-auto"></ul>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">NAMA ASET
+                                        </th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">SPESIFIKASI
+                                        </th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">JML</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">HARGA SATUAN
+                                        </th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">TOTAL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assetListTableBody">
+                                    <!-- Asset items will be populated here through JavaScript -->
+                                </tbody>
+                            </table>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Request Details Section - Hidden by default unless editing -->
-                        <div id="requestDetails" class="{{ isset($comparison) ? '' : 'hidden' }}">
-                            <!-- Request Details -->
-                            <div class="grid grid-cols-1 gap-5">
-                                <!-- Request Number -->
-                                <div class="flex items-start gap-2">
-                                    <p class="w-40 text-[#666666] font-medium">Nomor Permintaan</p>
-                                    <p class="text-[#666666]">: <span
-                                            id="displayRequestNumber">{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}</span>
-                                    </p>
-                                </div>
-
-                                <!-- Request Title -->
-                                <div class="flex items-start gap-2">
-                                    <p class="w-40 text-[#666666] font-medium">Judul Permintaan</p>
-                                    <p class="text-[#666666]">: <span
-                                            id="displayRequestName">{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_name'] ?? '' : '' }}</span>
-                                    </p>
-                                </div>
-
-                                <!-- Requester -->
-                                <div class="flex items-start gap-2">
-                                    <p class="w-40 text-[#666666] font-medium">Pemohon</p>
-                                    <p class="text-[#666666]">: <span
-                                            id="displayUserInput">{{ isset($comparison['procurement']) ? $comparison['procurement']['user_name'] ?? '' : '' }}</span>
-                                    </p>
-                                </div>
-
-                                <!-- Request Date -->
-                                <div class="flex items-start gap-2">
-                                    <p class="w-40 text-[#666666] font-medium">Tanggal Permintaan</p>
-                                    <p class="text-[#666666]">: <span id="displayInputDate">
-                                            @if(isset($comparison['procurement']['created_at']))
-                                                {{ \Carbon\Carbon::parse($comparison['procurement']['created_at'])->format('d F Y') }}
-                                            @endif
-                                        </span></p>
-                                </div>
-                            </div>
-
-                            <!-- Asset List -->
-                            <div class="space-y-4 mt-6">
-                                <h2 class="text-lg font-semibold text-[#666666]">Daftar Aset</h2>
-
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead>
-                                            <tr>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">NAMA ASET
-                                                </th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">SPESIFIKASI
-                                                </th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">JML</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">HARGA SATUAN
-                                                </th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">TOTAL</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="assetListTableBody">
-                                            <!-- Asset items will be populated here through JavaScript -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Navigation Buttons -->
-                            <div class="flex gap-4 mt-8">
-                                <button type="button" id="submitBtn"
-                                    class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
-                                    {{ isset($comparison) ? 'SIMPAN' : 'KIRIM' }}
-                                </button>
-                            </div>
-                        </div>
-                    @else
-                        <!-- No permission message -->
-                        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
-                            <p>Maaf, Anda tidak memiliki izin untuk {{ isset($comparison) ? 'mengedit' : 'membuat' }}
-                                perbandingan harga.</p>
-                        </div>
-                    @endif
+                <!-- Navigation Buttons -->
+                <div class="flex gap-4 mt-8">
+                    <button type="button" id="submitBtn"
+                        class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
+                        {{ isset($comparison) ? 'SIMPAN' : 'KIRIM' }}
+                    </button>
                 </div>
             </div>
-        </div>
+        @else
+            <!-- No permission message -->
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
+                <p>Maaf, Anda tidak memiliki izin untuk {{ isset($comparison) ? 'mengedit' : 'membuat' }}
+                    perbandingan harga.</p>
+            </div>
+        @endif
     </div>
 @endsection
 
@@ -276,42 +270,42 @@
                     const styleTag = document.createElement('style');
                     styleTag.id = 'swal-custom-styles';
                     styleTag.innerHTML = `
-                        /* SweetAlert Custom Styles */
-                        .swal2-popup {
-                            border-radius: 15px;
-                            padding: 1.5rem;
-                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                        }
-                        .swal-custom-title {
-                            font-weight: 600;
-                            font-size: 1.5rem;
-                            color: #333;
-                        }
-                        .swal-custom-content {
-                            font-size: 1rem;
-                            color: #555;
-                            margin-top: 0.5rem;
-                        }
-                        .swal-custom-content ul {
-                            text-align: left;
-                            margin-top: 1rem;
-                            margin-bottom: 1rem;
-                        }
-                        .swal-custom-confirm {
-                            padding: 0.5rem 1.5rem;
-                            font-weight: 500;
-                        }
-                        .swal-custom-cancel {
-                            padding: 0.5rem 1.5rem;
-                            font-weight: 500;
-                        }
-                        .swal2-timer-progress-bar {
-                            background: rgba(33, 50, 104, 0.5);
-                        }
-                        .swal2-icon {
-                            margin: 1rem auto;
-                        }
-                    `;
+                                /* SweetAlert Custom Styles */
+                                .swal2-popup {
+                                    border-radius: 15px;
+                                    padding: 1.5rem;
+                                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                                }
+                                .swal-custom-title {
+                                    font-weight: 600;
+                                    font-size: 1.5rem;
+                                    color: #333;
+                                }
+                                .swal-custom-content {
+                                    font-size: 1rem;
+                                    color: #555;
+                                    margin-top: 0.5rem;
+                                }
+                                .swal-custom-content ul {
+                                    text-align: left;
+                                    margin-top: 1rem;
+                                    margin-bottom: 1rem;
+                                }
+                                .swal-custom-confirm {
+                                    padding: 0.5rem 1.5rem;
+                                    font-weight: 500;
+                                }
+                                .swal-custom-cancel {
+                                    padding: 0.5rem 1.5rem;
+                                    font-weight: 500;
+                                }
+                                .swal2-timer-progress-bar {
+                                    background: rgba(33, 50, 104, 0.5);
+                                }
+                                .swal2-icon {
+                                    margin: 1rem auto;
+                                }
+                            `;
                     document.head.appendChild(styleTag);
                 }
 
@@ -422,6 +416,7 @@
 
             // Add input event listeners to clear error styling and track changes
             comparisonTitle.addEventListener('input', function () {
+                // Immediately clear any validation styling
                 this.classList.remove('border-red-500');
                 const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                 if (errorElement) errorElement.classList.add('hidden');
@@ -429,6 +424,7 @@
             });
 
             requestNumber.addEventListener('input', function () {
+                // Immediately clear any validation styling
                 this.classList.remove('border-red-500');
                 const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                 if (errorElement) errorElement.classList.add('hidden');
@@ -437,10 +433,19 @@
 
             // Search button click event
             searchBtn.addEventListener('click', function () {
-                // Validate inputs
+                // Store original button content (we don't need to regenerate this every time)
+                const originalBtnContent = searchBtn.innerHTML;
+
+                // Clear any existing validation errors
+                requestNumber.classList.remove('border-red-500');
+                const errorElement = requestNumber.closest('.space-y-2').querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.classList.add('hidden');
+                }
+
+                // Validate inputs - important to do this BEFORE changing the button state
                 if (!requestNumber.value.trim()) {
                     requestNumber.classList.add('border-red-500');
-                    const errorElement = requestNumber.closest('.space-y-2').querySelector('.error-message');
                     if (errorElement) errorElement.classList.remove('hidden');
                     showSweetAlert('Mohon masukkan Nomor Pengajuan yang sudah disetujui', 'error');
                     return;
@@ -452,12 +457,11 @@
                     return;
                 }
 
-                // Show loading indicator on button
-                const originalBtnText = searchBtn.innerHTML;
+                // Only change button appearance AFTER validation passes
                 searchBtn.disabled = true;
                 searchBtn.innerHTML = `
-                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                `;
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        `;
 
                 // Get the procurement ID directly from the request number
                 const procurementCode = requestNumber.value.trim();
@@ -466,9 +470,9 @@
                 if (selectedRequestId.value) {
                     fetchProcurementDetails(parseInt(selectedRequestId.value, 10))
                         .finally(() => {
-                            // Reset button state
+                            // Reset button state to original content
                             searchBtn.disabled = false;
-                            searchBtn.innerHTML = originalBtnText;
+                            searchBtn.innerHTML = originalBtnContent;
                         });
                 } else {
                     // Otherwise, try to fetch by code
@@ -483,7 +487,8 @@
                                 let procurements = result.data;
 
                                 // Fetch price comparisons to check which procurements to exclude
-                                return fetch('{{ route("procurement.price-comparison") }}?json=true&limit=1000', {
+                                // Use search parameter with procurement code for more efficient searching
+                                return fetch(`{{ route("procurement.price-comparison") }}?json=true&limit=1000&search=${encodeURIComponent(procurementCode)}`, {
                                     headers: {
                                         'Accept': 'application/json',
                                         'X-Requested-With': 'XMLHttpRequest'
@@ -563,9 +568,9 @@
                             requestDetails.classList.add('hidden');
                         })
                         .finally(() => {
-                            // Reset button state
+                            // Reset button state to original content
                             searchBtn.disabled = false;
-                            searchBtn.innerHTML = originalBtnText;
+                            searchBtn.innerHTML = originalBtnContent;
                         });
                 }
             });
@@ -631,7 +636,8 @@
                     let procurements = result.data || [];
 
                     // Now fetch all existing price comparisons to check which procurements to exclude
-                    const comparisonResponse = await fetch('{{ route("procurement.price-comparison") }}?json=true&limit=1000', {
+                    // Use the same search term for more efficient filtering
+                    const comparisonResponse = await fetch(`{{ route("procurement.price-comparison") }}?json=true&limit=1000&search=${encodeURIComponent(searchTerm)}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -769,12 +775,6 @@
                         }
                     }
                     document.getElementById('displayInputDate').textContent = displayDate;
-
-                    // If the title field is empty, use the procurement name
-                    if (!comparisonTitle.value) {
-                        comparisonTitle.value = procurement.title || procurement.procurement_name || '';
-                        formHasBeenFilled = true;
-                    }
 
                     // Get items from the right property (either details or items)
                     const items = procurement.details || procurement.items || [];
@@ -917,9 +917,9 @@
                     // Disable submit button during submission
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = `
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        ${isEditMode ? 'MENYIMPAN...' : 'MENGIRIM...'}
-                    `;
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                ${isEditMode ? 'MENYIMPAN...' : 'MENGIRIM...'}
+                            `;
 
                     // Determine the endpoint based on whether we're creating or editing
                     const endpoint = isEditMode
@@ -1098,28 +1098,28 @@
 
             // Add slide-in animation styling
             document.head.insertAdjacentHTML('beforeend', `
-                <style>
-                    @keyframes slideInRight {
-                        from { transform: translateX(100%); }
-                        to { transform: translateX(0); }
-                    }
-                    .animate-slide-in-right {
-                        animation: slideInRight 0.3s ease-out forwards;
-                    }
+                        <style>
+                            @keyframes slideInRight {
+                                from { transform: translateX(100%); }
+                                to { transform: translateX(0); }
+                            }
+                            .animate-slide-in-right {
+                                animation: slideInRight 0.3s ease-out forwards;
+                            }
 
-                    /* Styling for error messages with HTML content */
-                    .error-message ul {
-                        margin-top: 0.5rem;
-                        padding-left: 1.5rem;
-                    }
-                    .error-message ul li {
-                        margin-bottom: 0.25rem;
-                    }
-                    .error-message ul li:last-child {
-                        margin-bottom: 0;
-                    }
-                </style>
-            `);
+                            /* Styling for error messages with HTML content */
+                            .error-message ul {
+                                margin-top: 0.5rem;
+                                padding-left: 1.5rem;
+                            }
+                            .error-message ul li {
+                                margin-bottom: 0.25rem;
+                            }
+                            .error-message ul li:last-child {
+                                margin-bottom: 0;
+                            }
+                        </style>
+                    `);
         });
     </script>
 @endpush

@@ -6,13 +6,9 @@
     @include('Layout.loading')
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <div class="h-full space-y-4 md:space-y-6">
-        <!-- Purchase Order Form Section -->
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body p-4 md:p-7">
-                <div class="flex flex-col gap-6">
+    <div class="p-4 md:p-7 bg-base-100 rounded-lg">
                     <!-- Header -->
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                         <div class="flex items-center">
                             <a href="{{ route('procurement.purchase-order') }}" id="backButton"
                                 class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
@@ -67,88 +63,88 @@
                         </div>
 
                         <!-- Order Details - Hidden by default -->
-                        <div id="orderDetails" class="grid grid-cols-1 gap-4 hidden">
-                            <!-- Nomor -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Nomor Penawaran</p>
-                                <p class="text-[#666666]">: <span id="displayComparisonCode">PH2406001</span></p>
-                            </div>
-
-                            <!-- Judul -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Judul Penawaran</p>
-                                <p class="text-[#666666]">: <span id="displayComparisonTitle">Pembelian Komputer IT</span></p>
-                            </div>
-
-                            <!-- User Input -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Pembuat</p>
-                                <p class="text-[#666666]">: <span id="displayUserInput">Staff</span></p>
-                            </div>
-
-                            <!-- Tanggal Input -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Tanggal Penawaran</p>
-                                <p class="text-[#666666]">: <span id="displayComparisonDate">2024-06-30 06:52:12</span></p>
-                            </div>
+            <div id="orderDetails" class="hidden mt-6">
+                <div class="border border-[#CCCCCC] rounded-lg p-4 bg-[#F9FAFB]">
+                    <div class="grid grid-cols-1 gap-3 mb-6">
+                        <!-- Nomor -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Nomor Penawaran</p>
+                            <p class="text-[#666666]">: <span id="displayComparisonCode">PH2406001</span></p>
                         </div>
 
-                        <!-- Form - Hidden by default -->
-                        <form id="purchaseOrderForm" class="w-full space-y-6 hidden" data-no-loading>
-                            <!-- Item List -->
-                            <div class="space-y-4">
-                                <label class="block text-base font-semibold text-[#666666]">DAFTAR ASET</label>
+                        <!-- Judul -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Judul Penawaran</p>
+                            <p class="text-[#666666]">: <span id="displayComparisonTitle">Pembelian Komputer IT</span></p>
+                        </div>
 
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead>
-                                            <tr>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">NAMA ASET
-                                                </th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">JML</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PERKIRAAN
-                                                    HARGA</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PT WIBOWO
-                                                    (PERSERO) TBK</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PT SETIAWAN
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="assetListTableBody">
-                                            <!-- Data will be dynamically loaded here -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                        <!-- User Input -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Pembuat</p>
+                            <p class="text-[#666666]">: <span id="displayUserInput">Staff</span></p>
+                        </div>
 
-                            <!-- Notes -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Catatan</label>
-                                <textarea
-                                    class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Tambahkan catatan (opsional)" rows="3" name="notes" id="notes"></textarea>
-                            </div>
+                        <!-- Tanggal Input -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Tanggal Penawaran</p>
+                            <p class="text-[#666666]">: <span id="displayComparisonDate">2024-06-30 06:52:12</span></p>
+                        </div>
+                    </div>
 
-                            <!-- Form Buttons -->
-                            <div class="flex gap-4 mt-8">
-                                <button type="button" id="submitOrderBtn"
-                                    class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
-                                    KIRIM
-                                </button>
-                            </div>
-                        </form>
+                    <!-- Item List -->
+                    <div class="space-y-4 mt-6">
+                        <label class="block text-base font-semibold text-[#666666]">DAFTAR ASET</label>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">NAMA ASET
+                                        </th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">JML</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PERKIRAAN
+                                            HARGA</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PT WIBOWO
+                                            (PERSERO) TBK</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PT SETIAWAN
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assetListTableBody">
+                                    <!-- Data will be dynamically loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="space-y-2 mt-6">
+                        <label class="block text-base font-semibold text-[#666666]">Catatan</label>
+                        <textarea
+                            class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                            placeholder="Tambahkan catatan (opsional)" rows="3" name="notes" id="notes"></textarea>
+                    </div>
+                </div>
+
+                <!-- Form Buttons -->
+                <div class="flex gap-4 mt-8">
+                    <button type="button" id="submitOrderBtn"
+                        class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
+                        KIRIM
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form - Hidden by default -->
+            <form id="purchaseOrderForm" class="w-full space-y-6 hidden mt-6" data-no-loading>
+
+            </form>
                     @else
                         <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
                             <p>Maaf, Anda tidak memiliki izin untuk membuat pesanan pembelian.</p>
                         </div>
                     @endif
                 </div>
-            </div>
-        </div>
-    </div>
-
-
-
 @endsection
 
 @push('scripts')
@@ -373,7 +369,8 @@
                     let comparisons = result.data || [];
 
                     // Now fetch all existing purchase orders to check which comparisons to exclude
-                    const purchaseOrderResponse = await fetch('{{ route("procurement.purchase-order") }}?json=true&limit=1000', {
+                    // Use search parameter for more efficient filtering
+                    const purchaseOrderResponse = await fetch(`{{ route("procurement.purchase-order") }}?json=true&limit=1000&search=${encodeURIComponent(searchTerm)}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -515,7 +512,8 @@
                                     let comparisons = result.data;
 
                                     // Fetch purchase orders to check which comparisons to exclude
-                                    return fetch('{{ route("procurement.purchase-order") }}?json=true&limit=1000', {
+                                    // Use search parameter for more efficient filtering
+                                    return fetch(`{{ route("procurement.purchase-order") }}?json=true&limit=1000&search=${encodeURIComponent(comparisonCode)}`, {
                                         headers: {
                                             'Accept': 'application/json',
                                             'X-Requested-With': 'XMLHttpRequest'

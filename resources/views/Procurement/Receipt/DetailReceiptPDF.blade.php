@@ -9,27 +9,32 @@
             font-size: 12px;
             line-height: 1.4;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #213268;
-        }
-        .header h1 {
-            font-size: 18px;
-            font-weight: bold;
-            color: #213268;
-            margin: 0;
-        }
-        .header p {
-            margin: 5px 0;
-            font-size: 12px;
-            color: #666;
-        }
-        .logo {
-            max-width: 150px;
+            text-align: left;
             margin-bottom: 10px;
+        }
+        .header img {
+            max-width: 100%;
+            height: auto;
+            max-height: 50px;
+        }
+        .header-line {
+            border-bottom: 2px solid #213268;
+            margin-top: 3px;
+            margin-bottom: 15px;
+            clear: both;
+        }
+        .page-title {
+            color: #213268;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
         .subtitle {
             font-size: 14px;
@@ -117,10 +122,11 @@
 </head>
 <body>
     <div class="header">
-        <h1>LAPORAN DETAIL PENERIMAAN</h1>
-        <p>Nomor Penerimaan: {{ $receipt['receipt_code'] ?? 'N/A' }}</p>
-        <p>Dibuat pada: {{ \Carbon\Carbon::parse($date_generated)->locale('id')->translatedFormat('d F Y') }}</p>
+        <img src="{{ public_path('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI">
     </div>
+    <div class="header-line"></div>
+
+    <div class="page-title">LAPORAN DETAIL PENERIMAAN</div>
 
     <div class="clearfix">
         <!-- Left Column -->
@@ -134,8 +140,8 @@
                         <div class="info-value">{{ $receipt['receipt_code'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Nomor PO:</div>
-                        <div class="info-value">{{ $receipt['purchase_order_id'] ?? 'N/A' }}</div>
+                        <div class="info-label">Nomor Pemesanan:</div>
+                        <div class="info-value">{{ $receipt['purchase_order_code'] ?? 'N/A' }}</div>
                     </div>
                     <div class="info-row">
                         <div class="info-label">Tanggal Penerimaan:</div>

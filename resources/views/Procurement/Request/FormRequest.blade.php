@@ -6,211 +6,201 @@
     @include('Layout.loading')
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <div class="h-full space-y-4 md:space-y-6">
-        <!-- Request Form Section -->
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body p-4 md:p-7">
-                <div class="flex flex-col gap-6">
-                    <!-- Header -->
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div class="flex items-center">
-                            <a href="{{ route('procurement.request') }}" id="backButton"
-                                class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="p-4 md:p-7 bg-base-100 rounded-lg">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div class="flex items-center">
+                <a href="{{ route('procurement.request') }}" id="backButton"
+                    class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORMULIR PERMINTAAN</h1>
+            </div>
+        </div>
+
+        <!-- Form -->
+        @if((request()->has('id') && hasPermission('procurement:request:edit')) || (!request()->has('id') && hasPermission('procurement:request:create')))
+            <form id="requestForm" class="w-full space-y-6" data-no-loading>
+                @csrf
+                <input type="hidden" id="procurement_id" name="procurement_id">
+
+                <!-- Title -->
+                <div class="space-y-2">
+                    <label class="block text-base font-semibold text-[#666666]">Judul Permintaan <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" id="title" name="title"
+                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                        placeholder="Judul Permintaan">
+                    <div class="error-message text-red-500 text-sm mt-1 hidden">Judul permintaan harus diisi</div>
+                </div>
+
+                <!-- Priority  -->
+                <div class="space-y-2">
+                    <label class="block text-base font-semibold text-[#666666]">Prioritas <span
+                            class="text-red-500">*</span></label>
+                    <select id="priority" name="priority"
+                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                        <option value="" disabled selected>Pilih prioritas</option>
+                        <option value="High">Tinggi</option>
+                        <option value="Medium">Sedang</option>
+                        <option value="Low">Rendah</option>
+                    </select>
+                    <div class="error-message text-red-500 text-sm mt-1 hidden">Prioritas harus dipilih</div>
+                </div>
+
+                <!-- Justification -->
+                <div class="space-y-2">
+                    <label class="block text-base font-semibold text-[#666666]">Justifikasi <span
+                            class="text-red-500">*</span></label>
+                    <textarea id="justification" name="justification"
+                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                        placeholder="Justifikasi" rows="3"></textarea>
+                    <div class="error-message text-red-500 text-sm mt-1 hidden">Justifikasi harus diisi (minimal 10
+                        karakter)</div>
+                </div>
+
+                <!-- Item List -->
+                <div class="space-y-4">
+                    <label class="block text-base font-semibold text-[#666666]">Daftar Aset</label>
+
+                    <div id="itemContainer" class="space-y-6">
+                        <div class="item-entry p-6 border border-[#CCCCCC] rounded-lg relative">
+                            <!-- Delete Button (On Border) - Initially hidden for first item -->
+                            <button type="button"
+                                class="remove-item-btn absolute -top-4 -right-4 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transform active:scale-[0.98] transition-all duration-200 shadow-md z-10 hidden">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 19l-7-7 7-7" />
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
-                            </a>
-                            <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORMULIR PERMINTAAN</h1>
-                        </div>
-                    </div>
+                            </button>
 
-                    <!-- Form -->
-                    @if((request()->has('id') && hasPermission('procurement:request:edit')) || (!request()->has('id') && hasPermission('procurement:request:create')))
-                        <form id="requestForm" class="w-full space-y-6" data-no-loading>
-                            @csrf
-                            <input type="hidden" id="procurement_id" name="procurement_id">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <!-- Asset Selection Type -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-medium text-[#666666]">Tipe Aset <span
+                                            class="text-red-500">*</span></label>
+                                    <select
+                                        class="asset-type-selector w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                        <option value="new">Aset Baru</option>
+                                        <option value="existing">Aset yang Ada</option>
+                                    </select>
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Tipe aset harus
+                                        dipilih</div>
+                                </div>
 
-                            <!-- Title -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Judul Permintaan <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" id="title" name="title"
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Judul Permintaan">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Judul permintaan harus diisi</div>
-                            </div>
+                                <!-- Item Name (for new assets) -->
+                                <div class="space-y-2 asset-name-container">
+                                    <label class="block text-base font-medium text-[#666666]">Nama Aset <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" name="details[0][asset_name]"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
+                                        placeholder="Nama Aset">
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nama aset harus
+                                        diisi</div>
+                                </div>
 
-                            <!-- Priority  -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Prioritas <span
-                                        class="text-red-500">*</span></label>
-                                <select id="priority" name="priority"
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                    <option value="" disabled selected>Pilih prioritas</option>
-                                    <option value="High">Tinggi</option>
-                                    <option value="Medium">Sedang</option>
-                                    <option value="Low">Rendah</option>
-                                </select>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Prioritas harus dipilih</div>
-                            </div>
+                                <!-- Asset Master Selection (for existing assets) - initially hidden -->
+                                <div class="space-y-2 asset-master-container hidden">
+                                    <label class="block text-base font-medium text-[#666666]">Pilih Aset yang Ada
+                                        <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <input type="text"
+                                            class="asset-master-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                            placeholder="Cari aset..." autocomplete="off">
+                                        <input type="hidden" name="details[0][asset_master_id]" class="asset-master-id">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus
+                                            dipilih</div>
 
-                            <!-- Justification -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Justifikasi <span
-                                        class="text-red-500">*</span></label>
-                                <textarea id="justification" name="justification"
-                                    class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Justifikasi" rows="3"></textarea>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Justifikasi harus diisi (minimal 10
-                                    karakter)</div>
-                            </div>
-
-                            <!-- Item List -->
-                            <div class="space-y-4">
-                                <label class="block text-base font-semibold text-[#666666]">Daftar Aset</label>
-
-                                <div id="itemContainer" class="space-y-6">
-                                    <div class="item-entry p-6 border border-[#CCCCCC] rounded-lg relative">
-                                        <!-- Delete Button (On Border) - Initially hidden for first item -->
-                                        <button type="button"
-                                            class="remove-item-btn absolute -top-4 -right-4 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transform active:scale-[0.98] transition-all duration-200 shadow-md z-10 hidden">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                            <!-- Asset Selection Type -->
-                                            <div class="space-y-2">
-                                                <label class="block text-base font-medium text-[#666666]">Tipe Aset <span
-                                                        class="text-red-500">*</span></label>
-                                                <select
-                                                    class="asset-type-selector w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                                    <option value="new">Aset Baru</option>
-                                                    <option value="existing">Aset yang Ada</option>
-                                                </select>
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Tipe aset harus
-                                                    dipilih</div>
+                                        <!-- Dropdown -->
+                                        <div
+                                            class="asset-master-dropdown absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                            <div class="asset-master-loading p-2 text-gray-500 text-center">
+                                                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                        stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                    </path>
+                                                </svg>
+                                                <span>Memuat daftar aset...</span>
                                             </div>
-
-                                            <!-- Item Name (for new assets) -->
-                                            <div class="space-y-2 asset-name-container">
-                                                <label class="block text-base font-medium text-[#666666]">Nama Aset <span
-                                                        class="text-red-500">*</span></label>
-                                                <input type="text" name="details[0][asset_name]"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
-                                                    placeholder="Nama Aset">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Nama aset harus
-                                                    diisi</div>
-                                            </div>
-
-                                            <!-- Asset Master Selection (for existing assets) - initially hidden -->
-                                            <div class="space-y-2 asset-master-container hidden">
-                                                <label class="block text-base font-medium text-[#666666]">Pilih Aset yang Ada
-                                                    <span class="text-red-500">*</span></label>
-                                                <div class="relative">
-                                                    <input type="text"
-                                                        class="asset-master-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                        placeholder="Cari aset..." autocomplete="off">
-                                                    <input type="hidden" name="details[0][asset_master_id]"
-                                                        class="asset-master-id">
-                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus
-                                                        dipilih</div>
-
-                                                    <!-- Dropdown -->
-                                                    <div
-                                                        class="asset-master-dropdown absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
-                                                        <div class="asset-master-loading p-2 text-gray-500 text-center">
-                                                            <svg class="animate-spin h-5 w-5 mx-auto"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                viewBox="0 0 24 24">
-                                                                <circle class="opacity-25" cx="12" cy="12" r="10"
-                                                                    stroke="currentColor" stroke-width="4"></circle>
-                                                                <path class="opacity-75" fill="currentColor"
-                                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                                                </path>
-                                                            </svg>
-                                                            <span>Memuat daftar aset...</span>
-                                                        </div>
-                                                        <ul class="asset-master-list py-1"></ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Quantity -->
-                                            <div class="space-y-2">
-                                                <label class="block text-base font-medium text-[#666666]">Jumlah <span
-                                                        class="text-red-500">*</span></label>
-                                                <input type="number" name="details[0][quantity]"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 quantity"
-                                                    placeholder="Jumlah" min="1">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Jumlah harus diisi
-                                                </div>
-                                            </div>
-
-                                            <!-- Unit Price -->
-                                            <div class="space-y-2">
-                                                <label class="block text-base font-medium text-[#666666]">Harga Satuan <span
-                                                        class="text-red-500">*</span></label>
-                                                <input type="number" name="details[0][estimated_unit_price]"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 unit-price"
-                                                    placeholder="Harga Satuan" min="0">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Harga satuan harus
-                                                    diisi</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Specifications -->
-                                        <div class="space-y-2">
-                                            <label class="block text-base font-medium text-[#666666]">Spesifikasi</label>
-                                            <textarea name="details[0][specifications]"
-                                                class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 specifications"
-                                                placeholder="Spesifikasi" rows="2"></textarea>
-                                        </div>
-
-                                        <!-- Notes -->
-                                        <div class="space-y-2 mt-4">
-                                            <label class="block text-base font-medium text-[#666666]">Catatan</label>
-                                            <textarea name="details[0][notes]"
-                                                class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 notes"
-                                                placeholder="Catatan (opsional)" rows="2"></textarea>
+                                            <ul class="asset-master-list py-1"></ul>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Add Item Button -->
-                                <div class="flex justify-end">
-                                    <button type="button" id="addItemBtn"
-                                        class="w-12 h-12 rounded-full bg-[#213268] text-white flex items-center justify-center shadow-lg hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
-                                    </button>
+                                <!-- Quantity -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-medium text-[#666666]">Jumlah <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="number" name="details[0][quantity]"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 quantity"
+                                        placeholder="Jumlah" min="1">
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Jumlah harus diisi
+                                    </div>
+                                </div>
+
+                                <!-- Unit Price -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-medium text-[#666666]">Harga Satuan <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="number" name="details[0][estimated_unit_price]"
+                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 unit-price"
+                                        placeholder="Harga Satuan" min="0">
+                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Harga satuan harus
+                                        diisi</div>
                                 </div>
                             </div>
 
-                            <!-- Form Buttons -->
-                            <div class="flex gap-4 mt-8">
-                                <button type="submit" id="submitButton"
-                                    class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                                    KIRIM
-                                </button>
+                            <!-- Specifications -->
+                            <div class="space-y-2">
+                                <label class="block text-base font-medium text-[#666666]">Spesifikasi</label>
+                                <textarea name="details[0][specifications]"
+                                    class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 specifications"
+                                    placeholder="Spesifikasi" rows="2"></textarea>
                             </div>
-                        </form>
-                    @else
-                        <!-- No permission message -->
-                        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
-                            <p>Maaf, Anda tidak memiliki izin untuk {{ request()->has('id') ? 'mengedit' : 'membuat' }}
-                                permintaan pengadaan.</p>
+
+                            <!-- Notes -->
+                            <div class="space-y-2 mt-4">
+                                <label class="block text-base font-medium text-[#666666]">Catatan</label>
+                                <textarea name="details[0][notes]"
+                                    class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 notes"
+                                    placeholder="Catatan (opsional)" rows="2"></textarea>
+                            </div>
                         </div>
-                    @endif
+                    </div>
+
+                    <!-- Add Item Button -->
+                    <div class="flex justify-end">
+                        <button type="button" id="addItemBtn"
+                            class="w-12 h-12 rounded-full bg-[#213268] text-white flex items-center justify-center shadow-lg hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+
+                <!-- Form Buttons -->
+                <div class="flex gap-4 mt-8">
+                    <button type="submit" id="submitButton"
+                        class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        KIRIM
+                    </button>
+                </div>
+            </form>
+        @else
+            <!-- No permission message -->
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
+                <p>Maaf, Anda tidak memiliki izin untuk {{ request()->has('id') ? 'mengedit' : 'membuat' }}
+                    permintaan pengadaan.</p>
             </div>
-        </div>
+        @endif
     </div>
 
     @push('scripts')
@@ -537,15 +527,15 @@
                                 updateSelectedAssetMasterIds();
 
                                 // If we have cached asset masters, show them
-                            if (assetMasters.length > 0) {
-                                updateAssetMasterDropdowns();
-                            } else {
+                                if (assetMasters.length > 0) {
+                                    updateAssetMasterDropdowns();
+                                } else {
                                     // Otherwise load initial set
-                                loadingIndicator.style.display = 'block';
-                                fetchAssetMasters().then(() => {
-                                    loadingIndicator.style.display = 'none';
-                                });
-                            }
+                                    loadingIndicator.style.display = 'block';
+                                    fetchAssetMasters().then(() => {
+                                        loadingIndicator.style.display = 'none';
+                                    });
+                                }
                                 return;
                             }
 
@@ -571,14 +561,14 @@
                                         const availableAssets = results.filter(asset => {
                                             const assetId = parseInt(asset.asset_master_id);
                                             return !selectedAssetMasterIds.has(assetId) || (currentAssetMasterId === assetId);
-                            });
+                                        });
 
                                         // Add options for each available asset master
                                         if (availableAssets.length === 0) {
-                                const noResults = document.createElement('li');
-                                noResults.className = 'px-4 py-2 text-sm text-gray-500 italic no-results-item';
-                                noResults.textContent = 'Tidak ada aset yang cocok';
-                                list.appendChild(noResults);
+                                            const noResults = document.createElement('li');
+                                            noResults.className = 'px-4 py-2 text-sm text-gray-500 italic no-results-item';
+                                            noResults.textContent = 'Tidak ada aset yang cocok';
+                                            list.appendChild(noResults);
                                         } else {
                                             availableAssets.forEach(asset => {
                                                 const li = document.createElement('li');
@@ -707,12 +697,12 @@
                     const submitButton = document.getElementById('submitButton');
                     submitButton.disabled = true;
                     submitButton.innerHTML = `
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        MENYIMPAN...
-                    `;
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                MENYIMPAN...
+                            `;
 
                     fetch(`/procurement/request/${id}`, {
                         headers: {
@@ -793,6 +783,9 @@
                                 // Update selected asset master IDs and refresh dropdowns
                                 updateSelectedAssetMasterIds();
                                 updateAssetMasterDropdowns();
+
+                                // Initialize delete buttons to ensure they work
+                                initializeDeleteButtons();
                             } else {
                                 showSweetAlert('Gagal memuat data permintaan', 'error');
                             }
@@ -829,110 +822,139 @@
                     }
                 }
 
+                // Initialize delete buttons and ensure they work
+                function initializeDeleteButtons() {
+                    document.querySelectorAll('.remove-item-btn').forEach(button => {
+                        // Remove previous event listeners by cloning and replacing
+                        const newButton = button.cloneNode(true);
+                        button.parentNode.replaceChild(newButton, button);
+
+                        // Add event listener to the cloned button
+                        newButton.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const itemEntry = this.closest('.item-entry');
+                            if (itemEntry) {
+                                itemEntry.remove();
+                                updateDeleteButtons();
+                                updateInputNames();
+                                updateSelectedAssetMasterIds();
+                                updateAssetMasterDropdowns();
+                            }
+                        });
+                    });
+
+                    // Update visibility
+                    updateDeleteButtons();
+                }
+
+                // Call initialize on page load
+                initializeDeleteButtons();
+
                 // Add new item entry
                 function addItemEntry(index, data = null) {
                     const newItem = document.createElement('div');
                     newItem.className = 'item-entry p-6 border border-[#CCCCCC] rounded-lg relative';
                     newItem.innerHTML = `
-                        <!-- Delete Button (On Border) -->
-                        <button type="button" class="remove-item-btn absolute -top-4 -right-4 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transform active:scale-[0.98] transition-all duration-200 shadow-md z-10">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
+                                <!-- Delete Button (On Border) -->
+                                <button type="button" class="remove-item-btn absolute -top-4 -right-4 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transform active:scale-[0.98] transition-all duration-200 shadow-md z-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <!-- Asset Selection Type -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Tipe Aset <span class="text-red-500">*</span></label>
-                                <select class="asset-type-selector w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                    <option value="new">Aset Baru</option>
-                                    <option value="existing">Aset yang Ada</option>
-                                </select>
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Tipe aset harus dipilih</div>
-                            </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <!-- Asset Selection Type -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-medium text-[#666666]">Tipe Aset <span class="text-red-500">*</span></label>
+                                        <select class="asset-type-selector w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                            <option value="new">Aset Baru</option>
+                                            <option value="existing">Aset yang Ada</option>
+                                        </select>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tipe aset harus dipilih</div>
+                                    </div>
 
-                            <!-- Item Name (for new assets) -->
-                            <div class="space-y-2 asset-name-container">
-                                <label class="block text-base font-medium text-[#666666]">Nama Aset <span class="text-red-500">*</span></label>
-                                <input type="text" name="details[${index}][asset_name]"
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
-                                    placeholder="Nama Aset" value="${data && data.asset_name ? data.asset_name : ''}">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Nama aset harus diisi</div>
-                            </div>
+                                    <!-- Item Name (for new assets) -->
+                                    <div class="space-y-2 asset-name-container">
+                                        <label class="block text-base font-medium text-[#666666]">Nama Aset <span class="text-red-500">*</span></label>
+                                        <input type="text" name="details[${index}][asset_name]"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 asset-name"
+                                            placeholder="Nama Aset" value="${data && data.asset_name ? data.asset_name : ''}">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nama aset harus diisi</div>
+                                    </div>
 
-                            <!-- Asset Master Selection (for existing assets) - initially hidden -->
-                            <div class="space-y-2 asset-master-container hidden">
-                                <label class="block text-base font-medium text-[#666666]">Pilih Aset yang Ada <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <input type="text" class="asset-master-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        placeholder="Cari aset..." autocomplete="off">
-                                    <input type="hidden" name="details[${index}][asset_master_id]" class="asset-master-id">
-                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus dipilih</div>
+                                    <!-- Asset Master Selection (for existing assets) - initially hidden -->
+                                    <div class="space-y-2 asset-master-container hidden">
+                                        <label class="block text-base font-medium text-[#666666]">Pilih Aset yang Ada <span class="text-red-500">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" class="asset-master-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                placeholder="Cari aset..." autocomplete="off">
+                                            <input type="hidden" name="details[${index}][asset_master_id]" class="asset-master-id">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus dipilih</div>
 
-                                    <!-- Dropdown -->
-                                    <div class="asset-master-dropdown absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
-                                        <div class="asset-master-loading p-2 text-gray-500 text-center">
-                                            <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            <span>Memuat daftar aset...</span>
+                                            <!-- Dropdown -->
+                                            <div class="asset-master-dropdown absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                <div class="asset-master-loading p-2 text-gray-500 text-center">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span>Memuat daftar aset...</span>
+                                                </div>
+                                                <ul class="asset-master-list py-1"></ul>
+                                            </div>
                                         </div>
-                                        <ul class="asset-master-list py-1"></ul>
+                                    </div>
+
+                                    <!-- Quantity -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-medium text-[#666666]">Jumlah <span class="text-red-500">*</span></label>
+                                        <input type="number" name="details[${index}][quantity]"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 quantity"
+                                            placeholder="Jumlah" min="1" value="${data ? data.quantity : ''}">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Jumlah harus diisi</div>
+                                    </div>
+
+                                    <!-- Unit Price -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-medium text-[#666666]">Harga Satuan <span class="text-red-500">*</span></label>
+                                        <input type="number" name="details[${index}][estimated_unit_price]"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 unit-price"
+                                            placeholder="Harga Satuan" min="0" value="${data ? data.estimated_unit_price : ''}">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Harga satuan harus diisi</div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Quantity -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Jumlah <span class="text-red-500">*</span></label>
-                                <input type="number" name="details[${index}][quantity]"
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 quantity"
-                                    placeholder="Jumlah" min="1" value="${data ? data.quantity : ''}">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Jumlah harus diisi</div>
-                            </div>
+                                <!-- Specifications -->
+                                <div class="space-y-2">
+                                    <label class="block text-base font-medium text-[#666666]">Spesifikasi</label>
+                                    <textarea name="details[${index}][specifications]"
+                                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 specifications"
+                                        placeholder="Spesifikasi" rows="2">${data ? data.specifications || '' : ''}</textarea>
+                                </div>
 
-                            <!-- Unit Price -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-medium text-[#666666]">Harga Satuan <span class="text-red-500">*</span></label>
-                                <input type="number" name="details[${index}][estimated_unit_price]"
-                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 unit-price"
-                                    placeholder="Harga Satuan" min="0" value="${data ? data.estimated_unit_price : ''}">
-                                <div class="error-message text-red-500 text-sm mt-1 hidden">Harga satuan harus diisi</div>
-                            </div>
-                        </div>
-
-                        <!-- Specifications -->
-                        <div class="space-y-2">
-                            <label class="block text-base font-medium text-[#666666]">Spesifikasi</label>
-                            <textarea name="details[${index}][specifications]"
-                                class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 specifications"
-                                placeholder="Spesifikasi" rows="2">${data ? data.specifications || '' : ''}</textarea>
-                        </div>
-
-                        <!-- Notes -->
-                        <div class="space-y-2 mt-4">
-                            <label class="block text-base font-medium text-[#666666]">Catatan</label>
-                            <textarea name="details[${index}][notes]"
-                                class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 notes"
-                                placeholder="Catatan (opsional)" rows="2">${data ? data.notes || '' : ''}</textarea>
-                        </div>
-                    `;
+                                <!-- Notes -->
+                                <div class="space-y-2 mt-4">
+                                    <label class="block text-base font-medium text-[#666666]">Catatan</label>
+                                    <textarea name="details[${index}][notes]"
+                                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 notes"
+                                        placeholder="Catatan (opsional)" rows="2">${data ? data.notes || '' : ''}</textarea>
+                                </div>
+                            `;
 
                     itemContainer.appendChild(newItem);
 
-                    // Add event listener to the new remove button
+                    // Add event listener to the new remove button using a direct approach
                     const removeBtn = newItem.querySelector('.remove-item-btn');
-                    removeBtn.addEventListener('click', function () {
-                        newItem.remove();
-                        // Update delete buttons after removing an item
-                        updateDeleteButtons();
-                        // Update input names
-                        updateInputNames();
-                        // Update selected asset master IDs and refresh dropdowns
-                        updateSelectedAssetMasterIds();
-                        updateAssetMasterDropdowns();
+                    removeBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const itemEntry = this.closest('.item-entry');
+                        if (itemEntry) {
+                            itemEntry.remove();
+                            updateDeleteButtons();
+                            updateInputNames();
+                            updateSelectedAssetMasterIds();
+                            updateAssetMasterDropdowns();
+                        }
                     });
 
                     // Add event listener to the new asset type selector
@@ -972,6 +994,9 @@
 
                     // Update selected asset master IDs after adding a new item
                     updateSelectedAssetMasterIds();
+
+                    // Update delete buttons visibility
+                    updateDeleteButtons();
                 }
 
                 // Add new item when clicking the add button
@@ -987,6 +1012,9 @@
                     if (assetMasters.length > 0) {
                         updateAssetMasterDropdowns();
                     }
+
+                    // Reinitialize delete buttons to ensure they all work
+                    initializeDeleteButtons();
                 });
 
                 // Function to update input names after removing items
@@ -1061,42 +1089,42 @@
                         const styleTag = document.createElement('style');
                         styleTag.id = 'swal-custom-styles';
                         styleTag.innerHTML = `
-                            /* SweetAlert Custom Styles */
-                            .swal2-popup {
-                                border-radius: 15px;
-                                padding: 1.5rem;
-                                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                            }
-                            .swal-custom-title {
-                                font-weight: 600;
-                                font-size: 1.5rem;
-                                color: #333;
-                            }
-                            .swal-custom-content {
-                                font-size: 1rem;
-                                color: #555;
-                                margin-top: 0.5rem;
-                            }
-                            .swal-custom-content ul {
-                                text-align: left;
-                                margin-top: 1rem;
-                                margin-bottom: 1rem;
-                            }
-                            .swal-custom-confirm {
-                                padding: 0.5rem 1.5rem;
-                                font-weight: 500;
-                            }
-                            .swal-custom-cancel {
-                                padding: 0.5rem 1.5rem;
-                                font-weight: 500;
-                            }
-                            .swal2-timer-progress-bar {
-                                background: rgba(33, 50, 104, 0.5);
-                            }
-                            .swal2-icon {
-                                margin: 1rem auto;
-                            }
-                        `;
+                                    /* SweetAlert Custom Styles */
+                                    .swal2-popup {
+                                        border-radius: 15px;
+                                        padding: 1.5rem;
+                                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                                    }
+                                    .swal-custom-title {
+                                        font-weight: 600;
+                                        font-size: 1.5rem;
+                                        color: #333;
+                                    }
+                                    .swal-custom-content {
+                                        font-size: 1rem;
+                                        color: #555;
+                                        margin-top: 0.5rem;
+                                    }
+                                    .swal-custom-content ul {
+                                        text-align: left;
+                                        margin-top: 1rem;
+                                        margin-bottom: 1rem;
+                                    }
+                                    .swal-custom-confirm {
+                                        padding: 0.5rem 1.5rem;
+                                        font-weight: 500;
+                                    }
+                                    .swal-custom-cancel {
+                                        padding: 0.5rem 1.5rem;
+                                        font-weight: 500;
+                                    }
+                                    .swal2-timer-progress-bar {
+                                        background: rgba(33, 50, 104, 0.5);
+                                    }
+                                    .swal2-icon {
+                                        margin: 1rem auto;
+                                    }
+                                `;
                         document.head.appendChild(styleTag);
                     }
 
@@ -1208,20 +1236,20 @@
 
                 // CSS for validation styling
                 document.head.insertAdjacentHTML('beforeend', `
-                    <style>
-                        /* Field validation */
-                        .border-red-500 {
-                            border-color: #f56565 !important;
-                            box-shadow: 0 0 0 1px #f56565 !important;
-                        }
+                            <style>
+                                /* Field validation */
+                                .border-red-500 {
+                                    border-color: #f56565 !important;
+                                    box-shadow: 0 0 0 1px #f56565 !important;
+                                }
 
-                        .error-text {
-                            color: #f56565;
-                            font-size: 0.875rem;
-                            margin-top: 0.25rem;
-                        }
-                    </style>
-                `);
+                                .error-text {
+                                    color: #f56565;
+                                    font-size: 0.875rem;
+                                    margin-top: 0.25rem;
+                                }
+                            </style>
+                        `);
 
                 // Handle form submission
                 let isSubmitting = false; // Flag to track submission status
@@ -1280,12 +1308,12 @@
                     const originalButtonText = submitButton.innerHTML;
                     submitButton.disabled = true;
                     submitButton.innerHTML = `
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        PROSES...
-                    `;
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                PROSES...
+                            `;
 
                     // Collect form data
                     const formData = new FormData(requestForm);

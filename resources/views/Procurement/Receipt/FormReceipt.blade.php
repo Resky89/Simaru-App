@@ -9,223 +9,211 @@
     <!-- Toast container for notifications -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-4"></div>
 
-    <div class="h-full space-y-4 md:space-y-6">
-        @if(hasPermission('receipt:create'))
-                <!-- Receipt Form Section -->
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body p-4 md:p-7">
-                        <div class="flex flex-col gap-6">
-                            <!-- Header -->
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                                <div class="flex items-center">
-                                    <a href="{{ route('procurement.receipt') }}"
-                                        class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 19l-7-7 7-7" />
-                                        </svg>
-                                    </a>
-                                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORMULIR PENERIMAAN</h1>
-                                </div>
+    @if(hasPermission('receipt:create'))
+        <div class="p-4 md:p-7 bg-base-100 rounded-lg">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div class="flex items-center">
+                    <a href="{{ route('procurement.receipt') }}"
+                        class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </a>
+                    <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORMULIR PENERIMAAN</h1>
+                </div>
+            </div>
+
+            <!-- Receipt Form -->
+            <form id="receiptForm" class="w-full space-y-6" data-no-loading>
+                <!-- Top Row: Receipt Date, Delivered by, Received by -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Receipt Date -->
+                    <div class="form-control">
+                        <label class="block text-base font-medium text-[#666666] mb-2">Tanggal Penerimaan <span
+                                class="text-red-500">*</span></label>
+                        <input type="date" id="receipt_date" name="receipt_date" value="<?php    echo date('Y-m-d'); ?>"
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal penerimaan harus diisi
+                        </div>
+                    </div>
+
+                    <!-- Delivered by -->
+                    <div class="form-control">
+                        <label class="block text-base font-medium text-[#666666] mb-2">Dikirim oleh <span
+                                class="text-red-500">*</span></label>
+                        <div class="flex">
+                            <input type="text" id="delivered_by" name="delivered_by" placeholder="Ketik nama"
+                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                        </div>
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nama pengirim harus diisi</div>
+                    </div>
+
+                    <!-- Received by -->
+                    <div class="form-control">
+                        <label class="block text-base font-medium text-[#666666] mb-2">Diterima oleh <span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="flex">
+                                <input type="text" id="receivedByInput" placeholder="Cari pegawai..."
+                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                    autocomplete="off">
                             </div>
+                            <input type="hidden" id="received_by" name="received_by" value="">
 
-                            <!-- Receipt Form -->
-                            <form id="receiptForm" class="w-full space-y-6" data-no-loading>
-                                <!-- Top Row: Receipt Date, Delivered by, Received by -->
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <!-- Receipt Date -->
-                                    <div class="form-control">
-                                        <label class="block text-base font-medium text-[#666666] mb-2">Tanggal Penerimaan <span
-                                                class="text-red-500">*</span></label>
-                                        <input type="date" id="receipt_date" name="receipt_date"
-                                            value="<?php    echo date('Y-m-d'); ?>"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal penerimaan harus diisi
-                                        </div>
-                                    </div>
-
-                                    <!-- Delivered by -->
-                                    <div class="form-control">
-                                        <label class="block text-base font-medium text-[#666666] mb-2">Dikirim oleh <span
-                                                class="text-red-500">*</span></label>
-                                        <div class="flex">
-                                            <input type="text" id="delivered_by" name="delivered_by" placeholder="Ketik nama"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                        </div>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nama pengirim harus diisi</div>
-                                    </div>
-
-                                    <!-- Received by -->
-                                    <div class="form-control">
-                                        <label class="block text-base font-medium text-[#666666] mb-2">Diterima oleh <span
-                                                class="text-red-500">*</span></label>
-                                        <div class="relative">
-                                            <div class="flex">
-                                                <input type="text" id="receivedByInput" placeholder="Cari pegawai..."
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                                    autocomplete="off">
-                                            </div>
-                                            <input type="hidden" id="received_by" name="received_by" value="">
-
-                                            <!-- Dropdown for search results -->
-                                            <div id="users_dropdown"
-                                                class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
-                                                <!-- Loading indicator -->
-                                                <div id="users_loading" class="flex justify-center py-2 hidden">
-                                                    <svg class="animate-spin h-5 w-5 text-gray-500"
-                                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                            stroke-width="4"></circle>
-                                                        <path class="opacity-75" fill="currentColor"
-                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                                        </path>
-                                                    </svg>
-                                                </div>
-                                                <ul id="users_list" class="max-h-56 overflow-y-auto"></ul>
-                                            </div>
-                                        </div>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Penerima harus dipilih dari
-                                            daftar pegawai</div>
-                                    </div>
+                            <!-- Dropdown for search results -->
+                            <div id="users_dropdown"
+                                class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                                <!-- Loading indicator -->
+                                <div id="users_loading" class="flex justify-center py-2 hidden">
+                                    <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
                                 </div>
+                                <ul id="users_list" class="max-h-56 overflow-y-auto"></ul>
+                            </div>
+                        </div>
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Penerima harus dipilih dari
+                            daftar pegawai</div>
+                    </div>
+                </div>
 
-                                <!-- Search Section -->
-                                <div class="space-y-4">
-                                    <label class="block text-base font-semibold text-[#666666]">Nomor Pemesanan</label>
-                                    <div class="relative">
-                                        <input type="text" id="purchaseOrderNumber" placeholder="Masukkan nomor pemesanan"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-l-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            autocomplete="off">
-                                        <input type="hidden" id="selected_po_id" name="purchase_order_id">
-                                        <input type="hidden" id="notes" name="notes" value="">
+                <!-- Search Section -->
+                <div class="space-y-4">
+                    <label class="block text-base font-semibold text-[#666666]">Nomor Pemesanan</label>
+                    <div class="relative">
+                        <input type="text" id="purchaseOrderNumber" placeholder="Masukkan nomor pemesanan"
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-l-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                            autocomplete="off">
+                        <input type="hidden" id="selected_po_id" name="purchase_order_id">
+                        <input type="hidden" id="notes" name="notes" value="">
 
-                                        <div class="absolute inset-y-0 right-0 flex">
-                                            <button id="searchBtn" type="button"
-                                                class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451]">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                                </svg>
-                                            </button>
-                                        </div>
+                        <div class="absolute inset-y-0 right-0 flex">
+                            <button id="searchBtn" type="button"
+                                class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451]">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                        </div>
 
-                                        <!-- Dropdown for search results -->
-                                        <div id="po_dropdown"
-                                            class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
-                                            <!-- Loading indicator -->
-                                            <div id="po_loading" class="flex justify-center py-2">
-                                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                        stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor"
-                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                                    </path>
-                                                </svg>
-                                            </div>
-                                            <ul id="po_list" class="max-h-56 overflow-y-auto"></ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Purchase Order Details (Initially Hidden) -->
-                                <div id="poDetails" class="border border-[#CCCCCC] rounded-lg p-4 bg-[#F9FAFB] mt-6 hidden">
-                                    <!-- PO Information -->
-                                    <div class="grid grid-cols-1 gap-3">
-                                        <!-- PO Number -->
-                                        <div class="flex items-start gap-2">
-                                            <p class="w-40 text-[#666666] font-medium">Nomor Pemesanan</p>
-                                            <p class="text-[#666666]">: <span id="displayPoCode"></span></p>
-                                        </div>
-
-                                        <!-- Supplier -->
-                                        <div class="flex items-start gap-2">
-                                            <p class="w-40 text-[#666666] font-medium">Vendor</p>
-                                            <p class="text-[#666666]">: <span id="displayVendor"></span></p>
-                                        </div>
-
-                                        <!-- PIC -->
-                                        <div class="flex items-start gap-2">
-                                            <p class="w-40 text-[#666666] font-medium">PIC</p>
-                                            <p class="text-[#666666]">: <span id="displayPic"></span></p>
-                                        </div>
-
-                                        <!-- PIC Contact -->
-                                        <div class="flex items-start gap-2">
-                                            <p class="w-40 text-[#666666] font-medium">Kontak PIC</p>
-                                            <p class="text-[#666666]">: <span id="displayPicContact"></span></p>
-                                        </div>
-
-                                        <!-- Input Date -->
-                                        <div class="flex items-start gap-2">
-                                            <p class="w-40 text-[#666666] font-medium">Tanggal Pemesanan</p>
-                                            <p class="text-[#666666]">: <span id="displayPoDate"></span></p>
-                                        </div>
-                                    </div>
-
-                                    <!-- ASSET LIST -->
-                                    <div class="space-y-4 mt-4">
-                                        <h2 class="text-lg font-semibold text-[#666666]">DAFTAR ASET</h2>
-                                        <div class="overflow-x-auto">
-                                            <table class="w-full">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NAMA
-                                                            ASET</th>
-                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
-                                                            SPESIFIKASI</th>
-                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">JML
-                                                        </th>
-                                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">CATATAN
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="assetListTableBody">
-                                                    <!-- Items will be populated here -->
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    <!-- Notes Section -->
-                                    <div class="space-y-2 mt-6">
-                                        <label class="block text-base font-medium text-[#666666]">Catatan Tambahan</label>
-                                        <textarea id="notesField" rows="3"
-                                            class="w-full p-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                            placeholder="Masukkan catatan tambahan (opsional)"></textarea>
-                                    </div>
-                                </div>
-
-                                <!-- Form Buttons -->
-                                <div class="flex gap-4 mt-8">
-                                    <button type="submit"
-                                        class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
-                                        SIMPAN
-                                    </button>
-                                </div>
-                            </form>
+                        <!-- Dropdown for search results -->
+                        <div id="po_dropdown"
+                            class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                            <!-- Loading indicator -->
+                            <div id="po_loading" class="flex justify-center py-2">
+                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                                    </circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <ul id="po_list" class="max-h-56 overflow-y-auto"></ul>
                         </div>
                     </div>
                 </div>
-            </div>
-        @else
+
+                <!-- Purchase Order Details (Initially Hidden) -->
+                <div id="poDetails" class="border border-[#CCCCCC] rounded-lg p-4 bg-[#F9FAFB] mt-6 hidden">
+                    <!-- PO Information -->
+                    <div class="grid grid-cols-1 gap-3">
+                        <!-- PO Number -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Nomor Pemesanan</p>
+                            <p class="text-[#666666]">: <span id="displayPoCode"></span></p>
+                        </div>
+
+                        <!-- Supplier -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Vendor</p>
+                            <p class="text-[#666666]">: <span id="displayVendor"></span></p>
+                        </div>
+
+                        <!-- PIC -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">PIC</p>
+                            <p class="text-[#666666]">: <span id="displayPic"></span></p>
+                        </div>
+
+                        <!-- PIC Contact -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Kontak PIC</p>
+                            <p class="text-[#666666]">: <span id="displayPicContact"></span></p>
+                        </div>
+
+                        <!-- Input Date -->
+                        <div class="flex items-start gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Tanggal Pemesanan</p>
+                            <p class="text-[#666666]">: <span id="displayPoDate"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- ASSET LIST -->
+                    <div class="space-y-4 mt-4">
+                        <h2 class="text-lg font-semibold text-[#666666]">DAFTAR ASET</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NAMA
+                                            ASET</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                            SPESIFIKASI</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">JML
+                                        </th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">CATATAN
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assetListTableBody">
+                                    <!-- Items will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Notes Section -->
+                    <div class="space-y-2 mt-6">
+                        <label class="block text-base font-medium text-[#666666]">Catatan Tambahan</label>
+                        <textarea id="notesField" rows="3"
+                            class="w-full p-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                            placeholder="Masukkan catatan tambahan (opsional)"></textarea>
+                    </div>
+                </div>
+
+                <!-- Form Buttons -->
+                <div class="flex gap-4 mt-8">
+                    <button type="submit"
+                        class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
+                        SIMPAN
+                    </button>
+                </div>
+            </form>
+        </div>
+    @else
         <!-- Permission Denied Message -->
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body p-4 md:p-7">
-                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
-                    <p>Maaf, Anda tidak memiliki izin untuk membuat penerimaan baru.</p>
-                </div>
-                <div class="flex justify-center mt-6">
-                    <a href="{{ route('procurement.receipt') }}"
-                        class="px-6 py-3 bg-[#213268] text-white rounded-lg hover:bg-[#152451]">
-                        Kembali ke Daftar Penerimaan
-                    </a>
-                </div>
+        <div class="p-4 md:p-7 bg-base-100 rounded-lg">
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
+                <p>Maaf, Anda tidak memiliki izin untuk membuat penerimaan baru.</p>
+            </div>
+            <div class="flex justify-center mt-6">
+                <a href="{{ route('procurement.receipt') }}"
+                    class="px-6 py-3 bg-[#213268] text-white rounded-lg hover:bg-[#152451]">
+                    Kembali ke Daftar Penerimaan
+                </a>
             </div>
         </div>
     @endif
-
 @endsection
 
 @push('scripts')
@@ -326,42 +314,42 @@
                     const styleTag = document.createElement('style');
                     styleTag.id = 'swal-custom-styles';
                     styleTag.innerHTML = `
-                        /* SweetAlert Custom Styles */
-                        .swal2-popup {
-                            border-radius: 15px;
-                            padding: 1.5rem;
-                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                        }
-                        .swal-custom-title {
-                            font-weight: 600;
-                            font-size: 1.5rem;
-                            color: #333;
-                        }
-                        .swal-custom-content {
-                            font-size: 1rem;
-                            color: #555;
-                            margin-top: 0.5rem;
-                        }
-                        .swal-custom-content ul {
-                            text-align: left;
-                            margin-top: 1rem;
-                            margin-bottom: 1rem;
-                        }
-                        .swal-custom-confirm {
-                            padding: 0.5rem 1.5rem;
-                            font-weight: 500;
-                        }
-                        .swal-custom-cancel {
-                            padding: 0.5rem 1.5rem;
-                            font-weight: 500;
-                        }
-                        .swal2-timer-progress-bar {
-                            background: rgba(33, 50, 104, 0.5);
-                        }
-                        .swal2-icon {
-                            margin: 1rem auto;
-                        }
-                    `;
+                            /* SweetAlert Custom Styles */
+                            .swal2-popup {
+                                border-radius: 15px;
+                                padding: 1.5rem;
+                                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                            }
+                            .swal-custom-title {
+                                font-weight: 600;
+                                font-size: 1.5rem;
+                                color: #333;
+                            }
+                            .swal-custom-content {
+                                font-size: 1rem;
+                                color: #555;
+                                margin-top: 0.5rem;
+                            }
+                            .swal-custom-content ul {
+                                text-align: left;
+                                margin-top: 1rem;
+                                margin-bottom: 1rem;
+                            }
+                            .swal-custom-confirm {
+                                padding: 0.5rem 1.5rem;
+                                font-weight: 500;
+                            }
+                            .swal-custom-cancel {
+                                padding: 0.5rem 1.5rem;
+                                font-weight: 500;
+                            }
+                            .swal2-timer-progress-bar {
+                                background: rgba(33, 50, 104, 0.5);
+                            }
+                            .swal2-icon {
+                                margin: 1rem auto;
+                            }
+                        `;
                     document.head.appendChild(styleTag);
                 }
 
@@ -444,7 +432,8 @@
                     let purchaseOrders = result.data || [];
 
                     // Now fetch all existing receipts to check which purchase orders to exclude
-                    const receiptsResponse = await fetch('/procurement/receipt?json=true&limit=1000', {
+                    // Use the search parameter for more efficient filtering
+                    const receiptsResponse = await fetch(`/procurement/receipt?json=true&limit=1000&search=${encodeURIComponent(searchTerm)}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -549,8 +538,8 @@
                     const originalBtnText = searchBtn.innerHTML;
                     searchBtn.disabled = true;
                     searchBtn.innerHTML = `
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    `;
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        `;
 
                     // Get the PO ID
                     const poId = selectedPoId.value || null;
@@ -585,7 +574,7 @@
 
                                     if (exactMatch) {
                                         // Now check if this PO already has a receipt
-                                        return fetch('/procurement/receipt?json=true&limit=1000', {
+                                        return fetch(`/procurement/receipt?json=true&limit=1000&search=${encodeURIComponent(poCode)}`, {
                                             headers: {
                                                 'Accept': 'application/json',
                                                 'X-Requested-With': 'XMLHttpRequest'
@@ -770,7 +759,7 @@
                         // Create input for notes
                         const notesInput = document.createElement('input');
                         notesInput.type = 'text';
-                        notesInput.placeholder = 'Add notes';
+                        notesInput.placeholder = 'Tambahkan catatan';
                         notesInput.className = 'w-full p-2 border border-[#CCCCCC] rounded-md text-[#666666]';
                         notesInput.name = `item_notes[${item.purchase_order_item_id}]`;
                         notesInput.dataset.item_id = item.purchase_order_item_id;
@@ -921,9 +910,9 @@
                     const originalBtnText = submitBtn.innerHTML;
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = `
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        MENYIMPAN...
-                    `;
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            MENYIMPAN...
+                        `;
 
                     // Submit data to the server
                     fetch('{{ route("procurement.receipt.create") }}', {
@@ -1186,28 +1175,28 @@
 
             // Add slide-in animation styling
             document.head.insertAdjacentHTML('beforeend', `
-                <style>
-                    @keyframes slideInRight {
-                        from { transform: translateX(100%); }
-                        to { transform: translateX(0); }
-                    }
-                    .animate-slide-in-right {
-                        animation: slideInRight 0.3s ease-out forwards;
-                    }
+                    <style>
+                        @keyframes slideInRight {
+                            from { transform: translateX(100%); }
+                            to { transform: translateX(0); }
+                        }
+                        .animate-slide-in-right {
+                            animation: slideInRight 0.3s ease-out forwards;
+                        }
 
-                    /* Styling for error messages with HTML content */
-                    .error-message ul {
-                        margin-top: 0.5rem;
-                        padding-left: 1.5rem;
-                    }
-                    .error-message ul li {
-                        margin-bottom: 0.25rem;
-                    }
-                    .error-message ul li:last-child {
-                        margin-bottom: 0;
-                    }
-                </style>
-            `);
+                        /* Styling for error messages with HTML content */
+                        .error-message ul {
+                            margin-top: 0.5rem;
+                            padding-left: 1.5rem;
+                        }
+                        .error-message ul li {
+                            margin-bottom: 0.25rem;
+                        }
+                        .error-message ul li:last-child {
+                            margin-bottom: 0;
+                        }
+                    </style>
+                `);
         });
     </script>
 @endpush

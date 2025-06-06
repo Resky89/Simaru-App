@@ -3,133 +3,125 @@
 @section('title', isset($vendorOffer) || request()->has('agreement_id') ? 'Edit Penawaran Vendor' : 'Tambah Penawaran Vendor')
 
 @section('content')
-@include('Layout.loading')
+    @include('Layout.loading')
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <div class="h-full space-y-4 md:space-y-6">
-        <!-- Quotation Form Section -->
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body p-4 md:p-7">
-                <div class="flex flex-col gap-6">
-                    <!-- Header -->
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div class="flex items-center">
-                            <a href="{{ route('procurement.detail-comparison', ['id' => $comparison_id ?? request()->route('id')]) }}"
-                                class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </a>
-                            <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
-                                {{ isset($vendorOffer) || request()->has('agreement_id') ? 'EDIT PENAWARAN VENDOR' : 'TAMBAH PENAWARAN VENDOR' }}
-                            </h1>
-                        </div>
-                    </div>
-
-                    <!-- Form -->
-                    @if((isset($vendorOffer) || request()->has('agreement_id')) && hasPermission('price-comparison:vendor-offer:edit') || (!isset($vendorOffer) && !request()->has('agreement_id') && hasPermission('price-comparison:vendor-offer:create')))
-                        <form id="vendorQuotationForm" class="w-full space-y-6" data-no-loading>
-                            @csrf
-                            <!-- Hidden Fields -->
-                            <input type="hidden" name="comparison_id" id="comparison_id"
-                                value="{{ $comparison_id ?? request()->route('id') }}">
-                            <!-- Add a hidden field for agreement_id if it exists -->
-                            @if(isset($vendorOffer) && isset($vendorOffer->agreement_id))
-                                <input type="hidden" name="agreement_id" id="agreement_id" value="{{ $vendorOffer->agreement_id }}">
-                            @endif
-
-                            <!-- Vendor -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Vendor <span
-                                        class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <input type="text" id="vendor_search"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        placeholder="Cari vendor..." autocomplete="off"
-                                        value="{{ $vendorOffer->vendor->vendor_name ?? '' }}">
-                                    <input type="hidden" name="vendor_id" id="selected_vendor_id"
-                                        value="{{ $vendorOffer->vendor->vendor_id ?? '' }}">
-                                    <div id="vendor_results"
-                                        class="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md overflow-y-auto border border-gray-300 hidden">
-                                    </div>
-                                </div>
-                                <div id="vendor_error" class="text-red-500 text-sm mt-1 hidden"></div>
-                            </div>
-
-                            <!-- Payment Terms -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Syarat Pembayaran</label>
-                                <textarea name="payment_terms" id="payment_terms"
-                                    class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Syarat Pembayaran" rows="3">{{ $vendorOffer->payment_terms ?? '' }}</textarea>
-                                <div id="payment_terms_error" class="text-red-500 text-sm mt-1 hidden"></div>
-                            </div>
-
-                            <!-- Delivery Terms -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Syarat Pengiriman</label>
-                                <textarea name="delivery_terms" id="delivery_terms"
-                                    class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Syarat Pengiriman" rows="3">{{ $vendorOffer->delivery_terms ?? '' }}</textarea>
-                                <div id="delivery_terms_error" class="text-red-500 text-sm mt-1 hidden"></div>
-                            </div>
-
-                            <!-- Notes -->
-                            <div class="space-y-2">
-                                <label class="block text-base font-semibold text-[#666666]">Catatan</label>
-                                <textarea name="notes" id="notes"
-                                    class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                    placeholder="Catatan Tambahan" rows="2">{{ $vendorOffer->notes ?? '' }}</textarea>
-                            </div>
-
-                            <!-- Item List -->
-                            <div class="space-y-4">
-                                <label class="block text-base font-semibold text-[#666666]">Daftar Aset</label>
-
-                                <div class="overflow-x-auto">
-                                    <table class="w-full" id="itemsTable">
-                                        <thead>
-                                            <tr>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset
-                                                </th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Jml</th>
-                                                <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Harga Satuan
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="items_container">
-                                            <!-- Items will be loaded dynamically -->
-                                            <tr class="border-t border-[#EEF1F4]">
-                                                <td colspan="3" class="p-3 text-center text-gray-500">Memuat item...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div id="items_error" class="text-red-500 text-sm mt-1 hidden"></div>
-                            </div>
-
-                            <!-- Form Buttons -->
-                            <div class="flex gap-4 mt-8">
-                                <button type="submit"
-                                    class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
-                                    {{ isset($vendorOffer) || request()->has('offer_id') ? 'PERBARUI' : 'KIRIM' }}
-                                </button>
-                            </div>
-                        </form>
-                    @else
-                        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
-                            <p>Maaf, Anda tidak memiliki izin untuk
-                                {{ isset($vendorOffer) || request()->has('agreement_id') ? 'mengedit' : 'menambahkan' }}
-                                penawaran vendor.</p>
-                        </div>
-                    @endif
-                </div>
+    <div class="p-4 md:p-7 bg-base-100 rounded-lg">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div class="flex items-center">
+                <a href="{{ route('procurement.detail-comparison', ['id' => $comparison_id ?? request()->route('id')]) }}"
+                    class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
+                    {{ isset($vendorOffer) || request()->has('agreement_id') ? 'EDIT PENAWARAN VENDOR' : 'TAMBAH PENAWARAN VENDOR' }}
+                </h1>
             </div>
         </div>
-    </div>
 
+        <!-- Form -->
+        @if((isset($vendorOffer) || request()->has('agreement_id')) && hasPermission('price-comparison:vendor-offer:edit') || (!isset($vendorOffer) && !request()->has('agreement_id') && hasPermission('price-comparison:vendor-offer:create')))
+            <form id="vendorQuotationForm" class="w-full space-y-6" data-no-loading>
+                @csrf
+                <!-- Hidden Fields -->
+                <input type="hidden" name="comparison_id" id="comparison_id"
+                    value="{{ $comparison_id ?? request()->route('id') }}">
+                <!-- Add a hidden field for agreement_id if it exists -->
+                @if(isset($vendorOffer) && isset($vendorOffer->agreement_id))
+                    <input type="hidden" name="agreement_id" id="agreement_id" value="{{ $vendorOffer->agreement_id }}">
+                @endif
+
+                <!-- Vendor -->
+                <div class="space-y-2">
+                    <label class="block text-base font-semibold text-[#666666]">Vendor <span
+                            class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input type="text" id="vendor_search"
+                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                            placeholder="Cari vendor..." autocomplete="off"
+                            value="{{ $vendorOffer->vendor->vendor_name ?? '' }}">
+                        <input type="hidden" name="vendor_id" id="selected_vendor_id"
+                            value="{{ $vendorOffer->vendor->vendor_id ?? '' }}">
+                        <div id="vendor_results"
+                            class="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md overflow-y-auto border border-gray-300 hidden">
+                        </div>
+                    </div>
+                    <div id="vendor_error" class="text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+
+                <!-- Payment Terms -->
+                <div class="space-y-2">
+                    <label class="block text-base font-semibold text-[#666666]">Syarat Pembayaran</label>
+                    <textarea name="payment_terms" id="payment_terms"
+                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                        placeholder="Syarat Pembayaran" rows="3">{{ $vendorOffer->payment_terms ?? '' }}</textarea>
+                    <div id="payment_terms_error" class="text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+
+                <!-- Delivery Terms -->
+                <div class="space-y-2">
+                    <label class="block text-base font-semibold text-[#666666]">Syarat Pengiriman</label>
+                    <textarea name="delivery_terms" id="delivery_terms"
+                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                        placeholder="Syarat Pengiriman" rows="3">{{ $vendorOffer->delivery_terms ?? '' }}</textarea>
+                    <div id="delivery_terms_error" class="text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+
+                <!-- Notes -->
+                <div class="space-y-2">
+                    <label class="block text-base font-semibold text-[#666666]">Catatan</label>
+                    <textarea name="notes" id="notes"
+                        class="w-full px-4 py-3 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                        placeholder="Catatan Tambahan" rows="2">{{ $vendorOffer->notes ?? '' }}</textarea>
+                </div>
+
+                <!-- Item List -->
+                <div class="space-y-4">
+                    <label class="block text-base font-semibold text-[#666666]">Daftar Aset</label>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full" id="itemsTable">
+                            <thead>
+                                <tr>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset
+                                    </th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Jml</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Harga Satuan
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="items_container">
+                                <!-- Items will be loaded dynamically -->
+                                <tr class="border-t border-[#EEF1F4]">
+                                    <td colspan="3" class="p-3 text-center text-gray-500">Memuat item...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="items_error" class="text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+
+                <!-- Form Buttons -->
+                <div class="flex gap-4 mt-8">
+                    <button type="submit"
+                        class="px-6 py-3 bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200 uppercase">
+                        {{ isset($vendorOffer) || request()->has('offer_id') ? 'PERBARUI' : 'KIRIM' }}
+                    </button>
+                </div>
+            </form>
+        @else
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
+                <p>Maaf, Anda tidak memiliki izin untuk
+                    {{ isset($vendorOffer) || request()->has('agreement_id') ? 'mengedit' : 'menambahkan' }}
+                    penawaran vendor.
+                </p>
+            </div>
+        @endif
+    </div>
 
 @endsection
 
@@ -239,42 +231,42 @@
                     const styleTag = document.createElement('style');
                     styleTag.id = 'swal-custom-styles';
                     styleTag.innerHTML = `
-                        /* SweetAlert Custom Styles */
-                        .swal2-popup {
-                            border-radius: 15px;
-                            padding: 1.5rem;
-                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                        }
-                        .swal-custom-title {
-                            font-weight: 600;
-                            font-size: 1.5rem;
-                            color: #333;
-                        }
-                        .swal-custom-content {
-                            font-size: 1rem;
-                            color: #555;
-                            margin-top: 0.5rem;
-                        }
-                        .swal-custom-content ul {
-                            text-align: left;
-                            margin-top: 1rem;
-                            margin-bottom: 1rem;
-                        }
-                        .swal-custom-confirm {
-                            padding: 0.5rem 1.5rem;
-                            font-weight: 500;
-                        }
-                        .swal-custom-cancel {
-                            padding: 0.5rem 1.5rem;
-                            font-weight: 500;
-                        }
-                        .swal2-timer-progress-bar {
-                            background: rgba(33, 50, 104, 0.5);
-                        }
-                        .swal2-icon {
-                            margin: 1rem auto;
-                        }
-                    `;
+                                /* SweetAlert Custom Styles */
+                                .swal2-popup {
+                                    border-radius: 15px;
+                                    padding: 1.5rem;
+                                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                                }
+                                .swal-custom-title {
+                                    font-weight: 600;
+                                    font-size: 1.5rem;
+                                    color: #333;
+                                }
+                                .swal-custom-content {
+                                    font-size: 1rem;
+                                    color: #555;
+                                    margin-top: 0.5rem;
+                                }
+                                .swal-custom-content ul {
+                                    text-align: left;
+                                    margin-top: 1rem;
+                                    margin-bottom: 1rem;
+                                }
+                                .swal-custom-confirm {
+                                    padding: 0.5rem 1.5rem;
+                                    font-weight: 500;
+                                }
+                                .swal-custom-cancel {
+                                    padding: 0.5rem 1.5rem;
+                                    font-weight: 500;
+                                }
+                                .swal2-timer-progress-bar {
+                                    background: rgba(33, 50, 104, 0.5);
+                                }
+                                .swal2-icon {
+                                    margin: 1rem auto;
+                                }
+                            `;
                     document.head.appendChild(styleTag);
                 }
 
@@ -958,12 +950,12 @@
                     const submitBtn = form.querySelector('button[type="submit"]');
                     const originalBtnText = submitBtn.textContent;
                     submitBtn.innerHTML = `
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        MENYIMPAN...
-                    `;
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                MENYIMPAN...
+                            `;
                     submitBtn.disabled = true;
 
                     // API endpoint
@@ -1153,28 +1145,28 @@
 
             // Add styling for animations
             document.head.insertAdjacentHTML('beforeend', `
-                <style>
-                    @keyframes slideInRight {
-                        from { transform: translateX(100%); }
-                        to { transform: translateX(0); }
-                    }
-                    .animate-slide-in-right {
-                        animation: slideInRight 0.3s ease-out forwards;
-                    }
+                        <style>
+                            @keyframes slideInRight {
+                                from { transform: translateX(100%); }
+                                to { transform: translateX(0); }
+                            }
+                            .animate-slide-in-right {
+                                animation: slideInRight 0.3s ease-out forwards;
+                            }
 
-                    /* Styling for error messages with HTML content */
-                    .error-message ul {
-                        margin-top: 0.5rem;
-                        padding-left: 1.5rem;
-                    }
-                    .error-message ul li {
-                        margin-bottom: 0.25rem;
-                    }
-                    .error-message ul li:last-child {
-                        margin-bottom: 0;
-                    }
-                </style>
-            `);
+                            /* Styling for error messages with HTML content */
+                            .error-message ul {
+                                margin-top: 0.5rem;
+                                padding-left: 1.5rem;
+                            }
+                            .error-message ul li {
+                                margin-bottom: 0.25rem;
+                            }
+                            .error-message ul li:last-child {
+                                margin-bottom: 0;
+                            }
+                        </style>
+                    `);
 
             function loadVendorOfferData(agreementId, vendorOfferIdsMap) {
                 fetch(`/procurement/price-comparison/vendor-offer/${agreementId}?use_agreement_id=true&detailed=true`, {
