@@ -124,7 +124,7 @@
                         <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                             <div class="flex items-center space-x-2">
                                 <button
-                                    class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($brands_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($brands_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
                                     onclick="changePage({{ ($brands_pagination['current_page'] ?? 1) - 1 }})" {{ ($brands_pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
@@ -180,7 +180,7 @@
                                 </div>
 
                                 <button
-                                    class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($brands_pagination['current_page'] ?? 1) >= ($brands_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($brands_pagination['current_page'] ?? 1) >= ($brands_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
                                     onclick="changePage({{ ($brands_pagination['current_page'] ?? 1) + 1 }})" {{ ($brands_pagination['current_page'] ?? 1) >= ($brands_pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
                                     Selanjutnya
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -204,7 +204,7 @@
                                 </span>
                                 <select id="perPageSelect"
                                     class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
-                                    onchange="changePerPage(this.value)">
+                                    onchange="changeBrandPerPage(this.value)">
                                     <option value="10" {{ isset($brands_pagination['per_page']) && $brands_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                                     <option value="25" {{ isset($brands_pagination['per_page']) && $brands_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                                     <option value="50" {{ isset($brands_pagination['per_page']) && $brands_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -797,10 +797,11 @@
                 window.location.href = url.toString();
             }
 
-            window.changePerPage = function (limit) {
+            window.changeBrandPerPage = function (limit) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('limit', limit);
-                url.searchParams.set('page', 1); // Reset to first page when changing limit
+                // Reset to page 1 when changing limit
+                url.searchParams.set('page', 1);
                 window.location.href = url.toString();
             }
 

@@ -175,19 +175,51 @@
                             </svg>
                             Sebelumnya
                         </button>
-
+                        
+                        <!-- Replace with improved pagination that shows first/last pages with ellipses -->
                         <div class="flex gap-2">
                             @php
                                 $currentPage = $masterAssets_pagination['current_page'] ?? 1;
                                 $lastPage = $masterAssets_pagination['last_page'] ?? 1;
+                                $maxPagesShown = 5; // Show max 5 pages at once
+                                $startPage = max(1, $currentPage - 2);
+                                $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
+
+                                if ($endPage - $startPage + 1 < $maxPagesShown) {
+                                    $startPage = max(1, $endPage - $maxPagesShown + 1);
+                                }
                             @endphp
 
-                            @for($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
+                            @if($startPage > 1)
+                                <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                    1
+                                </a>
+                                @if($startPage > 2)
+                                    <span class="flex items-center justify-center">
+                                        ...
+                                    </span>
+                                @endif
+                            @endif
+
+                            @for ($i = $startPage; $i <= $endPage; $i++)
                                 <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
                                    class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                     {{ $i }}
                                 </a>
                             @endfor
+
+                            @if($endPage < $lastPage)
+                                @if($endPage < $lastPage - 1)
+                                    <span class="flex items-center justify-center">
+                                        ...
+                                    </span>
+                                @endif
+                                <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                    {{ $lastPage }}
+                                </a>
+                            @endif
                         </div>
 
                         <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($masterAssets_pagination['current_page'] ?? 1) >= ($masterAssets_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
@@ -215,7 +247,7 @@
                                 Menampilkan 1 sampai {{ count($masterAssets ?? []) }} dari {{ count($masterAssets ?? []) }} data
                             @endif
                         </span>
-                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeMasterAssetPerPage(this.value)">
                             <option value="10" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                             <option value="25" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                             <option value="50" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -3326,6 +3358,15 @@
                 resultsElem.appendChild(countDiv);
             }
         }
+
+        // Updated pagination function with specific name for Master Asset
+        window.changeMasterAssetPerPage = function(perPage) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', perPage);
+            // Reset to page 1 when changing limit
+            url.searchParams.set('page', 1);
+            window.location.href = url.toString();
+        };
     });
 
     // Add slide-in animation and styling for error messages to CSS

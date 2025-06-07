@@ -206,7 +206,7 @@
                                         $from = ($currentPage - 1) * $perPage + 1;
                                         $to = min($currentPage * $perPage, $total);
                                     @endphp
-                                    Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} entri
+                                    Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
                                 @else
                                     Menampilkan 1 sampai {{ count($users ?? []) }} dari {{ count($users ?? []) }} entri
                                 @endif

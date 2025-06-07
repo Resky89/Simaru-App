@@ -123,58 +123,70 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="flex gap-2">
-                        @if(isset($pagination) && is_array($pagination))
-                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
-                                   onclick="changePage({{ ($pagination['current_page'] ?? 1) - 1 }})"
-                                   {{ ($pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                                </svg>
-                                Sebelumnya
-                            </button>
-
-                            <div class="flex gap-1">
-                                @php
-                                    $currentPage = $pagination['current_page'] ?? 1;
-                                    $totalPages = $pagination['total_pages'] ?? 1;
-                                    $startPage = max(1, min($currentPage - 2, $totalPages - 4));
-                                    $endPage = min($totalPages, max(5, $currentPage + 2));
-                                @endphp
-
-                                @for ($i = $startPage; $i <= $endPage; $i++)
-                                <button class="w-8 h-8 {{ $i == $currentPage ? 'bg-[#213268] text-white' : 'border border-[#D8DAE5] text-[#213268]' }} rounded text-sm hover:bg-gray-50 {{ $i == $currentPage ? '' : 'hover:bg-gray-100' }}"
-                                       onclick="changePage({{ $i }})">
-                                    {{ $i }}
-                                </button>
-                                @endfor
-                            </div>
-
-                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
-                                   onclick="changePage({{ ($pagination['current_page'] ?? 1) + 1 }})"
-                                   {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
-                                Berikutnya
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                        @else
-                            <!-- Default pagination when no data -->
-                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                                </svg>
-                                Sebelumnya
-                            </button>
-                            <button class="w-8 h-8 bg-[#213268] text-white rounded text-sm">1</button>
-                            <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 opacity-50 cursor-not-allowed" disabled>
-                                Berikutnya
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                <div class="flex flex-col md:flex-row justify-between items-center mt-4">
+                    <div class="flex items-center space-x-2">
+                        <a href="{{ request()->fullUrlWithQuery(['page' => max(1, ($pagination['current_page'] ?? 1) - 1)]) }}"
+                            class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7" />
                             </svg>
-                        </button>
-                        @endif
+                            Sebelumnya
+                        </a>
+                        <div class="flex gap-2">
+                            @php
+                                $currentPage = $pagination['current_page'] ?? 1;
+                                $lastPage = $pagination['total_pages'] ?? 1;
+                                $maxPagesShown = 5; // Show max 5 pages at once
+                                $startPage = max(1, $currentPage - 2);
+                                $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
+
+                                if ($endPage - $startPage + 1 < $maxPagesShown) {
+                                    $startPage = max(1, $endPage - $maxPagesShown + 1);
+                                }
+                            @endphp
+
+                            @if($startPage > 1)
+                                <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                    1
+                                </a>
+                                @if($startPage > 2)
+                                    <span class="flex items-center justify-center">
+                                        ...
+                                    </span>
+                                @endif
+                            @endif
+
+                            @for ($i = $startPage; $i <= $endPage; $i++)
+                                <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
+                                    {{ $i }}
+                                </a>
+                            @endfor
+
+                            @if($endPage < $lastPage)
+                                @if($endPage < $lastPage - 1)
+                                    <span class="flex items-center justify-center">
+                                        ...
+                                    </span>
+                                @endif
+                                <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                    {{ $lastPage }}
+                                </a>
+                            @endif
+                        </div>
+                        <a href="{{ request()->fullUrlWithQuery(['page' => min($lastPage, ($pagination['current_page'] ?? 1) + 1)]) }}"
+                            class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            Selanjutnya
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -187,12 +199,13 @@
                                     $from = ($currentPage - 1) * $perPage + 1;
                                     $to = min($currentPage * $perPage, $total);
                                 @endphp
-                                Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} entri
+                                Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
                             @else
-                                Menampilkan 1 sampai {{ count($receipts ?? []) }} dari {{ count($receipts ?? []) }} entri
+                                Menampilkan 1 sampai {{ count($receipts ?? []) }} dari {{ count($receipts ?? []) }} data
                             @endif
                         </span>
-                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
+                            onchange="changeReceiptPerPage(this.value)">
                             <option value="10" {{ isset($pagination['limit']) && $pagination['limit'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                             <option value="25" {{ isset($pagination['limit']) && $pagination['limit'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                             <option value="50" {{ isset($pagination['limit']) && $pagination['limit'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -308,10 +321,17 @@
             searchForm?.submit();
         };
 
-        // Handle per page selection
-        perPageSelect?.addEventListener('change', function() {
-            document.getElementById('limit').value = this.value;
+        // Handle per page selection with new named function
+        window.changeReceiptPerPage = function(limit) {
+            document.getElementById('limit').value = limit;
             document.getElementById('page').value = 1; // Reset to first page when changing limit
+            searchForm?.submit();
+        };
+
+        // Remove the direct event listener since we're using the onchange attribute now
+        perPageSelect?.removeEventListener('change', function() {
+            document.getElementById('limit').value = this.value;
+            document.getElementById('page').value = 1;
             searchForm?.submit();
         });
     });

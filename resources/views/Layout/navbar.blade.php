@@ -13,7 +13,7 @@
                 </div>
 
                 <!-- Notification Dropdown -->
-                <div id="notification-menu" class="hidden fixed left-1/2 transform -translate-x-1/2 top-[80px] w-[90%] max-w-[350px] bg-white rounded-lg shadow-xl z-50 max-h-[80vh] overflow-hidden">
+                <div id="notification-menu" class="hidden fixed left-1/2 transform -translate-x-1/2 md:left-auto md:transform-none md:right-6 top-[80px] w-[90%] max-w-[350px] bg-white rounded-lg shadow-xl z-50 max-h-[80vh] overflow-hidden">
                     <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
                         <h3 class="text-sm font-semibold text-[#232D42]">Notifikasi</h3>
                         <button id="refresh-notifications" class="text-[#213268] hover:text-[#182451]">

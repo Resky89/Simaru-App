@@ -359,10 +359,10 @@
                             <div class="flex gap-2">
                                 @php
                                     $currentPage = $pagination['current_page'] ?? 1;
-                                    $totalPages = $pagination['total_pages'] ?? 1;
+                                    $lastPage = $pagination['total_pages'] ?? 1;
                                     $maxPagesShown = 5; // Show max 5 pages at once
                                     $startPage = max(1, $currentPage - 2);
-                                    $endPage = min($totalPages, $startPage + $maxPagesShown - 1);
+                                    $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
 
                                     if ($endPage - $startPage + 1 < $maxPagesShown) {
                                         $startPage = max(1, $endPage - $maxPagesShown + 1);
@@ -388,21 +388,21 @@
                                     </a>
                                 @endfor
 
-                                @if($endPage < $totalPages)
-                                    @if($endPage < $totalPages - 1)
+                                @if($endPage < $lastPage)
+                                    @if($endPage < $lastPage - 1)
                                         <span class="flex items-center justify-center">
                                             ...
                                         </span>
                                     @endif
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => $totalPages]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
-                                        {{ $totalPages }}
+                                        {{ $lastPage }}
                                     </a>
                                 @endif
                             </div>
                             <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
                                 class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
-                                Berikutnya
+                                Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -414,10 +414,14 @@
                         <div class="flex items-center gap-2 mt-4 md:mt-0">
                             <span class="text-sm text-gray-600">
                                 @if(isset($pagination) && isset($pagination['total_items']))
-                                    Menampilkan {{ ($pagination['current_page'] - 1) * $pagination['limit'] + 1 }}
-                                    sampai
-                                    {{ min($pagination['current_page'] * $pagination['limit'], $pagination['total_items']) }}
-                                    dari {{ $pagination['total_items'] }} data
+                                    @php
+                                        $currentPage = $pagination['current_page'] ?? 1;
+                                        $perPage = $pagination['limit'] ?? 10;
+                                        $total = $pagination['total_items'] ?? 0;
+                                        $from = ($currentPage - 1) * $perPage + 1;
+                                        $to = min($currentPage * $perPage, $total);
+                                    @endphp
+                                    Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
                                 @else
                                     Menampilkan 0 sampai 0 dari 0 data
                                 @endif
@@ -1868,17 +1872,17 @@
                                 json: 'true',
                                 limit: searchTerm ? '20' : '100' // Use smaller limit for search, larger for full load
                             });
-                            
+
                             // Add search term if provided
                             if (searchTerm) {
                                 params.append('search', searchTerm);
                             }
-                            
+
                             // Show loading state in dropdown if visible
                             if (vendorResults && vendorResults.style.display === 'block') {
                                 vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
                             }
-                            
+
                             // Make a single fetch request
                             fetch(`/vendor?${params.toString()}`, {
                                 headers: {
@@ -1894,7 +1898,7 @@
                                 })
                                 .then(data => {
                                 let vendors = [];
-                                
+
                                 // Handle different response formats
                                 if (Array.isArray(data)) {
                                     vendors = data;
@@ -1903,27 +1907,27 @@
                                 } else if (data.data && Array.isArray(data.data)) {
                                     vendors = data.data;
                                 }
-                                
+
                                 // If this is a full load (no search term), cache the vendors
                                 if (!searchTerm) {
                                     allVendors = vendors;
-                                    
+
                                     // Cache for future use
                                     try {
                                         localStorage.setItem('allVendors', JSON.stringify(allVendors));
                                     } catch (e) {
                                         console.error('Error caching vendors:', e);
                                     }
-                                    
+
                                     // If we're loading for dropdown, populate it
                                     populateVendorDropdown(vendors);
                                 }
-                                
+
                                 // If we have a callback, call it with the vendors
                                 if (callback) {
                                     callback(vendors);
                                 }
-                                
+
                                 // If we're searching and the results dropdown is visible, display results
                                 if (searchTerm && vendorResults && vendorResults.style.display === 'block') {
                                     displayVendorResults(vendors);
@@ -1931,19 +1935,19 @@
                             })
                             .catch(error => {
                                 console.error('Error fetching vendors:', error);
-                                
+
                                 // Show error in dropdown if visible
                                 if (vendorResults && vendorResults.style.display === 'block') {
                                     vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
                                 }
-                                
+
                                 // Show toast notification with error details
                                 if (typeof error === 'object' && error !== null) {
                                     showToast(error, 'error');
                                 } else {
                                     showToast('Gagal memuat vendor: ' + error.message, 'error');
                                 }
-                                
+
                                 // If we have a callback, call it with empty array
                                 if (callback) {
                                     callback([]);
@@ -1955,7 +1959,7 @@
                         function populateVendorDropdown(vendors) {
                                     const select = document.getElementById('vendor_id');
                             if (!select) return;
-                            
+
                                     select.innerHTML = '<option value="">Select Vendor</option>';
 
                             vendors.forEach(vendor => {
@@ -3131,23 +3135,23 @@
                             if (cachedVendors) {
                                 try {
                                     allVendors = JSON.parse(cachedVendors);
-                                    
+
                                     // If the search input has a value, filter and display
                                     if (vendorSearchInput && vendorSearchInput.value.trim()) {
                                         filterAndDisplayVendors(vendorSearchInput.value.trim());
                                     } else if (vendorResults) {
                                         vendorResults.style.display = 'none';
                                     }
-                                    
+
                                     // Still load fresh data in the background
                                     fetchVendors();
-                                    
+
                                     return; // Exit early with cached data
                                 } catch (e) {
                                     console.error('Error parsing cached vendors:', e);
                                 }
                             }
-                            
+
                             // If no cache, fetch from API
                             fetchVendors();
                         }
@@ -3156,7 +3160,7 @@
                         function filterAndDisplayVendors(searchTerm) {
                             // Make sure dropdown is visible
                             if (vendorResults) vendorResults.style.display = 'block';
-                            
+
                             // If search term is provided, use server-side search
                             if (searchTerm && searchTerm.length > 0) {
                                 fetchVendors(searchTerm, displayVendorResults);
@@ -3388,7 +3392,7 @@
                             if (cachedVendors) {
                                 try {
                                     allVendors = JSON.parse(cachedVendors);
-                                    
+
                                     // If the search input has a value, filter and display
                                     if (vendorSearchInput && vendorSearchInput.value.trim()) {
                                         filterAndDisplayVendors(vendorSearchInput.value.trim());

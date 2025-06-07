@@ -125,14 +125,45 @@
                                 @php
                                     $currentPage = $roles['pagination']['current_page'] ?? 1;
                                     $lastPage = $roles['pagination']['last_page'] ?? 1;
+                                    $maxPagesShown = 5; // Show max 5 pages at once
+                                    $startPage = max(1, $currentPage - 2);
+                                    $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
+
+                                    if ($endPage - $startPage + 1 < $maxPagesShown) {
+                                        $startPage = max(1, $endPage - $maxPagesShown + 1);
+                                    }
                                 @endphp
 
-                                @for ($i = 1; $i <= $lastPage; $i++)
+                                @if($startPage > 1)
+                                    <a href="{{ request()->fullUrlWithQuery(['role_page' => 1]) }}"
+                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                        1
+                                    </a>
+                                    @if($startPage > 2)
+                                        <span class="flex items-center justify-center">
+                                            ...
+                                        </span>
+                                    @endif
+                                @endif
+
+                                @for ($i = $startPage; $i <= $endPage; $i++)
                                     <a href="{{ request()->fullUrlWithQuery(['role_page' => $i]) }}"
                                         class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                         {{ $i }}
                                     </a>
                                 @endfor
+
+                                @if($endPage < $lastPage)
+                                    @if($endPage < $lastPage - 1)
+                                        <span class="flex items-center justify-center">
+                                            ...
+                                        </span>
+                                    @endif
+                                    <a href="{{ request()->fullUrlWithQuery(['role_page' => $lastPage]) }}"
+                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                        {{ $lastPage }}
+                                    </a>
+                                @endif
                             </div>
                             <a href="{{ $roles['pagination']['next_page_url'] ?? '#' }}"
                                 class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($roles['pagination']['current_page'] ?? 1) >= ($roles['pagination']['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
@@ -158,7 +189,7 @@
                                     Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
                                 @else
                                     Menampilkan 1 sampai {{ count($roles['data'] ?? []) }} dari
-                                    {{ count($roles['data'] ?? []) }} entri
+                                    {{ count($roles['data'] ?? []) }} data
                                 @endif
                             </span>
                             <select id="rolePerPageSelect"
@@ -1063,6 +1094,7 @@
                 }
             });
 
+            // Restore the add role form validation and submission logic
             // Add Role Form Submit Handler
             const addRoleForm = document.getElementById('addRoleForm');
             if (addRoleForm) {

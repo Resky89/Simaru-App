@@ -15,6 +15,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Axios for AJAX requests -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -82,6 +84,28 @@
 </head>
 
 <body class="bg-[#ECECEC]">
+    <!-- Welcome Message SweetAlert (Session Flash Data) -->
+    @if(session('welcome_message'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Selamat Datang!',
+                text: "{{ session('welcome_message') }}",
+                icon: 'success',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                background: '#ffffff',
+                iconColor: '#213268',
+                customClass: {
+                    title: 'text-[#213268] font-bold',
+                    popup: 'rounded-xl shadow-xl border border-gray-100'
+                }
+            });
+        });
+    </script>
+    @endif
+
     <div class="flex min-h-screen">
         <!-- Mobile Menu Button -->
         <button id="mobile-menu-button"

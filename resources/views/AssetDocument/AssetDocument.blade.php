@@ -125,7 +125,7 @@
                 @if(isset($documents_pagination) && $documents_pagination)
                 <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                     <div class="flex items-center space-x-2">
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($documents_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($documents_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
                                onclick="changePage({{ ($documents_pagination['current_page'] ?? 1) - 1 }})"
                                {{ ($documents_pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -138,17 +138,48 @@
                             @php
                                 $currentPage = $documents_pagination['current_page'] ?? 1;
                                 $lastPage = $documents_pagination['last_page'] ?? 1;
+                                $maxPagesShown = 5; // Show max 5 pages at once
+                                $startPage = max(1, $currentPage - 2);
+                                $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
+
+                                if ($endPage - $startPage + 1 < $maxPagesShown) {
+                                    $startPage = max(1, $endPage - $maxPagesShown + 1);
+                                }
                             @endphp
 
-                            @for($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
+                            @if($startPage > 1)
+                                <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                    1
+                                </a>
+                                @if($startPage > 2)
+                                    <span class="flex items-center justify-center">
+                                        ...
+                                    </span>
+                                @endif
+                            @endif
+
+                            @for ($i = $startPage; $i <= $endPage; $i++)
                                 <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
                                    class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                     {{ $i }}
                                 </a>
                             @endfor
+
+                            @if($endPage < $lastPage)
+                                @if($endPage < $lastPage - 1)
+                                    <span class="flex items-center justify-center">
+                                        ...
+                                    </span>
+                                @endif
+                                <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                    {{ $lastPage }}
+                                </a>
+                            @endif
                         </div>
 
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($documents_pagination['current_page'] ?? 1) >= ($documents_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($documents_pagination['current_page'] ?? 1) >= ($documents_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
                                onclick="changePage({{ ($documents_pagination['current_page'] ?? 1) + 1 }})"
                                {{ ($documents_pagination['current_page'] ?? 1) >= ($documents_pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
                             Selanjutnya
@@ -173,7 +204,7 @@
                                 Menampilkan 1 sampai {{ count($documents ?? []) }} dari {{ count($documents ?? []) }} data
                             @endif
                         </span>
-                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeDocumentPerPage(this.value)">
                             <option value="10" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                             <option value="25" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                             <option value="50" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -1651,6 +1682,16 @@
             const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
             if (errorElement) errorElement.classList.add('hidden');
         });
+
+        // Add the specific function for document pagination
+        // Function to handle document pagination specifically
+        window.changeDocumentPerPage = function(perPage) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', perPage);
+            // Reset to page 1 when changing limit
+            url.searchParams.set('page', 1);
+            window.location.href = url.toString();
+        };
     });
 </script>
 

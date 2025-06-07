@@ -358,11 +358,11 @@
         </div>
 
         <!-- Calendar -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mt-4 md:mt-6">
+        <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 mt-4 md:mt-6">
             <!-- Header -->
-            <div class="flex flex-col md:flex-row justify-between items-center w-full gap-3 mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center w-full gap-4 mb-6 sm:mb-8">
                     <!-- Title and Navigation -->
-                    <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
                         <button onclick="changeMonth(-1)"
                             class="w-10 h-10 flex items-center justify-center bg-white border border-[#213268]/20 rounded-lg hover:bg-[#213268]/5 text-[#213268] transition-colors duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -372,8 +372,8 @@
                         </button>
 
                         <h2 id="currentMonth"
-                            class="text-2xl font-['Poppins'] font-black text-[#213268] min-w-[120px] text-center"></h2>
-                        <span id="currentYear" class="text-2xl font-['Poppins'] font-medium text-[#213268]/70"></span>
+                        class="text-xl sm:text-2xl font-['Poppins'] font-black text-[#213268] min-w-[100px] text-center"></h2>
+                    <span id="currentYear" class="text-xl sm:text-2xl font-['Poppins'] font-medium text-[#213268]/70"></span>
 
                         <button onclick="changeMonth(1)"
                             class="w-10 h-10 flex items-center justify-center bg-white border border-[#213268]/20 rounded-lg hover:bg-[#213268]/5 text-[#213268] transition-colors duration-200">
@@ -385,10 +385,10 @@
                     </div>
 
                     <!-- Date Selector -->
-                    <div class="flex items-center gap-3">
-                        <div class="relative">
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
+                    <div class="relative w-full sm:w-auto">
                             <select id="monthSelector" onchange="goToSelectedDate()"
-                                class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[150px] bg-white text-[#213268] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
+                            class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[130px] bg-white text-[#213268] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
                                 <option value="0">Januari</option>
                                 <option value="1">Februari</option>
                                 <option value="2">Maret</option>
@@ -410,9 +410,9 @@
                             </div>
                         </div>
 
-                        <div class="relative">
+                    <div class="relative w-full sm:w-auto">
                             <select id="yearSelector" onchange="goToSelectedDate()"
-                                class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[100px] bg-white text-[#213268] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
+                            class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[90px] bg-white text-[#213268] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
                                 <!-- Years will be added via JavaScript -->
                             </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#213268]">
@@ -426,20 +426,20 @@
             </div>
 
             <!-- Calendar Grid -->
-            <div class="flex flex-col gap-2 w-full">
+            <div class="flex flex-col gap-2 w-full overflow-x-auto">
                 <!-- Days Header -->
-                <div class="flex justify-between items-center py-2 bg-white border-b border-[#213268]/10">
-                    <div class="flex-1 text-center text-xs font-['Poppins'] font-medium text-[#213268]">Min</div>
-                    <div class="flex-1 text-center text-xs font-['Poppins'] font-medium text-[#213268]">Sen</div>
-                    <div class="flex-1 text-center text-xs font-['Poppins'] font-medium text-[#213268]">Sel</div>
-                    <div class="flex-1 text-center text-xs font-['Poppins'] font-medium text-[#213268]">Rab</div>
-                    <div class="flex-1 text-center text-xs font-['Poppins'] font-medium text-[#213268]">Kam</div>
-                    <div class="flex-1 text-center text-xs font-['Poppins'] font-medium text-[#213268]">Jum</div>
-                    <div class="flex-1 text-center text-xs font-['Poppins'] font-medium text-[#213268]">Sab</div>
+                <div class="flex justify-between items-center py-2 bg-white border-b border-[#213268]/10 min-w-[640px] sm:min-w-0">
+                    <div class="flex-1 text-center text-xs sm:text-sm font-['Poppins'] font-medium text-[#213268]">Min</div>
+                    <div class="flex-1 text-center text-xs sm:text-sm font-['Poppins'] font-medium text-[#213268]">Sen</div>
+                    <div class="flex-1 text-center text-xs sm:text-sm font-['Poppins'] font-medium text-[#213268]">Sel</div>
+                    <div class="flex-1 text-center text-xs sm:text-sm font-['Poppins'] font-medium text-[#213268]">Rab</div>
+                    <div class="flex-1 text-center text-xs sm:text-sm font-['Poppins'] font-medium text-[#213268]">Kam</div>
+                    <div class="flex-1 text-center text-xs sm:text-sm font-['Poppins'] font-medium text-[#213268]">Jum</div>
+                    <div class="flex-1 text-center text-xs sm:text-sm font-['Poppins'] font-medium text-[#213268]">Sab</div>
                 </div>
 
                 <!-- Calendar Days -->
-                <div id="calendarDays" class="grid grid-cols-7 gap-0.5">
+                <div id="calendarDays" class="grid grid-cols-7 gap-0.5 min-w-[640px] sm:min-w-0">
                     <!-- Days will be inserted here by JavaScript -->
                     <div class="col-span-7 text-center py-8">
                         <span class="loading loading-spinner loading-md text-[#213268]"></span>
@@ -492,15 +492,15 @@
         <div id="viewCalibrationModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[800px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                <div class="flex min-h-full items-center justify-center p-2 sm:p-4 text-center">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 w-full max-w-full sm:max-w-[800px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300 mx-2 sm:mx-auto"
                         id="viewCalibrationModalContent">
                         <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">LAKUKAN KALIBRASI</h2>
+                        <div class="flex justify-between items-center p-4 sm:p-6 pb-0">
+                            <h2 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#213268]">LAKUKAN KALIBRASI</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="viewCalibrationModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -508,7 +508,7 @@
                         </div>
 
                         <!-- Content -->
-                        <div class="p-6">
+                        <div class="p-4 sm:p-6 overflow-y-auto max-h-[80vh]">
                             <form id="performCalibrationForm" class="space-y-6" data-no-loading enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" id="calibration_id" name="calibration_id">
@@ -519,10 +519,10 @@
                                 </div>
 
                                 <!-- ASSET INFORMATION SECTION -->
-                                <div class="bg-blue-100 rounded-lg p-4 mb-6">
-                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Aset</h3>
+                                <div class="bg-blue-100 rounded-lg p-3 sm:p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-base sm:text-lg mb-4">Informasi Aset</h3>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                         <!-- Left Column -->
                                         <div class="space-y-4">
                                             <!-- Asset Code -->
@@ -580,10 +580,10 @@
                                 </div>
 
                                 <!-- CALIBRATION SCHEDULE SECTION -->
-                                <div class="bg-yellow-100 rounded-lg p-4 mb-6">
-                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Jadwal Kalibrasi</h3>
+                                <div class="bg-yellow-100 rounded-lg p-3 sm:p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-base sm:text-lg mb-4">Jadwal Kalibrasi</h3>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                                         <!-- Planning Date -->
                                         <div>
                                             <label for="planning_calibration_date"
@@ -619,10 +619,10 @@
                                 </div>
 
                                 <!-- CALIBRATION DETAILS SECTION -->
-                                <div class="bg-green-100 rounded-lg p-4 mb-6">
-                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Detail Kalibrasi</h3>
+                                <div class="bg-green-100 rounded-lg p-3 sm:p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-base sm:text-lg mb-4">Detail Kalibrasi</h3>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                         <!-- Left Column -->
                                         <div class="space-y-4">
                                             <!-- Certificate Number -->
@@ -674,7 +674,7 @@
                                                 <label class="block text-sm font-medium text-gray-700">
                                                     HASIL<span class="text-red-500">*</span>
                                                 </label>
-                                                <div class="mt-2 flex flex-wrap gap-6">
+                                                <div class="mt-2 flex flex-wrap gap-3 sm:gap-6">
                                                     <div class="flex items-center">
                                                         <input type="radio" id="result_pass" name="calibration_result"
                                                             value="pass" class="h-4 w-4 text-[#213268] focus:ring-[#213268]"
@@ -701,14 +701,14 @@
                                 </div>
 
                                 <!-- DOCUMENTATION SECTION -->
-                                <div class="bg-blue-100 rounded-lg p-4 mb-6">
-                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Dokumentasi</h3>
+                                <div class="bg-blue-100 rounded-lg p-3 sm:p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-base sm:text-lg mb-4">Dokumentasi</h3>
 
                                     <!-- Document File -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">BERKAS TERUNGGAH</label>
                                         <div
-                                            class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                            class="border-2 border-dashed border-[#213268] rounded-lg p-4 sm:p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                             <!-- File preview container -->
                                             <div id="file-preview" class="mt-2 mb-4 w-full hidden">
                                                 <div
@@ -720,7 +720,7 @@
 
                                                     <!-- PDF/File preview -->
                                                     <div id="file-info" class="flex items-center">
-                                                        <svg class="w-6 h-6 text-red-600 mr-2"
+                                                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-600 mr-2"
                                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                             stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -741,7 +741,7 @@
                                             </div>
 
                                             <div class="text-center">
-                                                <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg"
+                                                <svg class="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg"
                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -1331,9 +1331,9 @@
             } else {
                 // Format each event
                 calendarEvents[dateStr].forEach(event => {
-                    const bgColor = event.type === 'info' ? 'bg-[#E5F6FF]' :
-                        event.type === 'urgent' ? 'bg-[#FFE5E5]' :
-                            'bg-[#FFF8E5]';
+                    const bgColor = event.type === 'info' ? 'bg-[#FFF8E5]' : // Kalibrasi - yellow
+                        event.type === 'urgent' ? 'bg-[#E5F6FF]' : // Perawatan - blue
+                            'bg-[#E6F8E6]'; // Garansi - green
 
                     const typeLabel = event.type === 'info' ? 'Kalibrasi' :
                         event.type === 'urgent' ? 'Perawatan' :
@@ -1343,12 +1343,12 @@
                             <div class="mb-3 p-4 ${bgColor} rounded-lg shadow-sm">
                                 <div class="flex justify-between items-start">
                                     <div class="font-medium text-lg mb-2">${event.title}</div>
-                                    <span class="text-xs font-medium px-2 py-1 rounded-full ${event.type === 'info' ? 'bg-blue-100 text-blue-800' :
-                            event.type === 'urgent' ? 'bg-red-100 text-red-800' :
-                                'bg-yellow-100 text-yellow-800'
+                                    <span class="text-xs font-medium px-2 py-1 rounded-full ${event.type === 'info' ? 'bg-yellow-100 text-yellow-800' : // Kalibrasi - yellow
+                            event.type === 'urgent' ? 'bg-blue-100 text-blue-800' : // Perawatan - blue
+                                'bg-green-100 text-green-800' // Garansi - green
                         }">${typeLabel}</span>
                                 </div>
-                                ${event.assetName ? `<div class="text-sm mb-1"><span class="font-medium">Asset:</span> ${event.assetName}</div>` : ''}
+                                ${event.assetCode ? `<div class="text-sm mb-1"><span class="font-medium">Kode Aset:</span> ${event.assetCode}</div>` : ''}
                                 ${event.location ? `<div class="text-sm mb-1"><span class="font-medium">Lokasi:</span> ${event.location}</div>` : ''}
                                 ${event.url ? `
                                     <div class="mt-3 pt-2 border-t border-gray-200">
@@ -1367,18 +1367,27 @@
 
             // Create modal HTML with improved styling
             const modalHTML = `
-                    <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="document.getElementById('eventModal').remove()">
-                        <div class="bg-white rounded-lg shadow-xl p-0 max-w-md w-full max-h-[80vh] overflow-hidden" onclick="event.stopPropagation()">
-                            <div class="flex justify-between items-center p-4 bg-[#213268] text-white">
-                                <h3 class="text-xl font-bold">Jadwal: ${formattedDate}</h3>
-                                <button onclick="document.getElementById('eventModal').remove()" class="text-white hover:text-white/80 focus:outline-none">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div id="eventModal" class="fixed inset-0 z-50">
+                        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                        <div class="fixed inset-0 z-50 overflow-y-auto">
+                            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px]"
+                                    id="eventModalContent">
+                                    <!-- Header -->
+                                    <div class="flex justify-between items-center p-6 pb-0">
+                                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Jadwal: ${formattedDate}</h2>
+                                        <button onclick="document.getElementById('eventModal').remove()" class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
                             </div>
-                            <div class="p-6 overflow-y-auto max-h-[60vh]">
+
+                                    <!-- Content -->
+                                    <div class="p-6">
                                 ${eventListHTML}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1704,13 +1713,18 @@
                         // Show max 3 events in the calendar cell
                         const visibleEvents = calendarEvents[dateStr].slice(0, 3);
                         dayEvents = visibleEvents.map(event => {
-                            const bgColor = event.type === 'info' ? 'bg-[#E5F6FF]' :
-                                event.type === 'urgent' ? 'bg-[#FFE5E5]' :
-                                    'bg-[#FFF8E5]'; // For warning type
+                            const bgColor = event.type === 'info' ? 'bg-[#FFF8E5]' : // Kalibrasi - yellow
+                                event.type === 'urgent' ? 'bg-[#E5F6FF]' : // Perawatan - blue
+                                    'bg-[#E6F8E6]'; // Garansi - green
 
-                            const borderColor = event.type === 'info' ? 'border-l-4 border-l-[#25B1FF]' :
-                                event.type === 'urgent' ? 'border-l-4 border-l-[#FF4A2B]' :
-                                    'border-l-4 border-l-[#DAAE0F]'; // For warning type
+                            const typeLabel = event.type === 'info' ? 'Kalibrasi' :
+                                event.type === 'urgent' ? 'Perawatan' :
+                                    'Garansi';
+
+                            // Define border colors with new color scheme
+                            const borderColor = event.type === 'info' ? 'border-l-4 border-l-[#FFD016]' : // Kalibrasi - yellow
+                                event.type === 'urgent' ? 'border-l-4 border-l-[#25B1FF]' : // Perawatan - blue
+                                    'border-l-4 border-l-[#7CB60C]'; // Garansi - green
 
                             if (event.url) {
                                 return `<a href="${event.url}" class="px-2 py-1.5 ${bgColor} ${borderColor} text-xs font-['Poppins'] mb-1 rounded shadow-sm truncate block hover:bg-opacity-80">${event.title}</a>`;

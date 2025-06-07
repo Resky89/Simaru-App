@@ -98,6 +98,10 @@ class AuthController extends Controller
                     if ($apiService->refreshToken()) {
                         \Log::info('Auto-login successful via refresh token');
 
+                        // Set welcome message for auto-login
+                        $employeeNumber = $request->session()->get('employee_number');
+                        $request->session()->flash('welcome_message', 'Selamat datang kembali, ' . $employeeNumber);
+
                         // Check if user has dashboard permission
                         if (hasPermission('dashboard:view')) {
                             return redirect()->route('dashboard');
@@ -203,6 +207,9 @@ class AuthController extends Controller
                     $request->session()->put('refresh_token', $refreshToken);
                 $request->session()->put('employee_number', $request->employee_number);
                 $request->session()->put('token_validated_at', now()->timestamp);
+
+                    // Set welcome message flash for regular login
+                    $request->session()->flash('welcome_message', 'Selamat datang, ' . $request->employee_number);
 
                     // Extract and store JWT payload data from access token
                     $accessTokenPayload = $this->extractJwtPayload($accessToken);

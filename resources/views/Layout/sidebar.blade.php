@@ -393,9 +393,9 @@
     <!-- Logout at bottom -->
     <div class="w-full px-[13px] py-5 bg-white">
         <div class="{{ $menuItemClass }}">
-            <form action="{{ route('logout') }}" method="POST" class="block">
+            <form action="{{ route('logout') }}" method="POST" id="logout-form" class="block">
                 @csrf
-                <button type="submit" class="w-full text-left">
+                <button type="button" id="logout-btn" class="w-full text-left">
                     <div class="{{ $menuLinkClass }}">
                         <div class="{{ $iconWrapperClass }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
@@ -408,6 +408,32 @@
                     </div>
                 </button>
             </form>
+
+            <script>
+                document.getElementById('logout-btn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Konfirmasi Keluar',
+                        text: 'Apakah Anda yakin ingin keluar dari sistem?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#213268',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, Keluar',
+                        cancelButtonText: 'Batal',
+                        background: '#ffffff',
+                        iconColor: '#213268',
+                        customClass: {
+                            title: 'text-[#213268] font-bold',
+                            popup: 'rounded-xl shadow-xl border border-gray-100'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById('logout-form').submit();
+                        }
+                    });
+                });
+            </script>
         </div>
     </div>
 

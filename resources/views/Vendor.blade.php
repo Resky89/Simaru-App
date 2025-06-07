@@ -193,7 +193,7 @@
                                 Menampilkan 1 sampai {{ count($vendors) }} dari {{ count($vendors) }} data
                             @endif
                         </span>
-                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changePerPage(this.value)">
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeVendorPerPage(this.value)">
                             <option value="10" {{ isset($pagination['per_page']) && $pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                             <option value="25" {{ isset($pagination['per_page']) && $pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                             <option value="50" {{ isset($pagination['per_page']) && $pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -681,7 +681,7 @@
         @endif
 
         // Function to change items per page
-        window.changePerPage = function(limit) {
+        window.changeVendorPerPage = function(limit) {
             const url = new URL(window.location.href);
             url.searchParams.set('limit', limit);
             url.searchParams.set('page', 1);

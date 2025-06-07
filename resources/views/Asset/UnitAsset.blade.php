@@ -236,17 +236,48 @@
                             @php
                                 $currentPage = $assets_pagination['current_page'] ?? 1;
                                 $lastPage = $assets_pagination['last_page'] ?? 1;
+                                $maxPagesShown = 5; // Show max 5 pages at once
+                                $startPage = max(1, $currentPage - 2);
+                                $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
+
+                                if ($endPage - $startPage + 1 < $maxPagesShown) {
+                                    $startPage = max(1, $endPage - $maxPagesShown + 1);
+                                }
                             @endphp
 
-                            @for($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
+                            @if($startPage > 1)
+                                <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                    1
+                                </a>
+                                @if($startPage > 2)
+                                    <span class="flex items-center justify-center">
+                                        ...
+                                    </span>
+                                @endif
+                            @endif
+
+                            @for ($i = $startPage; $i <= $endPage; $i++)
                                 <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
                                    class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                     {{ $i }}
                                 </a>
                             @endfor
+
+                            @if($endPage < $lastPage)
+                                @if($endPage < $lastPage - 1)
+                                    <span class="flex items-center justify-center">
+                                        ...
+                                    </span>
+                                @endif
+                                <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
+                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                    {{ $lastPage }}
+                                </a>
+                            @endif
                         </div>
 
-                        <button class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 {{ ($assets_pagination['current_page'] ?? 1) >= ($assets_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($assets_pagination['current_page'] ?? 1) >= ($assets_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
                                onclick="changeAssetPage({{ ($assets_pagination['current_page'] ?? 1) + 1 }})"
                                {{ ($assets_pagination['current_page'] ?? 1) >= ($assets_pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
                             Selanjutnya
@@ -272,9 +303,9 @@
                             @endif
                         </span>
                         <select id="assetPerPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeAssetPerPage(this.value)">
-                            <option value="10" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 10 ? 'selected' : '' }}>10 data per halaman</option>
-                            <option value="25" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 25 ? 'selected' : '' }}>25 data per halaman</option>
-                            <option value="50" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 50 ? 'selected' : '' }}>50 data per halaman
+                            <option value="10" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
                         </select>
                     </div>
                 </div>

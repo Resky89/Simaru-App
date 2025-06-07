@@ -72,7 +72,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 19l-7-7 7-7" />
                                 </svg>
-                                Sebelum
+                                Sebelumnya
                             </a>
                             <div class="flex gap-2">
                                 @php
@@ -146,7 +146,7 @@
                             </span>
                             <select id="perPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
-                                onchange="changePerPage(this.value)">
+                                onchange="changeOpnamePerPage(this.value)">
                                 <option value="10" {{ isset($pagination['per_page']) && $pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                                 <option value="25" {{ isset($pagination['per_page']) && $pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                                 <option value="50" {{ isset($pagination['per_page']) && $pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -165,6 +165,15 @@
                 window.changePerPage = function (limit) {
                     const url = new URL(window.location.href);
                     url.searchParams.set('limit', limit);
+                    window.location.href = url.toString();
+                }
+
+                // Function to change items per page
+                window.changeOpnamePerPage = function (limit) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('limit', limit);
+                    // Reset to page 1 when changing limit
+                    url.searchParams.set('page', 1);
                     window.location.href = url.toString();
                 }
 
