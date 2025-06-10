@@ -227,7 +227,7 @@
                 </svg>
             </div>
             <div>
-                <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Error!'}</p>
+                <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
                 <p>${message}</p>
             </div>
             <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>

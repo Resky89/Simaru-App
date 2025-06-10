@@ -201,12 +201,20 @@ class OpnameReportController extends Controller
         try {
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
+            $scanStatus = $request->input('scan_status', '');
+
+            $queryParams = [
+                'page' => $page,
+                'limit' => $limit
+            ];
+
+            // Add scan_status parameter if it's provided
+            if (!empty($scanStatus)) {
+                $queryParams['scan_status'] = $scanStatus;
+            }
 
             $result = $this->apiService->request('GET', "/asset-opname-details/opname/{$id}", [
-                'query' => [
-                    'page' => $page,
-                    'limit' => $limit
-                ]
+                'query' => $queryParams
             ]);
 
             // Memeriksa kesalahan autentikasi
@@ -305,11 +313,20 @@ class OpnameReportController extends Controller
     {
         try {
             // Menggunakan pendekatan pengambilan data yang sama dengan showOpnameDetail
+            $scanStatus = $request->input('scan_status', '');
+
+            $queryParams = [
+                'page' => 1,
+                'limit' => 100 // Batas besar untuk mendapatkan semua data
+            ];
+
+            // Add scan_status parameter if it's provided
+            if (!empty($scanStatus)) {
+                $queryParams['scan_status'] = $scanStatus;
+            }
+
             $result = $this->apiService->request('GET', "/asset-opname-details/opname/{$id}", [
-                'query' => [
-                    'page' => 1,
-                    'limit' => 100 // Batas besar untuk mendapatkan semua data
-                ]
+                'query' => $queryParams
             ]);
 
             // Memeriksa kesalahan autentikasi

@@ -720,7 +720,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Error!'}</p>
+                    <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
                     <p>${message}</p>
                 </div>
                 <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>

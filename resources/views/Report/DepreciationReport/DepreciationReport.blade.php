@@ -291,7 +291,14 @@
                                                 {{ number_format($item['book_value_at_month_end'], 0, ',', '.') }}</td>
                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $item['building'] }}</td>
                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $item['room'] }}</td>
-                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ ucfirst($item['asset_type']) }}
+                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                @if($item['asset_type'] == 'medical')
+                                                    Medis
+                                                @elseif($item['asset_type'] == 'non_medical')
+                                                    Non Medis
+                                                @else
+                                                    {{ ucfirst($item['asset_type']) }}
+                                                @endif
                                             </td>
                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $item['subcategory'] }}</td>
                                         </tr>
@@ -769,16 +776,11 @@
                             const controller = new AbortController();
                             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-                            // Build the URL with proper parameters
-                            const url = new URL(`{{ url('/categories') }}`);
-                            url.searchParams.append('asset_type', assetType);
-                            url.searchParams.append('json', 'true');
-                            if (searchTerm) {
-                                url.searchParams.append('search', searchTerm);
-                            }
+                            // Build the URL with proper parameters (updated to match room search pattern)
+                            const apiUrl = `{{ route('categories') }}?asset_type=${encodeURIComponent(assetType)}&search=${encodeURIComponent(searchTerm || '')}&json=true`;
 
                             // Use the API endpoint with proper error handling
-                            const response = await fetch(url, {
+                            const response = await fetch(apiUrl, {
                                 method: 'GET',
                                 headers: {
                                     'Accept': 'application/json',
@@ -883,20 +885,6 @@
                             });
                             subcategoryList.appendChild(retryOption);
 
-                            // Add manual entry option if user typed something
-                            if (searchTerm) {
-                                const manualOption = document.createElement('li');
-                                manualOption.className = 'px-4 py-2 text-center bg-green-50 text-green-700 cursor-pointer hover:bg-green-100';
-                                manualOption.textContent = `➕ Gunakan "${searchTerm}" sebagai kategori`;
-                                manualOption.addEventListener('click', function () {
-                                    selectedSubcategory.value = searchTerm;
-                                    subcategorySearch.value = searchTerm;
-                                    subcategoryDropdown.classList.add('hidden');
-                                });
-                                subcategoryList.appendChild(manualOption);
-                            }
-
-
                             // Also update the input placeholder to indicate the error
                             subcategorySearch.placeholder = "Gagal memuat kategori";
                         }
@@ -914,9 +902,10 @@
                         li.addEventListener('click', function () {
                             // Set the selected subcategory data
                             const displayText = this.getAttribute('data-name');
+                            const subcategoryId = this.getAttribute('data-id');
 
-                            // Store the subcategory name for search
-                            selectedSubcategory.value = displayText;
+                            // Store the subcategory ID for form submission but display the name
+                            selectedSubcategory.value = subcategoryId;
                             subcategorySearch.value = displayText;
 
                             // Hide dropdown
@@ -1143,23 +1132,6 @@
                         searchInput.placeholder = "Gagal memuat ruangan";
                     };
 
-                    // Add a fallback option to manually enter a room name if API fails
-                    const addFallbackOption = () => {
-                        const fallbackOption = document.createElement('li');
-                        fallbackOption.className = 'px-4 py-2 bg-blue-50 text-blue-700 cursor-pointer';
-                        fallbackOption.textContent = '➕ Gunakan input saat ini sebagai nama ruangan';
-
-                        fallbackOption.addEventListener('click', function () {
-                            const inputValue = searchInput.value.trim();
-                            if (inputValue) {
-                                selectedRoomId.value = inputValue;
-                                dropdown.classList.add('hidden');
-                            }
-                        });
-
-                        roomList.appendChild(fallbackOption);
-                    };
-
                     // Toggle dropdown visibility
                     searchInput.addEventListener('focus', function () {
                         // Only show dropdown if a building is selected
@@ -1258,11 +1230,6 @@
                                 noResults.className = 'px-4 py-2 text-gray-500 italic';
                                 noResults.textContent = 'Tidak ada ruangan ditemukan untuk gedung ini';
                                 roomList.appendChild(noResults);
-
-                                // Add fallback option to use typed text
-                                if (searchTerm) {
-                                    addFallbackOption();
-                                }
                             } else {
                                 // Add search help message if there are multiple results
                                 if (rooms.length > 5) {
@@ -1319,11 +1286,6 @@
                                 loadRooms(searchTerm, buildingId);
                             });
                             roomList.appendChild(retryOption);
-
-                            // Add fallback option when there's an API error
-                            if (searchTerm) {
-                                addFallbackOption();
-                            }
                         } finally {
                             if (loadingIndicator) loadingIndicator.classList.add('hidden');
                         }
@@ -1410,14 +1372,10 @@
                             const controller = new AbortController();
                             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-                            // Use the same API endpoint as UnitAsset.blade.php but only get depreciable assets
-                            const url = new URL(`{{ url(route('asset-master')) }}`);
-                            // Add search parameter if provided
-                            if (searchTerm) url.searchParams.append('search', searchTerm);
-                            // Add parameter to filter only depreciable assets
-                            url.searchParams.append('is_depreciable', 'true');
+                            // Update URL construction to match the room and category search pattern
+                            const apiUrl = `{{ route('asset-master') }}?search=${encodeURIComponent(searchTerm || '')}&is_depreciable=true`;
 
-                            const response = await fetch(url, {
+                            const response = await fetch(apiUrl, {
                                 headers: {
                                     'Accept': 'application/json',
                                     'X-Requested-With': 'XMLHttpRequest',
@@ -1449,33 +1407,43 @@
                                 noResults.textContent = 'Tidak ada aset yang dapat disusutkan ditemukan';
                                 assetList.appendChild(noResults);
                             } else {
-                                assetMasters.forEach(item => {
-                                    const li = document.createElement('li');
-                                    li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                                // Add search help message if there are multiple results
+                                if (assetMasters.length > 5) {
+                                    const searchHelpMsg = document.createElement('li');
+                                    searchHelpMsg.className = 'px-4 py-2 text-gray-500 italic text-center';
+                                    searchHelpMsg.textContent = 'Ketik untuk mencari...';
+                                    assetList.appendChild(searchHelpMsg);
+                                }
 
-                                    const assetMasterName = item.asset_name || 'Unknown';
-                                    const assetMasterCode = item.asset_master_code || '';
-
-                                    // Display the asset name in the dropdown
-                                    li.textContent = assetMasterName;
-                                    li.setAttribute('data-id', item.asset_master_id);
-                                    li.setAttribute('data-name', assetMasterName);
-                                    li.setAttribute('data-code', assetMasterCode);
-                                    li.setAttribute('data-depreciable', item.is_depreciable === true ? 'true' : 'false');
-
-                                    li.addEventListener('click', function () {
-                                        // Set the selected asset master data
-                                        selectedAssetId.value = this.getAttribute('data-name');
-
-                                        // Update the search input with the name
-                                        searchInput.value = this.getAttribute('data-name');
-
-                                        // Hide dropdown
-                                        dropdown.classList.add('hidden');
+                                // First show exact matches if there's a search term
+                                let exactMatches = 0;
+                                if (searchTerm) {
+                                    assetMasters.forEach(item => {
+                                        const assetMasterName = item.asset_name || 'Unknown';
+                                        if (assetMasterName.toLowerCase().startsWith(searchTerm.toLowerCase())) {
+                                            addAssetMasterOption(item);
+                                            exactMatches++;
+                                        }
                                     });
+                                }
 
-                                    assetList.appendChild(li);
+                                // Then show all other matches or all if no search term
+                                assetMasters.forEach(item => {
+                                    const assetMasterName = item.asset_name || 'Unknown';
+                                    if (!searchTerm ||
+                                        (!assetMasterName.toLowerCase().startsWith(searchTerm.toLowerCase()) &&
+                                         assetMasterName.toLowerCase().includes(searchTerm.toLowerCase()))) {
+                                        addAssetMasterOption(item);
+                                    }
                                 });
+
+                                // Add result count if there are many results
+                                if (assetMasters.length > 10) {
+                                    const countItem = document.createElement('li');
+                                    countItem.className = 'px-4 py-2 text-xs text-center text-gray-500 border-t';
+                                    countItem.textContent = `Menampilkan ${Math.min(assetMasters.length, 50)} dari ${assetMasters.length} aset`;
+                                    assetList.appendChild(countItem);
+                                }
                             }
                         } catch (error) {
                             console.error('Error loading asset masters:', error);
@@ -1504,24 +1472,40 @@
                             });
                             assetList.appendChild(retryOption);
 
-                            // Add manual entry option if user typed something
-                            if (searchTerm) {
-                                const manualOption = document.createElement('li');
-                                manualOption.className = 'px-4 py-2 text-center bg-green-50 text-green-700 cursor-pointer hover:bg-green-100';
-                                manualOption.textContent = `➕ Gunakan "${searchTerm}" sebagai nama aset`;
-                                manualOption.addEventListener('click', function () {
-                                    selectedAssetId.value = searchTerm;
-                                    searchInput.value = searchTerm;
-                                    dropdown.classList.add('hidden');
-                                });
-                                assetList.appendChild(manualOption);
-                            }
-
                             // Also update the input placeholder to indicate the error
                             searchInput.placeholder = "Gagal memuat aset yang dapat disusutkan";
                         } finally {
                             if (loadingIndicator) loadingIndicator.classList.add('hidden');
                         }
+                    }
+
+                    // Helper function to add asset master option to the list
+                    function addAssetMasterOption(item) {
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                        const assetMasterName = item.asset_name || 'Unknown';
+                        const assetMasterCode = item.asset_master_code || '';
+
+                        // Display the asset name in the dropdown
+                        li.textContent = assetMasterName;
+                        li.setAttribute('data-id', item.asset_master_id);
+                        li.setAttribute('data-name', assetMasterName);
+                        li.setAttribute('data-code', assetMasterCode);
+                        li.setAttribute('data-depreciable', item.is_depreciable === true ? 'true' : 'false');
+
+                        li.addEventListener('click', function () {
+                            // Set the selected asset master data
+                            selectedAssetId.value = this.getAttribute('data-name');
+
+                            // Update the search input with the name
+                            searchInput.value = this.getAttribute('data-name');
+
+                            // Hide dropdown
+                            dropdown.classList.add('hidden');
+                        });
+
+                        assetList.appendChild(li);
                     }
                 }
 
@@ -1549,9 +1533,10 @@
                         const selectedAssetId = document.getElementById('selected_asset_master_id');
 
                         // If the user typed something but didn't select from dropdown,
-                        // use the input value for search
-                        if (searchInput && searchInput.value && selectedAssetId) {
-                            selectedAssetId.value = searchInput.value;
+                        // clear the value to prevent manual entry
+                        if (searchInput && searchInput.value && (!selectedAssetId || !selectedAssetId.value)) {
+                            searchInput.value = '';
+                            if (selectedAssetId) selectedAssetId.value = '';
                         }
 
                         // Update form field names to match API parameters
@@ -1567,7 +1552,8 @@
                             roomIdInput.name = 'room_id';
                         }
 
-                        if (subcategoryInput && subcategoryInput.name !== 'subcategory_id') {
+                        // Ensure the subcategory parameter is correctly named and handled
+                        if (subcategoryInput) {
                             subcategoryInput.name = 'subcategory_id';
                         }
 

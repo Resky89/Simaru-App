@@ -171,7 +171,8 @@ Route::middleware([AuthMiddleware::class])->group(function () {
             ->middleware('permission:user:delete');
     });
     Route::get('/user/by-permission/{permissionName}', [UserController::class, 'getUsersByPermission'])
-            ->name('users.by-permission');
+            ->name('users.by-permission')
+            ->middleware('permission:maintenance:create|maintenance:edit');
 
     // Role Management
     Route::middleware('permission:role:view|user:create|user:edit')->group(function() {
@@ -243,7 +244,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Categories Management
-    Route::prefix('categories')->middleware('permission:asset-subcategory:view|asset-master:create|asset-master:edit')->group(function () {
+    Route::prefix('categories')->middleware('permission:asset-subcategory:view|asset-master:create|asset-master:edit|report:depreciation')->group(function () {
         Route::get('/', [CategoriesController::class, 'index'])->name('categories');
         Route::get('/{id}', [CategoriesController::class, 'show'])->name('categories.show');
 
@@ -587,13 +588,13 @@ Route::middleware([AuthMiddleware::class])->group(function () {
             ->middleware('permission:purchase-order:create');
 
         // Receipt routes
-        Route::get('/receipt', [ProcurementReceiptController::class, 'index'])->name('receipt');
+        Route::get('/receipt', [ProcurementReceiptController::class, 'index'])->name('receipt')->middleware('permission:receipt:view');
         Route::get('/form-receipt/{id?}', function ($id = null) {
             return view('Procurement.Receipt.FormReceipt', ['id' => $id]);
-        })->name('form-receipt');
-        Route::get('/detail-receipt/{id}', [ProcurementReceiptController::class, 'show'])->name('receipt.show');
-        Route::post('/receipt', [ProcurementReceiptController::class, 'create'])->name('receipt.create');
-        Route::get('/receipt/detail/{id}/export-pdf', [ProcurementReceiptController::class, 'exportReceiptDetailPDF'])->name('receipt.export-pdf');
+        })->name('form-receipt')->middleware('permission:receipt:create');
+        Route::get('/detail-receipt/{id}', [ProcurementReceiptController::class, 'show'])->name('receipt.show')->middleware('permission:receipt:view');
+        Route::post('/receipt', [ProcurementReceiptController::class, 'create'])->name('receipt.create')->middleware('permission:receipt:create');
+        Route::get('/receipt/detail/{id}/export-pdf', [ProcurementReceiptController::class, 'exportReceiptDetailPDF'])->name('receipt.export-pdf')->middleware('permission:receipt:export');
     });
 
     //-------------------------------------------------------------------------
@@ -625,7 +626,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Opname report routes
-    Route::middleware('permission:asset:opname')->group(function() {
+    Route::middleware('permission:report:opname')->group(function() {
     Route::get('/opnames', [OpnameReportController::class, 'getAllOpnames'])->name('opnames.getAll');
     Route::get('/opname-detail/{id}', [OpnameReportController::class, 'showOpnameDetail'])->name('opnames.detail');
         Route::get('/opname-detail/{id}/export-pdf', [OpnameReportController::class, 'exportOpnameDetailPDF'])

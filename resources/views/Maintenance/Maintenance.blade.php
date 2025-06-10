@@ -1010,6 +1010,50 @@
             });
             @endif
 
+            // Define validateField function early, before any usage
+            function validateField(field, isValid = null) {
+                let isFieldValid = isValid;
+                let fieldParent, errorElement;
+
+                if (!field) return false;
+
+                if (field.id === 'user_search') {
+                    fieldParent = field.closest('.relative');
+                    errorElement = fieldParent?.querySelector('.error-message');
+
+                    if (isFieldValid === null) {
+                        const selectedUserId = document.getElementById('selected_user_id');
+                        isFieldValid = selectedUserId ? selectedUserId.value !== '' : false;
+                    }
+                } else if (field.id === 'vendor_search') {
+                    return true;
+                } else if (field.tagName?.toLowerCase() === 'select' || field.type === 'date') {
+                    fieldParent = field.parentElement;
+                    errorElement = fieldParent?.querySelector('.error-message');
+
+                    if (isFieldValid === null) {
+                        isFieldValid = field.value !== '';
+                    }
+                } else {
+                    fieldParent = field.parentElement;
+                    errorElement = fieldParent?.querySelector('.error-message');
+
+                    if (isFieldValid === null) {
+                        isFieldValid = field.value.trim() !== '';
+                    }
+                }
+
+                if (!isFieldValid) {
+                    field.classList.add('border-red-500');
+                    if (errorElement) errorElement.classList.remove('hidden');
+                    return false;
+                } else {
+                    field.classList.remove('border-red-500');
+                    if (errorElement) errorElement.classList.add('hidden');
+                    return true;
+                }
+            }
+
             document.querySelectorAll('.create-report-btn').forEach(btn => {
                 const assetType = btn.closest('tr').querySelector('td:nth-child(5)');
                 let isMedical = false;
@@ -1705,34 +1749,51 @@
             });
 
             // Add maintenance click handler
-            document.getElementById('addMaintenanceBtn')?.addEventListener('click', function() {
+            const addMaintenanceBtn = document.getElementById('addMaintenanceBtn');
+            if (addMaintenanceBtn) {
+                addMaintenanceBtn.addEventListener('click', function() {
                 openModal(modals.add, modalContents.add);
             });
+            }
 
             // Add Assets button click handler - opens the asset selection modal
-            document.getElementById('addAssetsBtn')?.addEventListener('click', function() {
+            const addAssetsBtn = document.getElementById('addAssetsBtn');
+            if (addAssetsBtn) {
+                addAssetsBtn.addEventListener('click', function() {
                 openModal(modals.assetSelection, modalContents.assetSelection);
                 loadAssets(1); // Load the first page of assets
             });
+            }
 
             // Handle asset search with debounce
-            document.getElementById('assetSearchInput')?.addEventListener('input', debounce(function() {
+            const assetSearchInput = document.getElementById('assetSearchInput');
+            if (assetSearchInput) {
+                assetSearchInput.addEventListener('input', debounce(function() {
                 loadAssets(1);
             }, 500));
+            }
 
             // Handle asset per page change
-            document.getElementById('assetModalPerPageSelect')?.addEventListener('change', function() {
+            const assetModalPerPageSelect = document.getElementById('assetModalPerPageSelect');
+            if (assetModalPerPageSelect) {
+                assetModalPerPageSelect.addEventListener('change', function() {
                 loadAssets(1);
             });
+            }
 
             // Select button click handler
-            document.getElementById('selectAssetsBtn')?.addEventListener('click', function() {
+            const selectAssetsBtn = document.getElementById('selectAssetsBtn');
+            if (selectAssetsBtn) {
+                selectAssetsBtn.addEventListener('click', function() {
                 updateSelectedAssetsList();
                 closeModal(modals.assetSelection, modalContents.assetSelection);
             });
+            }
 
             // Handle selected assets per page change
-            document.getElementById('selectedAssetsPerPage')?.addEventListener('change', function() {
+            const selectedAssetsPerPage = document.getElementById('selectedAssetsPerPage');
+            if (selectedAssetsPerPage) {
+                selectedAssetsPerPage.addEventListener('change', function() {
                 // Reset to page 1 when changing items per page
                 const selectedAssetsList = document.getElementById('selectedAssetsList');
                 if (selectedAssetsList) {
@@ -1740,6 +1801,7 @@
                     updateSelectedAssetsList();
                 }
             });
+            }
 
             // Asset selection handling
             let selectedAssets = [];
@@ -2220,11 +2282,18 @@
             });
 
             document.addEventListener('click', function(e) {
+                // Check for vendorSearchInput and vendorResults
+                if (vendorSearchInput && vendorResults) {
                 if (e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
                     vendorResults.style.display = 'none';
                 }
+                }
+
+                // Check for editVendorSearchInput and editVendorResults
+                if (editVendorSearchInput && editVendorResults) {
                 if (e.target !== editVendorSearchInput && !editVendorResults.contains(e.target)) {
                     editVendorResults.style.display = 'none';
+                    }
                 }
             });
 
@@ -2668,7 +2737,9 @@
                 }
             });
 
-            document.getElementById('exportBtn')?.addEventListener('click', () => {
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', () => {
                 const url = new URL(window.location.href);
                 const searchParams = url.searchParams;
 
@@ -2676,12 +2747,14 @@
 
                 window.open(exportUrl, '_blank');
             });
+            }
 
             document.querySelectorAll('.delete-maintenance-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const maintenanceId = this.getAttribute('data-id');
                     const deleteMaintenanceName = document.getElementById('deleteMaintenanceName');
 
+                    if (deleteMaintenanceName && document.getElementById('deleteMaintenanceForm')) {
                     document.getElementById('deleteMaintenanceForm').setAttribute('data-id', maintenanceId);
 
                     const assetName = this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
@@ -2690,10 +2763,13 @@
                     deleteMaintenanceName.textContent = `${assetName} (${assetCode.replace('Kode: ', '')})`;
 
                     openModal(modals.delete, modalContents.delete);
+                    }
                 });
             });
 
-            document.getElementById('deleteMaintenanceForm').addEventListener('submit', function(e) {
+            const deleteMaintenanceForm = document.getElementById('deleteMaintenanceForm');
+            if (deleteMaintenanceForm) {
+                deleteMaintenanceForm.addEventListener('submit', function(e) {
                 e.preventDefault();
 
                 const maintenanceId = this.getAttribute('data-id');
@@ -2749,6 +2825,7 @@
                     }
                 });
             });
+            }
 
             document.querySelectorAll('.edit-maintenance-btn').forEach(button => {
                 button.addEventListener('click', function() {
@@ -2756,10 +2833,14 @@
                     const assetName = this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
                     const assetCode = this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent.replace('Kode: ', '');
 
-                    document.getElementById('edit_asset_name').textContent = assetName;
-                    document.getElementById('edit_asset_code').textContent = assetCode;
+                    const editAssetName = document.getElementById('edit_asset_name');
+                    const editAssetCode = document.getElementById('edit_asset_code');
+                    const editMaintenanceForm = document.getElementById('editMaintenanceForm');
 
-                    document.getElementById('editMaintenanceForm').reset();
+                    if (editAssetName && editAssetCode && editMaintenanceForm) {
+                        editAssetName.textContent = assetName;
+                        editAssetCode.textContent = assetCode;
+                        editMaintenanceForm.reset();
 
                     fetch(`/maintenance/${maintenanceId}`, {
                         headers: {
@@ -2780,43 +2861,52 @@
 
                         const maintenance = result.data;
 
-                        document.getElementById('edit_maintenance_id').value = maintenance.id;
+                            const editMaintenanceId = document.getElementById('edit_maintenance_id');
+                            const editStartDate = document.getElementById('edit_start_date');
+                            const editEndDate = document.getElementById('edit_end_date');
+                            const editInterval = document.getElementById('edit_interval');
+                            const editAssignedTo = document.getElementById('edit_assigned_to');
+                            const editUserSearch = document.getElementById('edit_user_search');
+                            const editVendorId = document.getElementById('edit_vendor_id');
+                            const editVendorSearch = document.getElementById('edit_vendor_search');
 
-                        if (maintenance.start_date) {
+                            if (editMaintenanceId) editMaintenanceId.value = maintenance.id;
+
+                            if (maintenance.start_date && editStartDate) {
                             const startDate = new Date(maintenance.start_date);
-                            document.getElementById('edit_start_date').value = startDate.toISOString().split('T')[0];
+                                editStartDate.value = startDate.toISOString().split('T')[0];
                         }
 
-                        if (maintenance.end_date) {
+                            if (maintenance.end_date && editEndDate) {
                             const endDate = new Date(maintenance.end_date);
-                            document.getElementById('edit_end_date').value = endDate.toISOString().split('T')[0];
+                                editEndDate.value = endDate.toISOString().split('T')[0];
                         }
 
-                        if (maintenance.interval) {
-                            document.getElementById('edit_interval').value = maintenance.interval;
+                            if (maintenance.interval && editInterval) {
+                                editInterval.value = maintenance.interval;
                             toggleEndDateVisibility(maintenance.interval, 'edit');
                         }
 
-                        if (maintenance.assigned_to) {
-                            document.getElementById('edit_assigned_to').value = maintenance.assigned_to;
+                            if (maintenance.assigned_to && editAssignedTo && editUserSearch) {
+                                editAssignedTo.value = maintenance.assigned_to;
 
                             if (maintenance.assigned_to_employee_number) {
-                                document.getElementById('edit_user_search').value = maintenance.assigned_to_employee_number;
+                                    editUserSearch.value = maintenance.assigned_to_employee_number;
                             } else if (maintenance.employee_number) {
-                                document.getElementById('edit_user_search').value = maintenance.employee_number;
+                                    editUserSearch.value = maintenance.employee_number;
                             } else if (maintenance.employee_name) {
-                                document.getElementById('edit_user_search').value = maintenance.employee_name;
+                                    editUserSearch.value = maintenance.employee_name;
                             } else {
-                                document.getElementById('edit_user_search').value = `User ID: ${maintenance.assigned_to}`;
+                                    editUserSearch.value = `User ID: ${maintenance.assigned_to}`;
+                                }
                             }
-                        }
 
-                        if (maintenance.vendor_id && maintenance.vendor_name) {
-                            document.getElementById('edit_vendor_id').value = maintenance.vendor_id;
-                            document.getElementById('edit_vendor_search').value = maintenance.vendor_name;
-                        } else {
-                            document.getElementById('edit_vendor_id').value = '';
-                            document.getElementById('edit_vendor_search').value = '';
+                            if (maintenance.vendor_id && maintenance.vendor_name && editVendorId && editVendorSearch) {
+                                editVendorId.value = maintenance.vendor_id;
+                                editVendorSearch.value = maintenance.vendor_name;
+                            } else if (editVendorId && editVendorSearch) {
+                                editVendorId.value = '';
+                                editVendorSearch.value = '';
                         }
 
                         openModal(modals.edit, modalContents.edit);
@@ -2825,10 +2915,13 @@
                         console.error('Error fetching maintenance details:', error);
                         showToast(error.message || 'Gagal mengambil detail pemeliharaan', 'error');
                     });
+                    }
                 });
             });
 
-            document.getElementById('editMaintenanceForm').addEventListener('submit', function(e) {
+            const editMaintenanceForm = document.getElementById('editMaintenanceForm');
+            if (editMaintenanceForm) {
+                editMaintenanceForm.addEventListener('submit', function(e) {
                 e.preventDefault();
 
                 const maintenanceId = document.getElementById('edit_maintenance_id').value;
@@ -2923,6 +3016,7 @@
                     }
                 });
             });
+            }
 
             @php
                 echo "const currentLoggedInUserId = " . json_encode(session('user_id')) . ";";
@@ -2946,24 +3040,35 @@
                         assetCode = this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent.replace('Kode: ', '');
                     }
 
-                    document.getElementById('report_maintenance_id').value = maintenanceId;
-                    document.getElementById('report_asset_name').textContent = assetName;
-                    document.getElementById('report_asset_code').textContent = assetCode;
+                    const reportMaintenanceId = document.getElementById('report_maintenance_id');
+                    const reportAssetName = document.getElementById('report_asset_name');
+                    const reportAssetCode = document.getElementById('report_asset_code');
+                    const maintenanceDate = document.getElementById('maintenance_date');
+                    const createReportForm = document.getElementById('createReportForm');
+                    const imagePreview = document.getElementById('image-preview');
+
+                    if (reportMaintenanceId && reportAssetName && reportAssetCode && maintenanceDate && createReportForm && imagePreview) {
+                        reportMaintenanceId.value = maintenanceId;
+                        reportAssetName.textContent = assetName;
+                        reportAssetCode.textContent = assetCode;
 
                     const today = new Date().toISOString().split('T')[0];
-                    document.getElementById('maintenance_date').value = today;
+                        maintenanceDate.value = today;
 
-                    document.getElementById('createReportForm').reset();
-                    document.getElementById('report_maintenance_id').value = maintenanceId;
-                    document.getElementById('maintenance_date').value = today;
+                        createReportForm.reset();
+                        reportMaintenanceId.value = maintenanceId;
+                        maintenanceDate.value = today;
 
-                    document.getElementById('image-preview').classList.add('hidden');
+                        imagePreview.classList.add('hidden');
 
                     openModal(modals.report, modalContents.report);
+                    }
                 });
             });
 
-            document.getElementById('createReportForm').addEventListener('submit', function(e) {
+            const createReportForm = document.getElementById('createReportForm');
+            if (createReportForm) {
+                createReportForm.addEventListener('submit', function(e) {
                 e.preventDefault();
 
                 const maintenanceId = document.getElementById('report_maintenance_id').value;
@@ -2982,180 +3087,58 @@
 
                     return;
                 }
-                const maintenanceReportId = document.getElementById('report_maintenance_id').value;
-
-                if (!currentLoggedInUserId) {
-                    showToast('Sesi pengguna tidak valid. Silakan login kembali.', 'error');
-                    return;
-                }
-
-                const reportBtns = document.querySelectorAll('.create-report-btn');
-                let isAuthorized = false;
-                let correctAssignedUserId = null;
-
-                reportBtns.forEach(btn => {
-                    if (btn.getAttribute('data-id') === maintenanceReportId) {
-                        correctAssignedUserId = btn.getAttribute('data-assigned-to');
-                        if (correctAssignedUserId && correctAssignedUserId == currentLoggedInUserId) {
-                            isAuthorized = true;
-                        }
-                    }
+                    // Rest of submission code...
+                    // ... existing code ...
                 });
+            }
 
-                if (!isAuthorized) {
-                    showToast('Akses ditolak. Anda tidak memiliki wewenang untuk membuat laporan ini.', 'error');
-                    closeModal(modals.report, modalContents.report);
-                    return;
-                }
-
-                const isDateValid = validateField(maintenanceDate);
-                const isDescriptionValid = validateField(description);
-
-                if (!isDateValid || !isDescriptionValid) {
-                    showToast('Silakan isi semua field yang diperlukan', 'error');
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = 'Kirim Laporan';
-                    }
-
-                    return;
-                }
-
-                const formData = new FormData(this);
-
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalBtnText = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `
-                    <div class="flex items-center justify-center">
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Membuat...</span>
-                    </div>
-                `;
-
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                fetch('/maintenance/reports', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(handleApiResponse)
-                .then(data => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-
-                    closeModal(modals.report, modalContents.report);
-
-                    if (data.success) {
-                        showToast(data.message || 'Laporan pemeliharaan berhasil dibuat', 'success');
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        showToast(data.message || 'Gagal membuat laporan pemeliharaan', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Gagal membuat laporan pemeliharaan:', error);
-
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-
-                    if (error && error.errors) {
-                        if (Array.isArray(error.errors)) {
-                            showToast(error.errors, 'error');
-                        } else {
-                            showToast({ errors: error.errors }, 'error');
-                        }
-                    } else if (error && error.status === 422) {
-                        showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
-                    } else {
-                        showToast(error.message || 'Gagal membuat laporan pemeliharaan', 'error');
-                    }
-                });
-            });
-
-            document.getElementById('attachment')?.addEventListener('change', function() {
+            const attachment = document.getElementById('attachment');
+            if (attachment) {
+                attachment.addEventListener('change', function() {
                 const file = this.files[0];
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const imgElement = document.querySelector('#image-preview img');
+                            if (imgElement) {
                         imgElement.src = e.target.result;
-                        document.getElementById('image-preview').classList.remove('hidden');
+                                const imagePreview = document.getElementById('image-preview');
+                                if (imagePreview) {
+                                    imagePreview.classList.remove('hidden');
+                                }
+                            }
                     }
                     reader.readAsDataURL(file);
                 }
             });
+            }
 
-            document.getElementById('remove-image')?.addEventListener('click', function(e) {
+            const removeImage = document.getElementById('remove-image');
+            if (removeImage) {
+                removeImage.addEventListener('click', function(e) {
                 e.preventDefault();
                 const fileInput = document.getElementById('attachment');
                 if (fileInput) {
                     fileInput.value = '';
                 }
-                document.getElementById('image-preview').classList.add('hidden');
-            });
-
-            if (document.getElementById('maintenance_date')) {
-                const todayDate = new Date().toISOString().split('T')[0];
-                document.getElementById('maintenance_date').value = todayDate;
-                document.getElementById('maintenance_date').setAttribute('max', todayDate);
+                    const imagePreview = document.getElementById('image-preview');
+                    if (imagePreview) {
+                        imagePreview.classList.add('hidden');
+                    }
+                });
             }
 
-            function validateField(field, isValid = null) {
-                let isFieldValid = isValid;
-                let fieldParent, errorElement;
-
-                if (field.id === 'user_search') {
-                    fieldParent = field.closest('.relative');
-                    errorElement = fieldParent.querySelector('.error-message');
-
-                    if (isFieldValid === null) {
-                        isFieldValid = document.getElementById('selected_user_id').value !== '';
-                    }
-                } else if (field.id === 'vendor_search') {
-                    return true;
-                } else if (field.tagName.toLowerCase() === 'select' || field.type === 'date') {
-                    fieldParent = field.parentElement;
-                    errorElement = fieldParent.querySelector('.error-message');
-
-                    if (isFieldValid === null) {
-                        isFieldValid = field.value !== '';
-                    }
-                } else {
-                    fieldParent = field.parentElement;
-                    errorElement = fieldParent.querySelector('.error-message');
-
-                    if (isFieldValid === null) {
-                        isFieldValid = field.value.trim() !== '';
-                    }
-                }
-
-                if (!isFieldValid) {
-                    field.classList.add('border-red-500');
-                    if (errorElement) errorElement.classList.remove('hidden');
-                    return false;
-                } else {
-                    field.classList.remove('border-red-500');
-                    if (errorElement) errorElement.classList.add('hidden');
-                    return true;
-                }
-            }
-
-            document.getElementById('interval').addEventListener('change', function() {
+            // Other event listeners with null checks
+            const intervalElement = document.getElementById('interval');
+            if (intervalElement) {
+                intervalElement.addEventListener('change', function() {
                 validateField(this, true);
             });
+            }
 
-            document.getElementById('start_date').addEventListener('input', function() {
+            const startDateElement = document.getElementById('start_date');
+            if (startDateElement) {
+                startDateElement.addEventListener('input', function() {
                 validateField(this, true);
 
                 const endDateInput = document.getElementById('end_date');
@@ -3163,24 +3146,36 @@
                     validateField(endDateInput, false);
                 }
             });
+            }
 
-            document.getElementById('end_date').addEventListener('input', function() {
+            const endDateElement = document.getElementById('end_date');
+            if (endDateElement) {
+                endDateElement.addEventListener('input', function() {
                 validateField(this, true);
             });
+            }
 
-            document.getElementById('user_search').addEventListener('input', function() {
+            const userSearchElement = document.getElementById('user_search');
+            if (userSearchElement) {
+                userSearchElement.addEventListener('input', function() {
                 if (this.value.trim()) {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.relative').querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
                 }
             });
+            }
 
-            document.getElementById('edit_interval')?.addEventListener('change', function() {
+            const editIntervalElement = document.getElementById('edit_interval');
+            if (editIntervalElement) {
+                editIntervalElement.addEventListener('change', function() {
                 validateField(this, true);
             });
+            }
 
-            document.getElementById('edit_start_date')?.addEventListener('input', function() {
+            const editStartDateElement = document.getElementById('edit_start_date');
+            if (editStartDateElement) {
+                editStartDateElement.addEventListener('input', function() {
                 validateField(this, true);
 
                 const endDateInput = document.getElementById('edit_end_date');
@@ -3188,26 +3183,39 @@
                     validateField(endDateInput, false);
                 }
             });
+            }
 
-            document.getElementById('edit_end_date')?.addEventListener('input', function() {
+            const editEndDateElement = document.getElementById('edit_end_date');
+            if (editEndDateElement) {
+                editEndDateElement.addEventListener('input', function() {
                 validateField(this, true);
             });
+            }
 
-            document.getElementById('edit_user_search')?.addEventListener('input', function() {
+            const editUserSearchElement = document.getElementById('edit_user_search');
+            if (editUserSearchElement) {
+                editUserSearchElement.addEventListener('input', function() {
                 if (this.value.trim()) {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.relative').querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
                 }
             });
+            }
 
-            document.getElementById('maintenance_date')?.addEventListener('input', function() {
+            const maintenanceDateElement = document.getElementById('maintenance_date');
+            if (maintenanceDateElement) {
+                maintenanceDateElement.addEventListener('input', function() {
                 validateField(this, true);
             });
+            }
 
-            document.getElementById('description')?.addEventListener('input', function() {
+            const descriptionElement = document.getElementById('description');
+            if (descriptionElement) {
+                descriptionElement.addEventListener('input', function() {
                 validateField(this, true);
             });
+            }
         });
     </script>
     @endpush

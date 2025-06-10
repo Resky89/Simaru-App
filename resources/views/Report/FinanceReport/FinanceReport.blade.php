@@ -75,6 +75,7 @@
                             <thead>
                                 <tr>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Aset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kode Aset</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Transaksi</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Jumlah</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Dibuat Oleh</th>
@@ -90,6 +91,9 @@
                                             <div class="flex flex-col">
                                                 <span class="font-medium">{{ $transaction['asset_name'] ?? '-' }}</span>
                                             </div>
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ $transaction['asset_code'] ?? '-' }}
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             @php
@@ -129,7 +133,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Transaksi
+                                        <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Transaksi
                                             tidak ditemukan</td>
                                     </tr>
                                 @endforelse

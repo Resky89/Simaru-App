@@ -18,6 +18,28 @@
     .status-filter-btn:hover:not(.active-filter) {
         background-color: #F8F9FA;
     }
+
+    .status-filter-btn {
+        position: relative;
+        overflow: hidden;
+        transform: translateZ(0);
+    }
+
+    @keyframes ripple {
+        0% {
+            transform: scale(0);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    .animate-ripple {
+        animation: ripple 0.6s linear;
+        transform-origin: center;
+    }
 </style>
 @endsection
 
@@ -178,22 +200,26 @@
 
                 <!-- Status Filter Buttons -->
                 <div class="flex flex-wrap gap-2">
-                    <button data-status="all" class="status-filter-btn active-filter px-4 py-2 rounded-md bg-[#213268] text-white text-sm font-medium hover:bg-[#1a2857] transition-all duration-150">
+                    <button data-url="{{ request()->fullUrlWithQuery(['scan_status' => '']) }}"
+                       class="status-filter-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 {{ !request()->has('scan_status') || request()->input('scan_status') == '' ? 'active-filter bg-[#213268] text-white hover:bg-[#1a2857]' : 'bg-white border border-[#D8DAE5] hover:bg-[#F8F9FA]' }}">
                         Semua Status
                     </button>
-                    <button data-status="found" class="status-filter-btn px-4 py-2 rounded-md bg-white border border-[#D8DAE5] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-150">
+                    <button data-url="{{ request()->fullUrlWithQuery(['scan_status' => 'found']) }}"
+                       class="status-filter-btn px-4 py-2 rounded-md border border-[#D8DAE5] text-sm font-medium transition-colors duration-200 {{ request()->input('scan_status') == 'found' ? 'active-filter bg-[#213268] text-white hover:bg-[#1a2857]' : 'bg-white hover:bg-[#F8F9FA]' }}">
                         <span class="inline-flex items-center">
                             <span class="h-2 w-2 rounded-full bg-green-600 mr-1.5"></span>
                             Ditemukan
                         </span>
                     </button>
-                    <button data-status="missing" class="status-filter-btn px-4 py-2 rounded-md bg-white border border-[#D8DAE5] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-150">
+                    <button data-url="{{ request()->fullUrlWithQuery(['scan_status' => 'missing']) }}"
+                       class="status-filter-btn px-4 py-2 rounded-md border border-[#D8DAE5] text-sm font-medium transition-colors duration-200 {{ request()->input('scan_status') == 'missing' ? 'active-filter bg-[#213268] text-white hover:bg-[#1a2857]' : 'bg-white hover:bg-[#F8F9FA]' }}">
                         <span class="inline-flex items-center">
                             <span class="h-2 w-2 rounded-full bg-red-600 mr-1.5"></span>
                             Hilang
                         </span>
                     </button>
-                    <button data-status="misplaced" class="status-filter-btn px-4 py-2 rounded-md bg-white border border-[#D8DAE5] text-sm font-medium hover:bg-[#F8F9FA] transition-all duration-150">
+                    <button data-url="{{ request()->fullUrlWithQuery(['scan_status' => 'misplaced']) }}"
+                       class="status-filter-btn px-4 py-2 rounded-md border border-[#D8DAE5] text-sm font-medium transition-colors duration-200 {{ request()->input('scan_status') == 'misplaced' ? 'active-filter bg-[#213268] text-white hover:bg-[#1a2857]' : 'bg-white hover:bg-[#F8F9FA]' }}">
                         <span class="inline-flex items-center">
                             <span class="h-2 w-2 rounded-full bg-amber-500 mr-1.5"></span>
                             Salah Tempat
@@ -423,6 +449,31 @@
         const noResultsRow = document.getElementById('no-results-row');
         const emptyTableRow = document.getElementById('empty-table-row');
         const clearSearchButton = document.getElementById('clear-search');
+        const statusFilterButtons = document.querySelectorAll('.status-filter-btn');
+
+        // Add click event listeners to status filter buttons
+        statusFilterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Add loading state
+                this.classList.add('opacity-75');
+
+                // Create a ripple effect
+                const ripple = document.createElement('span');
+                ripple.classList.add('absolute', 'inset-0', 'bg-white', 'bg-opacity-30', 'rounded-md', 'animate-ripple');
+                this.appendChild(ripple);
+
+                // Navigate to the URL after a short delay for animation
+                const url = this.getAttribute('data-url');
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 150);
+
+                // Remove ripple after animation completes
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
 
         // Add debounce function to limit how often search is performed
         function debounce(func, wait) {
@@ -433,7 +484,7 @@
             };
         }
 
-        // Function to filter table rows
+        // Function to filter table rows based on search term
         const filterTable = debounce(function() {
             const searchTerm = searchInput.value.toLowerCase().trim();
             let matchFound = false;
@@ -443,7 +494,7 @@
                 assetRows.forEach(row => {
                     row.style.display = '';
                 });
-                noResultsRow.style.display = 'none';
+                if (noResultsRow) noResultsRow.style.display = 'none';
                 return;
             }
 
@@ -460,12 +511,12 @@
 
             // Show "no results" message if no matches found
             if (!matchFound && assetRows.length > 0) {
-                noResultsRow.style.display = 'table-row';
-                emptyTableRow.style.display = 'none';
+                if (noResultsRow) noResultsRow.style.display = 'table-row';
+                if (emptyTableRow) emptyTableRow.style.display = 'none';
             } else {
-                noResultsRow.style.display = 'none';
+                if (noResultsRow) noResultsRow.style.display = 'none';
                 // Only show empty table row if we have no asset rows at all
-                emptyTableRow.style.display = assetRows.length === 0 ? 'table-row' : 'none';
+                if (emptyTableRow) emptyTableRow.style.display = assetRows.length === 0 ? 'table-row' : 'none';
             }
         }, 300);
 
@@ -477,51 +528,8 @@
         // Add event listener to clear search button
         if (clearSearchButton) {
             clearSearchButton.addEventListener('click', function() {
-                searchInput.value = '';
+                if (searchInput) searchInput.value = '';
                 filterTable();
-            });
-        }
-
-        // Add status filter functionality
-        const statusFilters = document.querySelectorAll('.status-filter-btn');
-        if (statusFilters.length > 0) {
-            statusFilters.forEach(button => {
-                button.addEventListener('click', function() {
-                    const status = this.dataset.status;
-
-                    // Toggle active class on buttons
-                    statusFilters.forEach(btn => btn.classList.remove('active-filter'));
-                    this.classList.add('active-filter');
-
-                    let matchFound = false;
-
-                    // Filter rows by status
-                    assetRows.forEach(row => {
-                        if (status === 'all') {
-                            row.style.display = '';
-                            matchFound = true;
-                        } else {
-                            const statusCell = row.querySelector('td:nth-child(4)');
-                            const statusText = statusCell.textContent.toLowerCase().trim();
-
-                            if (statusText.includes(status.toLowerCase())) {
-                                row.style.display = '';
-                                matchFound = true;
-                            } else {
-                                row.style.display = 'none';
-                            }
-                        }
-                    });
-
-                    // Show "no results" message if no matches found
-                    if (!matchFound && assetRows.length > 0) {
-                        noResultsRow.style.display = 'table-row';
-                        emptyTableRow.style.display = 'none';
-                    } else {
-                        noResultsRow.style.display = 'none';
-                        emptyTableRow.style.display = assetRows.length === 0 ? 'table-row' : 'none';
-                    }
-                });
             });
         }
     });

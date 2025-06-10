@@ -141,6 +141,7 @@
                         @endif
                     @endif
                     <!-- Add this button alongside the other action buttons -->
+                    @if(hasPermission('asset:export'))
                     <a href="{{ route('asset.export-pdf', ['id' => $asset['asset_id'] ?? '']) }}"
                         class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200"
                         target="_blank">
@@ -150,6 +151,7 @@
                         </svg>
                         <span>Export PDF</span>
                     </a>
+                    @endif
                 </div>
             </div>
 
@@ -1378,7 +1380,7 @@
                     // Title
                     const title = document.createElement('p');
                     title.className = 'font-bold';
-                    title.textContent = 'Error!';
+                    title.textContent = 'Gagal!';
                     contentContainer.appendChild(title);
 
                     // Message container

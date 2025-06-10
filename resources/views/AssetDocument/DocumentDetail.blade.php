@@ -4,6 +4,10 @@
 
 @section('content')
     @include('Layout.loading')
+    <!-- Hidden CSRF token field -->
+    <form id="csrf-form" style="display: none;">
+        @csrf
+    </form>
     <div class="p-4 md:p-6">
         <!-- Header with title and back button -->
         <div class="flex justify-between items-center mb-6">
@@ -309,7 +313,7 @@
         </div>
     </div>
 
-    <!-- Edit Document Modal -->
+    <!-- Edit Document Modal (Placeholder) -->
     @if(hasPermission('document:edit'))
         <div id="editDocumentModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -339,7 +343,7 @@
                                         <label for="edit_document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
                                         <input type="text" id="edit_document_title" name="document_title"
                                             class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"
-                                            value="{{ $document['document_title'] ?? '' }}">
+                                            required value="{{ $document['document_title'] ?? '' }}">
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
                                     </div>
 
@@ -426,12 +430,21 @@
                                             class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">{{ $document['notes'] ?? '' }}</textarea>
                                     </div>
 
+                                    <!-- Associated Assets (hidden for future use) -->
+                                    <div class="hidden">
+                                        <label for="edit_asset_ids" class="block text-sm font-medium text-gray-700 mb-1">Aset Terkait</label>
+                                        <select id="edit_asset_ids" name="asset_ids[]" multiple class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
+                                            <!-- Options would be populated dynamically -->
+                                        </select>
+                                    </div>
+
                                     <!-- Form Actions -->
                                     <div class="flex justify-end mt-6">
                                         <button type="submit" class="w-full h-[45px] bg-[#28356B] text-white rounded-lg text-base hover:bg-[#1d2754]">
                                             <span class="flex items-center justify-center">
                                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                                 </svg>
                                                 Perbarui Dokumen
                                             </span>
@@ -651,6 +664,118 @@
                 @endif
 
 
+            // Toast notification function
+            function showToast(message, type = 'success') {
+                // Create toast container if it doesn't exist
+                let toastContainer = document.getElementById('toast-container');
+                if (!toastContainer) {
+                    toastContainer = document.createElement('div');
+                    toastContainer.id = 'toast-container';
+                    toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+                    document.body.appendChild(toastContainer);
+                }
+
+                // Create the toast element
+                const toast = document.createElement('div');
+
+                // Check if message contains HTML
+                const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+
+                // Set classes based on type
+                if (type === 'success') {
+                    toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center animate-slide-in-right';
+
+                    // Add content
+                    toast.innerHTML = `
+                        <div class="py-1">
+                            <svg class="h-6 w-6 mr-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">Berhasil!</p>
+                            <div>${message}</div>
+                        </div>
+                        <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
+                    `;
+                } else {
+                    toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center overflow-auto max-w-md animate-slide-in-right';
+
+                    // Structure for the notification
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'flex items-start';
+
+                    // Icon container
+                    const iconContainer = document.createElement('div');
+                    iconContainer.className = 'py-1 flex-shrink-0';
+                    iconContainer.innerHTML = `
+                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    `;
+
+                    // Content container
+                    const contentContainer = document.createElement('div');
+                    contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                    // Title
+                    const title = document.createElement('p');
+                    title.className = 'font-bold';
+                    title.textContent = 'Gagal!';
+                    contentContainer.appendChild(title);
+
+                    // Message container
+                    const messageContainer = document.createElement('div');
+                    messageContainer.className = 'error-message';
+
+                    // Handle HTML content
+                    if (hasHTML) {
+                        messageContainer.innerHTML = message;
+                    } else {
+                        messageContainer.textContent = message;
+                    }
+
+                    contentContainer.appendChild(messageContainer);
+
+                    // Close button
+                    const closeBtn = document.createElement('span');
+                    closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                    closeBtn.textContent = '×';
+                    closeBtn.onclick = function() {
+                        toast.remove();
+                    };
+
+                    // Assemble the notification
+                    wrapper.appendChild(iconContainer);
+                    wrapper.appendChild(contentContainer);
+                    wrapper.appendChild(closeBtn);
+                    toast.appendChild(wrapper);
+                }
+
+                // Add to container
+                toastContainer.appendChild(toast);
+
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 500);
+                }, 5000);
+            }
+
+            // Add slide-in animation and styling for error messages to CSS
+            document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); }
+                        to { transform: translateX(0); }
+                    }
+                    .animate-slide-in-right {
+                        animation: slideInRight 0.3s ease-out forwards;
+                    }
+                </style>
+            `);
 
             // Modal functionality
             const openModal = function (modal, content) {
@@ -745,119 +870,6 @@
                 }
             };
 
-            // Toast notification function
-            function showToast(message, type = 'success') {
-                // Create toast container if it doesn't exist
-                let toastContainer = document.getElementById('toast-container');
-                if (!toastContainer) {
-                    toastContainer = document.createElement('div');
-                    toastContainer.id = 'toast-container';
-                    toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
-                    document.body.appendChild(toastContainer);
-                }
-
-                // Create the toast element
-                const toast = document.createElement('div');
-
-                // Check if message contains HTML
-                const hasHTML = /<[a-z][\s\S]*>/i.test(message);
-
-                // Set classes based on type
-                if (type === 'success') {
-                    toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center animate-slide-in-right';
-
-                    // Add content
-                    toast.innerHTML = `
-                        <div class="py-1">
-                            <svg class="h-6 w-6 mr-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
-                        </div>
-                        <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
-                    `;
-                } else {
-                    toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center overflow-auto max-w-md animate-slide-in-right';
-
-                    // Structure for the notification
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'flex items-start';
-
-                    // Icon container
-                    const iconContainer = document.createElement('div');
-                    iconContainer.className = 'py-1 flex-shrink-0';
-                    iconContainer.innerHTML = `
-                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    `;
-
-                    // Content container
-                    const contentContainer = document.createElement('div');
-                    contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                    // Title
-                    const title = document.createElement('p');
-                    title.className = 'font-bold';
-                    title.textContent = 'Error!';
-                    contentContainer.appendChild(title);
-
-                    // Message container
-                    const messageContainer = document.createElement('div');
-                    messageContainer.className = 'error-message';
-
-                    // Handle HTML content
-                    if (hasHTML) {
-                        messageContainer.innerHTML = message;
-                    } else {
-                        messageContainer.textContent = message;
-                    }
-
-                    contentContainer.appendChild(messageContainer);
-
-                    // Close button
-                    const closeBtn = document.createElement('span');
-                    closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                    closeBtn.textContent = '×';
-                    closeBtn.onclick = function() {
-                        toast.remove();
-                    };
-
-                    // Assemble the notification
-                    wrapper.appendChild(iconContainer);
-                    wrapper.appendChild(contentContainer);
-                    wrapper.appendChild(closeBtn);
-                    toast.appendChild(wrapper);
-                }
-
-                // Add to container
-                toastContainer.appendChild(toast);
-
-                // Auto-remove after 5 seconds
-                setTimeout(() => {
-                    toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 500);
-                }, 5000);
-            }
-
-            // Add slide-in animation and styling for error messages to CSS
-            document.head.insertAdjacentHTML('beforeend', `
-                <style>
-                    @keyframes slideInRight {
-                        from { transform: translateX(100%); }
-                        to { transform: translateX(0); }
-                    }
-                    .animate-slide-in-right {
-                        animation: slideInRight 0.3s ease-out forwards;
-                    }
-                </style>
-            `);
-
             // Edit document button
             document.getElementById('editDocumentBtn')?.addEventListener('click', function () {
                 const modal = document.getElementById('editDocumentModal');
@@ -914,7 +926,7 @@
                 document.getElementById('edit_file_preview').classList.add('hidden');
                 document.getElementById('edit_image_preview').classList.add('hidden');
 
-                // Reset progress indicator
+                // Hide progress bar
                 document.getElementById('editUploadProgressContainer').classList.add('hidden');
             }
 
@@ -1096,7 +1108,7 @@
 
                             if (percentComplete < 100) {
                                 statusMessage.textContent = 'Mengupload pembaruan...';
-                } else {
+                            } else {
                                 statusMessage.textContent = 'Memproses pembaruan...';
                             }
                         }
@@ -1145,7 +1157,28 @@
                                     errorMessage = response.message;
                                 }
 
-                                if (response.errors) {
+                                // Enhanced error handling for arrays
+                                // Check for detailed error information in the API response
+                                if (response.data && response.data.errors && Array.isArray(response.data.errors)) {
+                                    const detailedErrors = response.data.errors.map(error => {
+                                        if (error.row && error.reason) {
+                                            return `Row ${error.row}: ${error.reason || 'Unknown error'}`;
+                                        } else if (typeof error === 'string') {
+                                            return error;
+                                        } else if (error.message) {
+                                            return error.message;
+                                        }
+                                        return 'Unknown error';
+                                    });
+
+                                    if (detailedErrors.length > 0) {
+                                        errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+                                        detailedErrors.forEach(err => {
+                                            errorMessage += `<li>${err}</li>`;
+                                        });
+                                        errorMessage += '</ul>';
+                                    }
+                                } else if (response.errors) {
                                     errorMessage += '<ul class="mt-2 ml-4 list-disc">';
 
                                     // Handle different error formats
@@ -1160,7 +1193,7 @@
                                                 errorMessage += `<li>${error.reason}</li>`;
                                             }
                                         });
-                                } else {
+                                    } else {
                                         // Object with field names as keys
                                         Object.entries(response.errors).forEach(([field, errors]) => {
                                             if (Array.isArray(errors)) {
@@ -1215,14 +1248,6 @@
                 });
             }
 
-            // Add input event listener to clear error styling when typing in edit document title
-            document.getElementById('edit_document_title')?.addEventListener('input', function() {
-                // Remove error highlighting when user types
-                this.classList.remove('border-red-500');
-                const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-            });
-
             // Auto-hide notifications after 5 seconds
             setTimeout(function () {
                 const notifications = document.querySelectorAll('#successNotification, #errorNotification');
@@ -1232,10 +1257,674 @@
                         setTimeout(() => notification.remove(), 500);
                     }
                 });
+            }, 5000);
+
+            // ==========================================
+            // Link Assets Modal Functionality
+            // ==========================================
+
+            // Variables for pagination and state
+            let currentPage = 1;
+            let totalPages = 1;
+            let perPage = 10;
+            let searchTerm = '';
+            let totalAssets = 0;
+            let selectedAssets = [];
+            let loadedAssets = [];
+
+            // Get document ID
+            const documentId = {{ $document['document_id'] ?? 0 }};
+
+            // Get already linked asset IDs from the DOM
+            const linkedAssetIds = [];
+            @if(isset($document['assets']) && count($document['assets']) > 0)
+                @foreach($document['assets'] as $asset)
+                    linkedAssetIds.push({{ $asset['asset_id'] }});
+                @endforeach
+            @endif
+
+            // Link assets button click
+            document.getElementById('link-document-btn')?.addEventListener('click', function () {
+                const modal = document.getElementById('linkAssetsModal');
+                const content = document.getElementById('linkAssetsModalContent');
+                if (modal && content) {
+                    // Reset and load assets
+                    currentPage = 1;
+                    searchTerm = '';
+                    document.getElementById('asset-search').value = '';
+                    loadAssets();
+                    openModal(modal, content);
+                }
+            });
+
+            // Link assets button in assets section (if exists)
+            document.getElementById('link-assets-btn')?.addEventListener('click', function () {
+                const modal = document.getElementById('linkAssetsModal');
+                const content = document.getElementById('linkAssetsModalContent');
+                if (modal && content) {
+                    // Reset and load assets
+                    currentPage = 1;
+                    searchTerm = '';
+                    document.getElementById('asset-search').value = '';
+                    loadAssets();
+                    openModal(modal, content);
+                }
+            });
+
+            // Search input
+            const searchInput = document.getElementById('asset-search');
+            if (searchInput) {
+                // Debounce function to limit API calls
+                let searchTimeout;
+                searchInput.addEventListener('input', function () {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        searchTerm = this.value.trim();
+                        currentPage = 1;
+                        loadAssets();
+                    }, 300);
+                });
+            }
+
+            // Per page change
+            document.getElementById('per-page')?.addEventListener('change', function () {
+                perPage = parseInt(this.value);
+                currentPage = 1;
+                loadAssets();
+            });
+
+            // Previous page
+            document.getElementById('prev-page')?.addEventListener('click', function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadAssets();
+                }
+            });
+
+            // Next page
+            document.getElementById('next-page')?.addEventListener('click', function () {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    loadAssets();
+                }
+            });
+
+            // Select all assets checkbox
+            document.getElementById('select-all-link-assets')?.addEventListener('change', function () {
+                const isChecked = this.checked;
+
+                // Update UI checkboxes
+                document.querySelectorAll('.asset-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+
+                // Update selected assets array
+                if (isChecked) {
+                    // Add all assets from current page that aren't already selected
+                    loadedAssets.forEach(asset => {
+                        if (!selectedAssets.includes(asset.asset_id)) {
+                            selectedAssets.push(asset.asset_id);
+                        }
+                    });
+                } else {
+                    // Remove all assets from current page
+                    selectedAssets = selectedAssets.filter(id => !loadedAssets.some(asset => asset.asset_id === id));
+                }
+
+                updateLinkButtonState();
+            });
+
+            // Link selected assets button
+            document.getElementById('link-selected-assets')?.addEventListener('click', function () {
+                if (selectedAssets.length === 0) {
+                    // Create a toast error message instead of alert
+                    const errorToast = document.createElement('div');
+                    errorToast.id = 'errorNotification';
+                    errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                    errorToast.role = 'alert';
+                    errorToast.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="py-1">
+                                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">Gagal!</p>
+                                <p>Silakan pilih setidaknya satu asset</p>
+                            </div>
+                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                        </div>
+                    `;
+                    document.body.appendChild(errorToast);
+
+                    // Auto-hide after 5 seconds
+                    setTimeout(() => {
+                        errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(() => errorToast.remove(), 500);
                     }, 5000);
+
+                    return;
+                }
+
+                // Call linkAssets directly (no confirmation)
+                linkAssets();
+            });
+
+            // Function to load assets
+            function loadAssets() {
+                const tableBody = document.getElementById('assets-table-body');
+                const paginationInfo = document.getElementById('pagination-info');
+                const prevPageBtn = document.getElementById('prev-page');
+                const nextPageBtn = document.getElementById('next-page');
+                const paginationNumbers = document.getElementById('pagination-numbers');
+
+                // Show loading state
+                if (tableBody) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-gray-500">
+                                <div class="flex justify-center items-center">
+                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Memuat asset...
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                // Prepare parameters
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    limit: perPage,
+                    search: searchTerm,
+                    exclude_document_id: documentId // This will exclude assets that already have this document
+                });
+
+                // Add linked asset IDs as a parameter if we have any
+                if (linkedAssetIds.length > 0) {
+                    params.append('exclude_asset_ids', linkedAssetIds.join(','));
+                }
+
+                // Fetch assets from API using the correct endpoint and headers
+                fetch(`/assets/data?${params.toString()}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+
+                        // Check if response is JSON
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            throw new Error('Response is not JSON!');
+                        }
+
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Clear table body
+                        if (tableBody) {
+                            tableBody.innerHTML = '';
+                        }
+
+                        // Update pagination info from the assets object
+                        const assetData = data.assets_pagination || data.assets || {};
+                        totalAssets = assetData.total || 0;
+                        totalPages = assetData.last_page || 1;
+
+                        if (paginationInfo) {
+                            const start = (currentPage - 1) * perPage + 1;
+                            const end = Math.min(currentPage * perPage, totalAssets);
+                            paginationInfo.textContent = `Menampilkan ${start} sampai ${end} dari ${totalAssets} entri`;
+                        }
+
+                        // Enable/disable pagination buttons
+                        if (prevPageBtn) {
+                            prevPageBtn.disabled = currentPage <= 1;
+                        }
+                        if (nextPageBtn) {
+                            nextPageBtn.disabled = currentPage >= totalPages;
+                        }
+
+                        // Generate pagination numbers
+                        if (paginationNumbers) {
+                            paginationNumbers.innerHTML = '';
+
+                            // Calculate range of page numbers to show
+                            let startPage = Math.max(1, currentPage - 2);
+                            let endPage = Math.min(totalPages, startPage + 4);
+
+                            // Adjust startPage if we're near the end
+                            if (endPage - startPage < 4) {
+                                startPage = Math.max(1, endPage - 4);
+                            }
+
+                            // Add first page if not included
+                            if (startPage > 1) {
+                                const btn = document.createElement('button');
+                                btn.classList.add('w-8', 'h-8', 'text-gray-700', 'rounded', 'hover:bg-gray-200');
+                                btn.textContent = '1';
+                                btn.addEventListener('click', () => {
+                                    currentPage = 1;
+                                    loadAssets();
+                                });
+                                paginationNumbers.appendChild(btn);
+
+                                // Add ellipsis if there's a gap
+                                if (startPage > 2) {
+                                    const ellipsis = document.createElement('span');
+                                    ellipsis.classList.add('px-1', 'text-gray-500');
+                                    ellipsis.textContent = '...';
+                                    paginationNumbers.appendChild(ellipsis);
+                                }
+                            }
+
+                            // Add page numbers
+                            for (let i = startPage; i <= endPage; i++) {
+                                const btn = document.createElement('button');
+                                if (i === currentPage) {
+                                    btn.classList.add('w-8', 'h-8', 'bg-[#213268]', 'text-white', 'rounded');
+                                } else {
+                                    btn.classList.add('w-8', 'h-8', 'text-gray-700', 'rounded', 'hover:bg-gray-200');
+                                }
+                                btn.textContent = i;
+                                btn.addEventListener('click', () => {
+                                    currentPage = i;
+                                    loadAssets();
+                                });
+                                paginationNumbers.appendChild(btn);
+                            }
+
+                            // Add last page if not included
+                            if (endPage < totalPages) {
+                                // Add ellipsis if there's a gap
+                                if (endPage < totalPages - 1) {
+                                    const ellipsis = document.createElement('span');
+                                    ellipsis.classList.add('px-1', 'text-gray-500');
+                                    ellipsis.textContent = '...';
+                                    paginationNumbers.appendChild(ellipsis);
+                                }
+
+                                const btn = document.createElement('button');
+                                btn.classList.add('w-8', 'h-8', 'text-gray-700', 'rounded', 'hover:bg-gray-200');
+                                btn.textContent = totalPages;
+                                btn.addEventListener('click', () => {
+                                    currentPage = totalPages;
+                                    loadAssets();
+                                });
+                                paginationNumbers.appendChild(btn);
+                            }
+                        }
+
+                        // Store loaded assets
+                        loadedAssets = data.assets || [];
+                        if (Array.isArray(data.assets)) {
+                            loadedAssets = data.assets;
+                        } else if (data.assets && Array.isArray(data.assets.data)) {
+                            loadedAssets = data.assets.data;
+                        } else if (Array.isArray(data.data)) {
+                            loadedAssets = data.data;
+                        } else {
+                            loadedAssets = [];
+                        }
+
+                        // Filter out assets that are already linked to this document
+                        if (linkedAssetIds.length > 0) {
+                            loadedAssets = loadedAssets.filter(asset => !linkedAssetIds.includes(asset.asset_id));
+                        }
+
+                        // Render assets
+                        if (loadedAssets.length === 0) {
+                            if (tableBody) {
+                                tableBody.innerHTML = `
+                                    <tr>
+                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                            Tidak ada asset yang ditemukan
+                                        </td>
+                                    </tr>
+                                `;
+                            }
+                        } else {
+                            // Render each asset
+                            loadedAssets.forEach(asset => {
+                                const row = document.createElement('tr');
+                                row.classList.add('hover:bg-gray-50');
+
+                                // Check if asset is already selected
+                                const isChecked = selectedAssets.includes(asset.asset_id);
+
+                                // Get asset name - check both direct property and nested structure
+                                const assetName = asset.asset_master_name ||
+                                    (asset.asset_master && asset.asset_master.asset_name) ||
+                                    asset.asset_name || '-';
+
+                                // Get description
+                                const description = asset.description || '-';
+
+                                // Get asset type based on asset_master_code pattern
+                                let assetType = asset.asset_type || 'Non Medical';
+                                if (asset.asset_master && asset.asset_master.asset_master_code) {
+                                    const code = asset.asset_master.asset_master_code;
+                                    if (code.startsWith('MED-')) {
+                                        assetType = 'Medical';
+                                    }
+                                }
+
+                                // Get category name from asset_master if it exists
+                                const categoryName = asset.category_name ||
+                                    (asset.asset_master && asset.asset_master.subcategory_name) ||
+                                    '-';
+
+                                row.innerHTML = `
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                        <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}" ${isChecked ? 'checked' : ''}>
+                                    </td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                        ${asset.asset_code || '-'}
+                                    </td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                        <div class="flex flex-col">
+                                            <span class="font-medium">${assetName}</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${description}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetType}</td>
+                                    <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
+                                `;
+
+                                if (tableBody) {
+                                    tableBody.appendChild(row);
+                                }
+                            });
+
+                            // Add event listeners to checkboxes
+                            document.querySelectorAll('.asset-checkbox').forEach(checkbox => {
+                                checkbox.addEventListener('change', function () {
+                                    const assetId = parseInt(this.value);
+
+                                    if (this.checked) {
+                                        // Add to selected assets if not already there
+                                        if (!selectedAssets.includes(assetId)) {
+                                            selectedAssets.push(assetId);
+                                        }
+                                    } else {
+                                        // Remove from selected assets
+                                        selectedAssets = selectedAssets.filter(id => id !== assetId);
+                                    }
+
+                                    // Update select all checkbox
+                                    updateSelectAllCheckbox();
+
+                                    // Update link button state
+                                    updateLinkButtonState();
+                                });
+                            });
+
+                            // Update select all checkbox state
+                            updateSelectAllCheckbox();
+                        }
+
+                        // Update link button state
+                        updateLinkButtonState();
+                    })
+                    .catch(error => {
+                        console.error('Error loading assets:', error);
+                        if (tableBody) {
+                            tableBody.innerHTML = `
+                                <tr>
+                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
+                                        Error loading assets: ${error.message || 'Unknown error'}. Please try again.
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    });
+            }
+
+            // Function to update select all checkbox state
+            function updateSelectAllCheckbox() {
+                const selectAllCheckbox = document.getElementById('select-all-link-assets');
+                if (!selectAllCheckbox) return;
+
+                const checkboxes = document.querySelectorAll('.asset-checkbox');
+                if (checkboxes.length === 0) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = false;
+                    return;
+                }
+
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                const someChecked = Array.from(checkboxes).some(cb => cb.checked);
+
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = someChecked && !allChecked;
+            }
+
+            // Function to update link button state
+            function updateLinkButtonState() {
+                const linkButton = document.getElementById('link-selected-assets');
+                if (linkButton) {
+                    linkButton.disabled = selectedAssets.length === 0;
+                }
+            }
+
+            // Function to link assets
+            function linkAssets() {
+                if (selectedAssets.length === 0) return;
+
+                // Filter out any assets that are already linked
+                const assetsToLink = selectedAssets.filter(assetId => !linkedAssetIds.includes(assetId));
+
+                if (assetsToLink.length === 0) {
+                    // Create a toast error message instead of alert
+                    const errorToast = document.createElement('div');
+                    errorToast.id = 'errorNotification';
+                    errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                    errorToast.role = 'alert';
+                    errorToast.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="py-1">
+                                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">Gagal!</p>
+                                <p>Semua asset yang dipilih sudah terhubung dengan dokumen ini.</p>
+                            </div>
+                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                        </div>
+                    `;
+                    document.body.appendChild(errorToast);
+
+                    // Auto-hide after 5 seconds
+                    setTimeout(() => {
+                        errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(() => errorToast.remove(), 500);
+                    }, 5000);
+
+                    return;
+                }
+
+                // Prepare request data
+                const data = {
+                    asset_ids: assetsToLink
+                };
+
+                // Show loading state on button
+                const linkButton = document.getElementById('link-selected-assets');
+                if (linkButton) {
+                    const originalText = linkButton.innerHTML;
+                    linkButton.disabled = true;
+                    linkButton.innerHTML = `
+                        <div class="flex items-center justify-center w-full">
+                            <svg class="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Menautkan...</span>
+                        </div>
+                    `;
+
+                    // Make API request
+                    fetch(`/asset-documents/${documentId}/assign`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        // Specific handling for CSRF errors
+                        if (response.status === 419) {
+                            throw new Error('CSRF token mismatch. Halaman perlu dimuat ulang. Silakan refresh halaman dan coba lagi.');
+                        }
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+
+                        // Check if response is JSON
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            throw new Error('Response is not JSON!');
+                        }
+
+                        return response.json();
+                    })
+                    .then(result => {
+                        if (result.success) {
+                            // Close modal
+                            const modal = document.getElementById('linkAssetsModal');
+                            const content = document.getElementById('linkAssetsModalContent');
+                            if (modal && content) {
+                                closeModal(modal, content);
+                            }
+
+                            // Show success message
+                            const successMessage = document.createElement('div');
+                            successMessage.id = 'successNotification';
+                            successMessage.className = 'fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50';
+                            successMessage.role = 'alert';
+                            successMessage.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="py-1">
+                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-bold">Berhasil!</p>
+                                    <p>${result.message || 'Asset berhasil ditautkan!'}</p>
+                                </div>
+                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                            </div>
+                            `;
+                            document.body.appendChild(successMessage);
+
+                            // Auto-hide success message after 5 seconds
+                            setTimeout(() => {
+                                if (successMessage) {
+                                    successMessage.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                                    setTimeout(() => successMessage.remove(), 500);
+                                }
+                            }, 5000);
+
+                            // Reload the page after a short delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            // Show error message
+                            // Replace alert with toast notification
+                            const errorToast = document.createElement('div');
+                            errorToast.id = 'errorNotification';
+                            errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                            errorToast.role = 'alert';
+                            errorToast.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="py-1">
+                                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-bold">Gagal!</p>
+                                    <p>${result.message || 'Gagal menautkan asset'}</p>
+                                </div>
+                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                            </div>
+                            `;
+                            document.body.appendChild(errorToast);
+
+                            // Auto-hide after 5 seconds
+                            setTimeout(() => {
+                                errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                                setTimeout(() => errorToast.remove(), 500);
+                            }, 5000);
+
+                            // Reset button
+                            if (linkButton) {
+                                linkButton.disabled = false;
+                                linkButton.innerHTML = originalText;
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error linking assets:', error);
+
+                        // Show detailed error message
+                        let errorMessage = 'Terjadi kesalahan saat menautkan asset.';
+                        if (error.message) {
+                            errorMessage += ' ' + error.message;
+                        }
+
+                        // Replace alert with toast notification
+                        const errorToast = document.createElement('div');
+                        errorToast.id = 'errorNotification';
+                        errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                        errorToast.role = 'alert';
+                        errorToast.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="py-1">
+                                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">Gagal!</p>
+                                <p>${errorMessage} Silakan coba lagi.</p>
+                            </div>
+                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                        </div>
+                        `;
+                        document.body.appendChild(errorToast);
+
+                        // Auto-hide after 5 seconds
+                        setTimeout(() => {
+                            errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                            setTimeout(() => errorToast.remove(), 500);
+                        }, 5000);
+
+                        // Reset button
+                        if (linkButton) {
+                            linkButton.disabled = false;
+                            linkButton.innerHTML = originalText;
+                        }
+                    });
+                }
+            }
         });
     </script>
 @endpush
-
-<!-- Toast Container -->
-<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>

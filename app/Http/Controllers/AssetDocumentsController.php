@@ -262,9 +262,9 @@ class AssetDocumentsController extends Controller
         try {
             // Memvalidasi permintaan
             $request->validate([
-                'document_title' => 'required|string|max:255',
+                'document_title' => 'required|string',
                 'notes' => 'nullable|string',
-                'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
+                'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
                 'asset_ids' => 'nullable|array',
                 'asset_ids.*' => 'nullable|integer|exists:assets,asset_id',
             ]);
@@ -464,9 +464,9 @@ class AssetDocumentsController extends Controller
         try {
             // Memvalidasi permintaan
             $request->validate([
-                'document_title' => 'required|string|max:255',
+                'document_title' => 'required|string',
                 'notes' => 'nullable|string',
-                'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
+                'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
                 'asset_ids' => 'nullable|array',
                 'asset_ids.*' => 'nullable|integer|exists:assets,asset_id',
             ]);
@@ -843,9 +843,9 @@ class AssetDocumentsController extends Controller
         try {
             // Memvalidasi permintaan
             $request->validate([
-                'document_title' => 'required|string|max:255',
+                'document_title' => 'required|string',
                 'notes' => 'nullable|string',
-                'document' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
+                'document' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
             ]);
 
             // Menyiapkan data untuk permintaan API

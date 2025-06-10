@@ -175,7 +175,7 @@
                             </svg>
                             Sebelumnya
                         </button>
-                        
+
                         <!-- Replace with improved pagination that shows first/last pages with ellipses -->
                         <div class="flex gap-2">
                             @php
@@ -2608,7 +2608,7 @@
                 // Title
                 const title = document.createElement('p');
                 title.className = 'font-bold';
-                title.textContent = 'Error!';
+                title.textContent = 'Gagal!';
                 contentContainer.appendChild(title);
 
                 // Message container

@@ -7,7 +7,7 @@
         'calibration' => 'calibration:view',
         'maintenance' => 'maintenance:view',
         'complaint' => 'complaint:view',
-        'procurement' => ['procurement:view', 'price-comparison:view', 'purchase-order:view', 'procurement:view'],
+        'procurement' => ['procurement:view', 'price-comparison:view', 'purchase-order:view', 'receipt:view'],
         'report' => ['report:opname', 'report:finance', 'report:depreciation'],
         'account' => ['user:view', 'role:view']
     ];
@@ -27,7 +27,7 @@
         'procurement.request' => 'procurement:view',
         'procurement.price-comparison' => 'price-comparison:view',
         'procurement.purchase-order' => 'purchase-order:view',
-        'procurement.receipt' => 'procurement:view',
+        'procurement.receipt' => 'receipt:view',
 
         'report.opname' => 'report:opname',
         'report.finance' => 'report:finance',

@@ -70,7 +70,6 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">ID</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Merk</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[88px]">Aksi</th>
                                 </tr>
@@ -78,7 +77,6 @@
                             <tbody>
                                 @forelse($brands as $brand)
                                     <tr>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $brand['brand_id'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $brand['brand_name'] }}</td>
                                         <td class="p-3 border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">
