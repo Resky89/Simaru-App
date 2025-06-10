@@ -132,23 +132,23 @@
 
         @if(isset($masterAsset['linked_assets']) && count($masterAsset['linked_assets']) > 0)
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="w-full border-collapse">
                     <thead>
                         <tr>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Kode Aset</th>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Kondisi</th>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Status</th>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left">Lokasi</th>
-                            <th class="bg-[#28356B] text-white p-3 font-semibold text-center">Aksi</th>
+                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left w-1/4">Kode Aset</th>
+                            <th class="bg-[#28356B] text-white p-3 font-semibold text-center w-1/6">Kondisi</th>
+                            <th class="bg-[#28356B] text-white p-3 font-semibold text-center w-1/6">Status</th>
+                            <th class="bg-[#28356B] text-white p-3 font-semibold text-left w-1/3">Lokasi</th>
+                            <th class="bg-[#28356B] text-white p-3 font-semibold text-center w-1/12">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($masterAsset['linked_assets'] as $asset)
-                            <tr>
-                                <td class="p-3 text-sm border-t border-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="p-4 text-sm border-t border-gray-200 font-medium">
                                     {{ $asset['asset_code'] }}
                                 </td>
-                                <td class="p-3 text-sm border-t border-gray-200">
+                                <td class="p-4 text-sm border-t border-gray-200 text-center">
                                     @php
                                         $conditionClass = 'bg-gray-100 text-gray-800';
 
@@ -170,11 +170,11 @@
                                             }
                                         }
                                     @endphp
-                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $conditionClass }}">
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $conditionClass }}">
                                         {{ ucfirst($asset['condition'] ?? 'Unknown') }}
                                     </span>
                                 </td>
-                                <td class="p-3 text-sm border-t border-gray-200">
+                                <td class="p-4 text-sm border-t border-gray-200 text-center">
                                     @php
                                         $statusClass = 'bg-gray-100 text-gray-800';
 
@@ -198,7 +198,7 @@
                                             }
                                         }
                                     @endphp
-                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
                                         @php
                                             $statusText = 'UNKNOWN';
                                             if (isset($asset['current_status'])) {
@@ -226,13 +226,15 @@
                                         {{ $statusText }}
                                     </span>
                                 </td>
-                                <td class="p-3 text-sm border-t border-gray-200">
-                                    <div>{{ $asset['room_name'] ?? 'N/A' }}</div>
+                                <td class="p-4 text-sm border-t border-gray-200">
+                                    <div class="font-medium">{{ $asset['room_name'] ?? 'N/A' }}</div>
                                     <div class="text-xs text-gray-500">{{ $asset['building_name'] ?? 'N/A' }}</div>
                                 </td>
-                                <td class="p-3 border-t border-gray-200 text-center">
-                                    <a href="{{ route('asset.details', $asset['asset_id']) }}" class="text-[#28356B] hover:text-blue-800">
-                                        <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <td class="p-4 border-t border-gray-200 text-center">
+                                    <a href="{{ route('asset.details', $asset['asset_id']) }}"
+                                       class="inline-flex items-center justify-center w-10 h-10 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
+                                       title="Lihat Detail">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
