@@ -603,7 +603,7 @@
         }
 
         // DOM Elements
-        const assetId = document.getElementById('asset-id')?.value;
+        const assetId = document.getElementById('asset-id')?.value || '{{ $asset['asset_id'] ?? "" }}';
         const transactionItems = document.getElementById('transaction-items');
         const filterType = document.getElementById('filter-type');
         const sortBy = document.getElementById('sort-by');
@@ -638,6 +638,21 @@
 
         // Load transactions function
         function loadTransactions() {
+            // Check if asset ID is available
+            if (!assetId) {
+                document.getElementById('financeLoadingIndicator').classList.add('hidden');
+                if (transactionItems) {
+                    transactionItems.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
+                                Gagal memuat transaksi: ID Aset diperlukan
+                            </td>
+                        </tr>
+                    `;
+                }
+                return;
+            }
+
             // Show loading state
             document.getElementById('financeLoadingIndicator').classList.remove('hidden');
             transactionItems.innerHTML = '';
@@ -691,6 +706,19 @@
 
             // Make API request with console logging for debugging
             console.log(`Fetching transactions with params: ${queryParams}`);
+
+            // Make sure assetId is not empty
+            if (!assetId) {
+                document.getElementById('financeLoadingIndicator').classList.add('hidden');
+                transactionItems.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
+                            Gagal memuat transaksi: ID Aset diperlukan
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
 
             fetch(`/asset-transactions/asset/${assetId}${queryParams}`, {
                 method: 'GET',
@@ -999,6 +1027,15 @@
                     const formData = new FormData(form);
                     formData.set('amount', amount); // Set amount yang sudah diformat
 
+                    // Check if asset ID is available
+                    const assetId = formData.get('asset_id');
+                    if (!assetId) {
+                        financeShowToast('ID Aset diperlukan untuk mengedit transaksi', 'error');
+                        this.disabled = false;
+                        this.innerHTML = originalBtnText;
+                        return;
+                    }
+
                     // Convert FormData to JSON - only include non-empty fields
                     const jsonData = {
                         asset_id: parseInt(formData.get('asset_id')),
@@ -1189,6 +1226,13 @@
 
             const form = document.getElementById('addTransactionForm');
             const formData = new FormData(form);
+
+            // Check if asset ID is available
+            const assetId = formData.get('asset_id');
+            if (!assetId) {
+                financeShowToast('ID Aset diperlukan untuk menambahkan transaksi', 'error');
+                return;
+            }
 
             // Validate required fields
             const type = formData.get('type');

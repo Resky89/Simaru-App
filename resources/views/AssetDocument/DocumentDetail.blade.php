@@ -343,7 +343,7 @@
                                         <label for="edit_document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
                                         <input type="text" id="edit_document_title" name="document_title"
                                             class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"
-                                            required value="{{ $document['document_title'] ?? '' }}">
+                                            value="{{ $document['document_title'] ?? '' }}">
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
                                     </div>
 
@@ -473,7 +473,7 @@
 
     @if(session('success'))
         <div id="successNotification"
-            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
+            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-[70]"
             role="alert">
             <div class="flex items-center">
                 <div class="py-1">
@@ -493,7 +493,7 @@
 
     @if(session('error') || isset($error))
         <div id="errorNotification"
-            class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50"
+            class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-[70]"
             role="alert">
             <div class="flex items-center">
                 <div class="py-1">
@@ -671,7 +671,7 @@
                 if (!toastContainer) {
                     toastContainer = document.createElement('div');
                     toastContainer.id = 'toast-container';
-                    toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+                    toastContainer.className = 'fixed top-4 right-4 z-[70] flex flex-col gap-2';
                     document.body.appendChild(toastContainer);
                 }
 
@@ -1380,7 +1380,7 @@
                     // Create a toast error message instead of alert
                     const errorToast = document.createElement('div');
                     errorToast.id = 'errorNotification';
-                    errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                    errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-[70]';
                     errorToast.role = 'alert';
                     errorToast.innerHTML = `
                         <div class="flex items-center">
@@ -1727,7 +1727,7 @@
                     // Create a toast error message instead of alert
                     const errorToast = document.createElement('div');
                     errorToast.id = 'errorNotification';
-                    errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                    errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-[70]';
                     errorToast.role = 'alert';
                     errorToast.innerHTML = `
                         <div class="flex items-center">
@@ -1779,7 +1779,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         },
@@ -1815,7 +1815,7 @@
                             // Show success message
                             const successMessage = document.createElement('div');
                             successMessage.id = 'successNotification';
-                            successMessage.className = 'fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50';
+                            successMessage.className = 'fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-[70]';
                             successMessage.role = 'alert';
                             successMessage.innerHTML = `
                             <div class="flex items-center">
@@ -1850,7 +1850,7 @@
                             // Replace alert with toast notification
                             const errorToast = document.createElement('div');
                             errorToast.id = 'errorNotification';
-                            errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                            errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-[70]';
                             errorToast.role = 'alert';
                             errorToast.innerHTML = `
                             <div class="flex items-center">
@@ -1893,7 +1893,7 @@
                         // Replace alert with toast notification
                         const errorToast = document.createElement('div');
                         errorToast.id = 'errorNotification';
-                        errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+                        errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-[70]';
                         errorToast.role = 'alert';
                         errorToast.innerHTML = `
                         <div class="flex items-center">
@@ -1927,4 +1927,7 @@
             }
         });
     </script>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[70] flex flex-col gap-2"></div>
 @endpush
