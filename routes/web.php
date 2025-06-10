@@ -287,7 +287,6 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::middleware('permission:asset:view|maintenance:create|maintenance:edit|calibration:create|calibration:edit|complaint:create|complaint:edit')->group(function() {
         // Read operations
     Route::get('/assets', [UnitAssetController::class, 'index'])->name('assets');
-    Route::get('/assets/data', [UnitAssetController::class, 'getAssetData'])->name('assets.data');
     Route::get('/assets/{id}', [UnitAssetController::class, 'getAsset'])->name('assets.get');
     Route::get('assets/barcode/generate/{id}', [UnitAssetController::class, 'generateBarcode'])->name('assets.barcode.generate');
     Route::get('/assets/export/pdf', [UnitAssetController::class, 'exportUnitAssetPDF'])
@@ -440,10 +439,11 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::prefix('calibrations')->middleware('permission:calibration:view')->group(function() {
         // Read operations
         Route::get('/', [CalibrationController::class, 'index'])->name('calibration');
-        Route::get('/{id}', [CalibrationController::class, 'getCalibration']);
+        Route::get('/assets', [CalibrationController::class, 'getAssetsForCalibration'])->name('calibrations.assets');
         Route::get('/export/pdf', [CalibrationController::class, 'exportCalibrationPDF'])
             ->name('calibrations.export.pdf')
             ->middleware('permission:calibration:export');
+        Route::get('/{id}', [CalibrationController::class, 'getCalibration']);
 
         // Write operations
         Route::post('/bulk', [CalibrationController::class, 'createBulkCalibrations'])

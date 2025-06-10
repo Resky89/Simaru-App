@@ -29,6 +29,7 @@ class UnitAssetController extends Controller
             $statusFilter = $request->query('current_status', '');
             $typeFilter = $request->query('asset_type', '');
             $sortOrder = $request->query('sort', '');
+            $needsCalibration = $request->query('needs_calibration', null);
 
             // Membangun parameter kueri
             $queryParams = [
@@ -81,6 +82,11 @@ class UnitAssetController extends Controller
                 $queryParams['asset_type'] = $typeFilter;
             }
 
+            // Menambahkan filter needs_calibration jika disediakan
+            if ($needsCalibration !== null) {
+                $queryParams['needs_calibration'] = $needsCalibration;
+            }
+
             // Mengambil aset dari API
             $assetsResult = $this->apiService->request('GET', '/assets', [
                 'query' => $queryParams
@@ -92,7 +98,7 @@ class UnitAssetController extends Controller
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                        'errors' => $assetsResult['errors'] ?? 'Autentikasi gagal'
                     ], 401);
                 }
                 return redirect()->route('login')->with('error', is_string($assetsResult['errors']) ? $assetsResult['errors'] : 'Autentikasi gagal');
@@ -114,6 +120,13 @@ class UnitAssetController extends Controller
                     }
                 } else {
                     $errorMessage = $errorData;
+                }
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $errorMessage
+                    ], 400);
                 }
 
                 return view('Asset.UnitAsset', [
@@ -142,11 +155,26 @@ class UnitAssetController extends Controller
                 ];
             }
 
+            // Return JSON for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'assets' => $assets,
+                    'assets_pagination' => $assetsPagination
+                ]);
+            }
+
             return view('Asset.UnitAsset', [
                 'assets' => $assets,
                 'assets_pagination' => $assetsPagination
             ]);
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Gagal mengambil data aset: ' . $e->getMessage()
+                ], 500);
+            }
+
             return view('Asset.UnitAsset', [
                 'assets' => [],
                 'assets_pagination' => null,
@@ -1053,161 +1081,6 @@ class UnitAssetController extends Controller
             ]);
 
             return redirect()->back()->with('error', $errorMessage);
-        }
-    }
-
-    /**
-     * Get asset data for AJAX requests.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getAssetData(Request $request)
-    {
-        try {
-            $page = $request->input('page', 1);
-            $limit = $request->input('limit', 10);
-            $search = $request->input('search', '');
-            $needsCalibration = $request->input('needs_calibration', null);
-
-            // Log request info
-            \Log::info('Fetching assets with parameters for AJAX:', [
-                'page' => $page,
-                'limit' => $limit,
-                'search' => $search,
-                'needs_calibration' => $needsCalibration,
-                'request_url' => $request->fullUrl()
-            ]);
-
-            // Build query parameters
-            $queryParams = [
-                'page' => $page,
-                'limit' => $limit,
-                'sort_by' => 'asset_id',
-                'sort_order' => 'asc'
-            ];
-
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
-            }
-
-            // Add needs_calibration filter if provided
-            if ($needsCalibration !== null) {
-                $queryParams['needs_calibration'] = $needsCalibration;
-            }
-
-            // Fetch assets
-            $assetsResult = $this->apiService->request('GET', '/assets', [
-                'query' => $queryParams
-            ]);
-
-            // Fetch subcategories which contain asset type information
-            $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
-
-            // Log API responses for debugging
-            \Log::info('API response for assets AJAX list:', [
-                'assets_success' => $assetsResult['success'] ?? null,
-                'assets_count' => isset($assetsResult['data']) ? count($assetsResult['data']) : 0
-            ]);
-
-            // Check for auth errors
-            if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
-                in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])) {
-                return response()->json([
-                    'error' => $assetsResult['errors'] ?? 'Authentication failed'
-                ], 401);
-            }
-
-            // Process assets and add subcategory info
-            $assets = $assetsResult['data'] ?? [];
-            $subcategories = $subcategoriesResult['data'] ?? [];
-
-            // Map subcategories by ID for quick lookup
-            $subcategoryMap = [];
-            foreach ($subcategories as $subcategory) {
-                $subcategoryMap[$subcategory['subcategory_id']] = $subcategory;
-            }
-
-            // Add subcategory data to each asset
-            foreach ($assets as &$asset) {
-                if (isset($asset['subcategory_id']) && isset($subcategoryMap[$asset['subcategory_id']])) {
-                    $asset['subcategory'] = $subcategoryMap[$asset['subcategory_id']];
-                }
-
-                // Ensure room data is properly structured
-                if (!isset($asset['room'])) {
-                    $asset['room'] = [];
-                }
-
-                if (!isset($asset['room']['building'])) {
-                    $asset['room']['building'] = ['building_name' => '-'];
-                }
-
-                // Log asset structure to debug
-                \Log::debug('Asset structure:', [
-                    'asset_id' => $asset['asset_id'] ?? 'No ID',
-                    'asset_code' => $asset['asset_code'] ?? 'No Code',
-                    'asset_name' => $asset['asset_name'] ?? 'No Name',
-                    'asset_master' => $asset['asset_master'] ?? null,
-                    'subcategory' => $asset['subcategory'] ?? null
-                ]);
-
-                // If asset_name is not set but asset_master has a name, use it
-                if ((!isset($asset['asset_name']) || empty($asset['asset_name'])) &&
-                    isset($asset['asset_master']) && isset($asset['asset_master']['asset_master_name'])) {
-                    $asset['asset_name'] = $asset['asset_master']['asset_master_name'];
-                }
-
-                // If description is not set but asset_master has a description, use it
-                if ((!isset($asset['description']) || empty($asset['description'])) &&
-                    isset($asset['asset_master']) && isset($asset['asset_master']['description'])) {
-                    $asset['description'] = $asset['asset_master']['description'];
-                }
-
-                // For subcategory, we need to handle cases where it might be nested in asset_master
-                if (!isset($asset['subcategory']) || empty($asset['subcategory'])) {
-                    if (isset($asset['asset_master']) && isset($asset['asset_master']['subcategory'])) {
-                        $asset['subcategory'] = $asset['asset_master']['subcategory'];
-                    } elseif (isset($asset['asset_master']) && isset($asset['asset_master']['subcategory_id'])) {
-                        $subcatId = $asset['asset_master']['subcategory_id'];
-                        if (isset($subcategoryMap[$subcatId])) {
-                            $asset['subcategory'] = $subcategoryMap[$subcatId];
-                        }
-                    }
-                }
-            }
-
-            // Format pagination
-            $assetsPagination = null;
-            if (isset($assetsResult['pagination'])) {
-                $pagination = $assetsResult['pagination'];
-                $assetsPagination = [
-                    'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
-                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
-                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
-                    'total' => $pagination['total_items'] ?? 0,
-                    'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => ($pagination['has_next'] ?? false) ? url()->current() . '?page=' . ($pagination['current_page'] + 1) : null,
-                    'prev_page_url' => ($pagination['has_prev'] ?? false) ? url()->current() . '?page=' . ($pagination['current_page'] - 1) : null,
-                ];
-            }
-
-            // Return JSON response
-            return response()->json([
-                'assets' => $assets,
-                'assets_pagination' => $assetsPagination
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Exception during asset data retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'errors' => ['exception' => 'Failed to fetch assets: ' . $e->getMessage()]
-            ], 500);
         }
     }
 

@@ -420,6 +420,17 @@
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200" autocomplete="off">
                                                 <input type="hidden" name="assigned_to" id="selected_user_id">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Karyawan harus dipilih</div>
+                                                <!-- Add radio buttons for permission selection -->
+                                                <div class="mt-2 flex items-center gap-4">
+                                                    <label class="inline-flex items-center">
+                                                        <input type="radio" name="permission_filter" value="maintenance-report:medical" class="permission-radio text-[#213268]" data-asset-type="medical" checked>
+                                                        <span class="ml-2 text-sm text-gray-700">User Medis</span>
+                                                    </label>
+                                                    <label class="inline-flex items-center">
+                                                        <input type="radio" name="permission_filter" value="maintenance-report:non-medical" class="permission-radio text-[#213268]" data-asset-type="non_medical">
+                                                        <span class="ml-2 text-sm text-gray-700">User Non-Medis</span>
+                                                    </label>
+                                                </div>
                                                 <div id="user_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                                                     <!-- Loading indicator -->
                                                     <div id="user_loading" class="flex justify-center py-2">
@@ -440,7 +451,7 @@
                                         <div class="min-w-[150px]">
                                             <label class="block text-base font-semibold text-[#213268]">
                                                 VENDOR
-                                            </label>
+                                                </label>
                                         </div>
                                         <div class="flex-1">
                                             <div class="relative">
@@ -612,16 +623,11 @@
                             </div>
 
                             <!-- Button Group -->
-                            <div class="pt-4 flex justify-end gap-4">
-                                    <button type="button"
-                                    class="close-modal px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
-                                        data-modal="assetSelectionModal">
-                                        Batal
-                                    </button>
-                                    <button type="button" id="selectAssetsBtn"
-                                    class="px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
-                                        Pilih
-                                    </button>
+                            <div class="pt-4">
+                                <button type="button" id="selectAssetsBtn"
+                                    class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                    Pilih
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -732,8 +738,8 @@
                                         <div class="min-w-[150px]">
                                             <label for="edit_interval" class="block text-base font-semibold text-[#213268]">
                                                 INTERVAL<span class="text-red-500">*</span>
-                                            </label>
-                                        </div>
+                                                </label>
+                                            </div>
                                         <div class="flex-1">
                                             <select id="edit_interval" name="interval"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
@@ -793,6 +799,17 @@
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200" autocomplete="off">
                                                 <input type="hidden" id="edit_assigned_to" name="assigned_to">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Karyawan harus dipilih</div>
+                                                <!-- Add radio buttons for permission selection in edit mode -->
+                                                <div class="mt-2 flex items-center gap-4">
+                                                    <label class="inline-flex items-center">
+                                                        <input type="radio" name="edit_permission_filter" value="maintenance-report:medical" class="edit-permission-radio text-[#213268]" data-asset-type="medical" checked>
+                                                        <span class="ml-2 text-sm text-gray-700">User Medis</span>
+                                                    </label>
+                                                    <label class="inline-flex items-center">
+                                                        <input type="radio" name="edit_permission_filter" value="maintenance-report:non-medical" class="edit-permission-radio text-[#213268]" data-asset-type="non_medical">
+                                                        <span class="ml-2 text-sm text-gray-700">User Non-Medis</span>
+                                                    </label>
+                                                </div>
                                                 <div id="edit_user_dropdown" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                                                     <!-- Loading indicator -->
                                                     <div id="edit_user_loading" class="flex justify-center py-2">
@@ -1829,6 +1846,10 @@
                 const searchTerm = document.getElementById('assetSearchInput').value;
                 const limit = document.getElementById('assetModalPerPageSelect').value;
 
+                // Get asset type from the selected permission radio
+                const selectedRadio = document.querySelector('input[name="permission_filter"]:checked');
+                const assetType = selectedRadio ? selectedRadio.getAttribute('data-asset-type') : 'medical';
+
                 // Show loading state
                 document.getElementById('assetSelectionList').innerHTML = `
                     <tr>
@@ -1836,8 +1857,15 @@
                     </tr>
                 `;
 
-                // Fetch assets from API
-                fetch(`/assets/data?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`, {
+                // Fetch assets from API with type filter
+                let url = `/assets?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`;
+
+                // Add asset_type parameter
+                if (assetType) {
+                    url += `&asset_type=${assetType}`;
+                }
+
+                fetch(url, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -1887,7 +1915,8 @@
                                                 asset.asset_master.subcategory_name : '-';
 
                             // Get description
-                            const description = asset.description || '-';
+                            const description = asset.asset_master && asset.asset_master.description ?
+                                                asset.asset_master.description : '-';
 
                             html += `
                             <tr>
@@ -2002,7 +2031,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
-                        Prev
+                        Sebelumnya
                     </a>
                 `;
 
@@ -2052,7 +2081,7 @@
                 controlsHtml += `
                     <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
                        ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
-                        Next
+                        Selanjutnya
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
@@ -2186,7 +2215,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
-                        Prev
+                        Sebelumnya
                     </a>
                 `;
 
@@ -2234,7 +2263,7 @@
                 html += `
                     <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
                        ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
-                        Next
+                        Selanjutnya
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
@@ -2441,6 +2470,17 @@
 
                 searchInput.addEventListener('input', debouncedSearch);
 
+                // Add event listeners for permission radio buttons
+                const isEditMode = searchInputId === 'edit_user_search';
+                const permissionRadios = document.querySelectorAll(isEditMode ? '.edit-permission-radio' : '.permission-radio');
+                permissionRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        // Clear user list and re-fetch with new permission
+                        userList.innerHTML = '';
+                        loadUsers(searchInput.value);
+                    });
+                });
+
             function loadUsers(searchTerm) {
                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                 userList.innerHTML = '';
@@ -2456,49 +2496,36 @@
                 }
                 queryParams.append('limit', 20);
 
-                const fetchPromises = [];
+                    // Get selected permission from radio buttons
+                    const isEditMode = searchInputId === 'edit_user_search';
+                    const selectedPermission = document.querySelector(
+                        isEditMode ? 'input[name="edit_permission_filter"]:checked' : 'input[name="permission_filter"]:checked'
+                    )?.value;
 
-                const userPermissions = [];
-                if (@json(hasPermission('maintenance-report:medical'))) {
-                    userPermissions.push('maintenance-report:medical');
-                }
-                if (@json(hasPermission('maintenance-report:non-medical'))) {
-                    userPermissions.push('maintenance-report:non-medical');
-                }
-
-                userPermissions.forEach(permission => {
-                    fetchPromises.push(
-                        fetch(`/user/by-permission/${permission}?${queryParams.toString()}`, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                    );
-                });
-
-                if (userPermissions.length === 0) {
+                    if (!selectedPermission) {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
                     userList.innerHTML = '';
                     const noPermission = document.createElement('li');
                     noPermission.className = 'px-4 py-2 text-red-500';
-                    noPermission.textContent = 'Anda tidak memiliki izin untuk melihat pengguna dengan akses pemeliharaan';
+                        noPermission.textContent = 'Silakan pilih jenis izin pengguna terlebih dahulu';
                     userList.appendChild(noPermission);
                     return;
                 }
 
-                Promise.all(fetchPromises)
-                .then(responses => {
-                    if (!responses.every(response => response.ok)) {
-                        throw new Error('Failed to fetch users with permissions');
-                    }
-                    return Promise.all(responses.map(response => response.json()));
+                    // Fetch users with the selected permission
+                    fetch(`/user/by-permission/${selectedPermission}?${queryParams.toString()}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+                        return response.json();
                 })
-                .then(dataArray => {
-                    let combinedUsers = [];
-                    let userIds = new Set();
-
-                    dataArray.forEach(data => {
+                    .then(data => {
                         let users = [];
                         if (Array.isArray(data)) {
                             users = data;
@@ -2508,23 +2535,16 @@
                             users = data.data;
                         }
 
-                        users.forEach(user => {
-                            if (!userIds.has(user.user_id)) {
-                                userIds.add(user.user_id);
-                                combinedUsers.push(user);
-                            }
-                        });
-                    });
-
                     userList.innerHTML = '';
 
-                    if (combinedUsers.length === 0) {
+                        if (users.length === 0) {
                         const noResults = document.createElement('li');
                         noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'Tidak ada pengguna ditemukan dengan izin pemeliharaan';
+                            noResults.textContent = 'Tidak ada pengguna ditemukan dengan izin yang dipilih';
                         userList.appendChild(noResults);
                     } else {
-                        combinedUsers.sort((a, b) => {
+                            // Sort users by employee number or name
+                            users.sort((a, b) => {
                             if (a.employee_number && b.employee_number) {
                                 return a.employee_number.localeCompare(b.employee_number);
                             } else if (a.name && b.name) {
@@ -2533,7 +2553,8 @@
                             return 0;
                         });
 
-                        combinedUsers.forEach(user => {
+                            // Add each user to the dropdown
+                            users.forEach(user => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
@@ -2567,23 +2588,15 @@
                             userList.appendChild(li);
                         });
 
+                            // Add count summary at bottom
                         const countDiv = document.createElement('li');
                         countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
-                        let permissionText = '';
 
-                        if (userPermissions.includes('maintenance-report:medical') &&
-                            userPermissions.includes('maintenance-report:non-medical')) {
-                            permissionText = 'izin pemeliharaan medis dan non-medis';
-                        } else if (userPermissions.includes('maintenance-report:medical')) {
-                            permissionText = 'izin pemeliharaan medis';
-                        } else if (userPermissions.includes('maintenance-report:non-medical')) {
-                            permissionText = 'izin pemeliharaan non-medis';
-                        } else {
-                            permissionText = 'izin pemeliharaan';
-                        }
+                            // Get readable permission name
+                            let permissionText = selectedPermission === 'maintenance-report:medical' ?
+                                'izin pemeliharaan medis' : 'izin pemeliharaan non-medis';
 
-                        countDiv.textContent = `Menampilkan ${combinedUsers.length} pengguna dengan ${permissionText}`;
-
+                            countDiv.textContent = `Menampilkan ${users.length} pengguna dengan ${permissionText}`;
                         userList.appendChild(countDiv);
                                             }
                 })
@@ -2591,17 +2604,13 @@
                     console.error('Error loading users with permissions:', error);
                     const errorItem = document.createElement('li');
                     errorItem.className = 'px-4 py-2 text-red-500';
-                    if (userPermissions.includes('maintenance-report:medical') &&
-                        userPermissions.includes('maintenance-report:non-medical')) {
-                        errorItem.textContent = 'Gagal memuat data pengguna dengan izin pemeliharaan medis dan non-medis';
-                    } else if (userPermissions.includes('maintenance-report:medical')) {
-                        errorItem.textContent = 'Gagal memuat data pengguna dengan izin pemeliharaan medis';
-                    } else if (userPermissions.includes('maintenance-report:non-medical')) {
-                        errorItem.textContent = 'Gagal memuat data pengguna dengan izin pemeliharaan non-medis';
-                    } else {
-                        errorItem.textContent = 'Gagal memuat data pengguna dengan izin pemeliharaan';
-                    }
 
+                        const permissionText = document.querySelector(
+                            isEditMode ? 'input[name="edit_permission_filter"]:checked' : 'input[name="permission_filter"]:checked'
+                        )?.value === 'maintenance-report:medical' ?
+                            'izin pemeliharaan medis' : 'izin pemeliharaan non-medis';
+
+                        errorItem.textContent = `Gagal memuat data pengguna dengan ${permissionText}`;
                     userList.appendChild(errorItem);
                 })
                 .finally(() => {
@@ -3216,6 +3225,29 @@
                 validateField(this, true);
             });
             }
+
+            // Add event listener to permission radio buttons to also trigger asset reload when opening asset selection
+            document.addEventListener('DOMContentLoaded', function() {
+                // ... existing code
+
+                // Add event listener to permission radios to update asset type filter
+                document.querySelectorAll('.permission-radio, .edit-permission-radio').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        // Store the selected asset type to use it later when loading assets
+                        localStorage.setItem('selectedAssetType', this.getAttribute('data-asset-type'));
+                    });
+                });
+
+                // Modify the addAssetsBtn click handler
+                const addAssetsBtn = document.getElementById('addAssetsBtn');
+                if (addAssetsBtn) {
+                    const originalAddAssetsClick = addAssetsBtn.onclick;
+                    addAssetsBtn.addEventListener('click', function() {
+                        openModal(modals.assetSelection, modalContents.assetSelection);
+                        loadAssets(1); // This will now use the asset type from the selected permission radio
+                    });
+                }
+            });
         });
     </script>
     @endpush

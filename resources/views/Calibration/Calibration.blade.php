@@ -1017,14 +1017,9 @@
                                     </div>
 
                                     <!-- Button Group -->
-                                    <div class="pt-4 flex justify-end gap-4">
-                                        <button type="button"
-                                            class="close-modal px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors duration-200"
-                                            data-modal="assetSelectionModal">
-                                            Batal
-                                        </button>
+                                    <div class="pt-4">
                                         <button type="button" id="selectAssetsBtn"
-                                            class="px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                            class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                             Pilih
                                         </button>
                                     </div>
@@ -2483,20 +2478,8 @@
                             // Debug pagination
                             console.log(`Loading assets: page=${page}, limit=${limit}, search=${searchTerm}`);
 
-                            // Fetch assets from API - make sure to pass needs_calibration=true to filter only calibratable assets
-                            fetch(`/assets/data?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}&needs_calibration=true`, {
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            })
-                                .then(response => response.json())
-                                .then(data => {
-                                    // Get assets
-                                    const assets = data.success ? data.data : (data.assets || []);
-
-                                    // Now get existing calibrations to check which assets to exclude
-                                    fetch('/calibrations?json=true&limit=1000', {
+                            // Fetch assets directly from the new calibration assets endpoint
+                            fetch(`/calibrations/assets?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`, {
                                         headers: {
                                             'Accept': 'application/json',
                                             'X-Requested-With': 'XMLHttpRequest'
@@ -2508,37 +2491,15 @@
                                             }
                                             return response.json();
                                         })
-                                        .then(calibrationData => {
-                                            // Create a Set of asset IDs that have ongoing calibration schedules
-                                            const assetsWithActiveSchedules = new Set();
-
-                                            // Get calibrations from the response - ensure we have valid data before using forEach
-                                            let calibrations = [];
-
-                                            // Handle different possible response formats
-                                            if (calibrationData && calibrationData.success === true && Array.isArray(calibrationData.data)) {
-                                                calibrations = calibrationData.data;
-                                            } else if (calibrationData && Array.isArray(calibrationData.calibrations)) {
-                                                calibrations = calibrationData.calibrations;
-                                            } else if (calibrationData && Array.isArray(calibrationData)) {
-                                                calibrations = calibrationData;
+                                .then(data => {
+                                    if (!data.success) {
+                                        throw new Error(data.message || 'Failed to fetch assets for calibration');
                                             }
 
-                                            // Now safely process the calibrations
-                                            if (calibrations && calibrations.length > 0) {
-                                                calibrations.forEach(calibration => {
-                                                    if (calibration && calibration.status_calibration !== 'completed' && calibration.asset_id) {
-                                                        assetsWithActiveSchedules.add(calibration.asset_id);
-                                                    }
-                                                });
-                                            }
+                                    // Get assets from response
+                                    const assets = data.data || [];
 
-                                            console.log('Found ' + assetsWithActiveSchedules.size + ' assets with active calibration schedules');
-
-                                            // Filter assets to only show those without active schedules
-                                            const filteredAssets = assets.filter(asset => !assetsWithActiveSchedules.has(asset.asset_id));
-
-                                            if (filteredAssets.length === 0) {
+                                    if (assets.length === 0) {
                                                 document.getElementById('assetSelectionList').innerHTML = `
                                                 <tr>
                                                     <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
@@ -2547,47 +2508,19 @@
                                                     </td>
                                                 </tr>
                                             `;
-                                                // Still setup pagination with zero data to ensure UI consistency
-                                                const limit = document.getElementById('assetPerPageSelect').value;
-                                                const paginationData = data.success ? data.pagination : data.assets_pagination;
-                                                if (paginationData) {
-                                                    // Create pagination with zero items
+
+                                        // Setup pagination with zero data to ensure UI consistency
                                                     const zeroPagination = {
-                                                        ...paginationData,
                                                         current_page: 1,
                                                         total_items: 0,
                                                         total_pages: 1
                                                     };
                                                     setupAssetPagination(zeroPagination);
-                                                }
                                                 return;
                                             }
 
-                                            // Create a modified data object that preserves the original total but with filtered assets
-                                            const modifiedData = {
-                                                ...data,
-                                                pagination: {
-                                                    ...(data.success ? data.pagination : data.assets_pagination),
-                                                    total_items: data.success && data.pagination ? data.pagination.total_items :
-                                                        (data.assets_pagination ? data.assets_pagination.total_items : filteredAssets.length),
-                                                    total: data.success && data.pagination ? data.pagination.total :
-                                                        (data.assets_pagination ? data.assets_pagination.total : filteredAssets.length)
-                                                }
-                                            };
-
-                                            // Render filtered assets with modified data
-                                            renderAssets(filteredAssets, modifiedData);
-                                        })
-                                        .catch(error => {
-                                            console.error('Error fetching calibration data:', error);
-
-                                            // Show error notification with detailed error information
-                                            let errorMessage = 'Error fetching calibration data: ' + error.message;
-                                            showErrorNotification(errorMessage);
-
-                                            // Fallback to just showing the assets without filtering
+                                    // Render assets
                                             renderAssets(assets, data);
-                                        });
                                 })
                                 .catch(error => {
                                     console.error('Error loading assets:', error);
@@ -2649,7 +2582,8 @@
                                     asset.asset_master.subcategory_name : '-';
 
                                 // Get description
-                                const description = asset.description || '-';
+                                const description = asset.asset_master && asset.asset_master.description ?
+                                    asset.asset_master.description : '-';
 
                                 html += `
                                           <tr>

@@ -860,4 +860,77 @@ class CalibrationController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Mendapatkan daftar aset yang tersedia untuk kalibrasi.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAssetsForCalibration(Request $request)
+    {
+        try {
+            // Mendapatkan parameter paginasi
+            $page = $request->input('page', 1);
+            $limit = $request->input('limit', 10);
+            $search = $request->input('search', '');
+
+            // Membangun parameter kueri
+            $queryParams = [
+                'page' => $page,
+                'limit' => $limit
+            ];
+
+            // Menambahkan parameter pencarian jika disediakan
+            if (!empty($search)) {
+                $queryParams['search'] = $search;
+            }
+
+            // Mengambil data aset yang tersedia untuk kalibrasi
+            $result = $this->apiService->request('GET', '/calibrations/assets', [
+                'query' => $queryParams
+            ]);
+
+            // Memeriksa kesalahan autentikasi
+            if (isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                ], 401);
+            }
+
+            // Memeriksa kesalahan API atau respons tidak berhasil
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal mengambil daftar aset untuk kalibrasi';
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $errorData
+                ], 400);
+            }
+
+            // Mengembalikan respons
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'] ?? 'Daftar aset tersedia untuk kalibrasi berhasil diambil',
+                'data' => $result['data'] ?? [],
+                'pagination' => $result['pagination'] ?? [
+                    'total_items' => 0,
+                    'total_pages' => 0,
+                    'current_page' => $page,
+                    'limit' => $limit,
+                    'has_next' => false,
+                    'has_prev' => false
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => 'Gagal mengambil daftar aset untuk kalibrasi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

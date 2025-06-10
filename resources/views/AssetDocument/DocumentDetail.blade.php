@@ -1450,7 +1450,7 @@
                 }
 
                 // Fetch assets from API using the correct endpoint and headers
-                fetch(`/assets/data?${params.toString()}`, {
+                fetch(`/assets?${params.toString()}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -1607,7 +1607,8 @@
                                     asset.asset_name || '-';
 
                                 // Get description
-                                const description = asset.description || '-';
+                                const description = asset.asset_master && asset.asset_master.description ?
+                                    asset.asset_master.description : '-';
 
                                 // Get asset type based on asset_master_code pattern
                                 let assetType = asset.asset_type || 'Non Medical';
