@@ -284,7 +284,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Asset routes
-    Route::middleware('permission:asset:view|maintenance:create|maintenance:edit|calibration:create|calibration:edit|complaint:create|complaint:edit')->group(function() {
+    Route::middleware('permission:asset:view|maintenance:create|maintenance:edit|calibration:create|calibration:edit|complaint:create|complaint:edit|document:assign')->group(function() {
         // Read operations
     Route::get('/assets', [UnitAssetController::class, 'index'])->name('assets');
     Route::get('/assets/{id}', [UnitAssetController::class, 'getAsset'])->name('assets.get');

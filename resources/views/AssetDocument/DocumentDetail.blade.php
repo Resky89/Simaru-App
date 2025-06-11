@@ -514,7 +514,7 @@
     @endif
 
     <!-- Link Assets Modal -->
-    @if(hasPermission('asset:document:assign'))
+    @if(hasPermission('document:assign'))
         <div id="linkAssetsModal" class="fixed inset-0 z-[60] hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
