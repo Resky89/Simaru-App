@@ -74,9 +74,9 @@
                             </select>
                             <select id="sortOrder"
                                 class="w-[150px] h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                <option value="" disabled selected>Urutan</option>
-                                <option value="newest">Terbaru</option>
-                                <option value="oldest">Terlama</option>
+                                <option value="" selected>Urutan Default</option>
+                                <option value="asc">Terbaru</option>
+                                <option value="desc">Terlama</option>
                             </select>
                             @if(hasPermission('calibration:delete'))
                                 <button id="bulkDeleteBtn"
@@ -744,6 +744,7 @@
                     </div>
                 </div>
             </div>
+        @endif
 
             <!-- Delete Confirmation Modal -->
             @if(hasPermission('calibration:delete'))
@@ -1618,32 +1619,9 @@
 
                             // Set sort parameter based on selected option
                             if (sortOrder) {
-                                // Map front-end sort values to backend expected values
-                                let sortBy, sortDirection;
-
-                                switch (sortOrder) {
-                                    case 'newest':
-                                        sortBy = 'created_at';
-                                        sortDirection = 'desc';
-                                        break;
-                                    case 'oldest':
-                                        sortBy = 'created_at';
-                                        sortDirection = 'asc';
-                                        break;
-                                    default:
-                                        sortBy = 'created_at';
-                                        sortDirection = 'desc';
-                                }
-
-                                url.searchParams.set('sort_by', sortBy);
-                                url.searchParams.set('sort_order', sortDirection);
-
-                                // Keep the frontend sort value for the select element
-                                url.searchParams.set('sort', sortOrder);
+                                url.searchParams.set('sort_order', sortOrder);
                             } else {
-                                url.searchParams.delete('sort_by');
                                 url.searchParams.delete('sort_order');
-                                url.searchParams.delete('sort');
                             }
 
                             // Reset to first page on filter change
@@ -1687,27 +1665,13 @@
                                 option.removeAttribute('selected');
                             });
 
-                            // Get the sort value from URL
-                            if (urlParams.has('sort') && urlParams.get('sort')) {
-                                sortSelect.value = urlParams.get('sort');
+                            // Get the sort_order value from URL
+                            const sortOrder = urlParams.get('sort_order');
+                            if (sortOrder) {
+                                sortSelect.value = sortOrder;
 
-                                // If no matching option found, set to first non-placeholder option
+                                // If no matching option found, select the first non-placeholder option
                                 if (sortSelect.selectedIndex === -1) {
-                                    sortSelect.selectedIndex = 1; // Index 1 is "Newest First"
-                                }
-                            } else {
-                                // If there's no sort value but there is sort_by/sort_order, try to map back
-                                const sortBy = urlParams.get('sort_by');
-                                const sortOrder = urlParams.get('sort_order');
-
-                                if (sortBy && sortOrder) {
-                                    if (sortBy === 'created_at' && sortOrder === 'desc') {
-                                        sortSelect.value = 'newest';
-                                    } else if (sortBy === 'created_at' && sortOrder === 'asc') {
-                                        sortSelect.value = 'oldest';
-                                    }
-                                } else {
-                                    // Default to "Newest First" if no sort specified
                                     sortSelect.selectedIndex = 1;
                                 }
                             }
@@ -2249,190 +2213,194 @@
                         });
 
                         // Form submission handler for delete
-                        document.getElementById('deleteCalibrationForm').addEventListener('submit', function (e) {
-                            e.preventDefault();
+                        if (document.getElementById('deleteCalibrationForm')) {
+                            document.getElementById('deleteCalibrationForm').addEventListener('submit', function (e) {
+                                e.preventDefault();
 
-                            const form = this;
-                            const calibrationIdInput = document.getElementById('delete_calibration_id').value;
+                                const form = this;
+                                const calibrationIdInput = document.getElementById('delete_calibration_id').value;
 
-                            // Check if the value contains a comma, which indicates multiple IDs
-                            const isMultiple = calibrationIdInput.includes(',');
-                            let ids = [];
+                                // Check if the value contains a comma, which indicates multiple IDs
+                                const isMultiple = calibrationIdInput.includes(',');
+                                let ids = [];
 
-                            if (isMultiple) {
-                                // For multiple calibrations, split the comma-separated string
-                                ids = calibrationIdInput.split(',').map(id => parseInt(id.trim()));
-                            } else {
-                                // For single calibration, create array with one element
-                                ids = [parseInt(calibrationIdInput)];
-                            }
+                                if (isMultiple) {
+                                    // For multiple calibrations, split the comma-separated string
+                                    ids = calibrationIdInput.split(',').map(id => parseInt(id.trim()));
+                                } else {
+                                    // For single calibration, create array with one element
+                                    ids = [parseInt(calibrationIdInput)];
+                                }
 
-                            // Make the DELETE request to the server
-                            fetch("{{ route('calibrations.bulk.delete') }}", {
-                                method: 'DELETE',
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify({ ids }) // Simple payload with just the IDs array
-                            })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        return response.json().then(data => {
-                                            console.error('Server error response:', data);
-                                            throw new Error(data.message || `Server merespons dengan status ${response.status}`);
-                                        });
-                                    }
-                                    return response.json();
+                                // Make the DELETE request to the server
+                                fetch("{{ route('calibrations.bulk.delete') }}", {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify({ ids }) // Simple payload with just the IDs array
                                 })
-                                .then(data => {
-                                    // Close the modal
-                                    closeModal(modals.delete, modalContents.delete);
-
-                                    if (data.success) {
-                                        // Show toast notification first
-                                        showToast(data.message || 'Kalibrasi berhasil dihapus', 'success');
-
-                                        // Delay the redirect slightly to allow the toast to be seen
-                                        setTimeout(() => {
-                                            window.location.reload();
-                                        }, 1000);
-                                    } else {
-                                        showToast(data.message || data.error || 'Gagal menghapus kalibrasi', 'error');
-                                        console.error('Delete error:', data.errors);
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Delete request failed:', error);
-                                    closeModal(modals.delete, modalContents.delete);
-
-                                    // Extract just the error message
-                                    if (typeof error === 'object' && error !== null) {
-                                        if (error.errors) {
-                                            // Case: {errors: "Message"}
-                                            if (typeof error.errors === 'string') {
-                                                showToast(error.errors, 'error');
-                                            }
-                                            // Case: {errors: {field: ["Error 1", "Error 2"]}}
-                                            else if (typeof error.errors === 'object') {
-                                                const errorMessages = [];
-                                                Object.values(error.errors).forEach(err => {
-                                                    if (Array.isArray(err)) {
-                                                        errorMessages.push(...err);
-                                                    } else {
-                                                        errorMessages.push(err);
-                                                    }
-                                                });
-                                                showToast(errorMessages.join(', '), 'error');
-                                            }
-                                        } else if (error.message) {
-                                            showToast(error.message, 'error');
-                                        } else {
-                                            showToast('Gagal menghapus kalibrasi', 'error');
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            return response.json().then(data => {
+                                                console.error('Server error response:', data);
+                                                throw new Error(data.message || `Server merespons dengan status ${response.status}`);
+                                            });
                                         }
-                                    } else {
-                                        showToast('Terjadi kesalahan saat menghapus kalibrasi', 'error');
-                                    }
-                                });
-                        });
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        // Close the modal
+                                        closeModal(modals.delete, modalContents.delete);
+
+                                        if (data.success) {
+                                            // Show toast notification first
+                                            showToast(data.message || 'Kalibrasi berhasil dihapus', 'success');
+
+                                            // Delay the redirect slightly to allow the toast to be seen
+                                            setTimeout(() => {
+                                                window.location.reload();
+                                            }, 1000);
+                                        } else {
+                                            showToast(data.message || data.error || 'Gagal menghapus kalibrasi', 'error');
+                                            console.error('Delete error:', data.errors);
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Delete request failed:', error);
+                                        closeModal(modals.delete, modalContents.delete);
+
+                                        // Extract just the error message
+                                        if (typeof error === 'object' && error !== null) {
+                                            if (error.errors) {
+                                                // Case: {errors: "Message"}
+                                                if (typeof error.errors === 'string') {
+                                                    showToast(error.errors, 'error');
+                                                }
+                                                // Case: {errors: {field: ["Error 1", "Error 2"]}}
+                                                else if (typeof error.errors === 'object') {
+                                                    const errorMessages = [];
+                                                    Object.values(error.errors).forEach(err => {
+                                                        if (Array.isArray(err)) {
+                                                            errorMessages.push(...err);
+                                                        } else {
+                                                            errorMessages.push(err);
+                                                        }
+                                                    });
+                                                    showToast(errorMessages.join(', '), 'error');
+                                                }
+                                            } else if (error.message) {
+                                                showToast(error.message, 'error');
+                                            } else {
+                                                showToast('Gagal menghapus kalibrasi', 'error');
+                                            }
+                                        } else {
+                                            showToast('Terjadi kesalahan saat menghapus kalibrasi', 'error');
+                                        }
+                                    });
+                            });
+                        }
 
                         // Update Calibration Form Submit
-                        document.getElementById('performCalibrationForm').addEventListener('submit', function (e) {
-                            e.preventDefault();
+                        if (document.getElementById('performCalibrationForm')) {
+                            document.getElementById('performCalibrationForm').addEventListener('submit', function (e) {
+                                e.preventDefault();
 
-                            const calibrationId = document.getElementById('calibration_id').value;
+                                const calibrationId = document.getElementById('calibration_id').value;
 
-                            // Create a new FormData object instead of using the form directly
-                            const formData = new FormData();
+                                // Create a new FormData object instead of using the form directly
+                                const formData = new FormData();
 
-                            // Get all form fields
-                            const formElements = this.elements;
+                                // Get all form fields
+                                const formElements = this.elements;
 
-                            // Only add non-empty fields to the FormData
-                            for (let i = 0; i < formElements.length; i++) {
-                                const element = formElements[i];
+                                // Only add non-empty fields to the FormData
+                                for (let i = 0; i < formElements.length; i++) {
+                                    const element = formElements[i];
 
-                                // Skip buttons, fieldsets, and hidden calibration_id field
-                                if (element.type === 'button' || element.type === 'submit' ||
-                                    element.tagName === 'FIELDSET' || element.name === 'calibration_id') {
-                                    continue;
-                                }
-
-                                // Handle different input types
-                                if (element.type === 'radio' || element.type === 'checkbox') {
-                                    // Only include checked radio/checkbox values
-                                    if (element.checked) {
-                                        formData.append(element.name, element.value);
+                                    // Skip buttons, fieldsets, and hidden calibration_id field
+                                    if (element.type === 'button' || element.type === 'submit' ||
+                                        element.tagName === 'FIELDSET' || element.name === 'calibration_id') {
+                                        continue;
                                     }
-                                }
-                                // Handle file inputs
-                                else if (element.type === 'file') {
-                                    // Only include files if they exist
-                                    if (element.files && element.files.length > 0) {
-                                        formData.append(element.name, element.files[0]);
+
+                                    // Handle different input types
+                                    if (element.type === 'radio' || element.type === 'checkbox') {
+                                        // Only include checked radio/checkbox values
+                                        if (element.checked) {
+                                            formData.append(element.name, element.value);
+                                        }
                                     }
-                                }
-                                // Handle all other input types
-                                else if (element.value.trim() !== '') {
-                                    formData.append(element.name, element.value.trim());
-
-                                    // Log for debugging
-                                    console.log(`Adding field: ${element.name} = ${element.value.trim()}`);
-                                } else {
-                                    console.log(`Skipping empty field: ${element.name}`);
-                                }
-                            }
-
-                            // Add _method field for PUT request
-                            formData.append('_method', 'PUT');
-
-                            // Log all form data that will be sent
-                            console.log('Form data to be sent:');
-                            for (const pair of formData.entries()) {
-                                console.log(`${pair[0]}: ${pair[1]}`);
-                            }
-
-                            fetch(`/calibrations/report/${calibrationId}`, {
-                                method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                    'Accept': 'application/json'
-                                },
-                                body: formData
-                            })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        return response.json().then(data => {
-                                            throw data;
-                                        });
+                                    // Handle file inputs
+                                    else if (element.type === 'file') {
+                                        // Only include files if they exist
+                                        if (element.files && element.files.length > 0) {
+                                            formData.append(element.name, element.files[0]);
+                                        }
                                     }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success) {
-                                        // Close the modal
-                                        closeModal(modals.view, modalContents.view);
+                                    // Handle all other input types
+                                    else if (element.value.trim() !== '') {
+                                        formData.append(element.name, element.value.trim());
 
-                                        // Show toast notification with server message
-                                        showToast(data.message || 'Kalibrasi berhasil diperbarui', 'success');
-
-                                        // Delay the redirect slightly to allow the toast to be seen
-                                        setTimeout(() => {
-                                            window.location.href = "{{ route('calibration') }}";
-                                        }, 1000);
+                                        // Log for debugging
+                                        console.log(`Adding field: ${element.name} = ${element.value.trim()}`);
                                     } else {
-                                        showToast(data.message || data.error || 'Gagal memperbarui kalibrasi', 'error');
+                                        console.log(`Skipping empty field: ${element.name}`);
                                     }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
+                                }
 
-                                    // Pass the error object directly to showToast
-                                    // Our enhanced showToast function will handle the specific error format
-                                    showToast(error, 'error');
-                                });
-                        });
+                                // Add _method field for PUT request
+                                formData.append('_method', 'PUT');
+
+                                // Log all form data that will be sent
+                                console.log('Form data to be sent:');
+                                for (const pair of formData.entries()) {
+                                    console.log(`${pair[0]}: ${pair[1]}`);
+                                }
+
+                                fetch(`/calibrations/report/${calibrationId}`, {
+                                    method: 'POST',  // FormData needs to be sent as POST even though we're doing a PUT
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                        'Accept': 'application/json'
+                                    },
+                                    body: formData
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            return response.json().then(data => {
+                                                throw data;
+                                            });
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        if (data.success) {
+                                            // Close the modal
+                                            closeModal(modals.view, modalContents.view);
+
+                                            // Show toast notification with server message
+                                            showToast(data.message || 'Kalibrasi berhasil diperbarui', 'success');
+
+                                            // Delay the redirect slightly to allow the toast to be seen
+                                            setTimeout(() => {
+                                                window.location.href = "{{ route('calibration') }}";
+                                            }, 1000);
+                                        } else {
+                                            showToast(data.message || data.error || 'Gagal memperbarui kalibrasi', 'error');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+
+                                        // Pass the error object directly to showToast
+                                        // Our enhanced showToast function will handle the specific error format
+                                        showToast(error, 'error');
+                                    });
+                            });
+                        }
 
                         // Selected Assets Management
                         let selectedAssets = [];
@@ -3308,7 +3276,7 @@
 
                         // Hide vendor results when clicking outside
                         document.addEventListener('click', function (e) {
-                            if (e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
+                            if (vendorResults && e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
                                 vendorResults.style.display = 'none';
                             }
                         });
@@ -3597,5 +3565,5 @@
                     });
                 </script>
             @endpush
-        @endif
 @endsection
+

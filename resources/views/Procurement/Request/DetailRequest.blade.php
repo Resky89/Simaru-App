@@ -119,7 +119,7 @@
                                         </button>
                                     @endif
 
-                                    @if($procurement['status'] == 'Submitted' || $procurement['status'] == 'Under Review')
+                                    @if(($procurement['status'] == 'Submitted' || $procurement['status'] == 'Under Review') && hasPermission('procurement:reject|procurement:approve:manager|procurement:approve:director'))
                                         <button id="rejectBtn" type="button"
                                             class="px-6 py-2 border border-red-600 text-red-600 rounded-lg text-base hover:bg-red-50 transform active:scale-[0.98] transition-all duration-200">
                                             TOLAK

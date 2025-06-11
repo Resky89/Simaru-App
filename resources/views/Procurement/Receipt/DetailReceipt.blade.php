@@ -25,6 +25,7 @@
                         </div>
 
                         @if(isset($receipt))
+                            @if(hasPermission('receipt:export'))
                             <a href="{{ route('procurement.receipt.export-pdf', ['id' => $receipt['receipt_id']]) }}"
                                 id="exportPdfBtn"
                                 class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200"
@@ -36,6 +37,7 @@
                                 </svg>
                                 Cetak PDF
                             </a>
+                            @endif
                         @endif
                     </div>
 
@@ -268,6 +270,15 @@
 
             @if(session('error'))
                 showSweetAlert("{{ session('error') }}", 'error');
+            @endif
+
+            // Add JavaScript permission handling
+            @if(!hasPermission('receipt:export'))
+                // Hide export button if no permission
+                const exportPdfBtn = document.getElementById('exportPdfBtn');
+                if (exportPdfBtn) {
+                    exportPdfBtn.style.display = 'none';
+                }
             @endif
 
             // Add event listener for PDF export button

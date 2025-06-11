@@ -21,7 +21,7 @@
         </div>
 
         <!-- Form -->
-        @if((request()->has('id') && hasPermission('procurement:request:edit')) || (!request()->has('id') && hasPermission('procurement:request:create')))
+        @if((request()->has('id') && hasPermission('procurement:edit')) || (!request()->has('id') && hasPermission('procurement:create')))
             <form id="requestForm" class="w-full space-y-6" data-no-loading>
                 @csrf
                 <input type="hidden" id="procurement_id" name="procurement_id">

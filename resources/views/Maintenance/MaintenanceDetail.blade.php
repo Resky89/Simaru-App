@@ -20,6 +20,7 @@
                 </div>
 
                 <!-- Export Button -->
+                @if(hasPermission('maintenance:export'))
                 <a href="{{ route('maintenance.export.detail.pdf', ['id' => $maintenance['id']]) }}" target="_blank"
                     rel="noopener noreferrer"
                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
@@ -30,6 +31,7 @@
                     </svg>
                     Ekspor PDF
                 </a>
+                @endif
             </div>
 
             <!-- Status Banner -->
@@ -333,3 +335,17 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Hide export button if user doesn't have export permission
+            @if(!hasPermission('maintenance:export'))
+                const exportButton = document.querySelector('a[href*="maintenance.export.detail.pdf"]');
+                if (exportButton) {
+                    exportButton.style.display = 'none';
+                }
+            @endif
+        });
+    </script>
+@endpush

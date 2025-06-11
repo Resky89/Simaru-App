@@ -29,8 +29,8 @@ class CalibrationController extends Controller
             $search = $request->input('search', '');
             $status = $request->input('status', '');
             $result = $request->input('result', '');
-            $sortBy = $request->input('sort_by', 'created_at');
-            $sortOrder = $request->input('sort_order', 'desc');
+            $sortBy = $request->input('sort_by', '');
+            $sortOrder = $request->input('sort_order', '');
 
             // Membangun parameter kueri
             $queryParams = [
@@ -626,7 +626,6 @@ class CalibrationController extends Controller
             $search = $request->input('search', '');
             $status = $request->input('status', '');
             $result = $request->input('result', '');
-            $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'desc');
 
             // Membangun parameter kueri
@@ -656,11 +655,7 @@ class CalibrationController extends Controller
                 }
             }
 
-            // Menambahkan parameter pengurutan
-            if (!empty($sortBy)) {
-                $queryParams['sort_by'] = $sortBy;
-            }
-
+            // Menambahkan parameter pengurutan (hanya sort_order)
             if (!empty($sortOrder)) {
                 $queryParams['sort_order'] = $sortOrder;
             }
@@ -686,7 +681,6 @@ class CalibrationController extends Controller
                 'search' => $search,
                 'status' => $status,
                 'result' => $result,
-                'sort_by' => $sortBy,
                 'sort_order' => $sortOrder,
                 'date_generated' => now()->format('d M Y H:i:s')
             ]);

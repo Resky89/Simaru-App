@@ -33,7 +33,7 @@
                             class="text-red-500">*</span></label>
                     <input type="text" id="comparisonTitle" value="{{ $comparison['title'] ?? '' }}"
                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                        placeholder="Pembelian toner printer">
+                        placeholder="Masukkan judul penawaran">
                     <div class="error-message text-red-500 text-sm mt-1 hidden">Judul penawaran harus diisi</div>
                 </div>
 
@@ -41,29 +41,30 @@
                 <div class="space-y-2">
                     <label class="block text-base font-semibold text-[#666666]">Nomor Permintaan <span
                             class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <input type="text" id="requestNumber"
-                            value="{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}"
-                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-l-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                            placeholder="Masukkan nomor permintaan yang disetujui" autocomplete="off" {{ isset($comparison) ? 'readonly' : '' }}>
-                        <input type="hidden" id="selected_request_id" value="{{ $comparison['procurement_id'] ?? '' }}">
+                    <div class="flex flex-col">
+                        <div class="flex">
+                            <input type="text" id="requestNumber"
+                                value="{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}"
+                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-l-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                placeholder="Masukkan nomor permintaan yang disetujui" autocomplete="off" {{ isset($comparison) ? 'readonly' : '' }}>
+                            <input type="hidden" id="selected_request_id" value="{{ $comparison['procurement_id'] ?? '' }}">
 
-                        <div class="absolute inset-y-0 right-0 flex">
-                            <button id="searchBtn" type="button"
-                                class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451]">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </button>
+                            <div class="flex">
+                                <button id="searchBtn" type="button"
+                                    class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451] {{ isset($comparison) ? 'opacity-60 cursor-not-allowed' : '' }}" {{ isset($comparison) ? 'disabled' : '' }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor permintaan harus diisi
-                        </div>
+                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor permintaan harus diisi</div>
 
                         <!-- Dropdown for search results -->
                         <div id="procurement_dropdown"
-                            class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                            class="absolute z-10 mt-12 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                             <!-- Loading indicator -->
                             <div id="procurement_loading" class="flex justify-center py-2">
                                 <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -401,7 +402,8 @@
 
             // Function to validate field
             function validateField(field) {
-                const errorElement = field.closest('.space-y-2').querySelector('.error-message');
+                const parent = field.closest('.flex-col');
+                const errorElement = parent ? parent.querySelector('.error-message') : field.closest('.space-y-2').querySelector('.error-message');
 
                 if (!field.value.trim()) {
                     field.classList.add('border-red-500');
@@ -433,12 +435,18 @@
 
             // Search button click event
             searchBtn.addEventListener('click', function () {
+                // Skip if in edit mode
+                if (isEditMode) {
+                    return;
+                }
+
                 // Store original button content (we don't need to regenerate this every time)
                 const originalBtnContent = searchBtn.innerHTML;
 
                 // Clear any existing validation errors
                 requestNumber.classList.remove('border-red-500');
-                const errorElement = requestNumber.closest('.space-y-2').querySelector('.error-message');
+                const parent = requestNumber.closest('.flex-col');
+                const errorElement = parent ? parent.querySelector('.error-message') : null;
                 if (errorElement) {
                     errorElement.classList.add('hidden');
                 }

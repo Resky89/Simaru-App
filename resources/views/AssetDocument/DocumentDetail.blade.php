@@ -119,7 +119,7 @@
                                 </div>
                                 <p class="text-sm text-center mt-2 text-gray-600">{{ $fileName }}</p>
                                 <div class="flex justify-center mt-3">
-                                    @if(hasPermission('asset:document:download'))
+                                    @if(hasPermission('document:download'))
                                         <a href="{{ config('app.backend_url') }}/public{{ $filePath }}"
                                             class="bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors"
                                             target="_blank" download>
@@ -147,7 +147,7 @@
                                         <p class="font-medium">Dokumen PDF</p>
                                         <p class="text-sm text-gray-600">{{ $fileName }}</p>
                                     </div>
-                                    @if(hasPermission('asset:document:download'))
+                                    @if(hasPermission('document:download'))
                                         <a href="{{ config('app.backend_url') }}/public{{ $filePath }}"
                                             class="ml-auto bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors"
                                             target="_blank" download>
@@ -170,7 +170,7 @@
                                         <p class="font-medium">Dokumen Word</p>
                                         <p class="text-sm text-gray-600">{{ $fileName }}</p>
                                     </div>
-                                    @if(hasPermission('asset:document:download'))
+                                    @if(hasPermission('document:download'))
                                         <a href="{{ config('app.backend_url') }}/public{{ $filePath }}"
                                             class="ml-auto bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors"
                                             target="_blank" download>
@@ -193,7 +193,7 @@
                                         <p class="font-medium">Spreadsheet Excel</p>
                                         <p class="text-sm text-gray-600">{{ $fileName }}</p>
                                     </div>
-                                    @if(hasPermission('asset:document:download'))
+                                    @if(hasPermission('document:download'))
                                         <a href="{{ config('app.backend_url') }}/public{{ $filePath }}"
                                             class="ml-auto bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors"
                                             target="_blank" download>
@@ -216,7 +216,7 @@
                                         <p class="font-medium">File Dokumen</p>
                                         <p class="text-sm text-gray-600">{{ $fileName }}</p>
                                     </div>
-                                    @if(hasPermission('asset:document:download'))
+                                    @if(hasPermission('document:download'))
                                         <a href="{{ config('app.backend_url') }}/public{{ $filePath }}"
                                             class="ml-auto bg-[#213268] text-white px-3 py-2 rounded-md hover:bg-[#1d2754] transition-colors"
                                             target="_blank" download>
@@ -276,6 +276,7 @@
                                             {{ $asset['asset_name'] }}
                                         </td>
                                         <td class="p-3 text-sm border-t border-gray-200 text-center">
+                                            @if(hasPermission('document:unlink'))
                                             <form
                                                 action="{{ url('asset-documents/asset/' . $asset['asset_id'] . '/documents/' . $document['document_id']) }}?redirect={{ url()->current() }}"
                                                 method="POST" class="inline" data-no-loading>
@@ -293,6 +294,7 @@
                                                     </span>
                                                 </button>
                                             </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
@@ -654,11 +656,21 @@
                     });
                 @endif
 
-                @if(!hasPermission('asset:document:download'))
+                @if(!hasPermission('document:download'))
                     const downloadButtons = document.querySelectorAll('#downloadDocumentBtn');
                     downloadButtons.forEach(btn => {
                         if (btn) {
                             btn.style.display = 'none';
+                        }
+                    });
+                @endif
+
+                @if(!hasPermission('document:unlink'))
+                    // Hide unlink buttons if no permission
+                    const unlinkButtons = document.querySelectorAll('form[action*="asset-documents/asset"]');
+                    unlinkButtons.forEach(form => {
+                        if (form) {
+                            form.style.display = 'none';
                         }
                     });
                 @endif
