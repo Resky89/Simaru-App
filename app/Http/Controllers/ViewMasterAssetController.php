@@ -339,7 +339,7 @@ class ViewMasterAssetController extends Controller
             // Convert asset image to base64
             if (!empty($masterAsset['reference_image_path'])) {
                 try {
-                    $backendUrl = config('app.backend_url', 'http://localhost:5000');
+                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
                     $imageUrl = $backendUrl . '/public' . $masterAsset['reference_image_path'];
                     $imageData = @file_get_contents($imageUrl);
 

@@ -96,7 +96,7 @@
 
                     @if(!empty($complaint['complaint_picture_path']))
                         <div class="flex-grow flex items-center justify-center bg-gray-50 p-2 border rounded-lg overflow-hidden">
-                                <img src="http://localhost:5000/public/images/{{ basename($complaint['complaint_picture_path']) }}"
+                                <img src="https://web-magangunbin2025.rsummi.co.id/api/public/images/{{ basename($complaint['complaint_picture_path']) }}"
                                     alt="Gambar Keluhan" class="w-full object-contain rounded-lg"
                                     style="max-height: 350px;"
                                     onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('p-4');">
@@ -201,7 +201,7 @@
 
                             @if(!empty($complaint['repair']['repair_picture_path']))
                                 <div class="flex-grow flex items-center justify-center bg-gray-50 p-2 border rounded-lg overflow-hidden">
-                                        <img src="http://localhost:5000/public/images/{{ basename($complaint['repair']['repair_picture_path']) }}"
+                                        <img src="https://web-magangunbin2025.rsummi.co.id/api/public/images/{{ basename($complaint['repair']['repair_picture_path']) }}"
                                             alt="Repair Image" class="w-full object-contain rounded-lg"
                                             style="max-height: 350px;"
                                             onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('p-4');">

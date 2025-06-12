@@ -149,7 +149,7 @@ class AssetDetailsController extends Controller
             // Konversi gambar aset ke base64
             if (!empty($asset['image_path'])) {
                 try {
-                    $backendUrl = config('app.backend_url', 'http://localhost:5000');
+                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
                     $imageUrl = $backendUrl . '/public/images/' . basename($asset['image_path']);
                     $imageData = file_get_contents($imageUrl);
 
@@ -164,7 +164,7 @@ class AssetDetailsController extends Controller
             // Konversi kode QR ke base64 jika diperlukan
             if (!empty($asset['qr_code_path'])) {
                 try {
-                    $backendUrl = config('app.backend_url', 'http://localhost:5000');
+                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
                     $qrPath = $backendUrl . '/public/qrcodes/' . basename($asset['qr_code_path']);
                     $qrData = file_get_contents($qrPath);
                     if ($qrData !== false) {
@@ -881,7 +881,7 @@ class AssetDetailsController extends Controller
             // Konversi gambar aset ke base64
             if (!empty($asset['asset_master']['reference_image_path'])) {
                 try {
-                    $imagePath = 'http://localhost:5000/public' . $asset['asset_master']['reference_image_path'];
+                    $imagePath = 'https://web-magangunbin2025.rsummi.co.id/api/public' . $asset['asset_master']['reference_image_path'];
                     $imageData = file_get_contents($imagePath);
                     if ($imageData !== false) {
                         $asset['image_base64'] = base64_encode($imageData);
@@ -894,7 +894,7 @@ class AssetDetailsController extends Controller
             // Konversi kode QR ke base64
             if (!empty($asset['qr_code'])) {
                 try {
-                    $qrPath = 'http://localhost:5000/public' . $asset['qr_code'];
+                    $qrPath = 'https://web-magangunbin2025.rsummi.co.id/api/public' . $asset['qr_code'];
                     $qrData = file_get_contents($qrPath);
                     if ($qrData !== false) {
                         $asset['qr_base64'] = base64_encode($qrData);

@@ -856,17 +856,17 @@
                         // Otherwise construct URL based on file type
                         if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
                             // Use image URL format with standard naming pattern
-                            previewUrl = `http://localhost:5000/public/images/${fileName}`;
+                            previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/images/${fileName}`;
                             // If the filename doesn't contain proper image identifier pattern, use the example format
                             if (!fileName.includes('image-')) {
-                                previewUrl = `http://localhost:5000/public/images/image-${Date.now()}-${doc.id || 'default'}.${fileExt}`;
+                                previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/images/image-${Date.now()}-${doc.id || 'default'}.${fileExt}`;
                             }
                         } else {
                             // Use document URL format with standard naming pattern
-                            previewUrl = `http://localhost:5000/public/documents/${fileName}`;
+                            previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/documents/${fileName}`;
                             // If the filename doesn't contain proper document identifier pattern, use the example format
                             if (!fileName.includes('asset-doc-')) {
-                                previewUrl = `http://localhost:5000/public/documents/asset-doc-${Date.now()}-${doc.id || 'default'}.${fileExt}`;
+                                previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/documents/asset-doc-${Date.now()}-${doc.id || 'default'}.${fileExt}`;
                             }
                         }
                     }

@@ -66,7 +66,7 @@ return [
     |
     */
 
-    'backend_url' => env('BACKEND_URL', 'http://localhost:5000'),
+    'backend_url' => env('BACKEND_URL', 'https://web-magangunbin2025.rsummi.co.id/api'),
 
     /*
     |--------------------------------------------------------------------------

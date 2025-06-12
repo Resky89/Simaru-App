@@ -1396,7 +1396,7 @@
                             if (imgElement) {
                                 try {
                                     // Define the base URL - using the confirmed server location
-                                    const baseUrl = "http://localhost:5000/public";
+                                    const baseUrl = "https://web-magangunbin2025.rsummi.co.id/api/public";
 
                                     // Process the image URL
                                     let imageUrl = asset.reference_image_path;

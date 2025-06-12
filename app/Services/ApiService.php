@@ -16,7 +16,7 @@ class ApiService
 
     public function __construct()
     {
-        $this->baseUrl = config('services.api.base_url', 'http://localhost:5000');
+        $this->baseUrl = config('services.api.base_url', 'https://web-magangunbin2025.rsummi.co.id/api');
         $this->baseUrl = rtrim($this->baseUrl, '/');
         $this->client = new Client([
             'timeout' => 30,

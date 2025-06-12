@@ -471,7 +471,7 @@
             $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif']);
 
             // Build the file URL using config
-            $backendUrl = config('app.backend_url', 'http://localhost:5000');
+            $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
             $fileUrl = $backendUrl . '/public' . $filePath;
         @endphp
 

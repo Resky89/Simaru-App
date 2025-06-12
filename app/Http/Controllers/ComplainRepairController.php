@@ -755,7 +755,7 @@ class ComplainRepairController extends Controller
             // Mengkonversi gambar ke base64
             if (!empty($complaint['complaint_picture_path'])) {
                 try {
-                    $imagePath = 'http://localhost:5000/public/images/' . basename($complaint['complaint_picture_path']);
+                    $imagePath = 'https://web-magangunbin2025.rsummi.co.id/api/public/images/' . basename($complaint['complaint_picture_path']);
                     $imageData = file_get_contents($imagePath);
                     if ($imageData !== false) {
                         $complaint['complaint_picture_base64'] = base64_encode($imageData);
@@ -768,7 +768,7 @@ class ComplainRepairController extends Controller
             // Mengkonversi gambar perbaikan ke base64 jika ada
             if (!empty($complaint['repair']) && !empty($complaint['repair']['repair_picture_path'])) {
                 try {
-                    $repairImagePath = 'http://localhost:5000/public/images/' . basename($complaint['repair']['repair_picture_path']);
+                    $repairImagePath = 'https://web-magangunbin2025.rsummi.co.id/api/public/images/' . basename($complaint['repair']['repair_picture_path']);
                     $repairImageData = file_get_contents($repairImagePath);
                     if ($repairImageData !== false) {
                         $complaint['repair']['repair_picture_base64'] = base64_encode($repairImageData);

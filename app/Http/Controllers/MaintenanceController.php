@@ -825,7 +825,7 @@ class MaintenanceController extends Controller
             if (isset($maintenance['maintenance_report']) && !empty($maintenance['maintenance_report']['attachment_path'])) {
                 try {
                     // Use config service instead of directly accessing protected property
-                    $baseUrl = rtrim(config('services.api.base_url', 'http://localhost:5000'), '/');
+                    $baseUrl = rtrim(config('services.api.base_url', 'https://web-magangunbin2025.rsummi.co.id/api'), '/');
                     $imagePath = $baseUrl . '/public/images/' . basename($maintenance['maintenance_report']['attachment_path']);
 
                     $imageData = file_get_contents($imagePath);

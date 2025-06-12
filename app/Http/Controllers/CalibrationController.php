@@ -741,7 +741,7 @@ class CalibrationController extends Controller
 
                     if ($isImage) {
                         // Construct proper path to the image
-                        $backendUrl = config('app.backend_url', 'http://localhost:5000');
+                        $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
 
                         // Check if certificate_file_path already includes /public
                         if (strpos($calibrationData['certificate_file_path'], '/public') === 0) {

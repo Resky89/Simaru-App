@@ -13,11 +13,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register API base URL configuration
         $this->app->singleton('api.baseUrl', function ($app) {
-            return env('API_BASE_URL', 'http://localhost:5000');
+            return env('API_BASE_URL', 'https://web-magangunbin2025.rsummi.co.id/api');
         });
 
         // Configure API service
-        config(['services.api.base_url' => env('API_BASE_URL', 'http://localhost:5000')]);
+        config(['services.api.base_url' => env('API_BASE_URL', 'https://web-magangunbin2025.rsummi.co.id/api')]);
     }
 
     /**
