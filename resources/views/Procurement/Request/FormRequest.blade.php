@@ -10,12 +10,12 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div class="flex items-center">
-                <a href="{{ route('procurement.request') }}" id="backButton"
+                <button type="button" id="backButton"
                     class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                </a>
+                </button>
                 <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORMULIR PERMINTAAN</h1>
             </div>
         </div>
@@ -1571,6 +1571,7 @@
                         });
                     } else {
                         isNavigatingAway = true;
+                        window.location.href = '{{ route("procurement.request") }}';
                     }
                 });
             });

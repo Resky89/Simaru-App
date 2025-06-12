@@ -56,32 +56,21 @@
                         </div>
                         <div class="flex gap-4">
                             <select id="sortOrder"
-                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                <option value="newest" {{ ($sort ?? 'newest') == 'newest' ? 'selected' : '' }}>Terbaru
-                                </option>
-                                <option value="oldest" {{ ($sort ?? 'newest') == 'oldest' ? 'selected' : '' }}>Terlama
-                                </option>
+                                class="w-[150px] h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" {{ ($sort_order ?? '') == '' ? 'selected' : '' }}>Urutan Default</option>
+                                <option value="desc" {{ ($sort_order ?? '') == 'desc' ? 'selected' : '' }}>Terbaru</option>
+                                <option value="asc" {{ ($sort_order ?? '') == 'asc' ? 'selected' : '' }}>Terlama</option>
                             </select>
                             <select id="statusFilter"
-                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                class="w-[160px] h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" {{ ($status ?? '') == '' ? 'selected' : '' }}>Semua Status</option>
                                 <option value="new" {{ ($status ?? '') == 'new' ? 'selected' : '' }}>Baru</option>
-                                <option value="in progress" {{ ($status ?? '') == 'in progress' ? 'selected' : '' }}>Sedang
-                                    Diproses</option>
-                                <option value="finished" {{ ($status ?? '') == 'finished' ? 'selected' : '' }}>Selesai
-                                </option>
-                                <option value="approved" {{ ($status ?? '') == 'approved' ? 'selected' : '' }}>Disetujui
-                                </option>
+                                <option value="in progress" {{ ($status ?? '') == 'in progress' ? 'selected' : '' }}>Sedang Diproses</option>
+                                <option value="finished" {{ ($status ?? '') == 'finished' ? 'selected' : '' }}>Selesai</option>
+                                <option value="approved" {{ ($status ?? '') == 'approved' ? 'selected' : '' }}>Disetujui</option>
                             </select>
                         </div>
                     </div>
-
-                    @if (isset($error))
-                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
-                            <p class="font-bold">Error</p>
-                            <p>{{ $error }}</p>
-                        </div>
-                    @endif
 
                     <!-- Complaint & Repair Table -->
                     <div class="overflow-x-auto">
@@ -167,7 +156,7 @@
                                                             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     </svg>
                                                 </button>
-                                                @if(hasPermission('repair:medical') && hasPermission('repair:non-medical'))
+                                                @if(hasPermission('repair:medical') || hasPermission('repair:non-medical'))
                                                     @if($complaint['status'] == 'new' || $complaint['status'] == 'in progress')
                                                     <button
                                                         class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors repair-complaint-btn"
@@ -850,7 +839,7 @@
             // Function to apply filters
             function applyFilters() {
                 const searchTerm = searchInput.value;
-                const sort = sortOrder.value;
+                const sort_order = sortOrder.value;
                 const status = statusFilter.value;
                 const limit = perPageSelect?.value || 10;
 
@@ -861,8 +850,8 @@
                 else url.searchParams.delete('search');
 
                 // Set sort parameter
-                if (sort) url.searchParams.set('sort', sort);
-                else url.searchParams.delete('sort');
+                if (sort_order) url.searchParams.set('sort_order', sort_order);
+                else url.searchParams.delete('sort_order');
 
                 // Set status parameter
                 if (status) url.searchParams.set('status', status);

@@ -36,42 +36,28 @@
                 </div>
 
                 @if(isset($purchaseOrder) && !empty($purchaseOrder))
-                <!-- PO Details -->
-                <div class="grid grid-cols-1 gap-5">
+                <!-- PO Details - Two Column Layout -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Left Column - Order Information -->
+                    <div class="space-y-5">
+                        <h2 class="text-lg font-semibold text-[#666666]">Informasi Pemesanan</h2>
+                        
                     <!-- PO ID -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <p class="w-40 text-[#666666] font-medium">Nomor Pemesanan</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $purchaseOrder['purchase_order_code'] }}</p>
+                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['purchase_order_code'] }}</p>
                     </div>
 
                     <!-- Comparison ID -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <p class="w-40 text-[#666666] font-medium">Nomor Penawaran</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $purchaseOrder['comparison_code'] ?? 'N/A' }}</p>
-                    </div>
-
-                    <!-- Vendor -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Vendor</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $purchaseOrder['vendor']['vendor_name'] ?? 'N/A' }}</p>
-                    </div>
-
-                    <!-- PIC -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Penanggung Jawab</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $purchaseOrder['vendor']['contact_person'] ?? 'N/A' }}</p>
-                    </div>
-
-                    <!-- PIC Contact -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Kontak Penanggung Jawab</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>{{ $purchaseOrder['vendor']['phone_number'] ?? 'N/A' }}</p>
+                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['comparison_code'] ?? 'N/A' }}</p>
                     </div>
 
                     <!-- PO Date -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         <p class="w-40 text-[#666666] font-medium">Tanggal Pemesanan</p>
-                        <p class="text-[#666666]"><span class="sm:hidden">: </span>
+                            <p class="text-[#666666]"><span class="sm">: </span>
                             @if(isset($purchaseOrder['created_at']))
                                 @php
                                     $date = \Carbon\Carbon::parse($purchaseOrder['created_at']);
@@ -85,6 +71,42 @@
                                 N/A
                             @endif
                         </p>
+                        </div>
+
+                        <!-- Creator -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Dibuat oleh</p>
+                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['creator_employee_number'] ?? 'N/A' }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Vendor Information -->
+                    <div class="space-y-5">
+                        <h2 class="text-lg font-semibold text-[#666666]">Informasi Vendor</h2>
+                        
+                        <!-- Vendor -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Nama Vendor</p>
+                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['vendor']['vendor_name'] ?? 'N/A' }}</p>
+                        </div>
+
+                        <!-- PIC -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Penanggung Jawab</p>
+                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['vendor']['contact_person'] ?? 'N/A' }}</p>
+                        </div>
+
+                        <!-- PIC Contact -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Nomor Telepon</p>
+                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['vendor']['phone_number'] ?? 'N/A' }}</p>
+                        </div>
+                        
+                        <!-- Email (if available) -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 text-[#666666] font-medium">Email</p>
+                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['vendor']['email'] ?? 'N/A' }}</p>
+                        </div>
                     </div>
                 </div>
 

@@ -57,6 +57,7 @@
                     <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">DETAIL KALIBRASI</h1>
                 </div>
                 <div>
+                    @if(hasPermission('calibration:export'))
                     <a href="{{ route('calibration.detail.export.pdf', ['id' => $calibration['id'] ?? 0]) }}"
                         target="_blank"
                         class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
@@ -66,6 +67,7 @@
                         </svg>
                         Ekspor PDF
                     </a>
+                    @endif
                 </div>
             </div>
 
@@ -382,4 +384,30 @@
             </style>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Export PDF functionality
+            const exportBtn = document.querySelector('a[href*="calibration.detail.export.pdf"]');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const calibrationId = {{ $calibration['id'] ?? 0 }};
+                    if (!calibrationId) {
+                        console.error('Calibration ID not available');
+                        return;
+                    }
+
+                    // Create the PDF export URL
+                    const exportUrl = "{{ route('calibration.detail.export.pdf', ['id' => $calibration['id'] ?? 0]) }}";
+
+                    // Open in new tab
+                    window.open(exportUrl, '_blank');
+                });
+            }
+        });
+    </script>
+    @endpush
 @endsection

@@ -23,6 +23,7 @@
                 </div>
 
                 <!-- Export Button -->
+                @if(hasPermission('complaint:export'))
                 <a href="{{ route('complaint.detail.export.pdf', ['id' => $complaint['id']]) }}" target="_blank"
                     class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -32,6 +33,7 @@
                     </svg>
                         Ekspor PDF
                     </a>
+                @endif
                 </div>
 
                 <!-- Status banner -->
@@ -312,4 +314,19 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add JavaScript initialization for permission awareness
+            @if(!hasPermission('complaint:export'))
+                // Hide export button if user doesn't have permission
+                const exportButtons = document.querySelectorAll('a[href*="export.pdf"]');
+                exportButtons.forEach(btn => {
+                    if (btn) {
+                        btn.style.display = 'none';
+                    }
+                });
+            @endif
+        });
+    </script>
 @endsection

@@ -10,13 +10,13 @@
                     <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                         <div class="flex items-center">
-                            <a href="{{ route('procurement.purchase-order') }}" id="backButton"
+                            <button type="button" id="backButton"
                                 class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                                 <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 19l-7-7 7-7" />
                                 </svg>
-                            </a>
+                            </button>
                             <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">FORM PEMESANAN</h1>
                         </div>
                     </div>
@@ -82,6 +82,14 @@
                         <div class="flex items-start gap-2">
                             <p class="w-40 text-[#666666] font-medium">Pembuat</p>
                             <p class="text-[#666666]">: <span id="displayUserInput">Staff</span></p>
+                        </div>
+
+                        <!-- Completer (if available) -->
+                        <div class="flex items-start gap-2" id="completerSection" style="display: none;">
+                            <p class="w-40 text-[#666666] font-medium">Diselesaikan oleh</p>
+                            <p class="text-[#666666]">: <span id="displayCompleterInput"></span>
+                                <span class="text-xs text-gray-500 ml-2" id="displayCompletedDate"></span>
+                            </p>
                         </div>
 
                         <!-- Tanggal Input -->
@@ -354,7 +362,7 @@
 
                 try {
                     // Fetch comparison data from API with proper headers for JSON
-                    const response = await fetch(`{{ route('procurement.price-comparison-data') }}?search=${encodeURIComponent(searchTerm)}&status=completed`, {
+                    const response = await fetch(`{{ route('procurement.price-comparison') }}?search=${encodeURIComponent(searchTerm)}&status=completed`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -430,8 +438,10 @@
                             li.setAttribute('data-id', comparison.comparison_id);
                             li.setAttribute('data-code', comparison.comparison_code);
                             li.setAttribute('data-title', comparison.title || '');
-                            li.setAttribute('data-user', comparison.user_name || 'Staff');
+                            li.setAttribute('data-user', comparison.creator?.employee_number);
                             li.setAttribute('data-date', comparison.created_at || '');
+                            li.setAttribute('data-completer', comparison.completer?.employee_number || '');
+                            li.setAttribute('data-completed-date', comparison.completed_at || '');
 
                             li.addEventListener('click', function () {
                                 // Set the selected comparison values
@@ -440,6 +450,29 @@
 
                                 // Hide dropdown
                                 comparisonDropdown.classList.add('hidden');
+                                
+                                // If the user clicks on a comparison directly from the dropdown,
+                                // we can pre-populate some fields for better UX
+                                document.getElementById('displayComparisonCode').textContent = this.getAttribute('data-code') || '';
+                                document.getElementById('displayComparisonTitle').textContent = this.getAttribute('data-title') || '';
+                                document.getElementById('displayUserInput').textContent = this.getAttribute('data-user') || 'Staff';
+                                document.getElementById('displayComparisonDate').textContent = formatDateIndonesian(this.getAttribute('data-date')) || '';
+                                
+                                // Handle completer information
+                                const completerSection = document.getElementById('completerSection');
+                                const displayCompleterInput = document.getElementById('displayCompleterInput');
+                                const displayCompletedDate = document.getElementById('displayCompletedDate');
+                                
+                                const completer = this.getAttribute('data-completer');
+                                const completedDate = this.getAttribute('data-completed-date');
+                                
+                                if (completer && completedDate) {
+                                    displayCompleterInput.textContent = completer;
+                                    displayCompletedDate.textContent = '(' + formatDateIndonesian(completedDate) + ')';
+                                    completerSection.style.display = 'flex';
+                                } else {
+                                    completerSection.style.display = 'none';
+                                }
                             });
 
                             comparisonList.appendChild(li);
@@ -496,7 +529,7 @@
                             });
                     } else {
                         // Search by code with proper headers for JSON
-                        fetch(`{{ route('procurement.price-comparison-data') }}?search=${encodeURIComponent(comparisonCode)}&status=completed`, {
+                        fetch(`{{ route('procurement.price-comparison') }}?search=${encodeURIComponent(comparisonCode)}&status=completed`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
@@ -597,7 +630,7 @@
                     document.getElementById('assetListTableBody').innerHTML = '';
 
                     // Fetch the comparison with proper headers for JSON
-                    const response = await fetch(`{{ url('procurement/price-comparison') }}/${comparisonId}`, {
+                    const response = await fetch(`{{ url('procurement/detail-comparison') }}/${comparisonId}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -624,7 +657,20 @@
                     // Update the form with comparison details
                     document.getElementById('displayComparisonCode').textContent = comparison.comparison_code || '';
                     document.getElementById('displayComparisonTitle').textContent = comparison.title || '';
-                    document.getElementById('displayUserInput').textContent = comparison.created_by?.name || 'Staff';
+                    document.getElementById('displayUserInput').textContent = comparison.creator?.employee_number || comparison.created_by?.employee_number || 'Staff';
+
+                    // Display completer information if available
+                    const completerSection = document.getElementById('completerSection');
+                    const displayCompleterInput = document.getElementById('displayCompleterInput');
+                    const displayCompletedDate = document.getElementById('displayCompletedDate');
+                    
+                    if (comparison.completer && comparison.completed_at) {
+                        displayCompleterInput.textContent = comparison.completer.employee_number || '';
+                        displayCompletedDate.textContent = '(' + formatDateIndonesian(comparison.completed_at) + ')';
+                        completerSection.style.display = 'flex';
+                    } else {
+                        completerSection.style.display = 'none';
+                    }
 
                     // Format date properly
                     let displayDate = comparison.created_at || '';
@@ -1168,25 +1214,21 @@
             document.getElementById('backButton').addEventListener('click', function (e) {
                 if (formHasChanges()) {
                     e.preventDefault();
-                    showSweetAlert(
-                        'Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?',
-                        'warning',
-                        {
-                            title: 'Perubahan Belum Disimpan',
-                            showCancelButton: true,
-                            confirmButtonText: 'Ya, Tinggalkan',
-                            cancelButtonText: 'Batal',
-                            confirmButtonColor: '#213268',
-                            cancelButtonColor: '#d33'
-                        }
-                    ).then((result) => {
+                    showSweetAlert('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?', 'warning', {
+                        title: 'Perubahan Belum Disimpan',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Tinggalkan',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#213268',
+                        cancelButtonColor: '#d33'
+                    }).then((result) => {
                         if (result.isConfirmed) {
                             isNavigatingAway = true;
                             window.location.href = '{{ route("procurement.purchase-order") }}';
                         }
                     });
                 } else {
-                    isNavigatingAway = true;
+                    window.location.href = '{{ route("procurement.purchase-order") }}';
                 }
             });
 

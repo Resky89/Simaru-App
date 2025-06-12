@@ -25,7 +25,7 @@
 
                     <!-- Add Vendor Button -->
                     @if(isset($comparison) && !empty($comparison) && (!isset($comparison['status']) || $comparison['status'] !== 'Completed'))
-                        @if(hasPermission('price-comparison:vendor-offer:create'))
+                    @if(hasPermission('price-comparison:vendor-offer:create'))
                     <a href="{{ route('procurement.form-vendor-comparison', ['id' => $comparison['comparison_id'] ?? $id]) }}"
                        class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -43,69 +43,91 @@
                 </div>
 
                 @if(isset($comparison) && !empty($comparison))
-                <!-- Request Details -->
-                <div class="grid grid-cols-1 gap-5">
-                    <!-- Request Number -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Nomor Penawaran</p>
-                        <p class="text-[#666666]">: <span id="requestNumber">{{ $comparison['comparison_code'] ?? 'N/A' }}</span></p>
-                    </div>
+                <!-- Request Details - Two Column Layout -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Left Column - Comparison Information -->
+                    <div class="space-y-5">
+                        <h2 class="text-lg font-semibold text-[#666666]">Informasi Perbandingan</h2>
+                        
+                        <!-- Request Number -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor Penawaran</p>
+                            <p class="text-[#666666]"><span class="sm">: </span><span id="requestNumber">{{ $comparison['comparison_code'] ?? 'N/A' }}</span></p>
+                        </div>
 
-                    <!-- Request Name -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Judul Permintaan</p>
-                        <p class="text-[#666666]">: <span id="requestName">{{ $comparison['title'] ?? 'N/A' }}</span></p>
-                    </div>
+                        <!-- Request Name -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Judul Permintaan</p>
+                            <p class="text-[#666666]"><span class="sm">: </span><span id="requestName">{{ $comparison['title'] ?? 'N/A' }}</span></p>
+                        </div>
 
-                    <!-- User Input -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Dibuat oleh</p>
-                        <p class="text-[#666666]">: <span id="userInput">{{ isset($comparison['creator']) ? $comparison['creator']['employee_number'] : 'N/A' }}</span></p>
-                    </div>
-
-                    <!-- Input Date -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Tanggal Penawaran</p>
-                        <p class="text-[#666666]">:
-                            @if(isset($comparison['created_at']))
-                                @php
-                                    $date = \Carbon\Carbon::parse($comparison['created_at']);
-                                    $monthsIndonesian = [
-                                        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-                                    ];
-                                    echo $date->format('d') . ' ' . $monthsIndonesian[$date->format('n')] . ' ' . $date->format('Y');
-                                @endphp
-                            @else
-                                N/A
-                            @endif
-                        </p>
-                    </div>
-
-                    <!-- Status -->
-                    <div class="flex items-start gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Status</p>
-                        <p class="text-[#666666]">:
-                            <span class="px-2 py-1 rounded-full text-xs
-                                @if(isset($comparison['status']) && $comparison['status'] == 'Completed') bg-green-100 text-green-800
-                                @elseif(isset($comparison['status']) && $comparison['status'] == 'In Progress') bg-blue-100 text-blue-800
-                                @elseif(isset($comparison['status']) && $comparison['status'] == 'Draft') bg-yellow-100 text-yellow-800
-                                @else bg-gray-100 text-gray-800 @endif">
-                                @if(isset($comparison['status']))
-                                    @if($comparison['status'] == 'Completed')
-                                        Selesai
-                                    @elseif($comparison['status'] == 'In Progress')
-                                        Dalam Proses
-                                    @elseif($comparison['status'] == 'Draft')
-                                        Draft
-                                    @else
-                                        {{ $comparison['status'] }}
-                                    @endif
+                        <!-- Input Date -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Penawaran</p>
+                            <p class="text-[#666666]"><span class="sm">: </span>
+                                @if(isset($comparison['created_at']))
+                                    @php
+                                        $date = \Carbon\Carbon::parse($comparison['created_at']);
+                                        $monthsIndonesian = [
+                                            1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                                            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                                        ];
+                                        echo $date->format('d') . ' ' . $monthsIndonesian[$date->format('n')] . ' ' . $date->format('Y');
+                                    @endphp
                                 @else
-                                    Tidak Ada
+                                    N/A
                                 @endif
-                            </span>
-                        </p>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Personnel Information -->
+                    <div class="space-y-5">
+                        <h2 class="text-lg font-semibold text-[#666666]">Informasi Personil & Status</h2>
+                        
+                        <!-- User Input -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Dibuat oleh</p>
+                            <p class="text-[#666666]"><span class="sm">: </span><span id="userInput">{{ isset($comparison['creator']) ? $comparison['creator']['employee_number'] : 'N/A' }}</span></p>
+                        </div>
+
+                        <!-- Completer (if available) -->
+                        @if(isset($comparison['completer']) && !empty($comparison['completer']))
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Diselesaikan oleh</p>
+                            <p class="text-[#666666]"><span class="sm">: </span><span>{{ $comparison['completer']['employee_number'] }}</span>
+                                @if(isset($comparison['completed_at']))
+                                    <span class="text-xs text-gray-500 ml-2">({{ \Carbon\Carbon::parse($comparison['completed_at'])->locale('id')->translatedFormat('d F Y') }})</span>
+                                @endif
+                            </p>
+                        </div>
+                        @endif
+
+                        <!-- Status -->
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Status</p>
+                            <p class="text-[#666666]"><span class="sm">: </span>
+                                <span class="px-2 py-1 rounded-full text-xs
+                                    @if(isset($comparison['status']) && $comparison['status'] == 'Completed') bg-green-100 text-green-800
+                                    @elseif(isset($comparison['status']) && $comparison['status'] == 'In Progress') bg-blue-100 text-blue-800
+                                    @elseif(isset($comparison['status']) && $comparison['status'] == 'Draft') bg-yellow-100 text-yellow-800
+                                    @else bg-gray-100 text-gray-800 @endif">
+                                    @if(isset($comparison['status']))
+                                        @if($comparison['status'] == 'Completed')
+                                            Selesai
+                                        @elseif($comparison['status'] == 'In Progress')
+                                            Dalam Proses
+                                        @elseif($comparison['status'] == 'Draft')
+                                            Draft
+                                        @else
+                                            {{ $comparison['status'] }}
+                                        @endif
+                                    @else
+                                        Tidak Ada
+                                    @endif
+                                </span>
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -416,7 +438,7 @@
 
         @if(!hasPermission('price-comparison:complete'))
         // Hide complete button if user doesn't have permission
-        const completeBtn = document.getElementById('completeBtn');
+        let completeBtn = document.getElementById('completeBtn');
         if (completeBtn) {
             completeBtn.style.display = 'none';
         }
@@ -434,7 +456,7 @@
 
         @if(!hasPermission('price-comparison:vendor-offer:delete'))
         // Hide delete buttons if user doesn't have permission
-        const deleteButtons = document.querySelectorAll('.delete-vendor-btn');
+        let deleteButtons = document.querySelectorAll('.delete-vendor-btn');
         deleteButtons.forEach(btn => {
             if (btn) {
                 btn.style.display = 'none';
@@ -552,7 +574,7 @@
         }
 
         // Handle delete vendor button clicks
-        const deleteButtons = document.querySelectorAll('.delete-vendor-btn');
+        deleteButtons = document.querySelectorAll('.delete-vendor-btn');
         deleteButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const agreementId = this.getAttribute('data-agreement-id');
@@ -629,7 +651,7 @@
         });
 
         // Handle Complete button
-        const completeBtn = document.getElementById('completeBtn');
+        completeBtn = document.getElementById('completeBtn');
 
         if (completeBtn) {
             let isSubmitting = false;

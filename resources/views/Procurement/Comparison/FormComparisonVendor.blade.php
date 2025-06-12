@@ -11,12 +11,12 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div class="flex items-center">
-                <a href="{{ route('procurement.detail-comparison', ['id' => $comparison_id ?? request()->route('id')]) }}"
+                <button type="button" id="backButton"
                     class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                </a>
+                </button>
                 <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
                     {{ isset($vendorOffer) || request()->has('agreement_id') ? 'EDIT PENAWARAN VENDOR' : 'TAMBAH PENAWARAN VENDOR' }}
                 </h1>
@@ -1239,6 +1239,34 @@
                         // Still try to load comparison data even if vendor offer data failed
                         loadComparisonData(vendorOfferIdsMap);
                     });
+            }
+
+            // Add event handler for the back button
+            const backButton = document.getElementById('backButton');
+            if (backButton) {
+                backButton.addEventListener('click', function (e) {
+                    const comparisonId = document.getElementById('comparison_id').value;
+                    const detailUrl = '{{ route("procurement.detail-comparison", ["id" => "__ID__"]) }}'.replace('__ID__', comparisonId);
+                    
+                    if (formHasChanges()) {
+                        e.preventDefault();
+                        showSweetAlert('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?', 'warning', {
+                            title: 'Perubahan Belum Disimpan',
+                            showCancelButton: true,
+                            confirmButtonText: 'Ya, Tinggalkan',
+                            cancelButtonText: 'Batal',
+                            confirmButtonColor: '#213268',
+                            cancelButtonColor: '#d33'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                isNavigatingAway = true;
+                                window.location.href = detailUrl;
+                            }
+                        });
+                    } else {
+                        window.location.href = detailUrl;
+                    }
+                });
             }
         });
     </script>

@@ -127,37 +127,31 @@
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center gap-2">
                                         @if(hasPermission('procurement:view'))
-                                        <a href="{{ route('procurement.detail-request', ['id' => $procurement['procurement_id']]) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
+                                        <a href="{{ route('procurement.detail-request', ['id' => $procurement['procurement_id']]) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors" title="Lihat Detail">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
                                         @endif
-                                        @if($procurement['status'] == 'Submitted')
-                                        @if(hasPermission('procurement:edit'))
+                                        
+                                        @if($procurement['status'] == 'Submitted' && hasPermission('procurement:edit'))
                                         <button class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-request-btn"
-                                                data-id="{{ $procurement['procurement_id'] }}">
+                                                data-id="{{ $procurement['procurement_id'] }}" title="Edit Permintaan">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
                                         @endif
-                                        @else
-                                        <span class="w-5 h-5 inline-block"></span>
-                                        @endif
-                                        @if($procurement['status'] == 'Submitted')
-                                        @if(hasPermission('procurement:delete'))
+                                        
+                                        @if($procurement['status'] == 'Submitted' && hasPermission('procurement:delete'))
                                         <button class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-request-btn"
                                                 data-id="{{ $procurement['procurement_id'] }}"
-                                                data-title="{{ $procurement['title'] }}">
+                                                data-title="{{ $procurement['title'] }}" title="Hapus Permintaan">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </button>
-                                        @endif
-                                        @else
-                                        <span class="w-5 h-5 inline-block"></span>
                                         @endif
                                     </div>
                                 </td>
@@ -198,10 +192,10 @@
                             @endphp
 
                             @if($startPage > 1)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                <button onclick="changePage(1)"
                                    class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                     1
-                                </a>
+                                </button>
                                 @if($startPage > 2)
                                     <span class="flex items-center justify-center">
                                         ...
@@ -210,10 +204,10 @@
                             @endif
 
                             @for ($i = $startPage; $i <= $endPage; $i++)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                <button onclick="changePage({{ $i }})"
                                    class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                     {{ $i }}
-                                </a>
+                                </button>
                             @endfor
 
                             @if($endPage < $lastPage)
@@ -222,10 +216,10 @@
                                         ...
                                     </span>
                                 @endif
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
+                                <button onclick="changePage({{ $lastPage }})"
                                    class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                     {{ $lastPage }}
-                                </a>
+                                </button>
                             @endif
                         </div>
                         <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
@@ -562,8 +556,7 @@
         };
 
         // Add event listener for edit buttons
-        const editButtons = document.querySelectorAll('.edit-request-btn');
-        editButtons.forEach(function(button) {
+        document.querySelectorAll('.edit-request-btn').forEach(function(button) {
             button.addEventListener('click', function() {
                 const procurementId = this.getAttribute('data-id');
                 window.location.href = '{{ route("procurement.form-request") }}?id=' + procurementId;
@@ -594,8 +587,25 @@
         // Handle delete form submission
         const deleteForm = document.getElementById('deleteProcurementForm');
         if (deleteForm) {
+            let isSubmitting = false; // Flag to prevent multiple submissions
+            
             deleteForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+                
+                // Prevent multiple submissions
+                if (isSubmitting) {
+                    return;
+                }
+                
+                // Set submitting flag and disable submit button
+                isSubmitting = true;
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Menghapus...
+                `;
 
                 fetch(this.action, {
                     method: 'DELETE',
@@ -622,22 +632,33 @@
                         // Reload the page - toast will show after reload
                         window.location.reload();
                     } else {
+                        // Reset submission state
+                        isSubmitting = false;
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                        
                         // Store error message in localStorage
                         localStorage.setItem('procurement_message', data.message || 'Gagal menghapus permintaan pengadaan');
                         localStorage.setItem('procurement_action', 'error');
 
-                        // Reload the page - toast will show after reload
-                        window.location.reload();
+                        // Show error message immediately
+                        showToast(data.message || 'Gagal menghapus permintaan pengadaan', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    
+                    // Reset submission state
+                    isSubmitting = false;
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                    
                     // Store error message in localStorage
                     localStorage.setItem('procurement_message', 'Terjadi kesalahan saat menghapus permintaan pengadaan');
                     localStorage.setItem('procurement_action', 'error');
 
-                    // Reload the page - toast will show after reload
-                    window.location.reload();
+                    // Show error message immediately
+                    showToast('Terjadi kesalahan saat menghapus permintaan pengadaan', 'error');
                 });
             });
         }

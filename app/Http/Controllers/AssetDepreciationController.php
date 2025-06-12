@@ -36,6 +36,57 @@ class AssetDepreciationController extends Controller
                 ], 401);
             }
 
+            // Check for the specific "asset cannot be depreciated" error in various formats
+            if (isset($result['errors'])) {
+                // Format 1: Array of objects with path and message
+                if (is_array($result['errors'])) {
+                    foreach ($result['errors'] as $error) {
+                        if (is_array($error) &&
+                            isset($error['path']) && $error['path'] === 'general' &&
+                            isset($error['message']) && $error['message'] === 'Aset tidak dapat didepresiasi') {
+
+                            // Return this as a valid response with a special flag
+                            return response()->json([
+                                'success' => true,
+                                'no_depreciation' => true,
+                                'message' => 'Aset tidak dapat didepresiasi',
+                                'data' => [
+                                    'asset_id' => (int) $assetId
+                                ]
+                            ]);
+                        }
+                    }
+                }
+
+                // Format 2: String that contains the specific message
+                if (is_string($result['errors']) &&
+                    strpos($result['errors'], 'Aset tidak dapat didepresiasi') !== false) {
+
+                    return response()->json([
+                        'success' => true,
+                        'no_depreciation' => true,
+                        'message' => 'Aset tidak dapat didepresiasi',
+                        'data' => [
+                            'asset_id' => (int) $assetId
+                        ]
+                    ]);
+                }
+
+                // Format 3: Message contained in a nested error structure
+                if (isset($result['message']) &&
+                    strpos($result['message'], 'Aset tidak dapat didepresiasi') !== false) {
+
+                    return response()->json([
+                        'success' => true,
+                        'no_depreciation' => true,
+                        'message' => 'Aset tidak dapat didepresiasi',
+                        'data' => [
+                            'asset_id' => (int) $assetId
+                        ]
+                    ]);
+                }
+            }
+
             // Memeriksa kesalahan API berdasarkan flag sukses
             if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal mengambil data depresiasi';
@@ -43,11 +94,34 @@ class AssetDepreciationController extends Controller
                 // Format pesan kesalahan
                 $errorMessage = '';
                 if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
+                    // Try to extract the error message from various formats
+                    if (!empty($errorData)) {
+                        if (isset($errorData[0]) && is_array($errorData[0])) {
+                            // Format: [{"path": "general", "message": "Error message"}]
+                            foreach ($errorData as $error) {
+                                if (isset($error['message'])) {
+                                    if (strpos($error['message'], 'Aset tidak dapat didepresiasi') !== false) {
+                                        return response()->json([
+                                            'success' => true,
+                                            'no_depreciation' => true,
+                                            'message' => 'Aset tidak dapat didepresiasi',
+                                            'data' => [
+                                                'asset_id' => (int) $assetId
+                                            ]
+                                        ]);
+                                    }
+                                    $errorMessage .= $error['message'] . '; ';
+                                }
+                            }
                         } else {
-                            $errorMessage .= $messages . '; ';
+                            // Regular format with field => messages structure
+                            foreach ($errorData as $field => $messages) {
+                                if (is_array($messages)) {
+                                    $errorMessage .= implode(', ', $messages) . '; ';
+                                } else {
+                                    $errorMessage .= $messages . '; ';
+                                }
+                            }
                         }
                     }
                 } else {
@@ -64,6 +138,11 @@ class AssetDepreciationController extends Controller
             return response()->json($result);
 
         } catch (\Exception $e) {
+            \Log::error('Exception in getAssetDepreciation: ' . $e->getMessage(), [
+                'asset_id' => $assetId,
+                'exception' => $e
+            ]);
+
             return response()->json([
                 'success' => false,
                 'errors' => 'Gagal mengambil data depresiasi: ' . $e->getMessage()

@@ -137,7 +137,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Vendor Management
-    Route::prefix('vendor')->middleware('permission:vendor:view|maintenance:create|maintenance:edit|calibration:report')->group(function () {
+    Route::prefix('vendor')->middleware('permission:vendor:view|maintenance:create|maintenance:edit|calibration:report|price-comparison:vendor-offer:create|price-comparison:vendor-offer:edit')->group(function () {
         Route::get('/', [VendorController::class, 'index'])->name('vendor');
         Route::post('/store', [VendorController::class, 'store'])
             ->name('vendor.store')
@@ -158,7 +158,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     //-------------------------------------------------------------------------
 
     // User Management
-    Route::prefix('user')->middleware('permission:user:view|asset:create|asset:edit|asset:checkout|')->group(function () {
+    Route::prefix('user')->middleware('permission:user:view|asset:create|asset:edit|asset:checkout|report:depreciation|receipt:create')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('user');
         Route::post('/store', [UserController::class, 'storeUser'])
             ->name('users.store')
@@ -522,7 +522,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         // Price Comparison read operations
         Route::get('/price-comparison', [ProcurementPriceComparisonController::class, 'index'])
             ->name('price-comparison')
-            ->middleware('permission:price-comparison:view');
+            ->middleware('permission:price-comparison:view|purchase-order:vendor-offers:select');
         Route::get('/form-comparison/{id?}', function ($id = null) {
             return view('Procurement.Comparison.FormComparison', ['id' => $id]);
         })->name('form-comparison')->middleware('permission:price-comparison:create|price-comparison:edit');
@@ -531,16 +531,10 @@ Route::middleware([AuthMiddleware::class])->group(function () {
             ->middleware('permission:price-comparison:edit');
         Route::get('/form-vendor-comparison/{id?}', function ($id = null) {
             return view('Procurement.Comparison.FormComparisonVendor', ['comparison_id' => $id]);
-        })->name('form-vendor-comparison')->middleware('permission:price-comparison:create');
+        })->name('form-vendor-comparison')->middleware('permission:price-comparison:vendor-offer:create|price-comparison:vendor-offer:edit');
         Route::get('/detail-comparison/{id}', [ProcurementPriceComparisonController::class, 'show'])
             ->name('detail-comparison')
-            ->middleware('permission:price-comparison:view');
-        Route::get('/price-comparison/data', [ProcurementPriceComparisonController::class, 'index'])
-            ->name('price-comparison-data')
-            ->middleware('permission:price-comparison:view');
-        Route::get('/price-comparison/{id}', [ProcurementPriceComparisonController::class, 'show'])
-            ->name('show-price-comparison')
-            ->middleware('permission:price-comparison:view');
+            ->middleware('permission:price-comparison:view|purchase-order:vendor-offers:select');
 
         // Price Comparison write operations
         Route::post('/price-comparison', [ProcurementPriceComparisonController::class, 'store'])
@@ -554,30 +548,29 @@ Route::middleware([AuthMiddleware::class])->group(function () {
             ->middleware('permission:price-comparison:create');
         Route::post('/price-comparison/{id}/complete', [ProcurementPriceComparisonController::class, 'completeComparison'])
             ->name('complete-price-comparison')
-            ->middleware('permission:price-comparison:approve');
+            ->middleware('permission:price-comparison:complete');
 
         // Vendor Offer API
-        Route::middleware('permission:price-comparison:edit')->group(function() {
-            Route::get('/price-comparison/vendor-offer/{id}', [ProcurementPriceComparisonController::class, 'getVendorOffer'])
-                ->name('get-vendor-offer');
-            Route::post('/price-comparison/vendor-offer', [ProcurementPriceComparisonController::class, 'createVendorOffer'])
-                ->name('create-vendor-offer')->middleware('permission:price-comparison:vendor-offer:create');
-            Route::put('/price-comparison/vendor-offer/{id}', [ProcurementPriceComparisonController::class, 'updateVendorOffer'])
-                ->name('update-vendor-offer')->middleware('price-comparison:vendor-offer:edit');
-            Route::delete('/price-comparison/vendor-offer/{id}', [ProcurementPriceComparisonController::class, 'deleteVendorOffer'])
-                ->name('delete-vendor-offer')->middleware('price-comparison:vendor-offer:delete');
-        });
+        Route::get('/price-comparison/vendor-offer/{id}', [ProcurementPriceComparisonController::class, 'getVendorOffer'])
+            ->name('get-vendor-offer');
+        Route::post('/price-comparison/vendor-offer', [ProcurementPriceComparisonController::class, 'createVendorOffer'])
+            ->name('create-vendor-offer')->middleware('permission:price-comparison:vendor-offer:create');
+        Route::put('/price-comparison/vendor-offer/{id}', [ProcurementPriceComparisonController::class, 'updateVendorOffer'])
+            ->name('update-vendor-offer')->middleware('permission:price-comparison:vendor-offer:edit');
+        Route::delete('/price-comparison/vendor-offer/{id}', [ProcurementPriceComparisonController::class, 'deleteVendorOffer'])
+            ->name('delete-vendor-offer')->middleware('permission:price-comparison:vendor-offer:delete');
+
 
         // Purchase Order read operations
         Route::get('/purchase-order', [ProcurementPurchaseOrderController::class, 'index'])
             ->name('purchase-order')
-            ->middleware('permission:purchase-order:view');
+            ->middleware('permission:purchase-order:view|receipt:create');
         Route::get('/form-purchase-order/{id?}', function ($id = null) {
             return view('Procurement.PurchaseOrder.FormPurchaseOrder', ['id' => $id]);
         })->name('form-purchase-order')->middleware('permission:purchase-order:vendor-offers:select');
         Route::get('/detail-purchase-order/{id}', [ProcurementPurchaseOrderController::class, 'show'])
             ->name('detail-purchase-order')
-            ->middleware('permission:purchase-order:view');
+            ->middleware('permission:purchase-order:view|receipt:create|purchase-order:vendor-offers:select');
         Route::get('/purchase-order/detail/{id}/export-pdf', [ProcurementPurchaseOrderController::class, 'exportPurchaseOrderDetailPDF'])
             ->name('purchase-order.detail.export-pdf')
             ->middleware('permission:purchase-order:export');

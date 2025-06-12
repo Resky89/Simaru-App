@@ -14,31 +14,34 @@
     </div>
 
     <!-- Loading indicator -->
-    <div id="documentLoadingIndicator" class="flex justify-center items-center py-6 hidden">
+    <div id="documentLoadingIndicator" class="flex justify-center items-center py-6">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213268]"></div>
         <span class="ml-2 text-gray-600">Memuat data dokumen...</span>
     </div>
 
     <!-- Error message container -->
-    <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+    <div id="documentErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
     </div>
 
-    <!-- Document Table -->
-    <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-md">
-        <table class="w-full min-w-[500px] border-collapse">
-            <thead>
-                <tr>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Judul</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Nama File</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Catatan</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Tanggal Upload</th>
-                    <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-16 md:w-20">Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="documentTableBody">
-                <!-- Document rows will be loaded here dynamically -->
-            </tbody>
-        </table>
+    <!-- Content sections -->
+    <div id="documentContentSections" class="hidden">
+        <!-- Document Table -->
+        <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-md">
+            <table class="w-full min-w-[500px] border-collapse">
+                <thead>
+                    <tr>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Judul</th>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Nama File</th>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Catatan</th>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Tanggal Upload</th>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-16 md:w-20">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="documentTableBody">
+                    <!-- Document rows will be loaded here dynamically -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Add Document Modal -->
@@ -575,12 +578,6 @@
                 this.setupEventListeners();
                 this.setupFilePreview();
 
-                // Initialize the main loading indicator as hidden on start
-                const loadingIndicator = document.getElementById('documentLoadingIndicator');
-                if (loadingIndicator) {
-                    loadingIndicator.classList.add('hidden');
-                }
-
                 this.loadDocuments();
 
                 this.initialized = true;
@@ -693,11 +690,23 @@
                 });
             },
 
+            showLoading() {
+                document.getElementById('documentLoadingIndicator').classList.remove('hidden');
+                document.getElementById('documentContentSections').classList.add('hidden');
+                document.getElementById('documentErrorMessage').classList.add('hidden');
+            },
+
+            hideLoading() {
+                document.getElementById('documentLoadingIndicator').classList.add('hidden');
+                document.getElementById('documentContentSections').classList.remove('hidden');
+            },
+
             showError(message) {
-                const errorDiv = document.getElementById('errorMessage');
+                const errorDiv = document.getElementById('documentErrorMessage');
                 errorDiv.textContent = message;
                 errorDiv.classList.remove('hidden');
                 document.getElementById('documentLoadingIndicator').classList.add('hidden');
+                document.getElementById('documentContentSections').classList.add('hidden');
             },
 
             getFileIconByType(fileExt) {
@@ -755,7 +764,7 @@
                 if (!tableBody) return;
 
                 // Display loading indicator
-                this.showLoadingIndicator(tableBody);
+                this.showLoading();
 
                 // Fetch documents using the new endpoint
                 fetch(`/asset-documents/asset/${this.assetId}/all-documents`, {
@@ -816,21 +825,9 @@
                     });
             },
 
-            showLoadingIndicator(tableBody) {
-                // Show the main loading indicator
-                document.getElementById('documentLoadingIndicator').classList.remove('hidden');
-
-                // Clear the table body content
-                tableBody.innerHTML = '';
-            },
-
-            hideLoadingIndicator() {
-                document.getElementById('documentLoadingIndicator').classList.add('hidden');
-            },
-
             showEmptyMessage(tableBody) {
-                document.getElementById('documentLoadingIndicator').classList.add('hidden');
-                document.getElementById('errorMessage').classList.add('hidden');
+                this.hideLoading();
+                document.getElementById('documentErrorMessage').classList.add('hidden');
 
                 tableBody.innerHTML = `
                 <tr>
@@ -842,8 +839,8 @@
             },
 
             renderDocuments(tableBody, documents) {
-                this.hideLoadingIndicator();
-                document.getElementById('errorMessage').classList.add('hidden');
+                this.hideLoading();
+                document.getElementById('documentErrorMessage').classList.add('hidden');
                 let html = '';
                 documents.forEach(doc => {
                     const fileName = doc.file_path ? doc.file_path.split('/').pop() : 'Unknown file';

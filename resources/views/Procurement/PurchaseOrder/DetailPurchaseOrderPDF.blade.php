@@ -151,6 +151,10 @@
                         <div class="info-label">Tanggal Pemesanan:</div>
                         <div class="info-value">{{ isset($purchaseOrder['created_at']) ? \Carbon\Carbon::parse($purchaseOrder['created_at'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}</div>
                     </div>
+                    <div class="info-row">
+                        <div class="info-label">Dibuat oleh:</div>
+                        <div class="info-value">{{ $purchaseOrder['creator_employee_number'] ?? 'N/A' }}</div>
+                    </div>
                 </div>
             </div>
         </div>

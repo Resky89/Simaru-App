@@ -14,93 +14,100 @@
     </div>
 
     <!-- Loading indicator -->
-    <div id="financeLoadingIndicator" class="flex justify-center items-center py-6 hidden">
+    <div id="financeLoadingIndicator" class="flex justify-center items-center py-6">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213268]"></div>
         <span class="ml-2 text-gray-600">Memuat data transaksi...</span>
     </div>
 
-    <!-- Transaction Filter/Sort -->
-    <div class="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-md">
-        <div class="text-sm font-medium text-gray-700" id="transaction-count">Total Transaksi: 0</div>
-        <div class="flex space-x-2">
-            <select id="filter-type"
-                class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#213268]">
-                <option value="all">Semua Tipe</option>
-                <option value="income">Pemasukan</option>
-                <option value="expense">Pengeluaran</option>
-            </select>
-            <select id="sort-by"
-                class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#213268]">
-                <option value="newest">Terbaru</option>
-                <option value="oldest">Terlama</option>
-                <option value="amount-high">Nominal (Tinggi-Rendah)</option>
-                <option value="amount-low">Nominal (Rendah-Tinggi)</option>
-            </select>
-        </div>
+    <!-- Error message container -->
+    <div id="financeErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
     </div>
 
-    <!-- Transactions List with better headers -->
-    @if(hasPermission('asset:transaction:view'))
-        <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-md">
-            <table class="w-full min-w-[500px] border-collapse">
-                <thead>
-                    <tr>
-                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Tanggal</th>
-                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-2/12">Tipe</th>
-                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-right w-3/12">Nominal</th>
-                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Keterangan</th>
-                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-1/12">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="transaction-items">
-                    <!-- Transaction items will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-    @endif
-
-    <!-- Summary in cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        <div class="p-4 bg-red-50 border border-red-100 rounded-lg">
-            <div class="flex items-center mb-2">
-                <div class="mr-2 p-2 bg-red-500 text-white rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
-                </div>
-                <h3 class="text-sm font-semibold text-gray-700">Total Pengeluaran</h3>
+    <!-- Content sections -->
+    <div id="financeContentSections" class="hidden">
+        <!-- Transaction Filter/Sort -->
+        <div class="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-md">
+            <div class="text-sm font-medium text-gray-700" id="transaction-count">Total Transaksi: 0</div>
+            <div class="flex space-x-2">
+                <select id="filter-type"
+                    class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#213268]">
+                    <option value="all">Semua Tipe</option>
+                    <option value="income">Pemasukan</option>
+                    <option value="expense">Pengeluaran</option>
+                </select>
+                <select id="sort-by"
+                    class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-[#213268]">
+                    <option value="newest">Terbaru</option>
+                    <option value="oldest">Terlama</option>
+                    <option value="amount-high">Nominal (Tinggi-Rendah)</option>
+                    <option value="amount-low">Nominal (Rendah-Tinggi)</option>
+                </select>
             </div>
-            <p id="expense-total" class="text-xl font-bold text-red-600">Rp 0,00</p>
         </div>
 
-        <div class="p-4 bg-green-50 border border-green-100 rounded-lg">
-            <div class="flex items-center mb-2">
-                <div class="mr-2 p-2 bg-green-500 text-white rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                    </svg>
-                </div>
-                <h3 class="text-sm font-semibold text-gray-700">Total Pemasukan</h3>
+        <!-- Transactions List with better headers -->
+        @if(hasPermission('asset:transaction:view'))
+            <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-md">
+                <table class="w-full min-w-[500px] border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Tanggal</th>
+                            <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-2/12">Tipe</th>
+                            <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-right w-3/12">Nominal</th>
+                            <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Keterangan</th>
+                            <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-1/12">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-items">
+                        <!-- Transaction items will be loaded here -->
+                    </tbody>
+                </table>
             </div>
-            <p id="income-total" class="text-xl font-bold text-green-600">Rp 0,00</p>
-        </div>
+        @endif
 
-        <div class="p-4 bg-blue-50 border border-blue-100 rounded-lg">
-            <div class="flex items-center mb-2">
-                <div class="mr-2 p-2 bg-blue-500 text-white rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+        <!-- Summary in cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div class="p-4 bg-red-50 border border-red-100 rounded-lg">
+                <div class="flex items-center mb-2">
+                    <div class="mr-2 p-2 bg-red-500 text-white rounded-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-semibold text-gray-700">Total Pengeluaran</h3>
                 </div>
-                <h3 class="text-sm font-semibold text-gray-700">Saldo Total</h3>
+                <p id="expense-total" class="text-xl font-bold text-red-600">Rp 0,00</p>
             </div>
-            <p id="balance-total" class="text-xl font-bold text-blue-600">Rp 0,00</p>
+
+            <div class="p-4 bg-green-50 border border-green-100 rounded-lg">
+                <div class="flex items-center mb-2">
+                    <div class="mr-2 p-2 bg-green-500 text-white rounded-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-semibold text-gray-700">Total Pemasukan</h3>
+                </div>
+                <p id="income-total" class="text-xl font-bold text-green-600">Rp 0,00</p>
+            </div>
+
+            <div class="p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                <div class="flex items-center mb-2">
+                    <div class="mr-2 p-2 bg-blue-500 text-white rounded-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-semibold text-gray-700">Saldo Total</h3>
+                </div>
+                <p id="balance-total" class="text-xl font-bold text-blue-600">Rp 0,00</p>
+            </div>
         </div>
     </div>
 
@@ -417,6 +424,28 @@
 <!-- Add JavaScript for Transaction functionality -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Function to show loading state
+        function showLoading() {
+            document.getElementById('financeLoadingIndicator').classList.remove('hidden');
+            document.getElementById('financeContentSections').classList.add('hidden');
+            document.getElementById('financeErrorMessage').classList.add('hidden');
+        }
+
+        // Function to hide loading state
+        function hideLoading() {
+            document.getElementById('financeLoadingIndicator').classList.add('hidden');
+            document.getElementById('financeContentSections').classList.remove('hidden');
+        }
+
+        // Function to show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('financeErrorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            document.getElementById('financeLoadingIndicator').classList.add('hidden');
+            document.getElementById('financeContentSections').classList.add('hidden');
+        }
+
         // Initialize toast container or make sure it exists
         const initializeToastContainer = () => {
             let toastContainer = document.getElementById('finance-toast-container');
@@ -640,22 +669,16 @@
         function loadTransactions() {
             // Check if asset ID is available
             if (!assetId) {
-                document.getElementById('financeLoadingIndicator').classList.add('hidden');
-                if (transactionItems) {
-                    transactionItems.innerHTML = `
-                        <tr>
-                            <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
-                                Gagal memuat transaksi: ID Aset diperlukan
-                            </td>
-                        </tr>
-                    `;
-                }
+                showError('Gagal memuat transaksi: ID Aset diperlukan');
                 return;
             }
 
             // Show loading state
-            document.getElementById('financeLoadingIndicator').classList.remove('hidden');
-            transactionItems.innerHTML = '';
+            showLoading();
+
+            if (transactionItems) {
+                transactionItems.innerHTML = '';
+            }
 
             // Get filter and sort values
             const filterValue = filterType?.value || 'all';
@@ -709,14 +732,7 @@
 
             // Make sure assetId is not empty
             if (!assetId) {
-                document.getElementById('financeLoadingIndicator').classList.add('hidden');
-                transactionItems.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
-                            Gagal memuat transaksi: ID Aset diperlukan
-                        </td>
-                    </tr>
-                `;
+                showError('Gagal memuat transaksi: ID Aset diperlukan');
                 return;
             }
 
@@ -735,7 +751,7 @@
                 })
                 .then(data => {
                     // Hide loading indicator
-                    document.getElementById('financeLoadingIndicator').classList.add('hidden');
+                    hideLoading();
 
                     // AssetFinanceController returns 'success', not 'status'
                     if (data.success) {
@@ -762,27 +778,12 @@
                             }
                         }
 
-                        transactionItems.innerHTML = `
-                        <tr>
-                            <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
-                                Gagal memuat transaksi: ${errorMessage}
-                            </td>
-                        </tr>
-                    `;
+                        showError(errorMessage);
                     }
                 })
                 .catch(error => {
-                    // Hide loading indicator
-                    document.getElementById('financeLoadingIndicator').classList.add('hidden');
-
                     console.error('Network error loading transactions:', error);
-                    transactionItems.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
-                            Gagal memuat transaksi. Terjadi kesalahan jaringan.
-                        </td>
-                    </tr>
-                `;
+                    showError('Gagal memuat transaksi. Terjadi kesalahan jaringan.');
                 });
         }
 
@@ -1055,7 +1056,7 @@
 
                     // Use fetch for submission
                     fetch(form.action, {
-                        method: 'POST',
+                        method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': token,

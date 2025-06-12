@@ -11,12 +11,12 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div class="flex items-center">
-                <a href="{{ route('procurement.price-comparison') }}" id="backButton"
+                <button type="button" id="backButton"
                     class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                </a>
+                </button>
                 <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">
                     {{ isset($comparison) ? 'EDIT PERBANDINGAN HARGA' : 'FORMULIR PERBANDINGAN HARGA' }}
                 </h1>
@@ -41,7 +41,7 @@
                 <div class="space-y-2">
                     <label class="block text-base font-semibold text-[#666666]">Nomor Permintaan <span
                             class="text-red-500">*</span></label>
-                    <div class="flex flex-col">
+                    <div class="flex flex-col relative">
                         <div class="flex">
                             <input type="text" id="requestNumber"
                                 value="{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}"
@@ -64,7 +64,7 @@
 
                         <!-- Dropdown for search results -->
                         <div id="procurement_dropdown"
-                            class="absolute z-10 mt-12 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
+                            class="absolute z-10 top-[45px] left-0 right-0 bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                             <!-- Loading indicator -->
                             <div id="procurement_loading" class="flex justify-center py-2">
                                 <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -1078,29 +1078,25 @@
                 });
             }
 
-            // Add event handler for the back button
+            // Handle back button click
             document.getElementById('backButton').addEventListener('click', function (e) {
                 if (formHasChanges()) {
                     e.preventDefault();
-                    showSweetAlert(
-                        'Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?',
-                        'warning',
-                        {
-                            title: 'Perubahan Belum Disimpan',
-                            showCancelButton: true,
-                            confirmButtonText: 'Ya, Tinggalkan',
-                            cancelButtonText: 'Batal',
-                            confirmButtonColor: '#213268',
-                            cancelButtonColor: '#d33'
-                        }
-                    ).then((result) => {
+                    showSweetAlert('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?', 'warning', {
+                        title: 'Perubahan Belum Disimpan',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Tinggalkan',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#213268',
+                        cancelButtonColor: '#d33'
+                    }).then((result) => {
                         if (result.isConfirmed) {
                             isNavigatingAway = true;
                             window.location.href = '{{ route("procurement.price-comparison") }}';
                         }
                     });
                 } else {
-                    isNavigatingAway = true;
+                    window.location.href = '{{ route("procurement.price-comparison") }}';
                 }
             });
 

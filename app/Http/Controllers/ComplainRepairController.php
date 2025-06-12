@@ -28,8 +28,9 @@ class ComplainRepairController extends Controller
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
-            $sort = $request->input('sort', 'newest');
+            $sort_order = $request->input('sort_order', '');
             $status = $request->input('status', '');
+            $sortBy = $request->input('sort_by', '');
 
             // Membangun parameter kueri
             $queryParams = [
@@ -47,20 +48,13 @@ class ComplainRepairController extends Controller
                 $queryParams['status'] = $status;
             }
 
-            // Menangani pengurutan
-            switch ($sort) {
-                case 'newest':
-                    $queryParams['sort_by'] = 'created_at';
-                    $queryParams['sort_order'] = 'desc';
-                    break;
-                case 'oldest':
-                    $queryParams['sort_by'] = 'created_at';
-                    $queryParams['sort_order'] = 'asc';
-                    break;
-                default:
-                    // Pengurutan default (terbaru lebih dulu)
-                    $queryParams['sort_by'] = 'created_at';
-                    $queryParams['sort_order'] = 'desc';
+            // Menambahkan parameter pengurutan
+            if (!empty($sortBy)) {
+                $queryParams['sort_by'] = $sortBy;
+            }
+
+            if (!empty($sort_order)) {
+                $queryParams['sort_order'] = $sort_order;
             }
 
             // Mengambil keluhan dari API
@@ -133,7 +127,7 @@ class ComplainRepairController extends Controller
                     'complaints' => [],
                     'pagination' => null,
                     'search' => $search,
-                    'sort' => $sort,
+                    'sort_order' => $sort_order,
                     'status' => $status,
                     'assets' => [],
                     'error' => $errorMessage
@@ -192,7 +186,7 @@ class ComplainRepairController extends Controller
                 'complaints' => $complaints,
                 'pagination' => $pagination,
                 'search' => $search,
-                'sort' => $sort,
+                'sort_order' => $sort_order,
                 'status' => $status,
                 'assets' => $assets
             ]);
@@ -209,7 +203,7 @@ class ComplainRepairController extends Controller
                 'complaints' => [],
                 'pagination' => null,
                 'search' => $search,
-                'sort' => $sort,
+                'sort_order' => $sort_order,
                 'status' => $status,
                 'assets' => [],
                 'error' => 'Gagal mengambil data keluhan: ' . $e->getMessage()
@@ -298,13 +292,13 @@ class ComplainRepairController extends Controller
         try {
             // Mendapatkan parameter filter
             $search = $request->input('search', '');
-            $sort = $request->input('sort', 'newest');
+            $sort_order = $request->input('sort_order', '');
             $status = $request->input('status', '');
+            $sortBy = $request->input('sort_by', '');
 
             // Membangun parameter kueri
             $queryParams = [
-                'page' => 1,
-                'limit' => 1000  // Mendapatkan jumlah besar untuk ekspor
+                'page' => 1,'limit' => 1000
             ];
 
             // Menambahkan parameter pencarian jika disediakan
@@ -317,20 +311,13 @@ class ComplainRepairController extends Controller
                 $queryParams['status'] = $status;
             }
 
-            // Menangani pengurutan
-            switch ($sort) {
-                case 'newest':
-                    $queryParams['sort_by'] = 'created_at';
-                    $queryParams['sort_order'] = 'desc';
-                    break;
-                case 'oldest':
-                    $queryParams['sort_by'] = 'created_at';
-                    $queryParams['sort_order'] = 'asc';
-                    break;
-                default:
-                    // Pengurutan default (terbaru lebih dulu)
-                    $queryParams['sort_by'] = 'created_at';
-                    $queryParams['sort_order'] = 'desc';
+            // Menambahkan parameter pengurutan
+            if (!empty($sortBy)) {
+                $queryParams['sort_by'] = $sortBy;
+            }
+
+            if (!empty($sort_order)) {
+                $queryParams['sort_order'] = $sort_order;
             }
 
             // Mengambil keluhan dari API
@@ -352,7 +339,7 @@ class ComplainRepairController extends Controller
             $pdf = Pdf::loadView('ComplainRepair.ComplainRepairPDF', [
                 'complaints' => $complaints,
                 'search' => $search,
-                'sort' => $sort,
+                'sort_order' => $sort_order,
                 'status' => $status,
                 'date_generated' => now()->format('d M Y H:i:s')
             ]);

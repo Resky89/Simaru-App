@@ -547,9 +547,8 @@
                                             <div class="relative">
                                                 <input type="text" id="edit_asset_master_search"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="Cari master aset..." autocomplete="off" required>
-                                                <input type="hidden" name="asset_master_id" id="edit_selected_asset_master_id"
-                                                    required>
+                                                    placeholder="Cari master aset..." autocomplete="off">
+                                                <input type="hidden" name="asset_master_id" id="edit_selected_asset_master_id">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Master aset harus
                                                     dipilih</div>
                                                 <input type="hidden" id="edit_selected_is_depreciable" value="false">
@@ -627,9 +626,8 @@
                                                 <div class="relative">
                                                     <input type="text" id="edit_building_search"
                                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                        placeholder="Cari gedung..." autocomplete="off" required>
-                                                    <input type="hidden" name="building_id" id="edit_selected_building_id"
-                                                        required>
+                                                        placeholder="Cari gedung..." autocomplete="off">
+                                                    <input type="hidden" name="building_id" id="edit_selected_building_id">
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Gedung harus
                                                         dipilih</div>
                                                     <div id="edit_building_dropdown"
@@ -656,10 +654,9 @@
                                                 <div class="relative">
                                                     <input type="text" id="edit_room_search"
                                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                        placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled
-                                                        required>
+                                                        placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled>
                                                     <input type="hidden" name="room_id" id="edit_selected_room_id"
-                                                        value="{{ $asset['room_id'] ?? '' }}" required>
+                                                        value="{{ $asset['room_id'] ?? '' }}">
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Ruangan harus
                                                         dipilih</div>
                                                     <div id="edit_room_dropdown"
@@ -686,7 +683,7 @@
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                             <div class="space-y-2">
                                                 <label class="block text-base font-semibold text-[#666666] mb-2">Kondisi</label>
-                                                <select name="condition" id="edit_condition" required
+                                                <select name="condition" id="edit_condition"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                                     <option value="good" {{ $asset['condition'] == 'good' ? 'selected' : '' }}>
                                                         Baik</option>
@@ -737,8 +734,7 @@
                                             <label class="block text-base font-semibold text-[#666666] mb-2">Metode Penyusutan
                                                 <span class="text-red-500">*</span></label>
                                             <select name="depreciation_method" id="edit_depreciation_method"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                required>
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                                 <option value="Straight Line" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Straight Line' ? 'selected' : '' }}>Garis Lurus</option>
                                                 <option value="Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Declining Balance' ? 'selected' : '' }}>Penyusutan Dua Kali</option>
                                                 <option value="Double Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Double Declining Balance' ? 'selected' : '' }}>Dua Kali Penyusutan</option>
@@ -757,8 +753,7 @@
                                                     id="edit_acquisition_cost"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                     placeholder="0.00"
-                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['acquisition_cost'] : '' }}"
-                                                    required>
+                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['acquisition_cost'] : '' }}">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya akusisi harus
                                                     diisi</div>
                                             </div>
@@ -768,8 +763,7 @@
                                                 <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                     placeholder="0.00"
-                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['salvage_value'] : '' }}"
-                                                    required>
+                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['salvage_value'] : '' }}">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus
                                                     diisi</div>
                                             </div>
@@ -781,8 +775,7 @@
                                                     (bulan) <span class="text-red-500">*</span></label>
                                                 <input type="number" name="asset_life_months" id="edit_asset_life_months"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['asset_life_months'] : '' }}"
-                                                    required>
+                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['asset_life_months'] : '' }}">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Usia aset harus
                                                     diisi</div>
                                             </div>
@@ -791,8 +784,7 @@
                                                     Pengadaan <span class="text-red-500">*</span></label>
                                                 <input type="date" name="date_acquired" id="edit_date_acquired"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}"
-                                                    required>
+                                                        value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan
                                                     harus diisi</div>
                                             </div>
@@ -842,8 +834,8 @@
 
                                     <!-- Check Out Date -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tanggal Pinjam</label>
-                                        <input type="date" name="checkout_date" required readonly
+                                        <label class="block text-base font-medium text-[#666666]">Tanggal Pinjam <span class="text-red-500">*</span></label>
+                                        <input type="date" name="checkout_date" readonly
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
                                             value="{{ date('Y-m-d') }}">
                                     </div>
@@ -869,12 +861,13 @@
 
                                     <!-- Employee Dropdown (shown when Employee radio is selected) -->
                                     <div id="employeeDropdown" class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Pilih Karyawan</label>
+                                        <label class="block text-base font-medium text-[#666666]">Pilih Karyawan <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <input type="text" id="checkout_user_search"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                                 placeholder="Cari karyawan (nomor karyawan)..." autocomplete="off">
                                             <input type="hidden" name="assigned_to" id="checkout_selected_user_id">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih karyawan</div>
                                             <div id="checkout_user_dropdown"
                                                 class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                 <div id="checkout_user_loading" class="p-2 text-gray-500 text-center">
@@ -897,12 +890,13 @@
                                     <div id="locationDropdown" class="space-y-4 hidden">
                                         <!-- Building Search Dropdown -->
                                         <div class="space-y-2">
-                                            <label class="block text-base font-medium text-[#666666]">Pilih Gedung</label>
+                                            <label class="block text-base font-medium text-[#666666]">Pilih Gedung <span class="text-red-500">*</span></label>
                                             <div class="relative">
                                                 <input type="text" id="pinjam_building_search"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                     placeholder="Cari gedung..." autocomplete="off">
                                                 <input type="hidden" name="building_id" id="pinjam_selected_building_id">
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih gedung</div>
                                                 <div id="pinjam_building_dropdown"
                                                     class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                     <div id="pinjam_building_loading" class="p-2 text-gray-500 text-center">
@@ -923,12 +917,13 @@
 
                                         <!-- Room Search Dropdown -->
                                         <div class="space-y-2">
-                                            <label class="block text-base font-medium text-[#666666]">Pilih Ruangan</label>
+                                            <label class="block text-base font-medium text-[#666666]">Pilih Ruangan <span class="text-red-500">*</span></label>
                                             <div class="relative">
                                                 <input type="text" id="pinjam_room_search"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                     placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled>
                                                 <input type="hidden" name="room_id" id="pinjam_selected_room_id">
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih ruangan</div>
                                                 <div id="pinjam_room_dropdown"
                                                     class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                     <div id="pinjam_room_loading" class="p-2 text-gray-500 text-center">
@@ -999,27 +994,28 @@
 
                                     <!-- Return Date -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tanggal Kembali</label>
-                                        <input type="date" name="return_date" required readonly
+                                        <label class="block text-base font-medium text-[#666666]">Tanggal Kembali <span class="text-red-500">*</span></label>
+                                        <input type="date" name="return_date" readonly
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
                                             value="{{ date('Y-m-d') }}">
                                     </div>
 
                                     <!-- Asset Condition -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Kondisi Asset</label>
-                                        <select name="condition" id="return_condition" required
+                                        <label class="block text-base font-medium text-[#666666]">Kondisi Asset <span class="text-red-500">*</span></label>
+                                        <select name="condition" id="return_condition"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
                                             <option value="GOOD">Baik</option>
                                             <option value="DAMAGED">Rusak</option>
                                             <option value="NEEDS_REPAIR">Perlu Perbaikan</option>
                                         </select>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih kondisi asset</div>
                                     </div>
 
                                     <!-- Notes -->
                                     <div class="space-y-2">
                                         <label class="block text-base font-medium text-[#666666]">Catatan Kembali</label>
-                                        <textarea name="return_notes" rows="3" required
+                                        <textarea name="return_notes" rows="3"
                                             class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                             placeholder="Masukkan detail tentang pengembalian"></textarea>
                                     </div>
@@ -1067,16 +1063,17 @@
 
                                     <!-- Loss Date -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tanggal Hilang</label>
-                                        <input type="date" name="loss_date" required readonly
+                                        <label class="block text-base font-medium text-[#666666]">Tanggal Hilang <span class="text-red-500">*</span></label>
+                                        <input type="date" name="loss_date" readonly
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
                                             value="{{ date('Y-m-d') }}">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal hilang harus diisi</div>
                                     </div>
 
                                     <!-- Loss Reason -->
                                     <div class="space-y-2">
                                         <label class="block text-base font-medium text-[#666666]">Alasan Hilang</label>
-                                        <textarea name="loss_reason" rows="3" required
+                                        <textarea name="loss_reason" rows="3"
                                             class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                             placeholder="Masukkan detail tentang alasan asset hilang"></textarea>
                                     </div>
@@ -1125,7 +1122,7 @@
                                     <!-- Notes -->
                                     <div class="space-y-2">
                                         <label class="block text-base font-medium text-[#666666]">Catatan Ditemukan</label>
-                                        <textarea name="found_notes" rows="3" required
+                                        <textarea name="found_notes" rows="3"
                                             class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                             placeholder="Detail tempat dan cara asset ditemukan"></textarea>
                                     </div>
@@ -1174,16 +1171,16 @@
 
                                     <!-- Dispose Date -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tanggal Penghapusan</label>
-                                        <input type="date" name="dispose_date" required readonly
+                                        <label class="block text-base font-medium text-[#666666]">Tanggal Penghapusan <span class="text-red-500">*</span></label>
+                                        <input type="date" name="dispose_date" readonly
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
                                             value="{{ date('Y-m-d') }}">
                                     </div>
 
                                     <!-- Disposal Method -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Metode Penghapusan</label>
-                                        <select name="disposal_method" required
+                                        <label class="block text-base font-medium text-[#666666]">Metode Penghapusan <span class="text-red-500">*</span></label>
+                                        <select name="disposal_method"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
                                             <option value="SOLD">Terjual</option>
                                             <option value="DONATED">Donasi</option>
@@ -1191,14 +1188,16 @@
                                             <option value="DESTROYED">Hancurkan</option>
                                             <option value="OTHER">Lainnya</option>
                                         </select>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih metode penghapusan</div>
                                     </div>
 
                                     <!-- Disposal Reason -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Alasan Penghapusan</label>
-                                        <textarea name="disposal_reason" rows="3" required
+                                        <label class="block text-base font-medium text-[#666666]">Alasan Penghapusan <span class="text-red-500">*</span></label>
+                                        <textarea name="disposal_reason" rows="3"
                                             class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                             placeholder="Masukkan alasan penghapusan"></textarea>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan masukkan alasan penghapusan</div>
                                     </div>
 
                                     <!-- Additional Notes -->
@@ -2706,12 +2705,113 @@
                 });
             }
 
-            // Setup form submission handling for all asset action forms except editAssetForm
-            setupFormSubmissionHandling('checkoutAssetForm', 'Meminjam...');
-            setupFormSubmissionHandling('checkinAssetForm', 'Mengembalikan...');
             setupFormSubmissionHandling('reportLostForm', 'Melaporkan...');
             setupFormSubmissionHandling('foundAssetForm', 'Melaporkan ditemukan...');
-            setupFormSubmissionHandling('disposeAssetForm', 'Menghapuskan...');
+
+            // Custom validation handler for checkout form
+            document.getElementById('checkoutAssetForm')?.addEventListener('submit', function (event) {
+                // Prevent default submission to validate first
+                event.preventDefault();
+
+                // Validate the form
+                if (validateCheckoutForm()) {
+                    // Get the submit button
+                    const submitBtn = this.querySelector('button[type="submit"]');
+
+                    // Prevent multiple submissions
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Meminjam...</span></div>`;
+
+                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                        setTimeout(() => {
+                            if (submitBtn.disabled) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+
+                    // If valid, submit the form
+                    this.submit();
+                }
+            });
+
+            // Custom validation handler for checkin form
+            document.getElementById('checkinAssetForm')?.addEventListener('submit', function (event) {
+                // Prevent default submission to validate first
+                event.preventDefault();
+
+                // Validate the form
+                if (validateCheckinForm()) {
+                    // Get the submit button
+                    const submitBtn = this.querySelector('button[type="submit"]');
+
+                    // Prevent multiple submissions
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Mengembalikan...</span></div>`;
+
+                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                        setTimeout(() => {
+                            if (submitBtn.disabled) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+
+                    // If valid, submit the form
+                    this.submit();
+                }
+            });
+
+            // Custom validation handler for dispose form
+            document.getElementById('disposeAssetForm')?.addEventListener('submit', function (event) {
+                // Prevent default submission to validate first
+                event.preventDefault();
+
+                // Validate the form
+                if (validateDisposeForm()) {
+                    // Get the submit button
+                    const submitBtn = this.querySelector('button[type="submit"]');
+
+                    // Prevent multiple submissions
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menghapuskan...</span></div>`;
+
+                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                        setTimeout(() => {
+                            if (submitBtn.disabled) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+
+                    // If valid, submit the form
+                    this.submit();
+                }
+            });
 
             // Function to validate fields before form submission
             function validateEditForm() {
@@ -2755,6 +2855,150 @@
                     isValid = isValid && isDepreciationMethodValid && isAcquisitionCostValid &&
                         isSalvageValueValid && isAssetLifeMonthsValid && isDateAcquiredValid;
                 }
+
+                if (!isValid) {
+                    showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
+                }
+
+                return isValid;
+            }
+
+            // Function to validate checkout form fields
+            function validateCheckoutForm() {
+                const form = document.getElementById('checkoutAssetForm');
+                if (!form) return true;
+
+                // Check which radio option is selected
+                const employeeRadio = document.getElementById('employee');
+                const isEmployeeSelected = employeeRadio && employeeRadio.checked;
+
+                let isValid = true;
+
+                if (isEmployeeSelected) {
+                    // Validate employee selection
+                    const userSearch = document.getElementById('checkout_user_search');
+                    const selectedUserId = document.getElementById('checkout_selected_user_id');
+                    const isUserValid = validateField(userSearch, selectedUserId.value ? true : false);
+
+                    if (!isUserValid) {
+                        const errorElement = userSearch.closest('.space-y-2')?.querySelector('.error-message');
+                        if (!errorElement) {
+                            // Create error message if it doesn't exist
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'error-message text-red-500 text-sm mt-1';
+                            errorDiv.textContent = 'Silakan pilih karyawan';
+                            userSearch.parentNode.appendChild(errorDiv);
+                        } else {
+                            errorElement.classList.remove('hidden');
+                            errorElement.textContent = 'Silakan pilih karyawan';
+                        }
+                    }
+
+                    isValid = isUserValid;
+                } else {
+                    // Validate building and room selection
+                    const buildingSearch = document.getElementById('pinjam_building_search');
+                    const selectedBuildingId = document.getElementById('pinjam_selected_building_id');
+                    const roomSearch = document.getElementById('pinjam_room_search');
+                    const selectedRoomId = document.getElementById('pinjam_selected_room_id');
+
+                    const isBuildingValid = validateField(buildingSearch, selectedBuildingId.value ? true : false);
+                    const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
+
+                    // Add error messages if needed
+                    if (!isBuildingValid) {
+                        const errorElement = buildingSearch.closest('.space-y-2')?.querySelector('.error-message');
+                        if (!errorElement) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'error-message text-red-500 text-sm mt-1';
+                            errorDiv.textContent = 'Silakan pilih gedung';
+                            buildingSearch.parentNode.appendChild(errorDiv);
+                        } else {
+                            errorElement.classList.remove('hidden');
+                            errorElement.textContent = 'Silakan pilih gedung';
+                        }
+                    }
+
+                    if (!isRoomValid) {
+                        const errorElement = roomSearch.closest('.space-y-2')?.querySelector('.error-message');
+                        if (!errorElement) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'error-message text-red-500 text-sm mt-1';
+                            errorDiv.textContent = 'Silakan pilih ruangan';
+                            roomSearch.parentNode.appendChild(errorDiv);
+                        } else {
+                            errorElement.classList.remove('hidden');
+                            errorElement.textContent = 'Silakan pilih ruangan';
+                        }
+                    }
+
+                    isValid = isBuildingValid && isRoomValid;
+                }
+
+                if (!isValid) {
+                    showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
+                }
+
+                return isValid;
+            }
+
+            // Function to validate checkin form fields
+            function validateCheckinForm() {
+                const form = document.getElementById('checkinAssetForm');
+                if (!form) return true;
+
+                let isValid = true;
+
+                // Validate condition selection
+                const conditionSelect = document.getElementById('return_condition');
+                const isConditionValid = validateField(conditionSelect);
+
+                if (!isConditionValid) {
+                    const errorElement = conditionSelect.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.classList.remove('hidden');
+                    }
+                }
+
+                isValid = isConditionValid;
+
+                if (!isValid) {
+                    showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
+                }
+
+                return isValid;
+            }
+
+            // Function to validate disposal form fields
+            function validateDisposeForm() {
+                const form = document.getElementById('disposeAssetForm');
+                if (!form) return true;
+
+                let isValid = true;
+
+                // Validate disposal method selection
+                const disposalMethodSelect = form.querySelector('select[name="disposal_method"]');
+                const isMethodValid = validateField(disposalMethodSelect);
+
+                // Validate disposal reason
+                const disposalReason = form.querySelector('textarea[name="disposal_reason"]');
+                const isReasonValid = validateField(disposalReason);
+
+                if (!isMethodValid) {
+                    const errorElement = disposalMethodSelect.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.classList.remove('hidden');
+                    }
+                }
+                
+                if (!isReasonValid) {
+                    const errorElement = disposalReason.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.classList.remove('hidden');
+                    }
+                }
+                
+                isValid = isMethodValid && isReasonValid;
 
                 if (!isValid) {
                     showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
@@ -2818,6 +3062,55 @@
             clearErrorOnInput('edit_asset_life_months');
             clearErrorOnInput('edit_date_acquired');
 
+            // Apply input event listeners to checkout form fields
+            clearErrorOnInput('checkout_user_search');
+            clearErrorOnInput('pinjam_building_search');
+            clearErrorOnInput('pinjam_room_search');
+
+            // Apply input event listeners to checkin form fields
+            clearErrorOnInput('return_condition');
+
+            // Add listener for textarea since it's not supported by the standard function
+            const returnNotes = document.querySelector('textarea[name="return_notes"]');
+            if (returnNotes) {
+                returnNotes.addEventListener('input', function() {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
+
+            // Add additional listeners for radio button changes to clear errors
+            document.getElementById('employee')?.addEventListener('change', function() {
+                if (this.checked) {
+                    // Clear location errors when switching to employee option
+                    const buildingSearch = document.getElementById('pinjam_building_search');
+                    const roomSearch = document.getElementById('pinjam_room_search');
+                    if (buildingSearch) {
+                        buildingSearch.classList.remove('border-red-500');
+                        const errorElement = buildingSearch.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    }
+                    if (roomSearch) {
+                        roomSearch.classList.remove('border-red-500');
+                        const errorElement = roomSearch.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    }
+                }
+            });
+
+            document.getElementById('location')?.addEventListener('change', function() {
+                if (this.checked) {
+                    // Clear employee errors when switching to location option
+                    const userSearch = document.getElementById('checkout_user_search');
+                    if (userSearch) {
+                        userSearch.classList.remove('border-red-500');
+                        const errorElement = userSearch.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    }
+                }
+            });
+
             // Modify the editAssetForm submit handler with integrated validation and multiple submission prevention
             document.getElementById('editAssetForm')?.addEventListener('submit', function (event) {
                 // Prevent default submission to validate first
@@ -2837,6 +3130,91 @@
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Memperbarui...</span></div>`;
+
+                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
+                        setTimeout(() => {
+                            if (submitBtn.disabled) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+
+                    // If valid, submit the form
+                    this.submit();
+                }
+            });
+
+            // Apply input event listeners to dispose form fields
+            clearErrorOnInput('return_condition');
+
+            // Add listener for disposal reason textarea
+            const disposalReason = document.querySelector('textarea[name="disposal_reason"]');
+            if (disposalReason) {
+                disposalReason.addEventListener('input', function() {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
+
+            // Add disposal method select error clearing
+            const disposalMethod = document.querySelector('select[name="disposal_method"]');
+            if (disposalMethod) {
+                disposalMethod.addEventListener('change', function() {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
+
+            // Function to validate lost form fields
+            function validateLostForm() {
+                const form = document.getElementById('reportLostForm');
+                if (!form) return true;
+
+                let isValid = true;
+
+                // Validate loss date
+                const lossDate = form.querySelector('input[name="loss_date"]');
+                const isDateValid = validateField(lossDate);
+
+                if (!isDateValid) {
+                    const errorElement = lossDate.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.classList.remove('hidden');
+                    }
+                }
+                
+                isValid = isDateValid;
+                
+                if (!isValid) {
+                    showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
+                }
+                
+                return isValid;
+            }
+
+            // Custom validation handler for lost form
+            document.getElementById('reportLostForm')?.addEventListener('submit', function (event) {
+                // Prevent default submission to validate first
+                event.preventDefault();
+
+                // Validate the form
+                if (validateLostForm()) {
+                    // Get the submit button
+                    const submitBtn = this.querySelector('button[type="submit"]');
+
+                    // Prevent multiple submissions
+                    if (submitBtn && !submitBtn.disabled) {
+                        // Save original button text
+                        const originalText = submitBtn.innerHTML;
+
+                        // Disable button and show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Melaporkan...</span></div>`;
 
                         // Set timeout to re-enable button after 10 seconds (in case of network issues)
                         setTimeout(() => {

@@ -166,17 +166,15 @@
                             </div>
 
                             <!-- Download PDF Button -->
-                            @if(hasPermission('depreciation:export'))
-                                <button id="exportBtn"
-                                    class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                    <span class="text-base">Expor PDF</span>
-                                </button>
-                            @endif
+                            <button id="exportBtn"
+                                class="flex items-center justify-center gap-2 px-3 py-3 bg-[#213268] rounded-lg text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                <span class="text-base">Expor PDF</span>
+                            </button>
                         </div>
                     </div>
 
@@ -1514,16 +1512,6 @@
                 initRoomSearch();
                 initAssetMasterSearch();
 
-                // Add JavaScript to hide elements based on permissions
-                if (!{{ hasPermission('depreciation:export') ? 'true' : 'false' }}) {
-                    const exportButtons = document.querySelectorAll('#exportBtn');
-                    exportButtons.forEach(btn => {
-                        if (btn) {
-                            btn.style.display = 'none';
-                        }
-                    });
-                }
-
                 // Form submission handler
                 const depreciationFilterForm = document.getElementById('depreciationFilterForm');
                 if (depreciationFilterForm) {
@@ -1572,7 +1560,7 @@
 
                 // Export PDF functionality
                 const exportBtn = document.getElementById('exportBtn');
-                if (exportBtn && {{ hasPermission('depreciation:export') ? 'true' : 'false' }}) {
+                if (exportBtn) {
                     exportBtn.addEventListener('click', function () {
                         // Build the export URL with all current parameters
                         const exportUrl = "{{ route('report.depreciation.export-pdf') }}?" + new URLSearchParams({

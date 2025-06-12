@@ -25,76 +25,132 @@
                     </div>
 
                     @if(isset($procurement) && !empty($procurement))
-                        <!-- Request Details -->
-                        <div class="grid grid-cols-1 gap-5">
-                            <!-- Request Number -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Nomor Permintaan</p>
-                                <p class="text-[#666666]">: <span
-                                        id="requestNumber">{{ $procurement['procurement_code'] }}</span></p>
-                            </div>
-
-                            <!-- Request Name -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Judul Permintaan</p>
-                                <p class="text-[#666666]">: <span id="requestName">{{ $procurement['title'] }}</span></p>
-                            </div>
-
-                            <!-- User Input -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Pemohon</p>
-                                <p class="text-[#666666]">: <span
-                                        id="userInput">{{ $procurement['requester']['employee_number'] }}</span></p>
-                            </div>
-
-                            <!-- Input Date -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Tanggal Permintaan</p>
-                                <p class="text-[#666666]">: <span
-                                        id="inputDate">{{ \Carbon\Carbon::parse($procurement['request_date'])->locale('id')->translatedFormat('d F Y') }}</span>
-                                </p>
-                            </div>
-
-                            <!-- Priority -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Prioritas</p>
-                                <p class="text-[#666666]">: <span>{{ $procurement['priority'] }}</span></p>
-                            </div>
-
-                            <!-- Justification -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Justifikasi</p>
-                                <p class="text-[#666666]">: <span>{{ $procurement['justification'] }}</span></p>
-                            </div>
-
-                            <!-- Notes (if available) -->
-                            @if($procurement['notes'])
-                                <div class="flex items-start gap-2">
-                                    <p class="w-40 text-[#666666] font-medium">Catatan</p>
-                                    <p class="text-[#666666]">: <span>{{ $procurement['notes'] }}</span></p>
+                        <!-- Request Details - Two Column Layout -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Left Column - Request Information -->
+                            <div class="space-y-5">
+                                <h2 class="text-lg font-semibold text-[#666666]">Informasi Permintaan</h2>
+                                
+                                <!-- Request Number -->
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor Permintaan</p>
+                                    <p class="text-[#666666]"><span class="sm">: </span><span id="requestNumber">{{ $procurement['procurement_code'] }}</span></p>
                                 </div>
-                            @endif
 
-                            <!-- Status -->
-                            <div class="flex items-start gap-2">
-                                <p class="w-40 text-[#666666] font-medium">Status</p>
-                                <p class="text-[#666666]">:
-                                    <span class="px-2 py-1 rounded-full text-xs inline-block ml-1
-                                        @if($procurement['status'] == 'Submitted') bg-blue-100 text-blue-800
-                                        @elseif($procurement['status'] == 'Under Review') bg-yellow-100 text-yellow-800
-                                        @elseif($procurement['status'] == 'Approved') bg-green-100 text-green-800
-                                        @elseif($procurement['status'] == 'Rejected') bg-red-100 text-red-800
-                                        @elseif($procurement['status'] == 'Procured') bg-purple-100 text-purple-800
-                                        @else bg-gray-100 text-gray-800 @endif">
-                                        @if($procurement['status'] == 'Submitted') Diajukan
-                                        @elseif($procurement['status'] == 'Under Review') Dalam Peninjauan
-                                        @elseif($procurement['status'] == 'Approved') Disetujui
-                                        @elseif($procurement['status'] == 'Rejected') Ditolak
-                                        @elseif($procurement['status'] == 'Procured') Dibeli
-                                        @else {{ $procurement['status'] }}
+                                <!-- Request Name -->
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Judul Permintaan</p>
+                                    <p class="text-[#666666]"><span class="sm">: </span><span id="requestName">{{ $procurement['title'] }}</span></p>
+                                </div>
+                                
+                                <!-- Input Date -->
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Permintaan</p>
+                                    <p class="text-[#666666]"><span class="sm">: </span><span id="inputDate">{{ \Carbon\Carbon::parse($procurement['request_date'])->locale('id')->translatedFormat('d F Y') }}</span></p>
+                                </div>
+
+                                <!-- Priority -->
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Prioritas</p>
+                                    <p class="text-[#666666]"><span class="sm">: </span><span>
+                                        @if($procurement['priority'] == 'High') Tinggi
+                                        @elseif($procurement['priority'] == 'Medium') Sedang
+                                        @elseif($procurement['priority'] == 'Low') Rendah
+                                        @else {{ $procurement['priority'] }}
                                         @endif
-                                    </span>
-                                </p>
+                                    </span></p>
+                                </div>
+
+                                <!-- Justification -->
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Justifikasi</p>
+                                    <p class="text-[#666666]"><span class="sm">: </span><span>{{ $procurement['justification'] }}</span></p>
+                                </div>
+
+                                <!-- Notes (if available) -->
+                                @if($procurement['notes'])
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Catatan</p>
+                                        <p class="text-[#666666]"><span class="sm">: </span><span>{{ $procurement['notes'] }}</span></p>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Right Column - Personnel Information -->
+                            <div class="space-y-5">
+                                <h2 class="text-lg font-semibold text-[#666666]">Informasi Personil & Status</h2>
+                                
+                                <!-- User Input -->
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Pemohon</p>
+                                    <p class="text-[#666666]"><span class="sm">: </span><span id="userInput">{{ $procurement['requester']['employee_number'] }}</span></p>
+                                </div>
+
+                                <!-- Status -->
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Status</p>
+                                    <p class="text-[#666666]"><span class="sm">: </span>
+                                        <span class="px-2 py-1 rounded-full text-xs inline-block ml-1
+                                            @if($procurement['status'] == 'Submitted') bg-blue-100 text-blue-800
+                                            @elseif($procurement['status'] == 'Under Review') bg-yellow-100 text-yellow-800
+                                            @elseif($procurement['status'] == 'Approved') bg-green-100 text-green-800
+                                            @elseif($procurement['status'] == 'Rejected') bg-red-100 text-red-800
+                                            @elseif($procurement['status'] == 'Procured') bg-purple-100 text-purple-800
+                                            @else bg-gray-100 text-gray-800 @endif">
+                                            @if($procurement['status'] == 'Submitted') Diajukan
+                                            @elseif($procurement['status'] == 'Under Review') Dalam Peninjauan
+                                            @elseif($procurement['status'] == 'Approved') Disetujui
+                                            @elseif($procurement['status'] == 'Rejected') Ditolak
+                                            @elseif($procurement['status'] == 'Procured') Dibeli
+                                            @else {{ $procurement['status'] }}
+                                            @endif
+                                        </span>
+                                    </p>
+                                </div>
+
+                                <!-- Manager Approval (if available) -->
+                                @if(isset($procurement['approved_by_manager']) && !empty($procurement['approved_by_manager']))
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Disetujui Manajer</p>
+                                        <p class="text-[#666666]"><span class="sm">: </span><span>{{ $procurement['approved_by_manager']['employee_number'] }}</span>
+                                            @if(isset($procurement['manager_approval_date']))
+                                                <span class="text-xs text-gray-500 ml-2">({{ \Carbon\Carbon::parse($procurement['manager_approval_date'])->locale('id')->translatedFormat('d F Y') }})</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                @endif
+
+                                <!-- Director Approval (if available) -->
+                                @if(isset($procurement['approved_by_director']) && !empty($procurement['approved_by_director']))
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Disetujui Direktur</p>
+                                        <p class="text-[#666666]"><span class="sm">: </span><span>{{ $procurement['approved_by_director']['employee_number'] }}</span>
+                                            @if(isset($procurement['director_approval_date']))
+                                                <span class="text-xs text-gray-500 ml-2">({{ \Carbon\Carbon::parse($procurement['director_approval_date'])->locale('id')->translatedFormat('d F Y') }})</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                @endif
+
+                                <!-- Rejected By (if available) -->
+                                @if(isset($procurement['rejected_by']) && !empty($procurement['rejected_by']))
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Ditolak Oleh</p>
+                                        <p class="text-[#666666]"><span class="sm">: </span><span>{{ $procurement['rejected_by']['employee_number'] }}</span>
+                                            @if(isset($procurement['rejected_date']))
+                                                <span class="text-xs text-gray-500 ml-2">({{ \Carbon\Carbon::parse($procurement['rejected_date'])->locale('id')->translatedFormat('d F Y') }})</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                @endif
+
+                                <!-- Rejection Reason (if available) -->
+                                @if(isset($procurement['rejected_reason']) && !empty($procurement['rejected_reason']))
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                        <p class="w-40 sm:w-48 text-[#666666] font-medium">Alasan Penolakan</p>
+                                        <p class="text-[#666666]"><span class="sm">: </span><span>{{ $procurement['rejected_reason'] }}</span></p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
@@ -119,7 +175,8 @@
                                         </button>
                                     @endif
 
-                                    @if(($procurement['status'] == 'Submitted' || $procurement['status'] == 'Under Review') && hasPermission('procurement:reject|procurement:approve:manager|procurement:approve:director'))
+                                    @if(($procurement['status'] == 'Submitted' && (hasPermission('procurement:reject') || hasPermission('procurement:approve:manager') || hasPermission('procurement:approve:director'))) || 
+                                        ($procurement['status'] == 'Under Review' && hasPermission('procurement:approve:director')))
                                         <button id="rejectBtn" type="button"
                                             class="px-6 py-2 border border-red-600 text-red-600 rounded-lg text-base hover:bg-red-50 transform active:scale-[0.98] transition-all duration-200">
                                             TOLAK
@@ -227,6 +284,7 @@
     </div>
 
     <!-- Rejection Modal -->
+    @if(hasPermission('procurement:reject') || hasPermission('procurement:approve:manager') || hasPermission('procurement:approve:director'))
     <div id="rejectModal" class="fixed inset-0 z-50 hidden">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
         <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -278,6 +336,7 @@
             </div>
         </div>
     </div>
+    @endif
 @endsection
 
 @push('scripts')
@@ -395,8 +454,8 @@
             // Permission-based initialization
             @if(!hasPermission('procurement:approve:manager'))
                 // Hide manager approval button if user doesn't have permission
-                const managerApprovalBtn = document.getElementById('managerApprovalBtn');
-                if (managerApprovalBtn) managerApprovalBtn.style.display = 'none';
+                const managerApprovalBtnElement = document.getElementById('managerApprovalBtn');
+                if (managerApprovalBtnElement) managerApprovalBtnElement.style.display = 'none';
             @endif
 
                 @if(!hasPermission('procurement:approve:director'))
@@ -405,10 +464,16 @@
                     if (directorApprovalBtn) directorApprovalBtn.style.display = 'none';
                 @endif
 
+            @if(!hasPermission('procurement:reject') && !hasPermission('procurement:approve:manager') && !hasPermission('procurement:approve:director'))
+                // Hide reject button if user doesn't have permission
+                const rejectBtnElement = document.getElementById('rejectBtn');
+                if (rejectBtnElement) rejectBtnElement.style.display = 'none';
+                @endif
+
                 @if(!hasPermission('price-comparison:create'))
                     // Hide create comparison button if user doesn't have permission
-                    const createComparisonBtn = document.getElementById('createComparisonBtn');
-                    if (createComparisonBtn) createComparisonBtn.style.display = 'none';
+                const createComparisonBtnElement = document.getElementById('createComparisonBtn');
+                if (createComparisonBtnElement) createComparisonBtnElement.style.display = 'none';
                 @endif
 
             // Manager Approval Button
@@ -469,9 +534,9 @@
             }
 
             // Director Approval Button
-            const directorApprovalBtn = document.getElementById('directorApprovalBtn');
-            if (directorApprovalBtn) {
-                directorApprovalBtn.addEventListener('click', function () {
+            const directorApprovalBtnElement = document.getElementById('directorApprovalBtn');
+            if (directorApprovalBtnElement) {
+                directorApprovalBtnElement.addEventListener('click', function () {
                     showSweetAlert('Apakah Anda yakin ingin menyetujui pengadaan ini sebagai direktur?', 'warning', {
                         title: 'Konfirmasi Persetujuan',
                         showCancelButton: true,
@@ -523,6 +588,9 @@
             // Rejection Modal
             const rejectBtn = document.getElementById('rejectBtn');
             const rejectModal = document.getElementById('rejectModal');
+            
+            // Only proceed with modal setup if both the button and modal exist
+            if (rejectBtn && rejectModal) {
             const rejectModalContent = document.getElementById('rejectModalContent');
             const rejectForm = document.getElementById('rejectForm');
             const rejectionReasonField = document.getElementById('rejection_reason');
@@ -542,7 +610,6 @@
                 }, 300);
             }
 
-            if (rejectBtn) {
                 rejectBtn.addEventListener('click', function () {
                     rejectModal.classList.remove('hidden');
                     setTimeout(() => {
@@ -550,7 +617,6 @@
                         rejectModalContent.classList.add('scale-100', 'opacity-100', 'translate-y-0');
                     }, 10);
                 });
-            }
 
             // Add event listeners to all close buttons
             document.querySelectorAll('.close-modal').forEach(button => {
@@ -653,6 +719,7 @@
                         showSweetAlert('Terjadi kesalahan saat memproses permintaan Anda', 'error');
                     });
             });
+            }
 
             // Create Price Comparison
             const createComparisonBtn = document.getElementById('createComparisonBtn');

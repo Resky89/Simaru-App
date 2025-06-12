@@ -35,7 +35,7 @@
     </div>
 
     <!-- Error message container -->
-    <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+    <div id="depreciationErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
     </div>
 
     <!-- Content sections -->
@@ -50,10 +50,12 @@
                         <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nilai Sisa</th>
                         <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Usia Asset (Bulan)</th>
                         <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Metode Penyusutan</th>
+                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nilai Saat Ini</th>
                     </tr>
                 </thead>
                 <tbody id="depreciationSummary">
                     <tr>
+                        <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">-</td>
@@ -72,6 +74,7 @@
                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <h3 class="text-lg font-medium mb-2">Asset Ini Belum Memiliki Data Penyusutan</h3>
+                <p class="text-blue-600">Silakan gunakan tombol Pengaturan untuk menambahkan data penyusutan</p>
             </div>
         </div>
 
@@ -670,7 +673,7 @@
                 showLoading() {
                     document.getElementById('depreciationLoadingIndicator').classList.remove('hidden');
                     document.getElementById('contentSections').classList.add('hidden');
-                    document.getElementById('errorMessage').classList.add('hidden');
+                    document.getElementById('depreciationErrorMessage').classList.add('hidden');
                 },
 
                 hideLoading() {
@@ -679,7 +682,7 @@
                 },
 
                 showError(message) {
-                    const errorDiv = document.getElementById('errorMessage');
+                    const errorDiv = document.getElementById('depreciationErrorMessage');
                     errorDiv.textContent = message;
                     errorDiv.classList.remove('hidden');
                     document.getElementById('contentSections').classList.add('hidden');
@@ -777,16 +780,52 @@
                         }
                     })
                         .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
-                            }
-                            return response.json();
+                            // First check if response is ok, but don't throw error right away
+                            // We want to check the response body first
+                            return response.json().then(data => {
+                                return {
+                                    ok: response.ok,
+                                    status: response.status,
+                                    data: data
+                                };
+                            });
                         })
-                        .then(data => {
+                        .then(result => {
+                            const data = result.data;
                             console.log('Menerima data penyusutan:', data);
 
+                            // Special handling for HTTP errors with response body
+                            if (!result.ok) {
+                                console.warn(`HTTP status ${result.status} with response:`, data);
+
+                                // Check if it's a specific depreciation-related error
+                                if (data &&
+                                    (data.message?.includes('Aset tidak dapat didepresiasi') ||
+                                    (typeof data.errors === 'string' && data.errors.includes('Aset tidak dapat didepresiasi')))) {
+
+                                    // Show user-friendly message for assets that cannot be depreciated
+                                    this.showCannotDepreciateMessage(data.message || 'Aset tidak dapat didepresiasi');
+                                    return;
+                                }
+
+                                // Otherwise, throw a formatted error that will be caught below
+                                throw new Error(data.errors || `Error HTTP: ${result.status}`);
+                            }
+
                             if (data.success === false) {
+                                // Check if it's a specific depreciation-related error
+                                if (data.errors &&
+                                    (typeof data.errors === 'string' && data.errors.includes('Aset tidak dapat didepresiasi'))) {
+                                    this.showCannotDepreciateMessage(data.errors);
+                                    return;
+                                }
                                 throw new Error(data.errors || 'Gagal memuat data');
+                            }
+
+                            // Check for the special "no depreciation" flag
+                            if (data.no_depreciation === true) {
+                                this.showCannotDepreciateMessage(data.message || 'Aset tidak dapat didepresiasi');
+                                return;
                             }
 
                             // Check if depreciation data exists
@@ -811,14 +850,27 @@
 
                 showNoDepreciationData() {
                     // Hide loading indicator
-                    document.getElementById('loadingIndicator').classList.add('hidden');
-                    document.getElementById('errorMessage').classList.add('hidden');
+                    document.getElementById('depreciationLoadingIndicator').classList.add('hidden');
+                    document.getElementById('depreciationErrorMessage').classList.add('hidden');
 
                     // Show content sections but only the no data message
                     document.getElementById('contentSections').classList.remove('hidden');
 
                     // Show no data message
-                    document.getElementById('noDepreciationData').classList.remove('hidden');
+                    const noDataElement = document.getElementById('noDepreciationData');
+                    if (noDataElement) {
+                        noDataElement.classList.remove('hidden');
+                        noDataElement.innerHTML = `
+                            <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-8 rounded-lg mb-8 text-center">
+                                <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <h3 class="text-lg font-medium mb-2">Asset Ini Belum Memiliki Data Penyusutan</h3>
+                                <p class="text-blue-600">Silakan gunakan tombol Pengaturan untuk menambahkan data penyusutan</p>
+                            </div>
+                        `;
+                    }
 
                     // Hide other content
                     document.getElementById('depreciationChartContainer').classList.add('hidden');
@@ -832,6 +884,9 @@
                     const totalCost = depreciation.total_cost || 0;
                     const salvageValue = depreciation.salvage_value || 0;
 
+                    // Calculate current value based on depreciation data
+                    const currentValue = this.calculateCurrentValue(depreciation);
+
                     // Update summary table
                     document.getElementById('depreciationSummary').innerHTML = `
                     <tr>
@@ -840,18 +895,47 @@
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? this.formatPercentage(salvageValue, totalCost) : this.formatCurrency(salvageValue)}</td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.asset_life_months || '-'}</td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.getDepreciationMethodText(depreciation.depreciation_method)}</td>
+                        <td class="p-3 text-xs border-t border-[#EEF1F4] font-semibold text-[#213268]">${this.isPercentageView ? this.formatPercentage(currentValue, totalCost) : this.formatCurrency(currentValue)}</td>
                     </tr>
                 `;
 
                     // Update monthly data table
                     if (Array.isArray(depreciation.monthly_data)) {
+                        // Find the current month or most recent month for highlighting
+                        const today = new Date();
+                        const currentYear = today.getFullYear();
+                        const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+
+                        // First try to find exact match for current month
+                        const currentMonthMatch = this.findCurrentMonthMatch(depreciation.monthly_data, currentYear, currentMonth);
+
+                        // If no exact match, find the most recent month
+                        const mostRecentMonth = currentMonthMatch ||
+                            this.findMostRecentMonth(depreciation.monthly_data, depreciation.date_acquired);
+
+                        // Get month number to highlight (if found)
+                        const highlightMonthNumber = mostRecentMonth ? mostRecentMonth.month_number : null;
+
                         const monthlyRows = depreciation.monthly_data.map(month => {
                             const expense = month.expense || 0;
                             const accumulatedDepreciation = month.accumulated_depreciation || 0;
                             const bookValue = month.book_value || 0;
 
+                            // Determine if this is the current value row to highlight
+                            const isCurrentValueRow = highlightMonthNumber &&
+                                month.month_number &&
+                                parseInt(month.month_number, 10) === parseInt(highlightMonthNumber, 10);
+
+                            // Add highlight class for current month row
+                            const highlightClass = isCurrentValueRow ?
+                                'bg-blue-50 font-medium' : '';
+
+                            // Add special cell highlighting for the book value in current month
+                            const bookValueClass = isCurrentValueRow ?
+                                'font-semibold text-[#213268]' : '';
+
                             return `
-                        <tr>
+                        <tr class="${highlightClass}">
                             <td class="p-3 text-xs border-t border-[#EEF1F4]">${month.month_number}</td>
                             <td class="p-3 text-xs border-t border-[#EEF1F4]">${month.month_name}</td>
                             <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView
@@ -862,10 +946,10 @@
                                     ? this.formatPercentage(accumulatedDepreciation, totalCost)
                                     : this.formatCurrency(accumulatedDepreciation)
                                 }</td>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView
+                            <td class="p-3 text-xs border-t border-[#EEF1F4] ${bookValueClass}">${this.isPercentageView
                                     ? this.formatPercentage(bookValue, totalCost)
                                     : this.formatCurrency(bookValue)
-                                }</td>
+                                }${isCurrentValueRow ? ' <span class="text-xs text-blue-600">(Nilai Saat Ini)</span>' : ''}</td>
                         </tr>
                         `;
                         }).join('');
@@ -912,9 +996,11 @@
 
                     // If percentage view is enabled, convert values to percentages
                     if (this.isPercentageView && displayData.values && displayData.values.length > 0) {
-                        const initialValue = displayData.values[0];
+                        // Get total cost from current depreciation data instead of using first value as base
+                        const totalCost = this.currentDepreciation?.total_cost || 0;
+                        // Use the same percentage calculation method as the table
                         displayData.values = displayData.values.map(value =>
-                            initialValue > 0 ? (value / initialValue) * 100 : 0
+                            totalCost > 0 ? (value / totalCost) * 100 : 0
                         );
                     }
 
@@ -981,6 +1067,180 @@
 
                 updateChart(chartData) {
                     this.updateChartData(chartData);
+                },
+
+                // New helper method to show cannot depreciate message
+                showCannotDepreciateMessage(message) {
+                    document.getElementById('depreciationLoadingIndicator').classList.add('hidden');
+                    document.getElementById('depreciationErrorMessage').classList.add('hidden');
+                    document.getElementById('contentSections').classList.remove('hidden');
+
+                    // Show no data message with custom text
+                    const noDataElement = document.getElementById('noDepreciationData');
+                    if (noDataElement) {
+                        noDataElement.classList.remove('hidden');
+                        noDataElement.innerHTML = `
+                            <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-8 rounded-lg mb-8 text-center">
+                                <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <h3 class="text-lg font-medium mb-2">Aset Ini Tidak Dapat Didepresiasi</h3>
+                                <p class="text-blue-600">${message || 'Silakan periksa jenis aset atau nilai pengadaan'}</p>
+                            </div>
+                        `;
+                    }
+
+                    // Hide chart and details containers
+                    document.getElementById('depreciationChartContainer').classList.add('hidden');
+                    document.getElementById('depreciationDetailsContainer').classList.add('hidden');
+                },
+
+                // Add function to calculate current value
+                calculateCurrentValue(depreciation) {
+                    if (!depreciation || !depreciation.monthly_data || !Array.isArray(depreciation.monthly_data) || depreciation.monthly_data.length === 0) {
+                        return depreciation.total_cost || 0;
+                    }
+
+                    // Get today's date
+                    const today = new Date();
+                    const currentYear = today.getFullYear();
+                    const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+
+                    // Start with total cost as fallback
+                    let currentValue = depreciation.total_cost || 0;
+
+                    // First try to find an exact match for the current month
+                    const currentMonthMatch = this.findCurrentMonthMatch(depreciation.monthly_data, currentYear, currentMonth);
+
+                    if (currentMonthMatch !== null) {
+                        // We found the current month, use its book value
+                        currentValue = currentMonthMatch.book_value || currentValue;
+                    } else {
+                        // Find the most recent month not in the future
+                        const mostRecentMonth = this.findMostRecentMonth(depreciation.monthly_data, depreciation.date_acquired);
+                        if (mostRecentMonth !== null) {
+                            currentValue = mostRecentMonth.book_value || currentValue;
+                        }
+                    }
+
+                    return currentValue;
+                },
+
+                // Helper function to find current month in depreciation data
+                findCurrentMonthMatch(monthlyData, currentYear, currentMonth) {
+                    // Map of month names
+                    const monthNames = {
+                        1: ['january', 'januari', 'jan'],
+                        2: ['february', 'februari', 'feb'],
+                        3: ['march', 'maret', 'mar'],
+                        4: ['april', 'apr'],
+                        5: ['may', 'mei'],
+                        6: ['june', 'juni', 'jun'],
+                        7: ['july', 'juli', 'jul'],
+                        8: ['august', 'agustus', 'aug', 'agu', 'agt'],
+                        9: ['september', 'sep', 'sept'],
+                        10: ['october', 'oktober', 'oct', 'okt'],
+                        11: ['november', 'nov'],
+                        12: ['december', 'desember', 'dec', 'des']
+                    };
+
+                    for (const month of monthlyData) {
+                        if (month.month_name) {
+                            // Parse "Month Year" format (e.g., "January 2023")
+                            const parts = month.month_name.split(/\s+/);
+                            if (parts.length >= 2) {
+                                const monthName = parts[0].toLowerCase();
+                                const year = parseInt(parts[parts.length-1], 10);
+
+                                if (year === currentYear) {
+                                    // Check if this month matches the current month
+                                    for (const [num, names] of Object.entries(monthNames)) {
+                                        if (parseInt(num, 10) === currentMonth) {
+                                            if (names.includes(monthName)) {
+                                                return month;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return null;
+                },
+
+                // Helper function to find the most recent month not in the future
+                findMostRecentMonth(monthlyData, dateAcquired) {
+                    const today = new Date();
+                    let mostRecentMonth = null;
+                    let mostRecentDate = null;
+
+                    // Month name parsing helper
+                    const parseMonth = (monthName) => {
+                        const monthMap = {
+                            'january': 1, 'januari': 1, 'jan': 1,
+                            'february': 2, 'februari': 2, 'feb': 2,
+                            'march': 3, 'maret': 3, 'mar': 3,
+                            'april': 4, 'apr': 4,
+                            'may': 5, 'mei': 5,
+                            'june': 6, 'juni': 6, 'jun': 6,
+                            'july': 7, 'juli': 7, 'jul': 7,
+                            'august': 8, 'agustus': 8, 'aug': 8, 'agt': 8, 'agu': 8,
+                            'september': 9, 'sep': 9, 'sept': 9,
+                            'october': 10, 'oktober': 10, 'oct': 10, 'okt': 10,
+                            'november': 11, 'nov': 11,
+                            'december': 12, 'desember': 12, 'dec': 12, 'des': 12
+                        };
+
+                        const parts = monthName.toLowerCase().split(/\s+/);
+                        if (parts.length >= 2) {
+                            const monthPart = parts[0];
+                            const yearPart = parseInt(parts[parts.length-1], 10);
+
+                            if (monthMap[monthPart] && !isNaN(yearPart)) {
+                                return { month: monthMap[monthPart], year: yearPart };
+                            }
+                        }
+                        return null;
+                    };
+
+                    for (const month of monthlyData) {
+                        let monthDate = null;
+
+                        // Try to extract date from month_name
+                        if (month.month_name) {
+                            const parsed = parseMonth(month.month_name);
+                            if (parsed) {
+                                try {
+                                    monthDate = new Date(parsed.year, parsed.month - 1, 28); // Use 28 as a safe day value
+                                } catch (e) {
+                                    continue;
+                                }
+                            }
+                        }
+                        // If we have month_number and date_acquired
+                        else if (month.month_number && dateAcquired) {
+                            try {
+                                const startDate = new Date(dateAcquired);
+                                monthDate = new Date(startDate);
+                                monthDate.setMonth(startDate.getMonth() + (parseInt(month.month_number, 10) - 1));
+                            } catch (e) {
+                                continue;
+                            }
+                        }
+
+                        // If we have a valid date that's not in the future
+                        if (monthDate && monthDate <= today) {
+                            // If this is our first valid month or it's more recent
+                            if (mostRecentDate === null || monthDate > mostRecentDate) {
+                                mostRecentDate = monthDate;
+                                mostRecentMonth = month;
+                            }
+                        }
+                    }
+
+                    return mostRecentMonth;
                 }
             };
 

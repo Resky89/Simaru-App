@@ -803,6 +803,27 @@
                 content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
                 setTimeout(() => {
                     modal.classList.add('hidden');
+                    
+                    // Clear selected assets when closing the link assets modal
+                    if (modal.id === 'linkAssetsModal') {
+                        // Reset selected assets array
+                        selectedAssets = [];
+                        
+                        // Uncheck all checkboxes
+                        document.querySelectorAll('.asset-checkbox').forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                        
+                        // Uncheck "select all" checkbox
+                        const selectAllCheckbox = document.getElementById('select-all-link-assets');
+                        if (selectAllCheckbox) {
+                            selectAllCheckbox.checked = false;
+                            selectAllCheckbox.indeterminate = false;
+                        }
+                        
+                        // Update link button state
+                        updateLinkButtonState();
+                    }
                 }, 300);
             };
 
