@@ -795,6 +795,15 @@
             const selectedAssetName = document.getElementById('selectedAssetName');
             const selectedAssetId = document.getElementById('selectedAssetId');
             const clearAssetSelection = document.getElementById('clearAssetSelection');
+            const deleteComplaintModal = document.getElementById('deleteComplaintModal');
+            const deleteComplaintModalContent = document.getElementById('deleteComplaintModalContent');
+            const repairComplaintModal = document.getElementById('repairComplaintModal');
+            const repairComplaintModalContent = document.getElementById('repairComplaintModalContent');
+            const repairForm = document.getElementById('repairForm');
+            const repairErrorMsgDiv = document.getElementById('repairErrorMessages');
+            const repairComplaintId = document.getElementById('repairComplaintId');
+            const repairAssetName = document.getElementById('repairAssetName');
+            const repairImagePreview = document.getElementById('repairImagePreview');
 
             // Check for flash messages from session and show toast notifications
             @if(session('success'))
@@ -808,6 +817,8 @@
                 // ===== UTILITY FUNCTIONS =====
                 // Modal functions
                 function openModal(modal, content) {
+                    if (!modal || !content) return;
+
                     modal.classList.remove('hidden');
                     setTimeout(() => {
                         content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
@@ -816,6 +827,8 @@
                 }
 
             function closeModal(modal, content) {
+                if (!modal || !content) return;
+
                 content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
                 content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
                 setTimeout(() => {
@@ -838,9 +851,9 @@
 
             // Function to apply filters
             function applyFilters() {
-                const searchTerm = searchInput.value;
-                const sort_order = sortOrder.value;
-                const status = statusFilter.value;
+                const searchTerm = searchInput?.value || '';
+                const sort_order = sortOrder?.value || '';
+                const status = statusFilter?.value || '';
                 const limit = perPageSelect?.value || 10;
 
                 const url = new URL(window.location.href);
@@ -874,83 +887,114 @@
                 window.location.href = url.toString();
             }
 
-            imageFile?.addEventListener('change', function () {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
+            // Image file handling
+            if (imageFile) {
+                imageFile.addEventListener('change', function () {
+                    const file = this.files[0];
+                    if (file && previewImg && imagePreview) {
+                        const reader = new FileReader();
 
-                    reader.onload = function (e) {
-                        previewImg.src = e.target.result;
-                        imagePreview.classList.remove('hidden');
-                    }
+                        reader.onload = function (e) {
+                            previewImg.src = e.target.result;
+                            imagePreview.classList.remove('hidden');
+                        }
 
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            removeImage?.addEventListener('click', function () {
-                imageFile.value = '';
-                imagePreview.classList.add('hidden');
-                previewImg.src = '#';
-            });
-
-            // Modal Controls
-            createComplaintBtn?.addEventListener('click', function () {
-                openModal(createComplaintModal, createComplaintModalContent);
-
-                // Clear form and error messages
-                complaintForm?.reset();
-                if (errorMsgDiv) errorMsgDiv.innerHTML = '';
-
-                // Reset image preview
-                if (imagePreview) {
-                    imagePreview.classList.add('hidden');
-                }
-            });
-
-            closeModalBtns?.forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const modal = this.closest('[id$="Modal"]');
-                    const content = modal.querySelector('[id$="ModalContent"]');
-                    if (modal && content) {
-                        closeModal(modal, content);
+                        reader.readAsDataURL(file);
                     }
                 });
-            });
+            }
 
-            createComplaintModal?.addEventListener('click', function (event) {
-                if (event.target === this) {
-                    closeModal(createComplaintModal, createComplaintModalContent);
-                }
-            });
+            if (removeImage) {
+                removeImage.addEventListener('click', function () {
+                    if (imageFile) {
+                        imageFile.value = '';
+                    }
+                    if (imagePreview) {
+                        imagePreview.classList.add('hidden');
+                    }
+                    if (previewImg) {
+                        previewImg.src = '#';
+                    }
+                });
+            }
+
+            // Modal Controls
+            if (createComplaintBtn && createComplaintModal && createComplaintModalContent) {
+                createComplaintBtn.addEventListener('click', function () {
+                    openModal(createComplaintModal, createComplaintModalContent);
+
+                    // Clear form and error messages
+                    if (complaintForm) {
+                        complaintForm.reset();
+                    }
+                    if (errorMsgDiv) {
+                        errorMsgDiv.innerHTML = '';
+                    }
+
+                    // Reset image preview
+                    if (imagePreview) {
+                        imagePreview.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Modal close buttons
+            if (closeModalBtns && closeModalBtns.length > 0) {
+                closeModalBtns.forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const modal = this.closest('[id$="Modal"]');
+                        const content = modal?.querySelector('[id$="ModalContent"]');
+                        if (modal && content) {
+                            closeModal(modal, content);
+                        }
+                    });
+                });
+            }
+
+            // Close modal when clicking outside
+            if (createComplaintModal) {
+                createComplaintModal.addEventListener('click', function (event) {
+                    if (event.target === this && createComplaintModalContent) {
+                        closeModal(createComplaintModal, createComplaintModalContent);
+                    }
+                });
+            }
 
             // Search and Filtering
-            searchInput?.addEventListener('input', debounce(function () {
-                applyFilters();
-            }, 500));
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(function () {
+                    applyFilters();
+                }, 500));
+            }
 
-            sortOrder?.addEventListener('change', function () {
-                applyFilters();
-            });
+            if (sortOrder) {
+                sortOrder.addEventListener('change', function () {
+                    applyFilters();
+                });
+            }
 
-            statusFilter?.addEventListener('change', function () {
-                applyFilters();
-            });
+            if (statusFilter) {
+                statusFilter.addEventListener('change', function () {
+                    applyFilters();
+                });
+            }
 
             // Per page selection is handled via the onchange attribute
 
             // Export PDF functionality
-            exportBtn?.addEventListener('click', () => {
-                // Get current URL parameters
-                const url = new URL(window.location.href);
-                const searchParams = url.searchParams;
+            if (exportBtn) {
+                exportBtn.addEventListener('click', () => {
+                    // Get current URL parameters
+                    const url = new URL(window.location.href);
+                    const searchParams = url.searchParams;
 
-                // Create the PDF export URL with the same parameters
-                const exportUrl = "{{ route('complaint.export.pdf') }}?" + searchParams.toString();
+                    // Create the PDF export URL with the same parameters
+                    const exportUrl = "{{ route('complaint.export.pdf') }}?" + searchParams.toString();
 
-                // Open in a new window/tab, not replacing the current one
-                window.open(exportUrl, '_blank', 'noopener,noreferrer');
-            });
+                    // Open in a new window/tab, not replacing the current one
+                    window.open(exportUrl, '_blank', 'noopener,noreferrer');
+                });
+            }
 
             // ===== ASSET SEARCH FUNCTIONALITY WITH DEBOUNCE =====
             const assets = @json($assets ?? []);
@@ -963,49 +1007,61 @@
             }
 
             // Close dropdown when clicking outside
-            document.addEventListener('click', function (e) {
-                if (assetSearch && assetDropdown && !assetSearch.contains(e.target) && !assetDropdown.contains(e.target)) {
-                    assetDropdown.classList.add('hidden');
-                }
-            });
+            if (assetSearch && assetDropdown) {
+                document.addEventListener('click', function (e) {
+                    if (!assetSearch.contains(e.target) && !assetDropdown.contains(e.target)) {
+                        assetDropdown.classList.add('hidden');
+                    }
+                });
+            }
 
             // Open dropdown when focusing on search input
-            assetSearch?.addEventListener('focus', function () {
-                // Only show dropdown if we haven't selected an asset yet
-                if (!assetId.value) {
-                    // Show loading indicator initially
+            if (assetSearch && assetDropdown && assetId && assetLoadingIndicator && assetNoResults && assetDropdownContent) {
+                assetSearch.addEventListener('focus', function () {
+                    // Only show dropdown if we haven't selected an asset yet
+                    if (!assetId.value) {
+                        // Show loading indicator initially
+                        assetLoadingIndicator.classList.remove('hidden');
+                        assetNoResults.classList.add('hidden');
+                        assetDropdownContent.innerHTML = '';
+                        assetDropdown.classList.remove('hidden');
+
+                        // Load initial assets (empty search)
+                        searchAssets('');
+                    }
+                });
+            }
+
+            // Handle asset search with debounce
+            if (assetSearch && assetLoadingIndicator && assetNoResults && assetDropdownContent && assetDropdown) {
+                assetSearch.addEventListener('input', function () {
+                    const searchTerm = this.value.toLowerCase().trim();
+
+                    // Show loading indicator and dropdown
                     assetLoadingIndicator.classList.remove('hidden');
                     assetNoResults.classList.add('hidden');
                     assetDropdownContent.innerHTML = '';
                     assetDropdown.classList.remove('hidden');
 
-                    // Load initial assets (empty search)
-                    searchAssets('');
-                }
-            });
+                    // Clear any existing timeout
+                    clearTimeout(assetSearchTimeout);
 
-            // Handle asset search with debounce
-            assetSearch?.addEventListener('input', function () {
-                const searchTerm = this.value.toLowerCase().trim();
-
-                // Show loading indicator and dropdown
-                assetLoadingIndicator.classList.remove('hidden');
-                assetNoResults.classList.add('hidden');
-                assetDropdownContent.innerHTML = '';
-                assetDropdown.classList.remove('hidden');
-
-                // Clear any existing timeout
-                clearTimeout(assetSearchTimeout);
-
-                // Set new timeout for debounce (300ms)
-                assetSearchTimeout = setTimeout(function () {
-                    // Search assets using server-side API
-                    searchAssets(searchTerm);
-                }, 300);
-            });
+                    // Set new timeout for debounce (300ms)
+                    assetSearchTimeout = setTimeout(function () {
+                        // Search assets using server-side API
+                        searchAssets(searchTerm);
+                    }, 300);
+                });
+            }
 
             // Function to search assets using server API
             function searchAssets(searchTerm) {
+                // Check if required elements exist
+                if (!assetLoadingIndicator || !assetNoResults || !assetDropdownContent) {
+                    console.error('Required DOM elements for asset search are missing');
+                    return;
+                }
+
                 // Show loading state
                 assetLoadingIndicator.classList.remove('hidden');
                 assetNoResults.classList.add('hidden');
@@ -1045,14 +1101,18 @@
                 })
                 .catch(error => {
                     console.error('Error searching assets:', error);
-                    assetLoadingIndicator.classList.add('hidden');
+                    if (assetLoadingIndicator) {
+                        assetLoadingIndicator.classList.add('hidden');
+                    }
 
                     // Show error message
-                    assetDropdownContent.innerHTML = `
-                        <div class="p-2 text-center text-red-500">
-                            Gagal mencari aset. Silakan coba lagi.
-                        </div>
-                    `;
+                    if (assetDropdownContent) {
+                        assetDropdownContent.innerHTML = `
+                            <div class="p-2 text-center text-red-500">
+                                Gagal mencari aset. Silakan coba lagi.
+                            </div>
+                        `;
+                    }
 
                     // If we have local assets data, fall back to client-side filtering
                     if (assets && assets.length > 0) {
@@ -1075,6 +1135,12 @@
 
             // Function to display filtered assets in dropdown
             function displayFilteredAssets(filteredAssets, searchTerm) {
+                // Check if required elements exist
+                if (!assetDropdownContent || !assetLoadingIndicator || !assetNoResults) {
+                    console.error('Required DOM elements for displaying assets are missing');
+                    return;
+                }
+
                 assetDropdownContent.innerHTML = '';
                 assetLoadingIndicator.classList.add('hidden');
 
@@ -1111,6 +1177,12 @@
 
             // Function to select an asset
             function selectAsset(asset) {
+                if (!assetId || !assetSearch || !assetDropdown || !selectedAssetName ||
+                    !selectedAssetId || !selectedAssetInfo) {
+                    console.error('Required DOM elements for selecting asset are missing');
+                    return;
+                }
+
                 assetId.value = asset.asset_id;
                 assetSearch.value = asset.asset_master_name || asset.asset_name;
                 assetDropdown.classList.add('hidden');
@@ -1129,111 +1201,288 @@
             });
 
             // ===== FORM SUBMISSION =====
-            complaintForm?.addEventListener('submit', function (e) {
-                // Prevent default submission to validate first
-                e.preventDefault();
+            if (complaintForm) {
+                complaintForm.addEventListener('submit', function (e) {
+                    // Prevent default submission to validate first
+                    e.preventDefault();
 
-                // Validate all required fields
-                const assetSearchInput = document.getElementById('assetSearch');
-                const descriptionInput = document.getElementById('description');
-                const imageFileInput = document.getElementById('imageFile');
+                    // Validate all required fields
+                    const assetSearchInput = document.getElementById('assetSearch');
+                    const descriptionInput = document.getElementById('description');
+                    const imageFileInput = document.getElementById('imageFile');
 
-                const isAssetValid = validateField(assetSearchInput, !!document.getElementById('assetId').value);
-                const isDescriptionValid = validateField(descriptionInput);
-                const isImageValid = validateField(imageFileInput, imageFileInput.files && imageFileInput.files.length > 0);
+                    if (!assetSearchInput || !descriptionInput || !imageFileInput) {
+                        showToast('Form elements tidak ditemukan', 'error');
+                        return false;
+                    }
 
-                // If any validation fails, show error and stop submission
-                if (!isAssetValid || !isDescriptionValid || !isImageValid) {
-                    // Focus on the first invalid field
-                    if (!isAssetValid) assetSearchInput.focus();
-                    else if (!isDescriptionValid) descriptionInput.focus();
-                    else if (!isImageValid) imageFileInput.focus();
+                    const isAssetValid = validateField(assetSearchInput, !!document.getElementById('assetId')?.value);
+                    const isDescriptionValid = validateField(descriptionInput);
+                    const isImageValid = validateField(imageFileInput, imageFileInput.files && imageFileInput.files.length > 0);
 
-                    showToast('Silakan isi semua field yang diperlukan', 'error');
-                    return false;
-                }
+                    // If any validation fails, show error and stop submission
+                    if (!isAssetValid || !isDescriptionValid || !isImageValid) {
+                        // Focus on the first invalid field
+                        if (!isAssetValid) assetSearchInput.focus();
+                        else if (!isDescriptionValid) descriptionInput.focus();
+                        else if (!isImageValid) imageFileInput.focus();
 
-                // Find the submit button and show loading state
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn) {
-                    const originalText = submitBtn.innerHTML;
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = `
-                        <div class="flex items-center justify-center">
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Memproses...</span>
-                        </div>
-                    `;
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                        return false;
+                    }
 
-                    // Re-enable button after 10 seconds as a failsafe
-                    setTimeout(() => {
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = originalText;
-                        }
-                    }, 10000);
-                }
+                    // Find the submit button and show loading state
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
 
-                // Continue with form submission
-                this.submit();
-            });
+                        // Re-enable button after 10 seconds as a failsafe
+                        setTimeout(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+
+                    // Continue with form submission
+                    this.submit();
+                });
+            }
 
             // Repair form submission validation
-            const repairForm = document.getElementById('repairForm');
-            const repairErrorMsgDiv = document.getElementById('repairErrorMessages');
+            if (repairForm) {
+                repairForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
 
-            repairForm?.addEventListener('submit', function (e) {
-                e.preventDefault();
+                    // Validate all required fields
+                    const repairDescription = document.getElementById('repairDescription');
+                    const finalResult = document.getElementById('finalResult');
+                    const repairCost = document.getElementById('repairCost');
+                    const partsReplaced = document.getElementById('partsReplaced');
+                    const repairImageFile = document.getElementById('repairImageFile');
 
-                // Validate all required fields
-                const isDescriptionValid = validateField(document.getElementById('repairDescription'));
-                const isResultValid = validateField(document.getElementById('finalResult'));
-                const isCostValid = validateField(document.getElementById('repairCost'));
-                const isPartsValid = validateField(document.getElementById('partsReplaced'));
-                const isImageValid = validateField(document.getElementById('repairImageFile'), document.getElementById('repairImageFile').files && document.getElementById('repairImageFile').files.length > 0);
+                    if (!repairDescription || !finalResult || !repairCost || !partsReplaced || !repairImageFile) {
+                        showToast('Form elements tidak ditemukan', 'error');
+                        return false;
+                    }
 
-                // If any validation fails, show error and stop submission
-                if (!isDescriptionValid || !isResultValid || !isCostValid || !isPartsValid || !isImageValid) {
-                    showToast('Silakan isi semua field yang diperlukan', 'error');
-                    return false;
+                    const isDescriptionValid = validateField(repairDescription);
+                    const isResultValid = validateField(finalResult);
+                    const isCostValid = validateField(repairCost);
+                    const isPartsValid = validateField(partsReplaced);
+                    const isImageValid = validateField(repairImageFile, repairImageFile.files && repairImageFile.files.length > 0);
+
+                    // If any validation fails, show error and stop submission
+                    if (!isDescriptionValid || !isResultValid || !isCostValid || !isPartsValid || !isImageValid) {
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                        return false;
+                    }
+
+                    // Find the submit button and show loading state
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        // Re-enable button after 10 seconds as a failsafe
+                        setTimeout(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        }, 10000);
+                    }
+
+                    // Continue with form submission
+                    this.submit();
+                });
+            }
+
+            // Delete button click handlers
+            document.querySelectorAll('.delete-complaint-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const complaintId = button.getAttribute('data-id');
+                    const complaintName = button.getAttribute('data-name');
+
+                    // Set the complaint ID for later use
+                    const deleteComplaintForm = document.getElementById('deleteComplaintForm');
+                    if (deleteComplaintForm) {
+                        deleteComplaintForm.setAttribute('data-id', complaintId);
+                    }
+
+                    // Show asset name in confirmation modal if available
+                    const deleteComplaintName = document.getElementById('deleteComplaintName');
+                    if (complaintName && deleteComplaintName) {
+                        deleteComplaintName.textContent = complaintName;
+                    }
+
+                    // Open delete modal
+                    if (deleteComplaintModal && deleteComplaintModalContent) {
+                        openModal(deleteComplaintModal, deleteComplaintModalContent);
+                    }
+                });
+            });
+
+            // Close modal when clicking outside
+            deleteComplaintModal?.addEventListener('click', function (event) {
+                if (event.target === this) {
+                    closeModal(deleteComplaintModal, deleteComplaintModalContent);
                 }
+            });
 
-                // Find the submit button and show loading state
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn) {
-                    const originalText = submitBtn.innerHTML;
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = `
-                        <div class="flex items-center justify-center">
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Memproses...</span>
-                        </div>
-                    `;
+            // Close repair modal when clicking outside
+            repairComplaintModal?.addEventListener('click', function (event) {
+                if (event.target === this) {
+                    closeModal(repairComplaintModal, repairComplaintModalContent);
+                }
+            });
 
-                    // Re-enable button after 10 seconds as a failsafe
-                    setTimeout(() => {
+            // Repair button click handlers
+            document.querySelectorAll('.repair-complaint-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const complaintId = button.getAttribute('data-id');
+                    const assetName = button.getAttribute('data-asset');
+
+                    // Set form data
+                    const repairComplaintId = document.getElementById('repairComplaintId');
+                    const repairAssetName = document.getElementById('repairAssetName');
+
+                    if (repairComplaintId && repairAssetName) {
+                        repairComplaintId.value = complaintId;
+                        repairAssetName.textContent = assetName;
+
+                        // Reset form and error messages
+                        if (repairForm) {
+                            repairForm.reset();
+                        }
+                        if (repairErrorMsgDiv) {
+                            repairErrorMsgDiv.innerHTML = '';
+                        }
+
+                        // Reset image preview
+                        const repairImagePreview = document.getElementById('repairImagePreview');
+                        if (repairImagePreview) {
+                            repairImagePreview.classList.add('hidden');
+                        }
+
+                        // Open repair modal
+                        if (repairComplaintModal && repairComplaintModalContent) {
+                            openModal(repairComplaintModal, repairComplaintModalContent);
+                        }
+                    }
+                });
+            });
+
+            // Form submission handler for delete
+            const deleteComplaintForm = document.getElementById('deleteComplaintForm');
+            if (deleteComplaintForm) {
+                deleteComplaintForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    // Get the complaint ID from the data attribute
+                    const complaintId = this.getAttribute('data-id');
+
+                    if (!complaintId) {
+                        showToast('ID keluhan tidak valid', 'error');
+                        return;
+                    }
+
+                    // Find the submit button and show loading state
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+                    }
+
+                    // Make the POST request to delete
+                    fetch(`complaint-repair/complaints/${complaintId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ complaint_id: complaintId })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw new Error(data.message || `Server responded with status ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Close the modal
+                        if (deleteComplaintModal && deleteComplaintModalContent) {
+                            closeModal(deleteComplaintModal, deleteComplaintModalContent);
+                        }
+
+                        if (data.success) {
+                            // Show success toast
+                            showToast(data.message || 'Keluhan berhasil dihapus', 'success');
+
+                            // Reload the page after a short delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            showToast(data.message || 'Gagal menghapus keluhan', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Delete request failed:', error);
+
+                        // Close the modal
+                        if (deleteComplaintModal && deleteComplaintModalContent) {
+                            closeModal(deleteComplaintModal, deleteComplaintModalContent);
+                        }
+
+                        // Show error toast
+                        showToast(error.message || 'Gagal menghapus keluhan', 'error');
+
+                        // Reset submit button
                         if (submitBtn) {
                             submitBtn.disabled = false;
                             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = originalText;
                         }
-                    }, 10000);
-                }
-
-                // Continue with form submission
-                this.submit();
-            });
+                    });
+                });
+            }
 
             // Function to validate field and show error styling
             function validateField(field, isValid = null) {
                 if (!field) return true;
 
                 let errorElement = field.type === 'file'
-                    ? field.parentElement.parentElement.querySelector('.error-message')
-                    : field.parentElement.querySelector('.error-message');
+                    ? field.parentElement?.parentElement?.querySelector('.error-message')
+                    : field.parentElement?.querySelector('.error-message');
 
                 // If no explicit valid state is passed, check based on field type
                 if (isValid === null) {
@@ -1242,7 +1491,7 @@
                     } else if (field.type === 'file') {
                         isValid = field.files && field.files.length > 0;
                     } else if (field.id === 'assetSearch') {
-                        isValid = document.getElementById('assetId').value !== '';
+                        isValid = document.getElementById('assetId')?.value !== '';
                     } else {
                         isValid = field.value.trim() !== '';
                     }
@@ -1261,212 +1510,116 @@
             }
 
             // Add input event listeners to clear error styling when typing/changing
-            assetSearch?.addEventListener('input', function () {
-                this.classList.remove('border-red-500');
-                const errorElement = this.parentElement.querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-            });
-
-            document.getElementById('description')?.addEventListener('input', function () {
-                this.classList.remove('border-red-500');
-                const errorElement = this.parentElement.querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-            });
-
-            document.getElementById('imageFile')?.addEventListener('change', function () {
-                this.classList.remove('border-red-500');
-                const errorElement = this.parentElement.parentElement.querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-            });
-
-            document.getElementById('repairDescription')?.addEventListener('input', function () {
-                this.classList.remove('border-red-500');
-                const errorElement = this.parentElement.querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-            });
-
-            document.getElementById('finalResult')?.addEventListener('change', function () {
-                this.classList.remove('border-red-500');
-                const errorElement = this.parentElement.querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-            });
-
-            document.getElementById('repairCost')?.addEventListener('input', function () {
-                this.classList.remove('border-red-500');
-                const errorElement = this.parentElement.querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-            });
-
-            document.getElementById('partsReplaced')?.addEventListener('input', function () {
-                this.classList.remove('border-red-500');
-                const errorElement = this.parentElement.querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-            });
-
-            document.getElementById('repairImageFile')?.addEventListener('change', function () {
-                // Clear error styling
-                this.classList.remove('border-red-500');
-                const errorElement = this.parentElement.parentElement.querySelector('.error-message');
-                if (errorElement) errorElement.classList.add('hidden');
-
-                // Handle image preview
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-
-                    reader.onload = function (e) {
-                        document.getElementById('repairPreviewImg').src = e.target.result;
-                        document.getElementById('repairImagePreview').classList.remove('hidden');
-                    }
-
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            document.getElementById('removeRepairImage')?.addEventListener('click', function () {
-                document.getElementById('repairImageFile').value = '';
-                document.getElementById('repairImagePreview').classList.add('hidden');
-                document.getElementById('repairPreviewImg').src = '#';
-            });
-
-            // Delete button click handlers
-            document.querySelectorAll('.delete-complaint-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const complaintId = button.getAttribute('data-id');
-                    const complaintName = button.getAttribute('data-name');
-
-                    // Set the complaint ID for later use
-                    document.getElementById('deleteComplaintForm').setAttribute('data-id', complaintId);
-
-                    // Show asset name in confirmation modal if available
-                    if (complaintName) {
-                        document.getElementById('deleteComplaintName').textContent = complaintName;
-                    }
-
-                    // Open delete modal
-                    openModal(deleteComplaintModal, deleteComplaintModalContent);
+            if (assetSearch) {
+                assetSearch.addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.parentElement?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
                 });
-            });
+            }
 
-            // Form submission handler for delete
-            document.getElementById('deleteComplaintForm').addEventListener('submit', function (e) {
-                e.preventDefault();
+            const description = document.getElementById('description');
+            if (description) {
+                description.addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.parentElement?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
 
-                // Get the complaint ID from the data attribute
-                const complaintId = this.getAttribute('data-id');
+            if (imageFile) {
+                imageFile.addEventListener('change', function () {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.parentElement?.parentElement?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
 
-                if (!complaintId) {
-                    showToast('ID keluhan tidak valid', 'error');
-                    return;
-                }
+            const repairDescription = document.getElementById('repairDescription');
+            if (repairDescription) {
+                repairDescription.addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.parentElement?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
 
-                // Find the submit button and show loading state
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn) {
-                    const originalText = submitBtn.innerHTML;
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                    submitBtn.innerHTML = `
-                        <div class="flex items-center justify-center">
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Memproses...</span>
-                        </div>
-                    `;
-                }
+            const finalResult = document.getElementById('finalResult');
+            if (finalResult) {
+                finalResult.addEventListener('change', function () {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.parentElement?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
 
-                // Make the POST request to delete
-                fetch(`complaint-repair/complaints/${complaintId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ complaint_id: complaintId })
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw new Error(data.message || `Server responded with status ${response.status}`);
-                            });
+            const repairCost = document.getElementById('repairCost');
+            if (repairCost) {
+                repairCost.addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.parentElement?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
+
+            const partsReplaced = document.getElementById('partsReplaced');
+            if (partsReplaced) {
+                partsReplaced.addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.parentElement?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+            }
+
+            const repairImageFile = document.getElementById('repairImageFile');
+            if (repairImageFile) {
+                repairImageFile.addEventListener('change', function () {
+                    // Clear error styling
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.parentElement?.parentElement?.querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+
+                    // Handle image preview
+                    const file = this.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        const repairPreviewImg = document.getElementById('repairPreviewImg');
+                        const repairImagePreview = document.getElementById('repairImagePreview');
+
+                        if (repairPreviewImg && repairImagePreview) {
+                            reader.onload = function (e) {
+                                repairPreviewImg.src = e.target.result;
+                                repairImagePreview.classList.remove('hidden');
+                            }
+
+                            reader.readAsDataURL(file);
                         }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Close the modal
-                        closeModal(deleteComplaintModal, deleteComplaintModalContent);
+                    }
+                });
+            }
 
-                        if (data.success) {
-                            // Show success toast
-                            showToast(data.message || 'Keluhan berhasil dihapus', 'success');
+            const removeRepairImage = document.getElementById('removeRepairImage');
+            if (removeRepairImage) {
+                removeRepairImage.addEventListener('click', function () {
+                    const repairImageFile = document.getElementById('repairImageFile');
+                    const repairImagePreview = document.getElementById('repairImagePreview');
+                    const repairPreviewImg = document.getElementById('repairPreviewImg');
 
-                            // Reload the page after a short delay
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
-                        } else {
-                            showToast(data.message || 'Gagal menghapus keluhan', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Delete request failed:', error);
-
-                        // Close the modal
-                        closeModal(deleteComplaintModal, deleteComplaintModalContent);
-
-                        // Show error toast
-                        showToast(error.message || 'Gagal menghapus keluhan', 'error');
-
-                        // Reset submit button
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = originalText;
-                        }
-                    });
-            });
-
-            // Repair button click handlers
-            document.querySelectorAll('.repair-complaint-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const complaintId = button.getAttribute('data-id');
-                    const assetName = button.getAttribute('data-asset');
-
-                    // Set form data
-                    repairComplaintId.value = complaintId;
-                    repairAssetName.textContent = assetName;
-
-                    // Reset form and error messages
-                    repairForm?.reset();
-                    if (repairErrorMsgDiv) repairErrorMsgDiv.innerHTML = '';
-
-                    // Reset image preview
+                    if (repairImageFile) {
+                        repairImageFile.value = '';
+                    }
                     if (repairImagePreview) {
                         repairImagePreview.classList.add('hidden');
                     }
-
-                    // Open repair modal
-                    openModal(repairComplaintModal, repairComplaintModalContent);
+                    if (repairPreviewImg) {
+                        repairPreviewImg.src = '#';
+                    }
                 });
-            });
-
-            // Close modal when clicking outside
-            deleteComplaintModal?.addEventListener('click', function (event) {
-                if (event.target === this) {
-                    closeModal(deleteComplaintModal, deleteComplaintModalContent);
-                }
-            });
-
-            // Close repair modal when clicking outside
-            repairComplaintModal?.addEventListener('click', function (event) {
-                if (event.target === this) {
-                    closeModal(repairComplaintModal, repairComplaintModalContent);
-                }
-            });
+            }
         });
 
         // Function to view complaint details - defined globally
-        function viewComplaintDetails(id) {
+        window.viewComplaintDetails = function(id) {
             // Redirect to the complaint detail page
             window.location.href = "{{ url('complaint-repair/detail') }}/" + id;
         }

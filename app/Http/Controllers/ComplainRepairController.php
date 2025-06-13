@@ -755,12 +755,14 @@ class ComplainRepairController extends Controller
             // Mengkonversi gambar ke base64
             if (!empty($complaint['complaint_picture_path'])) {
                 try {
-                    $imagePath = 'https://web-magangunbin2025.rsummi.co.id/api/public/images/' . basename($complaint['complaint_picture_path']);
+                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                    $imagePath = $backendUrl . '/public/images/' . basename($complaint['complaint_picture_path']);
                     $imageData = file_get_contents($imagePath);
                     if ($imageData !== false) {
                         $complaint['complaint_picture_base64'] = base64_encode($imageData);
                     }
                 } catch (\Exception $e) {
+                    \Log::warning('Failed to convert complaint image to base64: ' . $e->getMessage());
                     // Lanjutkan tanpa gambar keluhan jika gagal
                 }
             }
@@ -768,12 +770,14 @@ class ComplainRepairController extends Controller
             // Mengkonversi gambar perbaikan ke base64 jika ada
             if (!empty($complaint['repair']) && !empty($complaint['repair']['repair_picture_path'])) {
                 try {
-                    $repairImagePath = 'https://web-magangunbin2025.rsummi.co.id/api/public/images/' . basename($complaint['repair']['repair_picture_path']);
+                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                    $repairImagePath = $backendUrl . '/public/images/' . basename($complaint['repair']['repair_picture_path']);
                     $repairImageData = file_get_contents($repairImagePath);
                     if ($repairImageData !== false) {
                         $complaint['repair']['repair_picture_base64'] = base64_encode($repairImageData);
                     }
                 } catch (\Exception $e) {
+                    \Log::warning('Failed to convert repair image to base64: ' . $e->getMessage());
                     // Lanjutkan tanpa gambar perbaikan jika gagal
                 }
             }
@@ -787,6 +791,7 @@ class ComplainRepairController extends Controller
             return $pdf->stream('detail_keluhan_' . $id . '_' . now()->format('YmdHis') . '.pdf');
 
         } catch (\Exception $e) {
+            \Log::error('PDF export error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal mengekspor detail keluhan sebagai PDF: ' . $e->getMessage());
         }
     }

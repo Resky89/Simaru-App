@@ -475,7 +475,7 @@
                 // Set edit mode flag based on agreementId
                 const isEditMode = !!agreementId;
 
-                fetch(`/procurement/price-comparison/${comparisonId}`, {
+                fetch(`/procurement/detail-comparison/${comparisonId}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -1247,7 +1247,7 @@
                 backButton.addEventListener('click', function (e) {
                     const comparisonId = document.getElementById('comparison_id').value;
                     const detailUrl = '{{ route("procurement.detail-comparison", ["id" => "__ID__"]) }}'.replace('__ID__', comparisonId);
-                    
+
                     if (formHasChanges()) {
                         e.preventDefault();
                         showSweetAlert('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?', 'warning', {

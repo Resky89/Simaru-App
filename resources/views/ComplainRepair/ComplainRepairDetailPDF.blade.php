@@ -198,7 +198,10 @@
         } elseif ($status == 'finished') {
             $statusClass = 'status-banner-completed';
             $statusText = 'SELESAI';
-            $statusDescription = 'Keluhan telah selesai diperbaiki pada ' . (isset($complaint['finished_date']) ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'tanggal tidak tersedia');
+                $statusDescription = 'Keluhan telah selesai diperbaiki pada ' .
+                (isset($complaint['finished_date']) && $complaint['finished_date'] && $complaint['finished_date'] != '-' ?
+                \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') :
+                'tanggal tidak tersedia');
         } elseif ($status == 'approved') {
             $statusClass = 'status-banner-approved';
             $statusText = 'DISETUJUI';
@@ -264,11 +267,11 @@
                     <div class="detail-row">
                         <div class="detail-cell">
                             <span class="detail-cell-title">Tanggal Keluhan</span>
-                            <span class="detail-cell-value">{{ isset($complaint['complaint_date']) ? \Carbon\Carbon::parse($complaint['complaint_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
+                            <span class="detail-cell-value">{{ isset($complaint['complaint_date']) && $complaint['complaint_date'] && $complaint['complaint_date'] != '-' ? \Carbon\Carbon::parse($complaint['complaint_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                         </div>
                         <div class="detail-cell">
                             <span class="detail-cell-title">Tanggal Selesai</span>
-                            <span class="detail-cell-value">{{ isset($complaint['finished_date']) && $complaint['finished_date'] ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
+                            <span class="detail-cell-value">{{ isset($complaint['finished_date']) && $complaint['finished_date'] && $complaint['finished_date'] != '-' ? \Carbon\Carbon::parse($complaint['finished_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                         </div>
                     </div>
                 </div>
@@ -346,17 +349,17 @@
                         <div class="detail-row">
                             <div class="detail-cell">
                                 <span class="detail-cell-title">Tanggal Perbaikan</span>
-                                <span class="detail-cell-value">{{ isset($complaint['repair']['repair_date']) ? \Carbon\Carbon::parse($complaint['repair']['repair_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
+                                <span class="detail-cell-value">{{ isset($complaint['repair']['repair_date']) && $complaint['repair']['repair_date'] && $complaint['repair']['repair_date'] != '-' ? \Carbon\Carbon::parse($complaint['repair']['repair_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                             </div>
                             <div class="detail-cell">
                                 <span class="detail-cell-title">Tanggal Selesai</span>
-                                <span class="detail-cell-value">{{ isset($complaint['repair']['completion_date']) ? \Carbon\Carbon::parse($complaint['repair']['completion_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
+                                <span class="detail-cell-value">{{ isset($complaint['repair']['completion_date']) && $complaint['repair']['completion_date'] && $complaint['repair']['completion_date'] != '-' ? \Carbon\Carbon::parse($complaint['repair']['completion_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                             </div>
                         </div>
                         <div class="detail-row">
                             <div class="detail-cell">
                                 <span class="detail-cell-title">Tanggal Disetujui</span>
-                                <span class="detail-cell-value">{{ isset($complaint['repair']['approval_date']) ? \Carbon\Carbon::parse($complaint['repair']['approval_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
+                                <span class="detail-cell-value">{{ isset($complaint['repair']['approval_date']) && $complaint['repair']['approval_date'] && $complaint['repair']['approval_date'] != '-' ? \Carbon\Carbon::parse($complaint['repair']['approval_date'])->locale('id')->isoFormat('DD MMMM YYYY') : 'N/A' }}</span>
                             </div>
                             <div class="detail-cell">
                                 <span class="detail-cell-title">Disetujui Oleh</span>
