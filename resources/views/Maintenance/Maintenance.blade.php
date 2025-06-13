@@ -2352,7 +2352,7 @@
                     queryParams.append('search', searchTerm);
                 }
 
-                const url = `/vendor?${queryParams.toString()}`;
+                const url = `/vendors?${queryParams.toString()}`;
 
                 fetch(url, {
                     headers: {

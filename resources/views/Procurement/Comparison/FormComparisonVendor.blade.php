@@ -660,7 +660,7 @@
                         vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor (halaman ' + page + ')...</div>';
                     }
 
-                    fetch(`/vendor?json=true&page=${page}&limit=100`, {
+                    fetch(`/vendors?json=true&page=${page}&limit=100`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'

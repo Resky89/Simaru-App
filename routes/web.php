@@ -137,7 +137,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Vendor Management
-    Route::prefix('vendor')->middleware('permission:vendor:view|maintenance:create|maintenance:edit|calibration:report|price-comparison:vendor-offer:create|price-comparison:vendor-offer:edit')->group(function () {
+    Route::prefix('vendors')->middleware('permission:vendor:view|maintenance:create|maintenance:edit|calibration:report|price-comparison:vendor-offer:create|price-comparison:vendor-offer:edit')->group(function () {
         Route::get('/', [VendorController::class, 'index'])->name('vendor');
         Route::post('/store', [VendorController::class, 'store'])
             ->name('vendor.store')

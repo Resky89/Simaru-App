@@ -1843,7 +1843,7 @@
                             }
 
                             // Make a single fetch request
-                            fetch(`/vendor?${params.toString()}`, {
+                            fetch(`/vendors?${params.toString()}`, {
                                 headers: {
                                     'Accept': 'application/json',
                                     'X-Requested-With': 'XMLHttpRequest'
