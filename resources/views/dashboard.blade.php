@@ -790,7 +790,6 @@
         </div>
     @endif
 
-    <!-- Add helper functions for the view -->
     @php
         function formatCompactNumber($number)
         {
@@ -1062,6 +1061,10 @@
         let activitiesPerPage = 10;
         let hasMoreActivities = false;
         let isLoadingActivities = false;
+
+        // Track whether sections have already been loaded
+        let hasLoadedCalendar = false;
+        let hasLoadedActivities = false;
 
         // Helper function to prevent multiple submissions
         function preventMultipleSubmits(form, buttonSelector) {
@@ -1495,10 +1498,11 @@
             window.fetchCalendarData = fetchCalendarData;
             window.generateCalendar = generateCalendar;
 
-            // Initialize calendar and fetch initial data here, within DOMContentLoaded
+            // Initialize calendar without fetching data
             generateCalendar(currentMonth, currentYear);
-            fetchCalendarData(currentYear, currentMonth);
-            loadAssetActivities(); // Load initial asset activities
+
+            // Set up intersection observers for lazy loading
+            setupLazyLoading();
 
             // Apply form submission protection
             const performCalibrationForm = document.getElementById('performCalibrationForm');
@@ -1523,7 +1527,47 @@
                 }
             }
 
-            // Move fetchCalendarData to global scope AND make it globally accessible
+            // Setup lazy loading for calendar and activity sections
+            function setupLazyLoading() {
+                const options = {
+                    root: null, // use viewport as root
+                    rootMargin: '0px',
+                    threshold: 0.1 // trigger when 10% of the element is visible
+                };
+
+                // Observer for calendar section
+                const calendarObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !hasLoadedCalendar) {
+                            console.log('Calendar section is visible, loading data...');
+                            fetchCalendarData(currentYear, currentMonth);
+                            hasLoadedCalendar = true;
+                            calendarObserver.unobserve(entry.target);
+                        }
+                    });
+                }, options);
+
+                // Observer for activities section
+                const activitiesObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !hasLoadedActivities) {
+                            console.log('Activities section is visible, loading data...');
+                            loadAssetActivities();
+                            hasLoadedActivities = true;
+                            activitiesObserver.unobserve(entry.target);
+                        }
+                    });
+                }, options);
+
+                // Start observing sections
+                const calendarSection = document.querySelector('#calendarDays');
+                const activitiesSection = document.querySelector('#asset-activities');
+
+                if (calendarSection) calendarObserver.observe(calendarSection);
+                if (activitiesSection) activitiesObserver.observe(activitiesSection);
+            }
+
+            // Function to fetch calendar data
             async function fetchCalendarData(year, month) {
                 try {
                     // Update the selectors to match the current year and month
@@ -1538,12 +1582,8 @@
                         </div>
                     `;
 
-
-
                     const response = await fetch(`/dashboard/calendar?year=${year}&month=${month + 1}`);
                     const data = await response.json();
-
-
 
                     if (data.success) {
                         // Update UI with fetched data
@@ -1574,7 +1614,7 @@
                 }
             }
 
-            // Move processCalendarEvents to global scope
+            // Function to process calendar events
             function processCalendarEvents(apiEvents) {
                 // Clear previous events
                 calendarEvents = {};
@@ -1585,19 +1625,13 @@
                     return;
                 }
 
-
-
                 // Default date will be middle of current month
                 const defaultDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-15`;
 
                 apiEvents.forEach(event => {
-
-
                     // Handle missing date property
                     let dateStr = event.date;
                     if (!dateStr) {
-
-
                         // Try to extract date from other properties if available
                         if (event.scheduled_date) {
                             dateStr = event.scheduled_date;
@@ -1612,8 +1646,6 @@
                             const day = Math.floor(Math.random() * 28) + 1; // Random day between 1-28
                             dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                         }
-
-
                     }
 
                     // Ensure date format is consistent (YYYY-MM-DD)
@@ -1627,7 +1659,6 @@
                                 dateStr = defaultDate;
                             }
                         } catch (e) {
-
                             dateStr = defaultDate;
                         }
                     }
@@ -1656,8 +1687,6 @@
                     });
                 });
 
-
-
                 // Sort events by priority (urgent first, then warning, then info)
                 for (const date in calendarEvents) {
                     calendarEvents[date].sort((a, b) => {
@@ -1670,7 +1699,7 @@
                 generateCalendar(currentMonth, currentYear);
             }
 
-            // Move generateCalendar to global scope
+            // Function to generate calendar display
             function generateCalendar(month, year) {
                 const firstDay = new Date(year, month, 1);
                 const lastDay = new Date(year, month + 1, 0);
@@ -1708,8 +1737,6 @@
 
                     let dayEvents = '';
                     if (hasEvents) {
-
-
                         // Show max 3 events in the calendar cell
                         const visibleEvents = calendarEvents[dateStr].slice(0, 3);
                         dayEvents = visibleEvents.map(event => {
@@ -1910,9 +1937,9 @@
 
             // Function to load asset activities
             async function loadAssetActivities(page = 1, append = false) {
-            // Note: isLoadingActivities flag is now set by the caller before the delay
+                // Note: isLoadingActivities flag is now set by the caller before the delay
                 if (!append) {
-                const activitiesContainer = document.getElementById('asset-activities');
+                    const activitiesContainer = document.getElementById('asset-activities');
                     activitiesContainer.innerHTML = `
                         <div class="text-center py-12">
                             <div class="inline-block p-4 bg-[#213268]/5 rounded-full">
@@ -1921,20 +1948,20 @@
                             <p class="mt-3 text-gray-600 font-medium">Memuat aktivitas terakhir...</p>
                         </div>
                     `;
-            }
+                }
 
-            const activitiesContainer = document.getElementById('asset-activities');
-            const loadMoreContainer = document.getElementById('load-more-container');
+                const activitiesContainer = document.getElementById('asset-activities');
+                const loadMoreContainer = document.getElementById('load-more-container');
 
                 try {
                     const response = await fetch(`/dashboard/activities?page=${page}&limit=${activitiesPerPage}`);
                     const data = await response.json();
 
-                // Update loading state
-                showLoadingAnimation(false);
+                    // Update loading state
+                    showLoadingAnimation(false);
 
                     // Remove loading state
-                if (!append) {
+                    if (!append) {
                         activitiesContainer.innerHTML = '';
                     }
 
@@ -1963,17 +1990,17 @@
                             const activitiesHTML = activities.map(activity => createActivityItemHTML(activity)).join('');
 
                             if (append) {
-                            // Add a slide-up animation to new content
-                            const tempContainer = document.createElement('div');
-                            tempContainer.innerHTML = activitiesHTML;
+                                // Add a slide-up animation to new content
+                                const tempContainer = document.createElement('div');
+                                tempContainer.innerHTML = activitiesHTML;
 
-                            // Add animation class to each activity
-                            Array.from(tempContainer.children).forEach((child, index) => {
-                                child.classList.add('animate-slide-in');
-                                child.style.animationDelay = `${index * 100}ms`;
-                            });
+                                // Add animation class to each activity
+                                Array.from(tempContainer.children).forEach((child, index) => {
+                                    child.classList.add('animate-slide-in');
+                                    child.style.animationDelay = `${index * 100}ms`;
+                                });
 
-                            activitiesContainer.insertAdjacentHTML('beforeend', tempContainer.innerHTML);
+                                activitiesContainer.insertAdjacentHTML('beforeend', tempContainer.innerHTML);
                             } else {
                                 activitiesContainer.innerHTML = activitiesHTML;
                             }
@@ -2001,11 +2028,11 @@
                         }
                     }
                 } catch (error) {
-                // Update loading state
-                showLoadingAnimation(false);
+                    // Update loading state
+                    showLoadingAnimation(false);
 
-                        // Show error message
-                if (!append) {
+                    // Show error message
+                    if (!append) {
                         activitiesContainer.innerHTML = `
                             <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
                                 <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
@@ -2030,102 +2057,102 @@
             // Set up load more button event listener
             document.getElementById('load-more-activities').addEventListener('click', () => {
                 if (!isLoadingActivities && hasMoreActivities) {
-                showLoadingAnimation(true);
+                    showLoadingAnimation(true);
                     loadAssetActivities(currentActivitiesPage + 1, true);
                 }
             });
 
-        // Add swipe detection for load more
-        const activitiesContainer = document.getElementById('asset-activities');
-        let touchStartY = 0;
-        let touchEndY = 0;
+            // Add swipe detection for load more
+            const activitiesContainer = document.getElementById('asset-activities');
+            let touchStartY = 0;
+            let touchEndY = 0;
 
-        // Function to show loading animation
-        function showLoadingAnimation(isLoading) {
-            const defaultView = document.getElementById('load-more-default');
-            const loadingView = document.getElementById('load-more-loading');
-            const container = document.getElementById('load-more-activities');
+            // Function to show loading animation
+            function showLoadingAnimation(isLoading) {
+                const defaultView = document.getElementById('load-more-default');
+                const loadingView = document.getElementById('load-more-loading');
+                const container = document.getElementById('load-more-activities');
 
-            if (isLoading) {
-                // Add a smooth transition by changing opacity first
-                defaultView.style.opacity = '0';
-                // Add a subtle scale effect
-                container.classList.add('scale-95');
-                setTimeout(() => {
-                    defaultView.classList.add('hidden');
-                    defaultView.classList.remove('flex');
-                    loadingView.classList.add('flex');
-                    loadingView.classList.remove('hidden');
-                    // Fade in the loading animation
+                if (isLoading) {
+                    // Add a smooth transition by changing opacity first
+                    defaultView.style.opacity = '0';
+                    // Add a subtle scale effect
+                    container.classList.add('scale-95');
+                    setTimeout(() => {
+                        defaultView.classList.add('hidden');
+                        defaultView.classList.remove('flex');
+                        loadingView.classList.add('flex');
+                        loadingView.classList.remove('hidden');
+                        // Fade in the loading animation
+                        loadingView.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingView.style.opacity = '1';
+                            container.classList.remove('scale-95');
+                        }, 50);
+                    }, 300); // Short delay for the fade-out effect
+                } else {
                     loadingView.style.opacity = '0';
+                    // Add a subtle scale effect
+                    container.classList.add('scale-95');
                     setTimeout(() => {
-                        loadingView.style.opacity = '1';
-                        container.classList.remove('scale-95');
-                    }, 50);
-                }, 300); // Short delay for the fade-out effect
-            } else {
-                loadingView.style.opacity = '0';
-                // Add a subtle scale effect
-                container.classList.add('scale-95');
-                setTimeout(() => {
-                    loadingView.classList.add('hidden');
-                    loadingView.classList.remove('flex');
-                    defaultView.classList.add('flex');
-                    defaultView.classList.remove('hidden');
-                    // Fade in the default view
-                    setTimeout(() => {
-                        defaultView.style.opacity = '1';
-                        container.classList.remove('scale-95');
-                    }, 50);
-                }, 300); // Short delay for the fade-out effect
+                        loadingView.classList.add('hidden');
+                        loadingView.classList.remove('flex');
+                        defaultView.classList.add('flex');
+                        defaultView.classList.remove('hidden');
+                        // Fade in the default view
+                        setTimeout(() => {
+                            defaultView.style.opacity = '1';
+                            container.classList.remove('scale-95');
+                        }, 50);
+                    }, 300); // Short delay for the fade-out effect
+                }
             }
-        }
 
-        // Set up swipe detection
-        if (activitiesContainer) {
-            activitiesContainer.addEventListener('touchstart', (e) => {
-                touchStartY = e.changedTouches[0].screenY;
-            }, false);
+            // Set up swipe detection
+            if (activitiesContainer) {
+                activitiesContainer.addEventListener('touchstart', (e) => {
+                    touchStartY = e.changedTouches[0].screenY;
+                }, false);
 
-            activitiesContainer.addEventListener('touchend', (e) => {
-                touchEndY = e.changedTouches[0].screenY;
-                handleSwipe();
-            }, false);
-        }
-
-        function handleSwipe() {
-            const swipeThreshold = 100; // Minimum swipe distance
-            const swipeUp = touchStartY - touchEndY > swipeThreshold;
-
-            if (swipeUp && !isLoadingActivities && hasMoreActivities) {
-                // Set loading flag immediately to prevent multiple calls
-                isLoadingActivities = true;
-                // First show loading animation
-                showLoadingAnimation(true);
-
-                // Add a delay to make the animation visible before loading data
-                setTimeout(() => {
-                    loadAssetActivities(currentActivitiesPage + 1, true);
-                }, 800); // 800ms delay to see the loading animation
+                activitiesContainer.addEventListener('touchend', (e) => {
+                    touchEndY = e.changedTouches[0].screenY;
+                    handleSwipe();
+                }, false);
             }
-        }
 
-        // Add scroll detection to automatically load more activities
-        if (activitiesContainer) {
-            window.addEventListener('scroll', function() {
-                const containerBottom = activitiesContainer.getBoundingClientRect().bottom;
-                const isNearBottom = containerBottom <= window.innerHeight + 100;
+            function handleSwipe() {
+                const swipeThreshold = 100; // Minimum swipe distance
+                const swipeUp = touchStartY - touchEndY > swipeThreshold;
 
-                if (isNearBottom && !isLoadingActivities && hasMoreActivities) {
+                if (swipeUp && !isLoadingActivities && hasMoreActivities) {
                     // Set loading flag immediately to prevent multiple calls
                     isLoadingActivities = true;
+                    // First show loading animation
                     showLoadingAnimation(true);
+
+                    // Add a delay to make the animation visible before loading data
                     setTimeout(() => {
                         loadAssetActivities(currentActivitiesPage + 1, true);
-                    }, 800); // Matching delay for consistency with swipe
+                    }, 800); // 800ms delay to see the loading animation
                 }
-            });
-        }
+            }
+
+            // Add scroll detection to automatically load more activities
+            if (activitiesContainer) {
+                window.addEventListener('scroll', function() {
+                    const containerBottom = activitiesContainer.getBoundingClientRect().bottom;
+                    const isNearBottom = containerBottom <= window.innerHeight + 100;
+
+                    if (isNearBottom && !isLoadingActivities && hasMoreActivities) {
+                        // Set loading flag immediately to prevent multiple calls
+                        isLoadingActivities = true;
+                        showLoadingAnimation(true);
+                        setTimeout(() => {
+                            loadAssetActivities(currentActivitiesPage + 1, true);
+                        }, 800); // Matching delay for consistency with swipe
+                    }
+                });
+            }
 
             // Calendar is now initialized inside the DOMContentLoaded event handler
 
@@ -2202,7 +2229,6 @@
 
             // Calibration Modal Functions
 
-
             // Define the modal elements - get them directly
             const modals = {
                 view: document.getElementById('viewCalibrationModal'),
@@ -2214,13 +2240,9 @@
                 delete: document.getElementById('deleteCalibrationModalContent')
             };
 
-
-
             // Function to open modal
             function openModal(modal, content) {
-
                 if (!modal || !content) {
-
                     return;
                 }
                 modal.classList.remove('hidden');
@@ -2242,11 +2264,8 @@
 
             // Close modal buttons
             document.querySelectorAll('.close-modal').forEach(button => {
-
                 button.addEventListener('click', () => {
-
                     const modalId = button.getAttribute('data-modal');
-
 
                     // Use direct references for more reliability
                     if (modalId === 'viewCalibrationModal') {
@@ -2255,12 +2274,10 @@
                         // Fallback to the dynamic approach
                         const modal = document.getElementById(modalId);
                         if (!modal) {
-
                             return;
                         }
                         const content = modal.querySelector('[id$="ModalContent"]');
                         if (!content) {
-
                             return;
                         }
                         closeModal(modal, content);
@@ -2271,10 +2288,7 @@
             // Open calibration modal when clicking on edit button in upcoming calibrations
             const calibrationButtons = document.querySelectorAll('.edit-calibration-btn');
 
-
             calibrationButtons.forEach(button => {
-
-
                 button.addEventListener('click', function (e) {
                     // Make sure we're using the correct modal
                     const modal = document.getElementById('viewCalibrationModal');
@@ -2285,8 +2299,6 @@
 
                     // Set the calibration ID in the hidden field
                     document.getElementById('calibration_id').value = calibrationId;
-
-
 
                     // Fetch calibration details using search parameter
                     fetch(`/calibrations?search=${encodeURIComponent(calibrationId)}`, {
@@ -2598,7 +2610,6 @@
             });
         });
 
-
         // Animations for asset category circles
         const animateCircles = () => {
             document.querySelectorAll('.animate-loading-circle').forEach(circle => {
@@ -2716,7 +2727,7 @@
             }
 
             // Create URL with query parameters
-            const url = `/vendor?${queryParams.toString()}`;
+            const url = `/vendors?${queryParams.toString()}`;
 
             // Fetch vendors from API
             fetch(url, {
